@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.IdempotentsAndSplitting.Set</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.IdempotentsAndSplitting.Set</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#"><span class="id" title="library">UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="IdempotentsSplitInSet" class="idref" href="#IdempotentsSplitInSet"><span class="id" title="section">IdempotentsSplitInSet</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="IdempotentsSplitInSet.A" class="idref" href="#IdempotentsSplitInSet.A"><span class="id" title="variable">A</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'SET'"><span class="id" title="notation">SET</span></a>} {<a id="IdempotentsSplitInSet.f" class="idref" href="#IdempotentsSplitInSet.f"><span class="id" title="variable">f</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'SET'"><span class="id" title="notation">SET</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#A:1"><span class="id" title="variable">A</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#A:1"><span class="id" title="variable">A</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>} (<a id="IdempotentsSplitInSet.p" class="idref" href="#IdempotentsSplitInSet.p"><span class="id" title="variable">p</span></a> : <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#f:2"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#f:2"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#f:2"><span class="id" title="variable">f</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="IdempotentsSplitInSet.I" class="idref" href="#IdempotentsSplitInSet.I"><span class="id" title="variable">I</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="b:4" class="idref" href="#b:4"><span class="id" title="binder">b</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.A"><span class="id" title="variable">A</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.f"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#b:4"><span class="id" title="variable">b</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#b:4"><span class="id" title="variable">b</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="IdempotentsSplitInSet.J" class="idref" href="#IdempotentsSplitInSet.J"><span class="id" title="variable">J</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'SET'"><span class="id" title="notation">SET</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.I"><span class="id" title="variable">I</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isaset_total2"><span class="id" title="lemma">isaset_total2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.A"><span class="id" title="variable">A</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetaprop"><span class="id" title="lemma">isasetaprop</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.A"><span class="id" title="variable">A</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="IdempotentsSplitInSet.pr" class="idref" href="#IdempotentsSplitInSet.pr"><span class="id" title="variable">pr</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'SET'"><span class="id" title="notation">SET</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.A"><span class="id" title="variable">A</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.J"><span class="id" title="variable">J</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">a</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.f"><span class="id" title="variable">f</span></a> <span class="id" title="var">a</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> ((<a class="idref" href="UniMath.Foundations.PartA.html#toforallpaths"><span class="id" title="definition">toforallpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.p"><span class="id" title="variable">p</span></a>) <span class="id" title="var">a</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="IdempotentsSplitInSet.inc" class="idref" href="#IdempotentsSplitInSet.inc"><span class="id" title="variable">inc</span></a> : <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'SET'"><span class="id" title="notation">SET</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.J"><span class="id" title="variable">J</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.A"><span class="id" title="variable">A</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="image_fact_gives_retraction" class="idref" href="#image_fact_gives_retraction"><span class="id" title="lemma">image_fact_gives_retraction</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#is_retraction"><span class="id" title="definition">is_retraction</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.inc"><span class="id" title="variable">inc</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.pr"><span class="id" title="variable">pr</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>. {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.A"><span class="id" title="variable">A</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">i</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="splitting_in_set" class="idref" href="#splitting_in_set"><span class="id" title="definition">splitting_in_set</span></a> : <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#is_split_idempotent"><span class="id" title="definition">is_split_idempotent</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.J"><span class="id" title="variable">J</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.inc"><span class="id" title="variable">inc</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet.pr"><span class="id" title="variable">pr</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#image_fact_gives_retraction"><span class="id" title="lemma">image_fact_gives_retraction</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a> ; <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#IdempotentsSplitInSet"><span class="id" title="section">IdempotentsSplitInSet</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="idempotents_split_in_set" class="idref" href="#idempotents_split_in_set"><span class="id" title="lemma">idempotents_split_in_set</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.html#idempotents_split"><span class="id" title="definition">idempotents_split</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'SET'"><span class="id" title="notation">SET</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.IdempotentsAndSplitting.Set.html#splitting_in_set"><span class="id" title="definition">splitting_in_set</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">f</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Semantics.LinearLogic.LinearNonLinear</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Semantics.LinearLogic.LinearNonLinear</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Adjunctions.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.whiskering.html#"><span class="id" title="library">UniMath.CategoryTheory.whiskering</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monads.Comonads.html#"><span class="id" title="library">UniMath.CategoryTheory.Monads.Comonads</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Adjunctions.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Adjunctions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.FunctorCategories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.FunctorCategories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Cartesian.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Cartesian</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Symmetric</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Closed</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#MonoidalNotations"><span class="id" title="module">MonoidalNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. Linear-non-linear models
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="linear_non_linear_model" class="idref" href="#linear_non_linear_model"><span class="id" title="definition">linear_non_linear_model</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="30935f29f267ccf0f7cf3bac29310151" class="idref" href="#30935f29f267ccf0f7cf3bac29310151"><span class="id" title="binder">𝕃</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#sym_mon_closed_cat"><span class="id" title="definition">sym_mon_closed_cat</span></a>) <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="b6122689e0aafa00b7fe3837e19c68e3" class="idref" href="#b6122689e0aafa00b7fe3837e19c68e3"><span class="id" title="binder">𝕄</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#sym_monoidal_cat"><span class="id" title="definition">sym_monoidal_cat</span></a>) <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="A:3" class="idref" href="#A:3"><span class="id" title="binder">A</span></a> : <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#adjunction"><span class="id" title="definition">adjunction</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#b6122689e0aafa00b7fe3837e19c68e3"><span class="id" title="variable">𝕄</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#30935f29f267ccf0f7cf3bac29310151"><span class="id" title="variable">𝕃</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Cartesian.html#is_cartesian"><span class="id" title="definition">is_cartesian</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#b6122689e0aafa00b7fe3837e19c68e3"><span class="id" title="variable">𝕄</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Monoidal.Adjunctions.html#sym_monoidal_adjunction"><span class="id" title="definition">sym_monoidal_adjunction</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#b6122689e0aafa00b7fe3837e19c68e3"><span class="id" title="variable">𝕄</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#30935f29f267ccf0f7cf3bac29310151"><span class="id" title="variable">𝕃</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#A:3"><span class="id" title="variable">A</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. Accessors and builders
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Coercion</span> <a id="linear_non_linear_model_to_linear" class="idref" href="#linear_non_linear_model_to_linear"><span class="id" title="definition">linear_non_linear_model_to_linear</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="13cef45410529f82f722867be2d9a38a" class="idref" href="#13cef45410529f82f722867be2d9a38a"><span class="id" title="binder">𝕃</span></a> : <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#linear_non_linear_model"><span class="id" title="definition">linear_non_linear_model</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#sym_mon_closed_cat"><span class="id" title="definition">sym_mon_closed_cat</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#13cef45410529f82f722867be2d9a38a"><span class="id" title="variable">𝕃</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_cat_from_linear_non_linear_model" class="idref" href="#cartesian_cat_from_linear_non_linear_model"><span class="id" title="definition">cartesian_cat_from_linear_non_linear_model</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="df8f738adc0b966d06b6af54c8b8f656" class="idref" href="#df8f738adc0b966d06b6af54c8b8f656"><span class="id" title="binder">𝕃</span></a> : <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#linear_non_linear_model"><span class="id" title="definition">linear_non_linear_model</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#sym_monoidal_cat"><span class="id" title="definition">sym_monoidal_cat</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr12'_x"><span class="id" title="notation">pr12</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#df8f738adc0b966d06b6af54c8b8f656"><span class="id" title="variable">𝕃</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="adjunction_from_linear_non_linear_model" class="idref" href="#adjunction_from_linear_non_linear_model"><span class="id" title="definition">adjunction_from_linear_non_linear_model</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="1828654805b19899e21a73266c7bfdd9" class="idref" href="#1828654805b19899e21a73266c7bfdd9"><span class="id" title="binder">𝕃</span></a> : <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#linear_non_linear_model"><span class="id" title="definition">linear_non_linear_model</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#adjunction"><span class="id" title="definition">adjunction</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#cartesian_cat_from_linear_non_linear_model"><span class="id" title="definition">cartesian_cat_from_linear_non_linear_model</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#1828654805b19899e21a73266c7bfdd9"><span class="id" title="variable">𝕃</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#1828654805b19899e21a73266c7bfdd9"><span class="id" title="variable">𝕃</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">pr122</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#1828654805b19899e21a73266c7bfdd9"><span class="id" title="variable">𝕃</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="is_cartesian_cat_from_linear_non_linear_model" class="idref" href="#is_cartesian_cat_from_linear_non_linear_model"><span class="id" title="lemma">is_cartesian_cat_from_linear_non_linear_model</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="511e485ff36a368314362398aa33712b" class="idref" href="#511e485ff36a368314362398aa33712b"><span class="id" title="binder">𝕃</span></a> : <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#linear_non_linear_model"><span class="id" title="definition">linear_non_linear_model</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Cartesian.html#is_cartesian"><span class="id" title="definition">is_cartesian</span></a> (<a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#cartesian_cat_from_linear_non_linear_model"><span class="id" title="definition">cartesian_cat_from_linear_non_linear_model</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#511e485ff36a368314362398aa33712b"><span class="id" title="variable">𝕃</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr222'_x"><span class="id" title="notation">pr222</span></a> 𝕃)).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="sym_monoidal_adjunction_from_linear_non_linear_model" class="idref" href="#sym_monoidal_adjunction_from_linear_non_linear_model"><span class="id" title="definition">sym_monoidal_adjunction_from_linear_non_linear_model</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="5c6f843c489d0b652b75a39f91f24a99" class="idref" href="#5c6f843c489d0b652b75a39f91f24a99"><span class="id" title="binder">𝕃</span></a> : <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#linear_non_linear_model"><span class="id" title="definition">linear_non_linear_model</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Adjunctions.html#sym_monoidal_adjunction"><span class="id" title="definition">sym_monoidal_adjunction</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#cartesian_cat_from_linear_non_linear_model"><span class="id" title="definition">cartesian_cat_from_linear_non_linear_model</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#5c6f843c489d0b652b75a39f91f24a99"><span class="id" title="variable">𝕃</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#5c6f843c489d0b652b75a39f91f24a99"><span class="id" title="variable">𝕃</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#adjunction_from_linear_non_linear_model"><span class="id" title="definition">adjunction_from_linear_non_linear_model</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#5c6f843c489d0b652b75a39f91f24a99"><span class="id" title="variable">𝕃</span></a>)<br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr222'_x"><span class="id" title="notation">pr222</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#5c6f843c489d0b652b75a39f91f24a99"><span class="id" title="variable">𝕃</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_linear_non_linear" class="idref" href="#make_linear_non_linear"><span class="id" title="definition">make_linear_non_linear</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="a9f3779dd9aeca439c0e080cf2d6a5b2" class="idref" href="#a9f3779dd9aeca439c0e080cf2d6a5b2"><span class="id" title="binder">𝕃</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#sym_mon_closed_cat"><span class="id" title="definition">sym_mon_closed_cat</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="48efb53da0ff03f1d247da7b109b59ef" class="idref" href="#48efb53da0ff03f1d247da7b109b59ef"><span class="id" title="binder">𝕄</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#sym_monoidal_cat"><span class="id" title="definition">sym_monoidal_cat</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="A:11" class="idref" href="#A:11"><span class="id" title="binder">A</span></a> : <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#adjunction"><span class="id" title="definition">adjunction</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#48efb53da0ff03f1d247da7b109b59ef"><span class="id" title="variable">𝕄</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#a9f3779dd9aeca439c0e080cf2d6a5b2"><span class="id" title="variable">𝕃</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HM:12" class="idref" href="#HM:12"><span class="id" title="binder">HM</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Cartesian.html#is_cartesian"><span class="id" title="definition">is_cartesian</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#48efb53da0ff03f1d247da7b109b59ef"><span class="id" title="variable">𝕄</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HA:13" class="idref" href="#HA:13"><span class="id" title="binder">HA</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Adjunctions.html#sym_monoidal_adjunction"><span class="id" title="definition">sym_monoidal_adjunction</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#48efb53da0ff03f1d247da7b109b59ef"><span class="id" title="variable">𝕄</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#a9f3779dd9aeca439c0e080cf2d6a5b2"><span class="id" title="variable">𝕃</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#A:11"><span class="id" title="variable">A</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#linear_non_linear_model"><span class="id" title="definition">linear_non_linear_model</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#a9f3779dd9aeca439c0e080cf2d6a5b2"><span class="id" title="variable">𝕃</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#48efb53da0ff03f1d247da7b109b59ef"><span class="id" title="variable">𝕄</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#A:11"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#HM:12"><span class="id" title="variable">HM</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#HA:13"><span class="id" title="variable">HA</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_linear_non_linear_from_strong" class="idref" href="#make_linear_non_linear_from_strong"><span class="id" title="definition">make_linear_non_linear_from_strong</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="97bb23e17f78dc00945d5ee9b8223d6d" class="idref" href="#97bb23e17f78dc00945d5ee9b8223d6d"><span class="id" title="binder">𝕃</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#sym_mon_closed_cat"><span class="id" title="definition">sym_mon_closed_cat</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="6261cfd7efb5e6819e03f6c1ef8c1d7d" class="idref" href="#6261cfd7efb5e6819e03f6c1ef8c1d7d"><span class="id" title="binder">𝕄</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#sym_monoidal_cat"><span class="id" title="definition">sym_monoidal_cat</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="A:16" class="idref" href="#A:16"><span class="id" title="binder">A</span></a> : <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#adjunction"><span class="id" title="definition">adjunction</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#6261cfd7efb5e6819e03f6c1ef8c1d7d"><span class="id" title="variable">𝕄</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#97bb23e17f78dc00945d5ee9b8223d6d"><span class="id" title="variable">𝕃</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HM:17" class="idref" href="#HM:17"><span class="id" title="binder">HM</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Cartesian.html#is_cartesian"><span class="id" title="definition">is_cartesian</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#6261cfd7efb5e6819e03f6c1ef8c1d7d"><span class="id" title="variable">𝕄</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="661bdd6efacceed07c0a12fdc52561c0" class="idref" href="#661bdd6efacceed07c0a12fdc52561c0"><span class="id" title="binder">HL₁</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal"><span class="id" title="definition">fmonoidal</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#6261cfd7efb5e6819e03f6c1ef8c1d7d"><span class="id" title="variable">𝕄</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#97bb23e17f78dc00945d5ee9b8223d6d"><span class="id" title="variable">𝕃</span></a> (<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#left_adjoint"><span class="id" title="definition">left_adjoint</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#A:16"><span class="id" title="variable">A</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="4a6d7bf5197179e827ae2fdc655dfc02" class="idref" href="#4a6d7bf5197179e827ae2fdc655dfc02"><span class="id" title="binder">HL₂</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#is_symmetric_monoidal_functor"><span class="id" title="definition">is_symmetric_monoidal_functor</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#6261cfd7efb5e6819e03f6c1ef8c1d7d"><span class="id" title="variable">𝕄</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#97bb23e17f78dc00945d5ee9b8223d6d"><span class="id" title="variable">𝕃</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#661bdd6efacceed07c0a12fdc52561c0"><span class="id" title="variable">HL₁</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#linear_non_linear_model"><span class="id" title="definition">linear_non_linear_model</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#make_linear_non_linear"><span class="id" title="definition">make_linear_non_linear</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> 𝕃.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> 𝕄.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">A</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">HM</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Adjunctions.html#sym_monoidal_adjunction_from_strong"><span class="id" title="definition">sym_monoidal_adjunction_from_strong</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">HL₁</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">HL₂</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 3. !-modality
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="bang_modality" class="idref" href="#bang_modality"><span class="id" title="definition">bang_modality</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="b42fa20de980bd740c02c718962b22a6" class="idref" href="#b42fa20de980bd740c02c718962b22a6"><span class="id" title="binder">𝕃</span></a> : <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#linear_non_linear_model"><span class="id" title="definition">linear_non_linear_model</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.FunctorCategories.html#sym_monoidal_cmd"><span class="id" title="definition">sym_monoidal_cmd</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#b42fa20de980bd740c02c718962b22a6"><span class="id" title="variable">𝕃</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Monoidal.Adjunctions.html#sym_monoidal_adjunction_to_sym_monoidal_cmd"><span class="id" title="definition">sym_monoidal_adjunction_to_sym_monoidal_cmd</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#adjunction_from_linear_non_linear_model"><span class="id" title="definition">adjunction_from_linear_non_linear_model</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#b42fa20de980bd740c02c718962b22a6"><span class="id" title="variable">𝕃</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#sym_monoidal_adjunction_from_linear_non_linear_model"><span class="id" title="definition">sym_monoidal_adjunction_from_linear_non_linear_model</span></a> <a class="idref" href="UniMath.Semantics.LinearLogic.LinearNonLinear.html#b42fa20de980bd740c02c718962b22a6"><span class="id" title="variable">𝕃</span></a>).<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
