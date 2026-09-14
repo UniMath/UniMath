@@ -1247,6 +1247,15 @@ Section MonoidalSwapped.
   Definition monoidal_swapped {V : category} (Mon_V : monoidal V)
     : monoidal V
     := monoidal_swapped_data Mon_V ,, monoidal_swapped_laws Mon_V.
+
+
+  Lemma monoidal_swapped_whiskering
+    {V : category} (Mon_V : monoidal V)
+    {w x y z : V} {f : w --> x} {g : y --> z} 
+    : f ⊗^{monoidal_swapped Mon_V} g = g ⊗^{Mon_V} f.
+  Proof.
+    use (!bifunctor_equalwhiskers Mon_V _ _ _ _ _ _).
+  Qed.
 End MonoidalSwapped.
 
 (**

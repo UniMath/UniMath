@@ -330,3 +330,77 @@ Proof.
 Defined.
 
 End ConnectedGraphs.
+
+
+Section ProductGraph.
+  Context {C : category}.
+
+  Definition product_graph
+    (g1 g2 : graph)
+    : graph.
+  Proof.
+    use make_graph.
+    - exact (vertex g1 × vertex g2).
+    - intros (u1, u2) (v1, v2); exact (edge u1 v1 ⨿ edge u2 v2).
+  Defined.
+
+  Section FixADiagram.
+    Context (g1 g2 : graph).
+    Context (d : diagram (product_graph g1 g2) C).
+
+    Definition product_diagram_pr1 (u2 : vertex g2) : diagram g1 C.
+    Proof.
+      use make_diagram.
+      - intro u1; exact (dob d (u1 ,, u2)).
+      - intros u1 v1 e1; refine (dmor d _); exact (inl e1).
+    Defined.
+    
+    Definition product_diagram_pr2 (u1 : vertex g1) : diagram g2 C.
+    Proof.
+      use make_diagram.
+      - intro u2; exact (dob d (u1 ,, u2)).
+      - intros u2 v2 e2; refine (dmor d _); exact (inr e2).
+    Defined.
+  End FixADiagram.
+
+  Definition product_diagram_coherence_law 
+    {g1 g2 : graph} (d : diagram (product_graph g1 g2) C)
+    := ∏ (u v : vertex g1) (u' v' : vertex g2) (e : edge u v) (e' : edge u' v'),
+      dmor d (inr e' : edge (g := product_graph _ _) (u ,, u') (u ,, v')) 
+        · dmor d (inl e : edge (g := product_graph _ _) (u ,, v') (v ,, v')) 
+      = dmor d (inl e : edge (g := product_graph _ _) (u ,, u') (v ,, u')) 
+        · dmor d (inr e' : edge (g := product_graph _ _) (v ,, u') (v ,, v')).
+
+  Lemma isaprop_product_diagram_coherence_law
+    {g1 g2 : graph} (d : diagram (product_graph g1 g2) C)
+    : isaprop (product_diagram_coherence_law d).
+  Proof.
+    do 6 (use impred_isaprop; intro).
+    use homset_property.
+  Qed.
+
+  Definition make_product_diagram 
+    (g1 g2 : graph)
+    (f : vertex g1 → vertex g2 → C)
+    (P1 : ∏ u1 v1 u2 v2 (e1 : edge u1 v1), C⟦f u1 u2, f v1 v2⟧)
+    (P2 : ∏ u1 v1 u2 v2 (e2 : edge u2 v2), C⟦f u1 u2, f v1 v2⟧)
+    : diagram (product_graph g1 g2) C.
+  Proof.
+    use make_diagram.
+    - intros (u1, u2); exact (f u1 u2).
+    - intros (u1, u2) (v1, v2) [e1 | e2].
+      + exact (P1 u1 v1 u2 v2 e1).
+      + exact (P2 u1 v1 u2 v2 e2).
+  Defined.
+
+  Definition product_diagram_swap
+    (g1 g2 : graph)
+    (d : diagram (product_graph g1 g2) C)
+    : diagram (product_graph g2 g1) C.
+  Proof.
+    use make_product_diagram.
+    - intros u2 u1; use (dob d (u1 ,, u2)).
+    - intros u2 v2 u1 v1 e2; refine (dmor d _); exact (inr e2).
+    - intros u2 v2 u1 v1 e1; refine (dmor d _); exact (inl e1).
+  Defined.
+End ProductGraph.
