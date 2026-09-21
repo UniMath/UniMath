@@ -268,6 +268,37 @@ Section SubobjectClassifier.
     - exact (is_sheaf_dep_psh_closed_sieves Γ).
   Defined.
 
+  Definition subobject_classifier_sheaf
+    : sheaf C
+    := total_sheaf (subobject_classifier_dep_sheaf (terminal_sheaf C)).
+
+  Definition subobject_classifier_sheaf_inclusion
+    : subobject_classifier_sheaf ⟹ subobject_classifier_psh.
+  Proof.
+    use make_nat_trans.
+    - exact (λ x ω, pr1 ω ,, closed_sieve_to_sieve (pr2 ω)).
+    - abstract
+        (intros x y f ;
+         cbn ;
+         apply idpath).
+  Defined.
+
+  Definition subobject_classifier_psh_closure
+    : subobject_classifier_psh ⟹ subobject_classifier_sheaf.
+  Proof.
+    use make_nat_trans.
+    - exact (λ x ω, pr1 ω ,, closure_closed_sieve (pr2 ω)).
+    - abstract
+        (intros x y f ; cbn ;
+         use funextsec ;
+         intro ω ;
+         apply maponpaths ;
+         use closed_sieve_eq ;
+         cbn ;
+         rewrite precomp_closure_sieve ;
+         apply idpath).
+  Defined.
+
   (** * 3. The truth morphism for closed sieves *)
   Definition dep_sheaf_truth
              (Γ : C^op ⟶ HSET)
@@ -291,6 +322,23 @@ Section SubobjectClassifier.
       -->
       subobject_classifier_dep_sheaf Γ
     := dep_sheaf_truth Γ.
+
+  Definition subobject_classifier_sheaf_truth
+    : sheaf_nat_trans (terminal_sheaf C) subobject_classifier_sheaf.
+  Proof.
+    use make_sheaf_nat_trans.
+    use make_nat_trans.
+    - refine (λ x _, tt ,, _).
+      exact (dep_sheaf_truth (terminal_sheaf C) x tt tt).
+    - abstract
+        (intros x y f ;
+         use funextsec ;
+         intros [ ] ;
+         cbn ;
+         apply maponpaths ;
+         use closed_sieve_eq ;
+         exact (truth_sieve_comp (C := C) f)).
+  Defined.
 
   (** * 4. The universal property of the subobject classifier *)
   Section SubobjectClassifierUMP.

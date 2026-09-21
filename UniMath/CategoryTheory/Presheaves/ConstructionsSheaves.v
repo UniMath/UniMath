@@ -75,14 +75,21 @@ Proof.
        apply isapropunit).
 Defined.
 
+Definition terminal_sheaf
+           (C : site)
+  : sheaf C.
+Proof.
+  use make_sheaf.
+  - exact (constant_functor C^op HSET unitset).
+  - exact (is_sheaf_terminal C).
+Defined.
+
 Definition sheaf_terminal
            (C : site)
   : Terminal (cat_of_sheaves C).
 Proof.
   use make_Terminal.
-  - use make_sheaf.
-    + exact (constant_functor C^op HSET unitset).
-    + exact (is_sheaf_terminal C).
+  - exact (terminal_sheaf C).
   - intros Γ.
     use make_iscontr.
     + refine (_ ,, tt).
@@ -413,6 +420,16 @@ Proof.
       (intros aa ;
        use amalgamation_dep_eq ;
        apply isapropunit).
+Defined.
+
+Definition unit_dep_sheaf
+           {C : site}
+           (Γ : sheaf C)
+  : dep_sheaf Γ.
+Proof.
+  use make_dep_sheaf.
+  - exact (unit_dep_psh Γ).
+  - exact (is_dep_sheaf_unit_dep_psh Γ).
 Defined.
 
 (** * 3. Substitution of dependent sheaves *)
@@ -830,6 +847,17 @@ Proof.
   - apply is_dep_sheaf_psh_to_dep_psh_unique.
 Defined.
 
+Definition sheaf_to_dep_psh
+           {C : site}
+           (Γ : sheaf C)
+  : dep_sheaf (terminal_sheaf C).
+Proof.
+  use make_dep_sheaf.
+  - exact (psh_to_dep_psh Γ).
+  - use is_dep_sheaf_psh_to_dep_psh.
+    exact (is_sheaf_sheaf Γ).
+Defined.
+
 (** * 7. The total space of a dependent sheaf (context extension) *)
 Definition total_psh_matching_family_pr1
            {C : site}
@@ -1104,6 +1132,12 @@ Proof.
   - exact (dep_psh_fiberwise_binproducts C).
   - exact (λ Γ HΓ A B HA HB, is_dep_sheaf_prod_dep_psh HA HB).
 Defined.
+
+Definition fiber_binproducts_dep_sheaves
+           {C : site}
+           (Γ : sheaf C)
+  : BinProducts ((disp_cat_of_dep_sheaves C)[{Γ}])
+  := pr1 (fiberwise_binproducts_disp_cat_of_dep_sheaves C) Γ.
 
 Definition fiberwise_equalizers_disp_cat_of_dep_sheaves
            (C : site)

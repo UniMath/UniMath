@@ -18,14 +18,26 @@
  *)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Require Import UniMath.CategoryTheory.Exponentials.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+Require Import UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
 Require Import UniMath.CategoryTheory.Presheaves.TotalPresheaf.
 Require Import UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.Presheaves.Sites.
 Require Import UniMath.CategoryTheory.Presheaves.Sheaves.
+Require Import UniMath.CategoryTheory.Presheaves.Constructions.
+Require Import UniMath.CategoryTheory.Presheaves.ConstructionsSheaves.
 Require Import UniMath.CategoryTheory.Presheaves.PiTypes.
 
 Local Open Scope cat.
@@ -520,3 +532,33 @@ Section PiSheaf.
       exact (pi_sheaf_amalgamation_unique p zz aa).
   Defined.
 End PiSheaf.
+
+Definition pi_dep_sheaf
+           {C : site}
+           {Γ : sheaf C}
+           (A : dep_sheaf Γ)
+           (B : dep_sheaf (total_sheaf A))
+  : dep_sheaf Γ.
+Proof.
+  use make_dep_sheaf.
+  - exact (pi_dep_psh A B).
+  - refine (is_dep_sheaf_pi_dep_psh A _).
+    exact (is_dep_sheaf_dep_sheaf B).
+Defined.
+
+Definition exp_sheaf
+           {C : site}
+           (A : C^op ⟶ HSET)
+           (B : sheaf C)
+  : sheaf C.
+Proof.
+  use make_sheaf.
+  - exact (exp_psh A B).
+  - abstract
+      (unfold exp_psh ;
+       use is_sheaf_total_psh ; [ apply is_sheaf_terminal | ] ;
+       use is_dep_sheaf_pi_dep_psh ;
+       use is_dep_sheaf_dep_psh_subst ;
+       use is_dep_sheaf_psh_to_dep_psh ;
+       exact (is_sheaf_sheaf B)).
+Defined.

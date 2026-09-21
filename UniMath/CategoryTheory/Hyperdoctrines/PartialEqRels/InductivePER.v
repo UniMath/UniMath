@@ -53,22 +53,12 @@ Section InductivePER.
           (N : first_order_hyperdoctrine_nats H).
 
   (** * 1, Preliminary notions *)
-  Definition contains_zero
-    : form (ℙ N)
-    := hd_nats_z N _ ∈ tm_var _.
-
-  Definition closed_suc
-    : form (ℙ N)
-    := let p := π₁ (tm_var (ℙ N ×h N)) in
-       let n := π₂ (tm_var (ℙ N ×h N)) in
-       (∀h (n ∈ p ⇒ hd_nats_s N n ∈ p)).
-
   Proposition closed_suc_on_suc
               {Γ : ty H}
               {Δ : form Γ}
               {p : tm Γ (ℙ N)}
               {n : tm Γ N}
-              (q₁ : Δ ⊢ closed_suc [ p ])
+              (q₁ : Δ ⊢ (closed_suc N) [ p ])
               (q₂ : Δ ⊢ n ∈ p)
     : Δ ⊢ hd_nats_s N n ∈ p.
   Proof.
@@ -103,7 +93,7 @@ Section InductivePER.
     : form N
     := let n := π₁ (tm_var (N ×h ℙ N)) in
        let p := π₂ (tm_var (N ×h ℙ N)) in
-       (∀h (contains_zero [ p ] ⇒ closed_suc [ p ] ⇒ n ∈ p)).
+       (∀h ((contains_zero N) [ p ] ⇒ (closed_suc N) [ p ] ⇒ n ∈ p)).
 
   (** * 3. Induction principles *)
   Proposition is_inductive_nat_contained
@@ -111,8 +101,8 @@ Section InductivePER.
               {Δ : form Γ}
               {n : tm Γ N}
               {p : tm Γ (ℙ N)}
-              (q₁ : Δ ⊢ contains_zero [ p ])
-              (q₂ : Δ ⊢ closed_suc [ p ])
+              (q₁ : Δ ⊢ (contains_zero N) [ p ])
+              (q₂ : Δ ⊢ (closed_suc N) [ p ])
               (q₃ : Δ ⊢ is_inductive_nat [ n ])
     : Δ ⊢ n ∈ p.
   Proof.

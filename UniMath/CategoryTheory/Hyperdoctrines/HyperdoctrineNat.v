@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.Hyperdoctrines.Tripos.
 
 Local Open Scope cat.
 Local Open Scope hd.
+Local Open Scope weak_tripos.
 
 (** * 1. Natural numbers in a first-order hyperdoctrine *)
 Definition first_order_hyperdoctrine_nats_data
@@ -123,6 +124,30 @@ Definition first_order_hyperdoctrine_nats_mono_axiom
      let m := π₂ (π₁ (tm_var ((𝟙 ×h N) ×h N))) in
      (⊤ ⊢ ∀h ∀h (hd_nats_s N n ≡ hd_nats_s N m ⇒ n ≡ m)).
 
+Definition contains_zero
+           {H : weak_tripos}
+           (N : first_order_hyperdoctrine_nats_data H)
+  : form (ℙ N)
+  := hd_nats_z N _ ∈ tm_var _.
+
+Definition closed_suc
+           {H : weak_tripos}
+           (N : first_order_hyperdoctrine_nats_data H)
+  : form (ℙ N)
+  := let p := π₁ (tm_var (ℙ N ×h N)) in
+     let n := π₂ (tm_var (ℙ N ×h N)) in
+     (∀h (n ∈ p ⇒ hd_nats_s N n ∈ p)).
+
+Definition weak_tripos_nats_ind_axiom
+           {H : weak_tripos}
+           (N : first_order_hyperdoctrine_nats_data H)
+  : UU
+  := let φ := π₂ (π₁ (tm_var ((𝟙 ×h ℙ N) ×h N))) in
+     let n := π₂ (tm_var ((𝟙 ×h ℙ N) ×h N)) in
+     ⊤ ⊢ (∀h ((contains_zero N) [ π₂ (tm_var _) ]
+              ⇒ (closed_suc N) [ π₂ (tm_var _) ]
+              ⇒ ∀h (n ∈ φ))).
+
 Definition first_order_hyperdoctrine_nats_axioms
            {H : first_order_hyperdoctrine}
            (N : first_order_hyperdoctrine_nats_data H)
@@ -148,6 +173,18 @@ Coercion first_order_hyperdoctrine_nats_to_data
          {H : first_order_hyperdoctrine}
          (N : first_order_hyperdoctrine_nats H)
   : first_order_hyperdoctrine_nats_data H
+  := pr1 N.
+
+Definition weak_tripos_nats
+           (H : weak_tripos)
+  : UU
+  := ∑ (N : first_order_hyperdoctrine_nats H),
+     weak_tripos_nats_ind_axiom N.
+
+Coercion weak_tripos_nats_to_data
+         {H : weak_tripos}
+         (N : weak_tripos_nats H)
+  : first_order_hyperdoctrine_nats H
   := pr1 N.
 
 (** * 2. Properties of natural numbers *)
@@ -245,6 +282,59 @@ Proof.
   rewrite !hyperdoctrine_pair_pr2.
   rewrite !hyperdoctrine_pair_pr1.
   rewrite !hyperdoctrine_pair_pr2.
+  apply hyperdoctrine_hyp.
+Qed.
+
+Proposition weak_tripos_nats_ind
+            {H : weak_tripos}
+            (N : weak_tripos_nats H)
+            {Γ : ty H}
+            {Δ : form Γ}
+            (φ : tm Γ (ℙ N))
+            (n : tm Γ N)
+            (p : Δ ⊢ (contains_zero N) [ φ ])
+            (q : Δ ⊢ (closed_suc N) [ φ ])
+  : Δ ⊢ n ∈ φ.
+Proof.
+  refine (hyperdoctrine_cut _ _).
+  {
+    refine (conj_intro p _).
+    refine (conj_intro q _).
+    refine (hyperdoctrine_cut _ (hyperdoctrine_proof_subst !! (pr2 N))).
+    hypersimplify.
+    apply truth_intro.
+  }
+  hypersimplify.
+  use hyp_rtrans.
+  use hyp_sym.
+  refine (weaken_cut _ _).
+  {
+    use weaken_left.
+    refine (forall_elim (hyperdoctrine_hyp _) _).
+    exact φ.
+  }
+  use hyp_ltrans.
+  use weaken_right.
+  hypersimplify.
+  use hyp_sym.
+  refine (hyperdoctrine_cut _ _).
+  {
+    refine (impl_elim _ _).
+    - do 2 use weaken_right.
+      apply hyperdoctrine_hyp.
+    - refine (impl_elim _ _).
+      + use weaken_right.
+        use weaken_left.
+        apply hyperdoctrine_hyp.
+      + use weaken_left.
+        apply hyperdoctrine_hyp.
+  }
+  refine (hyperdoctrine_cut _ _).
+  {
+    refine (forall_elim (hyperdoctrine_hyp _) _).
+    exact n.
+  }
+  hypersimplify.
   apply hyperdoctrine_hyp.
 Qed.
 

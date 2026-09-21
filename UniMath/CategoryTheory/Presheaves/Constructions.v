@@ -17,7 +17,8 @@
  6. Constant dependent presheaves
  7. Democracy of the presheaf model
  8. Presheaf of morphisms
- 9. Statements for fiberwise limits and colimits
+ 9. Images
+ 10. Statements for fiberwise limits and colimits
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -1351,9 +1352,350 @@ Section ExamplesDepPsh.
          apply dep_psh_mor_path_eq ;
          apply idpath).
   Defined.
+
+  (** * 9. Images *)
+  Section Image.
+    Context {A B : C^op ⟶ HSET}
+            (τ : A ⟹ B).
+
+    Definition psh_nat_trans_im_data
+      : functor_data C^op SET.
+    Proof.
+      use make_functor_data.
+      - exact (λ x,
+               ∑ (yy : (B x : hSet)),
+               hProp_to_hSet (∃ (xx : (A x : hSet)), τ x xx = yy))%set%logic.
+      - intros x y f yy.
+        refine (#B f (pr1 yy) ,, _).
+        abstract
+          (induction yy as [ yy p ] ;
+           revert p ;
+           cbn -[hProp_to_hSet] ;
+           use factor_through_squash_hProp ;
+           intros (xx & p) ;
+           use hinhpr ;
+           refine (#A f xx ,, _) ;
+           rewrite <- p ;
+           exact (eqtohomot (nat_trans_ax τ _ _ f) xx)).
+    Defined.
+
+    Proposition psh_nat_trans_im_laws
+      : is_functor psh_nat_trans_im_data.
+    Proof.
+      split.
+      - intros x.
+        use funextsec.
+        intros xx.
+        use subtypePath_prop.
+        cbn.
+        exact (eqtohomot (functor_id B x) (pr1 xx)).
+      - intros x y z f g.
+        use funextsec.
+        intros xx.
+        use subtypePath_prop.
+        cbn.
+        exact (eqtohomot (functor_comp B f g) (pr1 xx)).
+    Qed.
+
+    Definition psh_nat_trans_im
+      : C^op ⟶ HSET.
+    Proof.
+      use make_functor.
+      - exact psh_nat_trans_im_data.
+      - exact psh_nat_trans_im_laws.
+    Defined.
+
+    Definition psh_nat_trans_to_im
+      : A ⟹ psh_nat_trans_im.
+    Proof.
+      use make_nat_trans.
+      - refine (λ x xx, τ x xx ,, _).
+        abstract
+          (use hinhpr ;
+           refine (xx ,, _) ;
+           apply idpath).
+      - abstract
+          (intros x y f ;
+           use funextsec ;
+           intro xx ;
+           use subtypePath_prop ;
+           cbn ;
+           exact (eqtohomot (nat_trans_ax τ _ _ f) xx)).
+    Defined.
+
+    Definition psh_nat_trans_im_incl
+      : psh_nat_trans_im ⟹ B.
+    Proof.
+      use make_nat_trans.
+      - exact (λ x xx, pr1 xx).
+      - abstract
+          (intros x y f ;
+           apply idpath).
+    Defined.
+
+    Proposition isMonic_psh_nat_trans_im_incl
+      : isMonic (C := PreShv C) psh_nat_trans_im_incl.
+    Proof.
+      intros Z θ₁ θ₂ p.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      use funextsec.
+      intro xx.
+      use subtypePath_prop.
+      exact (eqtohomot (nat_trans_eq_pointwise p x) xx).
+    Qed.
+
+    Definition psh_nat_trans_im_incl_monic
+      : Monic (PreShv C) psh_nat_trans_im B.
+    Proof.
+      use make_Monic.
+      - exact psh_nat_trans_im_incl.
+      - exact isMonic_psh_nat_trans_im_incl.
+    Defined.
+
+    Proposition psh_nat_trans_im_comm
+      : nat_trans_comp
+          _ _ _
+          psh_nat_trans_to_im
+          psh_nat_trans_im_incl
+        =
+        τ.
+    Proof.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      cbn.
+      apply idpath.
+    Qed.
+
+    Section MapFromImage.
+      Context {Z : C^op ⟶ HSET}
+              (θ : A ⟹ Z)
+              (p : ∏ (x : C)
+                     (a₁ a₂ : (A x : hSet)),
+                   τ x a₁ = τ x a₂ → θ x a₁ = θ x a₂).
+
+      Proposition map_from_psh_nat_trans_im_unique
+                  {x : C}
+                  (b : (psh_nat_trans_im x : hSet))
+        : ∃! (z : (Z x : hSet)),
+          ∏ (y : C)
+            (g : y --> x)
+            (a : (A y : hSet)),
+          τ y a = #B g (pr1 b)
+          → θ y a = #Z g z.
+      Proof.
+        induction b as [ b q ].
+        revert q.
+        cbn -[hProp_to_hSet].
+        use factor_through_squash.
+        - apply isapropiscontr.
+        - intros (a & q).
+          use make_iscontr.
+          + refine (θ x a ,, _).
+            intros y g a' r.
+            refine (_ @ eqtohomot (nat_trans_ax θ _ _ g) a).
+            cbn.
+            use p.
+            refine (r @ _).
+            refine (_ @ eqtohomot (!(nat_trans_ax τ _ _ g)) a).
+            cbn.
+            apply maponpaths.
+            exact (!q).
+          + intros z.
+            use subtypePath.
+            {
+              intro.
+              do 4 (use impred ; intro).
+              apply setproperty.
+            }
+            cbn.
+            refine (_ @ !(pr2 z _ (identity _) _ _)).
+            * refine (!_).
+              exact (eqtohomot (functor_id Z _) _).
+            * refine (_ @ !(eqtohomot (functor_id B _) _)).
+              exact q.
+      Qed.
+
+      Definition map_from_psh_nat_trans_im_el
+                 {x : C}
+                 (b : (psh_nat_trans_im x : hSet))
+        : (Z x : hSet)
+        := pr11 (map_from_psh_nat_trans_im_unique b).
+
+      Proposition map_from_psh_nat_trans_im_el_eq
+                  {x : C}
+                  (b : (psh_nat_trans_im x : hSet))
+                  {y : C}
+                  (g : y --> x)
+                  (a : (A y : hSet))
+                  (q : τ y a = #B g (pr1 b))
+        : θ y a = #Z g (map_from_psh_nat_trans_im_el b).
+      Proof.
+        exact (pr21 (map_from_psh_nat_trans_im_unique b) y g a q).
+      Qed.
+
+      Proposition map_from_psh_nat_trans_im_unique_eq
+                  {x : C}
+                  (b : (psh_nat_trans_im x : hSet))
+                  {z₁ z₂ : (Z x : hSet)}
+                  (q₁ : ∏ (y : C)
+                          (g : y --> x)
+                          (a : (A y : hSet)),
+                        τ y a = #B g (pr1 b)
+                        → θ y a = #Z g z₁)
+                  (q₂ : ∏ (y : C)
+                          (g : y --> x)
+                          (a : (A y : hSet)),
+                        τ y a = #B g (pr1 b)
+                        → θ y a = #Z g z₂)
+        : z₁ = z₂.
+      Proof.
+        exact (maponpaths
+                 pr1
+                 (proofirrelevance
+                    _
+                    (isapropifcontr
+                       (map_from_psh_nat_trans_im_unique b))
+                    (z₁ ,, q₁)
+                    (z₂ ,, q₂))).
+      Qed.
+
+      Definition map_from_psh_nat_trans_im_data
+        : nat_trans_data psh_nat_trans_im Z
+        := λ x b, map_from_psh_nat_trans_im_el b.
+
+      Arguments map_from_psh_nat_trans_im_data /.
+
+      Proposition map_from_psh_nat_trans_im_laws
+        : is_nat_trans _ _ map_from_psh_nat_trans_im_data.
+      Proof.
+        intros x y f.
+        use funextsec.
+        intro b.
+        induction b as [ b q ].
+        use map_from_psh_nat_trans_im_unique_eq.
+        - refine (#B f b ,, _).
+          abstract
+            (revert q ;
+             use factor_through_squash_hProp ;
+             intros (a & r) ;
+             use hinhpr ;
+             refine (#A f a ,, _) ;
+             refine (eqtohomot (nat_trans_ax τ _ _ f) a @ _) ;
+             cbn ;
+             apply maponpaths ;
+             exact r).
+        - cbn.
+          intros z g a r.
+          refine (map_from_psh_nat_trans_im_el_eq _ _ _ _).
+          cbn.
+          exact r.
+        - cbn.
+          intros z g a r.
+          refine (map_from_psh_nat_trans_im_el_eq (b,, q) (g · f) a _ @ _).
+          + refine (r @ !_).
+            cbn.
+            exact (eqtohomot (functor_comp B f g) b).
+          + exact (eqtohomot (functor_comp Z f g) _).
+      Qed.
+
+      Definition map_from_psh_nat_trans_im
+        : psh_nat_trans_im ⟹ Z.
+      Proof.
+        use make_nat_trans.
+        - exact map_from_psh_nat_trans_im_data.
+        - exact map_from_psh_nat_trans_im_laws.
+      Defined.
+
+      Proposition map_from_psh_nat_trans_im_comm_pt
+                  {x : C}
+                  (a : (A x : hSet))
+        : map_from_psh_nat_trans_im x (psh_nat_trans_to_im x a) = θ x a.
+      Proof.
+        cbn.
+        refine (!_).
+        refine (_ @ eqtohomot (functor_id Z _) _).
+        use map_from_psh_nat_trans_im_el_eq.
+        refine (_ @ !(eqtohomot (functor_id B _) _)).
+        cbn.
+        apply idpath.
+      Qed.
+
+      Proposition map_from_psh_nat_trans_im_comm
+        : nat_trans_comp
+            _ _ _
+            psh_nat_trans_to_im
+            map_from_psh_nat_trans_im
+          =
+          θ.
+      Proof.
+        use nat_trans_eq.
+        {
+          apply homset_property.
+        }
+        intros x.
+        use funextsec.
+        intro a.
+        exact (map_from_psh_nat_trans_im_comm_pt a).
+      Qed.
+
+      Proposition map_from_psh_nat_trans_im_unique_mor
+                  {ζ₁ ζ₂ : psh_nat_trans_im ⟹ Z}
+                  (q₁ : nat_trans_comp
+                          _ _ _
+                          psh_nat_trans_to_im
+                          ζ₁
+                        =
+                        θ)
+                  (q₂ : nat_trans_comp
+                          _ _ _
+                          psh_nat_trans_to_im
+                          ζ₂
+                        =
+                        θ)
+        : ζ₁ = ζ₂.
+      Proof.
+        use nat_trans_eq.
+        {
+          apply homset_property.
+        }
+        intro x.
+        use funextsec.
+        intro b.
+        use map_from_psh_nat_trans_im_unique_eq.
+        - exact b.
+        - intros y g a r.
+          refine (_ @ eqtohomot (nat_trans_ax ζ₁ _ _ g) b).
+          cbn.
+          refine (!_).
+          refine (_ @ eqtohomot (nat_trans_eq_pointwise q₁ y) a).
+          cbn.
+          apply maponpaths.
+          use subtypePath_prop.
+          cbn.
+          exact (!r).
+        - intros y g a r.
+          refine (_ @ eqtohomot (nat_trans_ax ζ₂ _ _ g) b).
+          cbn.
+          refine (!_).
+          refine (_ @ eqtohomot (nat_trans_eq_pointwise q₂ y) a).
+          cbn.
+          apply maponpaths.
+          use subtypePath_prop.
+          cbn.
+          exact (!r).
+      Qed.
+    End MapFromImage.
+  End Image.
 End ExamplesDepPsh.
 
-(** * 9. Statements for fiberwise limits and colimits *)
+(** * 10. Statements for fiberwise limits and colimits *)
 Definition dep_psh_fiberwise_terminal
            (C : category)
   : fiberwise_terminal (cleaving_disp_cat_dep_psh C).

@@ -4,18 +4,18 @@
 
  In a category with a terminal object, we can define the notion of a natural numbers object.
  Such an object satisfies a universal mapping property that represents the recursion principle
- of the natural numbers, and thus this object plays the role of the natural umbers in the
+ of the natural numbers, and thus this object plays the role of the natural numbers in the
  internal language of that category.
 
  However, if our category is not Cartesian closed, then it is better to use a slightly stronger
  notion, namely that of a parameterized natural numbers object. The definition of a parameterized
  natural numbers object is quite similar to that of an ordinary natural numbers object: the only
- difference is that we require a slightly stronger recursion principle where one can use an arbitrary
- object of parameters (see, for instance, Definition 2.1 in "Joyal's arithmetic universe as
- list-arithmetic pretopos" by Maietti). There are various kinds of categories that are not Cartesian
- closed but which support such a parameterized natural numbers object, namely list-arithmetic
- pretoposes and arithmetical universes. Note that to formulate the notion of a parameterized
- natural numbers object we use binary products.
+ difference is that we require a slightly stronger recursion principle where one can use an
+ arbitrary object of parameters (see, for instance, Definition 2.1 in "Joyal's arithmetic universe
+ as list-arithmetic pretopos" by Maietti). There are various kinds of categories that are not
+ Cartesian closed but which support such a parameterized natural numbers object, namely
+ list-arithmetic pretoposes and arithmetical universes. Note that to formulate the notion of a
+ parameterized natural numbers object we use binary products.
 
  References
  - "Joyal's arithmetic universe as list-arithmetic pretopos" by Maietti
@@ -704,7 +704,9 @@ Qed.
 (** * 9. Independence of the choice of terminal *)
 Lemma parameterized_NNO_independent_of_terminal_is_parameterized_NNO
   {C : category} {T : Terminal C} {P : BinProducts C} (N : parameterized_NNO T P) (T' : Terminal C)
-  : is_parameterized_NNO T' P N (TerminalArrow T T' · parameterized_NNO_Z N) (parameterized_NNO_S N).
+  : is_parameterized_NNO
+      T' P N
+      (TerminalArrow T T' · parameterized_NNO_Z N) (parameterized_NNO_S N).
 Proof.
   intros b y z s.
   use (iscontrweqb' (pr222 N b y z s)).

@@ -33,12 +33,17 @@
  follows from univalence. For the unit and counit, it suffices to show that every adjoint
  equivalence is a preserving map, and again that follows from univalence.
 
+ We also observe that, whenever the category of contexts of some DFL comprehension category
+ satisfies some local property, then the DFL comprehension category satisfies that local
+ poperty as well.
+
  Contents
  1. The extended pseudofunctor from categories to comprehension categories
  2. The extended pseudofunctor from comprehension categories to categories
  3. The unit
  4. The counit
  5. The displayed biequivalence
+ 6. Local properties from the category of contexts
 
  ******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -290,4 +295,19 @@ Section LocalPropertyBiequiv.
     - intros x xx.
       use disp_adjoint_equiv_disp_bicat_of_univ_cat_with_cat_property.
   Defined.
+
+  (** * 6. Local properties from the category of contexts *)
+  Definition fiberwise_cat_property_from_contexts
+             {C : dfl_full_comp_cat}
+             (H : P (dfl_full_comp_cat_to_finlim C))
+    : fiberwise_cat_property P C.
+  Proof.
+    refine (transportb (fiberwise_cat_property P) _ (local_property_in_cod _ H)).
+    use isotoid_2_0.
+    {
+      exact is_univalent_2_0_bicat_of_dfl_full_comp_cat.
+    }
+    refine (_ ,, _).
+    exact (finlim_dfl_comp_cat_counit_pointwise_equiv C).
+  Qed.
 End LocalPropertyBiequiv.

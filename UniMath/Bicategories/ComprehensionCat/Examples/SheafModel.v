@@ -56,7 +56,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.PowerObject.
 Require Import UniMath.CategoryTheory.ElementaryTopos.
+Require Import UniMath.CategoryTheory.Arithmetic.NNO.
 Require Import UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+Require Import UniMath.CategoryTheory.Arithmetic.NNOCartesianClosed.
 Require Import UniMath.CategoryTheory.Presheaves.DependentPresheaf.
 Require Import UniMath.CategoryTheory.Presheaves.TotalPresheaf.
 Require Import UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
@@ -73,6 +75,7 @@ Require Import UniMath.CategoryTheory.Presheaves.SigmaSheaf.
 Require Import UniMath.CategoryTheory.Presheaves.PiSheaf.
 Require Import UniMath.CategoryTheory.Presheaves.ClosedSieves.
 Require Import UniMath.CategoryTheory.Presheaves.SubobjectClassifierSheaf.
+Require Import UniMath.CategoryTheory.Presheaves.Sheafification.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
@@ -209,6 +212,28 @@ Section SheafCompCat.
       + use PowerObject_from_exponentials.
         use is_locally_cartesian_closed_exponentials.
         exact is_locally_cartesian_closed_sheaf_univ_cat_with_finlim.
+  Defined.
+
+  Definition sheaf_topos_NNO
+    : parameterized_NNO
+        (sheaf_terminal C)
+        (binproducts_univ_cat_with_finlim
+           sheaf_univ_cat_with_finlim).
+  Proof.
+    use parameterized_NNO_from_NNO.
+    - exact (nno_cat_of_sheaves C).
+    - use is_locally_cartesian_closed_exponentials.
+      exact is_locally_cartesian_closed_sheaf_univ_cat_with_finlim.
+  Defined.
+
+  Definition pnnosheaf_comp_cat
+    : fiberwise_cat_property
+        parameterized_NNO_local_property
+        sheaf_dfl_full_comp_cat.
+  Proof.
+    use fiberwise_cat_property_from_contexts.
+    refine (parameterized_NNO_independent_of_terminal _ _).
+    exact (sheaf_topos_NNO).
   Defined.
 
   (** * 4. Terms in the presheaf model *)

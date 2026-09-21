@@ -193,6 +193,23 @@ Proof.
   exact (hyperdoctrine_formula_eq_b (mor_to_tripos_power_eq  X Γ R)).
 Qed.
 
+Proposition topos_tripos_compr_in
+            {H : tripos}
+            {Γ A : ty H}
+            (φ : form (A ×h Γ))
+            (t : tm Γ A)
+  : t ∈ {{ φ }} = φ [ ⟨ t , tm_var _ ⟩ ].
+Proof.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths_2.
+    exact (mor_to_tripos_power_eq _ _ φ).
+  }
+  hypersimplify.
+  apply idpath.
+Qed.
+
 Definition make_tripos
            (H : first_order_hyperdoctrine)
            (HH : is_tripos H)

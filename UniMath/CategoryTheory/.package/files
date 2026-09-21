@@ -155,6 +155,7 @@ Hyperdoctrines/FirstOrderHyperdoctrineChosen.v
 Hyperdoctrines/Tripos.v
 Hyperdoctrines/GenericPredicate.v
 Hyperdoctrines/HyperdoctrineNat.v
+Hyperdoctrines/Properties.v
 Hyperdoctrines/Completion/WeakEquivs.v
 Hyperdoctrines/Completion/Construction.v
 Hyperdoctrines/Completion/Naturals.v
@@ -213,6 +214,7 @@ Categories/Quotient.v
 
 Arithmetic/NNO.v
 Arithmetic/ParameterizedNNO.v
+Arithmetic/NNOLeftAdjoint.v
 
 DisplayedCats/Codomain/CodNNO.v
 
@@ -273,6 +275,7 @@ RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
 
 Exponentials.v
+Arithmetic/NNOCartesianClosed.v
 WeakEquivalences/Preservation/Exponentials.v
 WeakEquivalences/Reflection/Exponentials.v
 WeakEquivalences/LiftPreservation/Exponentials.v
@@ -785,6 +788,8 @@ Presheaves/PresheafLogic.v
 Presheaves/PresheafMonos.v
 Presheaves/SheafLogic.v
 Presheaves/SheafMonos.v
+Presheaves/ClosureSubobject.v
+Presheaves/Sheafification.v
 
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v
