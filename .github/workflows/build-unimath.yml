@@ -296,7 +296,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Grab the cache if available and extract it to alectryon-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: alectryon-cache
           key: UniMath-alectryon-${{ github.run_id }}-${{ github.run_number }}
