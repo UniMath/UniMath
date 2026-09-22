@@ -389,7 +389,7 @@ jobs:
           path: site/gen/rocqdoc
 
       - name: Download the alectryon documentation
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: alectryon
           path: site/gen/alectryon
