@@ -269,19 +269,10 @@ Context (H : ψ μF · Φ (F μF) = Φ μF · ψ' μF).
 
 Theorem fusion_law : Φ μF (It X L IL HL ψ) = It X' L' IL' HL' ψ'.
 Proof.
-apply path_to_ctr.
-assert (Φ_is_nat := nat_trans_ax Φ).
-assert (Φ_is_nat_inst1 := Φ_is_nat _ _ inF).
-assert (Φ_is_nat_inst2 := eqtohomot Φ_is_nat_inst1 (It X L IL HL ψ)).
-unfold compose in Φ_is_nat_inst2; simpl in Φ_is_nat_inst2.
-simpl.
-rewrite <- Φ_is_nat_inst2.
-assert (H_inst :=  eqtohomot H (It X L IL HL ψ)).
-unfold compose in H_inst; simpl in H_inst.
-rewrite <- H_inst.
-apply maponpaths.
-rewrite It_is_preIt.
-apply preIt_ok.
+  apply path_to_ctr.
+  etrans; [|use (maponpaths (λ f, f _) H)].
+  etrans; [use (!maponpaths (λ f, f _) (nat_trans_ax Φ _ _ _))|].
+  cbn; use maponpaths; use preIt_ok.
 Qed.
 
 End fusion_law.

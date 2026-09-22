@@ -347,6 +347,7 @@ Proof.
   intros. induction e1. apply e2.
 Defined.
 
+Create HintDb pathshints.
 #[global]
 Hint Resolve @pathscomp0 : pathshints.
 
@@ -2359,6 +2360,7 @@ Defined.
 
 Definition weqtotal2dirprodassoc  {X Y : UU} (P : X × Y -> UU) :
   (∑ xy : X × Y, P xy) ≃ (∑ (x : X) (y : Y), P (x,,y)).
+Proof.
   intros.
   use weq_iso.
   - intros xyp.

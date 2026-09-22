@@ -323,6 +323,7 @@ Definition FiniteOrderedSetDecidableEquality (X:FiniteOrderedSet) : DecidableRel
   λ (x y:X), @decidable_to_DecidableProposition (x = y) (FiniteOrderedSet_isdeceq x y).
 
 Definition FiniteOrderedSetDecidableInequality (X:FiniteOrderedSet) : DecidableRelation X.
+Proof.
   intros x y.
   apply (@decidable_to_DecidableProposition (¬ (x = y)))%logic.
   unfold decidable; simpl.
@@ -333,6 +334,7 @@ Definition FiniteOrderedSetDecidableInequality (X:FiniteOrderedSet) : DecidableR
 Defined.
 
 Definition FiniteOrderedSetDecidableLessThan (X:FiniteOrderedSet) : DecidableRelation X.
+Proof.
   intros x y. simple refine (decidable_to_DecidableProposition _).
   - exact (x < y).
   - apply isfinite_isdec_lessthan. apply finitenessProperty.
@@ -351,10 +353,12 @@ Notation " x > y " := ( FiniteOrderedSetDecidableLessThan _ y x ) (at level 70, 
 Delimit Scope foset with foset.
 
 Definition FiniteOrderedSet_segment {X:FiniteOrderedSet} (x:X) : FiniteSet.
+Proof.
   intros. apply (@subsetFiniteSet X); intro y. exact (y < x)%foset.
 Defined.
 
 Definition height {X:FiniteOrderedSet} : X -> nat.
+Proof.
   intros x. exact (cardinalityFiniteSet (FiniteOrderedSet_segment x)).
 Defined.
 
@@ -420,6 +424,7 @@ Close Scope foset.
 Definition lexicographicOrder
            (X:hSet) (Y:X->hSet)
            (R:hrel X) (S : ∏ x, hrel (Y x)) : hrel (∑ x, Y x)%set.
+Proof.
   intros u u'.
   set (x := pr1 u). set (y := pr2 u). set (x' := pr1 u'). set (y' := pr2 u').
   exact ((x != x' × R x x') ∨ (∑ e : x = x', S x' (transportf Y e y) y')).

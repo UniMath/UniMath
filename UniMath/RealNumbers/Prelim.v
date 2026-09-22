@@ -76,6 +76,7 @@ Proof.
 Qed.
 
 Lemma hqplusdiv2 : ∏ x : hq, x = (x + x) / 2.
+Proof.
   intros x.
   apply hqmultrcan with 2.
   - now apply hqgth_hqneq, hq2_gt0.

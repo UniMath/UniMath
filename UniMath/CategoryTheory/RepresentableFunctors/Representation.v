@@ -277,6 +277,7 @@ Defined.
 (** initial and final objects and zero maps  *)
 
 Definition UnitFunctor (C:category) : [C,SET].
+Proof.
   unshelve refine (_,,_).
   { exists (λ c, unitset). exact (λ a b f t, t). }
   { split.
@@ -902,6 +903,7 @@ Defined.
 
 Goal ∏ B C t b,
        universalObject(functorcategoryTerminalObject B C t) ◾ b = universalObject t.
+Proof.
   reflexivity.
 Defined.
 

@@ -140,6 +140,7 @@ Section elems_slice_equiv.
 
   Definition PreShv_to_slice_ob_isnat {X Y : PreShv ∫P} (f : X --> Y) :
     is_nat_trans (PreShv_to_slice_ob_funct_data X) (PreShv_to_slice_ob_funct_data Y) (PreShv_to_slice_ob_nat f).
+  Proof.
     simpl.
     intros c c' g.
     apply funextsec; intro p.
@@ -149,6 +150,7 @@ Section elems_slice_equiv.
 
   Definition PreShv_to_slice_mor {X Y : PreShv ∫P} (f : X --> Y) :
     PreShv_to_slice_ob X --> PreShv_to_slice_ob Y.
+  Proof.
     exists (PreShv_to_slice_ob_nat f ,, PreShv_to_slice_ob_isnat f).
     now apply (nat_trans_eq has_homsets_HSET).
   Defined.
@@ -178,6 +180,7 @@ Section elems_slice_equiv.
 
   Definition slice_to_PreShv_ob_mor (Q : PreShv C / P) {F G : (∫P)^op} (f : F --> G) :
     slice_to_PreShv_ob_ob Q F --> slice_to_PreShv_ob_ob Q G.
+  Proof.
     intros s.
     destruct Q as [[[Q Qmor] Qisfunct] [Qnat Qisnat]].
     destruct F as [x Px]. destruct G as [y Py].

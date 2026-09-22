@@ -57,6 +57,7 @@ Definition dfl_comp_cat_to_finlim_disp_psfunctor_counit
          dfl_comp_cat_to_finlim_disp_psfunctor_universe
          finlim_to_dfl_comp_cat_disp_psfunctor_universe)
       finlim_dfl_comp_cat_counit.
+Proof.
   use make_disp_pstrans.
   - exact disp_2cells_isaprop_disp_bicat_dfl_full_comp_cat_with_univ.
   - exact disp_locally_groupoid_disp_bicat_dfl_full_comp_cat_with_univ.

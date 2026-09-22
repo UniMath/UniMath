@@ -343,6 +343,7 @@ Proof.
 Qed.
 
 Definition U_action_ρ_nat_trans : odot_I_functor Mon_A otimes_U_functor ⟹ functor_identity Mon_A.
+Proof.
   refine (nat_trans_comp _ _ _ _  ρ_A).
   unfold odot_I_functor.
   set (aux := nat_trans_from_functor_fix_snd_morphism_arg _ _ _ tensor_A _ _ (strong_monoidal_functor_ϵ_inv U)).
@@ -582,6 +583,7 @@ Proof.
 Qed.
 
 Definition U_action : action Mon_A.
+Proof.
   exists otimes_U_functor.
   exists U_action_ρ.
   exists U_action_χ.

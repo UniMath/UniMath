@@ -62,6 +62,7 @@ Section Trivial_Displayed.
              (λ _ _ _ _ _ a b f g, f ==> g).
 
   Definition trivial_displayed_data : disp_prebicat_data B.
+  Proof.
     use (trivial_disp_prebicat_1_id_comp_cells,, _).
     repeat apply make_dirprod; cbn.
     - intros _ _ _. exact (λ a b f, id2 f).

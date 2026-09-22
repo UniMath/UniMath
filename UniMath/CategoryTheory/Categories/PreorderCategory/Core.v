@@ -108,6 +108,7 @@ Section PoCategory.
 
     Definition antisymm_po_univalent_category (PO : po X) (poasymm : isantisymm PO) :
       univalent_category.
+    Proof.
       use make_univalent_category.
       - exact (po_category PO).
       - apply po_category_is_univalent_iff_is_antisymm.

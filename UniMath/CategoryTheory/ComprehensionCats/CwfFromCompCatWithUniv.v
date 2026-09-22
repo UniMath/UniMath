@@ -142,7 +142,7 @@ Section Construction.
           ((pr1 Unit) ([] & (comp_cat_el Γ)))
           ((comp_cat_el unit_code_w) [[ π (comp_cat_el Γ) ]]).
     Proof.
-      exact (z_iso_comp (z_iso_inv (comp_cat_unit_sub_iso _ ))
+      exact (z_iso_comp (z_iso_inv (comp_cat_unit_sub_iso _ _ ))
                (z_iso_inv (comp_cat_reindex_iso _ (comp_cat_unit_el_iso_w _ _ _ _)))).
     Defined.
 
@@ -817,7 +817,6 @@ Section Construction.
         refine (!_).
         apply comp_cat_subst_ty_iso_comp.
       }
-      Check comp_cat_subst_ty_eq.
       unfold comp_cat_subst_ty_iso.
       etrans.
       2: {

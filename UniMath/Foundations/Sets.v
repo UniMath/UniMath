@@ -596,6 +596,7 @@ Defined.
 (** the relations on a set form a set *)
 
 Definition isaset_hrel (X : hSet) : isaset (hrel X).
+Proof.
   intros. unfold hrel.
   apply impred_isaset; intro x.
   apply impred_isaset; intro y.
@@ -837,6 +838,7 @@ Defined.
 (** the preorders on a set form a set *)
 
 Definition isaset_po (X : hSet) : isaset (po X).
+Proof.
   intros.
   unfold po.
   apply (isofhleveltotal2 2).
@@ -847,6 +849,7 @@ Defined.
 (** the partial orders on a set form a set *)
 
 Definition isaset_PartialOrder X : isaset (PartialOrder X).
+Proof.
   intros.
   unfold PartialOrder.
   apply (isofhleveltotal2 2).

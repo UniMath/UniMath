@@ -527,6 +527,7 @@ Section GrCosets.
   Defined.
 
   Definition in_same_left_coset_eqrel : eqrel X.
+  Proof.
     use make_eqrel.
     - exact in_same_left_coset_prop.
     - use iseqrelconstr.

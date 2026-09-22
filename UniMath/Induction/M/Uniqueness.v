@@ -144,6 +144,7 @@ Section Uniqueness.
   Defined.
 
   Lemma isaprop_M : isaprop (M B).
+  Proof.
     apply invproofirrelevance.
     intros X Y.
     apply subtypePath.

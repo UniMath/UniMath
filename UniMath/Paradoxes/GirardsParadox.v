@@ -203,6 +203,4 @@ Defined.
 End girard.
 
 (* especially if Flse=False *)
-Proposition but_seriously_the_world_explodes : empty.
-  exact (the_world_explodes empty).
-Defined.
+Definition but_seriously_the_world_explodes : empty := the_world_explodes empty.

@@ -29,6 +29,7 @@ Section StandardLimits.
   (** The condition that [standard_limit] is a cone is basically a rephrasing of
       its definition. *)
   Lemma type_cone : cone d standard_limit.
+  Proof.
     use make_cone; cbn.
     - exact (λ n l, pr1 l n).
     - intros u v f.
@@ -80,7 +81,8 @@ End StandardLimitHomot.
 (** The canonical cone given by an arrow X → Y where Y has a cone *)
 
 Definition into_cone_to_cone {X Y : UU} {g : graph} {d : diagram g _}
-            (coneY : cone d (Y : ob type_precat)) (f : X → Y) : cone d X.
+  (coneY : cone d (Y : ob type_precat)) (f : X → Y) : cone d X.
+Proof.
   use make_cone.
   - intro ver.
     exact (pr1 coneY ver ∘ (f : type_precat ⟦ X, Y ⟧)).
@@ -115,6 +117,7 @@ Section StandardLimitUP.
       - Generalizes univ-iso in HoTT/M-types
   *)
   Lemma limit_universal : is_limit_cone (type_cone d).
+  Proof.
     intro X.
     use isweq_iso.
     - intros xcone x.

@@ -15,10 +15,10 @@ Module Test_assoc.
 
   Section Test.
     Context (X:UU) (e:X) (op:binop X) (w x y z:X).
-    Goal iterop_list e op [] = e. reflexivity. Qed.
-    Goal iterop_list e op (x::[]) = x. reflexivity. Qed.
-    Goal iterop_list e op (x::y::[]) = op x y. reflexivity. Qed.
-    Goal iterop_list e op (w::x::y::z::[]) = op w (op x (op y z)). reflexivity. Qed.
+    Goal iterop_list e op [] = e. Proof. reflexivity. Qed.
+    Goal iterop_list e op (x::[]) = x. Proof. reflexivity. Qed.
+    Goal iterop_list e op (x::y::[]) = op x y. Proof. reflexivity. Qed.
+    Goal iterop_list e op (w::x::y::z::[]) = op w (op x (op y z)). Proof. reflexivity. Qed.
   End Test.
 
   Local Open Scope stn.

@@ -40,6 +40,7 @@ Definition empty_vec {X : UU} : Vector X 0 := iscontrpr1 (iscontr_vector_0 X).
 
 (** Every type is equivalent to vectors of length 1 on that type. *)
 Lemma weq_vector_1 {X : UU} : X ≃ Vector X 1.
+Proof.
   intermediate_weq (unit → X).
   - apply invweq, weqfunfromunit.
   - apply weqbfun.

@@ -707,6 +707,7 @@ Defined.
 Definition evalat {T} {P:T->UU} (t:T) (f:∏ t:T, P t) := f t.
 
 Definition apfun {X Y} {f f':X->Y} (p:f = f') {x x'} (q:x = x') : f x = f' x'.
+Proof.
   intros. induction q. exact (eqtohomot p x).
 Defined.
 

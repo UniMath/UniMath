@@ -58,5 +58,6 @@ Definition const_matrix {X : UU} {n m : nat} (x : X) : Matrix X n m :=
 
 (** Every type is equivalent to 1 × 1 matrices on that type. *)
 Lemma weq_matrix_1_1 {X : UU} : X ≃ Matrix X 1 1.
+Proof.
   intermediate_weq (Vector X 1); apply weq_vector_1.
 Defined.

@@ -309,6 +309,7 @@ Section kernel_pair_Set.
 
 
   Definition kernel_pair_HSET : kernel_pair f.
+  Proof.
     red.
     apply PullbacksHSET.
   Defined.

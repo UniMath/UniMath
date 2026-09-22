@@ -1032,7 +1032,6 @@ Proof.
                           · ⌈ idtoiso (C:=F) (comp_cat_subst_ty_eq A (assoc  s₁ s₂ s₃)) ⌉).
   etrans.
   2: { apply pr1_idtoiso_concat. }
-  Check comp_cat_subst_ty_eq.
   etrans.
   2: {
     do 2 apply maponpaths.
@@ -1071,6 +1070,49 @@ Proof.
     apply comp_cat_comp_mor_id.
   }
   exact (!id_left _).
+Qed.
+
+Definition comp_cat_ext_subst_z_iso
+  {C : comp_cat} {Γ Δ : C} (s : z_iso Δ Γ) (A : comp_cat_ty Γ)
+  : z_iso (Δ & (A [[ s ]])) (Γ & A).
+Proof.
+  use make_z_iso.
+  - exact (comp_cat_ext_subst s A).
+  - use (PullbackArrow (comp_cat_pullback A s)).
+    + exact (identity _).
+    + exact (π A · inv_from_z_iso s).
+    + abstract (rewrite id_left, assoc', z_iso_after_z_iso_inv, id_right;
+                apply idpath).
+  - abstract (
+        split ;
+        [ use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback A s))) ;
+          [ rewrite assoc' ;
+            rewrite (PullbackArrow_PullbackPr1 (comp_cat_pullback A s)) ;
+            rewrite id_left, id_right ;
+            apply idpath
+          | rewrite assoc' ;
+            rewrite (PullbackArrow_PullbackPr2 (comp_cat_pullback A s)) ;
+            rewrite assoc ;
+            etrans ; [ apply maponpaths_2 ; apply comp_cat_ext_subst_commute | ] ;
+            rewrite assoc' ;
+            rewrite z_iso_inv_after_z_iso ;
+            rewrite id_left, id_right ;
+            apply idpath ]
+        | exact (PullbackArrow_PullbackPr1 (comp_cat_pullback A s) _ _ _ _) ]
+      ).
+Defined.
+
+Lemma iscontr_tm_of_iso {C: comp_cat} {Γ : C} {A B : comp_cat_ty Γ}
+  (HA : iscontr (comp_cat_tm A))
+  (i : z_iso (C := fiber_category _ _) A B)
+  : iscontr (comp_cat_tm B).
+Proof.
+  set (toB := (λ u : comp_cat_tm A, u ↑ ⌈ i ⌉)).
+  set (toA := (λ v : comp_cat_tm B, v ↑ ⌈ i ⌉⁻¹)).
+  assert (toB_toA : ∏ v : comp_cat_tm B, toB (toA v) = v) by apply coerce_tm_after_inv.
+  assert (toA_toB : ∏ u : comp_cat_tm A, toA (toB u) = u) by apply coerce_tm_inv_after.
+  set (w := weq_iso toB toA toA_toB toB_toA).
+  exact (iscontrweqf w HA).
 Qed.
 
 (** * Comprehension Structure ctd.  *)
@@ -1291,12 +1333,64 @@ Proof.
     apply (pr2 t).
 Qed.
 
+Lemma comp_cat_ext_subst_comp' {C: comp_cat} {Γ Δ Θ : C} (A : comp_cat_ty Θ)
+  (s₁ : Γ --> Δ) (s₂ : Δ --> Θ)
+  : comp_cat_comp_mor ( ⌈ comp_cat_subst_ty_comp_iso A s₂ s₁ ⌉ )
+      · comp_cat_ext_subst (s₁ · s₂) A
+    = comp_cat_ext_subst s₁ (A [[ s₂ ]]) · comp_cat_ext_subst s₂ A.
+Proof.
+  unfold comp_cat_comp_mor, comp_cat_ext_subst.
+  etrans.
+  { refine (!_). apply comprehension_functor_mor_comp. }
+  etrans.
+  { apply maponpaths. apply cartesian_factorisation_commutes. }
+  unfold transportb.
+  rewrite (comprehension_functor_mor_transportf (C := C)).
+  apply comprehension_functor_mor_comp.
+Qed.
+
+Lemma comp_cat_ext_subst_comp  {C: comp_cat}  {Γ Δ Θ : C} (A : comp_cat_ty Θ)
+  (s₁ : Γ --> Δ) (s₂ : Δ --> Θ)
+  : comp_cat_ext_subst (s₁ · s₂) A
+    = comp_cat_comp_mor (⌈comp_cat_subst_ty_comp_iso A s₂ s₁⌉⁻¹)
+        · comp_cat_ext_subst s₁ (A [[ s₂ ]]) · comp_cat_ext_subst s₂ A.
+Proof.
+  refine (! id_left _ @ _).
+  etrans.
+  { apply maponpaths_2.
+    refine (!_).
+    apply (comp_cat_comp_mor_z_iso_after_z_iso_inv
+             (comp_cat_subst_ty_comp_iso A s₂ s₁)). }
+  refine (assoc' _ _ _ @ _).
+  etrans.
+  { apply cancel_precomposition. apply comp_cat_ext_subst_comp'. }
+  apply assoc.
+Qed.
+
 (** * Extension of Substitution with Term   *)
 
 (*
   This section covers the rules sub-ext, sub-proj, sub-beta and sub-eta from
    From Semantics to Syntax: A Type Theory for Comprehension Categories
  *)
+
+Lemma comp_cat_var_subst_mor_eq
+  {C' : comp_cat} {Γ' Δ' : C'} {X : comp_cat_ty Γ'}
+  {σ σ' : Δ' --> Γ' & X} (e : σ = σ')
+  (r : σ · π X = σ' · π X)
+  : comp_cat_var X [[ σ ]]tm
+      ↑ ⌈ comp_cat_subst_ty_comp_iso X (π X) σ ⌉
+    = comp_cat_var X [[ σ' ]]tm
+        ↑ ⌈ comp_cat_subst_ty_comp_iso X (π X) σ' ⌉
+        ↑ ⌈ comp_cat_subst_ty_iso X r ⌉⁻¹.
+Proof.
+  induction e.
+  assert (H : r = idpath _) by apply homset_property.
+  rewrite H.
+  refine (!_).
+  apply comp_cat_id_coerce_tm.
+Qed.
+
 
 Definition comp_cat_extend_subst
   {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Γ}
@@ -1349,26 +1443,87 @@ Definition comp_cat_extend_subst_eta
   : comp_cat_extend_subst (s · π _) (comp_cat_tm_from_extend_subst s) = s.
 Proof.
   unfold comp_cat_extend_subst, comp_cat_tm_from_extend_subst.
-  assert (H : comp_cat_comp_mor ( ⌈comp_cat_subst_ty_comp_iso A (π A) s⌉ )
-                · comp_cat_ext_subst (s · π A) A
-              = comp_cat_ext_subst s (A [[ π A ]]) · comp_cat_ext_subst (π A) A).
-  { unfold comp_cat_comp_mor, comp_cat_ext_subst.
-    etrans.
-    { refine (!_).
-      apply comprehension_functor_mor_comp. }
-    etrans.
-    { apply maponpaths.
-      apply cartesian_factorisation_commutes. }
-    unfold transportb.
-    rewrite (comprehension_functor_mor_transportf (C:=C)).
-    apply comprehension_functor_mor_comp. }
   etrans.
   { refine (assoc' _ _ _ @ _).
-    rewrite H.
+    rewrite comp_cat_ext_subst_comp'.
     rewrite assoc.
     rewrite (comp_cat_ext_subst_term_commute s (A [[ π A ]]) (comp_cat_var A)).
     rewrite assoc'.
     apply maponpaths.
     apply (PullbackArrow_PullbackPr1 (comp_cat_pullback A (π A))). }
   apply id_right.
+Qed.
+
+Lemma comp_cat_mor_into_ext_eq
+  {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Γ} (σ₁ σ₂ : Δ --> Γ & A)
+  (H : σ₁ · π A = σ₂ · π A)
+  (Hc : iscontr (comp_cat_tm (A [[ σ₂ · π A ]])))
+  : σ₁ = σ₂.
+Proof.
+  refine (! comp_cat_extend_subst_eta σ₁ @ _ @ comp_cat_extend_subst_eta σ₂).
+  unfold comp_cat_extend_subst.
+  etrans.
+  { apply maponpaths. apply (comp_cat_ext_subst_eq A H). }
+  refine (assoc _ _ _ @ _).
+  apply cancel_postcomposition.
+  refine (maponpaths pr1 (_ : _ ↑ ⌈comp_cat_subst_ty_iso A H⌉ = _)).
+  exact (pr2 Hc _ @ ! pr2 Hc _).
+Qed.
+
+Lemma comp_cat_extend_subst_subst
+  {C : comp_cat} {Γ Δ Θ : C} (r : Θ --> Γ) (σ : Γ --> Δ)
+  {A : comp_cat_ty Δ} (t : comp_cat_tm (A [[ σ ]]))
+  : r · comp_cat_extend_subst σ t
+    = comp_cat_extend_subst (r · σ)
+        (t [[ r ]]tm ↑ ⌈comp_cat_subst_ty_comp_iso A σ r⌉).
+Proof.
+  unfold comp_cat_extend_subst.
+  rewrite !assoc.
+  etrans.
+  2: { apply maponpaths.
+       refine (!_).
+       apply comp_cat_ext_subst_comp. }
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite <- comp_cat_ext_subst_term_commute.
+  apply maponpaths_2.
+  unfold "_ ↑ _".
+  etrans. 2: { apply assoc. }
+        rewrite comp_cat_comp_mor_z_iso_inv_after_z_iso.
+  rewrite id_right.
+  apply idpath.
+Qed.
+
+Lemma comp_cat_subst_ty_eq_comp_iso_comp
+  {C : comp_cat} {Δ Γ₁ Γ₂ Θ : C} (A : comp_cat_ty Δ)
+  {s₁ : Γ₁ --> Δ} {s₂ : Θ --> Γ₁} {s₃ : Γ₂ --> Δ} {s₄ : Θ --> Γ₂}
+  (p : s₂ · s₁ = s₄ · s₃)
+  : ⌈comp_cat_subst_ty_eq_comp_iso A p⌉ · ⌈comp_cat_subst_ty_comp_iso A s₃ s₄⌉
+    = ⌈comp_cat_subst_ty_comp_iso A s₁ s₂⌉ · ⌈comp_cat_subst_ty_iso A p⌉.
+Proof.
+  unfold comp_cat_subst_ty_eq_comp_iso.
+  change (⌈z_iso_comp (comp_cat_subst_ty_comp_iso A s₁ s₂)
+            (z_iso_comp (comp_cat_subst_ty_iso A p)
+               (z_iso_inv (comp_cat_subst_ty_comp_iso A s₃ s₄)))⌉)
+    with (⌈comp_cat_subst_ty_comp_iso A s₁ s₂⌉
+            · (⌈comp_cat_subst_ty_iso A p⌉
+                 · ⌈comp_cat_subst_ty_comp_iso A s₃ s₄⌉⁻¹)).
+  rewrite !assoc'.
+  etrans. { do 2 apply maponpaths.
+            apply (z_iso_after_z_iso_inv (comp_cat_subst_ty_comp_iso A s₃ s₄)). }
+  rewrite id_right.
+  apply idpath.
+Qed.
+
+Lemma comp_cat_extend_subst_eq
+  {C : comp_cat} {Γ Δ : C} {A : comp_cat_ty Γ}
+  {s s' : Δ --> Γ} (p : s = s') (t : comp_cat_tm (A [[ s ]]))
+  : comp_cat_extend_subst s t
+    = comp_cat_extend_subst s' (t ↑ ⌈comp_cat_subst_ty_iso A p⌉).
+Proof.
+  induction p.
+  unfold comp_cat_extend_subst.
+  apply maponpaths_2.
+  refine (!_).
+  exact (maponpaths pr1 (comp_cat_id_coerce_tm t)).
 Qed.

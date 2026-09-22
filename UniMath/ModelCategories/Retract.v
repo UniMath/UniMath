@@ -3,6 +3,7 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.opp_precat.
 
 Declare Scope retract.
+Declare Scope morcls.
 Delimit Scope morcls with retract.
 
 Local Open Scope retract.

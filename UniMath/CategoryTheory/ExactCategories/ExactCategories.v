@@ -60,6 +60,7 @@ Section InvestigateNotations.
   Context (M : PreAdditive) (x y z:M) (f g : hom M x y) (h k : Hom_add M y z).
   Local Open Scope abgrcat.
   Goal empty.
+  Proof.
     set (Q := h+k).
     set (r := -g).
     set (t := f-g).

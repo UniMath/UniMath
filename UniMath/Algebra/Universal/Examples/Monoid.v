@@ -96,6 +96,7 @@ Proof.
 Defined.
 
 Definition make_monoid_eqalgebra : monoid_eqalgebra.
+Proof.
   use make_eqalgebra.
   - exact (monoid_algebra M).
   - exact is_eqalgebra_monoid.

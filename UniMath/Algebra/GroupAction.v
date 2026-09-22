@@ -149,6 +149,7 @@ Proof.
 Defined.
 
 Local Goal ∏ G (X Y:Action G) (i : ActionIso X Y) (x:X), Y.
+Proof.
   intros.
   exact (i x).
 Qed.
@@ -685,10 +686,12 @@ Proof.
 Defined.
 
 Goal ∏ (G:gr), triviality_isomorphism (trivialTorsor G) (unel G) = idActionIso (trivialTorsor G).
+Proof.
   Fail reflexivity.
 Abort.
 
 Goal ∏ (G:gr), isBaseConnected_BG G (trivialTorsor G) = hinhpr (idpath (trivialTorsor G)).
+Proof.
   intros.
   unfold isBaseConnected_BG, pr2.
   change (pr1 (trivialTorsor G) : Type) with (G : Type).

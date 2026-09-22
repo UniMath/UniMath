@@ -112,12 +112,12 @@ Section Test.
 
   Context {a b c d:A}.
   Let x := a::b::c::d::[].
-  Goal nth x (●0) = a. apply idpath. Qed.
-  Goal nth x (●1) = b. apply idpath. Qed.
-  Goal nth x (●2) = c. apply idpath. Qed.
-  Goal nth x (●3) = d. apply idpath. Qed.
+  Goal nth x (●0) = a. Proof. apply idpath. Qed.
+  Goal nth x (●1) = b. Proof. apply idpath. Qed.
+  Goal nth x (●2) = c. Proof. apply idpath. Qed.
+  Goal nth x (●3) = d. Proof. apply idpath. Qed.
 
-  Goal functionToList _ (nth x) = x. apply idpath. Qed.
+  Goal functionToList _ (nth x) = x. Proof. apply idpath. Qed.
 
 End Test.
 

@@ -48,7 +48,7 @@ Definition opp_precat (C : precategory) : precategory :=
 
 Local Notation "C '^op'" := (opp_precat C) (at level 1, format "C ^op") : cat.
 
-Goal ∏ C:precategory, C^op^op = C. reflexivity. Qed.
+Goal ∏ C:precategory, C^op^op = C. Proof. reflexivity. Qed.
 
 Definition opp_ob {C : precategory} (c : ob C) : ob C^op := c.
 
@@ -106,6 +106,7 @@ Proof.
 Qed.
 
 Definition opp_iso {C : precategory} {a b : C} : @iso C a b -> @iso C^op b a.
+Proof.
   intro f.
   exists (pr1 f).
   set (T := is_z_iso_from_is_iso _ (pr2 f)).

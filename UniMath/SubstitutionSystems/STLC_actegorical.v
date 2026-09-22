@@ -541,6 +541,7 @@ Section IndAndCoind.
     Defined.
 
     Lemma Church_gen_header_sortToSet_data_ok : is_nat_trans _ _ Church_gen_header_sortToSet_data.
+    Proof.
       intros ξ ξ' f.
       apply nat_trans_eq; try apply HSET.
       intros s. apply funextfun.
