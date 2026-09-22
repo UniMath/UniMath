@@ -293,7 +293,7 @@ jobs:
     needs: build-Unimath-ubuntu
     runs-on: "ubuntu-22.04"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Grab the cache if available and extract it to alectryon-cache
         uses: actions/cache/restore@v4
