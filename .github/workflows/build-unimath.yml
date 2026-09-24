@@ -109,7 +109,7 @@ jobs:
         run: sudo chown -R 1001:116 .
 
       - name: Upload the generated vo files
-        if: github.ref == 'refs/heads/master' && matrix.coq-version == 'latest'
+        #if: github.ref == 'refs/heads/master' && matrix.coq-version == 'latest'
         uses: actions/upload-artifact@v5
         with:
           name: build
@@ -289,6 +289,7 @@ jobs:
 
   alectryon:
     name: "Alectryon"
+    #if: github.ref == 'refs/heads/master'
     needs: build-Unimath-ubuntu
     runs-on: "ubuntu-22.04"
     steps:
