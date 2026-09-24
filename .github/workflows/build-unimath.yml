@@ -289,7 +289,6 @@ jobs:
 
   alectryon:
     name: "Alectryon"
-    if: github.ref == 'refs/heads/master'
     needs: build-Unimath-ubuntu
     runs-on: "ubuntu-22.04"
     steps:
