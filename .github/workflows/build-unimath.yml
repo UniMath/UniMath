@@ -313,7 +313,7 @@ jobs:
       - name: Build the alectryon docs
         uses: coq-community/docker-coq-action@v1
         with:
-          coq_version: ${{ matrix.coq-version }}
+          coq_version: latest
           ocaml_version: default
           custom_script: |
             startGroup "Install serapi"
@@ -355,7 +355,7 @@ jobs:
         run: sudo chown -R 1001:116 .
 
       - name: Upload the generated alectryon files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: alectryon
           path: alectryon
