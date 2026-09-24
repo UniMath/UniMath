@@ -354,7 +354,7 @@ jobs:
         run: sudo chown -R 1001:116 .
 
       - name: Upload the generated alectryon files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: alectryon
           path: alectryon
