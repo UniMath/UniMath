@@ -313,7 +313,7 @@ jobs:
       - name: Build the alectryon docs
         uses: coq-community/docker-coq-action@v1
         with:
-          coq_version: ${{ matrix.coq-version }}
+          coq_version: latest
           ocaml_version: default
           custom_script: |
             startGroup "Install serapi"
