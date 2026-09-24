@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StructuredCospansDoubleCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> The double category of structured cospans</span>
+
+<span class="sd"> In this file, we define the double category of structured cospans. Suppose that</span>
+<span class="sd"> we have categories `A` and `X` such that `X` has pushouts and suppose that we also</span>
+<span class="sd"> have a functor `L : A ⟶ X`. The double category of structured cospans is defined</span>
+<span class="sd"> as follows:</span>
+<span class="sd"> - Objects: objects of `A`</span>
+<span class="sd"> - Vertical morphisms: morphisms in `A`</span>
+<span class="sd"> - Horizontal morphisms from `a` to `b`: structured cospans. Concretely, an object</span>
+<span class="sd">   `x`  together with morphisms `L a --&gt; x &lt;-- L b`.</span>
+<span class="sd"> - The squares from `L a₁ &lt;-- x₁ --&gt; L b₁` to `L a₂ &lt;-- x₂ --&gt; L b₂` whose vertical</span>
+<span class="sd">   sides are `f : a₁ --&gt; a₂` and `g : b₁ --&gt; b₂` are morphisms `φ : x₁ --&gt; x₂` such</span>
+<span class="sd">   that the following squares commute</span>
+
+<span class="sd">         L a₁ &lt;-- x₁ --&gt; L b₂</span>
+<span class="sd">          |       |       |</span>
+<span class="sd">          V       V       V</span>
+<span class="sd">         L a₂ &lt;-- x₂ --&gt; L b₂</span>
+
+<span class="sd"> Identities and composition of vertical morphisms is inherited from `A`. The</span>
+<span class="sd"> identity structured cospans is `L a &lt;-- L a --&gt; L a`, and the composition of</span>
+<span class="sd"> structured cospans is given by taking a pushout.</span>
+
+<span class="sd"> A reference for this construction is Theorem 3.1 in "Structured Versus Decorated</span>
+<span class="sd"> Cospans" by Baez, Courser, and Vasilakopoulou.</span>
+<span class="sd">    https://compositionality-journal.org/papers/compositionality-4-3/pdf</span>
+<span class="sd"> Note: we do not show that this double category is monoidal.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Horizontal identities</span>
+<span class="sd"> 2. Horizontal composition</span>
+<span class="sd"> 3. The unitors and associators</span>
+<span class="sd"> 4. The triangle and pentagon equations</span>
+<span class="sd"> 5. The double category of structured cospans</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.StructuredCospans.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="kn">Section</span> <span class="nf">StructuredCospansDoubleCat</span>.
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">X</span> : category}
+          (<span class="nv">PX</span> : Pushouts X)
+          (<span class="nv">L</span> : A ⟶ X).
+
+  <span class="sd">(** * 1. Horizontal identities *)</span>
+  <span class="kn">Definition</span> <span class="nf">structured_cospans_double_cat_hor_id_data</span>
+    : hor_id_data (twosided_disp_cat_of_struct_cospans L).
+  <span class="kn">Proof</span>.
+    use make_hor_id_data.
+    - <span class="bp">exact</span> (id_struct_cospan L).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, id_struct_cospan_mor L f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">structured_cospans_double_cat_hor_id_laws</span>
+    : hor_id_laws structured_cospans_double_cat_hor_id_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> a.
+      use struct_cospan_sqr_eq ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> functor_id.
+    - <span class="nb">intros</span> a₁ a₂ a₃ f g.
+      use struct_cospan_sqr_eq ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> functor_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">structured_cospans_double_cat_hor_id</span>
+    : hor_id (twosided_disp_cat_of_struct_cospans L).
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - <span class="bp">exact</span> structured_cospans_double_cat_hor_id_data.
+    - <span class="bp">exact</span> structured_cospans_double_cat_hor_id_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Horizontal composition *)</span>
+  <span class="kn">Definition</span> <span class="nf">structured_cospans_double_cat_hor_comp_data</span>
+    : hor_comp_data (twosided_disp_cat_of_struct_cospans L).
+  <span class="kn">Proof</span>.
+    use make_hor_comp_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">a₃</span> <span class="nv">s</span> <span class="nv">t</span>, comp_struct_cospan L PX s t).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">s₁</span> <span class="nv">s₂</span>, comp_struct_cospan_mor L PX s₁ s₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">structured_cospans_double_cat_hor_comp_laws</span>
+    : hor_comp_laws structured_cospans_double_cat_hor_comp_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> a₁ a₂ a₃ h₁ h₂.
+      use struct_cospan_sqr_eq.
+      use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX _ _ _ _ _))) ; <span class="nb">cbn</span>.
+      + <span class="nb">unfold</span> mor_of_comp_struct_cospan_mor.
+        <span class="nb">rewrite</span> PushoutArrow_PushoutIn1 ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">unfold</span> mor_of_comp_struct_cospan_mor.
+        <span class="nb">rewrite</span> PushoutArrow_PushoutIn2 ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span>.
+      use struct_cospan_sqr_eq.
+      use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX _ _ _ _ _))) ; <span class="nb">cbn</span>.
+      + <span class="nb">rewrite</span> !assoc.
+        <span class="nb">unfold</span> mor_of_comp_struct_cospan_mor.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1 ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> !assoc.
+        <span class="nb">unfold</span> mor_of_comp_struct_cospan_mor.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2 ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">structured_cospans_double_cat_hor_comp</span>
+    : hor_comp (twosided_disp_cat_of_struct_cospans L).
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - <span class="bp">exact</span> structured_cospans_double_cat_hor_comp_data.
+    - <span class="bp">exact</span> structured_cospans_double_cat_hor_comp_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. The unitors and associators *)</span>
+  <span class="kn">Definition</span> <span class="nf">structured_cospans_double_cat_lunitor_data</span>
+    : double_lunitor_data
+        structured_cospans_double_cat_hor_id
+        structured_cospans_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y h.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (struct_cospan_lunitor L PX h).
+    - use is_iso_twosided_disp_struct_cospan_sqr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> is_z_iso_struct_cospan_lunitor_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">structured_cospans_double_cat_lunitor_laws</span>
+    : double_lunitor_laws structured_cospans_double_cat_lunitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ sq.
+    use struct_cospan_sqr_eq.
+    <span class="nb">rewrite</span> transportb_disp_mor2_struct_cospan ; <span class="nb">cbn</span>.
+    use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX _ _ _ _ _))) ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="nb">unfold</span> struct_cospan_lunitor_mor, mor_of_comp_struct_cospan_mor.
+      <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+      <span class="bp">exact</span> (struct_cospan_sqr_mor_left _ sq).
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="nb">unfold</span> struct_cospan_lunitor_mor, mor_of_comp_struct_cospan_mor.
+      <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PushoutArrow_PushoutIn2.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">structured_cospans_double_cat_lunitor</span>
+    : double_cat_lunitor
+        structured_cospans_double_cat_hor_id
+        structured_cospans_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="bp">exact</span> structured_cospans_double_cat_lunitor_data.
+    - <span class="bp">exact</span> structured_cospans_double_cat_lunitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">structured_cospans_double_cat_runitor_data</span>
+    : double_runitor_data
+        structured_cospans_double_cat_hor_id
+        structured_cospans_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y h.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (struct_cospan_runitor L PX h).
+    - use is_iso_twosided_disp_struct_cospan_sqr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> is_z_iso_struct_cospan_runitor_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">structured_cospans_double_cat_runitor_laws</span>
+    : double_runitor_laws structured_cospans_double_cat_runitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ sq.
+    use struct_cospan_sqr_eq.
+    <span class="nb">rewrite</span> transportb_disp_mor2_struct_cospan ; <span class="nb">cbn</span>.
+    use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX _ _ _ _ _))) ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="nb">unfold</span> struct_cospan_runitor_mor, mor_of_comp_struct_cospan_mor.
+      <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="nb">unfold</span> struct_cospan_runitor_mor, mor_of_comp_struct_cospan_mor.
+      <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PushoutArrow_PushoutIn2.
+      <span class="bp">exact</span> (struct_cospan_sqr_mor_right _ sq).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">structured_cospans_double_cat_runitor</span>
+    : double_cat_runitor
+        structured_cospans_double_cat_hor_id
+        structured_cospans_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="bp">exact</span> structured_cospans_double_cat_runitor_data.
+    - <span class="bp">exact</span> structured_cospans_double_cat_runitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">structured_cospans_double_cat_associator_data</span>
+    : double_associator_data structured_cospans_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w x y z h₁ h₂ h₃.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (struct_cospan_associator L PX h₁ h₂ h₃).
+    - use is_iso_twosided_disp_struct_cospan_sqr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> is_z_iso_struct_cospan_associator_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">structured_cospans_double_cat_associator_laws</span>
+    : double_associator_laws structured_cospans_double_cat_associator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ h₁ h₂ j₁ j₂ k₁ k₂ vw vx vy vz sq₁ sq₂ sq₃.
+    use struct_cospan_sqr_eq.
+    <span class="nb">rewrite</span> transportb_disp_mor2_struct_cospan ; <span class="nb">cbn</span>.
+    use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX _ _ _ _ _))) ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="nb">unfold</span> struct_cospan_associator_mor, mor_of_comp_struct_cospan_mor ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+      <span class="nb">unfold</span> mor_of_comp_struct_cospan_mor.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="nb">unfold</span> struct_cospan_associator_mor, mor_of_comp_struct_cospan_mor.
+      <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+      use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX _ _ _ _ _))) ; <span class="nb">cbn</span>.
+      + <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+        <span class="nb">unfold</span> mor_of_comp_struct_cospan_mor.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+        <span class="nb">rewrite</span> PushoutArrow_PushoutIn2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PushoutArrow_PushoutIn2.
+        <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> !assoc.
+        <span class="nb">unfold</span> mor_of_comp_struct_cospan_mor.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">structured_cospans_double_cat_associator</span>
+    : double_cat_associator structured_cospans_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="bp">exact</span> structured_cospans_double_cat_associator_data.
+    - <span class="bp">exact</span> structured_cospans_double_cat_associator_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. The triangle and pentagon equations *)</span>
+  <span class="kn">Proposition</span> <span class="nf">structured_cospans_double_cat_triangle</span>
+    : triangle_law
+        structured_cospans_double_cat_lunitor
+        structured_cospans_double_cat_runitor
+        structured_cospans_double_cat_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use struct_cospan_sqr_eq.
+    <span class="nb">rewrite</span> transportb_disp_mor2_struct_cospan ; <span class="nb">cbn</span>.
+    use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX _ _ _ _ _))) ; <span class="nb">cbn</span>.
+    - <span class="nb">unfold</span> struct_cospan_associator_mor, mor_of_comp_struct_cospan_mor ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">unfold</span> struct_cospan_runitor_mor.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">unfold</span> struct_cospan_associator_mor, mor_of_comp_struct_cospan_mor ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+      <span class="nb">unfold</span> struct_cospan_lunitor_mor, struct_cospan_runitor_mor.
+      use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX _ _ _ _ _))) ; <span class="nb">cbn</span>.
+      + <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+        <span class="nb">rewrite</span> PushoutSqrCommutes.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+        <span class="nb">rewrite</span> !id_left.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">structured_cospans_double_cat_pentagon</span>
+    : pentagon_law structured_cospans_double_cat_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use struct_cospan_sqr_eq.
+    <span class="nb">rewrite</span> transportb_disp_mor2_struct_cospan ; <span class="nb">cbn</span>.
+    use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX _ _ _ _ _))) ; <span class="nb">cbn</span>.
+    - <span class="nb">unfold</span> struct_cospan_associator_mor, mor_of_comp_struct_cospan_mor ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+      <span class="nb">unfold</span> struct_cospan_associator_mor.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> struct_cospan_associator_mor, mor_of_comp_struct_cospan_mor ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+      <span class="nb">unfold</span> struct_cospan_associator_mor.
+      use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX _ _ _ _ _))) ; <span class="nb">cbn</span>.
+      + <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+          <span class="nb">apply</span> idpath.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+          <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+        use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX _ _ _ _ _))) ; <span class="nb">cbn</span>.
+        * <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+            <span class="nb">apply</span> idpath.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+            <span class="nb">refine</span> (assoc' _ _ _ @ _).
+            <span class="nb">rewrite</span> !PushoutArrow_PushoutIn1.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+          <span class="nb">apply</span> idpath.
+        * <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> !PushoutArrow_PushoutIn2.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. The double category of structured cospans *)</span>
+  <span class="kn">Definition</span> <span class="nf">structured_cospans_double_cat</span>
+    : double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_cat.
+    - <span class="bp">exact</span> A.
+    - <span class="bp">exact</span> (twosided_disp_cat_of_struct_cospans L).
+    - <span class="bp">exact</span> structured_cospans_double_cat_hor_id.
+    - <span class="bp">exact</span> structured_cospans_double_cat_hor_comp.
+    - <span class="bp">exact</span> structured_cospans_double_cat_lunitor.
+    - <span class="bp">exact</span> structured_cospans_double_cat_runitor.
+    - <span class="bp">exact</span> structured_cospans_double_cat_associator.
+    - <span class="bp">exact</span> structured_cospans_double_cat_triangle.
+    - <span class="bp">exact</span> structured_cospans_double_cat_pentagon.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">structured_cospans_double_cat_ver_weq_square</span>
+             (<span class="nv">H</span> : fully_faithful L)
+    : ver_weq_square structured_cospans_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g.
+    use isweqimplimpl.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> fg.
+      <span class="nb">induction</span> fg <span class="k">as</span> [ h [ p q ]].
+      <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> p.
+      <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> q.
+      use (invmaponpathsweq (make_weq _ (H x y))) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- p, q.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> homset_property.
+    - use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">pose</span> (p₁ := pr12 φ₁).
+      <span class="nb">pose</span> (p₂ := pr12 φ₂).
+      <span class="nb">cbn</span> <span class="k">in</span> p₁, p₂.
+      <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> p₁.
+      <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> p₂.
+      <span class="nb">rewrite</span> p₁.
+      <span class="nb">rewrite</span> &lt;- p₂.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">all_companions_structured_cospans_double_cat</span>
+    : all_companions_double_cat structured_cospans_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (struct_cospan_companion L f).
+    - use make_double_cat_are_companions'.
+      + <span class="bp">exact</span> (struct_cospan_companion_unit L f).
+      + <span class="bp">exact</span> (struct_cospan_companion_counit L f).
+      + <span class="kp">abstract</span>
+          (use struct_cospan_sqr_eq ;
+           <span class="nb">refine</span> (transportf_disp_mor2_struct_cospan _ _ _ _ @ _) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">unfold</span> mor_of_comp_struct_cospan_mor, struct_cospan_runitor_mor ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> PushoutArrow_PushoutIn2 ;
+           <span class="nb">rewrite</span> id_left ;
+           <span class="nb">rewrite</span> PushoutArrow_PushoutIn2 ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (use struct_cospan_sqr_eq ;
+           <span class="nb">refine</span> (transportf_disp_mor2_struct_cospan _ _ _ _ @ _) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> id_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">all_conjoints_structured_cospans_double_cat</span>
+    : all_conjoints_double_cat structured_cospans_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (struct_cospan_conjoint L f).
+    - use make_double_cat_are_conjoints'.
+      + <span class="bp">exact</span> (struct_cospan_conjoint_unit L f).
+      + <span class="bp">exact</span> (struct_cospan_conjoint_counit L f).
+      + <span class="kp">abstract</span>
+          (use struct_cospan_sqr_eq ;
+           <span class="nb">refine</span> (transportf_disp_mor2_struct_cospan _ _ _ _ @ _) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">unfold</span> mor_of_comp_struct_cospan_mor, struct_cospan_lunitor_mor ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> PushoutArrow_PushoutIn1 ;
+           <span class="nb">rewrite</span> id_left ;
+           <span class="nb">rewrite</span> PushoutArrow_PushoutIn1 ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (use struct_cospan_sqr_eq ;
+           <span class="nb">refine</span> (transportf_disp_mor2_struct_cospan _ _ _ _ @ _) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> id_right).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">StructuredCospansDoubleCat</span>.
+
+<span class="kn">Definition</span> <span class="nf">structured_cospans_univalent_double_cat</span>
+           {<span class="nv">A</span> <span class="nv">X</span> : univalent_category}
+           (<span class="nv">PX</span> : Pushouts X)
+           (<span class="nv">L</span> : A ⟶ X)
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_univalent_double_cat.
+  - <span class="bp">exact</span> (structured_cospans_double_cat PX L).
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> univalent_category_is_univalent.
+    + use is_univalent_struct_cospans_twosided_disp_cat.
+      <span class="nb">apply</span> univalent_category_is_univalent.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">structured_cospans_pseudo_double_setcat</span>
+           {<span class="nv">A</span> <span class="nv">X</span> : setcategory}
+           (<span class="nv">PX</span> : Pushouts X)
+           (<span class="nv">L</span> : A ⟶ X)
+  : pseudo_double_setcat.
+<span class="kn">Proof</span>.
+  use make_pseudo_double_setcat.
+  - <span class="bp">exact</span> (structured_cospans_double_cat PX L).
+  - <span class="nb">apply</span> A.
+  - use is_strict_struct_cospans_twosided_disp_cat.
+    <span class="nb">apply</span> X.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/StructuredCospansDoubleCat.v</tt>, line 39)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. The double category of structured cospans
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

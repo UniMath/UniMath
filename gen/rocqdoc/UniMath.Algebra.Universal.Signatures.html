@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Algebra.Universal.Signatures</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Algebra.Universal.Signatures</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab274"></a><h1 class="section">Signatures for universal algebra.</h1>
+ Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Notations.html#"><span class="id" title="library">UniMath.MoreFoundations.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="UniMath.Combinatorics.DecSet.html#"><span class="id" title="library">UniMath.Combinatorics.DecSet</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#"><span class="id" title="library">UniMath.Combinatorics.MoreLists</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">stn</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+A <i>signature</i> is given by a decidable set of sorts, a set of of operation symbols and a map
+from operation symbols to pair <span class="inlinecode">(<a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#bounded_lattice_pty.l"><span class="id" title="variable">l</span></a>,,</span> <span class="inlinecode"><a class="idref" href="UniMath.SyntheticHomotopyTheory.Circle2.html#s"><span class="id" title="definition">s</span></a>)</span> where <span class="inlinecode"><a class="idref" href="UniMath.OrderTheory.Lattice.Bounded.html#bounded_lattice_pty.l"><span class="id" title="variable">l</span></a></span> is the <i>arity</i> (or <i>domain</i>) and <span class="inlinecode"><a class="idref" href="UniMath.SyntheticHomotopyTheory.Circle2.html#s"><span class="id" title="definition">s</span></a></span> is
+the <i>sort</i> (or <i>range</i>).
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="signature" class="idref" href="#signature"><span class="id" title="definition">signature</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="S:1" class="idref" href="#S:1"><span class="id" title="binder">S</span></a>: <a class="idref" href="UniMath.Combinatorics.DecSet.html#decSet"><span class="id" title="definition">decSet</span></a>) (<a id="O:2" class="idref" href="#O:2"><span class="id" title="binder">O</span></a>: <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#O:2"><span class="id" title="variable">O</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#S:1"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#S:1"><span class="id" title="variable">S</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="sorts" class="idref" href="#sorts"><span class="id" title="definition">sorts</span></a> (<a id="baa46ab95945e710a86e84e8dbcf8141" class="idref" href="#baa46ab95945e710a86e84e8dbcf8141"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>) := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#baa46ab95945e710a86e84e8dbcf8141"><span class="id" title="variable">σ</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="names" class="idref" href="#names"><span class="id" title="definition">names</span></a> (<a id="cd01c1f8eba18116122f50d6eb622af2" class="idref" href="#cd01c1f8eba18116122f50d6eb622af2"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>) := <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr12'_x"><span class="id" title="notation">pr12</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#cd01c1f8eba18116122f50d6eb622af2"><span class="id" title="variable">σ</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="ar" class="idref" href="#ar"><span class="id" title="definition">ar</span></a> (<a id="b93bee5cdce65b1eb956bc32407c1ef3" class="idref" href="#b93bee5cdce65b1eb956bc32407c1ef3"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>) := <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr22'_x"><span class="id" title="notation">pr22</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#b93bee5cdce65b1eb956bc32407c1ef3"><span class="id" title="variable">σ</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="arity" class="idref" href="#arity"><span class="id" title="definition">arity</span></a> {<a id="f0835817faaba90db49f1e400f4a8926" class="idref" href="#f0835817faaba90db49f1e400f4a8926"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>} (<a id="nm:7" class="idref" href="#nm:7"><span class="id" title="binder">nm</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#f0835817faaba90db49f1e400f4a8926"><span class="id" title="variable">σ</span></a>) : <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Signatures.html#sorts"><span class="id" title="definition">sorts</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#f0835817faaba90db49f1e400f4a8926"><span class="id" title="variable">σ</span></a>) := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Signatures.html#ar"><span class="id" title="definition">ar</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#f0835817faaba90db49f1e400f4a8926"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#nm:7"><span class="id" title="variable">nm</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="sort" class="idref" href="#sort"><span class="id" title="definition">sort</span></a> {<a id="adf3bc8341a90edf65bb756c93872ed9" class="idref" href="#adf3bc8341a90edf65bb756c93872ed9"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a>} (<a id="nm:9" class="idref" href="#nm:9"><span class="id" title="binder">nm</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#adf3bc8341a90edf65bb756c93872ed9"><span class="id" title="variable">σ</span></a>) : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#sorts"><span class="id" title="definition">sorts</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#adf3bc8341a90edf65bb756c93872ed9"><span class="id" title="variable">σ</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Signatures.html#ar"><span class="id" title="definition">ar</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#adf3bc8341a90edf65bb756c93872ed9"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#nm:9"><span class="id" title="variable">nm</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Helper functions for creating signatures. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_signature" class="idref" href="#make_signature"><span class="id" title="definition">make_signature</span></a> (<a id="S:10" class="idref" href="#S:10"><span class="id" title="binder">S</span></a>: <a class="idref" href="UniMath.Combinatorics.DecSet.html#decSet"><span class="id" title="definition">decSet</span></a>) (<a id="O:11" class="idref" href="#O:11"><span class="id" title="binder">O</span></a>: <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) (<a id="ar:12" class="idref" href="#ar:12"><span class="id" title="binder">ar</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#O:11"><span class="id" title="variable">O</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#S:10"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#S:10"><span class="id" title="variable">S</span></a>) : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#S:10"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Algebra.Universal.Signatures.html#O:11"><span class="id" title="variable">O</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#ar:12"><span class="id" title="variable">ar</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_signature_single_sorted" class="idref" href="#make_signature_single_sorted"><span class="id" title="definition">make_signature_single_sorted</span></a> (<a id="O:13" class="idref" href="#O:13"><span class="id" title="binder">O</span></a>: <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) (<a id="ar:14" class="idref" href="#ar:14"><span class="id" title="binder">ar</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#O:13"><span class="id" title="variable">O</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#make_signature"><span class="id" title="definition">make_signature</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isdecequnit"><span class="id" title="lemma">isdecequnit</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#O:13"><span class="id" title="variable">O</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="op:15" class="idref" href="#op:15"><span class="id" title="binder">op</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#fill"><span class="id" title="definition">fill</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Signatures.html#ar:14"><span class="id" title="variable">ar</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#op:15"><span class="id" title="variable">op</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+A signature may be alternatively specified trough a <span class="inlinecode"><a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature_simple"><span class="id" title="definition">signature_simple</span></a></span>. In a simple
+signature, the types for sorts and operation symbols are standard finite sets, and
+the map from operations symbols to domain and range is replaced by a list. In this way,
+the definition of a new signature is made simpler.
+
+<div class="paragraph"> </div>
+
+We have decided to define new types for simple signatures instead of only defining helper
+functions, since this make it simpler to define simplified means of defining a new algebra,
+too.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="signature_simple" class="idref" href="#signature_simple"><span class="id" title="definition">signature_simple</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="ns:16" class="idref" href="#ns:16"><span class="id" title="binder">ns</span></a>: <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> (<a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#ns:16"><span class="id" title="variable">ns</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a>) <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#ns:16"><span class="id" title="variable">ns</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_signature_simple" class="idref" href="#make_signature_simple"><span class="id" title="definition">make_signature_simple</span></a> {<a id="ns:17" class="idref" href="#ns:17"><span class="id" title="binder">ns</span></a>: <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>} (<a id="ar:18" class="idref" href="#ar:18"><span class="id" title="binder">ar</span></a>: <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> (<a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#ns:17"><span class="id" title="variable">ns</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a>) <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#ns:17"><span class="id" title="variable">ns</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a>))<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature_simple"><span class="id" title="definition">signature_simple</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#ns:17"><span class="id" title="variable">ns</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#ar:18"><span class="id" title="variable">ar</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a id="signature_simple_compile" class="idref" href="#signature_simple_compile"><span class="id" title="definition">signature_simple_compile</span></a> (<a id="a1f2f8c42645ef2cdf56abf4643509eb" class="idref" href="#a1f2f8c42645ef2cdf56abf4643509eb"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature_simple"><span class="id" title="definition">signature_simple</span></a>) : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#make_signature"><span class="id" title="definition">make_signature</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#a1f2f8c42645ef2cdf56abf4643509eb"><span class="id" title="variable">σ</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isdeceqstn"><span class="id" title="lemma">isdeceqstn</span></a> <span class="id" title="var">_</span>) (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stnset"><span class="id" title="definition">stnset</span></a> (<a class="idref" href="UniMath.Combinatorics.Lists.html#length"><span class="id" title="definition">length</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#a1f2f8c42645ef2cdf56abf4643509eb"><span class="id" title="variable">σ</span></a>))) (<a class="idref" href="UniMath.Combinatorics.Lists.html#nth"><span class="id" title="definition">nth</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#a1f2f8c42645ef2cdf56abf4643509eb"><span class="id" title="variable">σ</span></a>)).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="signature_simple_single_sorted" class="idref" href="#signature_simple_single_sorted"><span class="id" title="definition">signature_simple_single_sorted</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_signature_simple_single_sorted" class="idref" href="#make_signature_simple_single_sorted"><span class="id" title="definition">make_signature_simple_single_sorted</span></a> (<a id="ar:20" class="idref" href="#ar:20"><span class="id" title="binder">ar</span></a>: <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature_simple_single_sorted"><span class="id" title="definition">signature_simple_single_sorted</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#ar:20"><span class="id" title="variable">ar</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a id="signature_simple_single_sorted_compile" class="idref" href="#signature_simple_single_sorted_compile"><span class="id" title="definition">signature_simple_single_sorted_compile</span></a> (<a id="2cc2b4bb09eef09b11acd987eb0eb4c0" class="idref" href="#2cc2b4bb09eef09b11acd987eb0eb4c0"><span class="id" title="binder">σ</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature_simple_single_sorted"><span class="id" title="definition">signature_simple_single_sorted</span></a>): <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature"><span class="id" title="definition">signature</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#make_signature_single_sorted"><span class="id" title="definition">make_signature_single_sorted</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stnset"><span class="id" title="definition">stnset</span></a> (<a class="idref" href="UniMath.Combinatorics.Lists.html#length"><span class="id" title="definition">length</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#2cc2b4bb09eef09b11acd987eb0eb4c0"><span class="id" title="variable">σ</span></a>)) (<a class="idref" href="UniMath.Combinatorics.Lists.html#nth"><span class="id" title="definition">nth</span></a> <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#2cc2b4bb09eef09b11acd987eb0eb4c0"><span class="id" title="variable">σ</span></a>).<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

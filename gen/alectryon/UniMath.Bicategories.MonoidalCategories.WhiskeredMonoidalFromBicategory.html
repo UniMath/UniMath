@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>WhiskeredMonoidalFromBicategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** *** Going into the opposite direction of [UniMath.Bicategories.Core.Examples.BicategoryFromWhiskeredMonoidal] *)</span>
+<span class="sd">(** We fix a bicategory and an object of it and construct the (whiskered) monoidal category of endomorphisms.</span>
+
+<span class="sd">Written by Ralph Matthes in 2019, adapted in 2022.</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="kn">Section</span> <span class="nf">Monoidal_Cat_From_Bicat</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+<span class="kn">Context</span> (<span class="nv">c0</span>: ob C).
+
+<span class="kn">Definition</span> <span class="nf">precategory_data_from_bicat_and_ob</span>: precategory_data.
+<span class="kn">Proof</span>.
+  use make_precategory_data.
+  - use make_precategory_ob_mor.
+    + <span class="bp">exact</span> (C⟦c0,c0⟧).
+    + <span class="nb">apply</span> prebicat_cells.
+  - <span class="nb">intro</span> c; <span class="nb">apply</span> id2.
+  - <span class="nb">intros</span> a b c; <span class="nb">apply</span> vcomp2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_data_from_prebicat_and_ob</span>: is_precategory precategory_data_from_bicat_and_ob.
+<span class="kn">Proof</span>.
+  use make_is_precategory.
+  - <span class="nb">intros</span> a b f; <span class="nb">apply</span> id2_left.
+  - <span class="nb">intros</span> a b f; <span class="nb">apply</span> id2_right.
+  - <span class="nb">intros</span> a b c d f g h; <span class="nb">apply</span> vassocr.
+  - <span class="nb">intros</span> a b c d f g h; <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> vassocr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_from_bicat_and_ob</span>: precategory := _,, is_precategory_data_from_prebicat_and_ob.
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_precategory_from_bicat_and_ob</span>: has_homsets precategory_from_bicat_and_ob.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>. <span class="nb">intros</span>.
+  <span class="nb">apply</span> (cellset_property(C:=C)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">category_from_bicat_and_ob</span>: category := precategory_from_bicat_and_ob ,, has_homsets_precategory_from_bicat_and_ob.
+
+<span class="kn">Local Notation</span> <span class="nf">EndC</span> := category_from_bicat_and_ob.
+
+<span class="kn">Definition</span> <span class="nf">tensor_data_from_bicat_and_ob</span>: bifunctor_data category_from_bicat_and_ob category_from_bicat_and_ob category_from_bicat_and_ob.
+<span class="kn">Proof</span>.
+  use make_bifunctor_data.
+  - <span class="nb">intros</span> a b. <span class="bp">exact</span> (a · b).
+  - <span class="nb">intros</span> a b1 b2 β. <span class="bp">exact</span> (lwhisker _ β).
+  - <span class="nb">intros</span> b a1 a2 α. <span class="bp">exact</span> (rwhisker _ α).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** we explicitly do not opacify the following definition: *)</span>
+<span class="kn">Definition</span> <span class="nf">tensor_laws_from_bicat_and_ob</span>: is_bifunctor tensor_data_from_bicat_and_ob.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">cbn</span>.
+  - <span class="nb">apply</span> lwhisker_id2.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> id2_rwhisker.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> pathsinv0, lwhisker_vcomp.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> pathsinv0, rwhisker_vcomp.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> vcomp_whisker.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">tensor_from_bicat_and_ob</span>
+  : bifunctor category_from_bicat_and_ob category_from_bicat_and_ob category_from_bicat_and_ob
+  := make_bifunctor tensor_data_from_bicat_and_ob tensor_laws_from_bicat_and_ob.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_data_from_bicat_and_ob</span>: monoidal_data category_from_bicat_and_ob.
+<span class="kn">Proof</span>.
+  use make_monoidal_data.
+  - <span class="bp">exact</span> tensor_data_from_bicat_and_ob.
+  - <span class="bp">exact</span> (id₁ c0).
+  - <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> lunitor.
+  - <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> linvunitor.
+  - <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> runitor.
+  - <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> rinvunitor.
+  - <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> rassociator.
+  - <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> lassociator.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">MD</span> := monoidal_data_from_bicat_and_ob.
+
+<span class="kn">Local Lemma</span> <span class="nf">leftunitor_law_from_bicat_and_ob</span>: leftunitor_law lu_{MD} luinv_{MD}.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">cbn</span>.
+  - <span class="nb">apply</span> vcomp_lunitor.
+  - <span class="nb">apply</span> is_invertible_2cell_lunitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">rightunitor_law_from_bicat_and_ob</span>: rightunitor_law ru_{MD} ruinv_{MD}.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">cbn</span>.
+  - <span class="nb">apply</span> vcomp_runitor.
+  - <span class="nb">apply</span> is_invertible_2cell_runitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">associator_law_from_bicat_and_ob</span>: associator_law α_{MD} αinv_{MD}.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="kp">try</span> <span class="nb">red</span>; <span class="nb">cbn</span>.
+  - <span class="nb">apply</span> lwhisker_lwhisker_rassociator.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> pathsinv0, rwhisker_rwhisker_alt.
+  - <span class="nb">apply</span> rwhisker_lwhisker_rassociator.
+  - <span class="nb">apply</span> is_invertible_2cell_rassociator.
+  - <span class="nb">apply</span> is_invertible_2cell_rassociator.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">triangle_identity_from_bicat_and_ob</span>: triangle_identity lu_{MD} ru_{MD} α_{MD}.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>; <span class="nb">cbn</span>. <span class="nb">apply</span> lunitor_lwhisker.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** the next two lemmas only for illustration that the extra triangle laws are already available in bicategories *)</span>
+<span class="kn">Local Lemma</span> <span class="nf">triangle_identity'_from_bicat_and_ob</span>: triangle_identity' lu_{MD} α_{MD}.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>; <span class="nb">intros</span> x y; <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- lunitor_triangle. <span class="nb">rewrite</span> vassocr. <span class="nb">rewrite</span> rassociator_lassociator. <span class="nb">apply</span> id2_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">triangle_identity''_from_bicat_and_ob</span>: triangle_identity'' ru_{MD} α_{MD}.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>; <span class="nb">intros</span> x y; <span class="nb">cbn</span>. <span class="nb">apply</span> runitor_triangle.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">pentagon_identity_from_bicat_and_ob</span>: pentagon_identity α_{MD}.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>; <span class="nb">cbn</span>. <span class="nb">apply</span> rassociator_rassociator.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_from_bicat_and_ob</span>: monoidal category_from_bicat_and_ob.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">monoidal_data_from_bicat_and_ob</span>.
+  <span class="k">exists</span> (<span class="nv">pr2</span> (tensor_from_bicat_and_ob)).
+  <span class="k">exists</span> <span class="nv">leftunitor_law_from_bicat_and_ob</span>.
+  <span class="k">exists</span> <span class="nv">rightunitor_law_from_bicat_and_ob</span>.
+  <span class="k">exists</span> <span class="nv">associator_law_from_bicat_and_ob</span>.
+  <span class="k">exists</span> <span class="nv">triangle_identity_from_bicat_and_ob</span>.
+  <span class="bp">exact</span> pentagon_identity_from_bicat_and_ob.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Monoidal_Cat_From_Bicat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/WhiskeredMonoidalFromBicategory.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

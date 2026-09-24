@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OppositeAdjunction.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+
+<span class="kn">Section</span> <span class="nf">OppositeAdjunction</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D C}
+          (<span class="nv">a</span> : are_adjoints F G).
+
+  <span class="kn">Local Definition</span> <span class="nf">a_adjunction</span> : adjunction C D := make_adjunction _ (pr2 a).
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_data_opposite</span> : adjunction_data (opp_cat D) (opp_cat C).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (functor_op G ,, functor_op F ,, _ ,, _).
+    - <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">d</span>, <span class="nv">counit_from_are_adjoints</span> <span class="nv">a</span> <span class="nv">d</span>).
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">d1</span> <span class="nv">d2</span> <span class="nv">f</span>, ! pr2 (counit_from_are_adjoints a) d2 d1 f).
+    - <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">d</span>, <span class="nv">unit_from_are_adjoints</span> <span class="nv">a</span> <span class="nv">d</span>).
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">d1</span> <span class="nv">d2</span> <span class="nv">f</span>, ! pr2 (unit_from_are_adjoints a) d2 d1 f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">form_adjunction'_opposite</span> : form_adjunction' adjunction_data_opposite.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">d</span>, <span class="nv">triangle_2_statement_from_adjunction</span> <span class="nv">a_adjunction</span> <span class="nv">d</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">c</span>, triangle_1_statement_from_adjunction a_adjunction c).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_opposite</span> : adjunction (opp_cat D) (opp_cat C).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">adjunction_data_opposite</span>.
+    <span class="bp">exact</span> form_adjunction'_opposite.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">are_adjoints_opposite</span> : are_adjoints (functor_op G) (functor_op F)
+    := are_adjoints_from_adjunction adjunction_opposite.
+
+<span class="kn">End</span> <span class="nf">OppositeAdjunction</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_right_adjoint_opposite</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+  : is_left_adjoint F -&gt; is_right_adjoint (functor_op F).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ila.
+  <span class="nb">set</span> (adj := make_adjunction _ (pr22 ila)).
+  <span class="k">exists</span> (<span class="nv">functor_op</span> (pr121 adj)).
+  <span class="bp">exact</span> (are_adjoints_opposite adj).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_right_adjoint_opposite'</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+  : is_left_adjoint (functor_op F) -&gt; is_right_adjoint F.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ila.
+  <span class="nb">apply</span> (is_right_adjoint_opposite (functor_op F) ila).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/OppositeCategory/OppositeAdjunction.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

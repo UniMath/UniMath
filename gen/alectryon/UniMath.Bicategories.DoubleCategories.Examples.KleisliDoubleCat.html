@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>KleisliDoubleCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> The Kleisli double category</span>
+
+<span class="sd"> Let `C` be a category and let `M` be a monad on `C`. Then we can define the</span>
+<span class="sd"> following double category:</span>
+<span class="sd"> - Objects: objects of `C`</span>
+<span class="sd"> - Vertical morphisms: morphisms of `C`</span>
+<span class="sd"> - Horizontal morphisms: Kleisli morphisms</span>
+<span class="sd"> - Squares: commuting squares</span>
+<span class="sd"> We give both a univalent and a strict variant.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Horizontal operations</span>
+<span class="sd"> 2. The Kleisli double category</span>
+<span class="sd"> 3. The strict Kleisli double category</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Comma.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Horizontal operations *)</span>
+<span class="kn">Section</span> <span class="nf">Kleisli</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">M</span> : Monad C).
+
+  <span class="kn">Let</span> <span class="nf">K</span> : twosided_disp_cat C C := comma_twosided_disp_cat (functor_identity C) M.
+
+  <span class="kn">Definition</span> <span class="nf">hor_id_data_kleisli</span>
+    : hor_id_data K.
+  <span class="kn">Proof</span>.
+    use make_hor_id_data ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, η M x).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (nat_trans_ax (η M) _ _ f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hor_id_laws_kleisli</span>
+    : hor_id_laws hor_id_data_kleisli.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_id_kleisli</span>
+    : hor_id K.
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - <span class="bp">exact</span> hor_id_data_kleisli.
+    - <span class="bp">exact</span> hor_id_laws_kleisli.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_comp_data_kleisli</span>
+    : hor_comp_data K.
+  <span class="kn">Proof</span>.
+    use make_hor_comp_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, f · #M g · μ M z).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂ ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> s₁ ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> &lt;- functor_comp ;
+         <span class="nb">rewrite</span> s₂ ;
+         <span class="nb">rewrite</span> functor_comp ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (nat_trans_ax (μ M) _ _ v₃)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_comp_laws_kleisli</span>
+    : hor_comp_laws hor_comp_data_kleisli.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_comp_kleisli</span>
+    : hor_comp K.
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - <span class="bp">exact</span> hor_comp_data_kleisli.
+    - <span class="bp">exact</span> hor_comp_laws_kleisli.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_lunitor_kleisli</span>
+    : double_cat_lunitor
+        hor_id_kleisli
+        hor_comp_kleisli.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      use make_iso_twosided_disp.
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(nat_trans_ax (η M) _ _ f)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">refine</span> (_ @ id_right _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> Monad_law1.
+      + <span class="nb">apply</span> comma_twosided_disp_cat_is_iso.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_runitor_kleisli</span>
+    : double_cat_runitor
+        hor_id_kleisli
+        hor_comp_kleisli.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      use make_iso_twosided_disp.
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">refine</span> (_ @ id_right _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> Monad_law2.
+      + <span class="nb">apply</span> comma_twosided_disp_cat_is_iso.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_associator_kleisli</span>
+    : double_cat_associator hor_comp_kleisli.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="nb">intros</span> w x y z h₁ h₂ h₃ ; <span class="nb">cbn</span>.
+      use make_iso_twosided_disp.
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !functor_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(nat_trans_ax (μ M) _ _ h₃)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> Monad_law3.
+      + <span class="nb">apply</span> comma_twosided_disp_cat_is_iso.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Kleisli</span>.
+
+<span class="sd">(** * 2. The Kleisli double category *)</span>
+<span class="kn">Definition</span> <span class="nf">kleisli_double_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : Monad C)
+  : double_cat.
+<span class="kn">Proof</span>.
+  use make_double_cat.
+  - <span class="bp">exact</span> C.
+  - <span class="bp">exact</span> (comma_twosided_disp_cat (functor_identity C) M).
+  - <span class="bp">exact</span> (hor_id_kleisli M).
+  - <span class="bp">exact</span> (hor_comp_kleisli M).
+  - <span class="bp">exact</span> (double_cat_lunitor_kleisli M).
+  - <span class="bp">exact</span> (double_cat_runitor_kleisli M).
+  - <span class="bp">exact</span> (double_cat_associator_kleisli M).
+  - <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> homset_property).
+  - <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> homset_property).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_flat_kleisli_double_cat</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">M</span> : Monad C)
+  : is_flat_double_cat (kleisli_double_cat M).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">all_companions_kleisli_double_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : Monad C)
+  : all_companions_double_cat (kleisli_double_cat M).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f ; <span class="nb">cbn</span> <span class="k">in</span> x, y, f ; <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (f · η M _ ,, _).
+  use make_double_cat_are_companions.
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (!_) ;
+       etrans ;
+       [ <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> functor_id
+       | ] ;
+       <span class="nb">rewrite</span> id_right ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> id_left ;
+       <span class="bp">exact</span> (nat_trans_ax (η M) _ _ f)).
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">kleisli_double_cat_ver_weq_square</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : Monad C)
+           (<span class="nv">H</span> : ∏ (x : C), isMonic (η M x))
+  : ver_weq_square (kleisli_double_cat M).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f g.
+  use isweqimplimpl.
+  - <span class="nb">intros</span> p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    use H.
+    <span class="nb">refine</span> (_ @ !(nat_trans_ax (η M) _ _ g)).
+    <span class="bp">exact</span> p.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">kleisli_univalent_double_cat</span>
+           {<span class="nv">C</span> : univalent_category}
+           (<span class="nv">M</span> : Monad C)
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_univalent_double_cat.
+  - <span class="bp">exact</span> (kleisli_double_cat M).
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> univalent_category_is_univalent.
+    + <span class="nb">apply</span> is_univalent_comma_twosided_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. The strict Kleisli double category *)</span>
+<span class="kn">Definition</span> <span class="nf">strict_kleisli_double_cat</span>
+           {<span class="nv">C</span> : setcategory}
+           (<span class="nv">M</span> : Monad C)
+  : strict_double_cat.
+<span class="kn">Proof</span>.
+  use make_strict_double_cat.
+  - <span class="bp">exact</span> C.
+  - <span class="bp">exact</span> (comma_twosided_disp_cat (functor_identity C) M).
+  - <span class="nb">apply</span> is_strict_comma_twosided_disp_cat.
+  - <span class="bp">exact</span> (hor_id_kleisli M).
+  - <span class="bp">exact</span> (hor_comp_kleisli M).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (!(nat_trans_ax (η M) _ _ f)) @ _) ; <span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (_ @ id_right _) ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="bp">exact</span> (@Monad_law1 _ M y)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (_ @ id_right _) ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="bp">exact</span> (@Monad_law2 _ M y)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> w x y z f g h ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !functor_comp ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+       <span class="nb">rewrite</span> !assoc ;
+       <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (nat_trans_ax (μ M) _ _ h)) ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> (@Monad_law3 _ M)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> homset_property).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> homset_property).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> homset_property).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/KleisliDoubleCat.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The strict Kleisli double category
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>folds_pre_2_cat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Univalent FOLDS</span>
+
+<span class="sd">    Benedikt Ahrens, following notes by Michael Shulman</span>
+
+<span class="sd">Contents of this file:</span>
+
+<span class="sd">  - Definition: FOLDS pre-3-category</span>
+<span class="sd">    - objects [ob] coerced, morphisms denoted by infix [⇒]</span>
+<span class="sd">    - predicates for identity [I], composition [T], equality [E]</span>
+<span class="sd">    - [E] is a congruence for [T] and [I], and [E] is an equivalence relation</span>
+<span class="sd">    - usual categorical axioms</span>
+
+<span class="sd">  - Definition: FOLDS pre-2-categoy</span>
+<span class="sd">    - the fibers of [I], [T] and [E] are hProps</span>
+
+<span class="sd">  - Isomorphism between morphisms in a FOLDS pre-2-category</span>
+<span class="sd">    - Definition: given by a family of equivalences</span>
+<span class="sd">    - Lemma: Type of isos [folds_2_iso f g] is a proposition (because [I], [T], [E] are)</span>
+<span class="sd">    - Definition: Map [idtoiso2] from paths to isos</span>
+
+<span class="sd">  - Lemma: In a FOLDS pre-2-category, [folds_2_iso f g] is equivalent to [E f g]</span>
+<span class="sd">    - [E_implies_folds_iso]</span>
+<span class="sd">    - [folds_iso_implies_E]</span>
+
+<span class="sd">  - Definition: univalent FOLDS pre-2-category as special FOLDS pre-2-category</span>
+<span class="sd">    - [idtoiso2] is an equivalence</span>
+<span class="sd">    - [is_univalent_folds_2_precat] is an hProp</span>
+
+<span class="sd">  - Definition: FOLDS precategory as special FOLDS pre-2-category</span>
+<span class="sd">    - predicate [is_folds_precategory] defined as</span>
+<span class="sd">      - hom-types are sets</span>
+<span class="sd">      - axioms of category modul [=] rather than [E]</span>
+
+<span class="sd">  - Lemma: Logical equivalence between being a FOLDS precategory and being univalent</span>
+<span class="sd">    - since both are hProps, this entails equivalence between the types of</span>
+<span class="sd">      - univalent FOLDS pre-2-cats</span>
+<span class="sd">      - FOLDS precats</span>
+<span class="sd">    - Implications are called</span>
+<span class="sd">      - [is_univalent_implies_is_folds_precat] and</span>
+<span class="sd">      - [is_folds_precat_implies_is_univalent]</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Folds.UnicodeNotations.
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"p ## a"</span> := (transportf _ p a) (<span class="kn">at level</span> <span class="mi">3</span>, <span class="kn">only parsing</span>).
+
+
+<span class="sd">(** * The definition of a FOLDS pre-3-category *)</span>
+
+<span class="sd">(** ** Objects and a dependent type of morphisms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">folds_3_ob_mor</span> := ∑ a : UU, a → a → UU.
+<span class="kn">Definition</span> <span class="nf">make_folds_3_ob_mor</span> (<span class="nv">ob</span> : UU)(<span class="nv">mor</span> : ob → ob → UU) : folds_3_ob_mor
+  := tpair _ ob mor.
+
+<span class="kn">Definition</span> <span class="nf">ob</span> (<span class="nv">C</span> : folds_3_ob_mor) : UU := @pr1 _ _ C.
+<span class="kn">Coercion</span> <span class="nf">ob</span> : folds_3_ob_mor &gt;-&gt; UU.
+
+<span class="kn">Definition</span> <span class="nf">folds_3_morphisms</span> {<span class="nv">C</span> : folds_3_ob_mor} : C → C → UU := pr2 C.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a ⇒ b"</span> := (folds_3_morphisms a b).
+
+<span class="kn">Definition</span> <span class="nf">folds_double_transport</span> {<span class="nv">C</span> : folds_3_ob_mor} {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">b'</span> : ob C}
+   (<span class="nv">p</span> : a = a') (<span class="nv">q</span> : b = b') (<span class="nv">f</span> : a ⇒ b) : a' ⇒ b' :=
+  transportf (<span class="k">λ</span> <span class="nv">c</span>, a' ⇒ c) q (transportf (<span class="k">λ</span> <span class="nv">c</span>, c ⇒ b) p f).
+
+<span class="sd">(** ** Identity, composition, and equality, given through predicates *)</span>
+<span class="sd">(** We do not assume those to be propositions.  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">folds_3_id_comp_eq</span> := ∑ C : folds_3_ob_mor,
+ ( (∏ a : C, a ⇒ a → UU)
+ × (∏ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → UU))
+ × ∏ a b : C, a ⇒ b → a ⇒ b → UU.
+
+
+<span class="kn">Definition</span> <span class="nf">folds_ob_mor_from_folds_id_comp</span> (<span class="nv">C</span> : folds_3_id_comp_eq) : folds_3_ob_mor := pr1 C.
+<span class="kn">Coercion</span> <span class="nf">folds_ob_mor_from_folds_id_comp</span> : folds_3_id_comp_eq &gt;-&gt; folds_3_ob_mor.
+
+<span class="kn">Definition</span> <span class="nf">I</span> {<span class="nv">C</span> : folds_3_id_comp_eq} : ∏ {a : C}, a ⇒ a → UU := pr1 (pr1 (pr2 C)).
+<span class="kn">Definition</span> <span class="nf">T</span> {<span class="nv">C</span> : folds_3_id_comp_eq} :
+      ∏ {a b c : C}, (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → UU := pr2 (pr1 (pr2 C)).
+<span class="kn">Definition</span> <span class="nf">E</span> {<span class="nv">C</span> : folds_3_id_comp_eq} :
+      ∏ {a b : C}, a ⇒ b → a ⇒ b → UU := pr2 (pr2 C).
+
+<span class="sd">(** ** E is an "equality", i.e. a congruence and equivalence *)</span>
+
+<span class="kn">Definition</span> <span class="nf">E_is_good_to_I_and_T</span> (<span class="nv">C</span> : folds_3_id_comp_eq) : UU :=
+  (((∏ (a b : C) (f : a ⇒ b), E f f) <span class="c">(* refl *)</span>
+ ×  (∏ (a b : C) (f g : a ⇒ b), E f g → E g f)) <span class="c">(* sym *)</span>
+×   (∏ (a b : C) (f g h : a ⇒ b), E f g → E g h → E f h))
+×  ((∏ (a : C) (f g : a ⇒ a), E f g → I f → I g)
+×   (∏ (a b c : C) (f f' : a ⇒ b) (g g' : b ⇒ c) (h h' : a ⇒ c),
+                      E f f' → E g g' → E h h' → T f g h → T f' g' h')).
+
+<span class="sd">(** **  The axioms for identity *)</span>
+
+<span class="kn">Definition</span> <span class="nf">folds_ax_id</span> (<span class="nv">C</span> : folds_3_id_comp_eq) :=
+     (∏ a : C, ∥ ∑ f : a ⇒ a, I f ∥ )  <span class="c">(* there is a thing satisfying I *)</span>
+ ×  ((∏ (a b : C) (f : a ⇒ b)(i : b ⇒ b), I i → T f i f) <span class="c">(* I is post neutral *)</span>
+  ×  (∏ (a b : C) (f : a ⇒ b)(i : a ⇒ a), I i → T i f f)). <span class="c">(* I is pre neutral *)</span>
+
+<span class="sd">(** ** The axioms for composition *)</span>
+
+<span class="kn">Definition</span> <span class="nf">folds_ax_comp</span> (<span class="nv">C</span> : folds_3_id_comp_eq) :=
+     (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ )
+                                                        <span class="c">(* there is a composite *)</span>
+ × ( (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h k : a ⇒ c), T f g h → T f g k → E h k )
+                                                        <span class="c">(* composite is unique mod E *)</span>
+  ×  (∏ (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d) (fg : a ⇒ c)
+                      (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d),
+       T f g fg → T g h gh → T fg h fg_h → T f gh f_gh → E f_gh fg_h)).
+                                                        <span class="c">(* composition is assoc mod E *)</span>
+
+<span class="sd">(** ** A FOLDS pre-3-category is a package of</span>
+<span class="sd">  - identity [I]</span>
+<span class="sd">  - composition [T]</span>
+<span class="sd">  - equality [E]</span>
+<span class="sd">  satisfying the categorical axioms modulo [E] and [E] is an "equality"</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">folds_pre_3_cat</span> := ∑ C : folds_3_id_comp_eq,
+     (folds_ax_id C
+    × folds_ax_comp C)
+    × E_is_good_to_I_and_T C.
+<span class="kn">Definition</span> <span class="nf">folds_id_comp_from_folds_precat</span> (<span class="nv">C</span> : folds_pre_3_cat) : folds_3_id_comp_eq := pr1 C.
+<span class="kn">Coercion</span> <span class="nf">folds_id_comp_from_folds_precat</span> : folds_pre_3_cat &gt;-&gt; folds_3_id_comp_eq.
+
+
+<span class="sd">(** * FOLDS-2-precategories *)</span>
+<span class="sd">(** they are 3-precategories such that T, I and E are hProps *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_folds_pre_2_cat</span> (<span class="nv">C</span> : folds_pre_3_cat) :=
+   ( (∏ (a : C) (i : a ⇒ a), isaprop (I i))
+  ×  (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h : a ⇒ c), isaprop (T f g h)))
+ ×   (∏ (a b : C) (f g : a ⇒ b), isaprop (E f g)).
+
+<span class="kn">Definition</span> <span class="nf">folds_pre_2_cat</span> : UU := ∑ C, is_folds_pre_2_cat C.
+
+<span class="kn">Ltac</span> <span class="nf">folds_pre_2_cat_props</span> C :=
+     <span class="kp">try</span> <span class="nb">apply</span> (pr2 (pr1 (pr2 C)));
+     <span class="kp">try</span> <span class="nb">apply</span> (pr1 (pr1 (pr2 C)));
+     <span class="kp">try</span> <span class="nb">apply</span> (pr2 (pr2 C)).
+
+
+<span class="kn">Definition</span> <span class="nf">folds_3_from_folds_2</span> (<span class="nv">C</span> : folds_pre_2_cat) : folds_pre_3_cat := pr1 C.
+<span class="kn">Coercion</span> <span class="nf">folds_3_from_folds_2</span> : folds_pre_2_cat &gt;-&gt; folds_pre_3_cat.
+
+
+<span class="sd">(** * FOLDS-2-isomorphisms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">folds_iso</span> {<span class="nv">C</span>: folds_pre_3_cat} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : a ⇒ b) : UU :=
+(((∏ (x : C) (u : x ⇒ a) (v : x ⇒ b), T u f v ≃ T u g v)
+  × (∏ (x : C) (u : a ⇒ x) (v : x ⇒ b), T u v f ≃ T u v g))
+ × (∏ (x : C) (u : b ⇒ x) (v : a ⇒ x), T f u v ≃ T g u v))
+× ((((∏ (u : a ⇒ b) (p : b = a), T p ## f f u ≃ T p ## g g u)
+     × (∏ (u : b ⇒ b) (p : a = a), T (transportf (<span class="k">λ</span> <span class="nv">a</span>, a ⇒ b) p f) u f ≃
+                                   T (transportf (<span class="k">λ</span> <span class="nv">a</span>, a ⇒ b) p g) u g))
+    × ((∏ (u : a ⇒ a) (p : b = b), T u p ## f f ≃ T u p ## g g)
+       × (∏ (p : a = a) (q : b = a) (r : b = b),
+          T (folds_double_transport p q f) r ## f f
+          ≃ T (folds_double_transport p q g) r ## g g)))
+   × (((∏ p : b = a, I p ## f ≃ I p ## g) × (∏ u : a ⇒ b, E f u ≃ E g u))
+      × ((∏ u : a ⇒ b, E u f ≃ E u g)
+         × (∏ (p : a = a) (q : b = b),
+            E (folds_double_transport p q f) f ≃ E (folds_double_transport p q g) g)))).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_folds_2_iso</span> (<span class="nv">C</span> : folds_pre_2_cat) (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : a ⇒ b) :
+  isaprop (folds_iso f g).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> isofhleveldirprod);
+  <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>);
+  <span class="nb">apply</span> isofhlevelsnweqtohlevelsn;
+  folds_pre_2_cat_props C.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">folds_2_iso_id</span> (<span class="nv">C</span> : folds_pre_3_cat) (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> : a ⇒ b) : folds_iso f f.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>;
+    <span class="nb">intros</span>; <span class="nb">apply</span> idweq.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** * In FOLDS-2-precats, [folds_iso f g &lt;-&gt; E f g] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">E_transport_source</span> : ∏ (C : folds_pre_2_cat) (a a' b : C) (f g : a ⇒ b) (p : a = a'),
+          E f g → E (transportf (<span class="k">λ</span> <span class="nv">c</span>, c ⇒ b) p f) (transportf (<span class="k">λ</span> <span class="nv">c</span>, c ⇒ b) p g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> p.
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">E_transport_target</span> : ∏ (C : folds_pre_2_cat) (a b b' : C) (f g : a ⇒ b) (p : b = b'),
+          E f g → E (transportf (<span class="k">λ</span> <span class="nv">c</span>, a ⇒ c) p f) (transportf (<span class="k">λ</span> <span class="nv">c</span>, a ⇒ c) p g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> p.
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">E_implies_folds_iso</span> (<span class="nv">C</span> : folds_pre_2_cat) (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : a ⇒ b) : E f g → folds_iso f g.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (H' := pr2 (pr2 (pr1 C))). <span class="nb">simpl</span> <span class="k">in</span> H'.
+  <span class="nb">destruct</span> H' <span class="k">as</span> [[[Erefl Esym] Etrans] [EI ET]].
+  <span class="nb">intro</span> Efg.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">apply</span> weqimplimpl; <span class="nb">intro</span>; folds_pre_2_cat_props C.
+  - <span class="nb">apply</span> (ET _ _ _  u u f g v v); <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (ET _ _ _ u u g f v v) ; <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (ET _ _ _ u u v v f g); <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (ET _ _ _ u u v v g f); <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (ET _ _ _ f g u u v v); <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (ET _ _ _ g f u u v v); <span class="nb">auto</span>.
+  - <span class="nb">destruct</span> p;
+    <span class="nb">apply</span> (ET _ _ _ f g f g u u); <span class="nb">auto</span>.
+  - <span class="nb">destruct</span> p;
+    <span class="nb">apply</span> (ET _ _ _ g f g f u u); <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (ET _ _ _ (transportf (<span class="k">λ</span> <span class="nv">c</span>, c ⇒ b) p f) (p ## g) u u f g);
+    <span class="kp">try</span> <span class="nb">apply</span> E_transport_source; <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (ET _ _ _ (transportf (<span class="k">λ</span> <span class="nv">c</span>, c ⇒ b) p g) (p ## f) u u g f);
+    <span class="kp">try</span> <span class="nb">apply</span> E_transport_source; <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (ET _ _ _ u u (transportf (<span class="k">λ</span> <span class="nv">c</span>, a ⇒ c) p f) (p ## g) f g);
+    <span class="kp">try</span> <span class="nb">apply</span> E_transport_target; <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (ET _ _ _ u u (transportf (<span class="k">λ</span> <span class="nv">c</span>, a ⇒ c) p g) (p ## f) g f);
+    <span class="kp">try</span> <span class="nb">apply</span> E_transport_target; <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (ET _ _ _ (folds_double_transport p q f) (folds_double_transport p q g)
+                          (transportf (<span class="k">λ</span> <span class="nv">c</span>, a ⇒ c) r f) (r ## g) f g);
+    <span class="kp">try</span> <span class="nb">apply</span> E_transport_target; <span class="kp">try</span> <span class="nb">apply</span> E_transport_source; <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (ET _ _ _ (folds_double_transport p q g) (folds_double_transport p q f)
+                          (transportf (<span class="k">λ</span> <span class="nv">c</span>, a ⇒ c) r g) (r ## f) g f);
+    <span class="kp">try</span> <span class="nb">apply</span> E_transport_target; <span class="kp">try</span> <span class="nb">apply</span> E_transport_source; <span class="nb">auto</span>.
+  - <span class="nb">destruct</span> p. <span class="nb">apply</span> (EI _ f); <span class="nb">auto</span>.
+  - <span class="nb">destruct</span> p; <span class="nb">apply</span> (EI _ g); <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (Etrans _ _ g f u).
+    + <span class="nb">apply</span> Esym; <span class="nb">auto</span>.
+    + <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (Etrans _ _ f g u); <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (Etrans _ _ u f g); <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (Etrans _ _ u g f).
+    + <span class="nb">auto</span>.
+    + <span class="nb">apply</span> Esym; <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (Etrans _ _ (folds_double_transport p q g) (folds_double_transport p q f) g).
+    + <span class="nb">apply</span> E_transport_target. <span class="nb">apply</span> E_transport_source. <span class="nb">apply</span> Esym; <span class="nb">auto</span>.
+    + <span class="nb">apply</span> (Etrans _ _ (folds_double_transport p q f) f g); <span class="nb">auto</span>.
+  - <span class="nb">apply</span> (Etrans _ _ (folds_double_transport p q f) (folds_double_transport p q g) f).
+    + <span class="nb">apply</span> E_transport_target. <span class="nb">apply</span> E_transport_source. <span class="nb">auto</span>.
+    + <span class="nb">apply</span> (Etrans _ _ (folds_double_transport p q g) g f); <span class="nb">auto</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">folds_iso_implies_E</span> (<span class="nv">C</span> : folds_pre_2_cat) (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : a ⇒ b) : folds_iso f g → E f g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Isofg.
+  <span class="nb">set</span> (keytojoy := pr1 (pr2 (pr2 (pr2 Isofg)))).
+  <span class="nb">apply</span> (keytojoy f).
+  <span class="nb">set</span> (H' := pr2 (pr2 (pr1 C))). <span class="nb">simpl</span> <span class="k">in</span> H'.
+  <span class="nb">destruct</span> H' <span class="k">as</span> [[[Erefl Esym] Etrans] [EI ET]].
+  <span class="nb">apply</span> Erefl.
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** * Univalent FOLDS-2-precategory *)</span>
+<span class="sd">(** satisfies [isweq (idtoiso2 f g)] for any [f] and [g] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">idtoiso2</span> {<span class="nv">C</span> : folds_pre_2_cat} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : a ⇒ b} : f = g → folds_iso f g.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> <span class="mi">1</span>.
+  <span class="bp">exact</span> (folds_2_iso_id _ _ _ f).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_folds_pre_2_cat</span> (<span class="nv">C</span> : folds_pre_2_cat) : UU :=
+   ∏ (a b : C) (f g : a ⇒ b), isweq (@idtoiso2 _ _ _ f g).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_univalent_folds_2_precat</span> (<span class="nv">C</span> : folds_pre_2_cat) :
+   isaprop (is_univalent_folds_pre_2_cat C).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>);
+  <span class="nb">apply</span> isapropisweq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isotoid2</span> (<span class="nv">C</span> : folds_pre_2_cat) (<span class="nv">H</span> : is_univalent_folds_pre_2_cat C)
+  (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : a ⇒ b) : folds_iso f g → f = g :=
+  invmap (make_weq _ (H a b f g)).
+
+<span class="sd">(** * FOLDS precategories *)</span>
+<span class="sd">(** We define them as special FOLDS pre-2-categories, namely such that</span>
+<span class="sd">   - hom-types are sets</span>
+<span class="sd">   - axioms of precategory modulo identity (rather than E)</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_folds_precategory</span> (<span class="nv">C</span> : folds_pre_2_cat) : UU :=
+     (∏ a b : C, isaset (a ⇒ b))
+ ×  ((∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h k : a ⇒ c),
+                  T f g h → T f g k → h = k )       <span class="c">(* T is unique mod identity *)</span>
+  ×  (∏ (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
+                  (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d),
+               T f g fg → T g h gh →
+                  T fg h fg_h → T f gh f_gh → f_gh = fg_h)). <span class="c">(* T is assoc mod identity *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_folds_precategory</span> (<span class="nv">C</span> : folds_pre_2_cat) : isaprop (is_folds_precategory C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isofhlevelsn. <span class="nb">intro</span> H.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> isofhleveldirprod).
+  - <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropisaset.
+  - <span class="kp">do</span> <span class="mi">9</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> (pr1 H).
+  - <span class="kp">do</span> <span class="mi">15</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> H.
+<span class="c">(* alternatively by hand</span>
+<span class="c">  apply invproofirrelevance.</span>
+<span class="c">  intros [p q] [p' q'].</span>
+<span class="c">  apply pathsdirprod.</span>
+<span class="c">  - apply proofirrelevance.</span>
+<span class="c">    do 2 (apply impred; intro).</span>
+<span class="c">    apply isapropisaset.</span>
+<span class="c">  - destruct q as [q1 q2].</span>
+<span class="c">    destruct q' as [q'1 q'2].</span>
+<span class="c">    apply pathsdirprod.</span>
+<span class="c">    + apply proofirrelevance;</span>
+<span class="c">      do 9 (apply impred; intro); apply p.</span>
+<span class="c">    + apply proofirrelevance.</span>
+<span class="c">      do 15 (apply impred; intro); apply p.</span>
+<span class="c">*)</span>
+<span class="kn">Qed</span>.
+
+
+
+<span class="sd">(** * Univalent FOLDS pre-2-category is a FOLDS precategory *)</span>
+
+
+<span class="kn">Section</span> <span class="nf">is_univalent_implies_folds_precat</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : folds_pre_2_cat.
+<span class="kn">Hypothesis</span> <span class="nv">H</span> : is_univalent_folds_pre_2_cat C.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_implies_is_folds_precat</span> : is_folds_precategory C.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_dirprod.
+  - <span class="nb">intros</span> a b f g.
+    <span class="nb">apply</span> (isofhlevelweqb _ (make_weq _ (H a b f g))).
+    <span class="nb">apply</span> isaprop_folds_2_iso.
+  - <span class="nb">apply</span> make_dirprod.
+    + <span class="nb">intros</span>. <span class="nb">apply</span> (isotoid2 _ H).
+      <span class="nb">apply</span> E_implies_folds_iso.
+      <span class="nb">set</span> (T_unique := pr1 (pr2 (pr2 (pr1 (pr2 (pr1 C)))))).
+      <span class="nb">apply</span> (T_unique _ _ _ f g); <span class="nb">auto</span>.
+    + <span class="nb">intros</span>. <span class="nb">apply</span> (isotoid2 _ H).
+      <span class="nb">apply</span> E_implies_folds_iso.
+      <span class="nb">set</span> (T_assoc := pr2 (pr2 (pr2 (pr1 (pr2 (pr1 C)))))). <span class="nb">simpl</span> <span class="k">in</span> T_assoc.
+      <span class="nb">apply</span> (T_assoc _ _ _ _ f g h fg gh fg_h f_gh); <span class="nb">auto</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">is_univalent_implies_folds_precat</span>.
+
+<span class="sd">(** * FOLDS precategory implies univalence *)</span>
+
+<span class="kn">Section</span> <span class="nf">folds_precat_implies_univalent</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : folds_pre_2_cat.
+
+<span class="kn">Hypothesis</span> <span class="nv">H</span> : is_folds_precategory C.
+<span class="kn">Hypothesis</span> <span class="nv">standardness</span> : ∏ (a b : C) (f g : a ⇒ b), E f g → f = g.
+
+<span class="kn">Lemma</span> <span class="nf">folds_2_iso_implies_identity</span> (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : a ⇒ b) : folds_iso f g → f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Isofg.
+  <span class="nb">apply</span> standardness.
+  <span class="nb">apply</span> folds_iso_implies_E.
+  <span class="nb">apply</span> Isofg.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_folds_precat_implies_is_univalent</span> : is_univalent_folds_pre_2_cat C.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b f g.
+  <span class="nb">apply</span> isweqimplimpl.
+  - <span class="nb">apply</span> folds_2_iso_implies_identity.
+  - <span class="nb">apply</span> (pr1 H).
+  - <span class="nb">apply</span> isaprop_folds_2_iso.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">folds_precat_implies_univalent</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Folds/folds_pre_2_cat.v</tt>, line 44)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Folds/UnicodeNotations.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Folds.UnicodeNotations.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.Foundations.PartD.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

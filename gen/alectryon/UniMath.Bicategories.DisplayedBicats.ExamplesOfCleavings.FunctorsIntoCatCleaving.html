@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FunctorsIntoCatCleaving.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> The fibrations of functors into the category of strict categories</span>
+
+<span class="sd"> In this file, we prove that the displayed bicategory of functors into the category of strict categories has a</span>
+<span class="sd"> local opcleaving, a local isocleaving, and a global cleaving.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Local opcleaving</span>
+<span class="sd"> 2. Local isocleaving</span>
+<span class="sd"> 3. Global cleaving</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StrictCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FunctorsIntoCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Local opcleaving</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">functors_into_cat_is_opcartesian_2cell</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_strict_cats}
+           {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ --&gt; C₂}
+           {<span class="nv">α</span> : F₁ ==&gt; F₂}
+           {<span class="nv">G₁</span> : disp_bicat_of_functors_into_cat C₁}
+           {<span class="nv">G₂</span> : disp_bicat_of_functors_into_cat C₂}
+           {<span class="nv">β₁</span> : G₁ --&gt;[ F₁ ] G₂}
+           {<span class="nv">β₂</span> : G₁ --&gt;[ F₂ ] G₂}
+           (<span class="nv">p</span> : β₁ ==&gt;[ α ] β₂)
+  : is_opcartesian_2cell disp_bicat_of_functors_into_cat p.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H GH γ ββ.
+  use iscontraprop1.
+  - use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)).
+    + use impred ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    + <span class="nb">apply</span> disp_bicat_of_functors_into_cat.
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ ββ x).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (functor_comp G₂).
+      }
+      <span class="nb">refine</span> (assoc (pr1 β₁ x) (# (pr1 G₂) (pr1 α x)) _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (p x).
+    + <span class="nb">apply</span> functors_into_cat_disp_2cells_isaprop.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functors_into_cat_local_opcleaving</span>
+  : local_opcleaving disp_bicat_of_functors_into_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> C₁ C₂ G₁ G₂ F₁ F₂ α β.
+  <span class="nb">simple refine</span> (_ ,, _ ,, functors_into_cat_is_opcartesian_2cell _).
+  - <span class="bp">exact</span> (nat_trans_comp _ _ _ α (post_whisker β _)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Local isocleaving</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">functors_into_cat_local_iso_cleaving</span>
+  : local_iso_cleaving disp_bicat_of_functors_into_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> C₁ C₂ G₁ G₂ F₁ F₂ α β.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _).
+  - <span class="bp">exact</span> (nat_trans_comp _ _ _ α (post_whisker β^-<span class="mi">1</span> _)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> x ;
+       <span class="nb">refine</span> (assoc' (pr1 α x) _ _ @ _ @ id_right _) ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">refine</span> (!(functor_comp F₂ _ _) @ _ @ functor_id F₂ _) ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="bp">exact</span> (nat_trans_eq_pointwise (vcomp_linv β) x)).
+  - <span class="nb">apply</span> functors_into_cat_disp_locally_groupoid.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Global cleaving</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">functors_into_cat_nat_iso_is_cartesian_1cell</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_strict_cats}
+           {<span class="nv">F</span> : C₁ --&gt; C₂}
+           {<span class="nv">G₁</span> : disp_bicat_of_functors_into_cat C₁}
+           {<span class="nv">G₂</span> : disp_bicat_of_functors_into_cat C₂}
+           (<span class="nv">α</span> : G₁ --&gt;[ F ] G₂)
+           (<span class="nv">Hα</span> : is_nat_z_iso (pr1 α))
+  : cartesian_1cell disp_bicat_of_functors_into_cat α.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> C₃ G₃ H HF.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (nat_trans_comp
+                _ _ _
+                HF
+                (pre_whisker _ (nat_z_iso_inv (make_nat_z_iso _ _ α Hα)))).
+    + <span class="nb">simple refine</span> (_ ,, _).
+      * <span class="kp">abstract</span>
+          (<span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+           etrans ;
+           [ <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> (functor_id G₂)
+           | ] ;
+           <span class="nb">refine</span> (id_right (pr1 HF x · _ · _) @ _) ;
+           <span class="nb">refine</span> (_ @ id_right _) ;
+           <span class="nb">rewrite</span> assoc' ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">apply</span> Hα).
+      * <span class="nb">apply</span> functors_into_cat_disp_locally_groupoid.
+  - <span class="nb">intros</span> C₃ G₃ F₁ F₂ β γ δ p ℓ₁ ℓ₂.
+    use iscontraprop1.
+    + <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> disp_bicat_of_functors_into_cat | ] ;
+         <span class="nb">apply</span> functors_into_cat_disp_2cells_isaprop).
+    + <span class="nb">simple refine</span> (_ ,, _).
+      * <span class="kp">abstract</span>
+          (<span class="nb">intro</span> x ;
+           <span class="nb">pose</span> (pr12 ℓ₁ x) <span class="k">as</span> q₁ ;
+           <span class="nb">pose</span> (pr12 ℓ₂ x @ !(p x) @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (!q₁)) <span class="k">as</span> q₂ ;
+           <span class="nb">rewrite</span> !(functor_id G₂) <span class="k">in</span> q₂ ;
+           <span class="nb">pose</span> (!(id_right (pr11 ℓ₂ x · pr1 α (pr1 F₂ x))) @ q₂) <span class="k">as</span> q₃ ;
+           <span class="nb">pose</span> (q₃ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · # (pr1 G₂) _) (id_right _) @ assoc' _ _ _) <span class="k">as</span> q₄ ;
+           <span class="nb">pose</span> (q₄ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (!(nat_trans_ax α _ _ (pr1 δ x)))) <span class="k">as</span> q₅ ;
+           <span class="nb">pose</span> (maponpaths
+                   (<span class="k">λ</span> <span class="nv">z</span>, z · nat_z_iso_inv (make_nat_z_iso _ _ _ Hα) (pr1 F₂ x))
+                   q₅)
+             <span class="k">as</span> q₆ ;
+           <span class="nb">refine</span> (_ @ !q₆ @ _) ;
+           [ <span class="nb">refine</span> (_ @ assoc (pr11 ℓ₁ x) _ _) ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">refine</span> (_ @ assoc _ _ _) ;
+             <span class="nb">refine</span> (!(id_right _) @ _) ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">refine</span> (!_) ;
+             <span class="nb">apply</span> Hα
+           | <span class="nb">refine</span> (assoc' (pr11 ℓ₂ x) _ _ @ _) ;
+             <span class="nb">refine</span> (_ @ id_right _) ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> Hα ]).
+      * <span class="nb">apply</span> functors_into_cat_disp_2cells_isaprop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">CartesianIsNatIso</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_strict_cats}
+          {<span class="nv">F</span> : C₁ --&gt; C₂}
+          {<span class="nv">G₁</span> : disp_bicat_of_functors_into_cat C₁}
+          {<span class="nv">G₂</span> : disp_bicat_of_functors_into_cat C₂}
+          (<span class="nv">α</span> : G₁ --&gt;[ F ] G₂)
+          (<span class="nv">Hα</span> : cartesian_1cell disp_bicat_of_functors_into_cat α).
+
+  <span class="kn">Local Definition</span> <span class="nf">functors_into_cat_cartesian_1cell_is_nat_iso_inv</span>
+                   (<span class="nv">x</span> : pr1 C₁)
+    : (F ∙ G₂) x --&gt; pr1 G₁ x
+    := <span class="k">let</span> <span class="nv">l</span> := pr1 Hα C₁ (F ∙ G₂) (functor_identity _) (nat_trans_id _) <span class="k">in</span>
+       pr1 (pr1 l) x.
+
+  <span class="kn">Local Lemma</span> <span class="nf">functors_into_cat_cartesian_1cell_is_nat_iso_is_inverse</span>
+              (<span class="nv">x</span> : pr1 C₁)
+    : is_inverse_in_precat
+        (pr1 α x)
+        (functors_into_cat_cartesian_1cell_is_nat_iso_inv x).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (l := pr1 Hα C₁ (F ∙ G₂) (functor_identity _) (nat_trans_id _)).
+    <span class="nb">split</span> ; <span class="nb">unfold</span> functors_into_cat_cartesian_1cell_is_nat_iso_inv.
+    - <span class="nb">cbn</span>.
+      <span class="nb">assert</span> (α ==&gt;[ nat_trans_id (functor_identity _) ▹ F] α) <span class="k">as</span> p.
+      {
+        <span class="nb">intro</span> z ; <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (functor_id F).
+          }
+          <span class="nb">apply</span> (functor_id G₂).
+        }
+        <span class="nb">apply</span> (id_right (pr1 α z)).
+      }
+      <span class="nb">simple refine</span> (_ @ @cartesian_1cell_lift_2cell
+                           _ _ _ _ _ _ _ _
+                           Hα
+                           C₁
+                           G₁
+                           (functor_identity _) (functor_identity _)
+                           α α
+                           (nat_trans_id _)
+                           p
+                           (nat_trans_comp _ _ _ α (pr1 l) ,, _)
+                           (nat_trans_id _ ,, _)
+                           x).
+      + <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (functor_id G₁).
+        }
+        <span class="nb">apply</span> (id_right (pr1 α x · _)).
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">intro</span> z.
+          <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (_ @ id_right (pr1 α z)).
+          <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (pr12 l z)).
+          <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (assoc' (pr1 α z · pr11 l z) (pr1 α z) _ @ _).
+          <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> assoc.
+        * <span class="nb">apply</span> functors_into_cat_disp_locally_groupoid.
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">intro</span> z.
+          <span class="nb">cbn</span>.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (functor_id G₂).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> (id_right (_ · pr1 α z)).
+          }
+          <span class="nb">apply</span> (id_left (pr1 α z)).
+        * <span class="nb">apply</span> functors_into_cat_disp_locally_groupoid.
+    - <span class="nb">refine</span> (_ @ pr12 l x) ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (functor_id G₂).
+      }
+      <span class="nb">apply</span> (id_right (pr11 l x · _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functors_into_cat_cartesian_1cell_is_nat_iso</span>
+    : is_nat_z_iso (pr1 α).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (functors_into_cat_cartesian_1cell_is_nat_iso_inv x).
+    - <span class="bp">exact</span> (functors_into_cat_cartesian_1cell_is_nat_iso_is_inverse x).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CartesianIsNatIso</span>.
+
+<span class="kn">Definition</span> <span class="nf">functors_into_cat_global_cleaving</span>
+  : global_cleaving disp_bicat_of_functors_into_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> C₁ C₂ G₁ F.
+  <span class="nb">refine</span> (F ∙ G₁ ,, nat_trans_id _ ,, _).
+  <span class="nb">apply</span> functors_into_cat_nat_iso_is_cartesian_1cell.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> is_z_isomorphism_identity.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/ExamplesOfCleavings/FunctorsIntoCatCleaving.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Global cleaving
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

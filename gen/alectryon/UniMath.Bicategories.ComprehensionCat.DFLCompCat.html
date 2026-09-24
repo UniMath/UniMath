@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DFLCompCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> The bicategory of DFL comprehension categories</span>
+
+<span class="sd"> In this file, we construct the bicategory of, what we call, DFL comprehension categories.</span>
+<span class="sd"> These are comprehension categories that are:</span>
+<span class="sd"> - democratic (that's what the D stands for)</span>
+<span class="sd"> - support finite limit constructions being units, products, equalizers, and sigma types</span>
+<span class="sd">   (hence the FL).</span>
+<span class="sd"> We construct this bicategory by putting together the desired displayed bicategories.</span>
+
+<span class="sd"> This bicategory is based on the bicategory of democratic CwFs that support extensional</span>
+<span class="sd"> identity types and sigma types (Definition 3.10 in the paper by Clairambault and Dybjer).</span>
+<span class="sd"> However, there are several differences.</span>
+
+<span class="sd"> - We use full comprehension categories whereas Clairambault and Dybjer use CwFs.</span>
+
+<span class="sd"> The reason for this difference is caused by the intended examples. Clairambault and Dybjer</span>
+<span class="sd"> look at CwFs and those are suitable for strict categories. This is because in a CwF, there</span>
+<span class="sd"> is a set of types. As such, if we would construct a CwF from a category where the dependent</span>
+<span class="sd"> types in a context `Γ` are morphisms into `Γ`, then we need to require the category to be</span>
+<span class="sd"> strict in order to guarantee that we have a set of types. This would restrict the examples</span>
+<span class="sd"> of models that one has: the category of hSets would not form a CwF. Note that one could</span>
+<span class="sd"> give other models using, for instance, iterative sets (see the work by Gratzer, Gylterud,</span>
+<span class="sd"> Mörtberg, and Stenholm).</span>
+
+<span class="sd"> Instead, we are interested in univalent categories, and for that reason, we use an</span>
+<span class="sd"> alternative model of type theory. Comprehension categories do not force any restriction on</span>
+<span class="sd"> the homotopy level of the type since we do not require the fibration of types to be a</span>
+<span class="sd"> discrete fibration.</span>
+
+<span class="sd"> - We do not explicitly require that the 1-cells preserve democracy</span>
+
+<span class="sd"> The reason for that is explained the file on democracy. The type that a functor between</span>
+<span class="sd"> full comprehension categories preserves democracy, is contractible. Here the fully</span>
+<span class="sd"> faithfulness of the comprehension functor is used. Note that the comprehension category</span>
+<span class="sd"> associated to a CwF is full, so this also holds for CwFs.</span>
+
+<span class="sd"> - Type formers are phrased differently.</span>
+
+<span class="sd"> In the paper by Clairambault and Dybjer, a rather syntactical approach is used to describe</span>
+<span class="sd"> the type formers in a CwF: they are described using introduction and elimination rules. This</span>
+<span class="sd"> closely connects it to the syntax of type theory. However, we use a more categorical approach,</span>
+<span class="sd"> and type formers are described using universal properties. For example, product types are</span>
+<span class="sd"> described using categorical binary products and unit types are described using terminal</span>
+<span class="sd"> objects. This approach is more common in the literature on comprehension categories (see,</span>
+<span class="sd"> for example, the book by Jacobs) and hyperdoctrines.</span>
+
+<span class="sd"> - Extensional identity types versus equalizer types.</span>
+
+<span class="sd"> Clairambault and Dybjer phrase extensional identity types by describing introduction and</span>
+<span class="sd"> elimination rules. In the literature on comprehension categories (e.g., the book by Jacobs),</span>
+<span class="sd"> one would phrase extensional identity types as left adjoint of the diagonal satisfying some</span>
+<span class="sd"> condition. However, we use equalizer types instead. These are equivalent to extensional</span>
+<span class="sd"> identity types if one has sigma types (Theorem 10.5.10 in 'Categorical Logic and Type Theory'</span>
+<span class="sd"> by Jacobs), so this is no essential difference.</span>
+
+<span class="sd"> - Minimalism in the number of type formers.</span>
+
+<span class="sd"> Clairambault and Dybjer take a rather small set of type formers: they only consider sigma</span>
+<span class="sd"> types and extensional identity types. However, we do not pursue minimalism, and instead, we</span>
+<span class="sd"> take a larger set of type formers that includes unit types and product types. The reason</span>
+<span class="sd"> for that is that we are not required to construct product types from sigma types and unit</span>
+<span class="sd"> types using democracy, while verifying the existence of these types is not difficult in</span>
+<span class="sd"> practice.</span>
+
+<span class="sd"> - 'Strength' of the type formers.</span>
+
+<span class="sd"> Several type formers (unit, sigma and product) come in multiple variants. For the unit type</span>
+<span class="sd"> `𝟙`, we can require that the projection `Γ &amp; 𝟙 --&gt; Γ` is an isomorphisms. For sigma types, we</span>
+<span class="sd"> can require that we have an isomorphism between `Γ &amp; ∑ A B` and `Γ &amp; A &amp; B` (a similar</span>
+<span class="sd"> requirement can be given for product types). We call the versions of these type formers where</span>
+<span class="sd"> we have these isomorphisms, the strong variants. In full DFL comprehension categories, we</span>
+<span class="sd"> require the sigma and unit type to be strong, but not the product. This is because we do not</span>
+<span class="sd"> need the strength for the product in our development. In addition, since product types can be</span>
+<span class="sd"> constructed from sigma types, we can also regain strong product types if desired. Note that</span>
+<span class="sd"> in Clairambault and Dybjer, CwFs are used and there, they can derive these isomorphisms.</span>
+<span class="sd"> For sigma types, this is used in the proof of Proposition 3.5.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - 'The biequivalence of locally cartesian closed categories and Martin-Löf type theories'</span>
+<span class="sd">   by Clairambault and Dybjer.</span>
+<span class="sd"> - 'The Category of Iterative Sets in Homotopy Type Theory and Univalent Foundations' by</span>
+<span class="sd">   Gratzer, Gylterud, Mörtberg, Stenholm</span>
+<span class="sd"> - 'Categorical Logic and Type Theory' by Jacobs</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The bicategory of DFL comprehension categories</span>
+<span class="sd"> 2. This bicategory is univalent</span>
+<span class="sd"> 3. Builders and accessors</span>
+<span class="sd"> 4. Invertible 2-cells</span>
+<span class="sd"> 5. The adjoint equivalence coming from democracy</span>
+<span class="sd"> 6. Adjoint equivalences of DFL comprehension categories</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Equivalences.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.PreservationProperties.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Export</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.UnitTypes.
+<span class="kn">Require Export</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.ProductTypes.
+<span class="kn">Require Export</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.
+<span class="kn">Require Export</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.Democracy.
+<span class="kn">Require Export</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.SigmaTypes.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. The bicategory of DFL comprehension categories *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_of_dfl_full_comp_cat</span>
+  : disp_bicat bicat_full_comp_cat
+  := disp_dirprod_bicat
+       disp_bicat_of_democracy
+       (disp_dirprod_bicat
+          disp_bicat_of_strong_unit_type
+          (disp_dirprod_bicat
+             disp_bicat_of_prod_type_full_comp_cat
+             (disp_dirprod_bicat
+                disp_bicat_of_equalizer_type_full_comp_cat
+                disp_bicat_of_sigma_type_full_comp_cat))).
+
+<span class="kn">Definition</span> <span class="nf">bicat_of_dfl_full_comp_cat</span>
+  : bicat
+  := total_bicat disp_bicat_of_dfl_full_comp_cat.
+
+<span class="sd">(** * 2. This bicategory is univalent *)</span>
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_disp_bicat_of_dfl_full_comp_cat</span>
+  : disp_univalent_2_1 disp_bicat_of_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use is_univalent_2_1_dirprod_bicat.
+  {
+    <span class="bp">exact</span> univalent_2_1_disp_bicat_of_democracy.
+  }
+  use is_univalent_2_1_dirprod_bicat.
+  {
+    <span class="bp">exact</span> univalent_2_1_disp_bicat_of_strong_unit_type.
+  }
+  use is_univalent_2_1_dirprod_bicat.
+  {
+    <span class="bp">exact</span> univalent_2_1_disp_bicat_of_prod_type_full_comp_cat.
+  }
+  use is_univalent_2_1_dirprod_bicat.
+  {
+    <span class="bp">exact</span> univalent_2_1_disp_bicat_of_equalizer_type_full_comp_cat.
+  }
+  <span class="bp">exact</span> univalent_2_1_disp_bicat_of_sigma_type_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_disp_bicat_of_dfl_full_comp_cat</span>
+  : disp_univalent_2_0 disp_bicat_of_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use (is_univalent_2_0_dirprod_bicat _ _ is_univalent_2_1_bicat_full_comp_cat).
+  {
+    <span class="bp">exact</span> univalent_2_disp_bicat_of_democracy.
+  }
+  use (is_univalent_2_dirprod_bicat _ _ is_univalent_2_1_bicat_full_comp_cat).
+  {
+    <span class="bp">exact</span> univalent_2_disp_bicat_of_strong_unit_type.
+  }
+  use (is_univalent_2_dirprod_bicat _ _ is_univalent_2_1_bicat_full_comp_cat).
+  {
+    <span class="bp">exact</span> univalent_2_disp_bicat_of_prod_type_full_comp_cat.
+  }
+  use (is_univalent_2_dirprod_bicat _ _ is_univalent_2_1_bicat_full_comp_cat).
+  {
+    <span class="bp">exact</span> univalent_2_disp_bicat_of_equalizer_type_full_comp_cat.
+  }
+  <span class="bp">exact</span> univalent_2_disp_bicat_of_sigma_type_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_disp_bicat_of_dfl_full_comp_cat</span>
+  : disp_univalent_2 disp_bicat_of_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> is_univalent_2_0_disp_bicat_of_dfl_full_comp_cat.
+  - <span class="bp">exact</span> is_univalent_2_1_disp_bicat_of_dfl_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_1_bicat_of_dfl_full_comp_cat</span>
+  : is_univalent_2_1 bicat_of_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_1.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_full_comp_cat.
+  - <span class="bp">exact</span> is_univalent_2_1_disp_bicat_of_dfl_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_0_bicat_of_dfl_full_comp_cat</span>
+  : is_univalent_2_0 bicat_of_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_full_comp_cat.
+  - <span class="bp">exact</span> is_univalent_2_0_disp_bicat_of_dfl_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_bicat_of_dfl_full_comp_cat</span>
+  : is_univalent_2 bicat_of_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_of_dfl_full_comp_cat.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_dfl_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Builders and accessors *)</span>
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat</span>
+  : UU
+  := bicat_of_dfl_full_comp_cat.
+
+<span class="kn">Definition</span> <span class="nf">make_dfl_full_comp_cat</span>
+           (<span class="nv">C</span> : full_comp_cat)
+           (<span class="nv">DC</span> : is_democratic C)
+           (<span class="nv">T</span> : fiberwise_terminal (cleaving_of_types C))
+           (<span class="nv">HT</span> : ∏ (Γ : C), is_z_isomorphism (π (pr1 (pr1 T Γ))))
+           (<span class="nv">P</span> : fiberwise_binproducts (cleaving_of_types C))
+           (<span class="nv">E</span> : fiberwise_equalizers (cleaving_of_types C))
+           (<span class="nv">S</span> : strong_dependent_sums C)
+  : dfl_full_comp_cat
+  := C ,, (DC ,, ((T ,, HT) ,, tt) ,, (P ,, tt) ,, (E ,, tt) ,, S).
+
+<span class="kn">Coercion</span> <span class="nf">dfl_full_comp_cat_to_full_comp_cat</span>
+         (C : dfl_full_comp_cat)
+  : full_comp_cat
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">is_democratic_dfl_full_comp_cat</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : is_democratic C
+  := pr12 C.
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_terminal_dfl_full_comp_cat</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : fiberwise_terminal (cleaving_of_types C)
+  := pr11 (pr122 C).
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_terminal</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">Γ</span> : C)
+  : Terminal (disp_cat_of_types C)[{Γ}]
+  := pr1 (fiberwise_terminal_dfl_full_comp_cat C) Γ.
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_unit</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">Γ</span> : C)
+  : ty Γ
+  := pr1 (dfl_full_comp_cat_terminal Γ).
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_extend_unit</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">Γ</span> : C)
+  : is_z_isomorphism (π (dfl_full_comp_cat_unit Γ))
+  := pr21 (pr122 C) Γ.
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_extend_unit_z_iso</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">Γ</span> : C)
+  : z_iso (Γ &amp; dfl_full_comp_cat_unit Γ) Γ
+  := _ ,, dfl_full_comp_cat_extend_unit Γ.
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_binproducts_dfl_full_comp_cat</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : fiberwise_binproducts (cleaving_of_types C)
+  := pr1 (pr1 (pr222 C)).
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_equalizers_dfl_full_comp_cat</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : fiberwise_equalizers (cleaving_of_types C)
+  := pr1 (pr12 (pr222 C)).
+
+<span class="kn">Definition</span> <span class="nf">strong_dependent_sum_dfl_full_comp_cat</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : strong_dependent_sums C
+  := pr22 (pr222 C).
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_functor</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat)
+  : UU
+  := C₁ --&gt; C₂.
+
+<span class="kn">Definition</span> <span class="nf">make_dfl_full_comp_cat_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           (<span class="nv">FT</span> : ∏ (Γ : C₁),
+                 preserves_terminal
+                   (fiber_functor (comp_cat_type_functor F) Γ))
+           (<span class="nv">FP</span> : ∏ (Γ : C₁),
+                 preserves_binproduct
+                   (fiber_functor (comp_cat_type_functor F) Γ))
+           (<span class="nv">FE</span> : ∏ (Γ : C₁),
+                 preserves_equalizer
+                   (fiber_functor (comp_cat_type_functor F) Γ))
+  : dfl_full_comp_cat_functor C₁ C₂
+  := F ,, tt ,, (tt ,, FT) ,, (tt ,, FP) ,, (tt ,, FE) ,, tt.
+
+<span class="kn">Coercion</span> <span class="nf">dfl_full_comp_cat_functor_to_full_comp_cat_functor</span>
+         {C₁ C₂ : dfl_full_comp_cat}
+         (F : dfl_full_comp_cat_functor C₁ C₂)
+  : full_comp_cat_functor C₁ C₂
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">preserves_terminal_dfl_full_comp_cat_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂)
+           (<span class="nv">Γ</span> : C₁)
+  : preserves_terminal (fiber_functor (comp_cat_type_functor F) Γ)
+  := pr2 (pr122 F) Γ.
+
+<span class="kn">Definition</span> <span class="nf">preserves_binproducts_dfl_full_comp_cat_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂)
+           (<span class="nv">Γ</span> : C₁)
+  : preserves_binproduct (fiber_functor (comp_cat_type_functor F) Γ)
+  := pr2 (pr1 (pr222 F)) Γ.
+
+<span class="kn">Definition</span> <span class="nf">preserves_equalizers_dfl_full_comp_cat_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂)
+           (<span class="nv">Γ</span> : C₁)
+  : preserves_equalizer (fiber_functor (comp_cat_type_functor F) Γ)
+  := pr2 (pr12 (pr222 F)) Γ.
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> <span class="nv">G</span> : dfl_full_comp_cat_functor C₁ C₂)
+  : UU
+  := F ==&gt; G.
+
+<span class="kn">Definition</span> <span class="nf">make_dfl_full_comp_cat_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : dfl_full_comp_cat_functor C₁ C₂}
+           (<span class="nv">τ</span> : full_comp_cat_nat_trans F G)
+  : dfl_full_comp_cat_nat_trans F G
+  := τ ,, tt ,, (tt ,, tt) ,, (tt ,, tt) ,, (tt ,, tt) ,, tt.
+
+<span class="kn">Coercion</span> <span class="nf">dfl_full_comp_cat_nat_trans_to_full_comp_cat_nat_trans</span>
+         {C₁ C₂ : dfl_full_comp_cat}
+         {F G : dfl_full_comp_cat_functor C₁ C₂}
+         (τ : dfl_full_comp_cat_nat_trans F G)
+  : full_comp_cat_nat_trans F G
+  := pr1 τ.
+
+<span class="kn">Proposition</span> <span class="nf">dfl_full_comp_cat_nat_trans_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : dfl_full_comp_cat_functor C₁ C₂}
+            (<span class="nv">τ₁</span> <span class="nv">τ₂</span> : dfl_full_comp_cat_nat_trans F G)
+            (<span class="nv">p</span> : ∏ (x : C₁), τ₁ x = τ₂ x)
+            (<span class="nv">p'</span> := nat_trans_eq (homset_property _) _ _ _ _ p)
+            (<span class="nv">pp</span> : ∏ (x : C₁)
+                    (xx : disp_cat_of_types C₁ x),
+                  transportf
+                    _
+                    (nat_trans_eq_pointwise p' x)
+                    (comp_cat_type_nat_trans τ₁ x xx)
+                  =
+                  comp_cat_type_nat_trans τ₂ x xx)
+  : τ₁ = τ₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="kp">repeat</span> (use isapropdirprod) ; <span class="nb">apply</span> isapropunit.
+  }
+  <span class="bp">exact</span> (full_comp_nat_trans_eq p pp).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_fiber</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">Γ</span> : C)
+  : univ_cat_with_finlim.
+<span class="kn">Proof</span>.
+  use make_univ_cat_with_finlim.
+  - <span class="bp">exact</span> (univalent_fiber_category (disp_cat_of_types C) Γ).
+  - <span class="nb">apply</span> dfl_full_comp_cat_terminal.
+  - use Pullbacks_from_Equalizers_BinProducts.
+    + <span class="nb">apply</span> fiberwise_binproducts_dfl_full_comp_cat.
+    + <span class="nb">apply</span> fiberwise_equalizers_dfl_full_comp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_fiber_functor</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+  : functor_finlim (dfl_full_comp_cat_fiber Γ₂) (dfl_full_comp_cat_fiber Γ₁).
+<span class="kn">Proof</span>.
+  use make_functor_finlim.
+  - <span class="bp">exact</span> (fiber_functor_from_cleaving _ (cleaving_of_types C) s).
+  - <span class="nb">apply</span> fiberwise_terminal_dfl_full_comp_cat.
+  - use preserves_pullback_from_binproduct_equalizer.
+    + <span class="nb">apply</span> fiberwise_binproducts_dfl_full_comp_cat.
+    + <span class="nb">apply</span> fiberwise_equalizers_dfl_full_comp_cat.
+    + <span class="nb">apply</span> fiberwise_binproducts_dfl_full_comp_cat.
+    + <span class="nb">apply</span> fiberwise_equalizers_dfl_full_comp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_functor_fiber_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂)
+           (<span class="nv">Γ</span> : C₁)
+  : functor_finlim (dfl_full_comp_cat_fiber Γ) (dfl_full_comp_cat_fiber (F Γ)).
+<span class="kn">Proof</span>.
+  use make_functor_finlim.
+  - <span class="bp">exact</span> (fiber_functor (comp_cat_type_functor F) Γ).
+  - <span class="nb">apply</span> preserves_terminal_dfl_full_comp_cat_functor.
+  - use preserves_pullback_from_binproduct_equalizer.
+    + <span class="nb">apply</span> fiberwise_binproducts_dfl_full_comp_cat.
+    + <span class="nb">apply</span> fiberwise_equalizers_dfl_full_comp_cat.
+    + <span class="nb">apply</span> preserves_binproducts_dfl_full_comp_cat_functor.
+    + <span class="nb">apply</span> preserves_equalizers_dfl_full_comp_cat_functor.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Invertible 2-cells *)</span>
+<span class="kn">Section</span> <span class="nf">Invertible</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+          {<span class="nv">F</span> <span class="nv">G</span> : dfl_full_comp_cat_functor C₁ C₂}
+          (<span class="nv">τ</span> : dfl_full_comp_cat_nat_trans F G)
+          (<span class="nv">Hτ</span> : ∏ (x : C₁), is_z_isomorphism (τ x)).
+
+  <span class="kn">Let</span> <span class="nf">τiso</span> : nat_z_iso F G := _ ,, Hτ.
+
+  <span class="kn">Context</span> (<span class="nv">Hτ'</span> : is_disp_nat_z_iso τiso (comp_cat_type_nat_trans τ)).
+
+  <span class="kn">Let</span> <span class="nf">ττiso</span>
+    : disp_nat_z_iso (comp_cat_type_functor F) (comp_cat_type_functor G) τiso
+    := _ ,, Hτ'.
+
+  <span class="kn">Definition</span> <span class="nf">is_invertible_dfl_full_comp_cat_nat_trans_inv_cleaving</span>
+    : nat_trans_with_terminal_cleaving G F.
+  <span class="kn">Proof</span>.
+    use make_nat_trans_with_terminal_cleaving.
+    use make_nat_trans_with_terminal_disp_cat.
+    - <span class="bp">exact</span> (nat_z_iso_inv τiso).
+    - <span class="bp">exact</span> (disp_nat_z_iso_inv ττiso).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_invertible_dfl_full_comp_cat_nat_trans_inv_eq</span>
+    : comprehension_nat_trans_eq
+        is_invertible_dfl_full_comp_cat_nat_trans_inv_cleaving
+        (comp_cat_functor_comprehension G)
+        (comp_cat_functor_comprehension F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x xx.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    use (z_iso_inv_on_right _ _ _ (_ ,, Hτ _)).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (!(comp_cat_nat_trans_comprehension τ xx)).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- comprehension_functor_mor_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (disp_nat_z_iso_iso_inv ττiso x xx).
+    }
+    <span class="nb">rewrite</span> comprehension_functor_mor_transportb.
+    <span class="nb">rewrite</span> comprehension_functor_mor_id.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_invertible_dfl_full_comp_cat_nat_trans_inv</span>
+    : dfl_full_comp_cat_nat_trans G F.
+  <span class="kn">Proof</span>.
+    use make_dfl_full_comp_cat_nat_trans.
+    use make_full_comp_cat_nat_trans.
+    use make_comp_cat_nat_trans.
+    - <span class="bp">exact</span> is_invertible_dfl_full_comp_cat_nat_trans_inv_cleaving.
+    - <span class="bp">exact</span> is_invertible_dfl_full_comp_cat_nat_trans_inv_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_invertible_dfl_full_comp_cat_nat_trans_left</span>
+    : τ • is_invertible_dfl_full_comp_cat_nat_trans_inv = id₂ F.
+  <span class="kn">Proof</span>.
+    use dfl_full_comp_cat_nat_trans_eq.
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, Hτ x)).
+    - <span class="nb">intros</span> x xx.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (disp_nat_z_iso_iso_inv ττiso x xx).
+      }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      use transportf_set.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_invertible_dfl_full_comp_cat_nat_trans_right</span>
+    : is_invertible_dfl_full_comp_cat_nat_trans_inv • τ = id₂ G.
+  <span class="kn">Proof</span>.
+    use dfl_full_comp_cat_nat_trans_eq.
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> (z_iso_after_z_iso_inv (_ ,, Hτ x)).
+    - <span class="nb">intros</span> x xx.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (disp_nat_z_iso_inv_iso ττiso x xx).
+      }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      use transportf_set.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_invertible_dfl_full_comp_cat_nat_trans</span>
+    : is_invertible_2cell τ.
+  <span class="kn">Proof</span>.
+    use make_is_invertible_2cell.
+    - <span class="bp">exact</span> is_invertible_dfl_full_comp_cat_nat_trans_inv.
+    - <span class="bp">exact</span> is_invertible_dfl_full_comp_cat_nat_trans_left.
+    - <span class="bp">exact</span> is_invertible_dfl_full_comp_cat_nat_trans_right.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Invertible</span>.
+
+<span class="sd">(** * 5. The adjoint equivalence coming from democracy *)</span>
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_adjequiv_empty</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : adj_equivalence_of_cats
+      (fiber_functor (comp_cat_comprehension C) []).
+<span class="kn">Proof</span>.
+  use rad_equivalence_of_cats.
+  - use is_univalent_fiber.
+    <span class="nb">apply</span> disp_univalent_category_is_univalent_disp.
+  - use full_comp_cat_comprehension_fiber_fully_faithful.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> y ;
+       use hinhpr ;
+       <span class="bp">exact</span> (is_democratic_weq_split_essentially_surjective
+                C
+                (is_democratic_dfl_full_comp_cat C)
+                y)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_adjequiv_terminal</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+           (<span class="nv">T</span> : Terminal C)
+  : adj_equivalence_of_cats
+      (fiber_functor (comp_cat_comprehension C) T).
+<span class="kn">Proof</span>.
+  <span class="nb">enough</span> ([] = T) <span class="k">as</span> p.
+  {
+    <span class="nb">induction</span> p.
+    <span class="bp">exact</span> (dfl_full_comp_cat_adjequiv_empty C).
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_isTerminal.
+  }
+  use (isotoid _ (univalent_category_is_univalent C)).
+  <span class="nb">apply</span> z_iso_Terminals.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_adjequiv_base</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : adj_equivalence_of_cats
+      (fiber_functor (comp_cat_comprehension C) []
+       ∙ cod_fib_terminal_to_base _).
+<span class="kn">Proof</span>.
+  use comp_adj_equivalence_of_cats.
+  - <span class="bp">exact</span> (dfl_full_comp_cat_adjequiv_empty C).
+  - <span class="bp">exact</span> (cod_fib_terminal _).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Adjoint equivalences of DFL comprehension categories *)</span>
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_left_adjoint_equivalence_from_full_comp_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂)
+           (<span class="nv">HF</span> : left_adjoint_equivalence (pr1 F))
+  : left_adjoint_equivalence F.
+<span class="kn">Proof</span>.
+  use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+  <span class="nb">refine</span> (HF ,, _).
+  use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> disp_left_adjoint_equivalence_fullsubbicat.
+  - use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> disp_adjoint_equiv_disp_bicat_of_strong_unit_type.
+    + use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
+      <span class="nb">split</span>.
+      * <span class="nb">apply</span> disp_adjoint_equiv_disp_bicat_of_prod_type_full_comp_cat.
+      * use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
+        <span class="nb">split</span>.
+        ** <span class="nb">apply</span> disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat.
+        ** <span class="nb">apply</span> disp_adjoint_equiv_disp_bicat_of_sigma_type_full_comp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_left_adjoint_equivalence</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂)
+           (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+           (<span class="nv">HF'</span> : is_equiv_over (_ ,, HF) (comp_cat_type_functor F))
+  : left_adjoint_equivalence F.
+<span class="kn">Proof</span>.
+  use dfl_full_comp_cat_left_adjoint_equivalence_from_full_comp_cat.
+  use full_comp_cat_left_adjoint_equivalence.
+  use comp_cat_left_adjoint_equivalence.
+  - use cat_with_terminal_cleaving_left_adjoint_equivalence.
+    + <span class="bp">exact</span> HF.
+    + <span class="bp">exact</span> HF'.
+  - <span class="nb">intros</span> x xx.
+    use is_z_iso_disp_codomain.
+    <span class="bp">exact</span> (full_comp_cat_functor_is_z_iso F xx).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/DFLCompCat.v</tt>, line 96)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Adjoint equivalences of DFL comprehension categories
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

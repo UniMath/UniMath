@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CurriedBifunctors.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Curried bifunctors</span>
+
+<span class="sd"> In this file, we define curried bifunctors for enriched categories. These are functors</span>
+<span class="sd"> from the tensor of enriched categories to another one. This definition uses a curried</span>
+<span class="sd"> style to define the function on objects.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Curried bifunctors</span>
+<span class="sd"> 2. Accessors</span>
+<span class="sd"> 3. Equivalences with functors from the tensor</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enriched.Enriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enriched.EnrichmentEquiv.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.Tensor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.SymmetricDiagonal.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="sd">(** * 1. Curried bifunctors *)</span>
+<span class="kn">Definition</span> <span class="nf">enriched_curried_bifunctor_data</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">E₁</span> : enrichment C₁ V)
+           (<span class="nv">E₂</span> : enrichment C₂ V)
+           (<span class="nv">E₃</span> : enrichment C₃ V)
+  : UU
+  := ∑ (F : C₁ → C₂ → C₃),
+     ∏ (x₁ x₂ : C₁)
+       (y₁ y₂ : C₂),
+     E₁ ⦃ x₁ , x₂ ⦄ ⊗ (E₂ ⦃ y₁ , y₂ ⦄)
+     --&gt;
+     E₃ ⦃ F x₁ y₁ , F x₂ y₂ ⦄.
+
+<span class="kn">Definition</span> <span class="nf">make_enriched_curried_bifunctor_data</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           (<span class="nv">F</span> : C₁ → C₂ → C₃)
+           (<span class="nv">Fm</span> : ∏ (x₁ x₂ : C₁)
+                   (y₁ y₂ : C₂),
+                 E₁ ⦃ x₁ , x₂ ⦄ ⊗ (E₂ ⦃ y₁ , y₂ ⦄)
+                 --&gt;
+                 E₃ ⦃ F x₁ y₁ , F x₂ y₂ ⦄)
+  : enriched_curried_bifunctor_data E₁ E₂ E₃
+  := F ,, Fm.
+
+<span class="kn">Definition</span> <span class="nf">enriched_curried_bifunctor_ob</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           (<span class="nv">F</span> : enriched_curried_bifunctor_data E₁ E₂ E₃)
+           (<span class="nv">x</span> : C₁)
+           (<span class="nv">y</span> : C₂)
+  : C₃
+  := pr1 F x y.
+
+<span class="kn">Coercion</span> <span class="nf">enriched_curried_bifunctor_ob</span> : enriched_curried_bifunctor_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_curried_bifunctor_mor</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           (<span class="nv">F</span> : enriched_curried_bifunctor_data E₁ E₂ E₃)
+           (<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁)
+           (<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂)
+  : E₁ ⦃ x₁ , x₂ ⦄ ⊗ (E₂ ⦃ y₁ , y₂ ⦄)
+    --&gt;
+    E₃ ⦃ F x₁ y₁ , F x₂ y₂ ⦄
+  := pr2 F x₁ x₂ y₁ y₂.
+
+<span class="kn">Definition</span> <span class="nf">enriched_curried_bifunctor_laws</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           (<span class="nv">F</span> : enriched_curried_bifunctor_data E₁ E₂ E₃)
+  : UU
+  := (∏ (x : C₁) (y : C₂),
+      mon_linvunitor I_{ V}
+      · enriched_id E₁ x #⊗ enriched_id E₂ y
+      · enriched_curried_bifunctor_mor F x x y y
+      =
+      enriched_id E₃ (F x y))
+     ×
+     (∏ (x₁ x₂ x₃ : C₁) (y₁ y₂ y₃ : C₂),
+      inner_swap V (E₁ ⦃ x₂, x₃ ⦄) (E₂ ⦃ y₂, y₃ ⦄) (E₁ ⦃ x₁, x₂ ⦄) (E₂ ⦃ y₁, y₂ ⦄)
+      · enriched_comp E₁ x₁ x₂ x₃ #⊗ enriched_comp E₂ y₁ y₂ y₃
+      · enriched_curried_bifunctor_mor F x₁ x₃ y₁ y₃
+      =
+      enriched_curried_bifunctor_mor F x₂ x₃ y₂ y₃
+      #⊗
+      enriched_curried_bifunctor_mor F x₁ x₂ y₁ y₂
+      · enriched_comp E₃ (F x₁ y₁) (F x₂ y₂) (F x₃ y₃)).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_enriched_curried_bifunctor_laws</span>
+            {<span class="nv">V</span> : sym_monoidal_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            (<span class="nv">F</span> : enriched_curried_bifunctor_data E₁ E₂ E₃)
+  : isaprop (enriched_curried_bifunctor_laws F).
+<span class="kn">Proof</span>.
+  use isapropdirprod ; <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_curried_bifunctor</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">E₁</span> : enrichment C₁ V)
+           (<span class="nv">E₂</span> : enrichment C₂ V)
+           (<span class="nv">E₃</span> : enrichment C₃ V)
+  : UU
+  := ∑ (F : enriched_curried_bifunctor_data E₁ E₂ E₃),
+     enriched_curried_bifunctor_laws F.
+
+<span class="kn">Definition</span> <span class="nf">make_enriched_curried_bifunctor</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           (<span class="nv">F</span> : enriched_curried_bifunctor_data E₁ E₂ E₃)
+           (<span class="nv">HF</span> : enriched_curried_bifunctor_laws F)
+  : enriched_curried_bifunctor E₁ E₂ E₃
+  := F ,, HF.
+
+<span class="kn">Coercion</span> <span class="nf">enriched_curried_bifunctor_to_data</span>
+         {V : sym_monoidal_cat}
+         {C₁ C₂ C₃ : category}
+         {E₁ : enrichment C₁ V}
+         {E₂ : enrichment C₂ V}
+         {E₃ : enrichment C₃ V}
+         (F : enriched_curried_bifunctor E₁ E₂ E₃)
+  : enriched_curried_bifunctor_data E₁ E₂ E₃.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 F).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Accessors *)</span>
+<span class="kn">Section</span> <span class="nf">Accessors</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_monoidal_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+          {<span class="nv">E₁</span> : enrichment C₁ V}
+          {<span class="nv">E₂</span> : enrichment C₂ V}
+          {<span class="nv">E₃</span> : enrichment C₃ V}
+          (<span class="nv">F</span> : enriched_curried_bifunctor E₁ E₂ E₃).
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_curried_bifunctor_id</span>
+              (<span class="nv">x</span> : C₁)
+              (<span class="nv">y</span> : C₂)
+    : mon_linvunitor I_{ V}
+      · enriched_id E₁ x #⊗ enriched_id E₂ y
+      · enriched_curried_bifunctor_mor F x x y y
+      =
+      enriched_id E₃ (F x y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 F x y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_curried_bifunctor_comp</span>
+              (<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> : C₁)
+              (<span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : C₂)
+    : inner_swap V (E₁ ⦃ x₂, x₃ ⦄) (E₂ ⦃ y₂, y₃ ⦄) (E₁ ⦃ x₁, x₂ ⦄) (E₂ ⦃ y₁, y₂ ⦄)
+      · enriched_comp E₁ x₁ x₂ x₃ #⊗ enriched_comp E₂ y₁ y₂ y₃
+      · enriched_curried_bifunctor_mor F x₁ x₃ y₁ y₃
+      =
+      enriched_curried_bifunctor_mor F x₂ x₃ y₂ y₃
+      #⊗
+      enriched_curried_bifunctor_mor F x₁ x₂ y₁ y₂
+      · enriched_comp E₃ (F x₁ y₁) (F x₂ y₂) (F x₃ y₃).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 F x₁ x₂ x₃ y₁ y₂ y₃).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Accessors</span>.
+
+<span class="sd">(** * 3. Equivalences with functors from the tensor *)</span>
+<span class="kn">Section</span> <span class="nf">FromBifunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_monoidal_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+          {<span class="nv">E₁</span> : enrichment C₁ V}
+          {<span class="nv">E₂</span> : enrichment C₂ V}
+          {<span class="nv">E₃</span> : enrichment C₃ V}
+          (<span class="nv">F</span> : enriched_curried_bifunctor E₁ E₂ E₃).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_curried_bifunctor_to_bifunctor_data</span>
+    : enriched_functor_data
+        (tensor_enriched_precat E₁ E₂)
+        (make_enriched_cat (C₃ ,, E₃)).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span>, F (pr1 xy) (pr2 xy)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span>, enriched_curried_bifunctor_mor F _ _ _ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_curried_bifunctor_to_bifunctor_unit_ax</span>
+    : enriched_functor_unit_ax
+        enriched_curried_bifunctor_to_bifunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> xy.
+    <span class="nb">apply</span> enriched_curried_bifunctor_id.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_curried_bifunctor_to_bifunctor_comp_ax</span>
+    : enriched_functor_comp_ax
+        enriched_curried_bifunctor_to_bifunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> xy₁ xy₂ xy₃.
+    <span class="nb">apply</span> enriched_curried_bifunctor_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_curried_bifunctor_to_bifunctor</span>
+    : enriched_functor
+        (tensor_enriched_precat E₁ E₂)
+        (make_enriched_cat (C₃ ,, E₃)).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> enriched_curried_bifunctor_to_bifunctor_data.
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> enriched_curried_bifunctor_to_bifunctor_unit_ax.
+      + <span class="bp">exact</span> enriched_curried_bifunctor_to_bifunctor_comp_ax.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FromBifunctor</span>.
+
+<span class="kn">Section</span> <span class="nf">ToBifunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_monoidal_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+          {<span class="nv">E₁</span> : enrichment C₁ V}
+          {<span class="nv">E₂</span> : enrichment C₂ V}
+          {<span class="nv">E₃</span> : enrichment C₃ V}
+          (<span class="nv">F</span> : enriched_functor
+                 (tensor_enriched_precat E₁ E₂)
+                 (make_enriched_cat (C₃ ,, E₃))).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_bifunctor_to_curried_bifunctor_data</span>
+    : enriched_curried_bifunctor_data E₁ E₂ E₃.
+  <span class="kn">Proof</span>.
+    use make_enriched_curried_bifunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, F (x ,, y)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span>, enriched_functor_on_morphisms F (x₁ ,, y₁) (x₂ ,, y₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_bifunctor_to_curried_bifunctor_laws</span>
+    : enriched_curried_bifunctor_laws
+        enriched_bifunctor_to_curried_bifunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y.
+      <span class="bp">exact</span> (pr12 F (x ,, y)).
+    - <span class="nb">intros</span> x₁ x₂ x₃ y₁ y₂ y₃.
+      <span class="bp">exact</span> (pr22 F (x₁ ,, y₁) (x₂ ,, y₂) (x₃ ,, y₃)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_bifunctor_to_curried_bifunctor</span>
+    : enriched_curried_bifunctor E₁ E₂ E₃.
+  <span class="kn">Proof</span>.
+    use make_enriched_curried_bifunctor.
+    - <span class="bp">exact</span> enriched_bifunctor_to_curried_bifunctor_data.
+    - <span class="bp">exact</span> enriched_bifunctor_to_curried_bifunctor_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ToBifunctor</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_bifunctor_curried_bifunctor_weq</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">E₁</span> : enrichment C₁ V)
+           (<span class="nv">E₂</span> : enrichment C₂ V)
+           (<span class="nv">E₃</span> : enrichment C₃ V)
+  : enriched_functor
+      (tensor_enriched_precat E₁ E₂)
+      (make_enriched_cat (C₃ ,, E₃))
+    ≃
+    enriched_curried_bifunctor E₁ E₂ E₃.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> enriched_bifunctor_to_curried_bifunctor.
+  - <span class="bp">exact</span> enriched_curried_bifunctor_to_bifunctor.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> F ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> F ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Bifunctors/CurriedBifunctors.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Equivalences with functors from the tensor
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

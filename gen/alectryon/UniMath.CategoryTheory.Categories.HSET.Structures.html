@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Structures.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Other structures in [HSET] *)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">  - Natural numbers object ([NNO_HSET])</span>
+<span class="sd">  - Exponentials ([Exponentials_HSET])</span>
+<span class="sd">  - Construction of exponentials for functors into HSET</span>
+<span class="sd">    ([Exponentials_functor_HSET])</span>
+<span class="sd">  - Kernel pairs ([kernel_pair_HSET])</span>
+<span class="sd">  - Effective epis ([EffectiveEpis_HSET])</span>
+<span class="sd">  - Split epis with axiom of choice ([SplitEpis_HSET])</span>
+<span class="sd">  - Forgetful [functor] to [type_precat]</span>
+<span class="sd">  - HSET is a topos [Topos_Structure_HSET]</span>
+
+<span class="sd">Written by: Benedikt Ahrens, Anders Mörtberg</span>
+
+<span class="sd">October 2015 - January 2016</span>
+
+<span class="sd">*)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA. <span class="c">(* flip *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Sets. <span class="c">(* hProp_set *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.AxiomOfChoice.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.slicecat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.NNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.MonoEpiIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.covyoneda.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EpiFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SplitMonicsAndEpis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ElementaryTopos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PowerObject.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Natural numbers object ([NNO_HSET]) *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isNNO_nat</span> : isNNO TerminalHSET natHSET (<span class="k">λ</span> <span class="nv">_</span>, <span class="mi">0</span>) S.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X z s.
+  use unique_exists.
+  + <span class="nb">intros</span> n.
+    <span class="nb">induction</span> n <span class="k">as</span> [|_ n].
+    * <span class="bp">exact</span> (z tt).
+    * <span class="bp">exact</span> (s n).
+  + <span class="bp">now</span> <span class="nb">split</span>; <span class="nb">apply</span> funextfun; <span class="nb">intros</span> [].
+  + <span class="bp">now</span> <span class="nb">intros</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property.
+  + <span class="nb">intros</span> q [hq1 hq2].
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> n.
+    <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+    * <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- hq1.
+    * <span class="nb">cbn</span> <span class="k">in</span> *; <span class="bp">now</span> <span class="nb">rewrite</span> (toforallpaths _ _ _ hq2 n), IH.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">NNO_HSET</span> : NNO TerminalHSET.
+<span class="kn">Proof</span>.
+  use make_NNO.
+  - <span class="bp">exact</span> natHSET.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, <span class="mi">0</span>).
+  - <span class="bp">exact</span> S.
+  - <span class="bp">exact</span> isNNO_nat.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Exponentials ([Exponentials_HSET]) *)</span>
+
+<span class="kn">Section</span> <span class="nf">exponentials</span>.
+
+<span class="sd">(** Define the functor: A -&gt; _^A *)</span>
+<span class="kn">Definition</span> <span class="nf">exponential_functor</span> (<span class="nv">A</span> : HSET) : functor HSET HSET.
+<span class="kn">Proof</span>.
+use make_functor.
++ <span class="k">exists</span> (<span class="nv">funset</span> (A : hSet)); <span class="nb">simpl</span>.
+  <span class="nb">intros</span> b c f g; <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">x</span>, f (g x)).
++ <span class="kp">abstract</span> (use tpair;
+  [ <span class="nb">intro</span> x; <span class="bp">now</span> (<span class="kp">repeat</span> <span class="nb">apply</span> funextfun; <span class="nb">intro</span>)
+  | <span class="nb">intros</span> x y z f g; <span class="bp">now</span> (<span class="kp">repeat</span> <span class="nb">apply</span> funextfun; <span class="nb">intro</span>)]).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** This checks that if we use constprod_functor2 the flip is not necessary *)</span>
+<span class="kn">Lemma</span> <span class="nf">are_adjoints_constprod_functor2</span> <span class="nv">A</span> :
+  are_adjoints (constprod_functor2 BinProductsHSET A) (exponential_functor A).
+<span class="kn">Proof</span>.
+use tpair.
+- use tpair.
+  + use tpair.
+    * <span class="nb">intro</span> x; <span class="nb">simpl</span>; <span class="nb">apply</span> make_dirprod.
+    * <span class="kp">abstract</span> (<span class="nb">intros</span> x y f; <span class="nb">apply</span> idpath).
+  + use tpair.
+    * <span class="nb">intros</span> X fx; <span class="nb">apply</span> (pr1 fx (pr2 fx)).
+    * <span class="kp">abstract</span> (<span class="nb">intros</span> x y f; <span class="nb">apply</span> idpath).
+- <span class="kp">abstract</span> (use tpair;
+  [ <span class="nb">intro</span> x; <span class="nb">simpl</span>; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> ax; <span class="nb">apply</span> idpath
+  | <span class="nb">intro</span> b; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> f; <span class="nb">apply</span> idpath]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Exponentials_HSET</span> : Exponentials BinProductsHSET.
+<span class="kn">Proof</span>.
+<span class="nb">intro</span> a.
+<span class="k">exists</span> (<span class="nv">exponential_functor</span> <span class="nv">a</span>).
+use tpair.
+- use tpair.
+  + use tpair.
+    * <span class="nb">intro</span> x; <span class="nb">simpl</span>; <span class="nb">apply</span> flip, make_dirprod.
+    * <span class="kp">abstract</span> (<span class="nb">intros</span> x y f; <span class="nb">apply</span> idpath).
+  + use tpair.
+    * <span class="nb">intros</span> x xf; <span class="nb">simpl</span> <span class="k">in</span> *; <span class="nb">apply</span> (pr2 xf (pr1 xf)).
+    * <span class="kp">abstract</span> (<span class="nb">intros</span> x y f; <span class="nb">apply</span> idpath).
+- <span class="kp">abstract</span> (use tpair;
+  [ <span class="bp">now</span> <span class="nb">intro</span> x; <span class="nb">simpl</span>; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> ax; <span class="nb">apply</span> idpath
+  | <span class="bp">now</span> <span class="nb">intro</span> b; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> f]).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">exponentials</span>.
+
+<span class="sd">(** ** Construction of exponentials for functors into HSET *)</span>
+
+<span class="sd">(** This section defines exponential in [C,HSET] following a slight</span>
+<span class="sd">variation of Moerdijk-MacLane (p. 46, Prop. 1).</span>
+
+<span class="sd">The formula for [C,Set] is G^F(f)=Hom(Hom(f,−)×id(F),G) taken from:</span>
+
+<span class="sd">http://mathoverflow.net/questions/104152/exponentials-in-functor-categories</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">exponentials_functor_cat</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+<span class="kn">Let</span> <span class="nf">CP</span> := BinProducts_functor_precat C _ BinProductsHSET.
+<span class="kn">Let</span> <span class="nf">cy</span> := covyoneda C.
+
+<span class="c">(* Defined Q^P *)</span>
+<span class="kn">Local Definition</span> <span class="nf">exponential_functor_cat</span> (<span class="nv">P</span> <span class="nv">Q</span> : functor C HSET) : functor C HSET.
+<span class="kn">Proof</span>.
+use tpair.
+- use tpair.
+  + <span class="nb">intro</span> c.
+    use make_hSet.
+    * <span class="nb">apply</span> (nat_trans (BinProduct_of_functors C _ BinProductsHSET (cy c) P) Q).
+    * <span class="kp">abstract</span> (<span class="nb">apply</span> (isaset_nat_trans has_homsets_HSET)).
+  + <span class="nb">simpl</span>; <span class="nb">intros</span> a b f alpha.
+    <span class="nb">apply</span> (BinProductOfArrows _ (CP (cy a) P) (CP (cy b) P)
+                           (# cy f) (identity _) · alpha).
+- <span class="kp">abstract</span> (
+    <span class="nb">split</span>;
+      [ <span class="nb">intros</span> c; <span class="nb">simpl</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> a;
+        <span class="nb">apply</span> (nat_trans_eq has_homsets_HSET); <span class="nb">cbn</span>; <span class="nb">unfold</span> prodtofuntoprod; <span class="nb">intro</span> x;
+        <span class="nb">apply</span> funextsec; <span class="nb">intro</span> f;
+        <span class="nb">destruct</span> f <span class="k">as</span> [cx Px]; <span class="nb">simpl</span>; <span class="nb">unfold</span> covyoneda_morphisms_data;
+        <span class="bp">now</span> <span class="nb">rewrite</span> id_left
+      | <span class="nb">intros</span> a b c f g; <span class="nb">simpl</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> alpha;
+        <span class="nb">apply</span> (nat_trans_eq has_homsets_HSET); <span class="nb">cbn</span>; <span class="nb">unfold</span> prodtofuntoprod; <span class="nb">intro</span> x;
+        <span class="nb">apply</span> funextsec; <span class="nb">intro</span> h;
+        <span class="nb">destruct</span> h <span class="k">as</span> [cx pcx]; <span class="nb">simpl</span>; <span class="nb">unfold</span> covyoneda_morphisms_data;
+        <span class="bp">now</span> <span class="nb">rewrite</span> assoc ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">eval</span> (<span class="nv">P</span> <span class="nv">Q</span> : functor C HSET) :
+  nat_trans (BinProductObject _ (CP P (exponential_functor_cat P Q)) : functor _ _) Q.
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intros</span> c ytheta; <span class="nb">set</span> (y := pr1 ytheta); <span class="nb">set</span> (theta := pr2 ytheta);
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  use (theta c).
+  <span class="bp">exact</span> (identity c,,y).
+- <span class="kp">abstract</span> (
+    <span class="nb">intros</span> c c' f; <span class="nb">simpl</span>;
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> ytheta; <span class="nb">destruct</span> ytheta <span class="k">as</span> [y theta];
+    <span class="nb">cbn</span>; <span class="nb">unfold</span> prodtofuntoprod;
+    <span class="nb">unfold</span> covyoneda_morphisms_data;
+    <span class="nb">assert</span> (X := nat_trans_ax theta);
+    <span class="nb">assert</span> (Y := toforallpaths _ _ _ (X c c' f) (identity c,, y));
+    <span class="nb">eapply</span> pathscomp0; [|<span class="nb">apply</span> Y]; <span class="nb">cbn</span>; <span class="nb">unfold</span> prodtofuntoprod; <span class="nb">cbn</span>;
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_right, id_left).
+<span class="kn">Defined</span>.
+
+<span class="c">(* This could be made nicer without the big abstract blocks... *)</span>
+<span class="kn">Lemma</span> <span class="nf">Exponentials_functor_HSET</span> : Exponentials CP.
+<span class="kn">Proof</span>.
+<span class="nb">intro</span> P.
+use coreflections_to_is_left_adjoint.
+<span class="nb">intro</span> Q.
+use make_coreflection'.
+- <span class="bp">exact</span> (exponential_functor_cat P Q).
+- <span class="nb">apply</span> <span class="kp">eval</span>.
+- <span class="nb">intros</span> φ'.
+  <span class="nb">pose</span> (R := coreflection_data_object φ' : _ ⟶ _).
+  <span class="nb">pose</span> (φ := (φ' : _ --&gt; _) : _ ⟹ _).
+  use make_coreflection_arrow;
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+  + use make_nat_trans.
+    * <span class="nb">intros</span> c u; <span class="nb">simpl</span>.
+      use make_nat_trans.
+      -- <span class="nb">simpl</span>; <span class="nb">intros</span> d fx.
+        <span class="nb">apply</span> (φ d (make_dirprod (pr2 fx) (# R (pr1 fx) u))).
+      -- <span class="kp">abstract</span> (
+          <span class="nb">intros</span> a b f; <span class="nb">simpl</span>; <span class="nb">cbn</span>; <span class="nb">unfold</span> prodtofuntoprod;
+          <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x;
+          etrans;
+          [|<span class="nb">apply</span> (toforallpaths _ _ _ (nat_trans_ax φ _ _ f)
+                                  (make_dirprod (pr2 x) (# R (pr1 x) u)))]; <span class="nb">cbn</span>;
+          <span class="kp">repeat</span> (<span class="nb">apply</span> maponpaths);
+          <span class="nb">assert</span> (H : # R (pr1 x · f) = # R (pr1 x) · #R f);
+          [ <span class="nb">apply</span> functor_comp | ];
+          <span class="nb">unfold</span> prodtofuntoprod;
+          <span class="nb">simpl</span> (pr1 _); <span class="nb">simpl</span> (pr2 _);
+          <span class="nb">apply</span> maponpaths;
+          <span class="nb">apply</span> (eqtohomot H u)
+        ).
+    * <span class="kp">abstract</span> (
+        <span class="nb">intros</span> a b f; <span class="nb">cbn</span>;
+        <span class="nb">apply</span> funextsec; <span class="nb">intros</span> x; <span class="nb">cbn</span>;
+        <span class="nb">apply</span> subtypePath;
+          [<span class="nb">intros</span> xx; <span class="nb">apply</span> (isaprop_is_nat_trans _ _ has_homsets_HSET)|];
+        <span class="nb">apply</span> funextsec; <span class="nb">intro</span> y; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> z; <span class="nb">cbn</span>;
+        <span class="kp">repeat</span> <span class="nb">apply</span> maponpaths;  <span class="nb">unfold</span> covyoneda_morphisms_data;
+        <span class="nb">assert</span> (H : # R (f · pr1 z) = # R f · # R (pr1 z));
+        [ <span class="nb">apply</span> functor_comp | ];
+        <span class="nb">apply</span> pathsinv0;
+        <span class="bp">now</span> etrans; [<span class="nb">apply</span> (toforallpaths _ _ _ H x)|]
+      ).
+  + <span class="kp">abstract</span> (
+      <span class="nb">apply</span> (nat_trans_eq has_homsets_HSET); <span class="nb">cbn</span>; <span class="nb">intro</span> x;
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> p;
+      <span class="nb">apply</span> maponpaths;
+      <span class="nb">assert</span> (H : # R (identity x) = identity (R x));
+        [<span class="nb">apply</span> functor_id|];
+      <span class="nb">induction</span> p <span class="k">as</span> [t p]; <span class="nb">apply</span> maponpaths; <span class="nb">simpl</span>;
+      <span class="bp">now</span> <span class="nb">apply</span> pathsinv0; <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> (toforallpaths _ _ _ H p)|]).
+  + <span class="kp">abstract</span> (
+      <span class="nb">unfold</span> φ, R;
+      <span class="nb">intros</span> t p;
+      <span class="nb">apply</span> (nat_trans_eq has_homsets_HSET); <span class="nb">intros</span> c;
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> rc;
+      <span class="nb">apply</span> subtypePath;
+      [<span class="nb">intro</span> x; <span class="nb">apply</span> (isaprop_is_nat_trans _ _ has_homsets_HSET)|]; <span class="nb">simpl</span>;
+      <span class="nb">rewrite</span> p; <span class="nb">cbn</span>; <span class="nb">clear</span> p; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> d; <span class="nb">cbn</span>;
+      <span class="nb">apply</span> funextsec; <span class="nb">intros</span> [t0 pd]; <span class="nb">simpl</span>;
+      <span class="nb">assert</span> (HH := toforallpaths _ _ _ (nat_trans_ax t c d t0) rc);
+      <span class="nb">cbn</span> <span class="k">in</span> HH; <span class="nb">rewrite</span> HH; <span class="nb">cbn</span>; <span class="nb">unfold</span> covyoneda_morphisms_data;
+      <span class="nb">unfold</span> prodtofuntoprod; <span class="nb">cbn</span>;
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_right
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">exponentials_functor_cat</span>.
+
+<span class="sd">(** ** Kernel pairs ([kernel_pair_HSET]) *)</span>
+
+<span class="c">(* proof by Peter, copied from TypeTheory.Auxiliary.Auxiliary *)</span>
+<span class="kn">Lemma</span> <span class="nf">pullback_HSET_univprop_elements</span> {<span class="nv">P</span> <span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : HSET}
+    {<span class="nv">p1</span> : HSET ⟦ P, A ⟧} {<span class="nv">p2</span> : HSET ⟦ P, B ⟧}
+    {<span class="nv">f</span> : HSET ⟦ A, C ⟧} {<span class="nv">g</span> : HSET ⟦ B, C ⟧}
+    (<span class="nv">ep</span> : p1 · f = p2 · g)
+    (<span class="nv">pb</span> : isPullback ep)
+  : (∏ a b (e : f a = g b), <span class="k">∃</span>! ab, p1 ab = a × p2 ab = b).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b e.
+  <span class="nb">set</span> (Pb := (make_Pullback _ pb)).
+  <span class="nb">apply</span> iscontraprop1.
+  - <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> [ab [ea eb]] [ab' [ea' eb']].
+    <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>.
+      <span class="nb">intros</span> x; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> setproperty.
+    use (@toforallpaths unitset _ (<span class="k">λ</span> <span class="nv">_</span>, ab) (<span class="k">λ</span> <span class="nv">_</span>, ab') _ tt).
+    use (MorphismsIntoPullbackEqual pb);
+    <span class="nb">apply</span> funextsec; <span class="nb">intros</span> []; <span class="nb">cbn</span>;
+    (<span class="nb">eapply</span> @pathscomp0; [ <span class="bp">eassumption</span> | <span class="nb">apply</span> pathsinv0; <span class="bp">eassumption</span>]).
+  - use (_,,_).
+    use (_ tt).
+    use (PullbackArrow Pb (unitset : HSET)
+      (<span class="k">λ</span> <span class="nv">_</span>, a) (<span class="k">λ</span> <span class="nv">_</span>, b)).
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span>; <span class="bp">exact</span> e.
+    <span class="nb">simpl</span>; <span class="nb">split</span>.
+    + <span class="nb">generalize</span> tt; <span class="nb">apply</span> toforallpaths.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 Pb unitset).
+    + <span class="nb">generalize</span> tt; <span class="nb">apply</span> toforallpaths.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 Pb unitset).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Section</span> <span class="nf">kernel_pair_Set</span>.
+
+  <span class="kn">Context</span>  {<span class="nv">A</span> <span class="nv">B</span>: HSET}.
+  <span class="kn">Variable</span> (<span class="nv">f</span>: HSET ⟦A,B⟧).
+
+
+  <span class="kn">Definition</span> <span class="nf">kernel_pair_HSET</span> : kernel_pair f.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>.
+    <span class="nb">apply</span> PullbacksHSET.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Notation</span> <span class="nf">g</span> := kernel_pair_HSET.
+
+  <span class="sd">(** Formulation in the categorical language of the universal property</span>
+<span class="sd">      enjoyed by surjections (univ_surj) *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isCoeqKernelPairSet</span> (<span class="nv">hf</span>: issurjective f) :
+    isCoequalizer _ _ _ (PullbackSqrCommutes g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">red</span>.
+    <span class="nb">intros</span> C u equ.
+    <span class="nb">assert</span> (hcompat : ∏ x y : pr1 A, f x = f y → u x = u y).
+    {
+      <span class="nb">intros</span> x y eqfxy.
+      <span class="nb">assert</span> (hpb:=pullback_HSET_univprop_elements
+                     (PullbackSqrCommutes g) (isPullback_Pullback g) x y eqfxy).
+      <span class="nb">assert</span>( hpb' := pr2 (pr1 hpb)); <span class="nb">simpl</span> <span class="k">in</span> hpb'.
+      etrans.
+      <span class="nb">eapply</span> pathsinv0.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pr1 hpb').
+      <span class="nb">eapply</span> pathscomp0.
+      <span class="nb">apply</span> toforallpaths <span class="k">in</span> equ.
+      <span class="nb">apply</span> equ.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pr2 hpb').
+    }
+    use (unique_exists (univ_surj (setproperty C) _ _ _ hf)).
+    - <span class="bp">exact</span> u.
+    - <span class="bp">exact</span> hcompat.
+    - <span class="nb">simpl</span>.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> univ_surj_ax.
+    - <span class="nb">intro</span>. <span class="nb">apply</span> has_homsets_HSET.
+    - <span class="nb">intros</span> ??; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> funextfun.
+      use univ_surj_unique.
+      <span class="nb">simpl</span> <span class="k">in</span> X.
+      <span class="nb">apply</span> toforallpaths <span class="k">in</span> X.
+      <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">kernel_pair_Set</span>.
+
+<span class="sd">(** ** Effective epis ([EffectiveEpis_HSET]) *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">EffectiveEpis_HSET</span> : EpisAreEffective HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">clear</span>.
+  <span class="nb">intros</span> A B f epif.
+  <span class="k">exists</span> (<span class="nv">kernel_pair_HSET</span> <span class="nv">f</span>).
+  <span class="nb">apply</span> isCoeqKernelPairSet.
+  <span class="bp">now</span> <span class="nb">apply</span> EpisAreSurjective_HSET.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Split epis with axiom of choice ([SplitEpis_HSET]) *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">SplitEpis_HSET</span> : AxiomOfChoice_surj -&gt; epis_are_split HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> axC A B f epif.
+  <span class="nb">apply</span> EpisAreSurjective_HSET,axC <span class="k">in</span> epif.
+  <span class="nb">unshelve</span> <span class="nb">eapply</span> (hinhfun _ epif).
+  <span class="nb">intro</span> h.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">h</span>).
+  <span class="nb">apply</span> funextfun.
+  <span class="bp">exact</span> (pr2 h).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Forgetful [functor] to [type_precat] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">forgetful_HSET</span> : functor HSET type_precat.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use make_functor_data.
+    + <span class="bp">exact</span> pr1.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, idfun _).
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span>; <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> ? ? ? ? ?; <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** This functor is conservative; it reflects isomorphisms. *)</span>
+
+<span class="sd">(**</span>
+
+<span class="sd">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+<span class="sd">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+<span class="sd">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+<span class="sd">               This statement seems problematic. This conservativity</span>
+<span class="sd">               statement is for precategories, but now it is only for</span>
+<span class="sd">               categories in the library</span>
+<span class="sd">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+<span class="sd">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+<span class="sd">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+
+<span class="sd">Lemma conservative_forgetful_HSET : conservative forgetful_HSET.</span>
+<span class="sd">Proof.</span>
+<span class="sd">  unfold conservative.</span>
+<span class="sd">  intros a b f is_iso_forget_f.</span>
+<span class="sd">  refine (hset_equiv_is_iso a b (make_weq f _)).</span>
+<span class="sd">  apply (type_iso_is_equiv _ _ (make_iso _ is_iso_forget_f)).</span>
+<span class="sd">Defined.</span>
+
+<span class="sd">*)</span>
+
+<span class="sd">(** ** Subobject classifier *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_hfiber_monic</span> {<span class="nv">A</span> <span class="nv">B</span> : hSet} (<span class="nv">f</span> : HSET⟦A, B⟧) (<span class="nv">isM</span> : isMonic f) :
+  isPredicate (hfiber f).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>; <span class="nb">apply</span> incl_injectivity, MonosAreInjective_HSET; <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">const_htrue</span> {<span class="nv">X</span> : hSet} : HSET⟦X, hProp_set⟧ :=
+  (<span class="k">fun</span> <span class="nv">_</span> =&gt; htrue : hProp_set).
+
+<span class="kn">Local Lemma</span> <span class="nf">hProp_eq_unit</span> (<span class="nv">p</span> : hProp) : p -&gt; p = htrue.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> pp.
+  <span class="nb">apply</span> weqtopathshProp, weqimplimpl.
+  - <span class="nb">intro</span>; <span class="bp">exact</span> tt.
+  - <span class="nb">intro</span>; <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> propproperty.
+  - <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Existence of the pullback square</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">      X -------&gt; TerminalHSET</span>
+<span class="sd">      V              V</span>
+<span class="sd">    m |              | true</span>
+<span class="sd">      V     ∃!       V</span>
+<span class="sd">      Y - - - - -&gt; hProp</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">    Uniqueness proven below.</span>
+<span class="sd">  *)</span>
+<span class="kn">Definition</span> <span class="nf">subobject_classifier_HSET_pullback</span> {<span class="nv">X</span> <span class="nv">Y</span> : HSET}
+  (<span class="nv">m</span> : Monic HSET X Y) :
+    ∑ (chi : HSET ⟦ Y, hProp_set ⟧)
+    (H : m · chi = TerminalArrow TerminalHSET X · const_htrue),
+      isPullback H.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">fun</span> <span class="nv">z</span> =&gt; (hfiber (pr1 m) z,, isaprop_hfiber_monic (pr1 m) (pr2 m) z)).
+  use tpair.
+  + <span class="nb">apply</span> funextfun; <span class="nb">intro</span>.
+    <span class="nb">apply</span> hProp_eq_unit; <span class="nb">cbn</span>.
+    use make_hfiber.
+    * <span class="bp">assumption</span>.
+    * <span class="nb">apply</span> idpath.
+  + <span class="sd">(** The aforementioned square is a pullback *)</span>
+    <span class="nb">cbn</span> beta.
+    <span class="nb">unfold</span> isPullback; <span class="nb">cbn</span>.
+    <span class="nb">intros</span> Z f g H.
+    use make_iscontr.
+    * use tpair.
+      -- <span class="sd">(** The hypothesis H states that that each [f x] is in the image of [m],</span>
+<span class="sd">              and since [m] is monic (injective), this assignment extends to a map</span>
+<span class="sd">              [Z -&gt; X] defined by [z ↦ m^-1 (f z)]. *)</span>
+          <span class="nb">intro</span> z.
+          <span class="nb">eapply</span> hfiberpr1.
+          <span class="nb">eapply</span> eqweqmap.
+          ++ <span class="nb">apply</span> pathsinv0.
+            <span class="nb">apply</span> (maponpaths pr1 (toforallpaths _ _ _ H z)).
+          ++ <span class="bp">exact</span> tt.
+      -- <span class="nb">split</span>.
+          ++ <span class="sd">(** The first triangle commutes by definition of the above map:</span>
+<span class="sd">                [m] sends the preimage [m^-1 (f z)] to [f z]. *)</span>
+            <span class="nb">apply</span> funextfun; <span class="nb">intro</span> z; <span class="nb">cbn</span>.
+            <span class="nb">apply</span> hfiberpr2.
+          ++ <span class="sd">(** All maps to the terminal object are equal *)</span>
+            <span class="nb">apply</span> proofirrelevance, impred.
+            <span class="nb">intro</span>; <span class="nb">apply</span> isapropunit.
+    * <span class="nb">intro</span> t.
+      <span class="nb">apply</span> subtypePath.
+      -- <span class="nb">intro</span>.
+          <span class="nb">apply</span> isapropdirprod.
+         ++ <span class="nb">apply</span> funspace_isaset, setproperty.
+         ++ <span class="nb">apply</span> funspace_isaset, isasetunit.
+      -- <span class="nb">cbn</span>.
+          <span class="nb">apply</span> funextsec; <span class="nb">intro</span>; <span class="nb">cbn</span>.
+          <span class="sd">(** Precompose with [m] and use the commutative square *)</span>
+          <span class="nb">apply</span> (invweq (make_weq _ (MonosAreInjective_HSET m (MonicisMonic _ m) _ _))).
+          <span class="nb">eapply</span> pathscomp0.
+          ++ <span class="nb">apply</span> (toforallpaths _ _ _ (pr1 (pr2 t))).
+          ++ <span class="nb">apply</span> pathsinv0.
+             <span class="nb">apply</span> hfiberpr2.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** For any subset [s : Y -&gt; hProp], the carrier [∑ y : Y, s y] is a pullback</span>
+<span class="sd">    of [s] with the constantly-true arrow. *)</span>
+<span class="kn">Lemma</span> <span class="nf">carrier_Pullback</span> {<span class="nv">Y</span> : HSET} (<span class="nv">chi</span> : HSET ⟦ Y, hProp_set ⟧) :
+  Pullback chi (@const_htrue unitHSET).
+<span class="kn">Proof</span>.
+  use make_Pullback.
+  - <span class="bp">exact</span> (carrier_subset chi).
+  - <span class="bp">exact</span> (pr1carrier _).
+  - <span class="bp">exact</span> (TerminalArrow TerminalHSET _).
+  - <span class="nb">apply</span> funextfun; <span class="nb">intro</span> yy.
+    <span class="nb">apply</span> hProp_eq_unit; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (pr2 yy).
+  - <span class="nb">cbn</span>.
+    <span class="nb">intros</span> pb' h k H.
+    use make_iscontr.
+    + use tpair.
+      * <span class="nb">intro</span> p.
+        use tpair.
+        -- <span class="bp">exact</span> (h p).
+        -- <span class="nb">apply</span> toforallpaths <span class="k">in</span> H; <span class="nb">cbn</span>.
+           <span class="nb">specialize</span> (H p); <span class="nb">cbn</span> <span class="k">in</span> H.
+           <span class="kp">abstract</span> (<span class="nb">rewrite</span> H; <span class="bp">exact</span> tt).
+      * <span class="nb">split</span>; [<span class="nb">apply</span> idpath|].
+        <span class="nb">apply</span> proofirrelevance, hlevelntosn, iscontrfuntounit.
+    + <span class="nb">intro</span> t.
+      <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> isaset_set_fun_space|].
+      <span class="nb">apply</span> funextfun; <span class="nb">intro</span>.
+      <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> propproperty|].
+      <span class="nb">refine</span> (_ @ toforallpaths _ _ _ (pr1 (pr2 t)) x).
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hfiber_in_hfiber</span> :
+  ∏ Z W (g : Z -&gt; W) (w : W) (z : hfiber g w), hfiber g (g (hfiberpr1 _ _ z)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  use make_hfiber.
+  - <span class="bp">exact</span> (hfiberpr1 _ _ z).
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subobject_classifier_HSET</span> : subobject_classifier TerminalHSET.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">hProp_set</span>.
+  <span class="k">exists</span> <span class="nv">const_htrue</span>.
+  <span class="nb">intros</span> X Y m.
+
+  use make_iscontr.
+
+  - <span class="sd">(** The image of m *)</span>
+    <span class="nb">apply</span> subobject_classifier_HSET_pullback.
+  - <span class="nb">intro</span> O'.
+    <span class="nb">apply</span> subtypePath.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> Propositions.isaproptotal2.
+      * <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_isPullback.
+      * <span class="nb">intros</span>; <span class="nb">apply</span> proofirrelevance, homset_property.
+    + <span class="sd">(** If the following is a pullback square,</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">            X ------- ! ---&gt; unit</span>
+<span class="sd">            |                 |</span>
+<span class="sd">            |                 |</span>
+<span class="sd">            V                 V</span>
+<span class="sd">            Y -- pr1 O' --&gt; hProp</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">          then [pr1 O' = hfiber m].</span>
+<span class="sd">       *)</span>
+
+      <span class="nb">assert</span> (eq : m · pr1 O' ~
+                     m · (<span class="k">fun</span> <span class="nv">z</span> =&gt; (hfiber (pr1 m) z,, isaprop_hfiber_monic (pr1 m) (pr2 m) z :
+                                   pr1hSet hProp_set))).
+      {
+        <span class="nb">apply</span> toforallpaths.
+        <span class="nb">refine</span> (pr1 (pr2 O') @ _).
+        <span class="nb">apply</span> (!pr1 (pr2 (subobject_classifier_HSET_pullback m))).
+      }
+
+      <span class="nb">apply</span> funextfun; <span class="nb">intro</span> y.
+      <span class="nb">apply</span> weqtopathshProp, weqimplimpl.
+      * <span class="nb">intro</span> isO.
+
+        <span class="sd">(** We know that [carrier (pr1 O')] is a pullback of [pr1 O'] and [const_htrue].</span>
+<span class="sd">            By hypothesis, X is as well. Thus, we have a canonical isomorphism</span>
+<span class="sd">            [carrier (pr1 O') -&gt; X], which commutes with the pullback projections.</span>
+<span class="sd">            In particular, the following triangle commutes (where [m] is, by hypothesis,</span>
+<span class="sd">            the first pullback projection of X):</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">                                ∃!</span>
+<span class="sd">              carrier (pr1 O') ---&gt; X</span>
+<span class="sd">                            \       |</span>
+<span class="sd">                   pr1carrier \     | m</span>
+<span class="sd">                                \   V</span>
+<span class="sd">                                    Y</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">         *)</span>
+
+        <span class="nb">pose</span> (PBO' := make_Pullback (pr1 (pr2 O')) (pr2 (pr2 O'))).
+        <span class="nb">pose</span> (PBC := carrier_Pullback (pr1 O')).
+        <span class="nb">pose</span> (pbiso := pullbackiso _ PBC PBO').
+
+        use make_hfiber.
+        -- <span class="bp">exact</span> (morphism_from_z_iso _ _ (pr1 pbiso) (y,, isO)).
+        -- <span class="nb">change</span> (pr1 m (morphism_from_z_iso _ _ (pr1 pbiso) (y,, isO))) <span class="k">with</span>
+                  (((pr1 pbiso) · pr1 m) (y,, isO)).
+           <span class="nb">change</span> (pr1 m) <span class="k">with</span> (PullbackPr1 PBO').
+           <span class="nb">pose</span> (pr1 (pr2 pbiso)) <span class="k">as</span> p.
+           <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z _) p).
+      * <span class="nb">intros</span> fib.
+        <span class="nb">apply</span> (eqweqmap (maponpaths pr1 (maponpaths (pr1 O') (pr2 fib)))).
+        <span class="nb">apply</span> (eqweqmap (maponpaths pr1 (eq (hfiberpr1 _ _ fib)))).
+        <span class="nb">apply</span> hfiber_in_hfiber.
+      * <span class="nb">apply</span> propproperty.
+      * <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Topos_Structure_HSET</span> : Topos_Structure HSET.
+  <span class="kn">Proof</span>.
+    use make_Topos_Structure.
+    + <span class="bp">exact</span> PullbacksHSET.
+    + <span class="bp">exact</span> TerminalHSET.
+    + <span class="bp">exact</span> subobject_classifier_HSET.
+    + use PowerObject_from_exponentials.
+      <span class="nb">assert</span> (p : (BinProductsFromPullbacks PullbacksHSET TerminalHSET) = BinProductsHSET).
+      { use proofirrelevance.
+        use impredtwice.
+        <span class="kp">repeat</span> <span class="nb">intro</span>.
+        use isaprop_BinProduct.
+        use is_univalent_HSET. }
+      <span class="nb">rewrite</span> p.
+      use Exponentials_HSET.
+  <span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/HSET/Structures.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

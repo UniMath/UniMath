@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DoubleCatToDoubleBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************************************</span>
+
+<span class="sd"> Pseudo double category to Verity double bicategory</span>
+
+<span class="sd"> Every pseudo double category `C` gives rise to a Verity double bicategory. This Verity</span>
+<span class="sd"> double bicategory is defined as follows:</span>
+<span class="sd"> - Objects: objects in `C`</span>
+<span class="sd"> - Horizontal 1-cells: vertical morphisms in `C`</span>
+<span class="sd"> - Horizontal 2-cells: equalities of vertical morphisms</span>
+<span class="sd"> - Vertical 1-cells: horizontal morphisms in `C`</span>
+<span class="sd"> - Vertical 2-cells: globular squares in `C`</span>
+<span class="sd"> - Squares: squares in `C`</span>
+<span class="sd"> Note that the horizontal and vertical morphisms get swapped in this construction. For</span>
+<span class="sd"> Verity double bicategories, this does not matter, because their definition is symmetric.</span>
+<span class="sd"> The reason why this swap is desired, is because for Verity double bicategories and for</span>
+<span class="sd"> pseudo double categories, a different convention is used regarding which morphisms are</span>
+<span class="sd"> called horizontal and which ones are called vertical. For Verity double bicategories,</span>
+<span class="sd"> the PhD thesis of Verity is followed, whereas for pseudo double categories, the book on</span>
+<span class="sd"> 2-dimensional categories by Johnson and Yau is followed.</span>
+
+<span class="sd"> Another thing that is worth noticing, is that vertical 2-cells correspond to</span>
+<span class="sd"> squares in this Verity double bicategory. However, the same cannot be said for the</span>
+<span class="sd"> horizontal 2-cells. For example, we could consider the pseudo double category whose</span>
+<span class="sd"> objects are strict categories, vertical morphisms are categories, horizontal morphisms</span>
+<span class="sd"> are profunctors, and whose squares are given by natural transformations. Equalities of</span>
+<span class="sd"> functors between strict categories do not correspond to squares whose horizontal sides</span>
+<span class="sd"> are identity profunctors.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The vertical bicategory</span>
+<span class="sd"> 2. The whiskering operations</span>
+<span class="sd"> 3. The laws of the Verity double bicategory</span>
+<span class="sd"> 4. The Verity double bicategory coming from a pseudo double category</span>
+<span class="sd"> 5. The univalence of this Verity double bicategory</span>
+<span class="sd"> 6. Companions and conjoints</span>
+
+<span class="sd"> *****************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.DiscreteBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DoubleBicat.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DerivedLaws.TransportLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Underlying.HorizontalBicategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="kn">Section</span> <span class="nf">DoubleCatToDoubleBicat</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : double_cat).
+
+  <span class="kn">Let</span> <span class="nf">ℍ</span> : bicat := horizontal_bicat C. <span class="c">(* \bH *)</span>
+
+  <span class="sd">(** * 1. The vertical bicategory *)</span>
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_twosided_disp_cat_data</span>
+    : twosided_disp_cat_data C C.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, _) ,, (_ ,, _)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, x --&gt;h y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">h</span> <span class="nv">k</span> <span class="nv">v</span> <span class="nv">w</span>, square v w h k).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">h</span>, id_v_square h).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">s₁</span> <span class="nv">s₂</span>, s₁ ⋆v s₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_ver_sq_bicat</span>
+    : ver_sq_bicat.
+  <span class="kn">Proof</span>.
+    use make_ver_sq_bicat.
+    - <span class="bp">exact</span> (cat_to_bicat C).
+    - <span class="bp">exact</span> double_cat_to_twosided_disp_cat_data.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_ver_sq_bicat_ver_id_comp</span>
+    : ver_sq_bicat_ver_id_comp double_cat_to_ver_sq_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity_h x).
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">h</span> <span class="nv">k</span>, h ·h k).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : ℍ) (<span class="nv">h</span> <span class="nv">k</span> : x --&gt; y), h ==&gt; k).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_ver_sq_bicat_id_comp_cells</span>
+    : ver_sq_bicat_id_comp_cells double_cat_to_ver_sq_bicat_ver_id_comp.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : ℍ) (<span class="nv">f</span> : x --&gt; y), id2 f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : ℍ) (<span class="nv">f</span> : x --&gt; y), lunitor f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : ℍ) (<span class="nv">f</span> : x --&gt; y), runitor f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : ℍ) (<span class="nv">f</span> : x --&gt; y), linvunitor f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : ℍ) (<span class="nv">f</span> : x --&gt; y), rinvunitor f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ℍ) (<span class="nv">f</span> : w --&gt; x) (<span class="nv">g</span> : x --&gt; y) (<span class="nv">h</span> : y --&gt; z), rassociator f g h).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ℍ) (<span class="nv">f</span> : w --&gt; x) (<span class="nv">g</span> : x --&gt; y) (<span class="nv">h</span> : y --&gt; z), lassociator f g h).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : ℍ) (<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : x --&gt; y) (<span class="nv">τ</span> : f ==&gt; g) (<span class="nv">θ</span> : g ==&gt; h), τ • θ).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ℍ) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g₁</span> <span class="nv">g₂</span> : y --&gt; z) (<span class="nv">τ</span> : g₁ ==&gt; g₂), f ◃ τ).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ℍ) (<span class="nv">f₁</span> <span class="nv">f₂</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">τ</span> : f₁ ==&gt; f₂), τ ▹ g).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Note: the next definition is transparent so that the vertical bicategory</span>
+<span class="sd">      of this Verity double bicategory is definitionally equal to the horizontal</span>
+<span class="sd">      bicategory of the pseudo double category *)</span>
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_ver_sq_bicat_prebicat_laws</span>
+    : ver_sq_bicat_prebicat_laws double_cat_to_ver_sq_bicat_id_comp_cells.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr21 ℍ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_ver_bicat_sq_bicat</span>
+    : ver_bicat_sq_bicat.
+  <span class="kn">Proof</span>.
+    use make_ver_bicat_sq_bicat.
+    - <span class="bp">exact</span> double_cat_to_ver_sq_bicat.
+    - <span class="bp">exact</span> double_cat_to_ver_sq_bicat_ver_id_comp.
+    - <span class="bp">exact</span> double_cat_to_ver_sq_bicat_id_comp_cells.
+    - <span class="bp">exact</span> double_cat_to_ver_sq_bicat_prebicat_laws.
+    - <span class="nb">intros</span> x y f g.
+      <span class="nb">apply</span> (cellset_property (C := ℍ)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_ver_bicat_sq_bicat_ver_id_comp_sq</span>
+    : ver_bicat_sq_bicat_ver_id_comp_sq
+        double_cat_to_ver_bicat_sq_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, id_h_square f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> <span class="nv">v₁</span> <span class="nv">v₂</span> <span class="nv">v₃</span> <span class="nv">h₁</span> <span class="nv">h₂</span> <span class="nv">k₁</span> <span class="nv">k₂</span> <span class="nv">s₁</span> <span class="nv">s₂</span>, s₁ ⋆h s₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_ver_bicat_sq_bicat_ver_id_comp</span>
+    : ver_bicat_sq_bicat_ver_id_comp.
+  <span class="kn">Proof</span>.
+    use make_ver_bicat_sq_bicat_ver_id_comp.
+    - <span class="bp">exact</span> double_cat_to_ver_bicat_sq_bicat.
+    - <span class="bp">exact</span> double_cat_to_ver_bicat_sq_bicat_ver_id_comp_sq.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The whiskering operations *)</span>
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_double_bicat_whiskering</span>
+    : double_bicat_whiskering double_cat_to_ver_bicat_sq_bicat_ver_id_comp.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C)
+               (<span class="nv">v₁</span> : w --&gt;v x) (<span class="nv">v₂</span> : y --&gt;v z)
+               (<span class="nv">h₁</span> <span class="nv">h₁'</span> : w --&gt;h y) (<span class="nv">h₂</span> : x --&gt;h z)
+               (<span class="nv">s₁</span> : square (identity_v w) (identity_v y) h₁ h₁')
+               (<span class="nv">s₂</span> : square v₁ v₂ h₁' h₂),
+             transportf_square
+               (id_v_left _)
+               (id_v_left _)
+               (s₁ ⋆v s₂)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C)
+               (<span class="nv">v₁</span> : w --&gt;v x) (<span class="nv">v₂</span> : y --&gt;v z)
+               (<span class="nv">h₁</span> : w --&gt;h y) (<span class="nv">h₂</span> <span class="nv">h₂'</span> : x --&gt;h z)
+               (<span class="nv">s₁</span> : square (identity_v _) (identity_v _) h₂ h₂')
+               (<span class="nv">s₂</span> : square v₁ v₂ h₁ h₂),
+             transportf_square
+               (id_v_right _)
+               (id_v_right _)
+               (s₂ ⋆v s₁)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C)
+               (<span class="nv">v₁</span> <span class="nv">v₁'</span> : w --&gt;v x) (<span class="nv">v₂</span> : y --&gt;v z)
+               (<span class="nv">h₁</span> : w --&gt;h y) (<span class="nv">h₂</span> : x --&gt;h z)
+               (<span class="nv">p</span> : v₁ = v₁')
+               (<span class="nv">s</span> : square v₁' v₂ h₁ h₂),
+             transportf_square
+               (!p)
+               (idpath _)
+               s).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C)
+               (<span class="nv">v₁</span> : w --&gt;v x) (<span class="nv">v₂</span> <span class="nv">v₂'</span> : y --&gt;v z)
+               (<span class="nv">h₁</span> : w --&gt;h y) (<span class="nv">h₂</span> : x --&gt;h z)
+               (<span class="nv">p</span> : v₂ = v₂')
+               (<span class="nv">s</span> : square v₁ v₂ h₁ h₂),
+             transportf_square
+               (idpath _)
+               p
+               s).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_ver_bicat_sq_id_comp_whisker</span>
+    : ver_bicat_sq_id_comp_whisker.
+  <span class="kn">Proof</span>.
+    use make_ver_bicat_sq_id_comp_whisker.
+    - <span class="bp">exact</span> double_cat_to_ver_bicat_sq_bicat_ver_id_comp.
+    - <span class="bp">exact</span> double_cat_to_double_bicat_whiskering.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. The laws of the Verity double bicategory *)</span>
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_whisker_square_bicat_law</span>
+    : whisker_square_bicat_law double_cat_to_ver_bicat_sq_id_comp_whisker.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> w x y z v₁ v₂ h₁ h₂ s ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_id_left_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">apply</span> transportf_square_id.
+    - <span class="nb">intros</span> w x y z v₁ v₂ h₁ h₁' h₁'' h₂ s₁ s₂ s₃.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_assoc_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z v₁ v₂ h₁ h₂ s ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_id_right_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">apply</span> transportf_square_id.
+    - <span class="nb">intros</span> w x y z v₁ v₂ h₁ h₂ h₂' h₂'' s₁ s₂ s₃.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_assoc_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z v₁ v₂ h₁ h₂ s.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">apply</span> transportf_square_id.
+    - <span class="nb">intros</span> w x y z v₁ v₁' v₁'' v₂ h₁ h₂ p q s.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> transportf_square_id.
+    - <span class="nb">intros</span> w x y z v₁ v₂ h₁ h₂ s.
+      <span class="nb">cbn</span> -[transportf_square] <span class="k">in</span> *.
+      <span class="nb">apply</span> transportf_square_id.
+    - <span class="nb">intros</span> w x y z v₁ v₂ v₂' v₂'' h₁ h₂ p q s.
+      <span class="nb">cbn</span> -[transportf_square] <span class="k">in</span> *.
+      <span class="nb">induction</span> p, q.
+      <span class="nb">cbn</span> -[transportf_square].
+      <span class="nb">apply</span> transportf_square_id.
+    - <span class="nb">intros</span> w x y z v₁ v₁' v₂ v₂' h₁ h₂ p q s.
+      <span class="nb">cbn</span> -[transportf_square] <span class="k">in</span> *.
+      <span class="nb">induction</span> p, q.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z v₁ v₁' v₂ h₁ h₁' h₂ p s₁ s₂.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p.
+      <span class="nb">cbn</span>.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z v₁ v₁' v₂ h₁ h₂ h₂' p s₁ s₂.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z v₁ v₂ v₂' h₁ h₁' h₂ p s₁ s₂.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z v₁ v₂ v₂' h₁ h₂ h₂' p s₁ s₂.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z v₁ v₂ h₁ h₁' h₂ h₂' s₁ s₂ s₃.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_assoc_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y h k s.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_id_right_v.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_id_left_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y h k p.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₁' v₂ v₃ h₁ h₂ k₁ k₂ p s₁ s₂.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ v₃' h₁ h₂ k₁ k₂ p s₁ s₂.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₂' v₃ h₁ h₂ k₁ k₂ p s₁ s₂.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ x₃ y₁ y₂ y₃ v₁ v₂ w₁ w₂ h₁ h₁' h₂ h₃ s₁ s₂ s₃.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_assoc_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ x₃ y₁ y₂ y₃ v₁ v₂ w₁ w₂ h₁ h₂ h₃ h₃' s₁ s₂ s₃.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_assoc_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ x₃ y₁ y₂ y₃ v₁ v₂ w₁ w₂ h₁ h₂ h₂' h₃ s₁ s₂ s₃.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_assoc_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_double_bicat_id_comp_square_laws</span>
+    : double_bicat_id_comp_square_laws double_cat_to_ver_bicat_sq_id_comp_whisker.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comp_h_square_comp.
+    - <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> id_h_square_id.
+    - <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> comp_h_square_id.
+    - <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> id_h_square_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_double_bicat_cylinder_laws</span>
+    : double_bicat_cylinder_laws double_cat_to_ver_bicat_sq_id_comp_whisker.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> ; <span class="nb">cbn</span> -[transportf_square].
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_assoc_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> ; <span class="nb">cbn</span> -[transportf_square].
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> lassociator_square'.
+      }
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> ; <span class="nb">cbn</span> -[transportf_square].
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_id_left_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> ; <span class="nb">cbn</span> -[transportf_square].
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lunitor_square.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> ; <span class="nb">cbn</span> -[transportf_square].
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_id_right_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> ; <span class="nb">cbn</span> -[transportf_square].
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> runitor_square.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₁' h₂ h₂' k₁ k₁' k₂ k₂'.
+      <span class="nb">intros</span> s₁ s₁' s₂ s₂' s₃ s₃' s₄ s₄' p q.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">pose</span> (maponpaths (transportb_square (id_v_left v₁) (id_v_left v₂)) p) <span class="k">as</span> p'.
+      <span class="nb">rewrite</span> transportbf_square <span class="k">in</span> p'.
+      <span class="nb">unfold</span> transportb_square <span class="k">in</span> p'.
+      <span class="nb">rewrite</span> transportf_f_square <span class="k">in</span> p'.
+      <span class="nb">clear</span> p.
+      <span class="nb">pose</span> (maponpaths (transportb_square (id_v_left v₂) (id_v_left v₃)) q) <span class="k">as</span> q'.
+      <span class="nb">rewrite</span> transportbf_square <span class="k">in</span> q'.
+      <span class="nb">unfold</span> transportb_square <span class="k">in</span> q'.
+      <span class="nb">rewrite</span> transportf_f_square <span class="k">in</span> q'.
+      <span class="nb">clear</span> q.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      <span class="nb">rewrite</span> &lt;- !comp_h_square_comp.
+      <span class="nb">rewrite</span> !square_id_left_v.
+      <span class="nb">rewrite</span> !square_id_right_v.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> !transportf_square_prewhisker.
+      <span class="nb">rewrite</span> !transportf_square_postwhisker.
+      <span class="nb">rewrite</span> p', q'.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      etrans.
+      {
+        <span class="nb">rewrite</span> transportf_hcomp_l.
+        <span class="nb">rewrite</span> !transportf_f_square.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> transportf_hcomp_r.
+        <span class="nb">rewrite</span> !transportf_f_square.
+        <span class="nb">cbn</span> -[transportf_square].
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> transportf_hcomp_l.
+        <span class="nb">rewrite</span> !transportf_f_square.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> transportf_hcomp_r.
+        <span class="nb">rewrite</span> !transportf_f_square.
+        <span class="nb">apply</span> idpath.
+      }
+      use transportf_square_eq.
+      <span class="nb">apply</span> maponpaths_2.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₁' h₂ h₂' k₁ k₁' k₂ k₂'.
+      <span class="nb">intros</span> p p' q q' s₁ s₁' s₂ s₂' r r'.
+      <span class="nb">cbn</span> -[transportf_square] <span class="k">in</span> *.
+      <span class="nb">induction</span> p, p', q, q'.
+      <span class="nb">cbn</span> <span class="k">in</span> r, r'.
+      <span class="nb">induction</span> r, r'.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_double_bicat_laws</span>
+    : double_bicat_laws double_cat_to_ver_bicat_sq_id_comp_whisker.
+  <span class="kn">Proof</span>.
+    use make_double_bicat_laws.
+    - <span class="bp">exact</span> double_cat_to_whisker_square_bicat_law.
+    - <span class="bp">exact</span> double_cat_to_double_bicat_id_comp_square_laws.
+    - <span class="bp">exact</span> double_cat_to_double_bicat_cylinder_laws.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaset_square.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. The Verity double bicategory coming from a pseudo double category *)</span>
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_verity_double_bicat</span>
+    : verity_double_bicat.
+  <span class="kn">Proof</span>.
+    use make_verity_double_bicat.
+    - <span class="bp">exact</span> double_cat_to_ver_bicat_sq_id_comp_whisker.
+    - <span class="bp">exact</span> double_cat_to_double_bicat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_vertically_saturated</span>
+    : vertically_saturated
+        double_cat_to_verity_double_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">h₁</span> <span class="nv">h₂</span> : x --&gt;h y), _).
+    use isweq_iso.
+    - <span class="bp">exact</span> (idfun _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> s ; <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (maponpaths (transportf_square _ _) (square_id_right_v _) @ _) ;
+         <span class="nb">unfold</span> transportb_square ;
+         <span class="nb">rewrite</span> transportf_f_square ;
+         <span class="nb">apply</span> transportf_square_id).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> s ; <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (maponpaths (transportf_square _ _) (square_id_right_v _) @ _) ;
+         <span class="nb">unfold</span> transportb_square ;
+         <span class="nb">rewrite</span> transportf_f_square ;
+         <span class="nb">apply</span> transportf_square_id).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_horizontal_cells_are_squares</span>
+             (<span class="nv">H</span> : ver_weq_square C)
+    : horizontally_saturated
+        double_cat_to_verity_double_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">v₁</span> <span class="nv">v₂</span> : x --&gt;v y), _).
+    use isweqimplimpl.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> s.
+      <span class="bp">exact</span> (invmap (make_weq _ (H x y v₁ v₂)) s).
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> isaprop_square_ver_weq_square.
+      <span class="bp">exact</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_weak_double_cat_double_cat</span>
+             (<span class="nv">H</span> : ver_weq_square C)
+    : is_weak_double_cat
+        double_cat_to_verity_double_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> double_cat_vertically_saturated.
+    - <span class="bp">exact</span> (double_cat_horizontal_cells_are_squares H).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DoubleCatToDoubleBicat</span>.
+
+<span class="sd">(** * 5. The univalence of this Verity double bicategory *)</span>
+<span class="kn">Definition</span> <span class="nf">locally_univalent_double_cat_to_verity_double_bicat</span>
+           (<span class="nv">C</span> : univalent_double_cat)
+  : locally_univalent_verity_double_bicat
+      (double_cat_to_verity_double_bicat C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> is_univalent_2_1_cat_to_bicat.
+  - <span class="bp">exact</span> (is_univalent_2_1_horizontal_bicat C).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hor_globally_univalent_double_cat_to_verity_double_bicat</span>
+           (<span class="nv">C</span> : univalent_double_cat)
+  : hor_globally_univalent
+      (double_cat_to_verity_double_bicat C).
+<span class="kn">Proof</span>.
+  use is_univalent_2_0_cat_to_bicat.
+  <span class="bp">exact</span> (is_univalent_vertical_cat C).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">gregarious_univalent_double_cat_to_verity_double_bicat</span>
+           (<span class="nv">C</span> : univalent_double_cat)
+  : gregarious_univalent
+      (double_cat_to_verity_double_bicat C).
+<span class="kn">Proof</span>.
+  use hor_globally_univalent_to_gregarious_univalent.
+  - <span class="bp">exact</span> (locally_univalent_double_cat_to_verity_double_bicat C).
+  - <span class="bp">exact</span> (hor_globally_univalent_double_cat_to_verity_double_bicat C).
+  - <span class="bp">exact</span> (double_cat_vertically_saturated C).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_enriched_profunctor_verity_double_bicat</span>
+           (<span class="nv">C</span> : univalent_double_cat)
+  : univalent_verity_double_bicat (double_cat_to_verity_double_bicat C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> gregarious_univalent_double_cat_to_verity_double_bicat.
+  - <span class="nb">apply</span> locally_univalent_double_cat_to_verity_double_bicat.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Companions and conjoints *)</span>
+<span class="kn">Definition</span> <span class="nf">double_cat_to_verity_double_bicat_are_companions</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">h</span> : x --&gt;h y)
+           (<span class="nv">v</span> : x --&gt;v y)
+  : double_cat_are_companions h v
+    ≃
+    are_companions
+      (B := double_cat_to_verity_double_bicat C)
+      v h.
+<span class="kn">Proof</span>.
+  use weqfibtototal.
+  <span class="nb">intro</span> φ.
+  use weqfibtototal.
+  <span class="nb">intro</span> ψ.
+  use weqimplimpl.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> p ;
+       <span class="nb">induction</span> p <span class="k">as</span> [ p₁ p₂ ] ;
+       <span class="nb">refine</span> (p₁ ,, _) ;
+       <span class="nb">refine</span> (_ @ p₂) ;
+       <span class="nb">cbn</span> -[transportf_square] ;
+       <span class="kp">do</span> <span class="mi">2</span> use transportf_square_eq ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> -[transportf_square] ;
+       <span class="nb">intros</span> p ;
+       <span class="nb">induction</span> p <span class="k">as</span> [ p₁ p₂ ] ;
+       <span class="nb">refine</span> (p₁ ,, _) ;
+       <span class="nb">refine</span> (_ @ p₂) ;
+       <span class="kp">do</span> <span class="mi">2</span> use transportf_square_eq ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span> (<span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isaset_square).
+  - <span class="kp">abstract</span> (<span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isaset_square).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">all_companions_double_cat_to_verity_double_bicat</span>
+           {<span class="nv">C</span> : double_cat}
+           (<span class="nv">H</span> : all_companions_double_cat C)
+  : all_companions (double_cat_to_verity_double_bicat C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y v.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (pr1 (H x y v)).
+  - use double_cat_to_verity_double_bicat_are_companions.
+    <span class="bp">exact</span> (pr2 (H x y v)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_cat_to_verity_double_bicat_are_conjoints</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">h</span> : y --&gt;h x)
+           (<span class="nv">v</span> : x --&gt;v y)
+  : double_cat_are_conjoints h v
+    ≃
+    are_conjoints
+      (B := double_cat_to_verity_double_bicat C)
+      v h.
+<span class="kn">Proof</span>.
+  use weqfibtototal.
+  <span class="nb">intro</span> φ.
+  use weqfibtototal.
+  <span class="nb">intro</span> ψ.
+  use weqimplimpl.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> p ;
+       <span class="nb">induction</span> p <span class="k">as</span> [ p₁ p₂ ] ;
+       <span class="nb">refine</span> (p₁ ,, _) ;
+       <span class="nb">refine</span> (_ @ p₂) ;
+       <span class="nb">cbn</span> -[transportf_square] ;
+       <span class="kp">do</span> <span class="mi">2</span> use transportf_square_eq ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> -[transportf_square] ;
+       <span class="nb">intros</span> p ;
+       <span class="nb">induction</span> p <span class="k">as</span> [ p₁ p₂ ] ;
+       <span class="nb">refine</span> (p₁ ,, _) ;
+       <span class="nb">refine</span> (_ @ p₂) ;
+       <span class="kp">do</span> <span class="mi">2</span> use transportf_square_eq ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span> (<span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isaset_square).
+  - <span class="kp">abstract</span> (<span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isaset_square).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">all_conjoints_double_cat_to_verity_double_bicat</span>
+           {<span class="nv">C</span> : double_cat}
+           (<span class="nv">H</span> : all_conjoints_double_cat C)
+  : all_conjoints (double_cat_to_verity_double_bicat C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y v.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (pr1 (H x y v)).
+  - use double_cat_to_verity_double_bicat_are_conjoints.
+    <span class="bp">exact</span> (pr2 (H x y v)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/DoubleCatToDoubleBicat.v</tt>, line 38)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Companions and conjoints
+  &gt;
+  &gt;  *****************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

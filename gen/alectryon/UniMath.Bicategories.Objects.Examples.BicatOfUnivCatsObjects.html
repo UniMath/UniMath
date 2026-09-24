@@ -1,0 +1,1005 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BicatOfUnivCatsObjects.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************</span>
+
+<span class="sd"> Characterizations of (co)cartesian univalent categories</span>
+
+<span class="sd"> In this file we characterize cartesian and cocartesian objects in</span>
+<span class="sd"> the bicategory of univalent categories. Note: we already gave a</span>
+<span class="sd"> characterization of such objects via adjoints. More specifically,</span>
+<span class="sd"> for cartesian objects both the diagonal and the unique map to the</span>
+<span class="sd"> terminal object should have right adjoints whereas for cocartesian</span>
+<span class="sd"> objects, these two 1-cells should have left adjoints.</span>
+
+<span class="sd"> This characterization via adjoints gives a direct connection to</span>
+<span class="sd"> limits and colimits. A category has products if and only if the</span>
+<span class="sd"> diagonal functor has a right adjoint and dually for coproducts.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Characterization of cartesian objects</span>
+<span class="sd"> 1.1. Categories with a terminal object</span>
+<span class="sd"> 1.2. Categories with binary products</span>
+<span class="sd"> 2. Characterization of cocartesian objects</span>
+<span class="sd"> 2.1. Categories with an initial object</span>
+<span class="sd"> 2.2. Categories with binary coproducts</span>
+
+<span class="sd"> ******************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.UnivalenceOp.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Final.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
+<span class="kn">Require Import</span> UniMath.Bicategories.Objects.CartesianObject.
+<span class="kn">Require Import</span> UniMath.Bicategories.Objects.CocartesianObject.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Characterization of cartesian objects</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(**</span>
+<span class="sd"> 1.1. Categories with a terminal object</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">TerminalToAdj</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : bicat_of_univ_cats)
+          (<span class="nv">T</span> : Terminal (pr1 C)).
+
+  <span class="kn">Definition</span> <span class="nf">terminal_to_right_adj</span>
+    : unit_category ⟶ pr1 C
+    := constant_functor _ _ T.
+
+  <span class="kn">Definition</span> <span class="nf">terminal_to_unit</span>
+    : functor_identity _ ⟹ functor_to_unit _ ∙ terminal_to_right_adj.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, TerminalArrow _ _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         <span class="nb">apply</span> TerminalArrowEq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">terminal_to_counit</span>
+    : terminal_to_right_adj ∙ functor_to_unit _ ⟹ functor_identity _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropunit.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         <span class="nb">apply</span> isasetunit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">terminal_to_cartesian_terminal_via_adj_data</span>
+    : left_adjoint_data (is_bifinal_1cell_property (pr2 bifinal_cats) C).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, (_ ,, _)).
+    - <span class="bp">exact</span> terminal_to_right_adj.
+    - <span class="bp">exact</span> terminal_to_unit.
+    - <span class="bp">exact</span> terminal_to_counit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">terminal_to_cartesian_terminal_via_adj_axioms</span>
+    : left_adjoint_axioms terminal_to_cartesian_terminal_via_adj_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> idpath.
+    - use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> TerminalArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">terminal_to_cartesian_terminal_via_adj</span>
+    : cartesian_terminal_via_adj C bifinal_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> terminal_to_cartesian_terminal_via_adj_data.
+    - <span class="bp">exact</span> terminal_to_cartesian_terminal_via_adj_axioms.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">TerminalToAdj</span>.
+
+<span class="kn">Section</span> <span class="nf">AdjToTerminal</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : bicat_of_univ_cats)
+          (<span class="nv">HC</span> : cartesian_terminal_via_adj C bifinal_cats).
+
+  <span class="kn">Let</span> <span class="nf">R</span> : unit_category ⟶ pr1 C := pr11 HC.
+  <span class="kn">Let</span> <span class="nf">η</span> : functor_identity _  ⟹ functor_to_unit _ ∙ R := pr121 HC.
+  <span class="kn">Let</span> <span class="nf">ε</span> : R ∙ functor_to_unit _ ⟹ functor_identity _ := pr221 HC.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_terminal_via_adj_to_terminal_unique</span>
+             (<span class="nv">x</span> : pr1 C)
+    : isaprop (x --&gt; R tt).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    <span class="nb">pose</span> (nat_trans_eq_pointwise (pr22 HC) tt) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !id_left, !id_right <span class="k">in</span> p.
+    <span class="nb">refine</span> (!(id_right _) @ _ @ id_right _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!p).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (nat_trans_ax η).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!p).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (nat_trans_ax η).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!(functor_comp R _ _) @ _ @ functor_comp R _ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> isasetunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_terminal_via_adj_to_terminal</span>
+    : Terminal (pr1 C).
+  <span class="kn">Proof</span>.
+    use make_Terminal.
+    - <span class="bp">exact</span> (R tt).
+    - <span class="nb">intro</span> x.
+      use iscontraprop1.
+      + <span class="bp">exact</span> (cartesian_terminal_via_adj_to_terminal_unique x).
+      + <span class="bp">exact</span> (pr1 η x).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">AdjToTerminal</span>.
+
+<span class="kn">Definition</span> <span class="nf">terminal_weq_cartesian_terminal_via_adj</span>
+           (<span class="nv">C</span> : bicat_of_univ_cats)
+  : Terminal (pr1 C) ≃ cartesian_terminal_via_adj C bifinal_cats.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> (terminal_to_cartesian_terminal_via_adj C).
+  - <span class="bp">exact</span> (cartesian_terminal_via_adj_to_terminal C).
+  - <span class="nb">apply</span> isaprop_Terminal.
+    <span class="bp">exact</span> (pr2 C).
+  - <span class="nb">apply</span> isaprop_cartesian_terminal_via_adj.
+    <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">terminal_weq_cartesian_terminal</span>
+           (<span class="nv">C</span> : bicat_of_univ_cats)
+  : Terminal (pr1 C) ≃ cartesian_terminal C
+  := (invweq (cartesian_terminal_weq_cartesian_terminal_via_adj
+                bifinal_cats
+                C
+                univalent_cat_is_univalent_2_1)
+     ∘ terminal_weq_cartesian_terminal_via_adj C)%weq.
+
+<span class="sd">(**</span>
+<span class="sd"> 1.2. Categories with binary products</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">AdjFromProducts</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : bicat_of_univ_cats)
+          (<span class="nv">prodC</span> : BinProducts (pr1 C)).
+
+  <span class="kn">Definition</span> <span class="nf">binproducts_to_cartesian_prod_via_adj_right_adj_data</span>
+    : functor_data
+        (category_binproduct (pr1 C) (pr1 C))
+        (pr1 C).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, BinProductObject _ (prodC (pr1 x) (pr2 x))).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, BinProductOfArrows _ _ _ (pr1 f) (pr2 f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binproducts_to_cartesian_prod_via_adj_right_adj_is_functor</span>
+    : is_functor binproducts_to_cartesian_prod_via_adj_right_adj_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      use BinProductArrowsEq.
+      + <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> BinProductOfArrows_comp.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binproducts_to_cartesian_prod_via_adj_right_adj</span>
+    : category_binproduct (pr1 C) (pr1 C) ⟶ pr1 C.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> binproducts_to_cartesian_prod_via_adj_right_adj_data.
+    - <span class="bp">exact</span> binproducts_to_cartesian_prod_via_adj_right_adj_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binproducts_to_cartesian_prod_via_adj_unit</span>
+    : functor_identity (pr1 C)
+      ⟹
+      bindelta_pair_functor (functor_identity _) (functor_identity _)
+      ∙ binproducts_to_cartesian_prod_via_adj_right_adj.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, BinProductArrow _ _ (identity x) (identity x)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+         use BinProductArrowsEq ;
+         [ <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> BinProductOfArrowsPr1 ;
+           <span class="nb">rewrite</span> BinProductPr1Commutes ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> BinProductPr1Commutes ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath
+         | <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> BinProductOfArrowsPr2 ;
+           <span class="nb">rewrite</span> BinProductPr2Commutes ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> BinProductPr2Commutes ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binproducts_to_cartesian_prod_via_adj_counit</span>
+    : binproducts_to_cartesian_prod_via_adj_right_adj
+      ∙ bindelta_pair_functor (functor_identity _) (functor_identity _)
+      ⟹
+      functor_identity _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, BinProductPr1 _ _ ,, BinProductPr2 _ _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         use pathsdirprod ; <span class="nb">cbn</span> ;
+         [ <span class="nb">apply</span> BinProductOfArrowsPr1
+         | <span class="nb">apply</span> BinProductOfArrowsPr2 ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binproducts_to_cartesian_prod_via_adj_data</span>
+    : left_adjoint_data
+        (binprod_ump_1cell
+           (pr2 (has_binprod_bicat_of_univ_cats C C))
+           (id₁ C) (id₁ C)).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, (_ ,, _)).
+    - <span class="bp">exact</span> binproducts_to_cartesian_prod_via_adj_right_adj.
+    - <span class="bp">exact</span> binproducts_to_cartesian_prod_via_adj_unit.
+    - <span class="bp">exact</span> binproducts_to_cartesian_prod_via_adj_counit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binproducts_to_cartesian_prod_via_adj_axioms</span>
+    : left_adjoint_axioms binproducts_to_cartesian_prod_via_adj_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+      <span class="nb">intro</span> x.
+      use pathsdirprod ; <span class="nb">cbn</span>.
+      + <span class="nb">rewrite</span> !id_left, !id_right.
+        <span class="nb">apply</span> BinProductPr1Commutes.
+      + <span class="nb">rewrite</span> !id_left, !id_right.
+        <span class="nb">apply</span> BinProductPr2Commutes.
+    - use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+      <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !id_left, !id_right.
+      use BinProductArrowsEq.
+      + <span class="nb">rewrite</span> !id_left.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductPr1Commutes.
+        <span class="nb">apply</span> id_left.
+      + <span class="nb">rewrite</span> !id_left.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductPr2Commutes.
+        <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binproducts_to_cartesian_prod_via_adj</span>
+    : cartesian_prod_via_adj C has_binprod_bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> binproducts_to_cartesian_prod_via_adj_data.
+    - <span class="bp">exact</span> binproducts_to_cartesian_prod_via_adj_axioms.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">AdjFromProducts</span>.
+
+<span class="kn">Section</span> <span class="nf">ProductsFromAdj</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : bicat_of_univ_cats)
+          (<span class="nv">RC</span> : cartesian_prod_via_adj C has_binprod_bicat_of_univ_cats).
+
+  <span class="kn">Let</span> <span class="nf">R</span> : category_binproduct (pr1 C) (pr1 C) ⟶ pr1 C := pr11 RC.
+  <span class="kn">Let</span> <span class="nf">η</span> : functor_identity _
+          ⟹
+          bindelta_pair_functor (functor_identity _) (functor_identity _) ∙ R
+    := pr121 RC.
+  <span class="kn">Let</span> <span class="nf">ε</span> : R ∙ bindelta_pair_functor (functor_identity _) (functor_identity _)
+          ⟹
+          functor_identity _
+    := pr221 RC.
+
+  <span class="kn">Section</span> <span class="nf">Products</span>.
+    <span class="kn">Context</span> (<span class="nv">x</span> <span class="nv">y</span> : pr1 C).
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_binproduct_obj</span>
+      : pr1 C
+      := R (x ,, y).
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_binproduct_pr1</span>
+      : cartesian_prod_via_adj_to_binproduct_obj --&gt; x
+      := pr1 (ε (x ,, y)).
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_binproduct_pr2</span>
+      : cartesian_prod_via_adj_to_binproduct_obj --&gt; y
+      := pr2 (ε (x ,, y)).
+
+    <span class="kn">Context</span> (<span class="nv">w</span> : pr1 C)
+            (<span class="nv">f</span> : w --&gt; x)
+            (<span class="nv">g</span> : w --&gt; y).
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_binproduct_pair_unique</span>
+      : isaprop
+          (∑ (fg : w --&gt; cartesian_prod_via_adj_to_binproduct_obj),
+           fg · cartesian_prod_via_adj_to_binproduct_pr1 = f
+           ×
+           fg · cartesian_prod_via_adj_to_binproduct_pr2 = g).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">pose</span> (p := nat_trans_eq_pointwise (pr22 RC) (x ,, y)).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !id_left, !id_right <span class="k">in</span> p.
+      <span class="nb">refine</span> (!(id_right _) @ _ @ id_right _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (!p) @ _ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) p).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (nat_trans_ax η _ _ _) @ _).
+      <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (!(nat_trans_ax η _ _ _))).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!(functor_comp R _ _) @ _ @ functor_comp R _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsdirprod ; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (pr12 φ₁ @ !(pr12 φ₂)).
+      - <span class="bp">exact</span> (pr22 φ₁ @ !(pr22 φ₂)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_binproduct_pair</span>
+      : w --&gt; cartesian_prod_via_adj_to_binproduct_obj
+      := η w
+         · @functor_on_morphisms _ _ R (w ,, w) (x ,, y) (f ,, g).
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_binproduct_pair_pr1</span>
+      : cartesian_prod_via_adj_to_binproduct_pair
+        · cartesian_prod_via_adj_to_binproduct_pr1
+        =
+        f.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> cartesian_prod_via_adj_to_binproduct_pair.
+      <span class="nb">unfold</span> cartesian_prod_via_adj_to_binproduct_pr1.
+      <span class="nb">pose</span> (p := maponpaths pr1 (nat_trans_eq_pointwise (pr12 RC) w)).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !id_left, !id_right <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths
+                 pr1
+                 (nat_trans_ax ε (w ,, w) (x ,,y) (f ,, g))).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> p.
+      }
+      <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_binproduct_pair_pr2</span>
+      : cartesian_prod_via_adj_to_binproduct_pair
+        · cartesian_prod_via_adj_to_binproduct_pr2
+        =
+        g.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> cartesian_prod_via_adj_to_binproduct_pair.
+      <span class="nb">unfold</span> cartesian_prod_via_adj_to_binproduct_pr2.
+      <span class="nb">pose</span> (p := maponpaths dirprod_pr2 (nat_trans_eq_pointwise (pr12 RC) w)).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !id_left, !id_right <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths
+                 dirprod_pr2
+                 (nat_trans_ax ε (w ,, w) (x ,,y) (f ,, g))).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> p.
+      }
+      <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Products</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_prod_via_adj_to_binproduct</span>
+    : BinProducts (pr1 C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use make_BinProduct.
+    - <span class="bp">exact</span> (cartesian_prod_via_adj_to_binproduct_obj x y).
+    - <span class="bp">exact</span> (cartesian_prod_via_adj_to_binproduct_pr1 x y).
+    - <span class="bp">exact</span> (cartesian_prod_via_adj_to_binproduct_pr2 x y).
+    - <span class="nb">intros</span> w f g.
+      use iscontraprop1.
+      + <span class="bp">exact</span> (cartesian_prod_via_adj_to_binproduct_pair_unique x y w f g).
+      + <span class="nb">simple refine</span> (_ ,, (_ ,, _)).
+        * <span class="bp">exact</span> (cartesian_prod_via_adj_to_binproduct_pair x y w f g).
+        * <span class="bp">exact</span> (cartesian_prod_via_adj_to_binproduct_pair_pr1 x y w f g).
+        * <span class="bp">exact</span> (cartesian_prod_via_adj_to_binproduct_pair_pr2 x y w f g).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ProductsFromAdj</span>.
+
+<span class="kn">Definition</span> <span class="nf">binproducts_weq_cartesian_prod_via_adj</span>
+             (<span class="nv">C</span> : bicat_of_univ_cats)
+  : BinProducts (pr1 C)
+    ≃
+    cartesian_prod_via_adj C has_binprod_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> (binproducts_to_cartesian_prod_via_adj C).
+  - <span class="bp">exact</span> (cartesian_prod_via_adj_to_binproduct C).
+  - use impred ; <span class="nb">intro</span> x.
+    use impred ; <span class="nb">intro</span> y.
+    <span class="nb">apply</span> isaprop_BinProduct.
+    <span class="bp">exact</span> (pr2 C).
+  - <span class="nb">apply</span> isaprop_cartesian_prod_via_adj.
+    <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">prods_weq_cartesian_prod</span>
+           (<span class="nv">C</span> : bicat_of_univ_cats)
+  : BinProducts (pr1 C) ≃ cartesian_prod C
+  := (invweq (cartesian_prod_weq_cartesian_prod_via_adj
+                has_binprod_bicat_of_univ_cats
+                C
+                univalent_cat_is_univalent_2_1)
+      ∘ binproducts_weq_cartesian_prod_via_adj C)%weq.
+
+<span class="kn">Definition</span> <span class="nf">terminal_prods_weq_cartesian_ob</span>
+           (<span class="nv">C</span> : bicat_of_univ_cats)
+  : Terminal (pr1 C) × BinProducts (pr1 C) ≃ cartesian_ob C.
+<span class="kn">Proof</span>.
+  use weqdirprodf.
+  - <span class="bp">exact</span> (terminal_weq_cartesian_terminal C).
+  - <span class="bp">exact</span> (prods_weq_cartesian_prod C).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Characterization of cocartesian objects</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(**</span>
+<span class="sd"> 2.1. Categories with an initial object</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">InitialToAdj</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : bicat_of_univ_cats)
+          (<span class="nv">I</span> : Initial (pr1 C)).
+
+  <span class="kn">Definition</span> <span class="nf">initial_to_left_adj</span>
+    : unit_category ⟶ pr1 C
+    := constant_functor _ _ I.
+
+  <span class="kn">Definition</span> <span class="nf">initial_to_unit</span>
+    : functor_identity _ ⟹ initial_to_left_adj ∙ functor_to_unit _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropunit.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         <span class="nb">apply</span> isasetunit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">initial_to_counit</span>
+    : functor_to_unit _ ∙ initial_to_left_adj ⟹ functor_identity _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, InitialArrow _ _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         <span class="nb">apply</span> InitialArrowEq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">initial_to_cocartesian_initial_via_adj_data</span>
+    : internal_right_adj_data (is_bifinal_1cell_property (pr2 bifinal_cats) C).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, (_ ,, _)).
+    - <span class="bp">exact</span> initial_to_left_adj.
+    - <span class="bp">exact</span> initial_to_unit.
+    - <span class="bp">exact</span> initial_to_counit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">initial_to_cocartesian_initial_via_adj_axioms</span>
+    : internal_right_adj_axioms initial_to_cocartesian_initial_via_adj_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> InitialArrowEq.
+    - use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">initial_to_cocartesian_initial_via_adj</span>
+    : cocartesian_initial_via_adj C bifinal_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> initial_to_cocartesian_initial_via_adj_data.
+    - <span class="bp">exact</span> initial_to_cocartesian_initial_via_adj_axioms.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">InitialToAdj</span>.
+
+<span class="kn">Section</span> <span class="nf">AdjToInitial</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : bicat_of_univ_cats)
+          (<span class="nv">HC</span> : cocartesian_initial_via_adj C bifinal_cats).
+
+  <span class="kn">Let</span> <span class="nf">L</span> : unit_category ⟶ pr1 C := pr11 HC.
+  <span class="kn">Let</span> <span class="nf">η</span> : functor_identity _  ⟹ L ∙ functor_to_unit _ := pr121 HC.
+  <span class="kn">Let</span> <span class="nf">ε</span> : functor_to_unit _ ∙ L ⟹ functor_identity _ := pr221 HC.
+
+  <span class="kn">Definition</span> <span class="nf">cocartesian_initial_via_adj_to_initial_unique</span>
+             (<span class="nv">x</span> : pr1 C)
+    : isaprop (L tt --&gt; x).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    <span class="nb">pose</span> (nat_trans_eq_pointwise (pr12 HC) tt) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !id_left, !id_right <span class="k">in</span> p.
+    <span class="nb">refine</span> (!(id_left _) @ _ @ id_left _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (!p).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax ε).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (!p).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax ε).
+    }
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> isasetunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cocartesian_initial_via_adj_to_initial</span>
+    : Initial (pr1 C).
+  <span class="kn">Proof</span>.
+    use make_Initial.
+    - <span class="bp">exact</span> (L tt).
+    - <span class="nb">intro</span> x.
+      use iscontraprop1.
+      + <span class="bp">exact</span> (cocartesian_initial_via_adj_to_initial_unique x).
+      + <span class="bp">exact</span> (pr1 ε x).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">AdjToInitial</span>.
+
+<span class="kn">Definition</span> <span class="nf">initial_weq_cocartesian_initial_via_adj</span>
+           (<span class="nv">C</span> : bicat_of_univ_cats)
+  : Initial (pr1 C) ≃ cocartesian_initial_via_adj C bifinal_cats.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> (initial_to_cocartesian_initial_via_adj C).
+  - <span class="bp">exact</span> (cocartesian_initial_via_adj_to_initial C).
+  - <span class="nb">apply</span> isaprop_Initial.
+    <span class="bp">exact</span> (pr2 C).
+  - <span class="nb">apply</span> isaprop_cocartesian_initial_via_adj.
+    <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">initial_weq_cocartesian_initial</span>
+           (<span class="nv">C</span> : bicat_of_univ_cats)
+  : Initial (pr1 C) ≃ cocartesian_initial C
+  := (invweq (cocartesian_initial_weq_cocartesian_initial_via_adj
+                bifinal_cats
+                C
+                univalent_cat_is_univalent_2_1)
+      ∘ initial_weq_cocartesian_initial_via_adj C)%weq.
+
+<span class="sd">(**</span>
+<span class="sd"> 2.2. Categories with binary coproducts</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">AdjToCoprod</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : bicat_of_univ_cats)
+          (<span class="nv">coprodC</span> : BinCoproducts (pr1 C)).
+
+  <span class="kn">Definition</span> <span class="nf">coprods_to_cocartesian_coprod_via_adj_adj_data</span>
+    : functor_data (category_binproduct (pr1 C) (pr1 C)) (pr1 C).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, coprodC (pr1 x) (pr2 x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, BinCoproductOfArrows _ _ _ (pr1 f) (pr2 f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprods_to_cocartesian_coprod_via_adj_adj_is_functor</span>
+    : is_functor coprods_to_cocartesian_coprod_via_adj_adj_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+      use BinCoproductArrowsEq.
+      + <span class="nb">rewrite</span> BinCoproductOfArrowsIn1.
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> BinCoproductOfArrowsIn2.
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> BinCoproductOfArrows_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprods_to_cocartesian_coprod_via_adj_adj</span>
+    : category_binproduct (pr1 C) (pr1 C) ⟶ pr1 C.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> coprods_to_cocartesian_coprod_via_adj_adj_data.
+    - <span class="bp">exact</span> coprods_to_cocartesian_coprod_via_adj_adj_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprods_to_cocartesian_coprod_via_adj_unit</span>
+    : functor_identity _
+      ⟹
+      coprods_to_cocartesian_coprod_via_adj_adj
+      ∙ bindelta_pair_functor (functor_identity _) (functor_identity _).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, BinCoproductIn1 _ ,, BinCoproductIn2 _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         use pathsdirprod ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (!_) ;
+         [ <span class="nb">apply</span> BinCoproductOfArrowsIn1 | <span class="nb">apply</span> BinCoproductOfArrowsIn2 ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprods_to_cocartesian_coprod_via_adj_counit</span>
+    : bindelta_pair_functor (functor_identity _) (functor_identity _)
+      ∙ coprods_to_cocartesian_coprod_via_adj_adj
+      ⟹
+      functor_identity _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, BinCoproductArrow _ (identity x) (identity x)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+         use BinCoproductArrowsEq ;
+         [ <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> BinCoproductOfArrowsIn1 ;
+           <span class="nb">rewrite</span> BinCoproductIn1Commutes ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> BinCoproductIn1Commutes ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath
+         | <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> BinCoproductOfArrowsIn2 ;
+           <span class="nb">rewrite</span> BinCoproductIn2Commutes ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> BinCoproductIn2Commutes ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprods_to_cocartesian_coprod_via_adj_data</span>
+    : internal_right_adj_data
+        (binprod_ump_1cell
+           (pr2 (has_binprod_bicat_of_univ_cats C C)) (id₁ C) (id₁ C)).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, (_ ,, _)).
+    - <span class="bp">exact</span> coprods_to_cocartesian_coprod_via_adj_adj.
+    - <span class="bp">exact</span> coprods_to_cocartesian_coprod_via_adj_unit.
+    - <span class="bp">exact</span> coprods_to_cocartesian_coprod_via_adj_counit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprods_to_cocartesian_coprod_via_adj_axioms</span>
+    : internal_right_adj_axioms coprods_to_cocartesian_coprod_via_adj_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+      <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !id_left, !id_right.
+      use BinCoproductArrowsEq.
+      + <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinCoproductOfArrowsIn1.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinCoproductOfArrowsIn2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+        <span class="nb">apply</span> idpath.
+    - use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+      <span class="nb">intro</span> x.
+      use pathsdirprod ; <span class="nb">cbn</span>.
+      + <span class="nb">rewrite</span> !id_left, !id_right.
+        <span class="nb">apply</span> BinCoproductIn1Commutes.
+      + <span class="nb">rewrite</span> !id_left, !id_right.
+        <span class="nb">apply</span> BinCoproductIn2Commutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprods_to_cocartesian_coprod_via_adj</span>
+    : cocartesian_coprod_via_adj C has_binprod_bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> coprods_to_cocartesian_coprod_via_adj_data.
+    - <span class="bp">exact</span> coprods_to_cocartesian_coprod_via_adj_axioms.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">AdjToCoprod</span>.
+
+<span class="kn">Section</span> <span class="nf">CoprodToAdj</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : bicat_of_univ_cats)
+          (<span class="nv">LC</span> : cocartesian_coprod_via_adj C has_binprod_bicat_of_univ_cats).
+
+  <span class="kn">Let</span> <span class="nf">L</span> : category_binproduct (pr1 C) (pr1 C) ⟶ pr1 C := pr11 LC.
+  <span class="kn">Let</span> <span class="nf">η</span> : functor_identity _
+          ⟹
+          L ∙ bindelta_pair_functor (functor_identity _) (functor_identity _)
+    := pr121 LC.
+  <span class="kn">Let</span> <span class="nf">ε</span> : bindelta_pair_functor (functor_identity _) (functor_identity _) ∙ L
+          ⟹
+          functor_identity _
+    := pr221 LC.
+
+  <span class="kn">Section</span> <span class="nf">Coproducts</span>.
+    <span class="kn">Context</span> (<span class="nv">x</span> <span class="nv">y</span> : pr1 C).
+
+    <span class="kn">Definition</span> <span class="nf">cocartesian_coprod_via_adj_to_coprods_obj</span>
+      : pr1 C
+      := L (x ,, y).
+
+    <span class="kn">Definition</span> <span class="nf">cocartesian_coprod_via_adj_to_coprods_in1</span>
+      : x --&gt; cocartesian_coprod_via_adj_to_coprods_obj
+      := pr1 (η (x ,, y)).
+
+    <span class="kn">Definition</span> <span class="nf">cocartesian_coprod_via_adj_to_coprods_in2</span>
+      : y --&gt; cocartesian_coprod_via_adj_to_coprods_obj
+      := pr2 (η (x ,, y)).
+
+    <span class="kn">Context</span> (<span class="nv">z</span> : pr1 C)
+            (<span class="nv">f</span> : x --&gt; z)
+            (<span class="nv">g</span> : y --&gt; z).
+
+    <span class="kn">Definition</span> <span class="nf">cocartesian_coprod_via_adj_to_coprods_unique</span>
+      : isaprop
+          (∑ (fg : cocartesian_coprod_via_adj_to_coprods_obj --&gt; z),
+           cocartesian_coprod_via_adj_to_coprods_in1 · fg = f
+           ×
+           cocartesian_coprod_via_adj_to_coprods_in2 · fg = g).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">pose</span> (p := nat_trans_eq_pointwise (pr12 LC) (x ,, y)).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !id_left, !id_right <span class="k">in</span> p.
+      <span class="nb">refine</span> (!(id_left _) @ _ @ id_left _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (!p) @ _ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) p).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (!(nat_trans_ax ε _ _ _)) @ _).
+      <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (nat_trans_ax ε _ _ _)).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!(functor_comp L _ _) @ _ @ functor_comp L _ _).
+      <span class="nb">apply</span> maponpaths.
+      use pathsdirprod ; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (pr12 φ₁ @ !(pr12 φ₂)).
+      - <span class="bp">exact</span> (pr22 φ₁ @ !(pr22 φ₂)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cocartesian_coprod_via_adj_to_coprods_sum</span>
+      : cocartesian_coprod_via_adj_to_coprods_obj --&gt; z
+      := @functor_on_morphisms _ _ L (x ,, y) (z ,, z) (f ,, g) · ε z.
+
+    <span class="kn">Definition</span> <span class="nf">cocartesian_coprod_via_adj_to_coprods_sum_in1</span>
+      : cocartesian_coprod_via_adj_to_coprods_in1
+        · cocartesian_coprod_via_adj_to_coprods_sum
+        =
+        f.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> cocartesian_coprod_via_adj_to_coprods_in1.
+      <span class="nb">unfold</span> cocartesian_coprod_via_adj_to_coprods_sum.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (maponpaths
+                 pr1
+                 (!(nat_trans_ax η (x ,, y) (z ,, z) (f ,, g)))).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">pose</span> (p := maponpaths pr1 (nat_trans_eq_pointwise (pr22 LC) z)).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !id_left, !id_right <span class="k">in</span> p.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cocartesian_coprod_via_adj_to_coprods_sum_in2</span>
+      : cocartesian_coprod_via_adj_to_coprods_in2
+        · cocartesian_coprod_via_adj_to_coprods_sum
+        =
+        g.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> cocartesian_coprod_via_adj_to_coprods_in2.
+      <span class="nb">unfold</span> cocartesian_coprod_via_adj_to_coprods_sum.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (maponpaths
+                 dirprod_pr2
+                 (!(nat_trans_ax η (x ,, y) (z ,, z) (f ,, g)))).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">pose</span> (p := maponpaths dirprod_pr2 (nat_trans_eq_pointwise (pr22 LC) z)).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !id_left, !id_right <span class="k">in</span> p.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Coproducts</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cocartesian_coprod_via_adj_to_coprods</span>
+    : BinCoproducts (pr1 C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use make_BinCoproduct.
+    - <span class="bp">exact</span> (cocartesian_coprod_via_adj_to_coprods_obj x y).
+    - <span class="bp">exact</span> (cocartesian_coprod_via_adj_to_coprods_in1 x y).
+    - <span class="bp">exact</span> (cocartesian_coprod_via_adj_to_coprods_in2 x y).
+    - <span class="nb">intros</span> z f g.
+      use iscontraprop1.
+      + <span class="bp">exact</span> (cocartesian_coprod_via_adj_to_coprods_unique x y z f g).
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (cocartesian_coprod_via_adj_to_coprods_sum x y z f g).
+        * <span class="bp">exact</span> (cocartesian_coprod_via_adj_to_coprods_sum_in1 x y z f g).
+        * <span class="bp">exact</span> (cocartesian_coprod_via_adj_to_coprods_sum_in2 x y z f g).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CoprodToAdj</span>.
+
+<span class="kn">Definition</span> <span class="nf">coprods_weq_cocartesian_coprod_via_adj</span>
+           (<span class="nv">C</span> : bicat_of_univ_cats)
+  : BinCoproducts (pr1 C)
+    ≃
+    cocartesian_coprod_via_adj C has_binprod_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> (coprods_to_cocartesian_coprod_via_adj C).
+  - <span class="bp">exact</span> (cocartesian_coprod_via_adj_to_coprods C).
+  - use impred ; <span class="nb">intro</span> x.
+    use impred ; <span class="nb">intro</span> y.
+    <span class="nb">apply</span> isaprop_BinCoproduct.
+    <span class="bp">exact</span> (pr2 C).
+  - <span class="nb">apply</span> isaprop_cocartesian_coprod_via_adj.
+    <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coprods_weq_cocartesian_coprod</span>
+           (<span class="nv">C</span> : bicat_of_univ_cats)
+  : BinCoproducts (pr1 C) ≃ cocartesian_coprod C
+  := (invweq (cocartesian_coprod_weq_cocartesian_coprod_via_adj
+                has_binprod_bicat_of_univ_cats
+                C
+                univalent_cat_is_univalent_2_1)
+      ∘ coprods_weq_cocartesian_coprod_via_adj C)%weq.
+
+<span class="kn">Definition</span> <span class="nf">initial_coprods_weq_cocartesian_ob</span>
+           (<span class="nv">C</span> : bicat_of_univ_cats)
+  : Initial (pr1 C) × BinCoproducts (pr1 C) ≃ cocartesian_ob C.
+<span class="kn">Proof</span>.
+  use weqdirprodf.
+  - <span class="bp">exact</span> (initial_weq_cocartesian_initial C).
+  - <span class="bp">exact</span> (coprods_weq_cocartesian_coprod C).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Objects/Examples/BicatOfUnivCatsObjects.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2.2. Categories with binary coproducts
+  &gt;
+  &gt;  ******************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

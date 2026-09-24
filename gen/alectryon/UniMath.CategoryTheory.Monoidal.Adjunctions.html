@@ -1,0 +1,1270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Adjunctions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************************</span>
+
+<span class="sd"> Monoidal Adjunctions</span>
+
+<span class="sd"> In this file, we define monoidal adjunctions. We define this notion in the following</span>
+<span class="sd"> way: a monoidal adjunction  is adjunction of categories such that both functors are</span>
+<span class="sd"> lax monoidal and such that the unit and counit are monoidal transformations. This is</span>
+<span class="sd"> given in [monoidal_adjunction]. A reference for this notion is Section 5.14 in</span>
+<span class="sd"> https://www.irif.fr/~mellies/mpri/mpri-ens/biblio/categorical-semantics-of-linear-logic.pdf</span>
+<span class="sd"> Note: this notion is what you obtain by unfolding adjunctions internal to the</span>
+<span class="sd"> bicategory of monoidal categories.</span>
+
+<span class="sd"> However, in practice it is often useful to use the following characterization: an</span>
+<span class="sd"> adjunction is monoidal if the left adjoint is a strong monoidal functor. A reference</span>
+<span class="sd"> for this result is Lemma 13 in https://hal.science/hal-00154229/document. The relevant</span>
+<span class="sd"> statements are [monoidal_adjunction_from_strong] and [is_strong_left_adjoint].</span>
+
+<span class="sd"> We prove the same results for symmetric monoidal adjunctions.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Monoidal adjunctions</span>
+<span class="sd"> 2. Accessors and builders</span>
+<span class="sd"> 3. Left adjoints are strongly monoidal</span>
+<span class="sd"> 3.1. Preservation of the unit</span>
+<span class="sd"> 3.2. Preservation of the tensor</span>
+<span class="sd"> 4. If the left adjoint is strong, then the adjunction is monoidal</span>
+<span class="sd"> 5. Symmetric monoidal adjunctions</span>
+<span class="sd"> 6. Accessors</span>
+<span class="sd"> 7. Symmetric monoidal adjunctions from strong functors</span>
+<span class="sd"> 8. Symmetric monoidal adjunctions to comonads</span>
+
+<span class="sd"> ********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.FunctorCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Monoidal adjunctions</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">monoidal_adjunction</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">M₁</span> : monoidal C₁)
+           (<span class="nv">M₂</span> : monoidal C₂)
+           (<span class="nv">A</span> : adjunction C₁ C₂)
+           (<span class="nv">L</span> := left_adjoint A : C₁ ⟶ C₂)
+           (<span class="nv">R</span> := right_adjoint A : C₂ ⟶ C₁)
+           (<span class="nv">η</span> := adjunit A)
+           (<span class="nv">ε</span> := adjcounit A)
+  : UU
+  := ∑ (HL : fmonoidal_lax M₁ M₂ L),
+     ∑ (HR : fmonoidal_lax M₂ M₁ R),
+     is_mon_nat_trans (identity_fmonoidal _) (comp_fmonoidal_lax HL HR) η
+     ×
+     is_mon_nat_trans (comp_fmonoidal_lax HR HL) (identity_fmonoidal _) ε.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Accessors and builders</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">make_monoidal_adjunction</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">M₁</span> : monoidal C₁}
+           {<span class="nv">M₂</span> : monoidal C₂}
+           {<span class="nv">A</span> : adjunction C₁ C₂}
+           (<span class="nv">L</span> := left_adjoint A : C₁ ⟶ C₂)
+           (<span class="nv">R</span> := right_adjoint A : C₂ ⟶ C₁)
+           (<span class="nv">η</span> := adjunit A)
+           (<span class="nv">ε</span> := adjcounit A)
+           (<span class="nv">HL</span> : fmonoidal_lax M₁ M₂ L)
+           (<span class="nv">HR</span> : fmonoidal_lax M₂ M₁ R)
+           (<span class="nv">Hη</span> : is_mon_nat_trans
+                   (identity_fmonoidal _)
+                   (comp_fmonoidal_lax HL HR)
+                   η)
+           (<span class="nv">Hε</span> : is_mon_nat_trans
+                   (comp_fmonoidal_lax HR HL)
+                   (identity_fmonoidal _)
+                   ε)
+  : monoidal_adjunction M₁ M₂ A
+  := HL ,, HR ,, Hη ,, Hε.
+
+<span class="kn">Section</span> <span class="nf">MonoidalAdjunctionAccessors</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">M₁</span> : monoidal C₁}
+          {<span class="nv">M₂</span> : monoidal C₂}
+          {<span class="nv">A</span> : adjunction C₁ C₂}
+          (<span class="nv">L</span> := left_adjoint A : C₁ ⟶ C₂)
+          (<span class="nv">R</span> := right_adjoint A : C₂ ⟶ C₁)
+          (<span class="nv">η</span> := adjunit A)
+          (<span class="nv">ε</span> := adjcounit A)
+          (<span class="nv">HA</span> : monoidal_adjunction M₁ M₂ A).
+
+  <span class="kn">Definition</span> <span class="nf">fmonoidal_lax_left_adjoint</span>
+    : fmonoidal_lax M₁ M₂ L
+    := pr1 HA.
+
+  <span class="kn">Definition</span> <span class="nf">fmonoidal_lax_right_adjoint</span>
+    : fmonoidal_lax M₂ M₁ R
+    := pr12 HA.
+
+  <span class="kn">Proposition</span> <span class="nf">monoidal_adjunit</span>
+    : is_mon_nat_trans
+        (identity_fmonoidal _)
+        (comp_fmonoidal_lax
+           fmonoidal_lax_left_adjoint
+           fmonoidal_lax_right_adjoint)
+        η.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 HA).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">monoidal_adjcounit</span>
+    : is_mon_nat_trans
+        (comp_fmonoidal_lax
+           fmonoidal_lax_right_adjoint
+           fmonoidal_lax_left_adjoint)
+        (identity_fmonoidal _)
+        ε.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr222 HA).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">MonoidalAdjunctionAccessors</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Left adjoints are strongly monoidal</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LeftAdjointStrong</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">M₁</span> : monoidal C₁}
+          {<span class="nv">M₂</span> : monoidal C₂}
+          {<span class="nv">A</span> : adjunction C₁ C₂}
+          (<span class="nv">L</span> := left_adjoint A : C₁ ⟶ C₂)
+          (<span class="nv">R</span> := right_adjoint A : C₂ ⟶ C₁)
+          (<span class="nv">η</span> := adjunit A : functor_identity _ ⟹ L ∙ R)
+          (<span class="nv">ε</span> := adjcounit A : R ∙ L ⟹ functor_identity _)
+          (<span class="nv">HA</span> : monoidal_adjunction M₁ M₂ A)
+          (<span class="nv">HL</span> := fmonoidal_lax_left_adjoint HA)
+          (<span class="nv">HR</span> := fmonoidal_lax_right_adjoint HA)
+          (<span class="nv">Hη</span> := monoidal_adjunit HA)
+          (<span class="nv">Hε</span> := monoidal_adjcounit HA).
+
+  <span class="sd">(**</span>
+<span class="sd">   3.1. Preservation of the unit</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_strong_left_adjoint_on_unit</span>
+    : L (monoidal_unit M₁) --&gt; monoidal_unit M₂
+    := #L (fmonoidal_preservesunit HR) · ε _.
+
+  <span class="kn">Proposition</span> <span class="nf">is_strong_left_adjoint_on_unit_laws</span>
+    : is_inverse_in_precat
+        (fmonoidal_preservesunit HL)
+        is_strong_left_adjoint_on_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">unfold</span> is_strong_left_adjoint_on_unit.
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="bp">exact</span> (pr2 Hε).
+    - <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="bp">exact</span> (nat_trans_ax ε _ _ (fmonoidal_preservesunit HL)).
+      }
+      <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">refine</span> (_ @ triangle_1_statement_from_adjunction A (monoidal_unit M₁)).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!(pr2 Hη) @ _).
+      <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3.2. Preservation of the tensor</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">PreservesTensor</span>.
+    <span class="kn">Context</span> (<span class="nv">x</span> <span class="nv">y</span> : C₁).
+
+    <span class="kn">Definition</span> <span class="nf">is_strong_left_adjoint_on_tensor</span>
+      : L (x ⊗_{M₁} y) --&gt; L x ⊗_{M₂} L y
+      := #L((η x ⊗^{M₁} η y)
+            · fmonoidal_preservestensordata HR (L x) (L y))
+         · ε _.
+
+    <span class="kn">Proposition</span> <span class="nf">is_strong_left_adjoint_on_tensor_laws</span>
+      : is_inverse_in_precat
+          (fmonoidal_preservestensordata HL x y)
+          is_strong_left_adjoint_on_tensor.
+    <span class="kn">Proof</span>.
+      <span class="nb">assert</span> (η (x ⊗_{M₁} y)
+              =
+              (η x ⊗^{M₁} η y)
+              · fmonoidal_preservestensordata HR (L x) (L y)
+              · #R (fmonoidal_preservestensordata HL x y))
+        <span class="k">as</span> pη.
+      {
+        <span class="nb">refine</span> (!(id_left _) @ pr1 Hη x y @ _).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">assert</span> (fmonoidal_preservestensordata HL (R(L x)) (R(L y))
+              · #L (fmonoidal_preservestensordata HR (L x) (L y))
+              · ε (L x ⊗_{M₂} L y)
+              =
+              ε (L x) ⊗^{M₂} ε (L y))
+        <span class="k">as</span> pε.
+      {
+        <span class="nb">refine</span> (pr1 Hε (L x) (L y) @ _).
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">split</span> ; <span class="nb">unfold</span> is_strong_left_adjoint_on_tensor.
+      - <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">unfold</span> functoronmorphisms1.
+          <span class="nb">cbn</span> -[L R].
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> fmonoidal_preservestensornatright.
+          }
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> fmonoidal_preservestensornatleft.
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="bp">exact</span> pε.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> bifunctor_distributes_over_comp ; <span class="nb">apply</span> M₂.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (triangle_1_statement_from_adjunction A).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (triangle_1_statement_from_adjunction A).
+        }
+        <span class="nb">apply</span> bifunctor_distributes_over_id ; <span class="nb">apply</span> M₂.
+      - <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (nat_trans_ax ε).
+        }
+        <span class="nb">cbn</span> -[L R].
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!pη).
+        }
+        <span class="nb">apply</span> (triangle_1_statement_from_adjunction A).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">PreservesTensor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_strong_left_adjoint</span>
+    : fmonoidal M₁ M₂ L.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (HL ,, _).
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y.
+      use make_is_z_isomorphism.
+      + <span class="bp">exact</span> (is_strong_left_adjoint_on_tensor x y).
+      + <span class="bp">exact</span> (is_strong_left_adjoint_on_tensor_laws x y).
+    - use make_is_z_isomorphism.
+      + <span class="bp">exact</span> is_strong_left_adjoint_on_unit.
+      + <span class="bp">exact</span> is_strong_left_adjoint_on_unit_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LeftAdjointStrong</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. If the left adjoint is strong, then the adjunction is monoidal</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">MonoidalAdjunctionFromStrong</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">M₁</span> : monoidal C₁}
+          {<span class="nv">M₂</span> : monoidal C₂}
+          {<span class="nv">A</span> : adjunction C₁ C₂}
+          (<span class="nv">L</span> := left_adjoint A : C₁ ⟶ C₂)
+          (<span class="nv">R</span> := right_adjoint A : C₂ ⟶ C₁)
+          (<span class="nv">η</span> := adjunit A : functor_identity _ ⟹ L ∙ R)
+          (<span class="nv">ε</span> := adjcounit A : R ∙ L ⟹ functor_identity _)
+          (<span class="nv">HL</span> : fmonoidal M₁ M₂ L).
+
+  <span class="kn">Definition</span> <span class="nf">right_adjoint_monoidal_data_from_strong</span>
+    : fmonoidal_data M₂ M₁ R.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="nb">intros</span> x y.
+      <span class="bp">exact</span> (η _
+             · #R (inv_from_z_iso (_ ,, fmonoidal_preservestensorstrongly HL (R x) (R y))
+                   · (ε x ⊗^{M₂} ε y))).
+    - <span class="bp">exact</span> (η _ · #R (inv_from_z_iso (_ ,, fmonoidal_preservesunitstrongly HL))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">right_adjoint_monoidal_from_strong_laws</span>
+    : fmonoidal_laxlaws right_adjoint_monoidal_data_from_strong.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y₁ y₂ g ; <span class="nb">cbn</span> -[L R].
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (nat_trans_ax η _ _ (R x ⊗^{M₁}_{l} # R g)).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> &lt;- !(functor_comp R).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (when_bifunctor_becomes_leftwhiskering M₂ x g).
+        }
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> bifunctor_distributes_over_comp ; <span class="nb">apply</span> M₂.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (nat_trans_ax ε _ _ _).
+        }
+        <span class="nb">rewrite</span> id_right.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(id_left (ε x))).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> bifunctor_distributes_over_comp ; <span class="nb">apply</span> M₂.
+        }
+        <span class="nb">cbn</span> -[L R].
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (when_bifunctor_becomes_leftwhiskering M₂ _ _).
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      use z_iso_inv_on_right ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> !assoc.
+      use z_iso_inv_on_left ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> fmonoidal_preservestensornatleft.
+    - <span class="nb">intros</span> x₁ x₂ y f ; <span class="nb">cbn</span> -[L R].
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (nat_trans_ax η _ _ (# R f ⊗^{M₁}_{r} R y)).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> &lt;- !(functor_comp R).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (when_bifunctor_becomes_rightwhiskering M₂ y f).
+        }
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> bifunctor_distributes_over_comp ; <span class="nb">apply</span> M₂.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (nat_trans_ax ε _ _ _).
+        }
+        <span class="nb">rewrite</span> id_right.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(id_left (ε y))).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> bifunctor_distributes_over_comp ; <span class="nb">apply</span> M₂.
+        }
+        <span class="nb">cbn</span> -[L R].
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (when_bifunctor_becomes_rightwhiskering M₂ _ _).
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      use z_iso_inv_on_right ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> !assoc.
+      use z_iso_inv_on_left ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> fmonoidal_preservestensornatright.
+    - <span class="nb">intros</span> x y z ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (nat_trans_ax η _ _ (_ ⊗^{ M₁}_{r} _)).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (nat_trans_ax η _ _ (_ · (_ ⊗^{ M₁}_{l} _))).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !functor_comp.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (strong_fmonoidal_preserves_associativity HL).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (fmonoidal_preservestensornatleft HL).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, _)).
+        }
+        <span class="nb">apply</span> id_left.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !functor_comp.
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">unfold</span> functoronmorphisms1.
+          <span class="nb">rewrite</span> whiskerscommutes ; [ | <span class="nb">apply</span> M₂ ].
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (bifunctor_leftcomp M₂).
+        }
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- !functor_comp.
+          <span class="nb">apply</span> (nat_trans_ax ε).
+        }
+        <span class="nb">cbn</span> -[L R].
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (triangle_1_statement_from_adjunction A).
+        }
+        <span class="nb">apply</span> id_left.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (bifunctor_leftcomp M₂).
+        }
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, _)).
+        }
+        <span class="nb">apply</span> id_left.
+      }
+      use z_iso_inv_on_right ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (fmonoidal_preservestensornatright HL).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, _)).
+        }
+        <span class="nb">apply</span> id_left.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (bifunctor_rightcomp M₂).
+        }
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !(functor_comp L).
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- !functor_comp.
+          <span class="nb">apply</span> (nat_trans_ax ε).
+        }
+        <span class="nb">cbn</span> -[L R].
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (triangle_1_statement_from_adjunction A).
+        }
+        <span class="nb">apply</span> id_left.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (bifunctor_rightcomp M₂).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> functoronmorphisms1.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (bifunctor_leftcomp M₂).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> monoidal_associatornatleftright.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> monoidal_associatornatleft.
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> monoidal_associatornatright.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (bifunctor_rightcomp M₂).
+      }
+      <span class="nb">rewrite</span> whiskerscommutes ; [ | <span class="nb">apply</span> M₂ ].
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> whiskerscommutes ; [ | <span class="nb">apply</span> M₂ ].
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> whiskerscommutes ; [ | <span class="nb">apply</span> M₂ ].
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (bifunctor_rightcomp M₂).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (bifunctor_rightcomp M₂).
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- whiskerscommutes ; [ | <span class="nb">apply</span> M₂ ].
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">assert</span> (# L lu^{M₁}_{R x}
+              =
+              inv_from_z_iso (_ ,, fmonoidal_preservestensorstrongly HL _ _)
+              · (inv_from_z_iso (_ ,, fmonoidal_preservesunitstrongly HL) ⊗^{ M₂}_{r} L (R x))
+              · lu^{M₂}_{L(R x)})
+        <span class="k">as</span> q.
+      {
+        <span class="nb">pose</span> (fmonoidal_preservesleftunitality HL (R x)) <span class="k">as</span> p.
+        <span class="nb">cbn</span> -[L R] <span class="k">in</span> p.
+        <span class="nb">rewrite</span> &lt;- p.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">refine</span> (!(id_left _) @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!(bifunctor_rightcomp M₂ _ _ _ _ _ _) @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (z_iso_after_z_iso_inv (_ ,, _)).
+          }
+          <span class="nb">apply</span> bifunctor_rightid.
+        }
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> (z_iso_after_z_iso_inv (_ ,, _)).
+      }
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">rewrite</span> &lt;- (triangle_2_statement_from_adjunction A).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (nat_trans_ax η _ _ (lu^{M₁}_{R x})).
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (nat_trans_ax η _ _ ((η I_{ M₁} · # R _) ⊗^{ M₁}_{r} R x)).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">unfold</span> functoronmorphisms1.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> monoidal_leftunitornat.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!_).
+      use z_iso_inv_on_right ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> fmonoidal_preservestensornatright.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, _)).
+      }
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (bifunctor_rightcomp M₂).
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax ε).
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">cbn</span> -[L R].
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (triangle_1_statement_from_adjunction A).
+    - <span class="nb">intros</span> x ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">assert</span> (# L ru^{M₁}_{R x}
+              =
+              inv_from_z_iso (_ ,, fmonoidal_preservestensorstrongly HL _ _)
+              · (L (R x) ⊗^{M₂}_{l} inv_from_z_iso (_ ,, fmonoidal_preservesunitstrongly HL))
+              · ru^{M₂}_{L(R x)})
+        <span class="k">as</span> q.
+      {
+        <span class="nb">pose</span> (fmonoidal_preservesrightunitality HL (R x)) <span class="k">as</span> p.
+        <span class="nb">cbn</span> -[L R] <span class="k">in</span> p.
+        <span class="nb">rewrite</span> &lt;- p.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">refine</span> (!(id_left _) @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!(bifunctor_leftcomp M₂ _ _ _ _ _ _) @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (z_iso_after_z_iso_inv (_ ,, _)).
+          }
+          <span class="nb">apply</span> bifunctor_leftid.
+        }
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> (z_iso_after_z_iso_inv (_ ,, _)).
+      }
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">rewrite</span> &lt;- (triangle_2_statement_from_adjunction A).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (nat_trans_ax η _ _ (ru^{M₁}_{R x})).
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (nat_trans_ax η _ _ (R x ⊗^{M₁}_{l} (η I_{ M₁} · # R _))).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">pose</span> (fmonoidal_preservesrightunitality HL (R x)) <span class="k">as</span> p.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">unfold</span> functoronmorphisms1.
+        <span class="nb">rewrite</span> (whiskerscommutes M₂) ; [ | <span class="nb">apply</span> M₂ ].
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> monoidal_rightunitornat.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!_).
+      use z_iso_inv_on_right ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> fmonoidal_preservestensornatleft.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, _)).
+      }
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (bifunctor_leftcomp M₂).
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax ε).
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">cbn</span> -[L R].
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (triangle_1_statement_from_adjunction A).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">right_adjoint_monoidal_from_strong</span>
+    : fmonoidal_lax M₂ M₁ R
+    := right_adjoint_monoidal_data_from_strong
+       ,,
+       right_adjoint_monoidal_from_strong_laws.
+
+  <span class="kn">Proposition</span> <span class="nf">monoidal_adjunction_from_strong_unit</span>
+    : is_mon_nat_trans
+        (identity_fmonoidal M₁)
+        (comp_fmonoidal_lax HL right_adjoint_monoidal_from_strong)
+        η.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- (functor_comp R).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (nat_trans_ax η _ _ (adjunit A x ⊗^{M₁} adjunit A y)).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">rewrite</span> &lt;- functor_id.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (_ @ z_iso_after_z_iso_inv (_ ,, fmonoidal_preservestensorstrongly HL _ _)).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_ @ id_right _).
+      use z_iso_inv_on_right ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">unfold</span> functoronmorphisms1.
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (fmonoidal_preservestensornatright HL).
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (fmonoidal_preservestensornatleft HL).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, fmonoidal_preservestensorstrongly HL _ _)).
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> bifunctor_distributes_over_comp ; <span class="nb">apply</span> M₂.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> bifunctor_distributes_over_id ; <span class="nb">apply</span> M₂.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (triangle_1_statement_from_adjunction A).
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (triangle_1_statement_from_adjunction A).
+    - <span class="nb">unfold</span> is_mon_nat_trans_unitlaw ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!(id_right _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">rewrite</span> &lt;- functor_id.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> z_iso_after_z_iso_inv.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">monoidal_adjunction_from_strong_counit</span>
+    : is_mon_nat_trans
+        (comp_fmonoidal_lax right_adjoint_monoidal_from_strong HL)
+        (identity_fmonoidal M₂)
+        ε.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> !(functor_comp R).
+      <span class="nb">rewrite</span> !(functor_comp L).
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax ε).
+      }
+      <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax ε).
+      }
+      <span class="nb">cbn</span> -[L R].
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (triangle_1_statement_from_adjunction A).
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, _)).
+    - <span class="nb">unfold</span> is_mon_nat_trans_unitlaw ; <span class="nb">cbn</span> -[L R].
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax ε).
+      }
+      <span class="nb">cbn</span> -[L R].
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (triangle_1_statement_from_adjunction A).
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="bp">exact</span> (z_iso_inv_after_z_iso
+               (_ ,, fmonoidal_preservesunitstrongly HL)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_adjunction_from_strong</span>
+    : monoidal_adjunction M₁ M₂ A.
+  <span class="kn">Proof</span>.
+    use make_monoidal_adjunction.
+    - <span class="bp">exact</span> HL.
+    - <span class="bp">exact</span> right_adjoint_monoidal_from_strong.
+    - <span class="bp">exact</span> monoidal_adjunction_from_strong_unit.
+    - <span class="bp">exact</span> monoidal_adjunction_from_strong_counit.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MonoidalAdjunctionFromStrong</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Symmetric monoidal adjunctions</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_sym_monoidal_adjunction</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">M₁</span> : monoidal C₁}
+           {<span class="nv">M₂</span> : monoidal C₂}
+           (<span class="nv">S₁</span> : symmetric M₁)
+           (<span class="nv">S₂</span> : symmetric M₂)
+           {<span class="nv">A</span> : adjunction C₁ C₂}
+           (<span class="nv">HA</span> : monoidal_adjunction M₁ M₂ A)
+  : UU
+  := is_symmetric_monoidal_functor S₁ S₂ (fmonoidal_lax_left_adjoint HA)
+     ×
+     is_symmetric_monoidal_functor S₂ S₁ (fmonoidal_lax_right_adjoint HA).
+
+<span class="kn">Definition</span> <span class="nf">sym_monoidal_adjunction</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">M₁</span> : monoidal C₁}
+           {<span class="nv">M₂</span> : monoidal C₂}
+           (<span class="nv">S₁</span> : symmetric M₁)
+           (<span class="nv">S₂</span> : symmetric M₂)
+           (<span class="nv">A</span> : adjunction C₁ C₂)
+  : UU
+  := ∑ (HA : monoidal_adjunction M₁ M₂ A), is_sym_monoidal_adjunction S₁ S₂ HA.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Accessors</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">SymMonoidalAdjunctionAccessors</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">M₁</span> : monoidal C₁}
+          {<span class="nv">M₂</span> : monoidal C₂}
+          {<span class="nv">S₁</span> : symmetric M₁}
+          {<span class="nv">S₂</span> : symmetric M₂}
+          {<span class="nv">A</span> : adjunction C₁ C₂}
+          (<span class="nv">L</span> := left_adjoint A : C₁ ⟶ C₂)
+          (<span class="nv">R</span> := right_adjoint A : C₂ ⟶ C₁)
+          (<span class="nv">η</span> := adjunit A)
+          (<span class="nv">ε</span> := adjcounit A)
+          {<span class="nv">HA</span> : monoidal_adjunction M₁ M₂ A}
+          (<span class="nv">HAA</span> : is_sym_monoidal_adjunction S₁ S₂ HA).
+
+  <span class="kn">Definition</span> <span class="nf">is_symmetric_monoidal_functor_left_adjoint</span>
+    : is_symmetric_monoidal_functor S₁ S₂ (fmonoidal_lax_left_adjoint HA)
+    := pr1 HAA.
+
+  <span class="kn">Definition</span> <span class="nf">is_symmetric_monoidal_functor_right_adjoint</span>
+    : is_symmetric_monoidal_functor S₂ S₁ (fmonoidal_lax_right_adjoint HA)
+    := pr2 HAA.
+<span class="kn">End</span> <span class="nf">SymMonoidalAdjunctionAccessors</span>.
+
+<span class="kn">Coercion</span> <span class="nf">sym_monoidal_adjunction_to_monoidal_adjunction</span>
+         {C₁ C₂ : category}
+         {M₁ : monoidal C₁}
+         {M₂ : monoidal C₂}
+         {S₁ : symmetric M₁}
+         {S₂ : symmetric M₂}
+         {A : adjunction C₁ C₂}
+         (HA : sym_monoidal_adjunction S₁ S₂ A)
+  : monoidal_adjunction M₁ M₂ A
+  := pr1 HA.
+
+<span class="kn">Coercion</span> <span class="nf">sym_monoidal_adjunction_to_is_symmetric</span>
+         {C₁ C₂ : category}
+         {M₁ : monoidal C₁}
+         {M₂ : monoidal C₂}
+         {S₁ : symmetric M₁}
+         {S₂ : symmetric M₂}
+         {A : adjunction C₁ C₂}
+         (HA : sym_monoidal_adjunction S₁ S₂ A)
+  : is_sym_monoidal_adjunction S₁ S₂ HA
+  := pr2 HA.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Symmetric monoidal adjunctions from strong functors</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">SymMonoidalAdjunctionFromStrong</span>.
+  <span class="kn">Context</span> {<span class="nv">V₁</span> <span class="nv">V₂</span> : sym_monoidal_cat}
+          {<span class="nv">A</span> : adjunction V₁ V₂}
+          (<span class="nv">L</span> := left_adjoint A : V₁ ⟶ V₂)
+          (<span class="nv">R</span> := right_adjoint A : V₂ ⟶ V₁)
+          (<span class="nv">η</span> := adjunit A : functor_identity _ ⟹ L ∙ R)
+          (<span class="nv">ε</span> := adjcounit A : R ∙ L ⟹ functor_identity _)
+          (<span class="nv">HL</span> : fmonoidal V₁ V₂ L)
+          (<span class="nv">HHL</span> : is_symmetric_monoidal_functor V₁ V₂ HL).
+
+  <span class="kn">Proposition</span> <span class="nf">is_sym_monoidal_adjunction_from_strong</span>
+    : is_sym_monoidal_adjunction V₁ V₂ (monoidal_adjunction_from_strong HL).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> HHL.
+    - <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (nat_trans_ax η).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> tensor_sym_mon_braiding.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      use z_iso_inv_on_right.
+      <span class="nb">rewrite</span> !assoc.
+      use z_iso_inv_on_left.
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> HHL.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sym_monoidal_adjunction_from_strong</span>
+    : sym_monoidal_adjunction V₁ V₂ A
+    := _ ,, is_sym_monoidal_adjunction_from_strong.
+<span class="kn">End</span> <span class="nf">SymMonoidalAdjunctionFromStrong</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 8. Symmetric monoidal adjunctions to comonads</span>
+<span class="sd"> *)</span>
+<span class="kn">Lemma</span> <span class="nf">sym_monoidal_adjunction_to_sym_monoidal_cmd_comult</span>
+      {<span class="nv">V₁</span> <span class="nv">V₂</span> : sym_monoidal_cat}
+      (<span class="nv">A</span> : adjunction V₁ V₂)
+      (<span class="nv">HA</span> : sym_monoidal_adjunction V₁ V₂ A)
+  : is_mon_nat_trans
+      (comp_fmonoidal_lax
+         (fmonoidal_lax_right_adjoint HA)
+         (fmonoidal_lax_left_adjoint HA))
+      (comp_fmonoidal_lax
+         (comp_fmonoidal_lax
+            (fmonoidal_lax_right_adjoint HA)
+            (fmonoidal_lax_left_adjoint HA))
+         (comp_fmonoidal_lax
+            (fmonoidal_lax_right_adjoint HA)
+            (fmonoidal_lax_left_adjoint HA)))
+      (δ (Comonad_from_adjunction A)).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">pose</span> (is_mon_nat_trans_prewhisker
+          (fmonoidal_lax_right_adjoint HA)
+          (is_mon_nat_trans_postwhisker
+             (monoidal_adjunit HA)
+             (fmonoidal_lax_left_adjoint HA)))
+    <span class="k">as</span> H.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y.
+    <span class="nb">refine</span> (_ @ pr1 H x y @ _).
+    + <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">refine</span> (_ @ pr2 H @ _).
+    + <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">sym_monoidal_adjunction_to_sym_monoidal_cmd</span>
+           {<span class="nv">V₁</span> <span class="nv">V₂</span> : sym_monoidal_cat}
+           (<span class="nv">A</span> : adjunction V₁ V₂)
+           (<span class="nv">HA</span> : sym_monoidal_adjunction V₁ V₂ A)
+  : sym_monoidal_cmd V₂.
+<span class="kn">Proof</span>.
+  use make_symmetric_monoidal_comonad.
+  - <span class="bp">exact</span> (Comonad_from_adjunction A).
+  - <span class="bp">exact</span> (comp_fmonoidal_lax
+             (fmonoidal_lax_right_adjoint HA)
+             (fmonoidal_lax_left_adjoint HA)).
+  - <span class="bp">exact</span> (is_symmetric_monoidal_comp
+             (is_symmetric_monoidal_functor_right_adjoint HA)
+             (is_symmetric_monoidal_functor_left_adjoint HA)).
+  - <span class="bp">exact</span> (sym_monoidal_adjunction_to_sym_monoidal_cmd_comult A HA).
+  - <span class="bp">exact</span> (monoidal_adjcounit HA).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Adjunctions.v</tt>, line 33)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Symmetric monoidal adjunctions to comonads
+  &gt;
+  &gt;  ********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,585 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OneTypesLimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************</span>
+
+<span class="sd"> Limits of 1-types</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Final object</span>
+<span class="sd"> 2. Products</span>
+<span class="sd"> 3. Pullbacks</span>
+<span class="sd"> 4. Inserters</span>
+<span class="sd"> 5. Equifiers</span>
+
+<span class="sd"> *********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OneTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Final.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Inserters.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Equifiers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Final object</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(** MOVE????*)</span>
+<span class="kn">Definition</span> <span class="nf">isofhlevel_unit</span> <span class="nv">n</span> : isofhlevel n unit
+  := isofhlevelcontr n iscontrunit.
+
+<span class="kn">Definition</span> <span class="nf">unit_one_type</span> : one_types
+  := (unit,, isofhlevel_unit <span class="mi">3</span>).
+
+<span class="kn">Definition</span> <span class="nf">bifinal_one_types</span>
+  : is_bifinal unit_one_type.
+<span class="kn">Proof</span>.
+  use make_is_bifinal.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, tt).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, pr1 (isapropunit _ _)).
+  - <span class="nb">intros</span> Y f g α β.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> z.
+    <span class="nb">unfold</span> homotsec <span class="k">in</span> α,β.
+    <span class="nb">apply</span> isasetunit.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Products of 1-types</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">one_types_binprod_cone</span>
+           (<span class="nv">X</span> <span class="nv">Y</span> : one_types)
+  : binprod_cone X Y.
+<span class="kn">Proof</span>.
+  use make_binprod_cone.
+  - use make_one_type.
+    + <span class="bp">exact</span> (pr1 X × pr1 Y).
+    + <span class="nb">apply</span> isofhleveldirprod.
+      * <span class="bp">exact</span> (pr2 X).
+      * <span class="bp">exact</span> (pr2 Y).
+  - <span class="bp">exact</span> pr1.
+  - <span class="bp">exact</span> pr2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">OneTypesBinprodUMP</span>.
+  <span class="kn">Context</span> (<span class="nv">X</span> <span class="nv">Y</span> : one_types).
+
+  <span class="kn">Definition</span> <span class="nf">binprod_ump_1_one_types</span>
+    : binprod_ump_1 (one_types_binprod_cone X Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> q.
+    use make_binprod_1cell.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, binprod_cone_pr1 q x ,, binprod_cone_pr2 q x).
+    - use make_invertible_2cell.
+      + <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> one_type_2cell_iso.
+    - use make_invertible_2cell.
+      + <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> one_type_2cell_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binprod_ump_2_cell_one_types</span>
+    : has_binprod_ump_2_cell (one_types_binprod_cone X Y)
+    := <span class="k">λ</span> <span class="nv">q</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">p₁</span> <span class="nv">p₂</span> <span class="nv">x</span>, pathsdirprod (p₁ x) (p₂ x).
+
+  <span class="kn">Definition</span> <span class="nf">binprod_ump_2_cell_pr1_one_types</span>
+    : has_binprod_ump_2_cell_pr1
+        (one_types_binprod_cone X Y)
+        binprod_ump_2_cell_one_types.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> q f g p₁ p₂.
+    use funextsec.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> maponpaths_pr1_pathsdirprod.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binprod_ump_2_cell_pr2_one_types</span>
+    : has_binprod_ump_2_cell_pr2
+        (one_types_binprod_cone X Y)
+        binprod_ump_2_cell_one_types.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> q f g p₁ p₂.
+    use funextsec.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> maponpaths_pr2_pathsdirprod.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binprod_ump_2_cell_unique_one_types</span>
+    : has_binprod_ump_2_cell_unique (one_types_binprod_cone X Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> q f g p₁ p₂ φ₁ φ₂ φ₁pr1 φ₁pr2 φ₂pr1 φ₂pr2.
+    use funextsec.
+    <span class="nb">intro</span> x.
+    <span class="nb">refine</span> (pathsdirprod_eta _ @ _ @ !(pathsdirprod_eta _)).
+    <span class="nb">pose</span> (eqtohomot φ₁pr1 x @ !(eqtohomot φ₂pr1 x)) <span class="k">as</span> r₁.
+    <span class="nb">pose</span> (eqtohomot φ₁pr2 x @ !(eqtohomot φ₂pr2 x)) <span class="k">as</span> r₂.
+    <span class="nb">cbn</span> <span class="k">in</span> r₁, r₂ ; <span class="nb">unfold</span> homotfun <span class="k">in</span> *.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> r₂.
+    }
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> r₁.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_binprod_ump_one_types</span>
+    : has_binprod_ump (one_types_binprod_cone X Y).
+  <span class="kn">Proof</span>.
+    use make_binprod_ump.
+    - <span class="bp">exact</span> binprod_ump_1_one_types.
+    - <span class="bp">exact</span> binprod_ump_2_cell_one_types.
+    - <span class="bp">exact</span> binprod_ump_2_cell_pr1_one_types.
+    - <span class="bp">exact</span> binprod_ump_2_cell_pr2_one_types.
+    - <span class="bp">exact</span> binprod_ump_2_cell_unique_one_types.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">OneTypesBinprodUMP</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_binprod_one_types</span>
+  : has_binprod one_types.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (one_types_binprod_cone X Y).
+  - <span class="bp">exact</span> (has_binprod_ump_one_types X Y).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Pullbacks</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">one_types_pb_cone</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : one_types}
+           (<span class="nv">f</span> : X --&gt; Z)
+           (<span class="nv">g</span> : Y --&gt; Z)
+  : pb_cone f g.
+<span class="kn">Proof</span>.
+  use make_pb_cone.
+  - <span class="bp">exact</span> (hfp_HLevel <span class="mi">3</span> f g).
+  - <span class="bp">exact</span> (hfpg f g).
+  - <span class="bp">exact</span> (hfpg' f g).
+  - use make_invertible_2cell.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, !(commhfp f g x)).
+    + <span class="nb">apply</span> one_type_2cell_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">OneTypesPb</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : one_types}
+          (<span class="nv">f</span> : X --&gt; Z)
+          (<span class="nv">g</span> : Y --&gt; Z).
+
+  <span class="kn">Definition</span> <span class="nf">one_types_pb_ump_1</span>
+    : pb_ump_1 (one_types_pb_cone f g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> q.
+    use make_pb_1cell.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, (pb_cone_pr1 q x ,, pb_cone_pr2 q x) ,, !(pr1 (pb_cone_cell q) x)).
+    - use make_invertible_2cell.
+      + <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> one_type_2cell_iso.
+    - use make_invertible_2cell.
+      + <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> one_type_2cell_iso.
+    - <span class="kp">abstract</span>
+        (use funextsec ;
+         <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+         <span class="nb">unfold</span> homotcomp, homotfun, invhomot ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !pathscomp0rid ;
+         <span class="nb">apply</span> pathsinv0inv0).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">one_types_pb_ump_2</span>
+    : pb_ump_2 (one_types_pb_cone f g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> W φ ψ α β r.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> τ₁ τ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ] ;
+         use funextsec ; <span class="nb">intro</span> x ;
+         use homot_hfp_one_type ;
+         [ <span class="nb">apply</span> Z
+         | <span class="bp">exact</span> (eqtohomot (pr12 τ₁) x @ !(eqtohomot (pr12 τ₂) x))
+         | <span class="bp">exact</span> (eqtohomot (pr22 τ₁) x @ !(eqtohomot (pr22 τ₂) x)) ]).
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="nb">intro</span> x.
+        use path_hfp.
+        * <span class="bp">exact</span> (α x).
+        * <span class="bp">exact</span> (β x).
+        * <span class="kp">abstract</span>
+            (<span class="nb">pose</span> (eqtohomot r x) <span class="k">as</span> p ;
+             <span class="nb">cbn</span> <span class="k">in</span> p ;
+             <span class="nb">unfold</span> homotcomp, funhomotsec, homotfun <span class="k">in</span> p ;
+             <span class="nb">cbn</span> <span class="k">in</span> p ;
+             <span class="nb">rewrite</span> !pathscomp0rid <span class="k">in</span> p ;
+             use hornRotation_lr ;
+             <span class="nb">rewrite</span> !path_assoc ;
+             <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z @ _) (!p)) ;
+             <span class="nb">rewrite</span> &lt;- !path_assoc ;
+             <span class="nb">rewrite</span> pathsinv0l ;
+             <span class="nb">rewrite</span> pathscomp0rid ;
+             <span class="nb">apply</span> idpath).
+      + <span class="nb">split</span>.
+        * <span class="kp">abstract</span>
+            (use funextsec ; <span class="nb">intro</span> x ;
+             <span class="nb">apply</span> maponpaths_hfpg_path_hfp).
+        * <span class="kp">abstract</span>
+            (use funextsec ; <span class="nb">intro</span> x ;
+             <span class="nb">apply</span> maponpaths_hfpg'_path_hfp).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">OneTypesPb</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_types_has_pb</span>
+  : has_pb one_types.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y Z f g.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _).
+  - <span class="bp">exact</span> (one_types_pb_cone f g).
+  - <span class="bp">exact</span> (one_types_pb_ump_1 f g).
+  - <span class="bp">exact</span> (one_types_pb_ump_2 f g).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Inserters</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">inserter_type</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           (<span class="nv">f</span> <span class="nv">g</span> : X → Y)
+  : UU
+  := ∑ (x : X), f x = g x.
+
+<span class="kn">Definition</span> <span class="nf">inserter_type_pr1</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           (<span class="nv">f</span> <span class="nv">g</span> : X → Y)
+  : inserter_type f g → X
+  := pr1.
+
+<span class="kn">Definition</span> <span class="nf">inserter_type_path</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           (<span class="nv">f</span> <span class="nv">g</span> : X → Y)
+           (<span class="nv">x</span> : inserter_type f g)
+  : f (inserter_type_pr1 f g x) = g (inserter_type_pr1 f g x)
+  := pr2 x.
+
+<span class="kn">Definition</span> <span class="nf">isofhlevel_inserter_help</span>
+           {<span class="nv">n</span> : nat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           (<span class="nv">HX</span> : isofhlevel n X)
+           (<span class="nv">HY</span> : isofhlevel (S n) Y)
+           (<span class="nv">f</span> <span class="nv">g</span> : X → Y)
+  : isofhlevel n (inserter_type f g).
+<span class="kn">Proof</span>.
+  use isofhleveltotal2.
+  - <span class="bp">exact</span> HX.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> HY.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isofhlevel_inserter</span>
+           {<span class="nv">n</span> : nat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           (<span class="nv">HX</span> : isofhlevel n X)
+           (<span class="nv">HY</span> : isofhlevel n Y)
+           (<span class="nv">f</span> <span class="nv">g</span> : X → Y)
+  : isofhlevel n (inserter_type f g).
+<span class="kn">Proof</span>.
+  use isofhlevel_inserter_help.
+  - <span class="bp">exact</span> HX.
+  - <span class="nb">apply</span> hlevelntosn.
+    <span class="bp">exact</span> HY.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">inserter_HLevel</span>
+           {<span class="nv">n</span> : nat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : HLevel n}
+           (<span class="nv">f</span> <span class="nv">g</span> : pr1 X → pr1 Y)
+  : HLevel n.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (inserter_type f g ,, _).
+  use isofhlevel_inserter.
+  - <span class="bp">exact</span> (pr2 X).
+  - <span class="bp">exact</span> (pr2 Y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_types_inserter_cone</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_types}
+           (<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y)
+  : inserter_cone f g.
+<span class="kn">Proof</span>.
+  use make_inserter_cone.
+  - <span class="bp">exact</span> (inserter_HLevel f g).
+  - <span class="bp">exact</span> (inserter_type_pr1 f g).
+  - <span class="bp">exact</span> (inserter_type_path f g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_types_inserter_ump_1</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_types}
+           (<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y)
+  : has_inserter_ump_1 (one_types_inserter_cone f g).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> q.
+  use make_inserter_1cell.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, inserter_cone_pr1 q x ,, inserter_cone_cell q x).
+  - use make_invertible_2cell.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, idpath _).
+    + <span class="nb">apply</span> one_type_2cell_iso.
+  - <span class="kp">abstract</span>
+      (use funextsec ; <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+       <span class="nb">unfold</span> homotcomp, funhomotsec, homotfun ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !pathscomp0rid ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_types_inserter_ump_2</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_types}
+           (<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y)
+  : has_inserter_ump_2 (one_types_inserter_cone f g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> W u₁ u₂ p r.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">intro</span> x.
+    use total2_paths_f.
+    + <span class="bp">exact</span> (p x).
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> transportf_paths_FlFr ;
+         use path_inv_rotate_ll ;
+         <span class="nb">pose</span> (eqtohomot r x) <span class="k">as</span> r' ;
+         <span class="nb">cbn</span> <span class="k">in</span> r' ;
+         <span class="nb">unfold</span> homotcomp, funhomotsec, homotfun <span class="k">in</span> r' ;
+         <span class="nb">cbn</span> <span class="k">in</span> r' ;
+         <span class="nb">rewrite</span> !pathscomp0rid <span class="k">in</span> r' ;
+         <span class="bp">exact</span> r').
+  - <span class="kp">abstract</span>
+      (use funextsec ;
+       <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+       <span class="nb">unfold</span> homotfun ;
+       <span class="nb">apply</span> base_total2_paths).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_types_inserter_ump_eq</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_types}
+           (<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y)
+  : has_inserter_ump_eq (one_types_inserter_cone f g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> W u₁ u₂ p r φ₁ φ₂ q₁ q₂.
+  use funextsec.
+  <span class="nb">intro</span> x.
+  <span class="nb">refine</span> (_ @ homotinvweqweq (total2_paths_equiv (<span class="k">λ</span> <span class="nv">x</span>, f x = g x) (u₁ x) (u₂ x)) _).
+  <span class="nb">refine</span> (!(homotinvweqweq (total2_paths_equiv (<span class="k">λ</span> <span class="nv">x</span>, f x = g x) (u₁ x) (u₂ x)) _) @ _).
+  <span class="nb">apply</span> maponpaths.
+  use total2_paths_f.
+  - <span class="bp">exact</span> (eqtohomot q₁ x @ !(eqtohomot q₂ x)).
+  - <span class="nb">apply</span> (pr2 Y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_inserters_one_types</span>
+  : has_inserters one_types.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y f g.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (inserter_HLevel f g).
+  - <span class="bp">exact</span> (inserter_type_pr1 f g).
+  - <span class="bp">exact</span> (inserter_type_path f g).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="bp">exact</span> (one_types_inserter_ump_1 f g).
+    + <span class="bp">exact</span> (one_types_inserter_ump_2 f g).
+    + <span class="bp">exact</span> (one_types_inserter_ump_eq f g).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Equifiers</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">equifier_type</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+           (<span class="nv">p₁</span> <span class="nv">p₂</span> : f ~ g)
+  : UU
+  := ∑ (x : X), p₁ x = p₂ x.
+
+<span class="kn">Definition</span> <span class="nf">isofhlevel_equifier_help</span>
+           {<span class="nv">n</span> : nat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           (<span class="nv">HX</span> : isofhlevel n X)
+           (<span class="nv">HY</span> : isofhlevel (S(S n)) Y)
+           {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+           (<span class="nv">p₁</span> <span class="nv">p₂</span> : f ~ g)
+  : isofhlevel n (equifier_type p₁ p₂).
+<span class="kn">Proof</span>.
+  use isofhleveltotal2.
+  - <span class="bp">exact</span> HX.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> HY.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isofhlevel_equifier</span>
+           {<span class="nv">n</span> : nat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           (<span class="nv">HX</span> : isofhlevel n X)
+           (<span class="nv">HY</span> : isofhlevel n Y)
+           {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+           (<span class="nv">p₁</span> <span class="nv">p₂</span> : f ~ g)
+  : isofhlevel n (equifier_type p₁ p₂).
+<span class="kn">Proof</span>.
+  use isofhlevel_equifier_help.
+  - <span class="bp">exact</span> HX.
+  - <span class="nb">apply</span> hlevelntosn.
+    <span class="nb">apply</span> hlevelntosn.
+    <span class="bp">exact</span> HY.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">equifier_HLevel</span>
+           {<span class="nv">n</span> : nat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : HLevel n}
+           {<span class="nv">f</span> <span class="nv">g</span> : pr1 X → pr1 Y}
+           (<span class="nv">p₁</span> <span class="nv">p₂</span> : f ~ g)
+  : HLevel n.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (equifier_type p₁ p₂).
+  - <span class="nb">apply</span> isofhlevel_equifier.
+    + <span class="bp">exact</span> (pr2 X).
+    + <span class="bp">exact</span> (pr2 Y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_types_equifier_pr1</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_types}
+           {<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}
+           (<span class="nv">p₁</span> <span class="nv">p₂</span> : f ==&gt; g)
+  : one_types ⟦ equifier_HLevel p₁ p₂ , X ⟧
+  := pr1.
+
+<span class="kn">Definition</span> <span class="nf">one_types_equifier_eq</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_types}
+           {<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}
+           (<span class="nv">p₁</span> <span class="nv">p₂</span> : f ==&gt; g)
+  : one_types_equifier_pr1 p₁ p₂ ◃ p₁
+    =
+    one_types_equifier_pr1 p₁ p₂ ◃ p₂.
+<span class="kn">Proof</span>.
+  use funextsec.
+  <span class="nb">intro</span> x.
+  <span class="bp">exact</span> (pr2 x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_types_equifier_cone</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_types}
+           {<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}
+           (<span class="nv">p₁</span> <span class="nv">p₂</span> : f ==&gt; g)
+  : equifier_cone f g p₁ p₂
+  := make_equifier_cone
+       (equifier_HLevel p₁ p₂ : one_types)
+       (one_types_equifier_pr1 p₁ p₂)
+       (one_types_equifier_eq p₁ p₂).
+
+<span class="kn">Definition</span> <span class="nf">one_types_equifier_ump_1</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_types}
+           {<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}
+           (<span class="nv">p₁</span> <span class="nv">p₂</span> : f ==&gt; g)
+  : has_equifier_ump_1 (one_types_equifier_cone p₁ p₂).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> q.
+  use make_equifier_1cell.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, equifier_cone_pr1 q x ,, _).
+    <span class="kp">abstract</span>
+      (<span class="bp">exact</span> (eqtohomot (equifier_cone_eq q) x)).
+  - use make_invertible_2cell.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, idpath _).
+    + <span class="nb">apply</span> one_type_2cell_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_types_equifier_ump_2</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_types}
+           {<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}
+           (<span class="nv">p₁</span> <span class="nv">p₂</span> : f ==&gt; g)
+  : has_equifier_ump_2 (one_types_equifier_cone p₁ p₂).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> W u₁ u₂ α.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">intro</span> x.
+    use total2_paths_f.
+    + <span class="bp">exact</span> (α x).
+    + <span class="nb">apply</span> Y.
+  - <span class="kp">abstract</span>
+      (use funextsec ; <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> base_total2_paths).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_types_equifier_ump_eq</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_types}
+           {<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}
+           (<span class="nv">p₁</span> <span class="nv">p₂</span> : f ==&gt; g)
+  : has_equifier_ump_eq (one_types_equifier_cone p₁ p₂).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> W u₁ u₂ α φ₁ φ₂ q₁ q₂.
+  use funextsec.
+  <span class="nb">intro</span> x.
+  <span class="nb">refine</span> (_ @ homotinvweqweq (total2_paths_equiv (<span class="k">λ</span> <span class="nv">x</span>, p₁ x = p₂ x) (u₁ x) (u₂ x)) _).
+  <span class="nb">refine</span> (!(homotinvweqweq (total2_paths_equiv (<span class="k">λ</span> <span class="nv">x</span>, p₁ x = p₂ x) (u₁ x) (u₂ x)) _) @ _).
+  <span class="nb">apply</span> maponpaths.
+  use total2_paths_f.
+  - <span class="bp">exact</span> (eqtohomot q₁ x @ !(eqtohomot q₂ x)).
+  - <span class="nb">apply</span> isapropifcontr.
+    <span class="nb">apply</span> (pr2 Y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_equifiers_one_types</span>
+  : has_equifiers one_types.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y f g p₁ p₂.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (equifier_HLevel p₁ p₂).
+  - <span class="bp">exact</span> (one_types_equifier_pr1 p₁ p₂).
+  - <span class="bp">exact</span> (one_types_equifier_eq p₁ p₂).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="bp">exact</span> (one_types_equifier_ump_1 p₁ p₂).
+    + <span class="bp">exact</span> (one_types_equifier_ump_2 p₁ p₂).
+    + <span class="bp">exact</span> (one_types_equifier_ump_eq p₁ p₂).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Limits/Examples/OneTypesLimits.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

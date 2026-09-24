@@ -1,0 +1,1207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Sigma.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** * Bicategories</span>
+<span class="sd">    Benedikt Ahrens, Marco Maggesi</span>
+<span class="sd">    February 2018</span>
+
+<span class="sd">   Dependent sum of displayed bicategories</span>
+<span class="sd"> ********************************************************************************* *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Definition</span> <span class="nf">make_total_ob</span> {<span class="nv">C</span> : bicat} {<span class="nv">D</span> : disp_bicat C} {<span class="nv">a</span> : C} (<span class="nv">aa</span> : D a)
+  : total_bicat D
+  := (a,, aa).
+
+<span class="kn">Definition</span> <span class="nf">make_total_mor</span> {<span class="nv">C</span> : bicat} {<span class="nv">D</span> : disp_bicat C}
+           {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a, b⟧}
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b} (<span class="nv">ff</span> : aa --&gt;[f] bb)
+  : make_total_ob aa --&gt; make_total_ob bb
+  := (f,, ff).
+
+<span class="kn">Definition</span> <span class="nf">make_total_cell</span> {<span class="nv">C</span> : bicat} {<span class="nv">D</span> : disp_bicat C}
+           {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+           {<span class="nv">ff</span> : aa --&gt;[f] bb}
+           {<span class="nv">gg</span> : aa --&gt;[g] bb}
+           (<span class="nv">η</span> : f ==&gt; g)
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg)
+  : (make_total_mor ff) ==&gt; (make_total_mor gg)
+  := (η,, ηη).
+
+<span class="c">(* Useful? *)</span>
+<span class="kn">Lemma</span> <span class="nf">total_cell_eq</span> {<span class="nv">C</span> : bicat} {<span class="nv">D</span> : disp_bicat C}
+      {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb} {<span class="nv">gg</span> : aa --&gt;[g] bb}
+      (<span class="nv">x</span> <span class="nv">y</span> : make_total_mor ff ==&gt; make_total_mor gg)
+      (<span class="nv">e</span> : pr1 x = pr1 y)
+      (<span class="nv">ee</span> : pr2 x = transportb (<span class="k">λ</span> <span class="nv">η</span> : f ==&gt; g, ff ==&gt;[ η] gg) e (pr2 y))
+  : x = y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (total2_paths2_b e ee).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">Sigma</span>.
+  <span class="kn">Variable</span> (<span class="nv">C</span> : bicat)
+           (<span class="nv">D</span> : disp_bicat C)
+           (<span class="nv">E</span> : disp_bicat (total_bicat D)).
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_ob_mor</span> : disp_cat_ob_mor C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, ∑ (d : D c), (E (c,,d))).
+    <span class="nb">intros</span> x y xx yy f.
+    <span class="bp">exact</span> (∑ (fD : pr1 xx --&gt;[f] pr1 yy), pr2 xx --&gt;[f,,fD] pr2 yy).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_id_comp</span>
+    : disp_cat_id_comp _ sigma_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> tpair.
+    - <span class="nb">intros</span> x xx.
+      <span class="k">exists</span> (<span class="nv">id_disp</span> <span class="nv">_</span>). <span class="bp">exact</span> (id_disp (pr2 xx)).
+    - <span class="nb">intros</span> x y z f g xx yy zz ff gg.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">ff</span> ;; pr1 gg). <span class="bp">exact</span> (pr2 ff ;; pr2 gg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_data</span> : disp_cat_data C
+    := (_ ,, sigma_disp_cat_id_comp).
+
+  <span class="kn">Definition</span> <span class="nf">sigma_prebicat_1_id_comp_cells</span> : disp_prebicat_1_id_comp_cells C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">sigma_disp_cat_data</span>.
+    <span class="nb">red</span>.
+    <span class="nb">intros</span> c c' f g x d d' ff gg.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    use (∑ xx : pr1 ff ==&gt;[x] pr1 gg , _).
+    <span class="nb">set</span> (PPP := @prebicat_cells (total_bicat D) (c,, pr1 d) (c',, pr1 d')
+                                (f,, pr1 ff) (g,, pr1 gg)).
+    <span class="bp">exact</span> (pr2 ff ==&gt;[(x,, xx) : PPP] pr2 gg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_bicat_data</span> : disp_prebicat_data C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">sigma_prebicat_1_id_comp_cells</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">cbn</span>; <span class="kp">first</span> [<span class="nb">intros</span> * | <span class="nb">intros</span>].
+    - <span class="k">exists</span> (<span class="nv">disp_id2</span> <span class="nv">_</span>). <span class="bp">exact</span> (disp_id2 _).
+    - <span class="k">exists</span> (<span class="nv">disp_lunitor</span> (pr1 f')). <span class="bp">exact</span> (disp_lunitor (pr2 f')).
+    - <span class="k">exists</span> (<span class="nv">disp_runitor</span> (pr1 f')). <span class="bp">exact</span> (disp_runitor (pr2 f')).
+    - <span class="k">exists</span> (<span class="nv">disp_linvunitor</span> (pr1 f')). <span class="bp">exact</span> (disp_linvunitor (pr2 f')).
+    - <span class="k">exists</span> (<span class="nv">disp_rinvunitor</span> (pr1 f')). <span class="bp">exact</span> (disp_rinvunitor (pr2 f')).
+    - <span class="k">exists</span> (<span class="nv">disp_rassociator</span> (pr1 ff) (pr1 gg) (pr1 hh)).
+      <span class="bp">exact</span> (disp_rassociator (pr2 ff) (pr2 gg) (pr2 hh)).
+    - <span class="k">exists</span> (<span class="nv">disp_lassociator</span> (pr1 ff) (pr1 gg) (pr1 hh)).
+      <span class="bp">exact</span> (disp_lassociator (pr2 ff) (pr2 gg) (pr2 hh)).
+    - <span class="nb">intros</span> xx yy.
+      <span class="k">exists</span> (<span class="nv">disp_vcomp2</span> (pr1 xx) (pr1 yy)).
+      <span class="bp">exact</span> (disp_vcomp2 (pr2 xx) (pr2 yy)).
+    - <span class="nb">intros</span> xx.
+      <span class="k">exists</span> (<span class="nv">disp_lwhisker</span> (pr1 ff) (pr1 xx)).
+      <span class="bp">exact</span> (disp_lwhisker (pr2 ff) (pr2 xx)).
+    - <span class="nb">intros</span> xx.
+      <span class="k">exists</span> (<span class="nv">disp_rwhisker</span> (pr1 gg) (pr1 xx)).
+      <span class="bp">exact</span> (disp_rwhisker (pr2 gg) (pr2 xx)).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Needed? *)</span>
+  <span class="kn">Lemma</span> <span class="nf">total_sigma_cell_eq</span>
+        {<span class="nv">a</span> <span class="nv">b</span> : total_bicat E}
+        {<span class="nv">f</span> <span class="nv">g</span> : total_bicat E ⟦a,b⟧}
+        (<span class="nv">x</span> <span class="nv">y</span> : f ==&gt; g)
+        (<span class="nv">eq1</span> : pr1 x = pr1 y)
+        (<span class="nv">eq2</span> : pr2 x = transportb (<span class="k">λ</span> <span class="nv">z</span>, pr2 f ==&gt;[z] pr2 g) eq1 (pr2 y))
+    : x = y.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> x <span class="k">as</span> (x, xx).
+    <span class="nb">induction</span> y <span class="k">as</span> (y, yy).
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> eq1.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> pair_path_in2.
+    <span class="bp">exact</span> eq2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">sigma_prebicat_laws</span> : disp_prebicat_laws sigma_bicat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">cbn</span>; <span class="nb">intros</span> *;
+      use (@total2_reassoc_paths'
+             (_ ==&gt; _) (<span class="k">fun</span> <span class="nv">x'</span> =&gt; _ ==&gt;[ x'] _)
+             (<span class="k">fun</span> <span class="nv">x'xx</span> =&gt; _ ==&gt;[ make_total_cell (pr1 x'xx) (pr2 x'xx)] _));
+      <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> disp_id2_left.
+    - <span class="nb">apply</span> (disp_id2_left (pr2 ηη)).
+    - <span class="nb">apply</span> disp_id2_right.
+    - <span class="nb">apply</span> (disp_id2_right (pr2 ηη)).
+    - <span class="nb">apply</span> disp_vassocr.
+    - <span class="nb">apply</span> (disp_vassocr (pr2 ηη) (pr2 φφ) (pr2 ψψ)).
+    - <span class="nb">apply</span> disp_lwhisker_id2.
+    - <span class="nb">apply</span> (disp_lwhisker_id2 (pr2 ff) (pr2 gg)).
+    - <span class="nb">apply</span> disp_id2_rwhisker.
+    - <span class="nb">apply</span> (disp_id2_rwhisker (pr2 ff) (pr2 gg)).
+    - <span class="nb">apply</span> disp_lwhisker_vcomp.
+    - <span class="nb">apply</span> (disp_lwhisker_vcomp (ff := (pr2 ff)) (pr2 ηη) (pr2 φφ)).
+    - <span class="nb">apply</span> disp_rwhisker_vcomp.
+    - <span class="nb">apply</span> (disp_rwhisker_vcomp (ii := pr2 ii) (pr2 ηη) (pr2 φφ)).
+    - <span class="nb">apply</span> disp_vcomp_lunitor.
+    - <span class="nb">apply</span> (disp_vcomp_lunitor (pr2 ηη)).
+    - <span class="nb">apply</span> disp_vcomp_runitor.
+    - <span class="nb">apply</span> (disp_vcomp_runitor (pr2 ηη)).
+    - <span class="nb">apply</span> disp_lwhisker_lwhisker.
+    - <span class="nb">apply</span> (disp_lwhisker_lwhisker (pr2 ff) (pr2 gg) (pr2 ηη)).
+    - <span class="nb">apply</span> disp_rwhisker_lwhisker.
+    - <span class="nb">apply</span> (disp_rwhisker_lwhisker (pr2 ff) (pr2 ii) (pr2 ηη)).
+    - <span class="nb">apply</span> disp_rwhisker_rwhisker.
+    - <span class="nb">apply</span> (disp_rwhisker_rwhisker _ _ (pr2 hh) (pr2 ii) (pr2 ηη)).
+    - <span class="nb">apply</span> disp_vcomp_whisker.
+    - <span class="nb">apply</span> (disp_vcomp_whisker _ _ _ _ _ (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii) (pr2 ηη) (pr2 φφ)).
+    - <span class="nb">apply</span> disp_lunitor_linvunitor.
+    - <span class="nb">apply</span> (disp_lunitor_linvunitor (pr2 ff)).
+    - <span class="nb">apply</span> disp_linvunitor_lunitor.
+    - <span class="nb">apply</span> (disp_linvunitor_lunitor (pr2 ff)).
+    - <span class="nb">apply</span> disp_runitor_rinvunitor.
+    - <span class="nb">apply</span> (disp_runitor_rinvunitor (pr2 ff)).
+    - <span class="nb">apply</span> disp_rinvunitor_runitor.
+    - <span class="nb">apply</span> (disp_rinvunitor_runitor (pr2 ff)).
+    - <span class="nb">apply</span> disp_lassociator_rassociator.
+    - <span class="nb">apply</span> (disp_lassociator_rassociator (pr2 ff) (pr2 gg) (pr2 hh)).
+    - <span class="nb">apply</span> disp_rassociator_lassociator.
+    - <span class="nb">apply</span> (disp_rassociator_lassociator _ (pr2 ff) (pr2 gg) (pr2 hh)).
+    - <span class="nb">apply</span> disp_runitor_rwhisker.
+    - <span class="nb">apply</span> (disp_runitor_rwhisker (pr2 ff) (pr2 gg)).
+    - <span class="nb">apply</span> disp_lassociator_lassociator.
+    - <span class="nb">apply</span> (disp_lassociator_lassociator (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_prebicat</span> : disp_prebicat C
+    := sigma_bicat_data,, sigma_prebicat_laws.
+
+  <span class="kn">Lemma</span> <span class="nf">has_disp_cellset_sigma_prebicat</span>
+    : has_disp_cellset sigma_prebicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">cbn</span>; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> disp_cellset_property.
+    - <span class="nb">intros</span>. <span class="nb">apply</span> disp_cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_bicat</span>
+    : disp_bicat C
+    := sigma_prebicat,, has_disp_cellset_sigma_prebicat.
+
+  <span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_sigma</span>
+             (<span class="nv">HD</span> : disp_2cells_isaprop D)
+             (<span class="nv">HE</span> : disp_2cells_isaprop E)
+    : disp_2cells_isaprop sigma_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaproptotal2.
+    - <span class="nb">intro</span>; <span class="nb">apply</span> HE.
+    - <span class="nb">intros</span>; <span class="nb">apply</span> HD.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Sigma</span>.
+
+<span class="kn">Section</span> <span class="nf">SigmaTotalUnivalent</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : bicat}
+          {<span class="nv">D₁</span> : disp_bicat C}
+          (<span class="nv">D₂</span> : disp_bicat (total_bicat D₁)).
+
+  <span class="kn">Local Notation</span> <span class="nf">E₁</span> := (total_bicat D₂).
+  <span class="kn">Local Notation</span> <span class="nf">E₂</span> := (total_bicat (sigma_bicat C D₁ D₂)).
+
+  <span class="kn">Definition</span> <span class="nf">E₁_univalent_2_0</span>
+             (<span class="nv">HC_2_0</span> : is_univalent_2_0 C)
+             (<span class="nv">HD₁_2_0</span> : disp_univalent_2_0 D₁)
+             (<span class="nv">HD₂_2_0</span> : disp_univalent_2_0 D₂)
+    : is_univalent_2_0 E₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> total_is_univalent_2_0.
+    - <span class="nb">apply</span> total_is_univalent_2_0.
+      + <span class="bp">exact</span> HC_2_0.
+      + <span class="bp">exact</span> HD₁_2_0.
+    - <span class="bp">exact</span> HD₂_2_0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">E₁_univalent_2_1</span>
+             (<span class="nv">HC_2_1</span> : is_univalent_2_1 C)
+             (<span class="nv">HD₁_2_1</span> : disp_univalent_2_1 D₁)
+             (<span class="nv">HD₂_2_1</span> : disp_univalent_2_1 D₂)
+    : is_univalent_2_1 E₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> total_is_univalent_2_1.
+    - <span class="nb">apply</span> total_is_univalent_2_1.
+      + <span class="bp">exact</span> HC_2_1.
+      + <span class="bp">exact</span> HD₁_2_1.
+    - <span class="bp">exact</span> HD₂_2_1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">E₁_to_E₂</span> : E₁ → E₂
+    := <span class="k">λ</span> <span class="nv">x</span>, (pr11 x ,, (pr21 x ,, pr2 x)).
+
+  <span class="kn">Definition</span> <span class="nf">E₂_to_E₁</span> : E₂ → E₁
+    := <span class="k">λ</span> <span class="nv">x</span>, ((pr1 x ,, pr12 x) ,, pr22 x).
+
+  <span class="kn">Definition</span> <span class="nf">E₂_to_E₁_weq</span> : E₂ ≃ E₁.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> E₂_to_E₁.
+    - use isweq_iso.
+      + <span class="bp">exact</span> E₁_to_E₂.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">path_E₂_to_path_E₁_weq</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : E₂)
+    : x = y ≃ E₂_to_E₁ x = E₂_to_E₁ y.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (maponpaths E₂_to_E₁).
+    - <span class="bp">exact</span> (isweqmaponpaths E₂_to_E₁_weq x y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mor_E₁_to_E₂</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₁}
+    : x --&gt; y → E₁_to_E₂ x --&gt; E₁_to_E₂ y
+    := <span class="k">λ</span> <span class="nv">f</span>, (pr11 f ,, (pr21 f ,, pr2 f)).
+
+  <span class="kn">Definition</span> <span class="nf">mor_E₂_to_E₁</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₂}
+    : x --&gt; y → E₂_to_E₁ x --&gt; E₂_to_E₁ y
+    := <span class="k">λ</span> <span class="nv">f</span>, ((pr1 f ,, pr12 f) ,, pr22 f).
+
+  <span class="kn">Definition</span> <span class="nf">mor_E₂_to_E₁_weq</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₂}
+    : x --&gt; y ≃ E₂_to_E₁ x --&gt; E₂_to_E₁ y.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> mor_E₂_to_E₁.
+    - use isweq_iso.
+      + <span class="bp">exact</span> mor_E₁_to_E₂.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">path_mor_E₂_to_path_mor_E₁_weq</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₂}
+             (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+    : f = g ≃ mor_E₂_to_E₁ f = mor_E₂_to_E₁ g.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (maponpaths mor_E₂_to_E₁).
+    - <span class="bp">exact</span> (isweqmaponpaths mor_E₂_to_E₁_weq f g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cell_E₁_to_E₂</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₁}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+    : f ==&gt; g → mor_E₁_to_E₂ f ==&gt; mor_E₁_to_E₂ g
+    := <span class="k">λ</span> <span class="nv">α</span>, (pr11 α ,, (pr21 α ,, pr2 α)).
+
+  <span class="kn">Definition</span> <span class="nf">cell_E₂_to_E₁</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₂}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+    : f ==&gt; g → mor_E₂_to_E₁ f ==&gt; mor_E₂_to_E₁ g
+    := <span class="k">λ</span> <span class="nv">α</span>, ((pr1 α ,, pr12 α) ,, pr22 α).
+
+  <span class="kn">Definition</span> <span class="nf">cell_E₁_to_E₂_id₂</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₁}
+             (<span class="nv">f</span> : x --&gt; y)
+    : cell_E₁_to_E₂ (id₂ f) = id₂ (mor_E₁_to_E₂ f)
+    := idpath _.
+
+  <span class="kn">Definition</span> <span class="nf">cell_E₂_to_E₁_id₂</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₂}
+             (<span class="nv">f</span> : x --&gt; y)
+    : cell_E₂_to_E₁ (id₂ f) = id₂ (mor_E₂_to_E₁ f)
+    := idpath _.
+
+  <span class="kn">Definition</span> <span class="nf">cell_E₁_to_E₂_vcomp</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₁}
+             {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : x --&gt; y}
+             (<span class="nv">α</span> : f ==&gt; g) (<span class="nv">β</span> : g ==&gt; h)
+    : cell_E₁_to_E₂ α • cell_E₁_to_E₂ β = cell_E₁_to_E₂ (α • β)
+    := idpath _.
+
+  <span class="kn">Definition</span> <span class="nf">cell_E₂_to_E₁_vcomp</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₂}
+             {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : x --&gt; y}
+             (<span class="nv">α</span> : f ==&gt; g) (<span class="nv">β</span> : g ==&gt; h)
+    : cell_E₂_to_E₁ α • cell_E₂_to_E₁ β = cell_E₂_to_E₁ (α • β)
+    := idpath _.
+
+  <span class="kn">Definition</span> <span class="nf">cell_E₁_to_E₂_is_invertible</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₁}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">α</span> : f ==&gt; g)
+    : is_invertible_2cell α → is_invertible_2cell (cell_E₁_to_E₂ α).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hα.
+    use tpair.
+    - <span class="bp">exact</span> (cell_E₁_to_E₂ Hα^-<span class="mi">1</span>).
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> ((cell_E₁_to_E₂_vcomp α Hα^-<span class="mi">1</span>)
+                  @ maponpaths cell_E₁_to_E₂ (pr12 Hα)
+                  @ cell_E₁_to_E₂_id₂ _).
+      + <span class="bp">exact</span> ((cell_E₁_to_E₂_vcomp Hα^-<span class="mi">1</span> α)
+                 @ maponpaths cell_E₁_to_E₂ (pr22 Hα)
+                 @ cell_E₁_to_E₂_id₂ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cell_E₂_to_E₁_is_invertible</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₂}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">α</span> : f ==&gt; g)
+    : is_invertible_2cell α → is_invertible_2cell (cell_E₂_to_E₁ α).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hα.
+    use tpair.
+    - <span class="bp">exact</span> (cell_E₂_to_E₁ Hα^-<span class="mi">1</span>).
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> ((cell_E₂_to_E₁_vcomp α Hα^-<span class="mi">1</span>)
+                 @ maponpaths cell_E₂_to_E₁ (pr12 Hα)
+                 @ cell_E₂_to_E₁_id₂ _).
+      + <span class="bp">exact</span> ((cell_E₂_to_E₁_vcomp Hα^-<span class="mi">1</span> α)
+                 @ maponpaths cell_E₂_to_E₁ (pr22 Hα)
+                 @ cell_E₂_to_E₁_id₂ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_in_E₂</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₂}
+             (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+    : invertible_2cell (mor_E₂_to_E₁ f) (mor_E₂_to_E₁ g) → invertible_2cell f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> α.
+    use tpair.
+    - <span class="bp">exact</span> (cell_E₁_to_E₂ (cell_from_invertible_2cell α)).
+    - use tpair.
+      + <span class="bp">exact</span> (cell_E₁_to_E₂ α^-<span class="mi">1</span>).
+      + <span class="nb">split</span>.
+        * <span class="bp">exact</span> ((cell_E₁_to_E₂_vcomp α α^-<span class="mi">1</span>)
+                   @ maponpaths cell_E₁_to_E₂ (pr122 α)
+                   @ cell_E₁_to_E₂_id₂ (mor_E₂_to_E₁ f)).
+        * <span class="bp">exact</span> ((cell_E₁_to_E₂_vcomp α^-<span class="mi">1</span> α)
+                   @ maponpaths cell_E₁_to_E₂ (pr222 α)
+                   @ cell_E₁_to_E₂_id₂ (mor_E₂_to_E₁ g)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_in_E₂_inv</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₂}
+             (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+    : invertible_2cell f g → invertible_2cell (mor_E₂_to_E₁ f) (mor_E₂_to_E₁ g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> α.
+    use tpair.
+    - <span class="bp">exact</span> (cell_E₂_to_E₁ (cell_from_invertible_2cell α)).
+    - use tpair.
+      + <span class="bp">exact</span> (cell_E₂_to_E₁ α^-<span class="mi">1</span>).
+      + <span class="nb">split</span>.
+        * <span class="bp">exact</span> ((cell_E₂_to_E₁_vcomp α α^-<span class="mi">1</span>)
+                   @ maponpaths cell_E₂_to_E₁ (pr122 α)
+                   @ cell_E₂_to_E₁_id₂ _).
+        * <span class="bp">exact</span> ((cell_E₂_to_E₁_vcomp α^-<span class="mi">1</span> α)
+                   @ maponpaths cell_E₂_to_E₁ (pr222 α)
+                   @ cell_E₂_to_E₁_id₂ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_in_E₂_weq</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₂}
+             (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+    : invertible_2cell (mor_E₂_to_E₁ f) (mor_E₂_to_E₁ g) ≃ invertible_2cell f g.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (iso_in_E₂ f g).
+    - use isweq_iso.
+      + <span class="bp">exact</span> (iso_in_E₂_inv f g).
+      + <span class="nb">intros</span> α.
+        use subtypePath.
+        { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> α.
+        use subtypePath.
+        { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">idtoiso_2_1_alt_E₂</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E₂}
+             (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+             (<span class="nv">HC_2_1</span> : is_univalent_2_1 C)
+             (<span class="nv">HD₁_2_1</span> : disp_univalent_2_1 D₁)
+             (<span class="nv">HD₂_2_1</span> : disp_univalent_2_1 D₂)
+    : f = g ≃ invertible_2cell f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> ((iso_in_E₂_weq f g)
+              ∘ (idtoiso_2_1 _ _ ,, _)
+              ∘ path_mor_E₂_to_path_mor_E₁_weq f g)%weq.
+    <span class="nb">apply</span> E₁_univalent_2_1; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_is_univalent_2_1</span>
+             (<span class="nv">HC_2_1</span> : is_univalent_2_1 C)
+             (<span class="nv">HD₁_2_1</span> : disp_univalent_2_1 D₁)
+             (<span class="nv">HD₂_2_1</span> : disp_univalent_2_1 D₂)
+    : is_univalent_2_1 E₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g.
+    use weqhomot.
+    - <span class="bp">exact</span> (idtoiso_2_1_alt_E₂ f g HC_2_1 HD₁_2_1 HD₂_2_1).
+    - <span class="nb">intros</span> p.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> (@isaprop_is_invertible_2cell (total_bicat (sigma_bicat C D₁ D₂))).
+      }
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjequiv_in_E₂</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : E₂)
+    : adjoint_equivalence (E₂_to_E₁ x) (E₂_to_E₁ y) → adjoint_equivalence x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> l.
+    use equiv_to_adjequiv.
+    - <span class="bp">exact</span> (mor_E₁_to_E₂ l).
+    - use tpair.
+      + use tpair.
+        * <span class="bp">exact</span> (mor_E₁_to_E₂ (left_adjoint_right_adjoint l)).
+        * <span class="nb">split</span>.
+          ** <span class="bp">exact</span> (cell_E₁_to_E₂ (left_adjoint_unit l)).
+          ** <span class="bp">exact</span> (cell_E₁_to_E₂ (left_adjoint_counit l)).
+      + <span class="nb">split</span>.
+        * <span class="bp">exact</span> (cell_E₁_to_E₂_is_invertible _ (left_equivalence_unit_iso l)).
+        * <span class="bp">exact</span> (cell_E₁_to_E₂_is_invertible _ (left_equivalence_counit_iso l)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjequiv_in_E₂_inv</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : E₂)
+    : adjoint_equivalence x y → adjoint_equivalence (E₂_to_E₁ x) (E₂_to_E₁ y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> l.
+    use equiv_to_adjequiv.
+    - <span class="bp">exact</span> (mor_E₂_to_E₁ l).
+    - use tpair.
+      + use tpair.
+        * <span class="bp">exact</span> (mor_E₂_to_E₁ (left_adjoint_right_adjoint l)).
+        * <span class="nb">split</span>.
+          ** <span class="bp">exact</span> (cell_E₂_to_E₁ (left_adjoint_unit l)).
+          ** <span class="bp">exact</span> (cell_E₂_to_E₁ (left_adjoint_counit l)).
+      + <span class="nb">split</span>.
+        * <span class="bp">exact</span> (cell_E₂_to_E₁_is_invertible _ (left_equivalence_unit_iso l)).
+        * <span class="bp">exact</span> (cell_E₂_to_E₁_is_invertible _ (left_equivalence_counit_iso l)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjequiv_in_E₂_weq</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : E₂)
+             (<span class="nv">HC_2_1</span> : is_univalent_2_1 C)
+             (<span class="nv">HD₁_2_1</span> : disp_univalent_2_1 D₁)
+             (<span class="nv">HD₂_2_1</span> : disp_univalent_2_1 D₂)
+    : adjoint_equivalence (E₂_to_E₁ x) (E₂_to_E₁ y) ≃ adjoint_equivalence x y.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (adjequiv_in_E₂ x y).
+    - use isweq_iso.
+      + <span class="bp">exact</span> (adjequiv_in_E₂_inv x y).
+      + <span class="nb">intros</span> l.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+          <span class="nb">apply</span> E₁_univalent_2_1; <span class="bp">assumption</span>.
+        }
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> l.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+          <span class="nb">apply</span> sigma_is_univalent_2_1; <span class="bp">assumption</span>.
+        }
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">idtoiso_2_0_alt_E₂</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : E₂)
+             (<span class="nv">HC</span> : is_univalent_2 C)
+             (<span class="nv">HD₁</span> : disp_univalent_2 D₁)
+             (<span class="nv">HD₂</span> : disp_univalent_2 D₂)
+    : x = y ≃ adjoint_equivalence x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> ((adjequiv_in_E₂_weq x y (pr2 HC) (pr2 HD₁) (pr2 HD₂))
+              ∘ (idtoiso_2_0 _ _ ,, _)
+              ∘ path_E₂_to_path_E₁_weq x y)%weq.
+    <span class="nb">apply</span> E₁_univalent_2_0.
+    - <span class="bp">exact</span> (pr1 HC).
+    - <span class="bp">exact</span> (pr1 HD₁).
+    - <span class="bp">exact</span> (pr1 HD₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_is_univalent_2_0</span>
+             (<span class="nv">HC</span> : is_univalent_2 C)
+             (<span class="nv">HD₁</span> : disp_univalent_2 D₁)
+             (<span class="nv">HD₂</span> : disp_univalent_2 D₂)
+    : is_univalent_2_0 E₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use weqhomot.
+    - <span class="bp">exact</span> (idtoiso_2_0_alt_E₂ x y HC HD₁ HD₂).
+    - <span class="nb">intros</span> p.
+      <span class="nb">induction</span> p.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+        <span class="nb">apply</span> sigma_is_univalent_2_1.
+        - <span class="bp">exact</span> (pr2 HC).
+        - <span class="bp">exact</span> (pr2 HD₁).
+        - <span class="bp">exact</span> (pr2 HD₂).
+      }
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_is_univalent_2</span>
+             (<span class="nv">HC</span> : is_univalent_2 C)
+             (<span class="nv">HD₁</span> : disp_univalent_2 D₁)
+             (<span class="nv">HD₂</span> : disp_univalent_2 D₂)
+    : is_univalent_2 E₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> sigma_is_univalent_2_0; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> sigma_is_univalent_2_1.
+      * <span class="bp">exact</span> (pr2 HC).
+      * <span class="bp">exact</span> (pr2 HD₁).
+      * <span class="bp">exact</span> (pr2 HD₂).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SigmaTotalUnivalent</span>.
+
+<span class="kn">Definition</span> <span class="nf">help_disp_left_adjoint_axioms</span>
+           {<span class="nv">C</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat C)
+           (<span class="nv">HD</span> : disp_2cells_isaprop D)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">Af</span> : left_adjoint f)
+           {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">Aff</span> : disp_left_adjoint_data Af ff}
+  : disp_left_adjoint_axioms Af Aff.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; <span class="nb">apply</span> HD.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportf_subtypePath</span>
+            {<span class="nv">A</span> : UU}
+            {<span class="nv">P</span> : A → UU}
+            (<span class="nv">Pprop</span> : ∏ (a : A), isaprop (P a))
+            {<span class="nv">C</span> : total2 P → UU}
+            (<span class="nv">x</span> : A) (<span class="nv">P₁</span> <span class="nv">P₂</span> : P x)
+            (<span class="nv">y</span> : C (x,,P₂))
+  : transportf
+      (<span class="k">λ</span> (<span class="nv">z</span> : total2 P), C z)
+      (!(@subtypePath A P Pprop (x ,, P₁) (x ,, P₂) (idpath x)))
+      y
+    =
+    transportf
+      (<span class="k">λ</span> (<span class="nv">p</span> : P x), C (x,, p))
+      (!(pr1 (Pprop x P₁ P₂)))
+      y.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">induction</span> (Pprop x P₁ P₂) <span class="k">as</span> [p q].
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">SigmaDisplayedUnivalent</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : bicat}
+          {<span class="nv">D₁</span> : disp_bicat C}
+          (<span class="nv">D₂</span> : disp_bicat (total_bicat D₁)).
+
+  <span class="kn">Variable</span> (<span class="nv">HC</span> : is_univalent_2 C)
+           (<span class="nv">HD₁</span> : disp_2cells_isaprop D₁)
+           (<span class="nv">HD₂</span> : disp_2cells_isaprop D₂)
+           (<span class="nv">HD₁_2_1</span> : disp_univalent_2_1 D₁)
+           (<span class="nv">HD₂_2_1</span> : disp_univalent_2_1 D₂).
+
+  <span class="kn">Definition</span> <span class="nf">pair_disp_invertible_to_sigma_disp_invertible</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             {<span class="nv">f</span> : C ⟦ x, y ⟧}
+             {<span class="nv">xx</span> : (sigma_bicat C D₁ D₂) x}
+             {<span class="nv">yy</span> : (sigma_bicat C D₁ D₂) y}
+             {<span class="nv">ff1</span> : pr1 xx --&gt;[ f] pr1 yy}
+             (<span class="nv">ff2</span> : pr2 xx --&gt;[ f,, ff1] pr2 yy)
+             {<span class="nv">gg1</span> : pr1 xx --&gt;[ f] pr1 yy}
+             (<span class="nv">gg2</span> : pr2 xx --&gt;[ f,, gg1] pr2 yy)
+    : (∑ (p : disp_invertible_2cell
+                (id2_invertible_2cell f)
+                ff1 gg1),
+       disp_invertible_2cell
+         (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p))
+         ff2 gg2)
+      →
+      @disp_invertible_2cell
+        C (sigma_prebicat C D₁ D₂) _ _ _ _ _ _
+        (id2_invertible_2cell f) (ff1,, ff2) (gg1,, gg2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p.
+    use tpair.
+    - <span class="bp">exact</span> (pr11 p ,, pr12 p).
+    - <span class="nb">simpl</span>.
+      <span class="nb">simple refine</span> (_ ,, (_ ,, _)).
+      + <span class="bp">exact</span> (disp_inv_cell (pr1 p) ,, disp_inv_cell (pr2 p)).
+      + <span class="nb">apply</span> disp_2cells_isaprop_sigma ; <span class="bp">assumption</span>.
+      + <span class="nb">apply</span> disp_2cells_isaprop_sigma ; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_sigma</span>
+             (<span class="nv">LG₁</span> : disp_locally_groupoid D₁)
+             (<span class="nv">LG₂</span> : disp_locally_groupoid D₂)
+    : disp_locally_groupoid (sigma_bicat C D₁ D₂).
+  <span class="kn">Proof</span>.
+    use make_disp_locally_groupoid_univalent_2_1.
+    - <span class="nb">intros</span> a b f aa bb ff gg xx.
+      <span class="nb">pose</span> (p₁ := pr1 xx ,, LG₁ _ _ _ _ _ _ _ _ _ (pr1 xx) : disp_invertible_2cell _ _ _).
+      <span class="nb">pose</span> (pr2 xx) <span class="k">as</span> m.
+      <span class="nb">cbn</span> <span class="k">in</span> m.
+      <span class="nb">pose</span> (p₂ := pr2 xx ,, LG₂
+                      (a ,, pr1 aa) (b ,, pr1 bb)
+                      (f ,, pr1 ff) (f ,, pr1 gg)
+                      (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p₁))
+                      (pr2 aa) (pr2 bb)
+                      (pr2 ff) (pr2 gg) m).
+      <span class="bp">exact</span> (pr2 (pair_disp_invertible_to_sigma_disp_invertible _ _ (p₁ ,, p₂))).
+    - <span class="bp">exact</span> (pr2 HC).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_invertible_to_pair_disp_invertible</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             {<span class="nv">f</span> : C ⟦ x, y ⟧}
+             {<span class="nv">xx</span> : (sigma_bicat C D₁ D₂) x}
+             {<span class="nv">yy</span> : (sigma_bicat C D₁ D₂) y}
+             {<span class="nv">ff1</span> : pr1 xx --&gt;[ f] pr1 yy}
+             (<span class="nv">ff2</span> : pr2 xx --&gt;[ f,, ff1] pr2 yy)
+             {<span class="nv">gg1</span> : pr1 xx --&gt;[ f] pr1 yy}
+             (<span class="nv">gg2</span> : pr2 xx --&gt;[ f,, gg1] pr2 yy)
+    : @disp_invertible_2cell
+        C (sigma_prebicat C D₁ D₂) _ _ _ _ _ _
+        (id2_invertible_2cell f) (ff1,, ff2) (gg1,, gg2)
+      →
+      (∑ (p : disp_invertible_2cell
+                (id2_invertible_2cell f)
+                ff1 gg1),
+       disp_invertible_2cell
+         (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p))
+         ff2 gg2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p.
+    use tpair.
+    - use tpair.
+      + <span class="bp">exact</span> (pr11 p).
+      + <span class="nb">simple refine</span> (_ ,, (_ ,, _)).
+        * <span class="bp">exact</span> (pr1 (disp_inv_cell p)).
+        * <span class="nb">apply</span> HD₁.
+        * <span class="nb">apply</span> HD₁.
+    - use tpair.
+      + <span class="bp">exact</span> (pr21 p).
+      + <span class="nb">simple refine</span> (_ ,, (_ ,, _)).
+        * <span class="bp">exact</span> (pr2 (disp_inv_cell p)).
+        * <span class="nb">apply</span> HD₂.
+        * <span class="nb">apply</span> HD₂.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_disp_invertible_to_sigma_disp_invertible_weq</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             {<span class="nv">f</span> : C ⟦ x, y ⟧}
+             {<span class="nv">xx</span> : (sigma_bicat C D₁ D₂) x}
+             {<span class="nv">yy</span> : (sigma_bicat C D₁ D₂) y}
+             {<span class="nv">ff1</span> : pr1 xx --&gt;[ f] pr1 yy}
+             (<span class="nv">ff2</span> : pr2 xx --&gt;[ f,, ff1] pr2 yy)
+             {<span class="nv">gg1</span> : pr1 xx --&gt;[ f] pr1 yy}
+             (<span class="nv">gg2</span> : pr2 xx --&gt;[ f,, gg1] pr2 yy)
+    : (∑ (p : disp_invertible_2cell
+                (id2_invertible_2cell f)
+                ff1 gg1),
+       disp_invertible_2cell
+         (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p))
+         ff2 gg2)
+        ≃ @disp_invertible_2cell
+        C (sigma_prebicat C D₁ D₂) _ _ _ _ _ _
+        (id2_invertible_2cell f) (ff1,, ff2) (gg1,, gg2).
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="nb">apply</span> pair_disp_invertible_to_sigma_disp_invertible.
+    - use isweq_iso.
+      + <span class="nb">apply</span> sigma_disp_invertible_to_pair_disp_invertible.
+      + <span class="nb">intro</span> p.
+        <span class="nb">induction</span> p <span class="k">as</span> [p1 p2].
+        use total2_paths_b.
+        * use subtypePath.
+          { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell. }
+          <span class="nb">apply</span> idpath.
+        * use subtypePath.
+          { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell. }
+          <span class="nb">apply</span> HD₂.
+      + <span class="nb">intro</span> p.
+        use subtypePath.
+        { <span class="nb">intro</span>
+          ; <span class="nb">apply</span> (@isaprop_is_disp_invertible_2cell C (sigma_bicat C D₁ D₂)). }
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_univalent_2_1_with_props</span>
+    : disp_univalent_2_1 (sigma_bicat _ _ D₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fiberwise_local_univalent_is_univalent_2_1.
+    <span class="nb">intros</span> x y f xx yy ff gg.
+    use weqhomot.
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ ∘ total2_paths_equiv _ _ _)%weq.
+      <span class="nb">refine</span> (pair_disp_invertible_to_sigma_disp_invertible_weq _ _ ∘ _)%weq.
+      <span class="nb">induction</span> ff <span class="k">as</span> [ff1 ff2] ; <span class="nb">induction</span> gg <span class="k">as</span> [gg1 gg2].
+      <span class="nb">refine</span> (weqtotal2
+                (make_weq
+                   _
+                   (HD₁_2_1 _ _ _ _ (idpath _) _ _ ff1 gg1))
+                _).
+      <span class="nb">intro</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">induction</span> p.
+      <span class="bp">exact</span> (make_weq
+               _
+               (HD₂_2_1 _ _ _ _ (idpath _) _ _ ff2 gg2)).
+    - <span class="nb">intros</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">induction</span> p.
+      use subtypePath.
+      { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell. }
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Opaque</span> adjoint_equivalence_total_disp_weq.
+
+  <span class="kn">Variable</span> (<span class="nv">LG₁</span> : disp_locally_groupoid D₁)
+           (<span class="nv">LG₂</span> : disp_locally_groupoid D₂).
+
+  <span class="kn">Definition</span> <span class="nf">pair_disp_adjequiv_to_sigma_disp_adjequiv</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> : (sigma_bicat C D₁ D₂) x)
+             (<span class="nv">yy</span> : (sigma_bicat C D₁ D₂) x)
+    : (∑ (p : disp_adjoint_equivalence
+                (internal_adjoint_equivalence_identity x)
+                (pr1 xx) (pr1 yy)),
+       disp_adjoint_equivalence
+         (invmap (adjoint_equivalence_total_disp_weq (pr1 xx) (pr1 yy))
+                 (internal_adjoint_equivalence_identity x ,, p))
+         (pr2 xx) (pr2 yy))
+      →
+      disp_adjoint_equivalence (internal_adjoint_equivalence_identity x) xx yy.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p.
+    <span class="nb">simple refine</span> (_ ,, ((_ ,, (_ ,, _)) ,, _ ,, (_ ,, _))).
+    - <span class="bp">exact</span> (pr11 p ,, pr12 p).
+    - <span class="bp">exact</span> (pr112 (pr1 p) ,, pr112 (pr2 p)).
+    - <span class="bp">exact</span> (pr1 (pr212 (pr1 p)) ,, pr1 (pr212 (pr2 p))).
+    - <span class="bp">exact</span> (pr2 (pr212 (pr1 p)) ,, pr2 (pr212 (pr2 p))).
+    - <span class="nb">apply</span> help_disp_left_adjoint_axioms.
+      <span class="nb">apply</span> disp_2cells_isaprop_sigma ; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> disp_locally_groupoid_sigma ; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> disp_locally_groupoid_sigma ; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_disp_left_adjoint_equivalence_sigma</span>
+             {<span class="nv">x</span> : C}
+             {<span class="nv">xx</span> : (sigma_bicat C D₁ D₂) x}
+             {<span class="nv">yy</span> : (sigma_bicat C D₁ D₂) x}
+             {<span class="nv">ff</span> : xx --&gt;[ identity _ ] yy}
+             (<span class="nv">Hff₁</span> : disp_left_adjoint_equivalence
+                       (internal_adjoint_equivalence_identity x)
+                       (pr1 ff))
+             (<span class="nv">Hff₂</span> : disp_left_adjoint_equivalence
+                       (invmap
+                          (adjoint_equivalence_total_disp_weq
+                             (pr1 xx) (pr1 yy))
+                          (internal_adjoint_equivalence_identity x ,, pr1 ff ,, Hff₁))
+                       (pr2 ff))
+    : disp_left_adjoint_equivalence
+        (internal_adjoint_equivalence_identity x)
+        ff.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pair_disp_adjequiv_to_sigma_disp_adjequiv
+             xx yy
+             ((pr1 ff ,, Hff₁)
+               ,,
+               (pr2 ff ,, Hff₂))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr1</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> : (sigma_bicat C D₁ D₂) x)
+             (<span class="nv">yy</span> : (sigma_bicat C D₁ D₂) x)
+    : disp_adjoint_equivalence (internal_adjoint_equivalence_identity x) xx yy
+      →
+      disp_adjoint_equivalence
+        (internal_adjoint_equivalence_identity x)
+        (pr1 xx) (pr1 yy).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">simple refine</span> (pr11 p ,, ((_ ,, (_ ,, _)) ,, _ ,, (_ ,, _))).
+    - <span class="bp">exact</span> (pr1 (pr112 p)).
+    - <span class="bp">exact</span> (pr11 (pr212 p)).
+    - <span class="bp">exact</span> (pr12 (pr212 p)).
+    - <span class="nb">apply</span> help_disp_left_adjoint_axioms.
+      <span class="bp">exact</span> HD₁.
+    - <span class="nb">apply</span> LG₁.
+    - <span class="nb">apply</span> LG₁.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr2</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> : (sigma_bicat C D₁ D₂) x)
+             (<span class="nv">yy</span> : (sigma_bicat C D₁ D₂) x)
+    : ∏ (p : disp_adjoint_equivalence
+               (internal_adjoint_equivalence_identity x) xx yy),
+      disp_adjoint_equivalence
+        (invmap
+           (adjoint_equivalence_total_disp_weq (pr1 xx) (pr1 yy))
+           (internal_adjoint_equivalence_identity
+              x,,
+              pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr1 xx yy p))
+        (pr2 xx) (pr2 yy).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">simple refine</span> (pr21 p ,,
+                        ((pr2 (pr112 p) ,, (pr21 (pr212 p) ,, pr22 (pr212 p)))
+                           ,, _ ,, (_ ,, _))).
+    - <span class="nb">apply</span> help_disp_left_adjoint_axioms.
+      <span class="bp">exact</span> HD₂.
+    - <span class="nb">apply</span> LG₂.
+    - <span class="nb">apply</span> LG₂.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_disp_adjequiv_to_sigma_disp_adjequiv_inv</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> : (sigma_bicat C D₁ D₂) x)
+             (<span class="nv">yy</span> : (sigma_bicat C D₁ D₂) x)
+    : disp_adjoint_equivalence (internal_adjoint_equivalence_identity x) xx yy
+      →
+      (∑ (p : disp_adjoint_equivalence
+                (internal_adjoint_equivalence_identity x)
+                (pr1 xx) (pr1 yy)),
+       disp_adjoint_equivalence
+         (invmap (adjoint_equivalence_total_disp_weq (pr1 xx) (pr1 yy))
+                 (internal_adjoint_equivalence_identity x ,, p))
+         (pr2 xx) (pr2 yy)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr1 xx yy p).
+    - <span class="bp">exact</span> (pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr2 xx yy p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_disp_adjequiv_to_sigma_disp_adjequiv_weq_help</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> : (sigma_bicat C D₁ D₂) x)
+             (<span class="nv">yy</span> : (sigma_bicat C D₁ D₂) x)
+    : homot
+        ((pair_disp_adjequiv_to_sigma_disp_adjequiv_inv xx yy)
+           ∘ pair_disp_adjequiv_to_sigma_disp_adjequiv xx yy)%functions
+        (idfun _).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">induction</span> p <span class="k">as</span> [p1 p2].
+    use total2_paths_b.
+    - use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence
+        ; [ <span class="bp">exact</span> (pr2 HC) | <span class="bp">exact</span> HD₁_2_1 ].
+      }
+      <span class="nb">apply</span> idpath.
+    - use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence
+        ; [ <span class="nb">apply</span> total_is_univalent_2_1 ; [ <span class="bp">exact</span> (pr2 HC) | <span class="bp">exact</span> HD₁_2_1 ]
+          | <span class="bp">exact</span> HD₂_2_1 ].
+      }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">refine</span> (!(_ @ _)).
+      {
+        <span class="nb">apply</span> (@pr1_transportf
+                 _
+                 (<span class="k">λ</span> <span class="nv">z</span> : disp_adjoint_equivalence
+                          (internal_adjoint_equivalence_identity x)
+                          (pr1 xx) (pr1 yy),
+                        pr2 xx
+                            --&gt;[invmap (adjoint_equivalence_total_disp_weq (pr1 xx) (pr1 yy))
+                                       (internal_adjoint_equivalence_identity x,, z)]
+                            pr2 yy)).
+      }
+      etrans.
+      {
+        <span class="bp">exact</span> (@transportf_subtypePath
+                (pr1 xx --&gt;[ internal_adjoint_equivalence_identity x ] pr1 yy)
+                (<span class="k">λ</span> <span class="nv">z</span>, disp_left_adjoint_equivalence
+                        (internal_adjoint_equivalence_identity x) z)
+                (<span class="k">λ</span> <span class="nv">z</span>, isaprop_disp_left_adjoint_equivalence
+                        (internal_adjoint_equivalence_identity x) z
+                        (pr2 HC) HD₁_2_1)
+                (<span class="k">λ</span> <span class="nv">z</span>, pr2 xx
+                          --&gt;[ invmap (adjoint_equivalence_total_disp_weq
+                                         (pr1 xx) (pr1 yy))
+                                      (internal_adjoint_equivalence_identity x,, z)
+                             ]
+                          pr2 yy)
+                (pr1 p1)
+                (pr1 (pair_disp_adjequiv_to_sigma_disp_adjequiv_inv
+                        xx yy
+                        (pair_disp_adjequiv_to_sigma_disp_adjequiv xx yy (p1,, p2))))
+                (pr2 p1)
+                (pr1 p2)).
+      }
+      <span class="k">match goal with</span>
+      | [ |- transportf _<span class="nl">?p</span> _ = _ ] =&gt; <span class="nb">induction</span> p
+      <span class="k">end</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_disp_adjequiv_to_sigma_disp_adjequiv_weq</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> : (sigma_bicat C D₁ D₂) x)
+             (<span class="nv">yy</span> : (sigma_bicat C D₁ D₂) x)
+    : (∑ (p : disp_adjoint_equivalence
+                (internal_adjoint_equivalence_identity x)
+                (pr1 xx) (pr1 yy)),
+       disp_adjoint_equivalence
+         (invmap (adjoint_equivalence_total_disp_weq (pr1 xx) (pr1 yy))
+                 (internal_adjoint_equivalence_identity x ,, p))
+         (pr2 xx) (pr2 yy))
+      ≃
+      disp_adjoint_equivalence (internal_adjoint_equivalence_identity x) xx yy.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (pair_disp_adjequiv_to_sigma_disp_adjequiv xx yy).
+    - use isweq_iso.
+      + <span class="bp">exact</span> (pair_disp_adjequiv_to_sigma_disp_adjequiv_inv xx yy).
+      + <span class="bp">exact</span> (pair_disp_adjequiv_to_sigma_disp_adjequiv_weq_help xx yy).
+      + <span class="nb">intros</span> p.
+        use subtypePath.
+        { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence
+          ; [ <span class="bp">exact</span> (pr2 HC) | <span class="bp">exact</span> sigma_disp_univalent_2_1_with_props ].
+        }
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adjequiv_sigma_help</span>
+             (<span class="nv">x</span> : C)
+             (<span class="nv">xx1</span> : D₁ x)
+             (<span class="nv">xx2</span> <span class="nv">yy2</span> : D₂ (x,, xx1))
+    : disp_adjoint_equivalence
+        (@internal_adjoint_equivalence_identity (total_bicat D₁) (x,, xx1))
+        xx2 yy2
+      →
+      disp_adjoint_equivalence
+        (invmap (adjoint_equivalence_total_disp_weq xx1 xx1)
+                ((internal_adjoint_equivalence_identity x)
+                   ,,disp_identity_adjoint_equivalence xx1)) xx2
+        yy2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p.
+    <span class="nb">simple refine</span> (pr1 p ,, ((pr112 p ,,
+                                    (pr1 (pr212 p) ,, pr2 (pr212 p)))
+                               ,, _ ,, (_ ,, _))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> help_disp_left_adjoint_axioms ;
+         <span class="nb">apply</span> HD₂).
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> LG₂).
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> LG₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adjequiv_sigma_help_inv</span>
+             (<span class="nv">x</span> : C)
+             (<span class="nv">xx1</span> : D₁ x)
+             (<span class="nv">xx2</span> <span class="nv">yy2</span> : D₂ (x,, xx1))
+    : disp_adjoint_equivalence
+        (invmap (adjoint_equivalence_total_disp_weq xx1 xx1)
+                ((internal_adjoint_equivalence_identity x)
+                   ,,disp_identity_adjoint_equivalence xx1)) xx2
+        yy2
+      →
+      disp_adjoint_equivalence
+        (@internal_adjoint_equivalence_identity (total_bicat D₁) (x,, xx1))
+        xx2 yy2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p.
+    <span class="nb">simple refine</span> (pr1 p ,, ((pr112 p ,,
+                                    (pr1 (pr212 p) ,, pr2 (pr212 p)))
+                               ,, _ ,, (_ ,, _))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> help_disp_left_adjoint_axioms ;
+         <span class="nb">apply</span> HD₂).
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> LG₂).
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> LG₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adjequiv_sigma_help_weq</span>
+             (<span class="nv">x</span> : C)
+             (<span class="nv">xx1</span> : D₁ x)
+             (<span class="nv">xx2</span> <span class="nv">yy2</span> : D₂ (x,, xx1))
+    : disp_adjoint_equivalence
+        (@internal_adjoint_equivalence_identity (total_bicat D₁) (x,, xx1))
+        xx2 yy2
+      ≃
+      disp_adjoint_equivalence
+        (invmap (adjoint_equivalence_total_disp_weq xx1 xx1)
+                ((internal_adjoint_equivalence_identity x)
+                   ,,disp_identity_adjoint_equivalence xx1)) xx2
+        yy2.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (disp_adjequiv_sigma_help x xx1 xx2 yy2).
+    - use isweq_iso.
+      + <span class="bp">exact</span> (disp_adjequiv_sigma_help_inv x xx1 xx2 yy2).
+      + <span class="nb">intros</span> p.
+        use subtypePath.
+        { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence.
+          + <span class="nb">apply</span> total_is_univalent_2_1.
+            * <span class="bp">exact</span> (pr2 HC).
+            * <span class="bp">exact</span> HD₁_2_1.
+          + <span class="bp">exact</span> HD₂_2_1.
+        }
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> p.
+        use subtypePath.
+        { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence.
+          + <span class="nb">apply</span> total_is_univalent_2_1.
+            * <span class="bp">exact</span> (pr2 HC).
+            * <span class="bp">exact</span> HD₁_2_1.
+          + <span class="bp">exact</span> HD₂_2_1.
+        }
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_idtoiso_2_0_alt</span>
+             (<span class="nv">HD₁_2_0</span> : disp_univalent_2_0 D₁)
+             (<span class="nv">HD₂_2_0</span> : disp_univalent_2_0 D₂)
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> <span class="nv">yy</span> : (sigma_bicat C D₁ D₂) x)
+    : xx = yy ≃ disp_adjoint_equivalence (idtoiso_2_0 x x (idpath x)) xx yy.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ∘ total2_paths_equiv _ _ _)%weq.
+    <span class="nb">refine</span> (pair_disp_adjequiv_to_sigma_disp_adjequiv_weq xx yy ∘ _)%weq.
+    <span class="nb">refine</span> (weqtotal2
+              (make_weq
+                 _
+                 (HD₁_2_0 x x (idpath _) (pr1 xx) (pr1 yy)))
+              _)%weq.
+    <span class="nb">induction</span> xx <span class="k">as</span> [xx1 xx2].
+    <span class="nb">induction</span> yy <span class="k">as</span> [yy1 yy2].
+    <span class="nb">intro</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">induction</span> p.
+    <span class="nb">unfold</span> transportf ; <span class="nb">simpl</span>.
+    <span class="nb">refine</span> (_ ∘ make_weq
+              _
+              (HD₂_2_0 _ _ (idpath (x ,, xx1)) xx2 yy2))%weq.
+    <span class="bp">exact</span> (disp_adjequiv_sigma_help_weq x xx1 xx2 yy2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_univalent_2_0_with_props</span>
+             (<span class="nv">HD₁_2_0</span> : disp_univalent_2_0 D₁)
+             (<span class="nv">HD₂_2_0</span> : disp_univalent_2_0 D₂)
+    : disp_univalent_2_0 (sigma_bicat _ _ D₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    <span class="nb">intros</span> x xx yy.
+    use weqhomot.
+    - <span class="bp">exact</span> (sigma_idtoiso_2_0_alt HD₁_2_0 HD₂_2_0 xx yy).
+    - <span class="nb">intros</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">induction</span> p.
+      use subtypePath.
+      { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence.
+        + <span class="bp">exact</span> (pr2 HC).
+        + <span class="nb">apply</span> sigma_disp_univalent_2_1_with_props ; <span class="bp">assumption</span>.
+      }
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_univalent_2_with_props</span>
+             (<span class="nv">HD₁_2</span> : disp_univalent_2 D₁)
+             (<span class="nv">HD₂_2</span> : disp_univalent_2 D₂)
+    : disp_univalent_2 (sigma_bicat _ _ D₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> sigma_disp_univalent_2_0_with_props.
+      + <span class="nb">apply</span> HD₁_2.
+      + <span class="nb">apply</span> HD₂_2.
+    - <span class="nb">apply</span> sigma_disp_univalent_2_1_with_props.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SigmaDisplayedUnivalent</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_2cells_of_sigma_iscontr</span>
+  {<span class="nv">B</span> : bicat} {<span class="nv">D</span> : disp_bicat B} {<span class="nv">E</span> : disp_bicat (total_bicat D)}
+  (<span class="nv">D_contr</span> : disp_2cells_iscontr D) (<span class="nv">E_contr</span> : disp_2cells_iscontr E)
+  : disp_2cells_iscontr (sigma_bicat _ _ E).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  use iscontraprop1.
+  - <span class="nb">apply</span> isaproptotal2.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropifcontr, E_contr. }
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use proofirrelevance.
+    <span class="nb">apply</span> isapropifcontr.
+    <span class="nb">apply</span> D_contr.
+  - use tpair.
+    + <span class="nb">apply</span> D_contr.
+    + <span class="nb">apply</span> E_contr.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/Sigma.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    Dependent sum of displayed bicategories
+  &gt;  ********************************************************************************* *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

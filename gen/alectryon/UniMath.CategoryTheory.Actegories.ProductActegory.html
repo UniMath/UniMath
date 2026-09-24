@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ProductActegory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** binary and I-indexed product of actegories w.r.t. the same acting monoidal category</span>
+
+<span class="sd">author: Ralph Matthes, 2023</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Actegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+<span class="c">(* Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories. *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ProductCategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Import</span> ActegoryNotations.
+
+<span class="kn">Section</span> <span class="nf">FixAMonoidalCategory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V). <span class="sd">(** given the monoidal category that acts upon categories *)</span>
+
+<span class="kn">Section</span> <span class="nf">BinaryProduct</span>.
+
+<span class="kn">Section</span> <span class="nf">OneProduct</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">ActC</span> : actegory Mon_V C) (<span class="nv">ActD</span> : actegory Mon_V D).
+
+  <span class="kn">Let</span> <span class="nf">CD</span> : category := category_binproduct C D.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_binprod_action_data</span> : bifunctor_data V CD CD.
+  <span class="kn">Proof</span>.
+    use make_bifunctor_data.
+    * <span class="nb">intros</span> v cd.
+      <span class="bp">exact</span> (v ⊗_{ActC} (pr1 cd),, v ⊗_{ActD} (pr2 cd)).
+    * <span class="nb">intros</span> v cd1 cd2 fg.
+      <span class="bp">exact</span> (v ⊗^{ActC}_{l} (pr1 fg),, v ⊗^{ActD}_{l} (pr2 fg)).
+    * <span class="nb">intros</span> cd v1 v2 h.
+      <span class="bp">exact</span> (h ⊗^{ActC}_{r} (pr1 cd),, h ⊗^{ActD}_{r} (pr2 cd)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_binprod_action_data_is_bifunctor</span> : is_bifunctor actegory_binprod_action_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>.
+    * <span class="nb">intros</span> v cd.
+      <span class="nb">apply</span> dirprodeq.
+      - <span class="nb">apply</span> (bifunctor_leftid ActC).
+      - <span class="nb">apply</span> (bifunctor_leftid ActD).
+    * <span class="nb">intros</span> cd v.
+      <span class="nb">apply</span> dirprodeq.
+      - <span class="nb">apply</span> (bifunctor_rightid ActC).
+      - <span class="nb">apply</span> (bifunctor_rightid ActD).
+    * <span class="nb">intros</span> v cd1 cd2 cd3 fg1 fg2.
+      <span class="nb">apply</span> dirprodeq.
+      - <span class="nb">apply</span> (bifunctor_leftcomp ActC).
+      - <span class="nb">apply</span> (bifunctor_leftcomp ActD).
+    * <span class="nb">intros</span> cd v1 v2 v3 h1 h2.
+      <span class="nb">apply</span> dirprodeq.
+      - <span class="nb">apply</span> (bifunctor_rightcomp ActC).
+      - <span class="nb">apply</span> (bifunctor_rightcomp ActD).
+    * <span class="nb">intros</span> v1 v2 cd1 cd2 h fg.
+      <span class="nb">apply</span> dirprodeq.
+      - <span class="nb">apply</span> (bifunctor_equalwhiskers ActC).
+      - <span class="nb">apply</span> (bifunctor_equalwhiskers ActD).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_binprod_data</span> : actegory_data Mon_V CD.
+  <span class="kn">Proof</span>.
+    use make_actegory_data.
+    - <span class="bp">exact</span> actegory_binprod_action_data.
+    - <span class="nb">intros</span> cd.
+      <span class="bp">exact</span> (catbinprodmor (au_{ActC} _) (au_{ActD} _)).
+    - <span class="nb">intros</span> cd.
+      <span class="bp">exact</span> (catbinprodmor (auinv^{ActC}_{_}) (auinv^{ActD}_{_})).
+    - <span class="nb">intros</span> v w cd.
+      <span class="bp">exact</span> (catbinprodmor (aα^{ActC}_{_,_,_}) (aα^{ActD}_{_,_,_})).
+    - <span class="nb">intros</span> v w cd.
+      <span class="bp">exact</span> (catbinprodmor (aαinv^{ActC}_{_,_,_}) (aαinv^{ActD}_{_,_,_})).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_binprod_laws</span> : actegory_laws Mon_V actegory_binprod_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> actegory_binprod_action_data_is_bifunctor.
+    + <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>; <span class="kp">try</span> <span class="nb">red</span>; <span class="nb">intros</span>.
+      - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> actegory_unitornat.
+      - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> actegory_unitorisolaw.
+      - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> actegory_unitorisolaw.
+      - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> actegory_actornatleft.
+      - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> actegory_actornatright.
+      - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> actegory_actornatleftright.
+      - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> actegory_actorisolaw.
+      - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> actegory_actorisolaw.
+      - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> actegory_triangleidentity.
+      - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> actegory_pentagonidentity.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_binprod</span> : actegory Mon_V CD := _,,actegory_binprod_laws.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_binprod_pr1_lineator_data</span> :
+    lineator_data Mon_V actegory_binprod ActC (pr1_functor C D).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v cd. <span class="nb">apply</span> identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_binprod_pr1_lineator_lax_laws</span> :
+    lineator_laxlaws _ _ _ _ actegory_binprod_pr1_lineator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span>.
+    - <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_right.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> actegory_binprod_pr1_lineator_data.
+      <span class="nb">rewrite</span> id_left, id_right.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+           <span class="nb">apply</span> pathsinv0, (functor_id (leftwhiskering_functor ActC v)). }
+      <span class="nb">apply</span> pathsinv0, id_right.
+    - <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_binprod_pr1_lineator</span> :
+    lineator Mon_V actegory_binprod ActC (pr1_functor C D).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="k">exists</span> <span class="nv">actegory_binprod_pr1_lineator_data</span>.
+      <span class="bp">exact</span> actegory_binprod_pr1_lineator_lax_laws.
+    - <span class="nb">intros</span> v vd.
+      use tpair.
+      + <span class="nb">apply</span> identity.
+      + <span class="nb">red</span>; <span class="nb">split</span>; <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_binprod_pr2_lineator_data</span> :
+    lineator_data Mon_V actegory_binprod ActD (pr2_functor C D).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v cd. <span class="nb">apply</span> identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_binprod_pr2_lineator_lax_laws</span> :
+    lineator_laxlaws _ _ _ _ actegory_binprod_pr2_lineator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span>.
+    - <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_right.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> actegory_binprod_pr2_lineator_data.
+      <span class="nb">rewrite</span> id_left, id_right.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+           <span class="nb">apply</span> pathsinv0, (functor_id (leftwhiskering_functor ActD v)). }
+      <span class="nb">apply</span> pathsinv0, id_right.
+    - <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_binprod_pr2_lineator</span> :
+    lineator Mon_V actegory_binprod ActD (pr2_functor C D).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="k">exists</span> <span class="nv">actegory_binprod_pr2_lineator_data</span>.
+      <span class="bp">exact</span> actegory_binprod_pr2_lineator_lax_laws.
+    - <span class="nb">intros</span> v cd.
+      use tpair.
+      + <span class="nb">apply</span> identity.
+      + <span class="nb">red</span>; <span class="nb">split</span>; <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">OneProduct</span>.
+
+<span class="kn">Section</span> <span class="nf">SelfProduct</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">Act</span> : actegory Mon_V C).
+
+  <span class="kn">Definition</span> <span class="nf">actegory_binprod_delta_lineator_data</span> :
+    lineator_data Mon_V Act (actegory_binprod Act Act) (bindelta_functor C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v c. <span class="nb">apply</span> identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_binprod_delta_lineator_lax_laws</span> :
+    lineator_laxlaws _ _ _ _ actegory_binprod_delta_lineator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span>.
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> maponpaths_12; (<span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right).
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> maponpaths_12; (<span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right).
+    - <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths_12; <span class="nb">unfold</span> actegory_binprod_pr2_lineator_data;
+        (<span class="nb">rewrite</span> id_left, id_right);
+        (etrans; [| <span class="nb">apply</span> maponpaths;
+                   <span class="nb">apply</span> pathsinv0, (functor_id (leftwhiskering_functor Act v))];
+        <span class="nb">apply</span> pathsinv0, id_right).
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> maponpaths_12; <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_binprod_delta_lineator</span> :
+    lineator Mon_V Act (actegory_binprod Act Act) (bindelta_functor C).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="k">exists</span> <span class="nv">actegory_binprod_delta_lineator_data</span>.
+      <span class="bp">exact</span> actegory_binprod_delta_lineator_lax_laws.
+    - <span class="nb">intros</span> v c.
+      use tpair.
+      + <span class="nb">apply</span> identity.
+      + <span class="nb">red</span>; <span class="nb">split</span>; <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">SelfProduct</span>.
+
+<span class="kn">Section</span> <span class="nf">TwoProducts</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">D1</span> <span class="nv">D2</span> : category} (<span class="nv">ActC1</span> : actegory Mon_V C1) (<span class="nv">ActC2</span> : actegory Mon_V C2)
+    (<span class="nv">ActD1</span> : actegory Mon_V D1) (<span class="nv">ActD2</span> : actegory Mon_V D2)
+    {<span class="nv">F1</span> : functor C1 D1} {<span class="nv">F2</span> : functor C2 D2 }
+    (<span class="nv">Fll1</span> : lineator_lax Mon_V ActC1 ActD1 F1) (<span class="nv">Fll2</span> : lineator_lax Mon_V ActC2 ActD2 F2).
+
+  <span class="kn">Let</span> <span class="nf">ActC12</span> : actegory Mon_V (category_binproduct C1 C2) := actegory_binprod ActC1 ActC2.
+  <span class="kn">Let</span> <span class="nf">ActD12</span> : actegory Mon_V (category_binproduct D1 D2) := actegory_binprod ActD1 ActD2.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_pair_functor_lineator_data</span> :
+    lineator_data Mon_V ActC12 ActD12 (pair_functor F1 F2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v c12. <span class="nb">cbn</span>. <span class="nb">unfold</span> precategory_binproduct_mor. <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (catbinprodmor (Fll1 v (pr1 c12)) (Fll2 v (pr2 c12))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_pair_functor_lineator_lax_laws</span> :
+    lineator_laxlaws _ _ _ _ actegory_pair_functor_lineator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span>.
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> maponpaths_12; <span class="nb">apply</span> lineator_linnatleft.
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> maponpaths_12; <span class="nb">apply</span> lineator_linnatright.
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> maponpaths_12; <span class="nb">apply</span> lineator_preservesactor.
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> maponpaths_12; <span class="nb">apply</span> lineator_preservesunitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_pair_functor_lineator</span> :
+    lineator_lax Mon_V ActC12 ActD12 (pair_functor F1 F2) :=
+    _,,actegory_pair_functor_lineator_lax_laws.
+
+<span class="kn">End</span> <span class="nf">TwoProducts</span>.
+
+<span class="kn">End</span> <span class="nf">BinaryProduct</span>.
+
+<span class="kn">Section</span> <span class="nf">Product</span>.
+
+<span class="kn">Section</span> <span class="nf">OneProduct</span>.
+
+  <span class="kn">Context</span> {<span class="nv">I</span>: UU} {<span class="nv">C</span> : I -&gt; category} (<span class="nv">ActC</span> : ∏ i: I, actegory Mon_V (C i)).
+
+  <span class="kn">Let</span> <span class="nf">PC</span> : category := product_category C.
+
+
+<span class="kn">Definition</span> <span class="nf">actegory_prod_action_data</span> : bifunctor_data V PC PC.
+  <span class="kn">Proof</span>.
+    use make_bifunctor_data.
+    * <span class="nb">intros</span> v cs.
+      <span class="bp">exact</span> (<span class="k">fun</span> (<span class="nv">i</span>: I) =&gt; v ⊗_{ActC i} (cs i)).
+    * <span class="nb">intros</span> v cs1 cs2 fs.
+      <span class="bp">exact</span> (<span class="k">fun</span> (<span class="nv">i</span>: I) =&gt; v ⊗^{ActC i}_{l} (fs i)).
+    * <span class="nb">intros</span> cs v1 v2 h.
+      <span class="bp">exact</span> (<span class="k">fun</span> (<span class="nv">i</span>: I) =&gt; h ⊗^{ActC i}_{r} (cs i)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_prod_action_data_is_bifunctor</span> : is_bifunctor actegory_prod_action_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>.
+    * <span class="nb">intros</span> v cs.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i; <span class="nb">apply</span> (bifunctor_leftid (ActC i)).
+    * <span class="nb">intros</span> cs v.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i; <span class="nb">apply</span> (bifunctor_rightid (ActC i)).
+    * <span class="nb">intros</span> v cs1 cs2 cs3 fs1 fs2.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i; <span class="nb">apply</span> (bifunctor_leftcomp (ActC i)).
+    * <span class="nb">intros</span> cs v1 v2 v3 h1 h2.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i; <span class="nb">apply</span> (bifunctor_rightcomp (ActC i)).
+    * <span class="nb">intros</span> v1 v2 cs1 cs2 h fs.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i; <span class="nb">apply</span> (bifunctor_equalwhiskers (ActC i)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_prod_data</span> : actegory_data Mon_V PC.
+  <span class="kn">Proof</span>.
+    use make_actegory_data.
+    - <span class="bp">exact</span> actegory_prod_action_data.
+    - <span class="nb">intros</span> cs.
+      <span class="nb">intro</span> i. <span class="nb">apply</span> au_{ActC i}.
+    - <span class="nb">intros</span> cs.
+      <span class="nb">intro</span> i. <span class="bp">exact</span> (auinv^{ActC i}_{_}).
+    - <span class="nb">intros</span> v w cs.
+      <span class="nb">intro</span> i. <span class="bp">exact</span> (aα^{ActC i}_{_,_,_}).
+    - <span class="nb">intros</span> v w cs.
+      <span class="nb">intro</span> i. <span class="bp">exact</span> (aαinv^{ActC i}_{_,_,_}).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_prod_laws</span> : actegory_laws Mon_V actegory_prod_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> actegory_prod_action_data_is_bifunctor.
+    + <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>; <span class="kp">try</span> <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i.
+      - <span class="nb">apply</span> actegory_unitornat.
+      - <span class="nb">apply</span> actegory_unitorisolaw.
+      - <span class="nb">apply</span> actegory_unitorisolaw.
+      - <span class="nb">apply</span> actegory_actornatleft.
+      - <span class="nb">apply</span> actegory_actornatright.
+      - <span class="nb">apply</span> actegory_actornatleftright.
+      - <span class="nb">apply</span> actegory_actorisolaw.
+      - <span class="nb">apply</span> actegory_actorisolaw.
+      - <span class="nb">apply</span> actegory_triangleidentity.
+      - <span class="nb">apply</span> actegory_pentagonidentity.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_prod</span> : actegory Mon_V PC := _,,actegory_prod_laws.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_prod_pr_lineator_data</span> (<span class="nv">i</span> : I) :
+    lineator_data Mon_V actegory_prod (ActC i) (pr_functor I C i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v cs. <span class="nb">apply</span> identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_prod_pr_lineator_lax_laws</span> (<span class="nv">i</span> : I) :
+    lineator_laxlaws _ _ _ _ (actegory_prod_pr_lineator_data i).
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span>.
+    - <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_right.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> actegory_prod_pr_lineator_data.
+      <span class="nb">rewrite</span> id_left, id_right.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+           <span class="nb">apply</span> pathsinv0, (functor_id (leftwhiskering_functor (ActC i) v)). }
+      <span class="nb">apply</span> pathsinv0, id_right.
+    - <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_prod_pr_lineator</span> (<span class="nv">i</span> : I) :
+    lineator Mon_V actegory_prod (ActC i) (pr_functor I C i).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="k">exists</span> (<span class="nv">actegory_prod_pr_lineator_data</span> <span class="nv">i</span>).
+      <span class="nb">apply</span> actegory_prod_pr_lineator_lax_laws.
+    - <span class="nb">intros</span> v cs.
+      use tpair.
+      + <span class="nb">apply</span> identity.
+      + <span class="nb">red</span>; <span class="nb">split</span>; <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">OneProduct</span>.
+
+<span class="kn">Section</span> <span class="nf">Power</span>.
+
+  <span class="kn">Context</span> (<span class="nv">I</span> : UU) {<span class="nv">C</span> : category} (<span class="nv">Act</span> : actegory Mon_V C).
+
+  <span class="kn">Definition</span> <span class="nf">actegory_power</span> : actegory Mon_V (power_category I C) :=
+    actegory_prod (<span class="k">fun</span> <span class="nv">_</span> =&gt; Act).
+
+  <span class="kn">Definition</span> <span class="nf">actegory_prod_delta_lineator_data</span> :
+    lineator_data Mon_V Act actegory_power (delta_functor I C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v c. <span class="nb">apply</span> identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_prod_delta_lineator_lax_laws</span> :
+    lineator_laxlaws _ _ _ _ actegory_prod_delta_lineator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">cbn</span>; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i.
+    - <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> id_left, id_right;
+        (etrans; [| <span class="nb">apply</span> maponpaths;
+                   <span class="nb">apply</span> pathsinv0, (functor_id (leftwhiskering_functor Act v))];
+        <span class="nb">apply</span> pathsinv0, id_right).
+    - <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_prod_delta_lineator</span> :
+    lineator Mon_V Act actegory_power (delta_functor I C).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="k">exists</span> <span class="nv">actegory_prod_delta_lineator_data</span>.
+      <span class="bp">exact</span> actegory_prod_delta_lineator_lax_laws.
+    - <span class="nb">intros</span> v c.
+      use tpair.
+      + <span class="nb">apply</span> identity.
+      + <span class="nb">red</span>; <span class="nb">split</span>; <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Power</span>.
+
+<span class="kn">Section</span> <span class="nf">TwoProducts</span>.
+
+  <span class="kn">Context</span> {<span class="nv">I</span>: UU} {<span class="nv">C</span> : I -&gt; category} (<span class="nv">ActC</span> : ∏ i: I, actegory Mon_V (C i))
+    {<span class="nv">D</span> : I -&gt; category} (<span class="nv">ActD</span> : ∏ i: I, actegory Mon_V (D i))
+    {<span class="nv">F</span> : ∏ i : I, functor (C i) (D i)}
+    (<span class="nv">Fll</span> : ∏ i : I, lineator_lax Mon_V (ActC i) (ActD i) (F i)).
+
+  <span class="kn">Let</span> <span class="nf">ActCs</span> : actegory Mon_V (product_category C) := actegory_prod ActC.
+  <span class="kn">Let</span> <span class="nf">ActDs</span> : actegory Mon_V (product_category D) := actegory_prod ActD.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_family_functor_lineator_data</span> :
+    lineator_data Mon_V ActCs ActDs (family_functor I F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v cs. <span class="nb">cbn</span>. <span class="nb">intro</span> i.
+    <span class="bp">exact</span> (Fll i v (cs i)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_family_functor_lineator_lax_laws</span> :
+    lineator_laxlaws _ _ _ _ actegory_family_functor_lineator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i;
+      <span class="nb">cbn</span>; <span class="nb">unfold</span> actegory_family_functor_lineator_data.
+    - <span class="nb">apply</span> lineator_linnatleft.
+    - <span class="nb">apply</span> lineator_linnatright.
+    - <span class="nb">apply</span> lineator_preservesactor.
+    - <span class="nb">apply</span> lineator_preservesunitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_family_functor_lineator</span> :
+    lineator_lax Mon_V ActCs ActDs (family_functor I F) :=
+    _,,actegory_family_functor_lineator_lax_laws.
+
+<span class="kn">End</span> <span class="nf">TwoProducts</span>.
+
+<span class="kn">End</span> <span class="nf">Product</span>.
+
+<span class="kn">End</span> <span class="nf">FixAMonoidalCategory</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Actegories/ProductActegory.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; author: Ralph Matthes, 2023
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

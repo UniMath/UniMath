@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SortedTypes.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Sorted types. *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2023 *)</span>
+<span class="c">(*</span>
+<span class="c">This file contains a formalization of _sorted types_, i.e. types indexed by elements of another</span>
+<span class="c">type, called _index type_. Notation and terminologies are inspired by Wolfgang Wechler,</span>
+<span class="c">_Universal Algebra for Computer Scientist_, Springer.</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Export</span> UniMath.Combinatorics.MoreLists.
+
+<span class="kn">Require Export</span> UniMath.Algebra.Universal.HVectors.
+
+<span class="kn">Declare Scope</span> sorted_scope.
+
+<span class="kn">Delimit Scope</span> sorted_scope <span class="k">with</span> sorted.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> sorted_scope.
+
+<span class="sd">(** An element of [sUU S] is an [S]-sorted type, i.e., an [S]-indexed family of types. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">sUU</span> (<span class="nv">S</span>: UU): UU := S → UU.
+<span class="kn">Identity Coercion</span> <span class="nf">Id_sUU</span> : sUU &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="sd">(** If [X] and [Y] are [S]-sorted types, then [sfun X Y] is an [S]-sorted mapping, i.e.,</span>
+<span class="sd">a [S]-indexed family of functions [X s → Y s]. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">sfun</span> {<span class="nv">S</span>: UU} (<span class="nv">X</span> <span class="nv">Y</span>: sUU S): UU := ∏ s: S, X s → Y s.
+<span class="kn">Identity Coercion</span> <span class="nf">sfun_Id</span> : sfun &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Notation</span> <span class="s2">"x s→ y"</span> := (sfun x y) (<span class="kn">at level</span> <span class="mi">99</span>, y <span class="kn">at level</span> <span class="mi">200</span>, <span class="kn">right associativity</span>): type_scope.
+
+<span class="kn">Bind Scope</span> sorted_scope <span class="k">with</span> sUU.
+
+<span class="kn">Bind Scope</span> sorted_scope <span class="k">with</span> sfun.
+
+<span class="kn">Definition</span> <span class="nf">idsfun</span> {<span class="nv">S</span>: UU} (<span class="nv">X</span>: sUU S): X s→ X := <span class="k">λ</span> <span class="nv">s</span>: S, idfun (X s).
+
+<span class="kn">Definition</span> <span class="nf">scomp</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>: sUU S} (<span class="nv">f</span>: Y s→ Z) (<span class="nv">g</span>: X s→ Y): sfun X Z
+  := <span class="k">λ</span> <span class="nv">s</span>: S, (f s) ∘ (g s).
+
+<span class="kn">Infix</span> <span class="s2">"s∘"</span> := scomp (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>): sorted_scope.
+
+<span class="kn">Definition</span> <span class="nf">sunit</span> (<span class="nv">S</span>: UU): sUU S := <span class="k">λ</span> <span class="nv">σ</span>: S, unit.
+
+<span class="kn">Definition</span> <span class="nf">tosunit</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span>: sUU S}: X s→ sunit S := <span class="k">λ</span> <span class="nv">σ</span>: S, tounit.
+
+<span class="kn">Lemma</span> <span class="nf">iscontr_sfuntosunit</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span>: sUU S}: iscontr (X s→ sunit S).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_iscontr.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> iscontrfuntounit.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** An element of [shSet S] is an [S]-sorted set, i.e., an [S]-indexed family of sets. It can be</span>
+<span class="sd">immediately coerced to an [S]-sorted type. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">shSet</span> (<span class="nv">S</span>: UU): UU := S → hSet.
+
+<span class="kn">Definition</span> <span class="nf">sunitset</span> (<span class="nv">S</span>: UU): shSet S := <span class="k">λ</span> <span class="nv">_</span>, unitset.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_set_sfun_space</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span>: sUU S} {<span class="nv">Y</span>: shSet S}: isaset (X s→ Y).
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (isaset (X s→ Y)).
+  <span class="nb">apply</span> impred_isaset.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isaset_forall_hSet.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** If [X: sUU S], then [star X] is the lifting of [X] to the index type [list S], given</span>
+<span class="sd">by [star X] [s1; s2; ...; sn] = [X s1 ; X s2 ; ... ; X sn]. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">star</span> {<span class="nv">S</span>: UU} (<span class="nv">X</span>: sUU S): sUU (list S) := <span class="k">λ</span> <span class="nv">l</span>: list S, hvec (vec_map X l).
+
+<span class="kn">Definition</span> <span class="nf">setstar</span> {<span class="nv">S</span>: UU} (<span class="nv">X</span>: shSet S): shSet (list S).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> l.
+  use make_hSet.
+  - <span class="bp">exact</span> (star X l).
+  - <span class="nb">unfold</span> star.
+    <span class="nb">apply</span> isasethvec.
+    <span class="nb">apply</span> make_hvec.
+    <span class="nb">intros</span> i.
+    <span class="nb">rewrite</span> !el_vec_map.
+    <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Bind Scope</span> hvec_scope <span class="k">with</span> star.
+
+<span class="kn">Notation</span> <span class="s2">"A ⋆"</span> := (star A) (<span class="kn">at level</span> <span class="mi">3</span>, <span class="kn">format</span> <span class="s2">"'[ ' A '⋆' ']'"</span>): sorted_scope.
+
+<span class="sd">(** If [f] is an indexed mapping between [S]-indexed types [X] and [Y], then [starfun X] is the lifting of</span>
+<span class="sd">[f] to a [list S]-indexed mapping between [list S]-indexed sets [star X] and [star Y].</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">starfun</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span> <span class="nv">Y</span>: sUU S} (<span class="nv">f</span>: sfun X Y) : sfun X⋆ Y⋆ := <span class="k">λ</span> <span class="nv">s</span>: list S, h1map f.
+
+<span class="kn">Notation</span> <span class="s2">"f ⋆⋆"</span> := (starfun f) (<span class="kn">at level</span> <span class="mi">3</span>, <span class="kn">format</span> <span class="s2">"'[ ' f '⋆⋆' ']'"</span>): sorted_scope.
+
+<span class="sd">(** Here follows the proof that [starfun] is functorial. Compositionality w.r.t. [s∘] is presented as</span>
+<span class="sd">[(f s∘ g)⋆⋆ _ x = f⋆⋆ _ (g⋆⋆ _ x)] instead of [(f s∘ g)⋆⋆ = (f⋆⋆) s∘ (g⋆⋆ )] since the former</span>
+<span class="sd">does not require function extensionality. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">staridfun</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span>: sUU S} (<span class="nv">l</span>: list S) (<span class="nv">x</span>: X⋆ l): (idsfun X)⋆⋆ _ x = idsfun X⋆ _ x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> h1map_idfun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">starcomp</span> {<span class="nv">S</span>: UU} {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>: sUU S} (<span class="nv">f</span>: Y s→ Z) (<span class="nv">g</span>: X s→ Y) (<span class="nv">l</span>: list S) (<span class="nv">x</span>: X⋆ l)
+  : (f s∘ g)⋆⋆ _ x = f⋆⋆ _ (g⋆⋆ _ x).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> starfun.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> h1map_compose.
+<span class="kn">Defined</span>.
+
+<span class="c">(*indexed hsubtypes*)</span>
+
+<span class="kn">Definition</span> <span class="nf">shsubtype</span> {<span class="nv">S</span>:UU} (<span class="nv">X</span> : sUU S) : UU := ∏ s: S, hsubtype (X s).
+
+<span class="c">(*indexed image*)</span>
+
+<span class="kn">Definition</span> <span class="nf">simage</span> {<span class="nv">S</span>:UU} {<span class="nv">X</span> <span class="nv">Y</span>: sUU S} (<span class="nv">f</span>:X s→ Y) : sUU S
+  := <span class="k">λ</span> <span class="nv">s</span>, image (f s).
+
+<span class="kn">Definition</span> <span class="nf">shfiber</span> {<span class="nv">S</span>:UU} {<span class="nv">X</span> <span class="nv">Y</span>: sUU S} (<span class="nv">f</span>:X s→ Y) : ∏ s, Y s → UU
+  := <span class="k">λ</span> (<span class="nv">s</span>:S) (<span class="nv">y</span> : Y s), (∑ (x : X s), f s x = y).
+
+<span class="kn">Definition</span> <span class="nf">shfiber_fiber</span> {<span class="nv">S</span>:UU} {<span class="nv">X</span> <span class="nv">Y</span>: sUU S} {<span class="nv">f</span>:X s→ Y}
+  {<span class="nv">s</span> : S} {<span class="nv">y</span> : Y s}
+  (<span class="nv">fib</span> : shfiber f s y)
+  : X s := pr1 fib.
+
+<span class="kn">Definition</span> <span class="nf">shfiber_path</span> {<span class="nv">S</span>:UU} {<span class="nv">X</span> <span class="nv">Y</span>: sUU S} {<span class="nv">f</span>:X s→ Y}
+  {<span class="nv">s</span> : S} {<span class="nv">y</span> : Y s}
+  (<span class="nv">fib</span> : shfiber f s y)
+  : f s (shfiber_fiber fib) = y
+  := pr2 fib.
+
+<span class="kn">Definition</span> <span class="nf">simage_shsubtype</span> {<span class="nv">S</span>:UU} {<span class="nv">X</span> <span class="nv">Y</span> : sUU S} (<span class="nv">f</span> : X s→ Y)
+  : shsubtype Y := <span class="k">λ</span> (<span class="nv">s</span>:S) (<span class="nv">y</span> : Y s), (<span class="k">∃</span> (<span class="nv">x</span> : X s), f s x = y).
+
+<span class="kn">Lemma</span> <span class="nf">hvec_of_shfiber</span> {<span class="nv">S</span> : UU} {<span class="nv">A</span> <span class="nv">B</span> : sUU S}
+{<span class="nv">h</span> : A s→ B} {<span class="nv">l</span> : list S}
+(<span class="nv">bs</span> : hvec (vec_map B l))
+(<span class="nv">xs</span> : hvec (h1map_vec (shfiber h) bs))
+: (h ⋆⋆)%sorted l (h2lower (h2map (<span class="k">λ</span> (<span class="nv">s</span>:S) (<span class="nv">b</span> : B s), pr1) xs)) = bs.
+<span class="kn">Proof</span>.
+  use hvec_ofpaths.
+<span class="kn">Defined</span>.
+
+<span class="c">(*TODO: generalize the map in the type of [ys] to any type starting with [is_hinh]*)</span>
+<span class="kn">Theorem</span> <span class="nf">squash_simage</span>
+  {<span class="nv">S</span>:UU} {<span class="nv">X</span> <span class="nv">Y</span> : sUU S} (<span class="nv">f</span> : X s→ Y)
+        (<span class="nv">ss</span> : list S)
+        (<span class="nv">ys</span> : (simage_shsubtype f)⋆ ss)
+  {<span class="nv">Q</span>:UU} (<span class="nv">isQ</span> : isaprop Q) :
+  (hvec (h1lower ((shfiber f)⋆⋆ ss (h1map (<span class="k">λ</span> <span class="nv">s</span>, pr1) ys))) → Q)
+  → Q.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> ss ys.
+  use list_ind.
+  - <span class="nb">intros</span> t tQ. <span class="bp">exact</span> (tQ t).
+  - <span class="nb">intros</span> ss_hd ss_tl IH ys IHH.
+    use (IH (htl ys)).
+    <span class="nb">intro</span> fib_tl.
+    <span class="nb">destruct</span> ys <span class="k">as</span> [ys_hd ys_tl].
+    <span class="nb">destruct</span> ys_hd <span class="k">as</span> [ys_hd ys_hd_is]. <span class="c">(*TODO (?): use accessors instead*)</span>
+    use (squash_to_prop ys_hd_is isQ).
+    <span class="nb">intro</span> fib_hd.
+    use IHH.
+    use make_dirprod.
+    + <span class="nb">simpl</span>.
+      use fib_hd.
+    + use fib_tl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportf_sfun</span> {<span class="nv">X</span> <span class="nv">S</span> : UU} {<span class="nv">Y</span>: sUU S} (<span class="nv">P</span> : X -&gt; sUU S)
+           {<span class="nv">x1</span> <span class="nv">x2</span> : X}(<span class="nv">e</span> : x1 = x2)(<span class="nv">f</span> : P x1 s→ Y) (<span class="nv">s</span>:S):
+  transportf (<span class="k">λ</span> <span class="nv">x</span>, (P x s→ Y)) e f s = (f s) ∘ (transportb (<span class="k">λ</span> <span class="nv">x</span>, P x s) e).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportb_funextfun_hvec</span> {<span class="nv">S</span>:UU}
+  {<span class="nv">n</span>:nat} {<span class="nv">v</span>: vec S n}
+  (<span class="nv">F</span> <span class="nv">F'</span> : sUU S) (<span class="nv">H</span> : F ~ F')
+  (<span class="nv">f'</span> : hvec (vec_map F' v))
+  : transportb (<span class="k">λ</span> <span class="nv">x</span> : sUU S, hvec (vec_map x v))
+    (funextsec _ F F' H) f'
+  = h1map (<span class="k">λ</span> <span class="nv">s</span>, transportb (idfun UU) (H s)) f'.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> n v f'.
+  use (vec_ind _ _).
+  - <span class="nb">intro</span> f'.
+    use proofirrelevancecontr.
+    use iscontrunit.
+  - <span class="nb">intros</span> s n v IH f'.
+    use dirprod_paths.
+    + <span class="nb">simpl</span>.
+      <span class="nb">eapply</span> pathscomp0.
+      { use pr1_transportb. }
+      use (transportb_funextfun (idfun UU)).
+    + <span class="nb">simpl</span>.
+      <span class="nb">eapply</span> pathscomp0.
+      { use pr2_transportb. }
+      use IH.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Universal/SortedTypes.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; _Universal Algebra for Computer Scientist_, Springer.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Export UniMath.Combinatorics.MoreLists.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

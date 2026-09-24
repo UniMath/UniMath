@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CategoryEquality.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Equality of precategories</span>
+
+<span class="sd">   Goal: two precategories are equal iff we have an isomorphism between them.</span>
+<span class="sd">   We use a chain of equivalences. Each step refines the data a bit.                   *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** Step 1 *)</span>
+<span class="kn">Definition</span> <span class="nf">path_precat</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory)
+           (<span class="nv">HD</span> : has_homsets D)
+  : C = D ≃ precategory_data_from_precategory C = D.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (path_sigma_hprop _ _ _ _).
+  <span class="nb">apply</span> isaprop_is_precategory.
+  <span class="nb">apply</span> HD.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Step 2 *)</span>
+<span class="kn">Definition</span> <span class="nf">data_cat_eq_1</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+           (<span class="nv">Fo</span> : (ob C) = ob D)
+  : UU
+  := transportf (<span class="k">λ</span> <span class="nv">z</span>, z → z → UU) Fo (@precategory_morphisms C)
+     =
+     @precategory_morphisms D.
+
+<span class="kn">Definition</span> <span class="nf">cat_eq_1</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+  : UU
+  := ∑ (F : ∑ (Fo : ob C = ob D), data_cat_eq_1 C D Fo),
+       (pr1 (transportf (<span class="k">λ</span> <span class="nv">x</span>, precategory_id_comp x)
+                        (total2_paths_f (pr1 F) (pr2 F))
+                        (pr2 C))
+        = pr1 (pr2 D))
+     ×
+       pr2 (transportf (<span class="k">λ</span> <span class="nv">x</span>, precategory_id_comp x)
+                       (total2_paths_f (pr1 F) (pr2 F))
+                       (pr2 C))
+       =
+       pr2(pr2 D).
+
+<span class="kn">Definition</span> <span class="nf">cat_path_to_cat_eq_1</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+  : C = D ≃ cat_eq_1 C D.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ ∘ total2_paths_equiv _ _ _)%weq.
+  use weqbandf.
+  - <span class="nb">apply</span> total2_paths_equiv.
+  - <span class="nb">intro</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">induction</span> C <span class="k">as</span> [C HC].
+    <span class="nb">induction</span> D <span class="k">as</span> [D HD].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ ∘ total2_paths_equiv _ _ _)%weq.
+    use weqfibtototal.
+    <span class="nb">intros</span> p.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportf_const.
+    <span class="bp">exact</span> (idweq _).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Step 3 *)</span>
+<span class="kn">Definition</span> <span class="nf">data_cat_eq_2</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+           (<span class="nv">Fo</span> : (ob C) = ob D)
+  : UU
+  := ∏ (a b : ob C), C⟦a,b⟧ = D⟦eqweqmap Fo a,eqweqmap Fo b⟧.
+
+<span class="kn">Definition</span> <span class="nf">cat_eq_2</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+  : UU
+  := ∑ (F : ∑ (Fo : ob C = ob D), data_cat_eq_2 C D Fo),
+       (∏ (a : C), eqweqmap (pr2 F a a) (identity a) = identity (eqweqmap (pr1 F) a))
+     ×
+       (∏ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧),
+         eqweqmap (pr2 F a c) (f · g)
+         =
+         eqweqmap (pr2 F a b) f · eqweqmap (pr2 F b c) g).
+
+<span class="kn">Definition</span> <span class="nf">data_cat_eq_1_to_2</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+           (<span class="nv">Fo</span> : (ob C) = ob D)
+  : data_cat_eq_1 C D Fo ≃ data_cat_eq_2 C D Fo.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> C <span class="k">as</span> [C HC].
+  <span class="nb">induction</span> C <span class="k">as</span> [CO CM].
+  <span class="nb">induction</span> D <span class="k">as</span> [D HD].
+  <span class="nb">induction</span> D <span class="k">as</span> [DO DM].
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">induction</span> Fo.
+  <span class="nb">unfold</span> data_cat_eq_1, data_cat_eq_2.
+  <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (_ ∘ weqtoforallpaths _ _ _)%weq.
+  use weqonsecfibers.
+  <span class="nb">intros</span> x.
+  <span class="bp">exact</span> (weqtoforallpaths _ _ _)%weq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_eq_1_to_cat_eq_2</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+           (<span class="nv">DS</span> : ∏ (x y : D), isaset (precategory_morphisms x y))
+  : cat_eq_1 C D ≃ cat_eq_2 C D.
+<span class="kn">Proof</span>.
+  use weqbandf.
+  - use weqfibtototal.
+    <span class="nb">intro</span> p.
+    <span class="bp">exact</span> (data_cat_eq_1_to_2 C D p).
+  - <span class="nb">intros</span> p.
+    <span class="nb">induction</span> C <span class="k">as</span> [C HC].
+    <span class="nb">induction</span> C <span class="k">as</span> [CO CM].
+    <span class="nb">induction</span> HC <span class="k">as</span> [CI CC].
+    <span class="nb">induction</span> D <span class="k">as</span> [D HD].
+    <span class="nb">induction</span> D <span class="k">as</span> [DO DM].
+    <span class="nb">induction</span> HD <span class="k">as</span> [DI DC].
+    <span class="nb">induction</span> p <span class="k">as</span> [p1 p2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> data_cat_eq_1 <span class="k">in</span> p2.
+    <span class="nb">induction</span> p1 ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p2 ; <span class="nb">cbn</span>.
+    use weqdirprodf.
+    + use weqimplimpl.
+      * <span class="nb">intros</span> f a.
+        <span class="nb">induction</span> f.
+        <span class="bp">reflexivity</span>.
+      * <span class="nb">intros</span> f.
+        <span class="nb">apply</span> funextsec.
+        <span class="nb">intro</span> z.
+        <span class="nb">apply</span> f.
+      * <span class="nb">intro</span>.
+        <span class="nb">apply</span> impred_isaset.
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> DS.
+      * <span class="nb">apply</span> impred.
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> DS.
+    + use weqimplimpl.
+      * <span class="nb">intros</span> p.
+        <span class="nb">induction</span> p.
+        <span class="bp">reflexivity</span>.
+      * <span class="nb">intros</span> p.
+        <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> a.
+        <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> b.
+        <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> c.
+        <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> f.
+        <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> g.
+        <span class="nb">specialize</span> (p a b c f g).
+        <span class="nb">induction</span> p.
+        <span class="bp">reflexivity</span>.
+      * <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaset ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> DS.
+      * <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> DS.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Step 4 *)</span>
+<span class="kn">Definition</span> <span class="nf">cat_equiv</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+  : UU
+  := ∑ (F : ∑ (Fo : ob C ≃ D), ∏ (a b : ob C), C⟦a,b⟧ ≃ D⟦Fo a,Fo b⟧),
+       (∏ (a : C), (pr2 F) a a (identity a) = identity (pr1 F a))
+     ×
+       (∏ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧), pr2 F a c (f · g) = pr2 F a b f · pr2 F b c g).
+
+<span class="kn">Definition</span> <span class="nf">weq_cat_eq_cat_equiv</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+  : cat_eq_2 C D ≃ cat_equiv C D.
+<span class="kn">Proof</span>.
+  use weqbandf.
+  - use weqbandf.
+    + <span class="nb">apply</span> univalence.
+    + <span class="nb">intros</span> p.
+      <span class="nb">unfold</span> data_cat_eq_2.
+      use weqonsecfibers.
+      <span class="nb">intros</span> x.
+      use weqonsecfibers.
+      <span class="nb">intros</span> y.
+      <span class="nb">apply</span> univalence.
+  - <span class="nb">intros</span> q.
+    <span class="nb">apply</span> idweq.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Step 5 *)</span>
+<span class="kn">Definition</span> <span class="nf">cat_equiv_to_catiso</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+  : cat_equiv C D → catiso C D.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F.
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * <span class="bp">exact</span> (pr1(pr1 F)).
+      * <span class="bp">exact</span> (pr2(pr1 F)).
+    + <span class="nb">split</span>.
+      * <span class="bp">exact</span> (pr1(pr2 F)).
+      * <span class="bp">exact</span> (pr2(pr2 F)).
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span> a b.
+      <span class="nb">apply</span> (pr2(pr1 F)).
+    + <span class="nb">apply</span> (pr1(pr1 F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">catiso_to_cat_equiv</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+  : catiso C D → cat_equiv C D.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F.
+  use tpair.
+  - use tpair.
+    + use make_weq.
+      * <span class="bp">exact</span> (functor_on_objects F).
+      * <span class="nb">apply</span> F.
+    + <span class="nb">intros</span> a b.
+      use make_weq.
+      * <span class="bp">exact</span> (functor_on_morphisms F).
+      * <span class="nb">apply</span> F.
+  - <span class="nb">split</span>.
+    + <span class="bp">exact</span> (functor_id F).
+    + <span class="bp">exact</span> (@functor_comp _ _ F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_equiv_to_catiso_weq</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory)
+  : cat_equiv C D ≃ catiso C D.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (cat_equiv_to_catiso C D ,, _).
+  use isweq_iso.
+  - <span class="bp">exact</span> (catiso_to_cat_equiv C D).
+  - <span class="bp">reflexivity</span>.
+  - <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** All in all, we get *)</span>
+<span class="kn">Definition</span> <span class="nf">catiso_is_path_precat</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : precategory)
+           (<span class="nv">HD</span> : has_homsets D)
+  : C = D ≃ catiso C D
+  := ((cat_equiv_to_catiso_weq C D)
+        ∘ weq_cat_eq_cat_equiv C D
+        ∘ cat_eq_1_to_cat_eq_2 C D HD
+        ∘ cat_path_to_cat_eq_1 C D
+        ∘ path_precat C D HD)%weq.
+
+<span class="kn">Definition</span> <span class="nf">catiso_is_path_cat</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : category)
+  : C = D ≃ catiso C D.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (catiso_is_path_precat _ _ (homset_property D) ∘ _)%weq.
+  <span class="nb">refine</span> (path_sigma_hprop _ _ _ _).
+  <span class="nb">apply</span> isaprop_has_homsets.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/CategoryEquality.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    Goal: two precategories are equal iff we have an isomorphism between them.
+  &gt;    We use a chain of equivalences. Each step refines the data a bit.                   *)
+  &gt; (* ----------------------------------------------------------------------------------- *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

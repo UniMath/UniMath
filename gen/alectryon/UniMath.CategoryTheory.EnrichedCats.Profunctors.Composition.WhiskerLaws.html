@@ -1,0 +1,821 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>WhiskerLaws.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************************************</span>
+
+<span class="sd"> Whiskering laws for enriched profunctors</span>
+
+<span class="sd"> In this file we establish laws related to whisker operations for enriched profunctors.</span>
+<span class="sd"> These laws are necessary to show that we have a Verity double bicategory of enriched</span>
+<span class="sd"> profunctors. The proofs boil down to boring calculations.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Up whiskering and composition</span>
+<span class="sd"> 2. Down whiskering and composition</span>
+<span class="sd"> 3. Up whiskering and identities</span>
+<span class="sd"> 4. Swapping whiskering</span>
+<span class="sd"> 5. Composition of squares and whiskering</span>
+
+<span class="sd"> *****************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Profunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.StandardProfunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.ProfunctorTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Invertible.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.ProfunctorSquares.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Coend.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Composition.CompositionProf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Composition.SquareComp.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Composition.Unitors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Composition.Associators.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Composition.Whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Opaque</span> sym_mon_braiding.
+
+<span class="sd">(** * 1. Up whiskering and composition *)</span>
+<span class="kn">Proposition</span> <span class="nf">uwhisker_enriched_profunctor_square_comp</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">E₄</span> : enrichment C₄ V}
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> <span class="nv">F₃</span> : C₁ ⟶ C₂}
+            {<span class="nv">EF₁</span> : functor_enrichment F₁ E₁ E₂}
+            {<span class="nv">EF₂</span> : functor_enrichment F₂ E₁ E₂}
+            {<span class="nv">EF₃</span> : functor_enrichment F₃ E₁ E₂}
+            {<span class="nv">G</span> : C₃ ⟶ C₄}
+            {<span class="nv">EG</span> : functor_enrichment G E₃ E₄}
+            {<span class="nv">P</span> : E₁ ↛e E₃}
+            {<span class="nv">Q</span> : E₂ ↛e E₄}
+            {<span class="nv">τ₁</span> : F₁ ⟹ F₂}
+            (<span class="nv">Hτ₁</span> : nat_trans_enrichment τ₁ EF₁ EF₂)
+            {<span class="nv">τ₂</span> : F₂ ⟹ F₃}
+            (<span class="nv">Hτ₂</span> : nat_trans_enrichment τ₂ EF₂ EF₃)
+            (<span class="nv">θ</span> : enriched_profunctor_square EF₁ EG P Q)
+  : uwhisker_enriched_profunctor_square (comp_trans_enrichment Hτ₁ Hτ₂) θ
+    =
+    uwhisker_enriched_profunctor_square Hτ₂ (uwhisker_enriched_profunctor_square Hτ₁ θ).
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> enriched_from_arr_comp.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> tensor_split.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_linvunitor.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !tensor_comp_id_r.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> rmap_e_comp.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> tensor_linvunitor.
+  <span class="nb">rewrite</span> &lt;- mon_linvunitor_triangle.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_lassociator.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> tensor_id_id.
+  <span class="nb">rewrite</span> &lt;- tensor_split.
+  <span class="nb">rewrite</span> &lt;- tensor_split'.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Down whiskering and composition *)</span>
+<span class="kn">Proposition</span> <span class="nf">dwhisker_enriched_profunctor_square_comp</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">E₄</span> : enrichment C₄ V}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">EF</span> : functor_enrichment F E₁ E₂}
+            {<span class="nv">G₁</span> <span class="nv">G₂</span> <span class="nv">G₃</span> : C₃ ⟶ C₄}
+            {<span class="nv">EG₁</span> : functor_enrichment G₁ E₃ E₄}
+            {<span class="nv">EG₂</span> : functor_enrichment G₂ E₃ E₄}
+            {<span class="nv">EG₃</span> : functor_enrichment G₃ E₃ E₄}
+            {<span class="nv">P</span> : E₁ ↛e E₃}
+            {<span class="nv">Q</span> : E₂ ↛e E₄}
+            {<span class="nv">τ₁</span> : G₁ ⟹ G₂}
+            (<span class="nv">Hτ₁</span> : nat_trans_enrichment τ₁ EG₁ EG₂)
+            {<span class="nv">τ₂</span> : G₂ ⟹ G₃}
+            (<span class="nv">Hτ₂</span> : nat_trans_enrichment τ₂ EG₂ EG₃)
+            (<span class="nv">θ</span> : enriched_profunctor_square EF EG₃ P Q)
+  : dwhisker_enriched_profunctor_square (comp_trans_enrichment Hτ₁ Hτ₂) θ
+    =
+    dwhisker_enriched_profunctor_square Hτ₁ (dwhisker_enriched_profunctor_square Hτ₂ θ).
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_linvunitor.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_split.
+    <span class="nb">rewrite</span> tensor_split'.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> lmap_e_lmap_e.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> enriched_from_arr_comp.
+  <span class="nb">rewrite</span> tensor_comp_id_r.
+  <span class="nb">apply</span> maponpaths_2.
+  etrans.
+  {
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_id_id.
+    <span class="nb">rewrite</span> tensor_rassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> tensor_comp_id_r.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> tensor_split'.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_linvunitor_I_mon_rinvunitor_I.
+    <span class="nb">rewrite</span> &lt;- tensor_rinvunitor.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !tensor_comp_id_r.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> &lt;- mon_linvunitor_triangle.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> mon_lassociator_rassociator.
+    <span class="nb">apply</span> id_right.
+  }
+  <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+  <span class="nb">rewrite</span> sym_mon_braiding_linvunitor.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Up whiskering and identities *)</span>
+<span class="kn">Proposition</span> <span class="nf">uwhisker_enriched_profunctor_square_id_square</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+            {<span class="nv">τ</span> : F ⟹ G}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">EF</span> : functor_enrichment F E₁ E₂}
+            {<span class="nv">EG</span> : functor_enrichment G E₁ E₂}
+            (<span class="nv">Hτ</span> : nat_trans_enrichment τ EF EG)
+  : uwhisker_enriched_profunctor_square Hτ (id_v_enriched_profunctor_square EF)
+    =
+    dwhisker_enriched_profunctor_square Hτ (id_v_enriched_profunctor_square EG).
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !tensor_linvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> &lt;- !tensor_split.
+  <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (!(id_left _) @ _).
+  <span class="nb">rewrite</span> &lt;- mon_lunitor_linvunitor.
+  etrans.
+  {
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="bp">exact</span> (!(Hτ z x)).
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">refine</span> (_ @ id_right _).
+  <span class="nb">rewrite</span> &lt;- mon_runitor_rinvunitor.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> sym_mon_braiding_runitor.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Swapping whiskering *)</span>
+<span class="kn">Proposition</span> <span class="nf">dwhisker_uwhisker_enriched_profunctor_square</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">E₄</span> : enrichment C₄ V}
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₂}
+            {<span class="nv">EF₁</span> : functor_enrichment F₁ E₁ E₂}
+            {<span class="nv">EF₂</span> : functor_enrichment F₂ E₁ E₂}
+            {<span class="nv">τ₁</span> : F₁ ⟹ F₂}
+            (<span class="nv">Hτ₁</span> : nat_trans_enrichment τ₁ EF₁ EF₂)
+            {<span class="nv">G₁</span> <span class="nv">G₂</span> : C₃ ⟶ C₄}
+            {<span class="nv">EG₁</span> : functor_enrichment G₁ E₃ E₄}
+            {<span class="nv">EG₂</span> : functor_enrichment G₂ E₃ E₄}
+            {<span class="nv">τ₂</span> : G₁ ⟹ G₂}
+            (<span class="nv">Hτ₂</span> : nat_trans_enrichment τ₂ EG₁ EG₂)
+            {<span class="nv">P</span> : E₁ ↛e E₃}
+            {<span class="nv">Q</span> : E₂ ↛e E₄}
+            (<span class="nv">θ</span> : enriched_profunctor_square EF₁ EG₂ P Q)
+  : dwhisker_enriched_profunctor_square
+      Hτ₂
+      (uwhisker_enriched_profunctor_square Hτ₁ θ)
+    =
+    uwhisker_enriched_profunctor_square
+      Hτ₁
+      (dwhisker_enriched_profunctor_square Hτ₂ θ).
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_linvunitor.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_split.
+    <span class="nb">rewrite</span> tensor_split'.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> rmap_e_lmap_e.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_linvunitor.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_split.
+    <span class="nb">rewrite</span> tensor_split'.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  etrans.
+  {
+    <span class="nb">rewrite</span> &lt;- mon_linvunitor_triangle.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_id_id.
+    <span class="nb">rewrite</span> &lt;- tensor_lassociator.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">rewrite</span> &lt;- mon_linvunitor_triangle.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_id_id.
+    <span class="nb">rewrite</span> &lt;- tensor_lassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_lassociator_rassociator.
+    <span class="nb">apply</span> id_left.
+  }
+  <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> tensor_linvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> &lt;- tensor_split.
+  etrans.
+  {
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> sym_mon_braiding_linvunitor.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_rinvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> &lt;- tensor_split'.
+  <span class="nb">rewrite</span> mon_rinvunitor_I_mon_linvunitor_I.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lwhisker_uwhisker_enriched_profunctor_square</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">E₄</span> : enrichment C₄ V}
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₂}
+            {<span class="nv">EF₁</span> : functor_enrichment F₁ E₁ E₂}
+            {<span class="nv">EF₂</span> : functor_enrichment F₂ E₁ E₂}
+            {<span class="nv">τ₁</span> : F₁ ⟹ F₂}
+            (<span class="nv">Hτ₁</span> : nat_trans_enrichment τ₁ EF₁ EF₂)
+            {<span class="nv">G</span> : C₃ ⟶ C₄}
+            {<span class="nv">EG</span> : functor_enrichment G E₃ E₄}
+            {<span class="nv">P₁</span> <span class="nv">P₂</span> : E₁ ↛e E₃}
+            (<span class="nv">τ₂</span> : enriched_profunctor_transformation P₁ P₂)
+            {<span class="nv">Q</span> : E₂ ↛e E₄}
+            (<span class="nv">θ</span> : enriched_profunctor_square EF₁ EG P₂ Q)
+  : lwhisker_enriched_profunctor_square
+      τ₂
+      (uwhisker_enriched_profunctor_square Hτ₁ θ)
+    =
+    uwhisker_enriched_profunctor_square
+      Hτ₁
+      (lwhisker_enriched_profunctor_square τ₂ θ).
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rwhisker_uwhisker_enriched_profunctor_square</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">E₄</span> : enrichment C₄ V}
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₂}
+            {<span class="nv">EF₁</span> : functor_enrichment F₁ E₁ E₂}
+            {<span class="nv">EF₂</span> : functor_enrichment F₂ E₁ E₂}
+            {<span class="nv">τ₁</span> : F₁ ⟹ F₂}
+            (<span class="nv">Hτ₁</span> : nat_trans_enrichment τ₁ EF₁ EF₂)
+            {<span class="nv">G</span> : C₃ ⟶ C₄}
+            {<span class="nv">EG</span> : functor_enrichment G E₃ E₄}
+            {<span class="nv">P</span> : E₁ ↛e E₃}
+            {<span class="nv">Q₁</span> <span class="nv">Q₂</span> : E₂ ↛e E₄}
+            (<span class="nv">τ₂</span> : enriched_profunctor_transformation Q₁ Q₂)
+            (<span class="nv">θ</span> : enriched_profunctor_square EF₁ EG P Q₁)
+  : rwhisker_enriched_profunctor_square
+      τ₂
+      (uwhisker_enriched_profunctor_square Hτ₁ θ)
+    =
+    uwhisker_enriched_profunctor_square
+      Hτ₁
+      (rwhisker_enriched_profunctor_square τ₂ θ).
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> &lt;- enriched_profunctor_transformation_rmap_e.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> tensor_linvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> &lt;- tensor_split.
+  <span class="nb">rewrite</span> &lt;- tensor_split'.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lwhisker_dwhisker_enriched_profunctor_square</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">E₄</span> : enrichment C₄ V}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">EF</span> : functor_enrichment F E₁ E₂}
+            {<span class="nv">G₁</span> <span class="nv">G₂</span> : C₃ ⟶ C₄}
+            {<span class="nv">EG₁</span> : functor_enrichment G₁ E₃ E₄}
+            {<span class="nv">EG₂</span> : functor_enrichment G₂ E₃ E₄}
+            {<span class="nv">τ₁</span> : G₁ ⟹ G₂}
+            (<span class="nv">Hτ₁</span> : nat_trans_enrichment τ₁ EG₁ EG₂)
+            {<span class="nv">P₁</span> <span class="nv">P₂</span> : E₁ ↛e E₃}
+            (<span class="nv">τ₂</span> : enriched_profunctor_transformation P₁ P₂)
+            {<span class="nv">Q</span> : E₂ ↛e E₄}
+            (<span class="nv">θ</span> : enriched_profunctor_square EF EG₂ P₂ Q)
+  : lwhisker_enriched_profunctor_square
+      τ₂
+      (dwhisker_enriched_profunctor_square Hτ₁ θ)
+    =
+    dwhisker_enriched_profunctor_square
+      Hτ₁
+      (lwhisker_enriched_profunctor_square τ₂ θ).
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rwhisker_dwhisker_enriched_profunctor_square</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">E₄</span> : enrichment C₄ V}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">EF</span> : functor_enrichment F E₁ E₂}
+            {<span class="nv">G₁</span> <span class="nv">G₂</span> : C₃ ⟶ C₄}
+            {<span class="nv">EG₁</span> : functor_enrichment G₁ E₃ E₄}
+            {<span class="nv">EG₂</span> : functor_enrichment G₂ E₃ E₄}
+            {<span class="nv">τ₁</span> : G₁ ⟹ G₂}
+            (<span class="nv">Hτ₁</span> : nat_trans_enrichment τ₁ EG₁ EG₂)
+            {<span class="nv">P</span> : E₁ ↛e E₃}
+            {<span class="nv">Q₁</span> <span class="nv">Q₂</span> : E₂ ↛e E₄}
+            (<span class="nv">τ₂</span> : enriched_profunctor_transformation Q₁ Q₂)
+            (<span class="nv">θ</span> : enriched_profunctor_square EF EG₂ P Q₁)
+  : rwhisker_enriched_profunctor_square
+      τ₂
+      (dwhisker_enriched_profunctor_square Hτ₁ θ)
+    =
+    dwhisker_enriched_profunctor_square
+      Hτ₁
+      (rwhisker_enriched_profunctor_square τ₂ θ).
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> &lt;- enriched_profunctor_transformation_lmap_e.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> tensor_linvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> &lt;- tensor_split.
+  <span class="nb">rewrite</span> &lt;- tensor_split'.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Composition of squares and whiskering *)</span>
+<span class="kn">Proposition</span> <span class="nf">uwhisker_comp_v_enriched_profunctor_square</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> <span class="nv">C₅</span> <span class="nv">C₆</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">E₄</span> : enrichment C₄ V}
+            {<span class="nv">E₅</span> : enrichment C₅ V}
+            {<span class="nv">E₆</span> : enrichment C₆ V}
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₂}
+            {<span class="nv">EF₁</span> : functor_enrichment F₁ E₁ E₂}
+            {<span class="nv">EF₂</span> : functor_enrichment F₂ E₁ E₂}
+            {<span class="nv">τ</span> : F₂ ⟹ F₁}
+            (<span class="nv">Hτ</span> : nat_trans_enrichment τ EF₂ EF₁)
+            {<span class="nv">G</span> : C₃ ⟶ C₄}
+            {<span class="nv">EG</span> : functor_enrichment G E₃ E₄}
+            {<span class="nv">H</span> : C₅ ⟶ C₆}
+            {<span class="nv">EH</span> : functor_enrichment H E₅ E₆}
+            {<span class="nv">P₁</span> : E₁ ↛e E₃}
+            {<span class="nv">P₂</span> : E₃ ↛e E₅}
+            {<span class="nv">Q₁</span> : E₂ ↛e E₄}
+            {<span class="nv">Q₂</span> : E₄ ↛e E₆}
+            (<span class="nv">θ₁</span> : enriched_profunctor_square EF₂ EG P₁ Q₁)
+            (<span class="nv">θ₂</span> : enriched_profunctor_square EG EH P₂ Q₂)
+  : uwhisker_enriched_profunctor_square
+      Hτ
+      (comp_v_enriched_profunctor_square θ₁ θ₂)
+    =
+    comp_v_enriched_profunctor_square
+      (uwhisker_enriched_profunctor_square Hτ θ₁)
+      θ₂.
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z v ; <span class="nb">cbn</span>.
+  use from_comp_enriched_profunctor_eq.
+  <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">rewrite</span> !assoc.
+    <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> comp_v_enriched_profunctor_square_mor_comm.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> comp_v_enriched_profunctor_square_mor_comm.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> tensor_comp_r_id_r.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_linvunitor.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_split.
+    <span class="nb">rewrite</span> tensor_split'.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> comp_enriched_profunctor_rmap_comm.
+  }
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> sym_mon_braiding_inv.
+    <span class="nb">unfold</span> comp_enriched_profunctor_rmap_mor.
+    <span class="nb">apply</span> id_left.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> !tensor_comp_id_r.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> &lt;- mon_linvunitor_triangle.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> &lt;- tensor_id_id.
+  <span class="nb">rewrite</span> tensor_rassociator.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> mon_lassociator_rassociator.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dwhisker_comp_v_enriched_profunctor_square</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> <span class="nv">C₅</span> <span class="nv">C₆</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">E₄</span> : enrichment C₄ V}
+            {<span class="nv">E₅</span> : enrichment C₅ V}
+            {<span class="nv">E₆</span> : enrichment C₆ V}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">EF</span> : functor_enrichment F E₁ E₂}
+            {<span class="nv">G</span> : C₃ ⟶ C₄}
+            {<span class="nv">EG</span> : functor_enrichment G E₃ E₄}
+            {<span class="nv">H₁</span> <span class="nv">H₂</span> : C₅ ⟶ C₆}
+            {<span class="nv">EH₁</span> : functor_enrichment H₁ E₅ E₆}
+            {<span class="nv">EH₂</span> : functor_enrichment H₂ E₅ E₆}
+            {<span class="nv">τ</span> : H₂ ⟹ H₁}
+            (<span class="nv">Hτ</span> : nat_trans_enrichment τ EH₂ EH₁)
+            {<span class="nv">P₁</span> : E₁ ↛e E₃}
+            {<span class="nv">P₂</span> : E₃ ↛e E₅}
+            {<span class="nv">Q₁</span> : E₂ ↛e E₄}
+            {<span class="nv">Q₂</span> : E₄ ↛e E₆}
+            (<span class="nv">θ₁</span> : enriched_profunctor_square EF EG P₁ Q₁)
+            (<span class="nv">θ₂</span> : enriched_profunctor_square EG EH₁ P₂ Q₂)
+  : dwhisker_enriched_profunctor_square
+      Hτ
+      (comp_v_enriched_profunctor_square θ₁ θ₂)
+    =
+    comp_v_enriched_profunctor_square
+      θ₁
+      (dwhisker_enriched_profunctor_square Hτ θ₂).
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z v ; <span class="nb">cbn</span>.
+  use from_comp_enriched_profunctor_eq.
+  <span class="nb">intro</span> x.
+  etrans.
+  {
+    <span class="nb">rewrite</span> !assoc.
+    <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> comp_v_enriched_profunctor_square_mor_comm.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> comp_v_enriched_profunctor_square_mor_comm.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> tensor_comp_l_id_r.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_linvunitor.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_split.
+    <span class="nb">rewrite</span> tensor_split'.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> comp_enriched_profunctor_lmap_comm.
+  }
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> sym_mon_braiding_inv.
+    <span class="nb">unfold</span> comp_enriched_profunctor_lmap_mor.
+    <span class="nb">apply</span> id_left.
+  }
+  <span class="nb">rewrite</span> !tensor_comp_id_l.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> &lt;- mon_linvunitor_triangle.
+  etrans.
+  {
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_id_id.
+    <span class="nb">rewrite</span> &lt;- tensor_lassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> sym_mon_hexagon_lassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+    <span class="nb">rewrite</span> sym_mon_braiding_inv.
+    <span class="nb">rewrite</span> tensor_id_id.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_comp_id_r.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> tensor_lassociator.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> sym_mon_braiding_linvunitor.
+  <span class="nb">rewrite</span> mon_inv_triangle.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_v_enriched_profunctor_square_uwhisker</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> <span class="nv">C₅</span> <span class="nv">C₆</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">E₄</span> : enrichment C₄ V}
+            {<span class="nv">E₅</span> : enrichment C₅ V}
+            {<span class="nv">E₆</span> : enrichment C₆ V}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">EF</span> : functor_enrichment F E₁ E₂}
+            {<span class="nv">G₁</span> <span class="nv">G₂</span> : C₃ ⟶ C₄}
+            {<span class="nv">EG₁</span> : functor_enrichment G₁ E₃ E₄}
+            {<span class="nv">EG₂</span> : functor_enrichment G₂ E₃ E₄}
+            {<span class="nv">τ</span> : G₂ ⟹ G₁}
+            (<span class="nv">Hτ</span> : nat_trans_enrichment τ EG₂ EG₁)
+            {<span class="nv">H</span> : C₅ ⟶ C₆}
+            {<span class="nv">EH</span> : functor_enrichment H E₅ E₆}
+            {<span class="nv">P₁</span> : E₁ ↛e E₃}
+            {<span class="nv">P₂</span> : E₃ ↛e E₅}
+            {<span class="nv">Q₁</span> : E₂ ↛e E₄}
+            {<span class="nv">Q₂</span> : E₄ ↛e E₆}
+            (<span class="nv">θ₁</span> : enriched_profunctor_square EF EG₁ P₁ Q₁)
+            (<span class="nv">θ₂</span> : enriched_profunctor_square EG₂ EH P₂ Q₂)
+  : comp_v_enriched_profunctor_square
+      θ₁
+      (uwhisker_enriched_profunctor_square Hτ θ₂)
+    =
+    comp_v_enriched_profunctor_square
+      (dwhisker_enriched_profunctor_square Hτ θ₁)
+      θ₂.
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z v ; <span class="nb">cbn</span>.
+  use from_comp_enriched_profunctor_eq.
+  <span class="nb">intro</span> x.
+  etrans.
+  {
+    <span class="nb">apply</span> comp_v_enriched_profunctor_square_mor_comm.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> comp_v_enriched_profunctor_square_mor_comm.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+  <span class="nb">rewrite</span> !tensor_comp_l_id_r.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> comp_enriched_profunctor_comm.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> tensor_comp_id_l.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  etrans.
+  {
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_lassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_lassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> tensor_comp_id_l.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  etrans.
+  {
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> sym_mon_hexagon_lassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+    <span class="nb">rewrite</span> sym_mon_braiding_inv.
+    <span class="nb">rewrite</span> tensor_id_id.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+  <span class="nb">rewrite</span> sym_mon_braiding_linvunitor.
+  <span class="nb">rewrite</span> mon_inv_triangle.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Profunctors/Composition/WhiskerLaws.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Composition of squares and whiskering
+  &gt;
+  &gt;  *****************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

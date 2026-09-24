@@ -1,0 +1,793 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CompleteHeyting.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************************</span>
+
+<span class="sd"> Complete Heyting algebras</span>
+
+<span class="sd"> Heyting algebras provide a framework in which one can interpret intuitionistic propositional</span>
+<span class="sd"> logic. In complete Heyting algebras, one can also take suprema over arbitrary subsets, and</span>
+<span class="sd"> this allows one to also interpret the existential quantifier. Since infima can be constructed</span>
+<span class="sd"> from suprema, one can also interpret the universal quantifier.</span>
+
+<span class="sd"> Under the hood there are universe levels in play here. When we phrase "complete", we need to</span>
+<span class="sd"> indicate over which types it is complete. The easiest way to see this, is by working in</span>
+<span class="sd"> predicative foundations. Suppose that we have universes `U` and `V` such that `U : V`. Then</span>
+<span class="sd"> we can form the type of propositions in `U`, and this type lives in universe `V`. The resulting</span>
+<span class="sd"> lattice of propositions would only be complete over types in `U` but not over types in `V`.</span>
+<span class="sd"> Since UniMath uses impredicative foundations, the universe levels do not matter for</span>
+<span class="sd"> propositions. However, it might matter for other examples. Note that similar considerations</span>
+<span class="sd"> are relevant when defining directed complete partial orders, see the PhD thesis by Tom de Jong.</span>
+
+<span class="sd"> References:</span>
+<span class="sd"> - Appendix A in "Intuitionistic Set Theory" by John Bell</span>
+<span class="sd"> - Section 3.1 in "Domain Theory in Constructive and Predicative Univalent Foundations" by Tom</span>
+<span class="sd">   de Jong</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Complete Heyting algebra</span>
+<span class="sd"> 2. Operations of complete Heyting algebras</span>
+<span class="sd"> 3. Laws for complete Heyting algebras</span>
+<span class="sd"> 4. Greatest lower bounds for complete Heyting algebras</span>
+<span class="sd"> 5. Complete Heyting algebras from greatest upper bounds</span>
+<span class="sd"> 6. Bases for complete Heyting algebras</span>
+<span class="sd"> 7. Complete Boolean algebras</span>
+
+<span class="sd"> *********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Lattice.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Bounded.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Heyting.
+
+<span class="kn">Declare Scope</span> heyting.
+<span class="kn">Delimit Scope</span> heyting <span class="k">with</span> heyting.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> heyting.
+
+<span class="sd">(** * 1. Complete Heyting algebra *)</span>
+<span class="kn">Definition</span> <span class="nf">is_upperbound_lattice</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">L</span> : lattice X)
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">f</span> : I → X)
+           (<span class="nv">x</span> : X)
+  : UU
+  := ∏ (i : I), Lle L (f i) x.
+
+<span class="kn">Definition</span> <span class="nf">is_least_upperbound_lattice</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">L</span> : lattice X)
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">f</span> : I → X)
+           (<span class="nv">x</span> : X)
+  : UU
+  := is_upperbound_lattice L f x
+     ×
+     ∏ (y : X), is_upperbound_lattice L f y → Lle L x y.
+
+<span class="kn">Definition</span> <span class="nf">is_complete_lattice</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">L</span> : lattice X)
+  : UU
+  := ∏ (I : UU)
+       (f : I → X),
+     ∑ (x : X),
+     is_least_upperbound_lattice L f x.
+
+<span class="kn">Definition</span> <span class="nf">complete_heyting_algebra</span>
+  : UU
+  := ∑ (X : hSet)
+       (L : bounded_lattice X),
+     is_complete_lattice L
+     ×
+     exponential L.
+
+<span class="kn">Definition</span> <span class="nf">make_complete_heyting_algebra</span>
+           (<span class="nv">X</span> : hSet)
+           (<span class="nv">L</span> : bounded_lattice X)
+           (<span class="nv">CL</span> : is_complete_lattice L)
+           (<span class="nv">EL</span> : exponential L)
+  : complete_heyting_algebra
+  := X ,, L ,, CL ,, EL.
+
+<span class="kn">Coercion</span> <span class="nf">complete_heyting_algebra_to_carrier</span>
+         (H : complete_heyting_algebra)
+  : hSet.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">lattice_of_complete_heyting_algebra</span>
+         (H : complete_heyting_algebra)
+  : bounded_lattice H.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 H).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Operations of complete Heyting algebras *)</span>
+<span class="kn">Definition</span> <span class="nf">complete_heyting_algebra_top</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : H
+  := Ltop H.
+
+<span class="kn">Notation</span> <span class="s2">"⊤"</span> := (complete_heyting_algebra_top _) : heyting.
+
+<span class="kn">Definition</span> <span class="nf">complete_heyting_algebra_bot</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : H
+  := Lbot H.
+
+<span class="kn">Notation</span> <span class="s2">"⊥"</span> := (complete_heyting_algebra_bot _) : heyting.
+
+<span class="kn">Definition</span> <span class="nf">complete_heyting_algebra_le</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : hProp
+  := Lle H x y.
+
+<span class="kn">Notation</span> <span class="s2">"x ≤ y"</span> := (complete_heyting_algebra_le x y) : heyting.
+
+<span class="kn">Definition</span> <span class="nf">complete_heyting_algebra_min</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : H
+  := Lmin H x y.
+
+<span class="kn">Notation</span> <span class="s2">"x ∧ y"</span> := (complete_heyting_algebra_min x y) : heyting.
+
+<span class="kn">Definition</span> <span class="nf">complete_heyting_algebra_max</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : H
+  := Lmax H x y.
+
+<span class="kn">Notation</span> <span class="s2">"x ∨ y"</span> := (complete_heyting_algebra_max x y) : heyting.
+
+<span class="kn">Definition</span> <span class="nf">complete_heyting_algebra_lub</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">f</span> : I → H)
+  : H
+  := pr1 (pr122 H I f).
+
+<span class="kn">Notation</span> <span class="s2">"\/_{ i } f"</span> := (complete_heyting_algebra_lub (<span class="k">λ</span> <span class="nv">i</span>, f)) (<span class="kn">at level</span> <span class="mi">20</span>, i <span class="kn">binder</span>)
+    : heyting.
+
+<span class="sd">(**</span>
+<span class="sd">   Note that one can also write `\/_{ i : I } f`</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">complete_heyting_algebra_exp</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : H
+  := pr222 H x y.
+
+<span class="kn">Notation</span> <span class="s2">"x ⇒ y"</span> := (complete_heyting_algebra_exp x y) : heyting.
+
+<span class="kn">Definition</span> <span class="nf">complete_heyting_algebra_neg</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">x</span> : H)
+  : H
+  := x ⇒ ⊥.
+
+<span class="kn">Notation</span> <span class="s2">"¬ x"</span> := (complete_heyting_algebra_neg x) : heyting.
+
+<span class="kn">Definition</span> <span class="nf">h_valued_pred_comp</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">p</span> : X → H)
+  : hSet.
+<span class="kn">Proof</span>.
+  use make_hSet.
+  - <span class="bp">exact</span> (∑ (x : X), ⊤%heyting ≤ p x).
+  - <span class="kp">abstract</span>
+      (use isaset_total2 ; [ <span class="nb">apply</span> setproperty | ] ;
+       <span class="nb">intro</span> x ;
+       <span class="nb">apply</span> isasetaprop ;
+       <span class="nb">apply</span> propproperty).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"{{ p }}"</span> := (h_valued_pred_comp p) : heyting.
+
+<span class="sd">(** * 3. Laws for complete Heyting algebras *)</span>
+
+<span class="sd">(**</span>
+<span class="sd">   For the laws, we use `cha` as an abbreviation for 'complete Heyting algebra'.</span>
+<span class="sd">   We did not do so for the operations, because there one can use the notation.</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">cha_min_assoc</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : H)
+  : ((x ∧ y) ∧ z) = (x ∧ (y ∧ z)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isassoc_Lmin H x y z).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_comm</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : (x ∧ y) = (y ∧ x).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (iscomm_Lmin H x y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_assoc</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : H)
+  : ((x ∨ y) ∨ z) = (x ∨ (y ∨ z)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isassoc_Lmax H x y z).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_comm</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : (x ∨ y) = (y ∨ x).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (iscomm_Lmax H x y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_absorb</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : (x ∧ (x ∨ y)) = x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmin_absorb H x y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_absorb</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : (x ∨ (x ∧ y)) = x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmax_absorb H x y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_id</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : (x ∧ x) = x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmin_id H x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_id</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : (x ∨ x) = x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmax_id H x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_le_refl</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : x ≤ x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isrefl_Lle H x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_le_antisymm</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : H}
+            (<span class="nv">p</span> : x ≤ y)
+            (<span class="nv">q</span> : y ≤ x)
+  : x = y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isantisymm_Lle H x y p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_le_trans</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : H}
+            (<span class="nv">p</span> : x ≤ y)
+            (<span class="nv">q</span> : y ≤ z)
+  : x ≤ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (istrans_Lle H x y z p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_le_l</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : (x ∧ y) ≤ x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmin_le_l H x y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_le_r</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : (x ∧ y) ≤ y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmin_le_r H x y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_le_case</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : H}
+            (<span class="nv">p</span> : z ≤ x)
+            (<span class="nv">q</span> : z ≤ y)
+  : z ≤ (x ∧ y).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmin_le_case H x y z p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_le_l</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : x ≤ (x ∨ y).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmax_le_l H x y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_le_r</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : y ≤ (x ∨ y).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmax_le_r H x y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_le_case</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : H}
+            (<span class="nv">p</span> : x ≤ z)
+            (<span class="nv">q</span> : y ≤ z)
+  : (x ∨ y) ≤ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmax_le_case H x y z p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_le_eq_l</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : H}
+            (<span class="nv">p</span> : x ≤ y)
+  : (x ∧ y) = x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmin_le_eq_l H x y p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_le_eq_r</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : H}
+            (<span class="nv">p</span> : y ≤ x)
+  : (x ∧ y) = y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmin_le_eq_r H x y p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_le_eq_l</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : H}
+            (<span class="nv">p</span> : y ≤ x)
+  : (x ∨ y) = x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmax_le_eq_l H x y p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_le_eq_r</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : H}
+            (<span class="nv">p</span> : x ≤ y)
+  : (x ∨ y) = y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmax_le_eq_r H x y p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_lunit_max_bot</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : (⊥ ∨ x) = x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (islunit_Lmax_Lbot H x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_runit_max_bot</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : (x ∨ ⊥) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> cha_max_comm.
+  <span class="nb">apply</span> cha_lunit_max_bot.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_lunit_min_top</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : (⊤ ∧ x) = x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (islunit_Lmin_Ltop H x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_runit_min_bot</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : (x ∧ ⊤) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> cha_min_comm.
+  <span class="nb">apply</span> cha_lunit_min_top.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_bot_l</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : (⊥ ∧ x) = ⊥.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmin_Lbot H x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_bot_r</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : (x ∧ ⊥) = ⊥.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> cha_min_comm.
+  <span class="nb">apply</span> cha_min_bot_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_top_l</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : (⊤ ∨ x) = ⊤.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (Lmax_Ltop H x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_top_r</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : (x ∨ ⊤) = ⊤.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> cha_max_comm.
+  <span class="nb">apply</span> cha_max_top_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_to_le</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : H}
+            (<span class="nv">p</span> : (x ∧ y) = x)
+  : x ≤ y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_from_le</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : H}
+            (<span class="nv">p</span> : x ≤ y)
+  : (x ∧ y) = x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_bot_le</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : ⊥ ≤ x.
+<span class="kn">Proof</span>.
+  use cha_to_le.
+  <span class="nb">apply</span> cha_min_bot_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_le_top</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : x ≤ ⊤.
+<span class="kn">Proof</span>.
+  use cha_to_le.
+  <span class="nb">apply</span> cha_runit_min_bot.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_from_le_exp</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : H}
+            (<span class="nv">p</span> : z ≤ (x ⇒ y))
+  : (z ∧ x) ≤ y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr2 (pr222 H) x y z) p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_to_le_exp</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : H}
+            (<span class="nv">p</span> : (z ∧ x) ≤ y)
+  : z ≤ (x ⇒ y).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (pr2 (pr222 H) x y z) p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_exp_eval</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : ((x ⇒ y) ∧ x) ≤ y.
+<span class="kn">Proof</span>.
+  use cha_from_le_exp.
+  <span class="nb">apply</span> cha_le_refl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_le_lub_pt</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">f</span> : I → H)
+            (<span class="nv">i</span> : I)
+  : f i ≤ \/_{ j } f j.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 (pr122 H I f) i).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_le_lub</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">f</span> : I → H)
+            {<span class="nv">x</span> : H}
+            {<span class="nv">i</span> : I}
+            (<span class="nv">p</span> : x ≤ f i)
+  : x ≤ \/_{ j } f j.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (cha_le_trans p _).
+  <span class="nb">apply</span> cha_le_lub_pt.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_lub_le</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            {<span class="nv">f</span> : I → H}
+            {<span class="nv">x</span> : H}
+            (<span class="nv">p</span> : ∏ (i : I), f i ≤ x)
+  : \/_{ j } f j ≤ x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr22 (pr122 H I f) x p).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   The following commands prevent that the operations are unfolded by `cbn` or `simpl.</span>
+<span class="sd">   Without them, the operations for complete Heyting algebras would be unfolded to the level</span>
+<span class="sd">   of lattices, and then it would be more complicated to use the accessors/notation in this</span>
+<span class="sd">   file.</span>
+<span class="sd"> *)</span>
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> complete_heyting_algebra_top.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> complete_heyting_algebra_bot.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> complete_heyting_algebra_le.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> complete_heyting_algebra_min.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> complete_heyting_algebra_max.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> complete_heyting_algebra_lub.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> complete_heyting_algebra_exp.
+
+<span class="sd">(** * 4. Greatest lower bounds for complete Heyting algebras *)</span>
+<span class="kn">Definition</span> <span class="nf">complete_heyting_algebra_glb</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">f</span> : I → H)
+  : H
+  := \/_{ i : ∑ (x : H), ∏ (i : I), x ≤ f i } pr1 i.
+
+<span class="kn">Notation</span> <span class="s2">"/\_{ i } f"</span> := (complete_heyting_algebra_glb (<span class="k">λ</span> <span class="nv">i</span>, f)) (<span class="kn">at level</span> <span class="mi">20</span>, i <span class="kn">binder</span>)
+    : heyting.
+
+<span class="kn">Proposition</span> <span class="nf">cha_glb_le_pt</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">f</span> : I → H)
+            (<span class="nv">i</span> : I)
+  : /\_{ j } f j ≤ f i.
+<span class="kn">Proof</span>.
+  use cha_lub_le.
+  <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+  <span class="bp">exact</span> (pr2 x i).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_glb_le</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">f</span> : I → H)
+            {<span class="nv">x</span> : H}
+            {<span class="nv">i</span> : I}
+            (<span class="nv">p</span> : f i ≤ x)
+  : /\_{ j } f j ≤ x.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (cha_le_trans _ p).
+  <span class="nb">apply</span> cha_glb_le_pt.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_le_glb</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            {<span class="nv">f</span> : I → H}
+            {<span class="nv">x</span> : H}
+            (<span class="nv">p</span> : ∏ (i : I), x ≤ f i)
+  : x ≤ /\_{ j } f j.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> complete_heyting_algebra_glb.
+  use cha_le_lub.
+  - <span class="bp">exact</span> (x ,, p).
+  - <span class="nb">apply</span> cha_le_refl.
+<span class="kn">Qed</span>.
+
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> complete_heyting_algebra_glb.
+
+<span class="sd">(** * 5. Complete Heyting algebras from greatest upper bounds *)</span>
+<span class="kn">Definition</span> <span class="nf">is_lowerbound_lattice</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">L</span> : lattice X)
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">f</span> : I → X)
+           (<span class="nv">x</span> : X)
+  : UU
+  := ∏ (i : I), Lle L x (f i).
+
+<span class="kn">Definition</span> <span class="nf">is_greatest_lowerbound_lattice</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">L</span> : lattice X)
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">f</span> : I → X)
+           (<span class="nv">x</span> : X)
+  : UU
+  := is_lowerbound_lattice L f x
+     ×
+     ∏ (y : X), is_lowerbound_lattice L f y → Lle L y x.
+
+<span class="kn">Definition</span> <span class="nf">complete_lattice_from_glb</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">L</span> : lattice X)
+           (<span class="nv">H</span> : ∏ (I : UU)
+                  (f : I → X),
+                ∑ (x : X),
+                is_greatest_lowerbound_lattice L f x)
+  : is_complete_lattice L.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> I f.
+  <span class="nb">pose</span> (lub := H (∑ (x : X), ∏ (i : I), Lle L (f i) x) pr1).
+  <span class="nb">refine</span> (pr1 lub ,, _).
+  <span class="nb">split</span>.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> i ;
+       use (pr22 lub) ;
+       <span class="nb">intros</span> p ;
+       <span class="bp">exact</span> (pr2 p i)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x Hx ;
+       <span class="bp">exact</span> (pr12 lub (x ,, Hx))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Bases for complete Heyting algebras *)</span>
+<span class="kn">Definition</span> <span class="nf">cha_basis_data</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : UU
+  := ∑ (B : UU),
+     (B → H)
+     ×
+     (B → B → hProp).
+
+<span class="kn">Definition</span> <span class="nf">make_cha_basis_data</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">B</span> : UU)
+           (<span class="nv">f</span> : B → H)
+           (<span class="nv">R</span> : B → B → hProp)
+  : cha_basis_data H
+  := B ,, f ,, R.
+
+<span class="kn">Coercion</span> <span class="nf">cha_basis_type</span>
+         {H : complete_heyting_algebra}
+         (B : cha_basis_data H)
+  : UU
+  := pr1 B.
+
+<span class="kn">Definition</span> <span class="nf">cha_basis_incl</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           {<span class="nv">B</span> : cha_basis_data H}
+           (<span class="nv">b</span> : B)
+  : H
+  := pr12 B b.
+
+<span class="kn">Definition</span> <span class="nf">cha_basis_rel</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           {<span class="nv">B</span> : cha_basis_data H}
+           (<span class="nv">b₁</span> <span class="nv">b₂</span> : B)
+  : hProp
+  := pr22 B b₁ b₂.
+
+<span class="kn">Definition</span> <span class="nf">cha_basis_laws</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">B</span> : cha_basis_data H)
+  : UU
+  := (∏ (b₁ b₂ b₃ : B),
+      cha_basis_rel b₁ b₂ → cha_basis_rel b₂ b₃ → cha_basis_rel b₁ b₃)
+     ×
+     (∏ (x : H),
+      x = \/_{ i : ∑ (b : B), cha_basis_incl b ≤ x } cha_basis_incl (pr1 i))
+     ×
+     (∏ (b₁ b₂ : B),
+      cha_basis_rel b₁ b₂ → cha_basis_incl b₂ ≤ cha_basis_incl b₁).
+
+<span class="kn">Definition</span> <span class="nf">cha_basis</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : UU
+  := ∑ (B : cha_basis_data H), cha_basis_laws B.
+
+<span class="kn">Definition</span> <span class="nf">make_cha_basis</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">B</span> : cha_basis_data H)
+           (<span class="nv">HB</span> : cha_basis_laws B)
+  : cha_basis H
+  := B ,, HB.
+
+<span class="kn">Coercion</span> <span class="nf">cha_basis_to_data</span>
+         {H : complete_heyting_algebra}
+         (B : cha_basis H)
+  : cha_basis_data H
+  := pr1 B.
+
+<span class="kn">Proposition</span> <span class="nf">cha_basis_trans</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">B</span> : cha_basis H)
+            {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">b₃</span> : B}
+            (<span class="nv">p</span> : cha_basis_rel b₁ b₂)
+            (<span class="nv">q</span> : cha_basis_rel b₂ b₃)
+  : cha_basis_rel b₁ b₃.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 B b₁ b₂ b₃ p q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_basis_eq</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">B</span> : cha_basis H)
+            (<span class="nv">x</span> : H)
+  : x
+    =
+    \/_{ i : ∑ (b : B), cha_basis_incl b ≤ x } cha_basis_incl (pr1 i).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr122 B x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_basis_antimonotone</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">B</span> : cha_basis H)
+            {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+            (<span class="nv">p</span> : cha_basis_rel b₁ b₂)
+  : cha_basis_incl b₂ ≤ cha_basis_incl b₁.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr222 B b₁ b₂ p).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 7. Complete Boolean algebras *)</span>
+<span class="kn">Definition</span> <span class="nf">is_boolean_algebra</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : hProp
+  := (<span class="k">∀</span> (<span class="nv">x</span> : H), ((x ∨ ¬ x) = ⊤)%heyting)%logic.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Lattice/CompleteHeyting.v</tt>, line 34)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. Complete Boolean algebras
+  &gt;
+  &gt;  *********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

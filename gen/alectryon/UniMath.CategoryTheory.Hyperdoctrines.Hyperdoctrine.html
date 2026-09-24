@@ -1,0 +1,750 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Hyperdoctrine.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************************</span>
+
+<span class="sd"> Hyperdoctrines</span>
+
+<span class="sd"> In the field of categorical logic hyperdoctrines give a categorical structure in which one</span>
+<span class="sd"> can interpret a framework for predicate logic. A hyperdoctrine is given by a category, which</span>
+<span class="sd"> is the category of types and terms, together with a contravariant functor over it that lands in</span>
+<span class="sd"> the category of partial order. This functor sends every type to the partial order of formulas</span>
+<span class="sd"> over it, where the elements are given by formulas and the relation is given by provability. Note</span>
+<span class="sd"> that in a hyperdoctrine, contexts and types are conflated, and terms and substitutions are</span>
+<span class="sd"> conflated as well. Both contexts and types are interpreted as objects in the category, and both</span>
+<span class="sd"> terms and substitutions are interpreted as morphisms.</span>
+
+<span class="sd"> In this file, we formalize this notion. The most notable difference between the formalization</span>
+<span class="sd"> and the definition described in the previous paragraph is the usage of displayed categories.</span>
+<span class="sd"> More precisely, we do not represent a hyperdoctrine using a contravariant functor, but instead</span>
+<span class="sd"> with a fibration that satisfies certain properties. These properties are local propositionality,</span>
+<span class="sd"> which expresses that all displayed morphisms living over the same morphism in the base are equal.</span>
+<span class="sd"> This implies that every fiber is a preorder, because all morphisms over the identity are the</span>
+<span class="sd"> same. In addition, we require that this displayed category is a fibration, so that we have a</span>
+<span class="sd"> substitution operation, and we require that this displayed category is univalent, so that the</span>
+<span class="sd"> fibers are partial orders rather than just preorders. This increases the usability of the</span>
+<span class="sd"> resulting language, and most examples satisfy this extra condition. The reason why this extra</span>
+<span class="sd"> condition, is because type formers are only preserved up to isomorphism usually. If the</span>
+<span class="sd"> displayed category is univalent, then these isomorphisms become equalities and we are also</span>
+<span class="sd"> guaranteed to have a set of formulas. This allows us to rewrite with the substitution laws.</span>
+
+<span class="sd"> We start by defining hyperdoctrines, and then we provide suitable accessors. These accessors</span>
+<span class="sd"> essentially give a shallow embedding of first order predicate logic using hyperdoctrines. We</span>
+<span class="sd"> also define suitable notations.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Adjointness in Foundations" by William Lawvere</span>
+<span class="sd"> - "Categorical logic" by Andrew Pitts in Handbook of logic in computer science, Volume 5</span>
+<span class="sd"> - "Tripos Theory in Retrospect" by Andrew Pitts</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Structure of hyperdoctrines</span>
+<span class="sd"> 2. Accessors for types in a hyperdoctrine</span>
+<span class="sd"> 3. Accessors for terms in a hyperdoctrine</span>
+<span class="sd"> 3.1. Substitution on terms</span>
+<span class="sd"> 3.2. Terms for the unit type</span>
+<span class="sd"> 3.3. Terms for the binary product type</span>
+<span class="sd"> 4. Formulas in a hyperdoctrine</span>
+<span class="sd"> 5. Proof terms in a hyperdoctrine</span>
+<span class="sd"> 6. Equality of formulas</span>
+<span class="sd"> 7. Substitution on formulas in a hyperdoctrine</span>
+
+<span class="sd"> **********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Declare Scope</span> hyperdoctrine.
+<span class="kn">Delimit Scope</span> hyperdoctrine <span class="k">with</span> hd.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="sd">(** * 1. Structure of hyperdoctrines *)</span>
+<span class="kn">Definition</span> <span class="nf">preorder_hyperdoctrine</span>
+  : UU
+  := ∑ (C : category)
+       (D : disp_cat C),
+     Terminal C
+     ×
+     BinProducts C
+     ×
+     cleaving D
+     ×
+     locally_propositional D.
+
+<span class="kn">Definition</span> <span class="nf">make_preorder_hyperdoctrine</span>
+           (<span class="nv">C</span> : category)
+           (<span class="nv">D</span> : disp_cat C)
+           (<span class="nv">T</span> : Terminal C)
+           (<span class="nv">BP</span> : BinProducts C)
+           (<span class="nv">HD</span> : cleaving D)
+           (<span class="nv">HD'</span> : locally_propositional D)
+  : preorder_hyperdoctrine
+  := C ,, D ,, T ,, BP ,, HD ,, HD'.
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine</span>
+  : UU
+  := ∑ (C : category)
+       (D : disp_cat C),
+     Terminal C
+     ×
+     BinProducts C
+     ×
+     cleaving D
+     ×
+     locally_propositional D
+     ×
+     is_univalent_disp D.
+
+<span class="kn">Definition</span> <span class="nf">make_hyperdoctrine</span>
+           (<span class="nv">C</span> : category)
+           (<span class="nv">D</span> : disp_cat C)
+           (<span class="nv">T</span> : Terminal C)
+           (<span class="nv">BP</span> : BinProducts C)
+           (<span class="nv">HD</span> : cleaving D)
+           (<span class="nv">HD'</span> : locally_propositional D)
+           (<span class="nv">HD''</span> : is_univalent_disp D)
+  : hyperdoctrine
+  := C ,, D ,, T ,, BP ,, HD ,, HD' ,, HD''.
+
+<span class="kn">Definition</span> <span class="nf">univalent_hyperdoctrine</span>
+  : UU
+  := ∑ (C : category)
+       (D : disp_cat C),
+     Terminal C
+     ×
+     BinProducts C
+     ×
+     cleaving D
+     ×
+     locally_propositional D
+     ×
+     is_univalent_disp D
+     ×
+     is_univalent C.
+
+<span class="kn">Definition</span> <span class="nf">make_univalent_hyperdoctrine</span>
+           (<span class="nv">C</span> : category)
+           (<span class="nv">D</span> : disp_cat C)
+           (<span class="nv">T</span> : Terminal C)
+           (<span class="nv">BP</span> : BinProducts C)
+           (<span class="nv">HD</span> : cleaving D)
+           (<span class="nv">HD'</span> : locally_propositional D)
+           (<span class="nv">HD''</span> : is_univalent_disp D)
+           (<span class="nv">HC</span> : is_univalent C)
+  : univalent_hyperdoctrine
+  := C ,, D ,, T ,, BP ,, HD ,, HD' ,, HD'' ,, HC.
+
+<span class="kn">Coercion</span> <span class="nf">hyperdoctrine_to_preorder_hyperdoctrine</span>
+         (H : hyperdoctrine)
+  : preorder_hyperdoctrine.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 H
+         ,,
+         pr12 H
+         ,,
+         pr122 H
+         ,,
+         pr1 (pr222 H)
+         ,,
+         pr12 (pr222 H)
+         ,,
+         pr122 (pr222 H)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">univalent_hyperdoctrine_to_hyperdoctrine</span>
+         (H : univalent_hyperdoctrine)
+  : hyperdoctrine.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 H
+         ,,
+         pr12 H
+         ,,
+         pr122 H
+         ,,
+         pr1 (pr222 H)
+         ,,
+         pr12 (pr222 H)
+         ,,
+         pr122 (pr222 H)
+         ,,
+         pr1 (pr222 (pr222 H))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Accessors for types in a hyperdoctrine *)</span>
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_type_category</span>
+           (<span class="nv">H</span> : preorder_hyperdoctrine)
+  : category
+  := pr1 H.
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_type</span>
+           (<span class="nv">H</span> : preorder_hyperdoctrine)
+  : UU
+  := ob (hyperdoctrine_type_category H).
+
+<span class="kn">Notation</span> <span class="s2">"'ty'"</span> := hyperdoctrine_type : hyperdoctrine.
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_terminal_type</span>
+           (<span class="nv">H</span> : preorder_hyperdoctrine)
+  : Terminal (hyperdoctrine_type_category H)
+  := pr122 H.
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_unit_type</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+  : ty H
+  := TerminalObject (hyperdoctrine_terminal_type H).
+
+<span class="kn">Notation</span> <span class="s2">"'𝟙'"</span> := hyperdoctrine_unit_type : hyperdoctrine.
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_binproducts</span>
+           (<span class="nv">H</span> : preorder_hyperdoctrine)
+  : BinProducts (hyperdoctrine_type_category H)
+  := pr1 (pr222 H).
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_product</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           (<span class="nv">A</span> <span class="nv">B</span> : ty H)
+  : ty H
+  := BinProductObject _ (hyperdoctrine_binproducts H A B).
+
+<span class="kn">Notation</span> <span class="s2">"A ×h B"</span> := (hyperdoctrine_product A B) (<span class="kn">at level</span> <span class="mi">75</span>, <span class="kn">right associativity</span>)
+    : hyperdoctrine.
+
+<span class="sd">(** * 3. Accessors for terms in a hyperdoctrine *)</span>
+
+<span class="sd">(** Note that for identity and composition we can reuse the notation of categories *)</span>
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_term</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           (<span class="nv">Γ</span> <span class="nv">A</span> : ty H)
+  : UU
+  := Γ --&gt; A.
+
+<span class="kn">Notation</span> <span class="s2">"'tm'"</span> := hyperdoctrine_term : hyperdoctrine.
+
+<span class="kn">Definition</span> <span class="nf">tm_var</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           (<span class="nv">A</span> : ty H)
+  : tm A A
+  := identity _.
+
+<span class="sd">(** * 3.1. Substitution on terms *)</span>
+<span class="kn">Definition</span> <span class="nf">tm_subst</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">A</span> : ty H}
+           (<span class="nv">t</span> : tm Γ₂ A)
+           (<span class="nv">s</span> : tm Γ₁ Γ₂)
+  : tm Γ₁ A
+  := s · t.
+
+<span class="kn">Notation</span> <span class="s2">"t [ s ]tm"</span> := (tm_subst t s) (<span class="kn">at level</span> <span class="mi">10</span>) : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">tm_subst_var</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">t</span> : tm Γ A)
+  : t [ tm_var Γ ]tm = t.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> tm_subst, tm_var.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">var_tm_subst</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">t</span> : tm Γ A)
+  : (tm_var A) [ t ]tm = t.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> tm_subst, tm_var.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">tm_subst_comp</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">s₁</span> : tm Γ₁ Γ₂)
+            (<span class="nv">s₂</span> : tm Γ₂ Γ₃)
+            (<span class="nv">t</span> : tm Γ₃ A)
+  : (t [ s₂ ]tm) [ s₁ ]tm = t [ s₂ [ s₁ ]tm ]tm.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> tm_subst.
+  <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3.2. Terms for the unit type *)</span>
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_unit_term</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           {<span class="nv">Γ</span> : ty H}
+  : tm Γ <span class="mi">𝟙</span>
+  := TerminalArrow _ _.
+
+<span class="kn">Notation</span> <span class="s2">"'!!'"</span> := hyperdoctrine_unit_term : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_unit_eq</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ <span class="mi">𝟙</span>)
+  : t₁ = t₂.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_unit_eta</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">t</span> : tm Γ <span class="mi">𝟙</span>)
+  : t = !!.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hyperdoctrine_unit_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_unit_tm_subst</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">Γ'</span> : ty H}
+            (<span class="nv">s</span> : tm Γ Γ')
+  : !! [ s ]tm = !!.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hyperdoctrine_unit_eq.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3.3. Terms for the binary product type *)</span>
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_pr1</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+           (<span class="nv">t</span> : tm Γ (A ×h B))
+  : tm Γ A
+  := t · BinProductPr1 _ _.
+
+<span class="kn">Notation</span> <span class="s2">"'π₁'"</span> := hyperdoctrine_pr1 : hyperdoctrine.
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_pr2</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+           (<span class="nv">t</span> : tm Γ (A ×h B))
+  : tm Γ B
+  := t · BinProductPr2 _ _.
+
+<span class="kn">Notation</span> <span class="s2">"'π₂'"</span> := hyperdoctrine_pr2 : hyperdoctrine.
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_pair</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+           (<span class="nv">t₁</span> : tm Γ A)
+           (<span class="nv">t₂</span> : tm Γ B)
+  : tm Γ (A ×h B)
+  := BinProductArrow _ _ t₁ t₂.
+
+<span class="kn">Notation</span> <span class="s2">"⟨ t₁ , t₂ ⟩"</span> := (hyperdoctrine_pair t₁ t₂) : hyperdoctrine.
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_diag</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           (<span class="nv">A</span> : ty H)
+  : tm A (A ×h A)
+  := ⟨ tm_var _ , tm_var _ ⟩.
+
+<span class="kn">Notation</span> <span class="s2">"Δ_{ A }"</span> := (hyperdoctrine_diag A) : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pair_pr1</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">t₁</span> : tm Γ A)
+            (<span class="nv">t₂</span> : tm Γ B)
+  : π₁ ⟨ t₁ , t₂ ⟩ = t₁.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hyperdoctrine_pr1, hyperdoctrine_pair.
+  <span class="nb">apply</span> BinProductPr1Commutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pair_pr2</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">t₁</span> : tm Γ A)
+            (<span class="nv">t₂</span> : tm Γ B)
+  : π₂ ⟨ t₁ , t₂ ⟩ = t₂.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hyperdoctrine_pr2, hyperdoctrine_pair.
+  <span class="nb">apply</span> BinProductPr2Commutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pr1_subst</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">Γ'</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">s</span> : tm Γ Γ')
+            (<span class="nv">t</span> : tm Γ' (A ×h B))
+  : (π₁ t) [ s ]tm = π₁ (t [ s ]tm).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hyperdoctrine_pr1, hyperdoctrine_pair.
+  <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pr1_comp</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">Γ'</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">s</span> : tm Γ Γ')
+            (<span class="nv">t</span> : tm Γ' (A ×h B))
+  : s · π₁ t = π₁ (s · t).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hyperdoctrine_pr1_subst.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pair_comp_pr1</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">t₁</span> : tm Γ A)
+            (<span class="nv">t₂</span> : tm Γ B)
+  : (π₁ (tm_var _)) [ ⟨ t₁ , t₂ ⟩ ]tm = t₁.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> hyperdoctrine_pr1_subst.
+  <span class="nb">unfold</span> tm_subst.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr1.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pair_comp_pr1'</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">t₁</span> : tm Γ A)
+            (<span class="nv">t₂</span> : tm Γ B)
+  : ⟨ t₁, t₂ ⟩ · π₁ (tm_var (A ×h B)) = t₁.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hyperdoctrine_pair_comp_pr1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pr2_subst</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">Γ'</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">s</span> : tm Γ Γ')
+            (<span class="nv">t</span> : tm Γ' (A ×h B))
+  : (π₂ t) [ s ]tm = π₂ (t [ s ]tm).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hyperdoctrine_pr2, hyperdoctrine_pair.
+  <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pr2_comp</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">Γ'</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">s</span> : tm Γ Γ')
+            (<span class="nv">t</span> : tm Γ' (A ×h B))
+  : s · π₂ t = π₂ (s · t).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hyperdoctrine_pr2_subst.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pair_comp_pr2</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">t₁</span> : tm Γ A)
+            (<span class="nv">t₂</span> : tm Γ B)
+  : (π₂ (tm_var _)) [ ⟨ t₁ , t₂ ⟩ ]tm = t₂.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> hyperdoctrine_pr2_subst.
+  <span class="nb">unfold</span> tm_subst.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr2.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pair_comp_pr2'</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">t₁</span> : tm Γ A)
+            (<span class="nv">t₂</span> : tm Γ B)
+  : ⟨ t₁, t₂ ⟩ · π₂ (tm_var (A ×h B)) = t₂.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hyperdoctrine_pair_comp_pr2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pair_subst</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">Γ'</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">s</span> : tm Γ Γ')
+            (<span class="nv">t₁</span> : tm Γ' A)
+            (<span class="nv">t₂</span> : tm Γ' B)
+  : ⟨ t₁ , t₂ ⟩ [ s ]tm = ⟨ t₁ [ s ]tm , t₂ [ s ]tm ⟩.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hyperdoctrine_pair.
+  <span class="nb">apply</span> precompWithBinProductArrow.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pair_comp</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">Γ'</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">s</span> : tm Γ Γ')
+            (<span class="nv">t₁</span> : tm Γ' A)
+            (<span class="nv">t₂</span> : tm Γ' B)
+  : s · ⟨ t₁, t₂ ⟩ = ⟨ s · t₁, s · t₂ ⟩.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hyperdoctrine_pair_subst.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_pair_eta</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">t</span> : tm Γ (A ×h B))
+  : t = ⟨ π₁ t , π₂ t ⟩.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hyperdoctrine_pr1, hyperdoctrine_pr2, hyperdoctrine_pair.
+  <span class="nb">apply</span> BinProductArrowEta.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_diag_subst</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">t</span> : tm Γ A)
+  : Δ_{ A } [ t ]tm = ⟨ t , t ⟩.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hyperdoctrine_diag.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_subst.
+  <span class="nb">unfold</span> tm_subst.
+  <span class="nb">rewrite</span> !id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Formulas in a hyperdoctrine *)</span>
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_formula_disp_cat</span>
+           (<span class="nv">H</span> : preorder_hyperdoctrine)
+  : disp_cat (hyperdoctrine_type_category H)
+  := pr12 H.
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_formula</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           (<span class="nv">A</span> : ty H)
+  : UU
+  := ob_disp (hyperdoctrine_formula_disp_cat H) A.
+
+<span class="kn">Notation</span> <span class="s2">"'form'"</span> := hyperdoctrine_formula : hyperdoctrine.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_disp_hyperdoctrine</span>
+           (<span class="nv">H</span> : hyperdoctrine)
+  : is_univalent_disp _
+  := pr222 (pr222 H).
+
+<span class="kn">Proposition</span> <span class="nf">isaset_hyperdoctrine_formula</span>
+            {<span class="nv">H</span> : hyperdoctrine}
+            (<span class="nv">A</span> : ty H)
+  : isaset (form A).
+<span class="kn">Proof</span>.
+  use locally_propositional_to_obj_set.
+  - <span class="bp">exact</span> (is_univalent_disp_hyperdoctrine H).
+  - <span class="bp">exact</span> (pr122 (pr222 H)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Proof terms in a hyperdoctrine *)</span>
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_proof</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           {<span class="nv">A</span> : ty H}
+           (<span class="nv">Δ</span> <span class="nv">ψ</span> : form A)
+  : UU
+  := Δ --&gt;[ identity _ ] ψ.
+
+<span class="kn">Notation</span> <span class="s2">"Δ ⊢ ψ"</span> := (hyperdoctrine_proof Δ ψ) (<span class="kn">at level</span> <span class="mi">100</span>) : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_proof_eq</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">ψ</span> : form A}
+            (<span class="nv">p</span> <span class="nv">q</span> : Δ ⊢ ψ)
+  : p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr22 (pr222 H)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_hyp</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">A</span> : ty H}
+            (<span class="nv">φ</span> : form A)
+  : φ ⊢ φ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> id_disp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_cut</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">ψ</span> <span class="nv">χ</span> : form A}
+            (<span class="nv">p</span> : Δ ⊢ ψ)
+            (<span class="nv">q</span> : ψ ⊢ χ)
+  : Δ ⊢ χ.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (transportf _ (id_left _) (p ;; q))%mor_disp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Equality of formulas *)</span>
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_formula_eq</span>
+            {<span class="nv">H</span> : hyperdoctrine}
+            {<span class="nv">A</span> : ty H}
+            {<span class="nv">φ</span> <span class="nv">ψ</span> : form A}
+            (<span class="nv">p</span> : φ ⊢ ψ)
+            (<span class="nv">q</span> : ψ ⊢ φ)
+  : φ = ψ.
+<span class="kn">Proof</span>.
+  use (isotoid_disp (is_univalent_disp_hyperdoctrine H) (idpath _)).
+  use make_z_iso_disp.
+  - <span class="bp">exact</span> p.
+  - <span class="nb">refine</span> (q ,, _ ,, _) ; <span class="nb">apply</span> (pr122 (pr222 H)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_formula_eq_f</span>
+            {<span class="nv">H</span> : hyperdoctrine}
+            {<span class="nv">A</span> : ty H}
+            {<span class="nv">φ</span> <span class="nv">ψ</span> : form A}
+            (<span class="nv">p</span> : φ = ψ)
+  : φ ⊢ ψ.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_formula_eq_b</span>
+            {<span class="nv">H</span> : hyperdoctrine}
+            {<span class="nv">A</span> : ty H}
+            {<span class="nv">φ</span> <span class="nv">ψ</span> : form A}
+            (<span class="nv">p</span> : φ = ψ)
+  : ψ ⊢ φ.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. Substitution on formulas in a hyperdoctrine *)</span>
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_cleaving</span>
+           (<span class="nv">H</span> : preorder_hyperdoctrine)
+  : cleaving _
+  := pr12 (pr222 H).
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_subst</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+           (<span class="nv">φ</span> : form Γ₂)
+           (<span class="nv">s</span> : tm Γ₁ Γ₂)
+  : form Γ₁
+  := cleaving_ob (hyperdoctrine_cleaving H) s φ.
+
+<span class="kn">Notation</span> <span class="s2">"φ [ s ]"</span> := (hyperdoctrine_subst φ s) (<span class="kn">at level</span> <span class="mi">10</span>) : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_id_subst</span>
+            {<span class="nv">H</span> : hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">φ</span> : form Γ)
+  : φ [ tm_var _ ] = φ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  use (isotoid_disp (is_univalent_disp_hyperdoctrine H) (idpath _)).
+  use z_iso_disp_from_z_iso_fiber.
+  <span class="bp">exact</span> (_ ,, is_nat_z_iso_fiber_functor_from_cleaving_identity (pr12 (pr222 H)) Γ φ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_comp_subst</span>
+            {<span class="nv">H</span> : hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : ty H}
+            (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+            (<span class="nv">φ</span> : form Γ₃)
+  : φ [ s₂ ] [ s₁ ] = φ [ s₂ [ s₁ ]tm ].
+<span class="kn">Proof</span>.
+  use (isotoid_disp (is_univalent_disp_hyperdoctrine H) (idpath _)).
+  use z_iso_disp_from_z_iso_fiber.
+  <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso
+           (fiber_functor_from_cleaving_comp_nat_z_iso (pr12 (pr222 H)) s₂ s₁)
+           φ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_proof_subst</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> : form Γ₂}
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+            (<span class="nv">p</span> : Δ ⊢ φ)
+  : Δ [ s ] ⊢ φ [ s ].
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (#(fiber_functor_from_cleaving _ (hyperdoctrine_cleaving H) s) p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">from_disp_mor_hyperdoctrine</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ₁}
+            {<span class="nv">φ</span> : form Γ₂}
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+            (<span class="nv">p</span> : Δ --&gt;[ s ] φ)
+  : Δ ⊢ φ [ s ].
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation
+         (cartesian_lift_is_cartesian _ _ (hyperdoctrine_cleaving H _ _ s φ))).
+  <span class="bp">exact</span> (transportb
+           (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+           (id_left _)
+           p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">to_disp_mor_hyperdoctrine</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ₁}
+            {<span class="nv">φ</span> : form Γ₂}
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+            (<span class="nv">p</span> : Δ ⊢ φ [ s ])
+  : Δ --&gt;[ s ] φ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (transportf (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) (id_left _) (p ;; _)%mor_disp).
+  <span class="bp">exact</span> (mor_disp_of_cartesian_lift _ _ (hyperdoctrine_cleaving H _ _ s φ)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_mor_eq_hyperdoctrine</span>
+            {<span class="nv">H</span> : preorder_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ₁}
+            {<span class="nv">φ</span> : form Γ₂}
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+            (<span class="nv">p</span> <span class="nv">q</span> : Δ --&gt;[ s ] φ)
+  : p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr22 (pr222 H)).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/Hyperdoctrine.v</tt>, line 50)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. Substitution on formulas in a hyperdoctrine
+  &gt;
+  &gt;  **********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DFLCompCatNotations.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*************************************************************************************</span>
+
+<span class="sd"> Accessors for full DFL comprehension categories</span>
+
+<span class="sd"> In this file, we define numerous useful accessors for full DFL comprehension categories.</span>
+<span class="sd"> First, we show that terms and displayed morphisms from the identity are equivalent.</span>
+<span class="sd"> Here, we use that the comprehension category is full (so, the comprehension functor is</span>
+<span class="sd"> fully faithful) and we use that the unit type is strong (extending with the unit type</span>
+<span class="sd"> gives an isomorphic context).</span>
+
+<span class="sd"> For democracy and sigma types, we only give basic accessors. However, we define more</span>
+<span class="sd"> interesting operations for equalizer types. More specifically, we construct some kind</span>
+<span class="sd"> of identity type: whenever we have two terms, then we can form their identity type. Here</span>
+<span class="sd"> we use that terms correspond to displayed morphisms, and that we have fiberwise</span>
+<span class="sd"> equalizers. Since we are using equalizers, some diagram involving the projections will</span>
+<span class="sd"> commute ([dfl_ext_identity_eq]). We also give an introduction rule for terms of this</span>
+<span class="sd"> identity type ([dfl_ext_identity_type_tm]), and we look at stability under substitution</span>
+<span class="sd"> ([dfl_ext_identity_sub_tm]). Finally, we show that every term of the identity type is</span>
+<span class="sd"> equal ([dfl_eq_subst_equalizer_tm]). It is good to note that here we consistently use</span>
+<span class="sd"> equality of morphisms. For that reason, this constructed identity type is extensional.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Terms and displayed morphisms</span>
+<span class="sd"> 2. Operations on democracy</span>
+<span class="sd"> 3. Operations on extensional identity types</span>
+<span class="sd"> 4. Operations on sigma types</span>
+
+<span class="sd"> *************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.FullyFaithfulDispFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="kn">Section</span> <span class="nf">DFLCompCat</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : dfl_full_comp_cat}.
+
+  <span class="sd">(** * 1. Terms and displayed morphisms *)</span>
+  <span class="kn">Section</span> <span class="nf">TmAndMor</span>.
+    <span class="kn">Context</span> {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> : ty Γ}.
+
+    <span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_mor_to_tm</span>
+               (<span class="nv">f</span> : dfl_full_comp_cat_unit Γ &lt;: A)
+      : tm Γ A.
+    <span class="kn">Proof</span>.
+      use make_comp_cat_tm.
+      - <span class="bp">exact</span> (inv_from_z_iso (dfl_full_comp_cat_extend_unit_z_iso Γ)
+               · comprehension_functor_mor (comp_cat_comprehension C) f).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">refine</span> (maponpaths
+                     (<span class="k">λ</span> <span class="nv">z</span>, _ · z)
+                     (comprehension_functor_mor_comm (comp_cat_comprehension C) f)
+                   @ _) ;
+           <span class="nb">rewrite</span> id_right ;
+           <span class="nb">apply</span> z_iso_after_z_iso_inv).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_tm_to_mor</span>
+               (<span class="nv">t</span> : tm Γ A)
+      : dfl_full_comp_cat_unit Γ &lt;: A.
+    <span class="kn">Proof</span>.
+      use (disp_functor_ff_inv
+             _
+             (full_comp_cat_comprehension_fully_faithful C) _).
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (π _ · t).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_right ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">refine</span> (maponpaths
+                     (<span class="k">λ</span> <span class="nv">z</span>, _ · z)
+                     (comp_cat_tm_eq t)
+                   @ _) ;
+           <span class="nb">apply</span> id_right).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">dfl_full_comp_cat_mor_to_tm_to_mor</span>
+                (<span class="nv">f</span> : dfl_full_comp_cat_unit Γ &lt;: A)
+      : dfl_full_comp_cat_tm_to_mor (dfl_full_comp_cat_mor_to_tm f) = f.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (_ @ homotinvweqweq
+                    (disp_functor_ff_weq
+                       _
+                       (full_comp_cat_comprehension_fully_faithful C)
+                       _ _ _)
+                    _).
+      <span class="nb">unfold</span> dfl_full_comp_cat_tm_to_mor.
+      <span class="nb">apply</span> maponpaths.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (z_iso_inv_after_z_iso (dfl_full_comp_cat_extend_unit_z_iso Γ)).
+      }
+      <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">dfl_full_comp_cat_tm_to_mor_to_tm</span>
+                (<span class="nv">t</span> : tm Γ A)
+      : dfl_full_comp_cat_mor_to_tm (dfl_full_comp_cat_tm_to_mor t) = t.
+    <span class="kn">Proof</span>.
+      use eq_comp_cat_tm ; <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths
+                 pr1
+                 (FF_disp_functor_ff_inv
+                    (full_comp_cat_comprehension_fully_faithful C)
+                    _)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+      }
+      <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">TmAndMor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_tm_weq_mor</span>
+             {<span class="nv">Γ</span> : C}
+             (<span class="nv">A</span> : ty Γ)
+    : dfl_full_comp_cat_unit Γ &lt;: A
+      ≃
+      tm Γ A.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> dfl_full_comp_cat_mor_to_tm.
+    - <span class="bp">exact</span> dfl_full_comp_cat_tm_to_mor.
+    - <span class="bp">exact</span> dfl_full_comp_cat_mor_to_tm_to_mor.
+    - <span class="bp">exact</span> dfl_full_comp_cat_tm_to_mor_to_tm.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">TypeIso</span>.
+    <span class="kn">Context</span> {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+            (<span class="nv">f</span> : z_iso (Γ &amp; A) (Γ &amp; B))
+            (<span class="nv">p</span> : f · π B = π A).
+
+    <span class="kn">Let</span> <span class="nf">HF</span> : disp_functor_ff (comp_cat_comprehension C)
+      := full_comp_cat_comprehension_fully_faithful C.
+
+    <span class="kn">Definition</span> <span class="nf">cod_iso_to_type_iso_mor</span>
+      : comp_cat_comprehension C Γ A
+        --&gt;[ identity _ ]
+        comp_cat_comprehension C Γ B.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> f.
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_right ;
+           <span class="bp">exact</span> p).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cod_iso_to_type_iso_inv</span>
+      : comp_cat_comprehension C Γ B
+        --&gt;[ identity _ ]
+        comp_cat_comprehension C Γ A.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (inv_from_z_iso f).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_right ;
+           use z_iso_inv_on_right ;
+           <span class="bp">exact</span> (!p)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cod_iso_to_type_iso</span>
+      : z_iso (C := fiber_category _ _) A B.
+    <span class="kn">Proof</span>.
+      use make_z_iso.
+      - use (disp_functor_ff_inv _ HF).
+        <span class="bp">exact</span> cod_iso_to_type_iso_mor.
+      - use (disp_functor_ff_inv _ HF).
+        <span class="bp">exact</span> cod_iso_to_type_iso_inv.
+      - <span class="nb">split</span>.
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> &lt;- disp_functor_ff_inv_compose ;
+             <span class="nb">unfold</span> transportb ;
+             <span class="nb">rewrite</span> &lt;- disp_functor_ff_inv_transportf ;
+             <span class="nb">refine</span> (_ @ disp_functor_ff_inv_identity _ HF _) ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">unfold</span> transportb ;
+             <span class="nb">rewrite</span> transport_f_f ;
+             use eq_mor_cod_fib ;
+             <span class="nb">unfold</span> dom_mor ;
+             <span class="nb">rewrite</span> !transportf_cod_disp ; <span class="nb">cbn</span> ;
+             <span class="bp">exact</span> (z_iso_inv_after_z_iso f)).
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> &lt;- disp_functor_ff_inv_compose ;
+             <span class="nb">unfold</span> transportb ;
+             <span class="nb">rewrite</span> &lt;- disp_functor_ff_inv_transportf ;
+             <span class="nb">refine</span> (_ @ disp_functor_ff_inv_identity _ HF _) ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">unfold</span> transportb ;
+             <span class="nb">rewrite</span> transport_f_f ;
+             use eq_mor_cod_fib ;
+             <span class="nb">unfold</span> dom_mor ;
+             <span class="nb">rewrite</span> !transportf_cod_disp ; <span class="nb">cbn</span> ;
+             <span class="bp">exact</span> (z_iso_after_z_iso_inv f)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">TypeIso</span>.
+
+  <span class="sd">(** * 2. Operations on democracy *)</span>
+  <span class="kn">Definition</span> <span class="nf">dfl_con_to_ty</span>
+             (<span class="nv">Γ</span> : C)
+    : ty ([] : C)
+    := is_democratic_ty (is_democratic_dfl_full_comp_cat C) Γ.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_con_to_z_iso</span>
+             (<span class="nv">Γ</span> : C)
+    : z_iso Γ ([] &amp; dfl_con_to_ty Γ)
+    := is_democratic_iso (is_democratic_dfl_full_comp_cat C) Γ.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_sub_to_mor</span>
+             {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+             (<span class="nv">s</span> : Γ --&gt; Δ)
+    : dfl_con_to_ty Γ &lt;: dfl_con_to_ty Δ.
+  <span class="kn">Proof</span>.
+    use (disp_functor_ff_inv
+           _
+           (full_comp_cat_comprehension_fully_faithful C) _).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (inv_from_z_iso (dfl_con_to_z_iso Γ) · s · dfl_con_to_z_iso Δ).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> TerminalArrowEq).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. Operations on extensional identity types *)</span>
+  <span class="kn">Definition</span> <span class="nf">dfl_ext_identity</span>
+             {<span class="nv">Γ</span> : C}
+             {<span class="nv">A</span> : ty Γ}
+             (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+    : Equalizer
+        (C := fiber_category (disp_cat_of_types C) Γ)
+        (dfl_full_comp_cat_tm_to_mor t₁)
+        (dfl_full_comp_cat_tm_to_mor t₂)
+    := pr1 (fiberwise_equalizers_dfl_full_comp_cat C) Γ _ _ _ _.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_ext_identity_type</span>
+             {<span class="nv">Γ</span> : C}
+             {<span class="nv">A</span> : ty Γ}
+             (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+    : ty Γ
+    := EqualizerObject (dfl_ext_identity t₁ t₂).
+
+  <span class="kn">Proposition</span> <span class="nf">dfl_ext_identity_eq</span>
+              {<span class="nv">Γ</span> : C}
+              {<span class="nv">A</span> : ty Γ}
+              (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+    : π (dfl_ext_identity_type t₁ t₂) · t₁
+      =
+      π (dfl_ext_identity_type t₁ t₂) · t₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ maponpaths comp_cat_comp_mor (EqualizerEqAr (dfl_ext_identity t₁ t₂)) @ _).
+    - <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> comp_cat_comp_mor.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      <span class="nb">rewrite</span> comprehension_functor_mor_comp.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths
+                 pr1
+                 (FF_disp_functor_ff_inv
+                    (full_comp_cat_comprehension_fully_faithful C)
+                    _)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="bp">exact</span> (comprehension_functor_mor_comm (comp_cat_comprehension C) _).
+
+      }
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> comp_cat_comp_mor.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      <span class="nb">rewrite</span> comprehension_functor_mor_comp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths
+                 pr1
+                 (FF_disp_functor_ff_inv
+                    (full_comp_cat_comprehension_fully_faithful C)
+                    _)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="bp">exact</span> (comprehension_functor_mor_comm (comp_cat_comprehension C) _).
+
+      }
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">tm_ext_identity_to_eq</span>
+              {<span class="nv">Γ</span> : C}
+              {<span class="nv">A</span> : ty Γ}
+              {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A}
+              (<span class="nv">p</span> : tm Γ (dfl_ext_identity_type t₁ t₂))
+    : t₁ = t₂.
+  <span class="kn">Proof</span>.
+    use eq_comp_cat_tm.
+    <span class="nb">refine</span> (!(id_left _) @ _ @ id_left _).
+    <span class="nb">rewrite</span> &lt;- !(comp_cat_tm_eq p).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> dfl_ext_identity_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_ext_identity_type_tm</span>
+             {<span class="nv">Γ</span> : C}
+             {<span class="nv">A</span> : ty Γ}
+             (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+             (<span class="nv">p</span> : π (dfl_full_comp_cat_unit Γ) · t₁
+                  =
+                  π (dfl_full_comp_cat_unit Γ) · t₂)
+    : comp_cat_tm Γ (dfl_ext_identity_type t₁ t₂).
+  <span class="kn">Proof</span>.
+    use dfl_full_comp_cat_mor_to_tm.
+    use (EqualizerIn (dfl_ext_identity t₁ t₂)).
+    - <span class="nb">apply</span> TerminalArrow.
+    - use (invmaponpathsweq (dfl_full_comp_cat_tm_weq_mor _)).
+      use eq_comp_cat_tm.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+      <span class="nb">rewrite</span> !comprehension_functor_mor_comp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths
+                 pr1
+                 (FF_disp_functor_ff_inv
+                    (full_comp_cat_comprehension_fully_faithful C)
+                    _)).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths
+                 pr1
+                 (FF_disp_functor_ff_inv
+                    (full_comp_cat_comprehension_fully_faithful C)
+                    _)).
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> comprehension_functor_mor_comm.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> comprehension_functor_mor_comm.
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !id_right.
+      <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_ext_identity_sub_mor_mor</span>
+             {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+             (<span class="nv">s</span> : Δ --&gt; Γ)
+             {<span class="nv">A</span> : ty Γ}
+             (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+    : (disp_cat_of_types C)[{Δ}]
+        ⟦ dfl_ext_identity_type (t₁ [[ s ]]tm) (t₂ [[ s ]]tm)
+        , fiber_functor_from_cleaving
+            (disp_cat_of_types C)
+            (cleaving_of_types C)
+            s
+            (dfl_full_comp_cat_unit Γ)
+        ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (EqualizerArrow
+              (dfl_ext_identity (t₁ [[ s ]]tm) (t₂ [[ s ]]tm))
+            · _).
+    use (TerminalArrow
+           (preserves_terminal_to_terminal
+              _
+              (pr2 (fiberwise_terminal_dfl_full_comp_cat C) _ _ s)
+              _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dfl_ext_identity_sub_mor_eq</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+              (<span class="nv">s</span> : Δ --&gt; Γ)
+              {<span class="nv">A</span> : ty Γ}
+              (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+    : dfl_ext_identity_sub_mor_mor s t₁ t₂
+      · # (fiber_functor_from_cleaving
+             (disp_cat_of_types C)
+             (cleaving_of_types C)
+             s)
+          (dfl_full_comp_cat_tm_to_mor t₁)
+      =
+      dfl_ext_identity_sub_mor_mor s t₁ t₂
+      · # (fiber_functor_from_cleaving
+             (disp_cat_of_types C)
+             (cleaving_of_types C)
+             s)
+          (dfl_full_comp_cat_tm_to_mor t₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> dfl_ext_identity_sub_mor_mor.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">pose</span> (EqualizerEqAr
+            (dfl_ext_identity
+               (t₁ [[ s ]]tm)
+               (t₂ [[ s ]]tm)))
+      <span class="k">as</span> p.
+    <span class="nb">refine</span> (_ @ p @ _) ; <span class="nb">apply</span> maponpaths ; <span class="nb">clear</span> p.
+    - use (invmaponpathsweq (dfl_full_comp_cat_tm_weq_mor _)).
+      <span class="nb">refine</span> (_ @ !(homotweqinvweq (dfl_full_comp_cat_tm_weq_mor _) _)).
+      use eq_comp_cat_tm.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      <span class="nb">rewrite</span> comprehension_functor_mor_comp.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback (cartesian_to_pullback _ _))).
+      + <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> comprehension_functor_mor_factorisation_pr1.
+        <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+        <span class="nb">rewrite</span> comprehension_functor_mor_comp.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (maponpaths
+                   pr1
+                   (FF_disp_functor_ff_inv
+                      (full_comp_cat_comprehension_fully_faithful C)
+                      _)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> comprehension_functor_mor_comm.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">refine</span> (_ @ id_left _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> comprehension_functor_mor_comm.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+      + <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> comprehension_functor_mor_factorisation_pr2.
+        }
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> comprehension_functor_mor_comm.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+    - use (invmaponpathsweq (dfl_full_comp_cat_tm_weq_mor _)).
+      <span class="nb">refine</span> (homotweqinvweq (dfl_full_comp_cat_tm_weq_mor _) _ @ _).
+      use eq_comp_cat_tm.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      <span class="nb">rewrite</span> comprehension_functor_mor_comp.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback (cartesian_to_pullback _ _))).
+      + <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> comprehension_functor_mor_factorisation_pr1.
+        <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+        <span class="nb">rewrite</span> comprehension_functor_mor_comp.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (maponpaths
+                   pr1
+                   (FF_disp_functor_ff_inv
+                      (full_comp_cat_comprehension_fully_faithful C)
+                      _)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> comprehension_functor_mor_comm.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">refine</span> (_ @ id_left _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> comprehension_functor_mor_comm.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+      + <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> comprehension_functor_mor_factorisation_pr2.
+        }
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> comprehension_functor_mor_comm.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_ext_identity_sub_mor</span>
+             {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+             (<span class="nv">s</span> : Δ --&gt; Γ)
+             {<span class="nv">A</span> : ty Γ}
+             (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+    : dfl_ext_identity_type (t₁ [[ s ]]tm) (t₂ [[ s ]]tm)
+      &lt;:
+      dfl_ext_identity_type t₁ t₂ [[s]].
+  <span class="kn">Proof</span>.
+    use (EqualizerIn
+           (preserves_equalizer_equalizer
+              (pr2 (fiberwise_equalizers_dfl_full_comp_cat C) _ _ s)
+              (dfl_ext_identity t₁ t₂))).
+    - <span class="bp">exact</span> (dfl_ext_identity_sub_mor_mor s t₁ t₂).
+    - <span class="bp">exact</span> (dfl_ext_identity_sub_mor_eq s t₁ t₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_ext_identity_sub_tm</span>
+             {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+             (<span class="nv">s</span> : Δ --&gt; Γ)
+             {<span class="nv">A</span> : ty Γ}
+             {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A}
+             (<span class="nv">p</span> : tm
+                    Δ
+                    (dfl_ext_identity_type
+                       (t₁ [[ s ]]tm)
+                       (t₂ [[ s ]]tm)))
+    : tm Δ ((dfl_ext_identity_type t₁ t₂) [[ s ]]).
+  <span class="kn">Proof</span>.
+    use make_comp_cat_tm.
+    - <span class="bp">exact</span> (p · comp_cat_comp_mor (dfl_ext_identity_sub_mor s t₁ t₂)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">unfold</span> comp_cat_comp_mor ;
+         <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (comprehension_functor_mor_comm _ _) @ _) ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">apply</span> comp_cat_tm_eq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dfl_eq_subst_equalizer_tm</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+              (<span class="nv">s</span> : Δ --&gt; Γ)
+              {<span class="nv">A</span> : ty Γ}
+              (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+              (<span class="nv">p₁</span> <span class="nv">p₂</span> : tm Δ (dfl_ext_identity_type t₁ t₂ [[ s ]]))
+    : p₁ = p₂.
+  <span class="kn">Proof</span>.
+    use (invmaponpathsweq (invweq (dfl_full_comp_cat_tm_weq_mor _))) ; <span class="nb">cbn</span>.
+    use (EqualizerArrowisMonic
+           (preserves_equalizer_equalizer
+              (pr2 (fiberwise_equalizers_dfl_full_comp_cat C) _ _ s)
+              (dfl_ext_identity t₁ t₂))).
+    <span class="nb">apply</span> (TerminalArrowEq
+             (T := preserves_terminal_to_terminal
+                     _
+                     (pr2 (fiberwise_terminal_dfl_full_comp_cat C) _ _ s)
+                     (dfl_full_comp_cat_terminal _))).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. Operations on sigma types *)</span>
+  <span class="kn">Definition</span> <span class="nf">dfl_sigma_type</span>
+             {<span class="nv">Γ</span> : C}
+             (<span class="nv">A</span> : ty Γ)
+             (<span class="nv">B</span> : ty (Γ &amp; A))
+    : ty Γ
+    := dep_sum_cc (strong_dependent_sum_dfl_full_comp_cat C) A B.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_sigma_type_strong</span>
+             {<span class="nv">Γ</span> : C}
+             (<span class="nv">A</span> : ty Γ)
+             (<span class="nv">B</span> : ty (Γ &amp; A))
+    : z_iso (Γ &amp; A &amp; B) (Γ &amp; dfl_sigma_type A B)
+    := _ ,, strong_dependent_sums_iso (strong_dependent_sum_dfl_full_comp_cat C) A B.
+<span class="kn">End</span> <span class="nf">DFLCompCat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/DFLCompCatNotations.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Operations on sigma types
+  &gt;
+  &gt;  *************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

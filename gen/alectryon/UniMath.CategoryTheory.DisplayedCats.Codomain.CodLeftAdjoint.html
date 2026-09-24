@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CodLeftAdjoint.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************************</span>
+
+<span class="sd"> Left adjoint to substitution for the codomain</span>
+
+<span class="sd"> The fibers of the codomain fibration are given by slice categories and the functors</span>
+<span class="sd"> between them are given by taking the pullback. Each of these functors has a left adjoint,</span>
+<span class="sd"> which is given by composition. In this file, we establish this fact.</span>
+
+<span class="sd"> There are multiple ways to construct this adjoint. We construct the unit and counit</span>
+<span class="sd"> of this adjunction directly rather than using universal arrows. The reason for doing</span>
+<span class="sd"> so, is because we want the right adjoint of this functor to compute nicely. For that</span>
+<span class="sd"> reason, we construct it explicitly. The advantage of having nice computational behavior</span>
+<span class="sd"> of this right adjoint, is that it helps with verifying the Beck-Chevalley conditions.</span>
+
+<span class="sd"> We also verify that the codomain fibration has dependent sums. The main work here lies</span>
+<span class="sd"> in calculating the Beck-Chevalley map.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The left adjoint</span>
+<span class="sd"> 2. The unit</span>
+<span class="sd"> 3. The counit</span>
+<span class="sd"> 4. The triangle equalities</span>
+<span class="sd"> 5. The adjunction</span>
+<span class="sd"> 6. The Beck-Chevalley condition</span>
+<span class="sd"> 7. Dependent sums for the codomain</span>
+<span class="sd"> 8. The left adjoint is an isomorphism</span>
+
+<span class="sd"> ***************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">CodomainLeftAdj</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">HC</span> : Pullbacks C)
+          {<span class="nv">x</span> <span class="nv">y</span> : C}
+          (<span class="nv">f</span> : x --&gt; y).
+
+  <span class="sd">(** * 1. The left adjoint *)</span>
+  <span class="kn">Definition</span> <span class="nf">comp_functor_data</span>
+    : functor_data (C/x) (C/y).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (cod_fib_comp f).
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">g₁</span> <span class="nv">g₂</span> <span class="nv">h</span>, make_cod_fib_mor _ _).
+      + <span class="bp">exact</span> (dom_mor h).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> mor_eq ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_functor_laws</span>
+    : is_functor comp_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> g.
+      use eq_mor_cod_fib ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> g₁ g₂ g₃ h₁ h₂.
+      use eq_mor_cod_fib.
+      <span class="nb">cbn</span> -[fiber_category].
+      <span class="nb">rewrite</span> !comp_in_cod_fib.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_functor</span>
+    : (C/x) ⟶ (C/y).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> comp_functor_data.
+    - <span class="bp">exact</span> comp_functor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dom_mor_comp_functor</span>
+              {<span class="nv">g₁</span> <span class="nv">g₂</span> : C/x}
+              (<span class="nv">h</span> : g₁ --&gt; g₂)
+    : dom_mor (#comp_functor h) = dom_mor h.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. The unit *)</span>
+  <span class="kn">Definition</span> <span class="nf">comp_functor_unit_data</span>
+    : nat_trans_data
+        (functor_identity (C / x))
+        (comp_functor ∙ cod_pb HC f).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">g</span>, make_cod_fib_mor _ _).
+    - use PullbackArrow.
+      + <span class="bp">exact</span> (identity (cod_dom g)).
+      + <span class="bp">exact</span> (cod_mor g).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">apply</span> id_left).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_functor_unit_laws</span>
+    : is_nat_trans _ _ comp_functor_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> g₁ g₂ h.
+    use eq_mor_cod_fib.
+    <span class="nb">cbn</span> -[fiber_category].
+    <span class="nb">rewrite</span> !comp_in_cod_fib.
+    <span class="nb">cbn</span>.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (HC y (cod_dom g₂) x (cod_mor g₂ · f) f)).
+      }
+      <span class="nb">rewrite</span> transportf_cod_disp.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (HC y (cod_dom g₂) x (cod_mor g₂ · f) f)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">refine</span> (_ @ !(mor_eq h)).
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_functor_unit</span>
+    : functor_identity _ ⟹ comp_functor ∙ cod_pb HC f.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> comp_functor_unit_data.
+    - <span class="bp">exact</span> comp_functor_unit_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. The counit *)</span>
+  <span class="kn">Definition</span> <span class="nf">comp_functor_counit_data</span>
+    : nat_trans_data (cod_pb HC f ∙ comp_functor) (functor_identity (C / y)).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">g</span>, make_cod_fib_mor _ _).
+    - <span class="nb">apply</span> PullbackPr1.
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">apply</span> PullbackSqrCommutes).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_functor_counit_laws</span>
+    : is_nat_trans _ _ comp_functor_counit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> g₁ g₂ h.
+    use eq_mor_cod_fib.
+    <span class="nb">cbn</span> -[fiber_category].
+    <span class="nb">rewrite</span> !comp_in_cod_fib.
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (HC y (pr1 g₂) x (pr2 g₂) f)).
+    }
+    <span class="nb">rewrite</span> transportf_cod_disp.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_functor_counit</span>
+    : cod_pb HC f ∙ comp_functor ⟹ functor_identity _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> comp_functor_counit_data.
+    - <span class="bp">exact</span> comp_functor_counit_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. The triangle equalities *)</span>
+  <span class="kn">Proposition</span> <span class="nf">form_adj_comp_cod_pb</span>
+    : form_adjunction
+        comp_functor
+        (cod_pb HC f)
+        comp_functor_unit
+        comp_functor_counit.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> g.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> g.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback (HC y (pr1 g) x (pr2 g) f))).
+      + <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (HC y (pr1 g) x (pr2 g) f)).
+        }
+        <span class="nb">rewrite</span> transportf_cod_disp.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (HC y (pr1 g) x (pr2 g) f)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. The adjunction *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_right_adjoint_cod_fiber_functor</span>
+    : is_right_adjoint (cod_pb HC f).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> comp_functor.
+    - <span class="nb">simple refine</span> ((_ ,, _) ,, _).
+      + <span class="bp">exact</span> comp_functor_unit.
+      + <span class="bp">exact</span> comp_functor_counit.
+      + <span class="bp">exact</span> form_adj_comp_cod_pb.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_fiber_sigma_adjunction</span>
+    : adjunction (C/x) (C/y).
+  <span class="kn">Proof</span>.
+    use right_adjoint_to_adjunction.
+    - <span class="bp">exact</span> (cod_pb HC f).
+    - <span class="bp">exact</span> is_right_adjoint_cod_fiber_functor.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CodomainLeftAdj</span>.
+
+<span class="kn">Arguments</span> comp_functor_unit_data {C} HC {x y} f /.
+<span class="kn">Arguments</span> comp_functor_counit_data {C} HC {x y} f /.
+
+<span class="sd">(** * 6. The Beck-Chevalley condition *)</span>
+<span class="kn">Section</span> <span class="nf">BeckChevalley</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">HC</span> : Pullbacks C)
+          {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+          (<span class="nv">f</span> : x --&gt; w)
+          (<span class="nv">g</span> : y --&gt; w)
+          (<span class="nv">h</span> : z --&gt; y)
+          (<span class="nv">k</span> : z --&gt; x)
+          (<span class="nv">p</span> : k · f = h · g)
+          (<span class="nv">H</span> : isPullback p).
+
+  <span class="kn">Let</span> <span class="nf">HD</span> : cleaving (disp_codomain C) := disp_codomain_cleaving HC.
+  <span class="kn">Let</span> <span class="nf">P</span> : Pullback f g := make_Pullback _ H.
+
+  <span class="kn">Definition</span> <span class="nf">cod_left_beck_chevalley_mor</span>
+             (<span class="nv">φ</span> : C/x)
+    : cod_dom (cod_pb HC k φ)
+      --&gt;
+      cod_dom (cod_pb HC g (cod_fib_comp f φ)).
+  <span class="kn">Proof</span>.
+    use PullbackArrow.
+    - <span class="bp">exact</span> (PullbackPr1 _).
+    - <span class="bp">exact</span> (PullbackPr2 _ · h).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z ·  _) (PullbackSqrCommutes _) @ _) ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> p ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_left_beck_chevalley_mor_inv</span>
+             (<span class="nv">φ</span> : C/x)
+    : cod_dom (cod_pb HC g (cod_fib_comp f φ))
+      --&gt;
+      cod_dom (cod_pb HC k φ).
+  <span class="kn">Proof</span>.
+    use PullbackArrow.
+    - <span class="bp">exact</span> (PullbackPr1 _).
+    - use (PullbackArrow P).
+      + <span class="bp">exact</span> (PullbackPr1 _ · cod_mor φ).
+      + <span class="bp">exact</span> (PullbackPr2 _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">apply</span> PullbackSqrCommutes).
+    - <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (!(PullbackArrow_PullbackPr1 P _ _ _ _))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cod_left_beck_chevalley_mor_mor_inv</span>
+              (<span class="nv">φ</span> : C/x)
+    : cod_left_beck_chevalley_mor φ · cod_left_beck_chevalley_mor_inv φ
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - <span class="nb">unfold</span> cod_left_beck_chevalley_mor, cod_left_beck_chevalley_mor_inv.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> cod_left_beck_chevalley_mor, cod_left_beck_chevalley_mor_inv.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      }
+      <span class="nb">rewrite</span> id_left.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback P)).
+      + <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr1 P).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> PullbackSqrCommutes.
+      + <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr2 P).
+        }
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cod_left_beck_chevalley_mor_inv_mor</span>
+              (<span class="nv">φ</span> : C/x)
+    : cod_left_beck_chevalley_mor_inv φ · cod_left_beck_chevalley_mor φ
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - <span class="nb">unfold</span> cod_left_beck_chevalley_mor, cod_left_beck_chevalley_mor_inv.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> cod_left_beck_chevalley_mor, cod_left_beck_chevalley_mor_inv.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 P).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_z_isomorphism_cod_left_beck_chevalley_mor</span>
+             (<span class="nv">φ</span> : C/x)
+    : is_z_isomorphism (cod_left_beck_chevalley_mor φ).
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (cod_left_beck_chevalley_mor_inv φ).
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> cod_left_beck_chevalley_mor_mor_inv.
+      + <span class="nb">apply</span> cod_left_beck_chevalley_mor_inv_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cod_left_beck_chevalley_eq</span>
+              (<span class="nv">φ</span> : C/x)
+    : cod_left_beck_chevalley_mor φ
+      =
+      dom_mor
+        (left_beck_chevalley_nat_trans
+           (is_right_adjoint_cod_fiber_functor HC f)
+           (is_right_adjoint_cod_fiber_functor HC h)
+           (comm_nat_z_iso HD f g h k p)
+           φ).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> left_beck_chevalley_nat_trans_ob.
+    <span class="nb">rewrite</span> !comp_in_cod_fib.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">simpl</span>.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (dom_mor_comp_functor h _ @ _).
+      <span class="nb">rewrite</span> (cod_fiber_functor_on_mor HC k).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (dom_mor_comp_functor h _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (comm_nat_z_iso_ob HD f g h k p _).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> (comp_in_cod_fib
+                 _
+                 (fiber_functor_from_cleaving_comp_inv HD g h _)).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> comp_in_cod_fib.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> cod_fiber_functor_from_cleaving_comp_inv.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> cod_fiber_functor_on_eq.
+        }
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> cod_fiber_functor_from_cleaving_comp.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+    <span class="nb">unfold</span> cod_left_beck_chevalley_mor.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_left_beck_chevalley</span>
+    : left_beck_chevalley
+        HD
+        f g h k
+        p
+        (is_right_adjoint_cod_fiber_functor HC f)
+        (is_right_adjoint_cod_fiber_functor HC h).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> φ.
+    use is_z_iso_fiber_from_is_z_iso_disp.
+    use is_z_iso_disp_codomain.
+    use is_z_isomorphism_path.
+    - <span class="bp">exact</span> (cod_left_beck_chevalley_mor φ).
+    - <span class="bp">exact</span> (cod_left_beck_chevalley_eq φ).
+    - <span class="bp">exact</span> (is_z_isomorphism_cod_left_beck_chevalley_mor φ).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">BeckChevalley</span>.
+
+<span class="sd">(** * 7. Dependent sums for the codomain *)</span>
+<span class="kn">Definition</span> <span class="nf">cod_fiber_has_dependent_sum</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : Pullbacks C)
+           (<span class="nv">HD</span> := disp_codomain_cleaving HC)
+  : has_dependent_sums HD.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, is_right_adjoint_cod_fiber_functor HC f).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">k</span> <span class="nv">p</span> <span class="nv">H</span>, cod_left_beck_chevalley HC f g h k p H).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 8. The left adjoint is an adjoint equivalence *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_on_slices_iso_is_adj_equiv</span> {<span class="nv">C</span> : category} {<span class="nv">c</span> <span class="nv">c'</span> : C} (<span class="nv">i</span> : z_iso c c')
+  : adj_equivalence_of_cats (comp_functor i).
+<span class="kn">Proof</span>.
+  use rad_equivalence_of_cats'.
+  - <span class="nb">intros</span> [a f] [b g].
+    use isweq_iso.
+    + <span class="nb">intros</span> [h ph].
+      <span class="nb">simpl</span> <span class="k">in</span> *.
+      <span class="k">exists</span> <span class="nv">h</span>.
+      use (cancel_z_iso _ _ i).
+      <span class="nb">rewrite</span> assoc', ph.
+      <span class="bp">now</span> <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+    + <span class="nb">intro</span>.
+      use eq_mor_cod_fib.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">intro</span>.
+      use eq_mor_cod_fib.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> [a f].
+    <span class="k">exists</span> (<span class="nv">a</span> ,, <span class="nv">f</span> · z_iso_inv i).
+    use make_z_iso_in_slice.
+    + <span class="nb">apply</span> identity_z_iso.
+    + <span class="nb">refine</span> (id_left _ @ ! id_right _ @ _ @ assoc _ _ _).
+      <span class="nb">apply</span> maponpaths, pathsinv0.
+      <span class="nb">apply</span> z_iso_after_z_iso_inv.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Codomain/CodLeftAdjoint.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. The left adjoint is an isomorphism
+  &gt;
+  &gt;  ***************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidalCategoriesCurried.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* In this file we formalize the definition of a monoidal category in a curried format.</span>
+<span class="c">The data of a monoidal category consist of:</span>
+<span class="c">	- Category C.</span>
+<span class="c">	- A functor T : C x C → C, called the tensor which is specified as followed:</span>
+<span class="c">		- On the objects: A function Ob(C) → (Ob(C) → Ob(C)) : x → (y → x ⊗_{T} y)</span>
+<span class="c">		- On the morphisms: A function C[x,x'] → ( C[y,y'] -&gt; C[ x ⊗_{T} y, x' ⊗_{T} y']) : f→ (g→ f ⊗^{T} g)</span>
+<span class="c">	- An object I : C, called the unit.</span>
+<span class="c">	- A natural transformation lu : I ⊗_T (-) → (-) with naturality condition</span>
+<span class="c">                lu_y ∘ (Id_I ⊗^{T} f) = f ∘ lu_x.</span>
+<span class="c">        - A natural transformation ru : (-) ⊗_T I → (-) with naturality condition</span>
+<span class="c">                ru_y ∘ (f ⊗^{T} Id_I) = f ∘ ru_x.</span>
+<span class="c">        - A natural transformation α : ((-)⊗_T(-))⊗_T(-) → (-)⊗((-)⊗(-)) with naturality condition</span>
+<span class="c">                f⊗(g⊗h) ∘ α_{x,y,z} = α_{x',y',z'} ∘ (f⊗g)⊗h.</span>
+<span class="c">The properties of a monoidal category are the following:</span>
+<span class="c">        - Triangle identity:</span>
+<span class="c">                   (Id_x ⊗ lu_y) ∘ α_{x,I,y} = ru_x ⊗^{T} Id_y.</span>
+<span class="c">        - Pentagon identity:</span>
+<span class="c">                   (Id_w ⊗ α_{x,y,z}) ∘ α_{w,x⊗y,z} ∘ (α_{w,x,y} ⊗ Id_z) = α_{w,x,y⊗z} ∘ α_{w⊗x,y,z}.</span>
+
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** Data **)</span>
+
+  <span class="kn">Definition</span> <span class="nf">tensor_data</span> (<span class="nv">C</span> : category) : UU :=
+    ∑ to : C -&gt; C -&gt; C,
+            ∏ (x y x' y' : C), C ⟦x,x'⟧ → C ⟦y,y'⟧ -&gt; C ⟦(to x y),(to x' y')⟧.
+
+  <span class="kn">Definition</span> <span class="nf">tensoronobjects_from_tensordata</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor_data C) : C-&gt;C-&gt;C := pr1 T.
+  <span class="kn">Notation</span> <span class="s2">"x ⊗_{ T } y"</span> := (tensoronobjects_from_tensordata T x y) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Definition</span> <span class="nf">tensoronmorphisms_from_tensordata</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor_data C):
+    ∏ (x y x' y' : C), C ⟦x,x'⟧ → C ⟦y,y'⟧ -&gt; C ⟦x ⊗_{T} y,x' ⊗_{T} y'⟧
+    := pr2 T.
+  <span class="kn">Notation</span> <span class="s2">"f ⊗^{ T } g"</span> := (tensoronmorphisms_from_tensordata T  _ _ _ _ f g) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Definition</span> <span class="nf">associator_data</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor_data C) : UU :=
+    ∏ (x y z : C), C ⟦(x ⊗_{T} y) ⊗_{T} z, x ⊗_{T} (y ⊗_{T} z)⟧.
+
+  <span class="kn">Definition</span> <span class="nf">leftunitor_data</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor_data C) (<span class="nv">I</span> : C) : UU :=
+    ∏ (x : C), C ⟦I ⊗_{T} x, x⟧.
+
+  <span class="kn">Definition</span> <span class="nf">rightunitor_data</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor_data C) (<span class="nv">I</span> : C) : UU :=
+    ∏ (x : C), C ⟦x ⊗_{T} I, x⟧.
+
+  <span class="kn">Definition</span> <span class="nf">monoidalcategory_data</span> (<span class="nv">C</span> : category): UU :=
+    ∑ T : tensor_data C, ∑ I : C,
+          (leftunitor_data T I) × (rightunitor_data T I) × (associator_data T).
+
+<span class="kn">Definition</span> <span class="nf">tensordata_from_monoidalcatdata</span> {<span class="nv">C</span> : category} (<span class="nv">MD</span> : monoidalcategory_data C) : tensor_data C := (pr1 MD).
+<span class="kn">Coercion</span> <span class="nf">tensordata_from_monoidalcatdata</span> : monoidalcategory_data &gt;-&gt; tensor_data.
+
+<span class="kn">Definition</span> <span class="nf">unit_from_monoidalcatdata</span> {<span class="nv">C</span> : category} (<span class="nv">MD</span> : monoidalcategory_data C) : C := (pr1 (pr2 MD)).
+<span class="kn">Coercion</span> <span class="nf">unit_from_monoidalcatdata</span> : monoidalcategory_data &gt;-&gt; ob.
+
+<span class="kn">Definition</span> <span class="nf">leftunitordata_from_monoidalcatdata</span> {<span class="nv">C</span> : category} (<span class="nv">MD</span> : monoidalcategory_data C) : leftunitor_data MD MD := (pr1 (pr2 (pr2 MD))).
+<span class="kn">Coercion</span> <span class="nf">leftunitordata_from_monoidalcatdata</span> : monoidalcategory_data &gt;-&gt; leftunitor_data.
+
+<span class="kn">Definition</span> <span class="nf">rightunitordata_from_monoidalcatdata</span> {<span class="nv">C</span> : category} (<span class="nv">MD</span> : monoidalcategory_data C) : rightunitor_data MD MD := (pr1 (pr2 (pr2 (pr2 MD)))).
+<span class="kn">Coercion</span> <span class="nf">rightunitordata_from_monoidalcatdata</span> : monoidalcategory_data &gt;-&gt; rightunitor_data.
+
+<span class="kn">Definition</span> <span class="nf">associatordata_from_monoidalcatdata</span> {<span class="nv">C</span> : category} (<span class="nv">MD</span> : monoidalcategory_data C) : associator_data MD := (pr2 (pr2 (pr2 (pr2 MD)))).
+<span class="kn">Coercion</span> <span class="nf">associatordata_from_monoidalcatdata</span> : monoidalcategory_data &gt;-&gt; associator_data.
+
+
+<span class="sd">(** Axioms **)</span>
+  <span class="kn">Definition</span> <span class="nf">tensorfunctor_id</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor_data C) : UU :=
+    ∏ (x y : C),
+      (identity x) ⊗^{T} identity y = identity (x ⊗_{T} y).
+
+  <span class="kn">Definition</span> <span class="nf">tensorfunctor_comp</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor_data C) : UU :=
+    ∏ (x y x' y' x'' y'' : C), ∏ (f : C ⟦x,x'⟧) (f' : C ⟦x',x''⟧) (g : C ⟦y,y'⟧) (g' : C ⟦y',y''⟧),
+      (f' ⊗^{T} g') ∘ (f ⊗^{T} g) = (f'∘f) ⊗^{T} (g'∘g).
+
+  <span class="kn">Definition</span> <span class="nf">associator_naturality</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : tensor_data C} (<span class="nv">α</span> : associator_data T) : UU :=
+    ∏ (x x' y y' z z' : C), ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧),
+       (f ⊗^{T} (g ⊗^{T} h))∘(α x y z) = (α x' y' z')∘ ((f ⊗^{T} g) ⊗^{T} h).
+
+  <span class="kn">Definition</span> <span class="nf">associator_is_natiso</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : tensor_data C} (<span class="nv">α</span> : associator_data T) : UU :=
+    ∏ (x y z : C), is_z_isomorphism (α x y z).
+
+  <span class="kn">Definition</span> <span class="nf">leftunitor_naturality</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : tensor_data C} {<span class="nv">I</span> : C} (<span class="nv">lu</span> : leftunitor_data T I) : UU :=
+    ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  f∘(lu x) = (lu y)∘((identity I)⊗^{T}f).
+
+  <span class="kn">Definition</span> <span class="nf">leftunitor_is_natiso</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : tensor_data C} {<span class="nv">I</span> : C} (<span class="nv">lu</span> : leftunitor_data T I) : UU :=
+    ∏ (x : C), is_z_isomorphism (lu x).
+
+  <span class="kn">Definition</span> <span class="nf">rightunitor_naturality</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : tensor_data C} {<span class="nv">I</span> : C} (<span class="nv">ru</span> : rightunitor_data T I) :=
+    ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  f∘(ru x) = (ru y)∘ (f ⊗^{T} (identity I)).
+
+  <span class="kn">Definition</span> <span class="nf">rightunitor_is_natiso</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : tensor_data C} {<span class="nv">I</span> : C} (<span class="nv">ru</span> : rightunitor_data T I) : UU :=
+    ∏ (x : C), is_z_isomorphism (ru x).
+
+  <span class="kn">Definition</span> <span class="nf">triangle_identity</span> {<span class="nv">C</span> : category}
+             {<span class="nv">T</span> : tensor_data C}
+             {<span class="nv">I</span> : C}
+             (<span class="nv">lu</span> : leftunitor_data T I)
+             (<span class="nv">ru</span> : rightunitor_data T I)
+             (<span class="nv">α</span> : associator_data T)
+    := ∏ (x y : C),  (((identity x)  ⊗^{T} (lu y) ) ∘ (α x I y)) = ((ru x) ⊗^{T} identity y).
+
+  <span class="kn">Definition</span> <span class="nf">pentagon_identity</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : tensor_data C} (<span class="nv">α</span> : associator_data T) : UU :=
+    ∏ (w x y z : C),
+         ((identity w)⊗^{T} (α x y z))
+           ∘ ((α w (x⊗_{T} y) z)
+           ∘ ((α w x y) ⊗^{T} (identity z))) =  (α w x (y⊗_{T} z)) ∘ (α (w⊗_{T}x) y z).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_laws</span> {<span class="nv">C</span> : category} (<span class="nv">MD</span> : monoidalcategory_data C) : UU :=
+  (tensorfunctor_id MD) × (tensorfunctor_comp MD) × (associator_naturality MD) × (associator_is_natiso MD) ×
+                                                    (leftunitor_naturality MD) × (leftunitor_is_natiso MD) ×
+                                                    (rightunitor_naturality MD) × (rightunitor_is_natiso MD) ×
+                                                    (triangle_identity MD MD MD) × (pentagon_identity MD).
+
+<span class="kn">Definition</span> <span class="nf">tensorfunctorialityid_from_monoidallaws</span> {<span class="nv">C</span> : category} {<span class="nv">MD</span> : monoidalcategory_data C} (<span class="nv">ML</span> : monoidal_laws MD) : tensorfunctor_id MD := pr1 ML.
+<span class="kn">Coercion</span> <span class="nf">tensorfunctorialityid_from_monoidallaws</span> : monoidal_laws &gt;-&gt; tensorfunctor_id.
+
+<span class="kn">Definition</span> <span class="nf">tensorfunctorialitycomp_from_monoidallaws</span> {<span class="nv">C</span> : category} {<span class="nv">MD</span> : monoidalcategory_data C} (<span class="nv">ML</span> : monoidal_laws MD) : tensorfunctor_comp MD := pr1 (pr2 ML).
+<span class="kn">Coercion</span> <span class="nf">tensorfunctorialitycomp_from_monoidallaws</span> : monoidal_laws &gt;-&gt; tensorfunctor_comp.
+
+<span class="kn">Definition</span> <span class="nf">associatornaturality_from_monoidallaws</span> {<span class="nv">C</span> : category} {<span class="nv">MD</span> : monoidalcategory_data C} (<span class="nv">ML</span> : monoidal_laws MD) : associator_naturality MD := pr1 (pr2 (pr2 ML)).
+<span class="kn">Coercion</span> <span class="nf">associatornaturality_from_monoidallaws</span> : monoidal_laws &gt;-&gt; associator_naturality.
+
+<span class="kn">Definition</span> <span class="nf">associatorisiso_from_monoidallaws</span> {<span class="nv">C</span> : category} {<span class="nv">MD</span> : monoidalcategory_data C} (<span class="nv">ML</span> : monoidal_laws MD) : associator_is_natiso MD := pr1 (pr2 (pr2 (pr2 ML))).
+<span class="kn">Coercion</span> <span class="nf">associatorisiso_from_monoidallaws</span> : monoidal_laws &gt;-&gt; associator_is_natiso.
+
+<span class="kn">Definition</span> <span class="nf">leftunitornaturality_from_monoidallaws</span> {<span class="nv">C</span> : category} {<span class="nv">MD</span> : monoidalcategory_data C} (<span class="nv">ML</span> : monoidal_laws MD) : leftunitor_naturality MD := pr1 (pr2 (pr2 (pr2 (pr2 ML)))).
+<span class="kn">Coercion</span> <span class="nf">leftunitornaturality_from_monoidallaws</span> : monoidal_laws &gt;-&gt; leftunitor_naturality.
+
+<span class="kn">Definition</span> <span class="nf">leftunitorisiso_from_monoidallaws</span> {<span class="nv">C</span> : category} {<span class="nv">MD</span> : monoidalcategory_data C} (<span class="nv">ML</span> : monoidal_laws MD) : leftunitor_is_natiso MD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 ML))))).
+<span class="kn">Coercion</span> <span class="nf">leftunitorisiso_from_monoidallaws</span> : monoidal_laws &gt;-&gt; leftunitor_is_natiso.
+
+<span class="kn">Definition</span> <span class="nf">rightunitornaturality_from_monoidallaws</span> {<span class="nv">C</span> : category} {<span class="nv">MD</span> : monoidalcategory_data C} (<span class="nv">ML</span> : monoidal_laws MD) : rightunitor_naturality MD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 ML)))))).
+<span class="kn">Coercion</span> <span class="nf">rightunitornaturality_from_monoidallaws</span> : monoidal_laws &gt;-&gt; rightunitor_naturality.
+
+<span class="kn">Definition</span> <span class="nf">rightunitorisiso_from_monoidallaws</span> {<span class="nv">C</span> : category} {<span class="nv">MD</span> : monoidalcategory_data C} (<span class="nv">ML</span> : monoidal_laws MD) : rightunitor_is_natiso MD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 ML))))))).
+<span class="kn">Coercion</span> <span class="nf">rightunitorisiso_from_monoidallaws</span> : monoidal_laws &gt;-&gt; rightunitor_is_natiso.
+
+<span class="kn">Definition</span> <span class="nf">triangleidentity_from_monoidallaws</span> {<span class="nv">C</span> : category} {<span class="nv">MD</span> : monoidalcategory_data C} (<span class="nv">ML</span> : monoidal_laws MD) : triangle_identity MD MD MD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 ML)))))))).
+<span class="kn">Coercion</span> <span class="nf">triangleidentity_from_monoidallaws</span> : monoidal_laws &gt;-&gt; triangle_identity.
+
+<span class="kn">Definition</span> <span class="nf">pentagonidentity_from_monoidallaws</span> {<span class="nv">C</span> : category} {<span class="nv">MD</span> : monoidalcategory_data C} (<span class="nv">ML</span> : monoidal_laws MD) : pentagon_identity MD := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 ML)))))))).
+<span class="kn">Coercion</span> <span class="nf">pentagonidentity_from_monoidallaws</span> : monoidal_laws &gt;-&gt; pentagon_identity.
+
+<span class="kn">Definition</span> <span class="nf">monoidalcategory</span> (<span class="nv">C</span> : category) : UU :=
+  ∑ (MD : monoidalcategory_data C), (monoidal_laws MD).
+
+<span class="kn">Definition</span> <span class="nf">monoidalcategorydata_from_monoidalcategory</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidalcategory C) : monoidalcategory_data C := pr1 M.
+<span class="kn">Coercion</span> <span class="nf">monoidalcategorydata_from_monoidalcategory</span> : monoidalcategory &gt;-&gt; monoidalcategory_data.
+
+<span class="kn">Definition</span> <span class="nf">monoidallaws_from_monoidalcategory</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidalcategory C) : monoidal_laws M := pr2 M.
+<span class="kn">Coercion</span> <span class="nf">monoidallaws_from_monoidalcategory</span> : monoidalcategory &gt;-&gt; monoidal_laws.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalCategoriesCurried.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PuncturedTheory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The "Punctured" Theory</span>
+
+<span class="sd">  For any algebraic theory T, we can create its "punctured" theory T*, or "theory without constants",</span>
+<span class="sd">  where T*_{S n} = T_{S n} but T*_0 = ∅. This effectively removes the constants from the algebraic</span>
+<span class="sd">  theory. However, they are still implicitly there in the nonconstant terms: we can give any nonempty</span>
+<span class="sd">  T*-algebra a T-algebra structure.</span>
+<span class="sd">  On the other hand, we can also pull back any algebra along the embedding T* ↪ T, and this gives a</span>
+<span class="sd">  retraction of T*-algebras onto T-algebras.</span>
+<span class="sd">  Note that if T_0 is nonempty, the empty T*-algebra, which can be constructed as</span>
+<span class="sd">  `theory_algebra T* 0`, is not a T-algebra.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The punctured theory [punctured_theory]</span>
+<span class="sd">  2. The embedding and pullback [punctured_theory_embedding] [algebra_to_punctured_theory_algebra]</span>
+<span class="sd">  3. The lifting of T*-algebras to T-algebras [punctured_theory_algebra_to_algebra]</span>
+<span class="sd">  4. The isomorphism that shows we have a retraction for T_0 nonempty</span>
+<span class="sd">    [algebra_to_punctured_theory_algebra_to_algebra_iso]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Tuples.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Algebras.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraCategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> vec.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+<span class="kn">Section</span> <span class="nf">PuncturedTheory</span>.
+
+  <span class="kn">Context</span> (<span class="nv">T</span> : algebraic_theory).
+
+<span class="sd">(** * 1. The punctured theory *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">punctured_theory_data</span>
+    : algebraic_theory_data.
+  <span class="kn">Proof</span>.
+    use make_algebraic_theory_data.
+    - <span class="nb">intro</span> n.
+      <span class="nb">induction</span> n <span class="k">as</span> [| n H].
+      + <span class="bp">exact</span> emptyset.
+      + <span class="bp">exact</span> (T (S n)).
+    - <span class="nb">intros</span> n i.
+      <span class="nb">induction</span> n.
+      + <span class="nb">apply</span> (negstn0 i).
+      + <span class="bp">exact</span> (var i).
+    - <span class="nb">intros</span> m n f g.
+      <span class="nb">induction</span> m, n;
+        <span class="kp">try</span> <span class="nb">induction</span> f;
+        <span class="kp">try</span> <span class="nb">induction</span> (g firstelement);
+      <span class="bp">exact</span> (f • g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">punctured_is_theory</span>
+    : is_algebraic_theory punctured_theory_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_algebraic_theory.
+    - <span class="nb">intros</span> l m n f g h.
+      <span class="nb">induction</span> l, m, n;
+        <span class="kp">try</span> <span class="nb">induction</span> f;
+        <span class="kp">try</span> <span class="nb">induction</span> (g firstelement);
+        <span class="kp">try</span> <span class="nb">induction</span> (h firstelement).
+      <span class="nb">apply</span> subst_subst.
+    - <span class="nb">intros</span> m n i f.
+      <span class="nb">induction</span> m, n;
+        <span class="kp">try</span> <span class="nb">induction</span> (negstn0 i);
+        <span class="kp">try</span> <span class="nb">induction</span> (f firstelement).
+      <span class="nb">apply</span> var_subst.
+    - <span class="nb">intros</span> n f.
+      <span class="nb">induction</span> n;
+        <span class="kp">try</span> <span class="nb">induction</span> f.
+      <span class="nb">apply</span> subst_var.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">punctured_theory</span>
+    : algebraic_theory
+    := make_algebraic_theory
+      punctured_theory_data
+      punctured_is_theory.
+
+<span class="sd">(** * 2. The embedding and pullback *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">punctured_theory_embedding_data</span>
+    : algebraic_theory_morphism_data punctured_theory T.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n t.
+    <span class="nb">induction</span> n.
+    - <span class="nb">induction</span> t.
+    - <span class="bp">exact</span> t.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">punctured_theory_embedding_is_morphism</span>
+    : is_algebraic_theory_morphism punctured_theory_embedding_data.
+  <span class="kn">Proof</span>.
+    use make_is_algebraic_theory_morphism.
+    - <span class="nb">intros</span> n i.
+      <span class="nb">induction</span> n.
+      + <span class="bp">exact</span> (fromstn0 i).
+      + <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> m n f g.
+      <span class="nb">induction</span> m, n;
+        <span class="kp">try</span> <span class="nb">induction</span> f;
+        <span class="kp">try</span> <span class="nb">induction</span> (g firstelement).
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">punctured_theory_embedding</span>
+    : algebraic_theory_morphism punctured_theory T
+    := make_algebraic_theory_morphism
+      punctured_theory_embedding_data
+      punctured_theory_embedding_is_morphism.
+
+  <span class="kn">Definition</span> <span class="nf">algebra_to_punctured_theory_algebra</span>
+    (<span class="nv">A</span> : algebra T)
+    : algebra punctured_theory
+    := algebra_pullback punctured_theory_embedding A.
+
+<span class="sd">(** * 3. The lifting of T*-algebras to T-algebras *)</span>
+
+  <span class="kn">Section</span> <span class="nf">LiftPuncturedTheoryAlgebra</span>.
+
+    <span class="kn">Context</span> (<span class="nv">A</span> : algebra punctured_theory).
+    <span class="kn">Context</span> (<span class="nv">a0</span> : ∥ A ∥).
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_inflated_constant_image</span>
+      {<span class="nv">m</span> <span class="nv">n</span> : nat}
+      (<span class="nv">f</span> : T <span class="mi">0</span>)
+      (<span class="nv">g1</span> : stn <span class="mi">0</span> → T (S m))
+      (<span class="nv">g2</span> : stn <span class="mi">0</span> → T (S n))
+      (<span class="nv">a1</span> : stn (S m) → A)
+      (<span class="nv">a2</span> : stn (S n) → A)
+      : action (f • g1 : punctured_theory (S m)) a1
+      = action (f • g2 : punctured_theory (S n)) a2.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action x a2) (subst_inflate_extend_tuple _ f _)).
+      <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action x a1) (subst_inflate_extend_tuple _ f _)).
+      <span class="nb">refine</span> (subst_action _ (inflate f : punctured_theory <span class="mi">1</span>) _ a1 @ !_).
+      <span class="nb">refine</span> (subst_action _ (inflate f : punctured_theory <span class="mi">1</span>) _ a2 @ !_).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action _ x) (!homotweqinvweq (weqvecfun _) _) @ !_).
+      <span class="nb">pose</span> (v := weqvecfun _ [(
+        action (lift_constant _ f : punctured_theory (S m)) a1 ;
+        action (lift_constant _ f : punctured_theory (S n)) a2
+      )]).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action _ (weqvecfun <span class="mi">1</span> [(x)])) (!var_action A (● <span class="mi">0</span> : stn <span class="mi">2</span>) v) @ !_).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action _ (weqvecfun <span class="mi">1</span> [(x)])) (!var_action A (● <span class="mi">1</span> : stn <span class="mi">2</span>) v) @ !_).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action _ x) (move_action_through_vector_1 _ _ _) @ !_).
+      <span class="nb">refine</span> (!_ @ subst_action A _ (weqvecfun _ [(var (stnpr <span class="mi">1</span> : stn <span class="mi">2</span>))]) _).
+      <span class="nb">refine</span> (!_ @ subst_action A _ (weqvecfun _ [(var (stnpr <span class="mi">0</span> : stn <span class="mi">2</span>))]) _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action x _)).
+      <span class="nb">refine</span> (subst_inflate T f (weqvecfun _ [(var (● <span class="mi">0</span> : stn <span class="mi">2</span>))]) @ !_).
+      <span class="nb">refine</span> (subst_inflate T f (weqvecfun _ [(var (● <span class="mi">1</span> : stn <span class="mi">2</span>))]) @ !_).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">now</span> <span class="nb">apply</span> (invmaponpathsweq (invweq (weqvecfun _))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">inflated_constant_image</span>
+      (<span class="nv">f</span> : T <span class="mi">0</span>)
+      (<span class="nv">a0'</span> : ∥ A ∥)
+      : A.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (squash_to_set (setproperty _) _ _ a0').
+      - <span class="nb">intro</span> a.
+        <span class="bp">exact</span> (action (inflate f : punctured_theory <span class="mi">1</span>) (weqvecfun _ [(a)])).
+      - <span class="kp">abstract</span> (
+          <span class="nb">intros</span> a a';
+          <span class="nb">apply</span> isaprop_inflated_constant_image
+        ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">punctured_theory_algebra_to_algebra_data</span>
+      : algebra_data T.
+    <span class="kn">Proof</span>.
+      use make_algebra_data.
+      - <span class="bp">exact</span> A.
+      - <span class="nb">intros</span> n f a.
+        <span class="nb">destruct</span> n <span class="k">as</span> [| n].
+        + <span class="bp">exact</span> (inflated_constant_image f a0).
+        + <span class="bp">exact</span> (action (f : punctured_theory (S n)) a).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">punctured_theory_algebra_to_is_algebra</span>
+      : is_algebra punctured_theory_algebra_to_algebra_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> punctured_theory_algebra_to_algebra_data.
+      <span class="nb">refine</span> (squash_rec (<span class="k">λ</span> <span class="nv">a</span>, make_hProp _ (isaprop_is_algebra _)) _ a0).
+      <span class="nb">intro</span> a0'.
+      use make_is_algebra.
+      - <span class="nb">intros</span> m n f g a.
+        <span class="nb">destruct</span> m <span class="k">as</span> [| m], n <span class="k">as</span> [| n].
+        + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action x _) _).
+          <span class="nb">refine</span> (_ @ subst_var _ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">now</span> <span class="nb">apply</span> (invmaponpathsweq (invweq (weqvecfun _))).
+        + <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action x a) (subst_inflate_extend_tuple _ _ _) @ _).
+          <span class="nb">refine</span> (subst_action _ (inflate f : punctured_theory <span class="mi">1</span>) _ _ @ _).
+          <span class="nb">apply</span> isaprop_inflated_constant_image.
+        + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action x (weqvecfun <span class="mi">1</span> [(a0')])) (inflate_subst _ f g) @ _).
+          <span class="bp">exact</span> (subst_action _ (f : punctured_theory (S m)) _ _).
+        + <span class="bp">exact</span> (subst_action _ (f : punctured_theory (S m)) (g : _ → punctured_theory (S n)) a).
+      - <span class="nb">intros</span> n i a.
+        <span class="nb">destruct</span> n <span class="k">as</span> [| n].
+        + <span class="bp">exact</span> (fromstn0 i).
+        + <span class="bp">exact</span> (var_action _ i a).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">punctured_theory_algebra_to_algebra</span>
+      : algebra T
+      := make_algebra
+        punctured_theory_algebra_to_algebra_data
+        punctured_theory_algebra_to_is_algebra.
+
+  <span class="kn">End</span> <span class="nf">LiftPuncturedTheoryAlgebra</span>.
+
+<span class="sd">(** * 4. The isomorphism that shows we have a retraction for T_0 nonempty *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">algebra_to_punctured_theory_algebra_to_algebra</span>
+    (<span class="nv">t</span> : ∥ T <span class="mi">0</span> ∥)
+    (<span class="nv">A</span> : algebra T)
+    : algebra T
+    := punctured_theory_algebra_to_algebra
+      (algebra_to_punctured_theory_algebra A)
+      (hinhfun (<span class="k">λ</span> <span class="nv">t</span>, action t (weqvecfun _ [()])) t).
+
+  <span class="kn">Lemma</span> <span class="nf">algebra_to_punctured_theory_algebra_to_algebra_iso_is_morphism</span>
+    (<span class="nv">t</span> : ∥ T <span class="mi">0</span> ∥)
+    (<span class="nv">A</span> : algebra T)
+    : is_algebra_morphism (idfun A : algebra_to_punctured_theory_algebra_to_algebra t A → A).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n f a.
+    <span class="nb">induction</span> n; <span class="nb">cbn</span>.
+    - <span class="nb">induction</span> (squash_uniqueness f t).
+      <span class="nb">refine</span> (subst_action _ f _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">now</span> <span class="nb">apply</span> (invmaponpathsweq (invweq (weqvecfun _))).
+    - <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebra_to_punctured_theory_algebra_to_algebra_iso</span>
+    (<span class="nv">t</span> : ∥ T <span class="mi">0</span> ∥)
+    (<span class="nv">A</span> : algebra T)
+    : z_iso (algebra_to_punctured_theory_algebra_to_algebra t A) A.
+  <span class="kn">Proof</span>.
+    use make_algebra_z_iso.
+    - <span class="bp">exact</span> (identity_z_iso _).
+    - <span class="nb">apply</span> algebra_to_punctured_theory_algebra_to_algebra_iso_is_morphism.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PuncturedTheory</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/Examples/PuncturedTheory.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     [algebra_to_punctured_theory_algebra_to_algebra_iso]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

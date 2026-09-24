@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UnitCategoryLimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(************************************************************************</span>
+
+<span class="sd"> Limits and colimits in the unit category</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Terminal objects</span>
+<span class="sd"> 2. Products</span>
+<span class="sd"> 3. Pullbacks</span>
+<span class="sd"> 4. Initial objects</span>
+<span class="sd"> 5. Coproducts</span>
+
+<span class="sd"> ************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Terminal objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">isTerminal_unit_category</span>
+           (<span class="nv">x</span> : unit_category)
+  : isTerminal unit_category x.
+<span class="kn">Proof</span>.
+  use make_isTerminal.
+  <span class="nb">intro</span> y.
+  use iscontraprop1 ; [ <span class="nb">apply</span> isasetunit | ].
+  <span class="nb">apply</span> isapropunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">terminal_unit_category</span>
+  : Terminal unit_category.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> tt.
+  - <span class="bp">exact</span> (isTerminal_unit_category tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_to_unit_preserves_terminal</span>
+           (<span class="nv">C</span> : category)
+  : preserves_terminal (functor_to_unit C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx.
+  <span class="nb">apply</span> isTerminal_unit_category.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Products</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">isBinProduct_unit_category</span>
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : unit_category}
+           (<span class="nv">f</span> : z --&gt; x)
+           (<span class="nv">g</span> : z --&gt; y)
+  : isBinProduct unit_category x y z f g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w h₁ h₂.
+  use iscontraprop1.
+  - <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> fg₁ fg₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">apply</span> isasetunit.
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="nb">apply</span> isapropunit.
+    + <span class="nb">apply</span> isasetunit.
+    + <span class="nb">apply</span> isasetunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">binproduct_unit_category</span>
+  : BinProducts unit_category.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  use make_BinProduct.
+  - <span class="bp">exact</span> tt.
+  - <span class="nb">apply</span> isapropunit.
+  - <span class="nb">apply</span> isapropunit.
+  - <span class="nb">apply</span> isBinProduct_unit_category.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_to_unit_preserves_binproduct</span>
+           (<span class="nv">C</span> : category)
+  : preserves_binproduct (functor_to_unit C).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> isBinProduct_unit_category.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Pullbacks</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">isPullback_unit_category</span>
+           {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : unit_category}
+           {<span class="nv">f</span> : x --&gt; z}
+           {<span class="nv">g</span> : y --&gt; z}
+           {<span class="nv">p₁</span> : w --&gt; x}
+           {<span class="nv">p₂</span> : w --&gt; y}
+           (<span class="nv">eq</span> : p₁ · f = p₂ · g)
+  : isPullback eq.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r h₁ h₂ q.
+  use iscontraprop1.
+  - <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> fg₁ fg₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">apply</span> isasetunit.
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="nb">apply</span> isapropunit.
+    + <span class="nb">apply</span> isasetunit.
+    + <span class="nb">apply</span> isasetunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pullbacks_unit_category</span>
+  : Pullbacks unit_category.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z f g.
+  use make_Pullback.
+  - <span class="bp">exact</span> tt.
+  - <span class="nb">apply</span> isapropunit.
+  - <span class="nb">apply</span> isapropunit.
+  - <span class="nb">apply</span> isasetunit.
+  - <span class="nb">apply</span> isPullback_unit_category.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_to_unit_preserves_pullback</span>
+           (<span class="nv">C</span> : category)
+  : preserves_pullback (functor_to_unit C).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> isPullback_unit_category.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Initial objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">isInitial_unit_category</span>
+           (<span class="nv">x</span> : unit_category)
+  : isInitial unit_category x.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> y.
+  use iscontraprop1 ; [ <span class="nb">apply</span> isasetunit | ].
+  <span class="nb">apply</span> isapropunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">initial_unit_category</span>
+  : Initial unit_category.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> tt.
+  - <span class="bp">exact</span> (isInitial_unit_category tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_to_unit_preserves_initial</span>
+           (<span class="nv">C</span> : category)
+  : preserves_initial (functor_to_unit C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx.
+  <span class="nb">apply</span> isInitial_unit_category.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Coproducts</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">isBinCoproduct_unit_category</span>
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : unit_category}
+           (<span class="nv">f</span> : x --&gt; z)
+           (<span class="nv">g</span> : y --&gt; z)
+  : isBinCoproduct unit_category x y z f g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w h₁ h₂.
+  use iscontraprop1.
+  - <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> fg₁ fg₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">apply</span> isasetunit.
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="nb">apply</span> isapropunit.
+    + <span class="nb">apply</span> isasetunit.
+    + <span class="nb">apply</span> isasetunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bincoproduct_unit_category</span>
+  : BinCoproducts unit_category.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  use make_BinCoproduct.
+  - <span class="bp">exact</span> tt.
+  - <span class="nb">apply</span> isapropunit.
+  - <span class="nb">apply</span> isapropunit.
+  - <span class="nb">apply</span> isBinCoproduct_unit_category.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_to_unit_preserves_bincoproduct</span>
+           (<span class="nv">C</span> : category)
+  : preserves_bincoproduct (functor_to_unit C).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> isBinCoproduct_unit_category.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Examples/UnitCategoryLimits.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Coproducts
+  &gt;
+  &gt;  ************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

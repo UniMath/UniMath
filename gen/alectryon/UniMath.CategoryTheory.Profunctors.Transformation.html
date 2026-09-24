@@ -1,0 +1,1408 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Transformation.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************************************</span>
+
+<span class="sd"> Transformations of profunctors</span>
+
+<span class="sd"> In this file we study natural transformations between profunctors. We provide a builder</span>
+<span class="sd"> for such transformations and we give equality principles for them. In addition, we</span>
+<span class="sd"> provide several standard examples of natural transformations between profunctors, which</span>
+<span class="sd"> are needed to construct the bicategory of categories, profunctors, and natural</span>
+<span class="sd"> transformations.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Natural transformations between profunctors</span>
+<span class="sd"> 2. Builder for natural transformations between profunctors</span>
+<span class="sd"> 3. Equality of natural transformations between profunctors</span>
+<span class="sd"> 4. Natural isomorphisms between profunctors</span>
+<span class="sd"> 5. Standard natural transformations between profunctors</span>
+<span class="sd"> 5.1. Identity and composition</span>
+<span class="sd"> 5.2. Left unitor</span>
+<span class="sd"> 5.3. Right unitor</span>
+<span class="sd"> 5.4. Associator</span>
+<span class="sd"> 5.5. Inverse laws</span>
+<span class="sd"> 5.6. Whiskering</span>
+<span class="sd"> 6. Equality of profunctors</span>
+
+<span class="sd"> *****************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.SetCoends.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Profunctors.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Profunctors.Examples.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Natural transformations between profunctors *)</span>
+<span class="kn">Definition</span> <span class="nf">profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂)
+  : UU
+  := nat_trans (P : _ ⟶ _) (Q : _ ⟶ _).
+
+<span class="kn">Definition</span> <span class="nf">profunctor_nat_trans_point</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+           (<span class="nv">τ</span> : profunctor_nat_trans P Q)
+           {<span class="nv">y</span> : C₂} {<span class="nv">x</span> : C₁}
+           (<span class="nv">h</span> : P y x)
+  : Q y x
+  := pr1 τ (y ,, x) h.
+
+<span class="kn">Coercion</span> <span class="nf">profunctor_nat_trans_point</span>
+  : profunctor_nat_trans &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Proposition</span> <span class="nf">profunctor_nat_trans_natural</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+            (<span class="nv">τ</span> : profunctor_nat_trans P Q)
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂} {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+            (<span class="nv">g</span> : y₂ --&gt; y₁) (<span class="nv">f</span> : x₁ --&gt; x₂)
+            (<span class="nv">h</span> : P y₁ x₁)
+  : τ y₂ x₂ (P #[ g , f ] h)
+    =
+    Q #[ g , f ] (τ y₁ x₁ h).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (eqtohomot
+           (nat_trans_ax τ (y₁ ,, x₁) (y₂ ,, x₂) (g ,, f))
+           h).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">profunctor_nat_trans_lmap</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+            (<span class="nv">τ</span> : profunctor_nat_trans P Q)
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂} {<span class="nv">x</span> : C₁}
+            (<span class="nv">g</span> : y₂ --&gt; y₁)
+            (<span class="nv">h</span> : P y₁ x)
+  : τ y₂ x (lmap P g h)
+    =
+    lmap Q g (τ y₁ x h).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> lmap_functor.
+  <span class="nb">rewrite</span> (profunctor_nat_trans_natural τ g (identity _) h).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">profunctor_nat_trans_rmap</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+            (<span class="nv">τ</span> : profunctor_nat_trans P Q)
+            {<span class="nv">y</span> : C₂} {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+            (<span class="nv">f</span> : x₁ --&gt; x₂)
+            (<span class="nv">h</span> : P y x₁)
+  : τ y x₂ (rmap P f h)
+    =
+    rmap Q f (τ y x₁ h).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> rmap_functor.
+  <span class="nb">rewrite</span> (profunctor_nat_trans_natural τ (identity _) f h).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">profunctor_nat_trans_lmap_rmap</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+            (<span class="nv">τ</span> : profunctor_nat_trans P Q)
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂} {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+            (<span class="nv">g</span> : y₂ --&gt; y₁) (<span class="nv">f</span> : x₁ --&gt; x₂)
+            (<span class="nv">h</span> : P y₁ x₁)
+  : τ y₂ x₂ (lmap P g (rmap P f h))
+    =
+    lmap Q g (rmap Q f (τ y₁ x₁ h)).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> profunctor_nat_trans_lmap.
+  <span class="nb">rewrite</span> profunctor_nat_trans_rmap.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Builder for natural transformations between profunctors *)</span>
+<span class="kn">Definition</span> <span class="nf">profunctor_nat_trans_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂)
+  : UU
+  := ∏ (y : C₂) (x : C₁),
+     P y x → Q y x.
+
+<span class="kn">Definition</span> <span class="nf">profunctor_nat_trans_law</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+           (<span class="nv">τ</span> : profunctor_nat_trans_data P Q)
+  : UU
+  := ∏ (y₁ y₂ : C₂) (x₁ x₂ : C₁)
+       (g : y₂ --&gt; y₁) (f : x₁ --&gt; x₂)
+       (h : P y₁ x₁),
+     τ y₂ x₂ (lmap P g (rmap P f h))
+     =
+     lmap Q g (rmap Q f (τ y₁ x₁ h)).
+
+<span class="kn">Section</span> <span class="nf">MakeProfunctorNatTrans</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+          (<span class="nv">τ</span> : profunctor_nat_trans_data P Q)
+          (<span class="nv">H</span> : profunctor_nat_trans_law τ).
+
+   <span class="kn">Definition</span> <span class="nf">make_profunctor_nat_trans_data</span>
+     : nat_trans_data (P : _ ⟶ _) (Q : _ ⟶ _)
+     := <span class="k">λ</span> <span class="nv">xy</span>, τ (pr1 xy) (pr2 xy).
+
+   <span class="kn">Arguments</span> make_profunctor_nat_trans_data /.
+
+   <span class="kn">Proposition</span> <span class="nf">make_profunctor_nat_trans_law</span>
+     : is_nat_trans _ _ make_profunctor_nat_trans_data.
+   <span class="kn">Proof</span>.
+     <span class="nb">intros</span> xy₁ xy₂ fg.
+     <span class="nb">induction</span> xy₁ <span class="k">as</span> [ y₁ x₁ ].
+     <span class="nb">induction</span> xy₂ <span class="k">as</span> [ y₂ x₂ ].
+     <span class="nb">induction</span> fg <span class="k">as</span> [ g f ].
+     use funextsec.
+     <span class="nb">intro</span> h.
+     <span class="nb">pose</span> (H _ _ _ _ g f h) <span class="k">as</span> p.
+     <span class="nb">cbn</span> <span class="k">in</span> *.
+     <span class="nb">refine</span> (_ @ p @ _) ; <span class="nb">clear</span> p.
+     - <span class="nb">rewrite</span> lmap_rmap_functor.
+       <span class="nb">apply</span> idpath.
+     - <span class="nb">rewrite</span> lmap_rmap_functor.
+       <span class="nb">apply</span> idpath.
+   <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_profunctor_nat_trans</span>
+    : profunctor_nat_trans P Q.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> make_profunctor_nat_trans_data.
+    - <span class="bp">exact</span> make_profunctor_nat_trans_law.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MakeProfunctorNatTrans</span>.
+
+<span class="kn">Arguments</span> make_profunctor_nat_trans_data {C₁ C₂ P Q} τ /.
+
+<span class="sd">(** * 3. Equality of natural transformations between profunctors *)</span>
+<span class="kn">Proposition</span> <span class="nf">eq_profunctor_nat_trans</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+            {<span class="nv">τ</span> <span class="nv">τ'</span> : profunctor_nat_trans P Q}
+            (<span class="nv">p</span> : ∏ (y : C₂) (x : C₁)
+                   (h : P y x),
+                 τ y x h = τ' y x h)
+  : τ = τ'.
+<span class="kn">Proof</span>.
+  use nat_trans_eq.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">intros</span> xy.
+  <span class="nb">induction</span> xy <span class="k">as</span> [ y x ] ; <span class="nb">cbn</span>.
+  use funextsec.
+  <span class="nb">intro</span> h.
+  <span class="bp">exact</span> (p y x h).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">profunctor_nat_trans_eq_pointwise</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+            {<span class="nv">τ</span> <span class="nv">τ'</span> : profunctor_nat_trans P Q}
+            (<span class="nv">p</span> : τ = τ')
+            {<span class="nv">y</span> : C₂} {<span class="nv">x</span> : C₁}
+            (<span class="nv">h</span> : P y x)
+  : τ y x h = τ' y x h.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaset_profunctor_nat_trans</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂)
+  : isaset (profunctor_nat_trans P Q).
+<span class="kn">Proof</span>.
+  use isaset_nat_trans.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Natural isomorphisms between profunctors *)</span>
+<span class="kn">Definition</span> <span class="nf">is_profunctor_nat_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+           (<span class="nv">τ</span> : profunctor_nat_trans P Q)
+  : UU
+  := ∏ (y : C₂) (x : C₁), isweq (τ y x).
+
+<span class="kn">Definition</span> <span class="nf">inv_profunctor_nat_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+           {<span class="nv">τ</span> : profunctor_nat_trans P Q}
+           (<span class="nv">Hτ</span> : is_profunctor_nat_iso τ)
+           {<span class="nv">y</span> : C₂}
+           {<span class="nv">x</span> : C₁}
+           (<span class="nv">h</span> : Q y x)
+  : P y x
+  := invmap (make_weq _ (Hτ y x)) h.
+
+<span class="kn">Proposition</span> <span class="nf">inv_profunctor_nat_iso_left</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+            {<span class="nv">τ</span> : profunctor_nat_trans P Q}
+            (<span class="nv">Hτ</span> : is_profunctor_nat_iso τ)
+            {<span class="nv">y</span> : C₂}
+            {<span class="nv">x</span> : C₁}
+            (<span class="nv">h</span> : P y x)
+  : inv_profunctor_nat_iso Hτ (τ y x h) = h.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (homotinvweqweq (make_weq _ (Hτ y x))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">inv_profunctor_nat_iso_right</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+            {<span class="nv">τ</span> : profunctor_nat_trans P Q}
+            (<span class="nv">Hτ</span> : is_profunctor_nat_iso τ)
+            {<span class="nv">y</span> : C₂}
+            {<span class="nv">x</span> : C₁}
+            (<span class="nv">h</span> : Q y x)
+  : τ y x (inv_profunctor_nat_iso Hτ h) = h.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (homotweqinvweq (make_weq _ (Hτ y x))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">inv_profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+           {<span class="nv">τ</span> : profunctor_nat_trans P Q}
+           (<span class="nv">Hτ</span> : is_profunctor_nat_iso τ)
+  : profunctor_nat_trans Q P.
+<span class="kn">Proof</span>.
+  use make_profunctor_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">x</span> <span class="nv">h</span>, inv_profunctor_nat_iso Hτ h).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> y₁ y₂ x₁ x₂ g f h ;
+       <span class="nb">cbn</span> ;
+       use (invmaponpathsweq (make_weq _ (Hτ _ _))) ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> inv_profunctor_nat_iso_right ;
+       <span class="nb">rewrite</span> (profunctor_nat_trans_lmap_rmap τ) ;
+       <span class="nb">rewrite</span> inv_profunctor_nat_iso_right ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_is_profunctor_nat_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+           (<span class="nv">τ</span> : profunctor_nat_trans P Q)
+  : isaprop (is_profunctor_nat_iso τ).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropisweq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">profunctor_nat_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂)
+  : UU
+  := ∑ (τ : profunctor_nat_trans P Q), is_profunctor_nat_iso τ.
+
+<span class="kn">Definition</span> <span class="nf">make_profunctor_nat_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+           (<span class="nv">τ</span> : profunctor_nat_trans P Q)
+           (<span class="nv">Hτ</span> : is_profunctor_nat_iso τ)
+  : profunctor_nat_iso P Q
+  := τ ,, Hτ.
+
+<span class="kn">Coercion</span> <span class="nf">profunctor_nat_iso_to_profunctor_nat_trans</span>
+         {C₁ C₂ : category}
+         {P Q : profunctor C₁ C₂}
+         (τ : profunctor_nat_iso P Q)
+  : profunctor_nat_trans P Q
+  := pr1 τ.
+
+<span class="kn">Coercion</span> <span class="nf">profunctor_nat_iso_to_is_profunctor_nat_iso</span>
+         {C₁ C₂ : category}
+         {P Q : profunctor C₁ C₂}
+         (τ : profunctor_nat_iso P Q)
+  : is_profunctor_nat_iso τ
+  := pr2 τ.
+
+<span class="kn">Section</span> <span class="nf">IsoToProfunctorIso</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+          {<span class="nv">τ</span> : profunctor_nat_trans P Q}
+          (<span class="nv">Hτ</span> : is_z_isomorphism
+                  (C := [category_binproduct C₂^op C₁ , HSET_univalent_category])
+                  τ).
+
+  <span class="kn">Let</span> <span class="nf">τiso</span>
+    : z_iso (C := [category_binproduct C₂^op C₁ , HSET_univalent_category]) P Q
+    := _ ,, Hτ.
+  <span class="kn">Let</span> <span class="nf">θ</span> : profunctor_nat_trans Q P := inv_from_z_iso τiso.
+
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_to_is_profunctor_nat_iso</span>
+    : is_profunctor_nat_iso τ.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y x.
+    use isweq_iso.
+    - <span class="bp">exact</span> (θ y x).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> h ;
+         <span class="bp">exact</span> (profunctor_nat_trans_eq_pointwise (z_iso_inv_after_z_iso τiso) h)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> h ;
+         <span class="bp">exact</span> (profunctor_nat_trans_eq_pointwise (z_iso_after_z_iso_inv τiso) h)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">IsoToProfunctorIso</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_profunctor_nat_iso_to_is_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+           {<span class="nv">τ</span> : profunctor_nat_trans P Q}
+           (<span class="nv">Hτ</span> : is_profunctor_nat_iso τ)
+  : is_z_isomorphism
+      (C := [category_binproduct C₂^op C₁ , HSET_univalent_category])
+      τ.
+<span class="kn">Proof</span>.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> (inv_profunctor_nat_trans Hτ).
+  - <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (use eq_profunctor_nat_trans ;
+         <span class="nb">intros</span> y x h ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> inv_profunctor_nat_iso_left).
+    + <span class="kp">abstract</span>
+        (use eq_profunctor_nat_trans ;
+         <span class="nb">intros</span> y x h ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> inv_profunctor_nat_iso_right).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_profunctor_nat_iso_weq_is_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+           (<span class="nv">τ</span> : profunctor_nat_trans P Q)
+  : is_z_isomorphism (C := [category_binproduct C₂^op C₁ , HSET_univalent_category]) τ
+    ≃
+    is_profunctor_nat_iso τ.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> is_z_iso_to_is_profunctor_nat_iso.
+  - <span class="bp">exact</span> is_profunctor_nat_iso_to_is_z_iso.
+  - <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  - <span class="nb">apply</span> isaprop_is_profunctor_nat_iso.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Standard natural transformations between profunctors *)</span>
+
+<span class="sd">(** * 5.1. Identity and composition *)</span>
+<span class="kn">Definition</span> <span class="nf">profunctor_nat_trans_id</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> : profunctor C₁ C₂)
+  : profunctor_nat_trans P P
+  := nat_trans_id (P : _ ⟶ _).
+
+<span class="kn">Definition</span> <span class="nf">profunctor_nat_iso_id</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> : profunctor C₁ C₂)
+  : profunctor_nat_iso P P.
+<span class="kn">Proof</span>.
+  use make_profunctor_nat_iso.
+  - <span class="bp">exact</span> (profunctor_nat_trans_id P).
+  - <span class="nb">intros</span> y x.
+    <span class="nb">apply</span> idisweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">profunctor_nat_trans_comp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P₁</span> <span class="nv">P₂</span> <span class="nv">P₃</span> : profunctor C₁ C₂}
+           (<span class="nv">τ₁</span> : profunctor_nat_trans P₁ P₂)
+           (<span class="nv">τ₂</span> : profunctor_nat_trans P₂ P₃)
+  : profunctor_nat_trans P₁ P₃
+  := nat_trans_comp _ _ _ τ₁ τ₂.
+
+<span class="sd">(** * 5.2. Left unitor *)</span>
+<span class="kn">Definition</span> <span class="nf">lunitor_profunctor_nat_trans_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> : profunctor C₁ C₂)
+           (<span class="nv">y</span> : C₂)
+           (<span class="nv">x</span> : C₁)
+  : comp_profunctor (id_profunctor C₁) P y x → P y x.
+<span class="kn">Proof</span>.
+  use from_comp_profunctor_ob.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">h'</span>, rmap P h h').
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> z₁ z₂ f h h' ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> id_right ;
+       <span class="nb">rewrite</span> rmap_comp ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lunitor_profunctor_nat_trans_mor_comm</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">P</span> : profunctor C₁ C₂)
+            {<span class="nv">y</span> : C₂}
+            {<span class="nv">x</span> <span class="nv">x'</span> : C₁}
+            (<span class="nv">f</span> : x' --&gt; x)
+            (<span class="nv">h</span> : P y x')
+  : lunitor_profunctor_nat_trans_mor
+      P
+      y x
+      (comp_profunctor_ob_in (id_profunctor C₁) P x' f h)
+    =
+    rmap P f h.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> lunitor_profunctor_nat_trans_mor.
+  <span class="nb">rewrite</span> from_comp_profunctor_ob_comm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lunitor_profunctor_nat_trans_law</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">P</span> : profunctor C₁ C₂)
+  : profunctor_nat_trans_law (lunitor_profunctor_nat_trans_mor P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y₁ y₂ x₁ x₂ g f h.
+  use (mor_from_comp_profunctor_ob_eq
+         (id_profunctor C₁) P
+         y₁ x₁
+         (<span class="k">λ</span> <span class="nv">h</span>,
+          lunitor_profunctor_nat_trans_mor
+            P
+            y₂ x₂
+            (comp_profunctor_mor
+               (id_profunctor C₁) P
+               g (identity x₂)
+               (comp_profunctor_mor
+                  (id_profunctor C₁) P
+                  (identity y₁) f
+                  h)))
+         (<span class="k">λ</span> <span class="nv">h</span>, lmap P g (rmap P f (lunitor_profunctor_nat_trans_mor P y₁ x₁ h)))).
+  <span class="nb">clear</span> h.
+  <span class="nb">intros</span> y h h' ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !comp_profunctor_mor_comm.
+  <span class="nb">rewrite</span> !lunitor_profunctor_nat_trans_mor_comm ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !id_left, !id_right.
+  <span class="nb">rewrite</span> lmap_id.
+  <span class="nb">rewrite</span> &lt;- lmap_rmap.
+  <span class="nb">rewrite</span> rmap_comp.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lunitor_profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> : profunctor C₁ C₂)
+  : profunctor_nat_trans (comp_profunctor (id_profunctor C₁) P) P.
+<span class="kn">Proof</span>.
+  use make_profunctor_nat_trans.
+  - <span class="bp">exact</span> (lunitor_profunctor_nat_trans_mor P).
+  - <span class="bp">exact</span> (lunitor_profunctor_nat_trans_law P).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_profunctor_nat_iso_lunitor_profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> : profunctor C₁ C₂)
+  : is_profunctor_nat_iso (lunitor_profunctor_nat_trans P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y x.
+  use isweq_iso.
+  - <span class="nb">refine</span> (comp_profunctor_ob_in _ _ _ _).
+    <span class="bp">exact</span> (identity x).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> h ;
+       use (mor_from_comp_profunctor_ob_eq
+              (id_profunctor C₁) P
+              _ _
+              (<span class="k">λ</span> <span class="nv">h</span>,
+               comp_profunctor_ob_in
+                 (id_profunctor C₁) P
+                 x (identity x)
+                 (lunitor_profunctor_nat_trans P y x h))
+              (idfun _)) ;
+       <span class="nb">clear</span> h ;
+       <span class="nb">intros</span> z h h' ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> lunitor_profunctor_nat_trans_mor_comm ;
+       <span class="nb">rewrite</span> comp_profunctor_ob_in_comm ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !id_right ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> h ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> lunitor_profunctor_nat_trans_mor_comm ;
+       <span class="nb">rewrite</span> rmap_id;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">linvunitor_profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> : profunctor C₁ C₂)
+  : profunctor_nat_trans P (comp_profunctor (id_profunctor C₁) P)
+  := inv_profunctor_nat_trans (is_profunctor_nat_iso_lunitor_profunctor_nat_trans P).
+
+<span class="sd">(** *  5.3. Right unitor *)</span>
+<span class="kn">Definition</span> <span class="nf">runitor_profunctor_nat_trans_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> : profunctor C₁ C₂)
+           (<span class="nv">y</span> : C₂)
+           (<span class="nv">x</span> : C₁)
+  : comp_profunctor P (id_profunctor C₂) y x → P y x.
+<span class="kn">Proof</span>.
+  use from_comp_profunctor_ob.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">h'</span>, lmap P h' h).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> z₁ z₂ f h h' ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !id_left ;
+       <span class="nb">rewrite</span> lmap_comp ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">runitor_profunctor_nat_trans_mor_comm</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">P</span> : profunctor C₁ C₂)
+            {<span class="nv">x</span> : C₁}
+            {<span class="nv">y</span> <span class="nv">y'</span> : C₂}
+            (<span class="nv">g</span> : y --&gt; y')
+            (<span class="nv">h</span> : P y' x)
+  : runitor_profunctor_nat_trans_mor
+      P
+      y x
+      (comp_profunctor_ob_in P (id_profunctor C₂) y' h g)
+    =
+    lmap P g h.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> runitor_profunctor_nat_trans_mor.
+  <span class="nb">rewrite</span> from_comp_profunctor_ob_comm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">runitor_profunctor_nat_trans_law</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">P</span> : profunctor C₁ C₂)
+  : profunctor_nat_trans_law (runitor_profunctor_nat_trans_mor P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y₁ y₂ x₁ x₂ g f h.
+  <span class="nb">cbn</span>.
+  use (mor_from_comp_profunctor_ob_eq
+         P (id_profunctor C₂)
+         y₁ x₁
+         (<span class="k">λ</span> <span class="nv">h</span>,
+          runitor_profunctor_nat_trans_mor
+            P
+            y₂ x₂
+            (comp_profunctor_mor
+               P (id_profunctor C₂)
+               g (identity x₂)
+               (comp_profunctor_mor
+                  P (id_profunctor C₂)
+                  (identity y₁) f
+                  h)))
+         (<span class="k">λ</span> <span class="nv">h</span>, lmap P g (rmap P f (runitor_profunctor_nat_trans_mor P y₁ x₁ h)))).
+  <span class="nb">clear</span> h.
+  <span class="nb">intros</span> y h h' ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !comp_profunctor_mor_comm.
+  <span class="nb">rewrite</span> !runitor_profunctor_nat_trans_mor_comm ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !id_left, !id_right.
+  <span class="nb">rewrite</span> rmap_id.
+  <span class="nb">rewrite</span> &lt;- lmap_rmap.
+  <span class="nb">rewrite</span> lmap_comp.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">runitor_profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> : profunctor C₁ C₂)
+  : profunctor_nat_trans (comp_profunctor P (id_profunctor C₂)) P.
+<span class="kn">Proof</span>.
+  use make_profunctor_nat_trans.
+  - <span class="bp">exact</span> (runitor_profunctor_nat_trans_mor P).
+  - <span class="bp">exact</span> (runitor_profunctor_nat_trans_law P).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_profunctor_nat_iso_runitor_profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> : profunctor C₁ C₂)
+  : is_profunctor_nat_iso (runitor_profunctor_nat_trans P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y x.
+  use isweq_iso.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">h</span>, comp_profunctor_ob_in _ _ _ h _).
+    <span class="bp">exact</span> (identity y).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> h ;
+       use (mor_from_comp_profunctor_ob_eq
+              P (id_profunctor C₂)
+              _ _
+              (<span class="k">λ</span> <span class="nv">h</span>,
+               comp_profunctor_ob_in
+                 P (id_profunctor C₂)
+                 _
+                 (runitor_profunctor_nat_trans P y x h)
+                 (identity y))
+              (idfun _)) ;
+       <span class="nb">clear</span> h ;
+       <span class="nb">intros</span> z h h' ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> runitor_profunctor_nat_trans_mor_comm ;
+       <span class="nb">rewrite</span> &lt;- comp_profunctor_ob_in_comm ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !id_left ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> h ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> runitor_profunctor_nat_trans_mor_comm ;
+       <span class="nb">rewrite</span> lmap_id;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rinvunitor_profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> : profunctor C₁ C₂)
+  : profunctor_nat_trans P (comp_profunctor P (id_profunctor C₂))
+  := inv_profunctor_nat_trans (is_profunctor_nat_iso_runitor_profunctor_nat_trans P).
+
+<span class="sd">(** * 5.4. Associator *)</span>
+<span class="kn">Definition</span> <span class="nf">associator_profunctor_nat_trans_mor_ob</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+           (<span class="nv">P₁</span> : C₁ ↛ C₂)
+           (<span class="nv">P₂</span> : C₂ ↛ C₃)
+           (<span class="nv">P₃</span> : C₃ ↛ C₄)
+           (<span class="nv">z</span> : C₄)
+           (<span class="nv">w</span> : C₁)
+           (<span class="nv">x</span> : C₂)
+           (<span class="nv">h</span> : P₁ x w)
+  : comp_profunctor P₂ P₃ z x → comp_profunctor (comp_profunctor P₁ P₂) P₃ z w.
+<span class="kn">Proof</span>.
+  use from_comp_profunctor_ob.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">h'</span> <span class="nv">h''</span>, comp_profunctor_ob_in _ _ y _ h'').
+    <span class="bp">exact</span> (comp_profunctor_ob_in P₁ P₂ x h h').
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> y₁ y₂ g k k' ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> comp_profunctor_ob_in_comm ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> comp_profunctor_mor_comm ;
+       <span class="nb">rewrite</span> rmap_id ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">associator_profunctor_nat_trans_mor_ob_comm</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            (<span class="nv">P₁</span> : C₁ ↛ C₂)
+            (<span class="nv">P₂</span> : C₂ ↛ C₃)
+            (<span class="nv">P₃</span> : C₃ ↛ C₄)
+            {<span class="nv">z</span> : C₄}
+            {<span class="nv">w</span> : C₁}
+            {<span class="nv">x</span> : C₂}
+            {<span class="nv">y</span> : C₃}
+            (<span class="nv">h</span> : P₁ x w)
+            (<span class="nv">k</span> : P₂ y x)
+            (<span class="nv">l</span> : P₃ z y)
+  : associator_profunctor_nat_trans_mor_ob
+      P₁ P₂ P₃
+      z w x h
+      (comp_profunctor_ob_in P₂ P₃ y k l)
+    =
+    comp_profunctor_ob_in (comp_profunctor P₁ P₂) P₃ y (comp_profunctor_ob_in P₁ P₂ x h k) l.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> associator_profunctor_nat_trans_mor_ob.
+  <span class="nb">rewrite</span> from_comp_profunctor_ob_comm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">associator_profunctor_nat_trans_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+           (<span class="nv">P₁</span> : C₁ ↛ C₂)
+           (<span class="nv">P₂</span> : C₂ ↛ C₃)
+           (<span class="nv">P₃</span> : C₃ ↛ C₄)
+           (<span class="nv">z</span> : C₄)
+           (<span class="nv">w</span> : C₁)
+  : comp_profunctor P₁ (comp_profunctor P₂ P₃) z w
+    →
+    comp_profunctor (comp_profunctor P₁ P₂) P₃ z w.
+<span class="kn">Proof</span>.
+  use from_comp_profunctor_ob.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">h</span>, associator_profunctor_nat_trans_mor_ob P₁ P₂ P₃ z w x h).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x₁ x₂ f h h' ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+       use (mor_from_comp_profunctor_ob_eq
+              P₂ P₃
+              _ _
+              (<span class="k">λ</span> <span class="nv">k</span>,
+               associator_profunctor_nat_trans_mor_ob
+                 P₁ P₂ P₃ z w x₂ h
+                 (comp_profunctor_mor P₂ P₃ (identity z) f k))
+              (associator_profunctor_nat_trans_mor_ob P₁ P₂ P₃ z w x₁ (lmap P₁ f h))) ;
+       <span class="nb">clear</span> h' ;
+       <span class="nb">intros</span> y k k' ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> comp_profunctor_mor_comm ;
+       <span class="nb">rewrite</span> lmap_id ;
+       <span class="nb">refine</span> (associator_profunctor_nat_trans_mor_ob_comm P₁ P₂ P₃ h (rmap P₂ f k) k' @ _) ;
+       <span class="nb">refine</span> (!_) ;
+       etrans ; [ <span class="nb">apply</span> associator_profunctor_nat_trans_mor_ob_comm | ] ;
+       <span class="nb">rewrite</span> comp_profunctor_ob_in_comm ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">associator_profunctor_nat_trans_mor_comm</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            (<span class="nv">P₁</span> : C₁ ↛ C₂)
+            (<span class="nv">P₂</span> : C₂ ↛ C₃)
+            (<span class="nv">P₃</span> : C₃ ↛ C₄)
+            (<span class="nv">z</span> : C₄)
+            (<span class="nv">w</span> : C₁)
+            (<span class="nv">x</span> : C₂)
+            (<span class="nv">h</span> : P₁ x w)
+            (<span class="nv">kl</span> : comp_profunctor_ob P₂ P₃ z x)
+  : associator_profunctor_nat_trans_mor
+      P₁ P₂ P₃
+      z w
+      (comp_profunctor_ob_in
+         P₁ (comp_profunctor P₂ P₃)
+         x
+         h
+         kl)
+    =
+    associator_profunctor_nat_trans_mor_ob P₁ P₂ P₃ _ _ x h kl.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> associator_profunctor_nat_trans_mor.
+  <span class="nb">rewrite</span> from_comp_profunctor_ob_comm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">associator_profunctor_nat_trans_law</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            (<span class="nv">P₁</span> : C₁ ↛ C₂)
+            (<span class="nv">P₂</span> : C₂ ↛ C₃)
+            (<span class="nv">P₃</span> : C₃ ↛ C₄)
+  : profunctor_nat_trans_law (associator_profunctor_nat_trans_mor P₁ P₂ P₃).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> z₁ z₂ w₁ w₂ f₄ f₁ h ; <span class="nb">cbn</span>.
+  use (mor_from_comp_profunctor_ob_eq
+         P₁ (comp_profunctor P₂ P₃)
+         _ _
+         (<span class="k">λ</span> <span class="nv">h</span>,
+          associator_profunctor_nat_trans_mor
+            P₁ P₂ P₃ z₂ w₂
+            (comp_profunctor_mor
+               P₁ (comp_profunctor P₂ P₃)
+               f₄ (identity w₂)
+               (comp_profunctor_mor
+                  P₁ (comp_profunctor P₂ P₃)
+                  (identity z₁) f₁ h)))
+         (<span class="k">λ</span> <span class="nv">h</span>,
+          comp_profunctor_mor
+            (comp_profunctor P₁ P₂) P₃
+            f₄ (identity w₂)
+            (comp_profunctor_mor
+               (comp_profunctor P₁ P₂) P₃ (identity z₁)
+               f₁
+               (associator_profunctor_nat_trans_mor P₁ P₂ P₃ z₁ w₁ h)))).
+  <span class="nb">clear</span> h.
+  <span class="nb">intros</span> x h kl ; <span class="nb">cbn</span>.
+  use (mor_from_comp_profunctor_ob_eq
+         P₂ P₃
+         z₁ x
+         (<span class="k">λ</span> <span class="nv">kl</span>,
+          associator_profunctor_nat_trans_mor
+            P₁ P₂ P₃
+            z₂ w₂
+            (comp_profunctor_mor
+               P₁ (comp_profunctor P₂ P₃)
+               f₄ (identity w₂)
+               (comp_profunctor_mor
+                  P₁ (comp_profunctor P₂ P₃)
+                  (identity z₁) f₁
+                  (comp_profunctor_ob_in
+                     P₁ (comp_profunctor P₂ P₃)
+                     x h kl))))
+         (<span class="k">λ</span> <span class="nv">kl</span>,
+          comp_profunctor_mor
+            (comp_profunctor P₁ P₂) P₃
+            f₄ (identity w₂)
+            (comp_profunctor_mor
+               (comp_profunctor P₁ P₂) P₃
+               (identity z₁) f₁
+               (associator_profunctor_nat_trans_mor
+                  P₁ P₂ P₃
+                  z₁ w₁
+                  (comp_profunctor_ob_in
+                     P₁ (comp_profunctor P₂ P₃)
+                     x h kl))))).
+  <span class="nb">clear</span> kl.
+  <span class="nb">intros</span> y k l ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !comp_profunctor_mor_comm ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !comp_profunctor_mor_comm.
+  <span class="nb">rewrite</span> !associator_profunctor_nat_trans_mor_comm.
+  <span class="nb">rewrite</span> !rmap_id, !lmap_id.
+  etrans.
+  {
+    <span class="bp">exact</span> (associator_profunctor_nat_trans_mor_ob_comm
+             P₁ P₂ P₃
+             (rmap P₁ f₁ h) k (lmap P₃ f₄ l)).
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (associator_profunctor_nat_trans_mor_ob_comm
+             P₁ P₂ P₃
+             h k l).
+  }
+  <span class="nb">rewrite</span> !comp_profunctor_mor_comm.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> lmap_id.
+  <span class="nb">rewrite</span> !comp_profunctor_mor_comm.
+  <span class="nb">rewrite</span> !lmap_id, !rmap_id.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">associator_profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+           (<span class="nv">P₁</span> : C₁ ↛ C₂)
+           (<span class="nv">P₂</span> : C₂ ↛ C₃)
+           (<span class="nv">P₃</span> : C₃ ↛ C₄)
+  : profunctor_nat_trans
+      (comp_profunctor P₁ (comp_profunctor P₂ P₃))
+      (comp_profunctor (comp_profunctor P₁ P₂) P₃).
+<span class="kn">Proof</span>.
+  use make_profunctor_nat_trans.
+  - <span class="bp">exact</span> (associator_profunctor_nat_trans_mor P₁ P₂ P₃).
+  - <span class="bp">exact</span> (associator_profunctor_nat_trans_law P₁ P₂ P₃).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">associator_profunctor_inv_mor_ob</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+           (<span class="nv">P₁</span> : C₁ ↛ C₂)
+           (<span class="nv">P₂</span> : C₂ ↛ C₃)
+           (<span class="nv">P₃</span> : C₃ ↛ C₄)
+           (<span class="nv">z</span> : C₄)
+           (<span class="nv">w</span> : C₁)
+           (<span class="nv">y</span> : C₃)
+           (<span class="nv">h</span> : P₃ z y)
+  : comp_profunctor_ob P₁ P₂ y w → comp_profunctor_ob P₁ (comp_profunctor P₂ P₃) z w.
+<span class="kn">Proof</span>.
+  use from_comp_profunctor_ob.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">k</span> <span class="nv">l</span>,
+            comp_profunctor_ob_in _ _ _ k _).
+    <span class="bp">exact</span> (comp_profunctor_ob_in _ _ y l h).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x₁ x₂ f k k' ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> &lt;- comp_profunctor_ob_in_comm ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> comp_profunctor_mor_comm ;
+       <span class="nb">rewrite</span> lmap_id ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">associator_profunctor_inv_mor_ob_comm</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            (<span class="nv">P₁</span> : C₁ ↛ C₂)
+            (<span class="nv">P₂</span> : C₂ ↛ C₃)
+            (<span class="nv">P₃</span> : C₃ ↛ C₄)
+            (<span class="nv">z</span> : C₄)
+            (<span class="nv">w</span> : C₁)
+            (<span class="nv">y</span> : C₃)
+            (<span class="nv">x</span> : C₂)
+            (<span class="nv">h</span> : P₃ z y)
+            (<span class="nv">k</span> : P₁ x w)
+            (<span class="nv">l</span> : P₂ y x)
+  : associator_profunctor_inv_mor_ob
+      P₁ P₂ P₃
+      z w y h
+      (comp_profunctor_ob_in P₁ P₂ x k l)
+    =
+    comp_profunctor_ob_in
+      P₁ (comp_profunctor P₂ P₃)
+      x
+      k
+      (comp_profunctor_ob_in P₂ P₃ y l h).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> associator_profunctor_inv_mor_ob.
+  <span class="nb">rewrite</span> from_comp_profunctor_ob_comm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">associator_profunctor_inv_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+           (<span class="nv">P₁</span> : C₁ ↛ C₂)
+           (<span class="nv">P₂</span> : C₂ ↛ C₃)
+           (<span class="nv">P₃</span> : C₃ ↛ C₄)
+           (<span class="nv">z</span> : C₄)
+           (<span class="nv">w</span> : C₁)
+  : comp_profunctor (comp_profunctor P₁ P₂) P₃ z w
+    →
+    comp_profunctor P₁ (comp_profunctor P₂ P₃) z w.
+<span class="kn">Proof</span>.
+  use from_comp_profunctor_ob.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">kl</span> <span class="nv">h</span>, associator_profunctor_inv_mor_ob P₁ P₂ P₃ z w y h kl).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> y₁ y₂ f k l ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+       use (mor_from_comp_profunctor_ob_eq
+              P₁ P₂
+              y₂ w
+              (associator_profunctor_inv_mor_ob
+                 P₁ P₂ P₃
+                 z w y₂
+                 (rmap P₃ f l))
+              (<span class="k">λ</span> <span class="nv">k</span>,
+               associator_profunctor_inv_mor_ob
+                 P₁ P₂ P₃
+                 z w y₁
+                 l (comp_profunctor_mor P₁ P₂ f (identity w) k))) ;
+       <span class="nb">clear</span> k ;
+       <span class="nb">intros</span> x h k ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> comp_profunctor_mor_comm ;
+       <span class="nb">rewrite</span> !associator_profunctor_inv_mor_ob_comm ;
+       <span class="nb">rewrite</span> comp_profunctor_ob_in_comm ;
+       <span class="nb">rewrite</span> rmap_id ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">associator_profunctor_inv_mor_comm</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            (<span class="nv">P₁</span> : C₁ ↛ C₂)
+            (<span class="nv">P₂</span> : C₂ ↛ C₃)
+            (<span class="nv">P₃</span> : C₃ ↛ C₄)
+            (<span class="nv">z</span> : C₄)
+            (<span class="nv">w</span> : C₁)
+            (<span class="nv">y</span> : C₃)
+            (<span class="nv">h</span> : P₃ z y)
+            (<span class="nv">kl</span> : comp_profunctor_ob P₁ P₂ y w)
+  : associator_profunctor_inv_mor
+      P₁ P₂ P₃
+      z w
+      (comp_profunctor_ob_in (comp_profunctor P₁ P₂) P₃ y kl h)
+    =
+    associator_profunctor_inv_mor_ob P₁ P₂ P₃ z w y h kl.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> associator_profunctor_inv_mor.
+  <span class="nb">rewrite</span> from_comp_profunctor_ob_comm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_profunctor_nat_iso_associator_profunctor_nat_trans_left</span>
+      {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+      (<span class="nv">P₁</span> : C₁ ↛ C₂)
+      (<span class="nv">P₂</span> : C₂ ↛ C₃)
+      (<span class="nv">P₃</span> : C₃ ↛ C₄)
+      (<span class="nv">z</span> : C₄)
+      (<span class="nv">w</span> : C₁)
+      (<span class="nv">h</span> : comp_profunctor P₁ (comp_profunctor P₂ P₃) z w)
+  : associator_profunctor_inv_mor
+      P₁ P₂ P₃ z w
+      (associator_profunctor_nat_trans
+         P₁ P₂ P₃ z w h)
+    =
+    h.
+<span class="kn">Proof</span>.
+  use (mor_from_comp_profunctor_ob_eq
+         P₁ (comp_profunctor P₂ P₃)
+         z w
+         (<span class="k">λ</span> <span class="nv">h</span>,
+          associator_profunctor_inv_mor
+            P₁ P₂ P₃ z w
+            (associator_profunctor_nat_trans
+               P₁ P₂ P₃ z w h))
+         (idfun _)).
+  <span class="nb">clear</span> h.
+  <span class="nb">intros</span> x h kl ; <span class="nb">cbn</span>.
+  use (mor_from_comp_profunctor_ob_eq
+         P₂ P₃
+         z x
+         (<span class="k">λ</span> <span class="nv">kl</span>,
+          associator_profunctor_inv_mor
+            P₁ P₂ P₃ z w
+            (associator_profunctor_nat_trans_mor
+               P₁ P₂ P₃ z w
+               (comp_profunctor_ob_in P₁ (comp_profunctor P₂ P₃) x h kl)))
+         (<span class="k">λ</span> <span class="nv">kl</span>, comp_profunctor_ob_in P₁ (comp_profunctor P₂ P₃) x h kl)).
+  <span class="nb">clear</span> kl.
+  <span class="nb">intros</span> y k l ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> associator_profunctor_nat_trans_mor_comm.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> associator_profunctor_nat_trans_mor_ob_comm.
+  }
+  etrans.
+  {
+    <span class="nb">apply</span> (associator_profunctor_inv_mor_comm P₁ P₂ P₃ z w y l).
+  }
+  <span class="nb">rewrite</span> associator_profunctor_inv_mor_ob_comm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_profunctor_nat_iso_associator_profunctor_nat_trans_right</span>
+      {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+      (<span class="nv">P₁</span> : C₁ ↛ C₂)
+      (<span class="nv">P₂</span> : C₂ ↛ C₃)
+      (<span class="nv">P₃</span> : C₃ ↛ C₄)
+      (<span class="nv">z</span> : C₄)
+      (<span class="nv">w</span> : C₁)
+      (<span class="nv">h</span> : comp_profunctor (comp_profunctor P₁ P₂) P₃ z w)
+  : associator_profunctor_nat_trans
+      P₁ P₂ P₃ z w
+      (associator_profunctor_inv_mor
+         P₁ P₂ P₃ z w h)
+    =
+    h.
+<span class="kn">Proof</span>.
+  use (mor_from_comp_profunctor_ob_eq
+         (comp_profunctor P₁ P₂) P₃
+         z w
+         (<span class="k">λ</span> <span class="nv">h</span>,
+          associator_profunctor_nat_trans
+            P₁ P₂ P₃ z w
+            (associator_profunctor_inv_mor
+               P₁ P₂ P₃ z w h))
+         (idfun _)).
+  <span class="nb">clear</span> h.
+  <span class="nb">intros</span> x h l ; <span class="nb">cbn</span>.
+  use (mor_from_comp_profunctor_ob_eq
+         P₁ P₂
+         x w
+         (<span class="k">λ</span> <span class="nv">h</span>,
+          associator_profunctor_nat_trans_mor P₁ P₂ P₃ z w
+            (associator_profunctor_inv_mor P₁ P₂ P₃ z w
+               (comp_profunctor_ob_in (comp_profunctor P₁ P₂) P₃ x h l)))
+         (<span class="k">λ</span> <span class="nv">h</span>, comp_profunctor_ob_in (comp_profunctor P₁ P₂) P₃ x h l)).
+  <span class="nb">clear</span> h.
+  <span class="nb">intros</span> y h k ; <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> associator_profunctor_inv_mor_comm.
+  }
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (associator_profunctor_inv_mor_ob_comm P₁ P₂ P₃ z w x y l h k).
+  }
+  <span class="nb">rewrite</span> associator_profunctor_nat_trans_mor_comm.
+  <span class="bp">exact</span> (associator_profunctor_nat_trans_mor_ob_comm P₁ P₂ P₃ h k l).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_profunctor_nat_iso_associator_profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+           (<span class="nv">P₁</span> : C₁ ↛ C₂)
+           (<span class="nv">P₂</span> : C₂ ↛ C₃)
+           (<span class="nv">P₃</span> : C₃ ↛ C₄)
+  : is_profunctor_nat_iso (associator_profunctor_nat_trans P₁ P₂ P₃).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> z w.
+  use isweq_iso.
+  - <span class="bp">exact</span> (associator_profunctor_inv_mor P₁ P₂ P₃ z w).
+  - <span class="bp">exact</span> (is_profunctor_nat_iso_associator_profunctor_nat_trans_left P₁ P₂ P₃ z w).
+  - <span class="bp">exact</span> (is_profunctor_nat_iso_associator_profunctor_nat_trans_right P₁ P₂ P₃ z w).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">inv_associator_profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+           (<span class="nv">P₁</span> : C₁ ↛ C₂)
+           (<span class="nv">P₂</span> : C₂ ↛ C₃)
+           (<span class="nv">P₃</span> : C₃ ↛ C₄)
+  : profunctor_nat_trans
+      (comp_profunctor (comp_profunctor P₁ P₂) P₃)
+      (comp_profunctor P₁ (comp_profunctor P₂ P₃))
+  := inv_profunctor_nat_trans
+       (is_profunctor_nat_iso_associator_profunctor_nat_trans P₁ P₂ P₃).
+
+<span class="sd">(** * 5.5. Inverse laws *)</span>
+<span class="kn">Proposition</span> <span class="nf">inv_profunctor_nat_trans_left</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+            {<span class="nv">τ</span> : profunctor_nat_trans P Q}
+            (<span class="nv">Hτ</span> : is_profunctor_nat_iso τ)
+  : profunctor_nat_trans_comp (inv_profunctor_nat_trans Hτ) τ
+    =
+    profunctor_nat_trans_id _.
+<span class="kn">Proof</span>.
+  use eq_profunctor_nat_trans.
+  <span class="nb">intros</span> y x h ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> (homotweqinvweq (make_weq _ (Hτ y x))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">inv_profunctor_nat_trans_right</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+            {<span class="nv">τ</span> : profunctor_nat_trans P Q}
+            (<span class="nv">Hτ</span> : is_profunctor_nat_iso τ)
+  : profunctor_nat_trans_comp τ (inv_profunctor_nat_trans Hτ)
+    =
+    profunctor_nat_trans_id _.
+<span class="kn">Proof</span>.
+  use eq_profunctor_nat_trans.
+  <span class="nb">intros</span> y x h ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> homotinvweqweq.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5.6. Whiskering *)</span>
+<span class="kn">Definition</span> <span class="nf">lwhisker_profunctor_nat_trans_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">P</span> : C₁ ↛ C₂)
+           {<span class="nv">Q₁</span> <span class="nv">Q₂</span> : C₂ ↛ C₃}
+           (<span class="nv">τ</span> : profunctor_nat_trans Q₁ Q₂)
+           (<span class="nv">z</span> : C₃)
+           (<span class="nv">x</span> : C₁)
+  : comp_profunctor P Q₁ z x → comp_profunctor P Q₂ z x.
+<span class="kn">Proof</span>.
+  use from_comp_profunctor_ob.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">h</span> <span class="nv">h'</span>, comp_profunctor_ob_in _ _ y h (τ z y h')).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> y₁ y₂ g h h' ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> profunctor_nat_trans_rmap ;
+       <span class="nb">rewrite</span> comp_profunctor_ob_in_comm ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lwhisker_profunctor_nat_trans_mor_comm</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            (<span class="nv">P</span> : C₁ ↛ C₂)
+            {<span class="nv">Q₁</span> <span class="nv">Q₂</span> : C₂ ↛ C₃}
+            (<span class="nv">τ</span> : profunctor_nat_trans Q₁ Q₂)
+            {<span class="nv">z</span> : C₃}
+            {<span class="nv">y</span> : C₂}
+            {<span class="nv">x</span> : C₁}
+            (<span class="nv">h</span> : P y x)
+            (<span class="nv">h'</span> : Q₁ z y)
+  : lwhisker_profunctor_nat_trans_mor P τ z x (comp_profunctor_ob_in P Q₁ y h h')
+    =
+    comp_profunctor_ob_in P Q₂ y h (τ z y h').
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> lwhisker_profunctor_nat_trans_mor.
+  <span class="nb">rewrite</span> from_comp_profunctor_ob_comm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lwhisker_profunctor_nat_trans_law</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            (<span class="nv">P</span> : C₁ ↛ C₂)
+            {<span class="nv">Q₁</span> <span class="nv">Q₂</span> : C₂ ↛ C₃}
+            (<span class="nv">τ</span> : profunctor_nat_trans Q₁ Q₂)
+  : profunctor_nat_trans_law (lwhisker_profunctor_nat_trans_mor P τ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> z₁ z₂ x₁ x₂ k f h ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  use (mor_from_comp_profunctor_ob_eq
+         P Q₁
+         z₁ x₁
+         (<span class="k">λ</span> <span class="nv">h</span>,
+          lwhisker_profunctor_nat_trans_mor
+            P τ z₂ x₂
+            (comp_profunctor_mor
+               P Q₁ k (identity x₂)
+               (comp_profunctor_mor P Q₁ (identity z₁) f h)))
+         (<span class="k">λ</span> <span class="nv">h</span>,
+          comp_profunctor_mor
+            P Q₂ k (identity x₂)
+            (comp_profunctor_mor
+               P Q₂ (identity z₁) f
+               (lwhisker_profunctor_nat_trans_mor P τ z₁ x₁ h)))).
+  <span class="nb">clear</span> h.
+  <span class="nb">intros</span> y h h' ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !comp_profunctor_mor_comm.
+  <span class="nb">rewrite</span> rmap_id, lmap_id.
+  etrans.
+  {
+    <span class="bp">exact</span> (lwhisker_profunctor_nat_trans_mor_comm P τ (rmap P f h) (lmap Q₁ k h')).
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (lwhisker_profunctor_nat_trans_mor_comm P τ h h').
+  }
+  <span class="nb">rewrite</span> !comp_profunctor_mor_comm.
+  <span class="nb">rewrite</span> rmap_id, lmap_id.
+  <span class="nb">rewrite</span> profunctor_nat_trans_lmap.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lwhisker_profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">P</span> : C₁ ↛ C₂)
+           {<span class="nv">Q₁</span> <span class="nv">Q₂</span> : C₂ ↛ C₃}
+           (<span class="nv">τ</span> : profunctor_nat_trans Q₁ Q₂)
+  : profunctor_nat_trans
+      (comp_profunctor P Q₁)
+      (comp_profunctor P Q₂).
+<span class="kn">Proof</span>.
+  use make_profunctor_nat_trans.
+  - <span class="bp">exact</span> (lwhisker_profunctor_nat_trans_mor P τ).
+  - <span class="bp">exact</span> (lwhisker_profunctor_nat_trans_law P τ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rwhisker_profunctor_nat_trans_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">P₁</span> <span class="nv">P₂</span> : C₁ ↛ C₂}
+           (<span class="nv">τ</span> : profunctor_nat_trans P₁ P₂)
+           (<span class="nv">Q</span> : C₂ ↛ C₃)
+           (<span class="nv">z</span> : C₃)
+           (<span class="nv">x</span> : C₁)
+  : comp_profunctor P₁ Q z x → comp_profunctor P₂ Q z x.
+<span class="kn">Proof</span>.
+  use from_comp_profunctor_ob.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">h</span> <span class="nv">h'</span>, comp_profunctor_ob_in _ _ y (τ y x h) h').
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> y₁ y₂ g h h' ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> profunctor_nat_trans_lmap ;
+       <span class="nb">rewrite</span> comp_profunctor_ob_in_comm ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rwhisker_profunctor_nat_trans_mor_comm</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">P₁</span> <span class="nv">P₂</span> : C₁ ↛ C₂}
+            (<span class="nv">τ</span> : profunctor_nat_trans P₁ P₂)
+            (<span class="nv">Q</span> : C₂ ↛ C₃)
+            {<span class="nv">z</span> : C₃}
+            {<span class="nv">y</span> : C₂}
+            {<span class="nv">x</span> : C₁}
+            (<span class="nv">h</span> : P₁ y x)
+            (<span class="nv">h'</span> : Q z y)
+  : rwhisker_profunctor_nat_trans_mor τ Q z x (comp_profunctor_ob_in P₁ Q y h h')
+    =
+    comp_profunctor_ob_in P₂ Q y (τ y x h) h'.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> rwhisker_profunctor_nat_trans_mor.
+  <span class="nb">rewrite</span> from_comp_profunctor_ob_comm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rwhisker_profunctor_nat_trans_law</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">P₁</span> <span class="nv">P₂</span> : C₁ ↛ C₂}
+            (<span class="nv">τ</span> : profunctor_nat_trans P₁ P₂)
+            (<span class="nv">Q</span> : C₂ ↛ C₃)
+  : profunctor_nat_trans_law (rwhisker_profunctor_nat_trans_mor τ Q).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> z₁ z₂ x₁ x₂ k f h ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  use (mor_from_comp_profunctor_ob_eq
+         P₁ Q
+         z₁ x₁
+         (<span class="k">λ</span> <span class="nv">h</span>,
+          rwhisker_profunctor_nat_trans_mor
+            τ Q z₂ x₂
+            (comp_profunctor_mor
+               P₁ Q
+               k (identity x₂)
+               (comp_profunctor_mor P₁ Q (identity z₁) f h)))
+         (<span class="k">λ</span> <span class="nv">h</span>,
+          comp_profunctor_mor
+            P₂ Q k (identity x₂)
+            (comp_profunctor_mor
+               P₂ Q (identity z₁) f
+               (rwhisker_profunctor_nat_trans_mor τ Q z₁ x₁ h)))).
+  <span class="nb">clear</span> h.
+  <span class="nb">intros</span> y h h' ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !comp_profunctor_mor_comm.
+  <span class="nb">rewrite</span> rmap_id, lmap_id.
+  etrans.
+  {
+    <span class="bp">exact</span> (rwhisker_profunctor_nat_trans_mor_comm τ Q (rmap P₁ f h) (lmap Q k h')).
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (rwhisker_profunctor_nat_trans_mor_comm τ Q h h').
+  }
+  <span class="nb">rewrite</span> !comp_profunctor_mor_comm.
+  <span class="nb">rewrite</span> rmap_id, lmap_id.
+  <span class="nb">rewrite</span> profunctor_nat_trans_rmap.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rwhisker_profunctor_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">P₁</span> <span class="nv">P₂</span> : C₁ ↛ C₂}
+           (<span class="nv">τ</span> : profunctor_nat_trans P₁ P₂)
+           (<span class="nv">Q</span> : C₂ ↛ C₃)
+  : profunctor_nat_trans
+      (comp_profunctor P₁ Q)
+      (comp_profunctor P₂ Q).
+<span class="kn">Proof</span>.
+  use make_profunctor_nat_trans.
+  - <span class="bp">exact</span> (rwhisker_profunctor_nat_trans_mor τ Q).
+  - <span class="bp">exact</span> (rwhisker_profunctor_nat_trans_law τ Q).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Equality of profunctors *)</span>
+<span class="kn">Definition</span> <span class="nf">path_profunctor_to_profunctor_nat_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂}
+           (<span class="nv">p</span> : P = Q)
+  : profunctor_nat_iso P Q.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="bp">exact</span> (profunctor_nat_iso_id P).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isweq_path_profunctor_to_profunctor_nat_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂)
+  : isweq (@path_profunctor_to_profunctor_nat_iso C₁ C₂ P Q).
+<span class="kn">Proof</span>.
+  use weqhomot.
+  - <span class="nb">refine</span> (_
+            ∘ make_weq
+                _
+                (is_univalent_functor_category
+                   (category_binproduct C₂^op C₁)
+                   HSET_univalent_category
+                   (univalent_category_is_univalent _)
+                   P Q))%weq.
+    use weqfibtototal.
+    <span class="nb">intro</span> τ.
+    <span class="bp">exact</span> (is_profunctor_nat_iso_weq_is_z_iso τ).
+  - <span class="nb">intro</span> p.
+    <span class="nb">induction</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_profunctor_nat_iso.
+    }
+    use eq_profunctor_nat_trans.
+    <span class="nb">intros</span> y x h ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_profunctor_weq_profunctor_nat_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> <span class="nv">Q</span> : profunctor C₁ C₂)
+  : (P = Q) ≃ profunctor_nat_iso P Q.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> path_profunctor_to_profunctor_nat_iso.
+  - <span class="bp">exact</span> (isweq_path_profunctor_to_profunctor_nat_iso P Q).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Profunctors/Transformation.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Equality of profunctors
+  &gt;
+  &gt;  *****************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

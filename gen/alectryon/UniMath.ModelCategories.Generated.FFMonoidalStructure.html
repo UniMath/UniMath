@@ -1,0 +1,932 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FFMonoidalStructure.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Three.
+<span class="kn">Require Import</span> UniMath.ModelCategories.NWFS.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Helpers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> morcls.
+
+
+<span class="kn">Ltac</span> <span class="nf">functorial_factorization_mor_eq</span> f := (
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_section_nat_trans_disp_axioms|];
+  use funextsec;
+  <span class="nb">intro</span> f;
+  use subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|]
+).
+
+<span class="kn">Section</span> <span class="nf">Ff_composition</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+<span class="c">(* F' ⊗ F (compose left factors) *)</span>
+<span class="kn">Definition</span> <span class="nf">Ff_lcomp_data</span> (<span class="nv">F'</span> <span class="nv">F</span> : Ff C) : section_disp_data (three_disp C).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> f.
+    <span class="nb">set</span> (lf := fact_L F f).
+    <span class="nb">set</span> (rf := fact_R F f).
+    <span class="nb">set</span> (l'rf := fact_L F' rf).
+    <span class="nb">set</span> (r'rf := fact_R F' rf).
+    <span class="k">exists</span> (<span class="nv">arrow_cod</span> <span class="nv">l'rf</span>).
+    <span class="k">exists</span> (<span class="nv">lf</span> · l'rf), r'rf.
+    <span class="kp">abstract</span> (
+      etrans; [<span class="nb">apply</span> assoc'|];
+      etrans; [<span class="nb">apply</span> maponpaths;
+               <span class="nb">apply</span> (three_comp ((fact_functor F') rf))|];
+      <span class="nb">simpl</span>;
+      etrans; [<span class="nb">apply</span> (three_comp (f,, _))|];
+      <span class="bp">reflexivity</span>
+    ).
+  - <span class="nb">intros</span> f f' γ.
+    <span class="nb">set</span> (lγ := #(fact_L F) γ).
+    <span class="nb">set</span> (rγ := #(fact_R F) γ).
+    <span class="nb">set</span> (l'rγ := #(fact_L F') rγ).
+    <span class="nb">set</span> (r'rγ := #(fact_R F') rγ).
+    <span class="k">exists</span> (<span class="nv">arrow_mor00</span> <span class="nv">r'rγ</span>).
+
+    <span class="kp">abstract</span> (
+      <span class="nb">split</span>; [
+        etrans; [<span class="nb">apply</span> assoc'|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> assoc|];
+        etrans; [<span class="nb">apply</span> maponpaths_2;
+                 <span class="bp">exact</span> (arrow_mor_comm lγ)|];
+        etrans; [<span class="nb">apply</span> assoc'|];
+        <span class="nb">apply</span> cancel_precomposition;
+        <span class="bp">exact</span> (arrow_mor_comm l'rγ)
+      | <span class="nb">apply</span> pathsinv0;
+        <span class="bp">exact</span> (arrow_mor_comm r'rγ)
+      ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Ff_lcomp_axioms</span> (<span class="nv">F'</span> <span class="nv">F</span> : Ff C) : section_disp_axioms (Ff_lcomp_data F' F).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> f.
+    <span class="nb">set</span> (lf := fact_L F f).
+    <span class="nb">set</span> (rf := fact_R F f).
+    <span class="nb">set</span> (l'rf := fact_L F' rf).
+    <span class="nb">set</span> (r'rf := fact_R F' rf).
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+    <span class="c">(* complex rewrite *)</span>
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (section_disp_id F).
+    <span class="c">(* cbn.</span>
+<span class="c">    unfold three_mor11.</span>
+<span class="c">    cbn. *)</span>
+
+    etrans. use (section_disp_on_eq_morphisms' _ (γ := identity rf)).
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (section_disp_id F' rf).
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> f f' f'' γ γ'.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+    <span class="c">(* simpl.</span>
+<span class="c">    unfold arrow_mor00, three_mor11.</span>
+<span class="c">    simpl. *)</span>
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> pr1_section_disp_on_morphisms_comp.
+    use section_disp_on_eq_morphisms.
+    * <span class="nb">apply</span> pr1_section_disp_on_morphisms_comp.
+    * <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_lcomp</span> (<span class="nv">F'</span> <span class="nv">F</span> : Ff C) : Ff C :=
+    (_,, Ff_lcomp_axioms F' F).
+
+<span class="kn">Notation</span> <span class="s2">"F' ⊗ F"</span> := (Ff_lcomp F' F).
+
+<span class="c">(* I *)</span>
+<span class="kn">Definition</span> <span class="nf">Ff_lcomp_unit_data</span> : section_disp_data (three_disp C).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> f.
+    <span class="k">exists</span> (<span class="nv">arrow_dom</span> <span class="nv">f</span>).
+    <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>), f.
+    <span class="kp">abstract</span> (<span class="nb">apply</span> id_left).
+  - <span class="nb">intros</span> f f' γ.
+    <span class="k">exists</span> (<span class="nv">arrow_mor00</span> <span class="nv">γ</span>).
+    <span class="kp">abstract</span> (
+      <span class="nb">split</span>; [
+        etrans; [<span class="nb">apply</span> id_left|];
+        <span class="nb">apply</span> pathsinv0;
+        <span class="nb">apply</span> id_right
+        | <span class="nb">apply</span> pathsinv0; <span class="bp">exact</span> (arrow_mor_comm γ)]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_lcomp_unit_axioms</span> : section_disp_axioms (Ff_lcomp_unit_data).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> f f' f'' γ γ'.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_lcomp_unit</span> : Ff C :=
+    (_,, Ff_lcomp_unit_axioms).
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_id_left_data</span> (<span class="nv">F</span> : Ff C) :
+    section_nat_trans_disp_data (Ff_lcomp_unit ⊗ F) F.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+  <span class="kp">abstract</span> (
+    <span class="nb">split</span>; [etrans; [<span class="nb">apply</span> id_right|]|]; (
+      etrans; [<span class="nb">apply</span> id_right|];
+      <span class="nb">apply</span> pathsinv0;
+      <span class="nb">apply</span> id_left
+    )
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_id_left_axioms</span> (<span class="nv">F</span> : Ff C) :
+    section_nat_trans_disp_axioms (Ff_l_id_left_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+  etrans. use pr1_transportf_const.
+  etrans. <span class="nb">apply</span> id_right.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_id_left</span> (<span class="nv">F</span> : Ff C) : (Ff_lcomp_unit ⊗ F) --&gt; F :=
+    (_,, Ff_l_id_left_axioms F).
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_id_left_rev_data</span> (<span class="nv">F</span> : Ff C) :
+    section_nat_trans_disp_data F (Ff_lcomp_unit ⊗ F).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+  <span class="kp">abstract</span> (
+    <span class="nb">split</span>; (
+      etrans; [<span class="nb">apply</span> id_right|];
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="nb">apply</span> id_left|]
+    ); [<span class="nb">apply</span> id_right|<span class="bp">reflexivity</span>]
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_id_left_rev_axioms</span> (<span class="nv">F</span> : Ff C) :
+    section_nat_trans_disp_axioms (Ff_l_id_left_rev_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+  etrans. use pr1_transportf_const.
+  etrans. <span class="nb">apply</span> id_right.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_id_left_rev</span> (<span class="nv">F</span> : Ff C) : F --&gt; (Ff_lcomp_unit ⊗ F) :=
+    (_,, Ff_l_id_left_rev_axioms F).
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_id_right_data</span> (<span class="nv">F</span> : Ff C) :
+    section_nat_trans_disp_data (F ⊗ Ff_lcomp_unit) F.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+  <span class="kp">abstract</span> (
+    <span class="nb">split</span>; (
+      etrans; [<span class="nb">apply</span> id_right|];
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="nb">apply</span> id_left|]
+    ); [<span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> id_left|<span class="bp">reflexivity</span>]
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_id_right_axioms</span> (<span class="nv">F</span> : Ff C) :
+    section_nat_trans_disp_axioms (Ff_l_id_right_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+
+  etrans. use pr1_transportf_const.
+
+  <span class="c">(* simpl makes it very slow *)</span>
+  <span class="c">(* simpl. *)</span>
+  etrans. <span class="nb">apply</span> id_right.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> id_left.
+
+  <span class="c">(* unfold three_mor11.</span>
+<span class="c">  cbn. *)</span>
+
+  use (section_disp_on_eq_morphisms F (γ := γ)); <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_id_right</span> (<span class="nv">F</span> : Ff C) : (F ⊗ Ff_lcomp_unit) --&gt; F :=
+    (_,, Ff_l_id_right_axioms F).
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_id_right_rev_data</span> (<span class="nv">F</span> : Ff C) :
+    section_nat_trans_disp_data F (F ⊗ Ff_lcomp_unit).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+  <span class="kp">abstract</span> (
+    <span class="nb">split</span>; (
+      etrans; [<span class="nb">apply</span> id_right|];
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="nb">apply</span> id_left|]
+    ); [<span class="nb">apply</span> id_left|<span class="bp">reflexivity</span>]
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_id_right_rev_axioms</span> (<span class="nv">F</span> : Ff C) :
+    section_nat_trans_disp_axioms (Ff_l_id_right_rev_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+
+  etrans. use pr1_transportf_const.
+
+  <span class="c">(* simpl makes it very slow *)</span>
+  <span class="c">(* simpl. *)</span>
+  etrans. <span class="nb">apply</span> id_right.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> id_left.
+
+  use section_disp_on_eq_morphisms; <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_id_right_rev</span> (<span class="nv">F</span> : Ff C) : F --&gt; (F ⊗ Ff_lcomp_unit) :=
+    (_,, Ff_l_id_right_rev_axioms F).
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_rightwhisker_data</span>
+      {<span class="nv">G</span> <span class="nv">G'</span> : Ff C} (<span class="nv">τ</span> : section_nat_trans_disp G G')
+      (<span class="nv">F</span> : Ff C) :
+    section_nat_trans_disp_data (G ⊗ F) (G' ⊗ F).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="c">(* cbn. *)</span>
+  <span class="nb">set</span> (τρf := τ (fact_R F f)).
+  <span class="nb">destruct</span> τρf <span class="k">as</span> [mor [comm1 comm2]].
+  <span class="k">exists</span> (<span class="nv">mor</span>).
+  <span class="kp">abstract</span> (
+    <span class="nb">split</span>; [
+      etrans; [<span class="nb">apply</span> assoc'|];
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="nb">apply</span> id_left|];
+      <span class="nb">apply</span> cancel_precomposition;
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="bp">exact</span> comm1|];
+      <span class="nb">apply</span> id_left
+    | etrans; [<span class="nb">apply</span> id_right|];
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="bp">exact</span> (pathsinv0 comm2)|];
+      <span class="nb">apply</span> id_right
+    ]
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_rightwhisker_axioms</span>
+      {<span class="nv">G</span> <span class="nv">G'</span>} (<span class="nv">τ</span> : section_nat_trans_disp G G')
+      (<span class="nv">F</span> : Ff C) :
+    section_nat_trans_disp_axioms (Ff_l_rightwhisker_data τ F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+
+  etrans. use pr1_transportf_const.
+
+  <span class="nb">destruct</span> τ <span class="k">as</span> [τ τax].
+  <span class="nb">set</span> (τcommf := base_paths _ _ (τax _ _ (#(fact_R F) γ))).
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="bp">exact</span> (pathsinv0 τcommf).
+  etrans. use pr1_transportf_const.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_rightwhisker</span> {<span class="nv">G</span> <span class="nv">G'</span>} (<span class="nv">τ</span> : G --&gt; G') (<span class="nv">F</span> : Ff C) :
+    (G ⊗ F) --&gt; (G' ⊗ F) :=
+  (_,, Ff_l_rightwhisker_axioms τ F).
+
+<span class="kn">Notation</span> <span class="s2">"τ ⊗post F"</span> := (Ff_l_rightwhisker τ F) (<span class="kn">at level</span> <span class="mi">50</span>).
+
+
+<span class="kn">Lemma</span> <span class="nf">Ff_l_rightwhisker_id</span> (<span class="nv">G</span> <span class="nv">F</span> : Ff C) :
+    ((identity G) ⊗post F) = identity _.
+<span class="kn">Proof</span>.
+  use section_nat_trans_eq; <span class="nb">intro</span> f.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Ff_l_rightwhisker_comp</span> {<span class="nv">G</span> <span class="nv">G'</span> <span class="nv">G''</span> : Ff C}
+    (<span class="nv">τ</span> : G --&gt; G') (<span class="nv">τ'</span> : G' --&gt; G'') (<span class="nv">F</span> : Ff C)  :
+  ((τ · τ') ⊗post F) = (τ ⊗post F) · (τ' ⊗post F).
+<span class="kn">Proof</span>.
+  use section_nat_trans_eq; <span class="nb">intro</span> f.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+  <span class="c">(* cbn makes it very slow *)</span>
+  <span class="c">(* cbn. *)</span>
+
+  etrans. use (pr1_transportf_const).
+  <span class="nb">apply</span> pathsinv0.
+  etrans. use (pr1_transportf_const).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_leftwhisker_data</span> (<span class="nv">F</span> : Ff C) {<span class="nv">G</span> <span class="nv">G'</span>} (<span class="nv">τ</span> : section_nat_trans_disp G G') :
+    section_nat_trans_disp_data (F ⊗ G) (F ⊗ G').
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+
+  <span class="c">(* destruct (τ f) as [τf [commτ1 commτ2]]. *)</span>
+  <span class="nb">set</span> (ρGf := fact_R G f).
+  <span class="nb">set</span> (ρG'f := fact_R G' f).
+  <span class="nb">set</span> (γρ := three_mor_mor12 (section_nat_trans τ f) : ρGf --&gt; ρG'f).
+
+  <span class="nb">set</span> (Fγρ := (section_disp_on_morphisms (section_disp_data_from_section_disp F) γρ)).
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">Fγρ</span>).
+  <span class="nb">set</span> (comm := pr2 Fγρ).
+  <span class="nb">simpl</span> <span class="k">in</span> comm.
+
+  <span class="c">(* commutativity of diagram</span>
+<span class="c">       =======</span>
+<span class="c">     |         |</span>
+<span class="c">  λG |         | λG'</span>
+<span class="c">     v   τf    v</span>
+<span class="c">       ------&gt;</span>
+<span class="c">     |         |</span>
+<span class="c">λFρG |         | λFρG'</span>
+<span class="c">     v   τρf   v</span>
+<span class="c">     □ ------&gt;□</span>
+<span class="c">     |         |</span>
+<span class="c">ρFρG |         | ρFρG'</span>
+<span class="c">     v         v</span>
+<span class="c">       =======</span>
+<span class="c">    *)</span>
+  <span class="kp">abstract</span> (
+    <span class="nb">split</span>; [
+      etrans; [<span class="nb">apply</span> assoc'|];
+      etrans; [<span class="nb">apply</span> maponpaths; <span class="bp">exact</span> (pr1 comm)|];
+      etrans; [<span class="nb">apply</span> assoc|];
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="nb">apply</span> assoc|];
+      <span class="nb">apply</span> cancel_postcomposition;
+      <span class="bp">exact</span> (pathsinv0 (pr12 (τ f)))|
+      <span class="bp">exact</span> (pr2 comm)
+    ]
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_leftwhisker_axioms</span> (<span class="nv">F</span> : Ff C) {<span class="nv">G</span> <span class="nv">G'</span>} (<span class="nv">τ</span> : section_nat_trans_disp G G') :
+    section_nat_trans_disp_axioms (Ff_l_leftwhisker_data F τ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+
+  etrans. use pr1_transportf_const.
+  <span class="c">(* simpl.</span>
+<span class="c">  unfold three_mor11.</span>
+<span class="c">  cbn. *)</span>
+
+  etrans. use (pr1_section_disp_on_morphisms_comp F).
+  <span class="nb">apply</span> pathsinv0.
+  etrans. use (pr1_section_disp_on_morphisms_comp F).
+
+  <span class="c">(* destruct τ as [τ τax]. *)</span>
+  <span class="c">(* unfold section_nat_trans_disp_axioms in τax. *)</span>
+  <span class="nb">set</span> (τcommf := base_paths _ _
+                  ((section_nt_disp_axioms_from_section_nt_disp τ) _ _ γ)).
+
+  use (section_disp_on_eq_morphisms F).
+  - <span class="c">(* cbn makes it very slow *)</span>
+    <span class="c">(* cbn. *)</span>
+    etrans. <span class="bp">exact</span> (pathsinv0 τcommf).
+    etrans. use pr1_transportf_const.
+    <span class="bp">reflexivity</span>.
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_leftwhisker</span> (<span class="nv">F</span> : Ff C) {<span class="nv">G</span> <span class="nv">G'</span>} (<span class="nv">τ</span> : G --&gt; G') :
+    (F ⊗ G) --&gt; (F ⊗ G') :=
+  (_,, Ff_l_leftwhisker_axioms F τ).
+
+<span class="kn">Notation</span> <span class="s2">"F ⊗pre τ"</span> := (Ff_l_leftwhisker F τ) (<span class="kn">at level</span> <span class="mi">50</span>).
+
+<span class="kn">Lemma</span> <span class="nf">Ff_l_leftwhisker_id</span> (<span class="nv">F</span> <span class="nv">G</span> : Ff C) :
+    (F ⊗pre (identity G)) = identity _.
+<span class="kn">Proof</span>.
+  use section_nat_trans_eq; <span class="nb">intro</span> f.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+  <span class="c">(* cbn makes it very slow *)</span>
+  <span class="c">(* cbn. *)</span>
+  etrans. use (section_disp_on_eq_morphisms' F (γ := identity _)).
+  etrans. <span class="nb">apply</span> maponpaths.
+          use (section_disp_id F _).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Ff_l_leftwhisker_comp</span> (<span class="nv">F</span> : Ff C) {<span class="nv">G</span> <span class="nv">G'</span> <span class="nv">G''</span> : Ff C}
+    (<span class="nv">τ</span> : G --&gt; G') (<span class="nv">τ'</span> : G' --&gt; G'') :
+  (F ⊗pre (τ · τ')) = (F ⊗pre τ) · (F ⊗pre τ').
+<span class="kn">Proof</span>.
+  use section_nat_trans_eq; <span class="nb">intro</span> f.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. use (pr1_transportf_const).
+
+  <span class="c">(* cbn. *)</span>
+  etrans. use (pr1_section_disp_on_morphisms_comp F).
+
+  use (section_disp_on_eq_morphisms F).
+  - <span class="nb">apply</span> pathsinv0.
+    etrans. use (pr1_transportf_const).
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_assoc_rev_data</span> (<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : Ff C) :
+    section_nat_trans_disp_data (F ⊗ (F' ⊗ F'')) ((F ⊗ F') ⊗ F'') .
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+  <span class="kp">abstract</span> (
+    <span class="nb">split</span>;
+      (etrans; [<span class="nb">apply</span> id_right|];
+       <span class="nb">apply</span> pathsinv0;
+       etrans; [<span class="nb">apply</span> id_left|]);
+          [<span class="nb">apply</span> assoc|<span class="bp">reflexivity</span>]
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_assoc_rev_axioms</span> (<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : Ff C) :
+    section_nat_trans_disp_axioms (Ff_l_assoc_rev_data F F' F'').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+
+  etrans. use pr1_transportf_const.
+  <span class="c">(* cbn makes it very slow *)</span>
+  <span class="c">(* cbn. *)</span>
+  etrans. <span class="nb">apply</span> id_right.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> id_left.
+
+  <span class="c">(* unfold three_mor11.</span>
+<span class="c">  simpl. *)</span>
+
+  use (section_disp_on_eq_morphisms F); <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_assoc_rev</span> (<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : Ff C) :
+    (F ⊗ (F' ⊗ F'')) --&gt; ((F ⊗ F') ⊗ F'') :=
+  (_,, Ff_l_assoc_rev_axioms F F' F'').
+
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_assoc_data</span> (<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : Ff C) :
+    section_nat_trans_disp_data ((F ⊗ F') ⊗ F'') (F ⊗ (F' ⊗ F'')).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+  <span class="kp">abstract</span> (
+    <span class="nb">split</span>;
+      (etrans; [<span class="nb">apply</span> id_right|];
+       <span class="nb">apply</span> pathsinv0;
+       etrans; [<span class="nb">apply</span> id_left|]);
+          [<span class="nb">apply</span> assoc'|<span class="bp">reflexivity</span>]
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_assoc_axioms</span> (<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : Ff C) :
+    section_nat_trans_disp_axioms (Ff_l_assoc_data F F' F'').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+
+  etrans. use pr1_transportf_const.
+  <span class="c">(* cbn makes it very slow *)</span>
+  <span class="c">(* cbn. *)</span>
+  etrans. <span class="nb">apply</span> id_right.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> id_left.
+
+  <span class="c">(* unfold three_mor11.</span>
+<span class="c">  simpl. *)</span>
+  use (section_disp_on_eq_morphisms F); <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_assoc</span> (<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : Ff C) :
+    ((F ⊗ F') ⊗ F'') --&gt; (F ⊗ (F' ⊗ F'')) :=
+  (_,, Ff_l_assoc_axioms F F' F'').
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_mor_comp</span> {<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">G</span> <span class="nv">G'</span> : Ff C}
+    (<span class="nv">τ</span> : F --&gt; F') (<span class="nv">ρ</span> : G --&gt; G') :
+  (F ⊗ G) --&gt; (F' ⊗ G').
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> ((τ ⊗post G) · (F' ⊗pre ρ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_point_data</span> (<span class="nv">F</span> : Ff C) :
+    section_nat_trans_disp_data Ff_lcomp_unit F.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="k">exists</span> (<span class="nv">fact_L</span> <span class="nv">F</span> <span class="nv">f</span>).
+  <span class="kp">abstract</span> (
+    <span class="nb">split</span>; [
+      <span class="bp">reflexivity</span>|
+      <span class="nb">rewrite</span> id_right;
+      <span class="nb">apply</span> pathsinv0;
+      <span class="bp">exact</span> (three_comp (fact_functor F f))
+    ]
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_point_axioms</span> (<span class="nv">F</span> : Ff C) :
+    section_nat_trans_disp_axioms (Ff_l_point_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g γ.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+  etrans. <span class="nb">apply</span> pr1_transportf_const.
+  <span class="bp">exact</span> (arrow_mor_comm (#(fact_L F) γ)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_l_point</span> (<span class="nv">F</span> : Ff C) :
+    Ff_lcomp_unit --&gt; F :=
+  (_,, Ff_l_point_axioms F).
+
+<span class="kn">End</span> <span class="nf">Ff_composition</span>.
+
+
+<span class="c">(* redefine notation *)</span>
+<span class="kn">Notation</span> <span class="s2">"F ⊗ F'"</span> := (Ff_lcomp F F').
+<span class="kn">Notation</span> <span class="s2">"F ⊗pre τ"</span> := (Ff_l_leftwhisker F τ) (<span class="kn">at level</span> <span class="mi">50</span>).
+<span class="kn">Notation</span> <span class="s2">"τ ⊗post F"</span> := (Ff_l_rightwhisker τ F) (<span class="kn">at level</span> <span class="mi">50</span>).
+<span class="kn">Notation</span> <span class="s2">"τ ⊗prod ρ"</span> := (Ff_l_mor_comp τ ρ) (<span class="kn">at level</span> <span class="mi">50</span>).
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+
+<span class="kn">Section</span> <span class="nf">Ff_monoidal</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+<span class="kn">Definition</span> <span class="nf">Ff_tensor_data</span> : tensor_data (Ff C).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (Ff_lcomp).
+  - <span class="nb">split</span>.
+    * <span class="bp">exact</span> (Ff_l_leftwhisker).
+    * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">b</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">γ</span>, Ff_l_rightwhisker γ b).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_monoidal_data</span> : monoidal_data (Ff C).
+<span class="kn">Proof</span>.
+  use make_monoidal_data.
+  - <span class="bp">exact</span> Ff_tensor_data.
+  - <span class="bp">exact</span> Ff_lcomp_unit.
+  - <span class="bp">exact</span> Ff_l_id_left.
+  - <span class="bp">exact</span> Ff_l_id_left_rev.
+  - <span class="bp">exact</span> Ff_l_id_right.
+  - <span class="bp">exact</span> Ff_l_id_right_rev.
+  - <span class="bp">exact</span> Ff_l_assoc.
+  - <span class="bp">exact</span> Ff_l_assoc_rev.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_monoidal_laws</span> : monoidal_laws Ff_monoidal_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> F F'.
+    functorial_factorization_mor_eq f.
+    <span class="nb">cbn</span>.
+    etrans. use (section_disp_on_eq_morphisms F (γ' := identity _)); <span class="bp">reflexivity</span>.
+    etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> (section_disp_id F).
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> F F'.
+    functorial_factorization_mor_eq f.
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> A F F' F'' γ γ'.
+    functorial_factorization_mor_eq f.
+    <span class="c">(* cbn. *)</span>
+    <span class="nb">apply</span> pathsinv0.
+    etrans. use pr1_transportf_const.
+    <span class="c">(* cbn. *)</span>
+    etrans. use (pr1_section_disp_on_morphisms_comp A).
+    use (section_disp_on_eq_morphisms A).
+    * <span class="nb">apply</span> pathsinv0.
+      etrans. use pr1_transportf_const.
+      <span class="bp">reflexivity</span>.
+    * <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span> A F F' F'' γ γ'.
+    functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. use pr1_transportf_const.
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> A F F' F'' γ γ'.
+    <span class="nb">apply</span> pathsinv0.
+    functorial_factorization_mor_eq f.
+    <span class="c">(* cbn. *)</span>
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. use pr1_transportf_const.
+    <span class="c">(* cbn. *)</span>
+    <span class="nb">set</span> (mor := three_mor_mor12 (section_nat_trans γ' f) : fact_R F' f --&gt; fact_R F'' f).
+
+    <span class="nb">set</span> (γnaturality := section_nt_disp_axioms_from_section_nt_disp γ).
+    <span class="nb">set</span> (γnatf := γnaturality _ _ mor).
+    <span class="nb">set</span> (γnatfb := base_paths _ _ γnatf).
+    etrans. <span class="bp">exact</span> (pathsinv0 γnatfb).
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> cancel_postcomposition.
+    use (section_disp_on_eq_morphisms A); <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> F F' γ.
+    functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. use pr1_transportf_const.
+    <span class="c">(* cbn. *)</span>
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="bp">reflexivity</span>.
+  - functorial_factorization_mor_eq f.
+    <span class="c">(* cbn. *)</span>
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> id_left.
+  - functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span> F F' γ.
+    functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. use pr1_transportf_const.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_right.
+  - functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> id_left.
+  - functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span> A F F' F'' γ.
+    functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. use pr1_transportf_const.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_left.
+    use (section_disp_on_eq_morphisms A); <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> A F F' F'' γ.
+    functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. use pr1_transportf_const.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span> A F F' F'' γ.
+    functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. use pr1_transportf_const.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_left.
+    use (section_disp_on_eq_morphisms A); <span class="bp">reflexivity</span>.
+  - functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> id_left.
+  - functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span> F F'.
+    functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    etrans. <span class="nb">apply</span> id_left.
+    etrans. use (section_disp_on_eq_morphisms F (γ' := identity _)); <span class="bp">reflexivity</span>.
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (section_disp_id F).
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> A F F' F''.
+    functorial_factorization_mor_eq f.
+    etrans. use pr1_transportf_const.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            use pr1_transportf_const.
+
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      etrans. <span class="nb">apply</span> (section_disp_on_eq_morphisms A (γ' := identity _)); <span class="bp">reflexivity</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (section_disp_id A).
+    }
+    etrans. <span class="nb">apply</span> id_right.
+    etrans. <span class="nb">apply</span> id_right.
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. use pr1_transportf_const.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_monoidal</span> : monoidal (Ff C) :=
+    (_,, Ff_monoidal_laws).
+
+<span class="kn">End</span> <span class="nf">Ff_monoidal</span>.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+
+<span class="kn">Section</span> <span class="nf">Ff_monoid_is_RNWFS</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+
+<span class="kn">Definition</span> <span class="nf">Ff_monoid_is_RNWFS_mul_data</span>
+    {<span class="nv">F</span> : Ff C} (<span class="nv">R</span> : monoid (Ff_monoidal) F) :
+  nat_trans_data (functor_composite (fact_R F) (fact_R F)) (fact_R F).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+
+  <span class="nb">set</span> (μ := monoid_data_multiplication _ R).
+  <span class="nb">set</span> (μf := (section_nat_trans_data_from_section_nat_trans_disp_funclass μ) f).
+  <span class="bp">exact</span> (three_mor_mor12 (section_nat_trans μ f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Ff_monoid_is_RNWFS_mul_axioms</span>
+    {<span class="nv">F</span> : Ff C} (<span class="nv">R</span> : monoid (Ff_monoidal) F) :
+  is_nat_trans _ _ (Ff_monoid_is_RNWFS_mul_data R).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+
+  <span class="nb">set</span> (μ := monoid_data_multiplication _ R).
+  <span class="nb">set</span> (μaxγ := (section_nt_disp_axioms_from_section_nt_disp μ) _ _ γ).
+  <span class="nb">set</span> (μaxγb := base_paths _ _ μaxγ).
+
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+  <span class="nb">apply</span> pathsdirprod.
+  - <span class="c">(* cbn.</span>
+<span class="c">    cbn in μaxγb. *)</span>
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="bp">exact</span> (pathsinv0 μaxγb).
+    etrans. use pr1_transportf_const.
+    <span class="nb">apply</span> cancel_postcomposition.
+    use (section_disp_on_eq_morphisms F); <span class="bp">reflexivity</span>.
+  - etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_monoid_is_RNWFS_mul</span>
+      {<span class="nv">F</span> : Ff C} (<span class="nv">R</span> : monoid (Ff_monoidal) F) :
+    (functor_composite (fact_R F) (fact_R F)) ⟹ (fact_R F) :=
+  (_,, Ff_monoid_is_RNWFS_mul_axioms R).
+
+<span class="kn">Lemma</span> <span class="nf">Ff_point_unique</span>
+    {<span class="nv">F</span> : Ff C}
+    (<span class="nv">γ</span> : Ff_lcomp_unit --&gt; F) :
+  γ = Ff_l_point F.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_section_nat_trans_disp_axioms|].
+  use funextsec.
+  <span class="nb">intro</span> f.
+  use subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+  <span class="nb">set</span> (test := three_mor_comm (section_nat_trans γ f)).
+  use (pathscomp1 (pr1 (three_mor_comm (section_nat_trans γ f)))).
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Ff_monoid_is_RNWFS_monad_laws</span>
+    {<span class="nv">F</span> : Ff C} (<span class="nv">R</span> : monoid (Ff_monoidal) F) :
+  disp_Monad_laws (R_monad_data F (Ff_monoid_is_RNWFS_mul R)).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (μ := monoid_data_multiplication _ R).
+
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+    <span class="nb">apply</span> pathsdirprod; [|<span class="nb">apply</span> id_left].
+
+    <span class="nb">set</span> (μax := monoid_to_unit_left_law _ R).
+    <span class="nb">set</span> (μf := (section_nat_trans_data_from_section_nat_trans_disp_funclass μ) f).
+    <span class="nb">set</span> (μaxf := eq_section_nat_trans_disp_on_morphism μax f).
+    <span class="nb">set</span> (μaxfb := base_paths _ _ μaxf).
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="bp">exact</span> (pathsinv0 μaxfb).
+    etrans. use pr1_transportf_const.
+
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="c">(* rewrites in term *)</span>
+    <span class="nb">rewrite</span> (Ff_point_unique _).
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+    <span class="nb">apply</span> pathsdirprod; [|<span class="nb">apply</span> id_left].
+
+    <span class="nb">set</span> (μax := monoid_to_unit_right_law _ R).
+    <span class="nb">set</span> (μf := (section_nat_trans_data_from_section_nat_trans_disp_funclass μ) f).
+    <span class="nb">set</span> (μaxf := eq_section_nat_trans_disp_on_morphism μax f).
+    <span class="nb">set</span> (μaxfb := base_paths _ _ μaxf).
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="bp">exact</span> (pathsinv0 μaxfb).
+    etrans. use pr1_transportf_const.
+
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="c">(* rewrites in term *)</span>
+    <span class="nb">rewrite</span> (Ff_point_unique (monoid_data_unit Ff_monoidal R)).
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> (section_disp_on_eq_morphisms F (γ' := three_mor_mor12 (section_nat_trans (Ff_l_point F) f))); <span class="bp">reflexivity</span>.
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+    <span class="nb">apply</span> pathsdirprod; [|<span class="bp">reflexivity</span>].
+
+    <span class="nb">set</span> (μax := monoid_to_assoc_law _ R).
+    <span class="nb">set</span> (μf := (section_nat_trans_data_from_section_nat_trans_disp_funclass μ) f).
+    <span class="nb">set</span> (μaxf := eq_section_nat_trans_disp_on_morphism μax f).
+    <span class="nb">set</span> (μaxfb := base_paths _ _ μaxf).
+
+    use (pathscomp1 μaxfb).
+    * etrans. use pr1_transportf_const.
+      <span class="c">(* cbn.</span>
+<span class="c">      unfold three_mor11.</span>
+<span class="c">      cbn. *)</span>
+      <span class="nb">apply</span> cancel_postcomposition.
+      etrans. use pr1_transportf_const.
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="bp">reflexivity</span>.
+    * etrans. use pr1_transportf_const.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_monoid_is_RNWFS</span>
+      {<span class="nv">F</span> : Ff C} (<span class="nv">R</span> : monoid (Ff_monoidal) F) :
+    rnwfs_over F.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">Ff_monoid_is_RNWFS_mul</span> <span class="nv">R</span>).
+  <span class="bp">exact</span> (Ff_monoid_is_RNWFS_monad_laws R).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Ff_monoid_is_RNWFS</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/Generated/FFMonoidalStructure.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

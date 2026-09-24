@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ActionsFormBicategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Constructs the bicategory of actions, strong action-based functors and their natural transformations</span>
+
+<span class="sd">The construction goes through a displayed bicategory over the bicategoy of (small) categories.</span>
+
+<span class="sd">Author: Ralph Matthes 2021</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.Actions.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorCategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+
+
+<span class="kn">Import</span> Bicat.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">FixAMonoidalCategory</span>.
+
+  <span class="kn">Context</span> (<span class="nv">Mon_V</span> : monoidal_cat).
+
+<span class="kn">Local Definition</span> <span class="nf">I</span> : Mon_V := monoidal_cat_unit Mon_V.
+<span class="kn">Local Definition</span> <span class="nf">tensor</span> : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_cat_tensor Mon_V.
+<span class="kn">Notation</span> <span class="s2">"X ⊗ Y"</span> := (tensor (X , Y)).
+<span class="kn">Notation</span> <span class="s2">"f #⊗ g"</span> := (#tensor (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+<span class="kn">Local Definition</span> <span class="nf">α'</span> : associator tensor := monoidal_cat_associator Mon_V.
+<span class="kn">Local Definition</span> <span class="nf">λ'</span> : left_unitor tensor I := monoidal_cat_left_unitor Mon_V.
+<span class="kn">Local Definition</span> <span class="nf">ρ'</span> : right_unitor tensor I := monoidal_cat_right_unitor Mon_V.
+
+<span class="kn">Let</span> <span class="nf">CAT</span> : bicat := bicat_of_cats.
+
+<span class="kn">Definition</span> <span class="nf">actions_disp_cat_ob_mor</span> : disp_cat_ob_mor CAT.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">fun</span> <span class="nv">A</span> =&gt; action Mon_V A).
+  <span class="nb">intros</span> A A' actn actn' F.
+  <span class="bp">exact</span> (ob_disp (Strong_Functor_category_displayed Mon_V actn actn') F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ A A' actn actn' F, pr2 actions_disp_cat_ob_mor A A' actn actn' F =
+                          actionbased_strength Mon_V actn actn' F.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">actions_disp_cat_id_comp</span> : disp_cat_id_comp CAT actions_disp_cat_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> A actn.
+    <span class="nb">apply</span> ab_strength_identity_functor.
+  - <span class="nb">intros</span> A1 A2 A3 F F' actn1 actn2 actn3 ζ ζ'.
+    <span class="nb">apply</span> (ab_strength_composition Mon_V ζ ζ').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">actions_disp_cat_data</span> : disp_cat_data CAT :=
+  actions_disp_cat_ob_mor ,, actions_disp_cat_id_comp.
+
+<span class="kn">Definition</span> <span class="nf">actions_disp_2cell_struct</span> : disp_2cell_struct actions_disp_cat_data.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> A A' F F' η actn actn' ζ ζ'.
+  <span class="bp">exact</span> (mor_disp(D:=Strong_Functor_category_displayed Mon_V actn actn') ζ ζ' η).
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ A A' F F' η actn actn' ζ ζ', actions_disp_2cell_struct A A' F F' η actn actn' ζ ζ' =
+        quantified_strong_functor_category_mor_diagram Mon_V actn actn' (F,, ζ) (F',, ζ') η.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">actions_disp_prebicat_1_id_comp_cells</span> : disp_prebicat_1_id_comp_cells CAT :=
+  actions_disp_cat_data ,, actions_disp_2cell_struct.
+
+<span class="kn">Lemma</span> <span class="nf">actions_disp_2cells_isaprop</span> : disp_2cells_isaprop actions_disp_prebicat_1_id_comp_cells.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> A A'. <span class="nb">intros</span>.
+  <span class="nb">apply</span> impred; <span class="nb">intros</span> a; <span class="nb">apply</span> impred; <span class="nb">intros</span> v.
+  <span class="nb">apply</span> (homset_property A').
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">actions_disp_prebicat_ops</span> : disp_prebicat_ops actions_disp_prebicat_1_id_comp_cells.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> A A' F actn actn' ζ a v.
+    <span class="nb">red</span>. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> binprod_id. <span class="nb">rewrite</span> id_right.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">apply</span> pathsinv0, functor_id. }
+    <span class="nb">apply</span> pathsinv0, id_left.
+  - <span class="nb">intros</span> A A' F actn actn' ζ a v.
+    <span class="nb">red</span>. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> binprod_id.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition, pathsinv0, functor_id. }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">intros</span> A A' F actn actn' ζ a v.
+    <span class="nb">red</span>. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> binprod_id.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition, pathsinv0, functor_id. }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">intros</span> A A' F actn actn' ζ a v.
+    <span class="nb">red</span>. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> binprod_id.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition, pathsinv0, functor_id. }
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> A A' F actn actn' ζ a v.
+    <span class="nb">red</span>. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> binprod_id.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition, pathsinv0, functor_id. }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">intros</span> A1 A2 A3 A4 F1 F2 F3 actn1 actn2 actn3 actn4 ζ1 ζ2 ζ3 a v.
+    <span class="nb">red</span>. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> binprod_id.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition, pathsinv0, functor_id. }
+    <span class="nb">rewrite</span> id_right, id_left.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> functor_comp.
+  - <span class="nb">intros</span> A1 A2 A3 A4 F1 F2 F3 actn1 actn2 actn3 actn4 ζ1 ζ2 ζ3 a v.
+    <span class="nb">red</span>. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> binprod_id.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition, pathsinv0, functor_id. }
+    <span class="nb">rewrite</span> id_right, id_left.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0, functor_comp.
+  - <span class="nb">intros</span> A A' F1 F2 F3 η η' actn actn' ζ1 ζ2 ζ3 Hypη Hypη' a v.
+    <span class="nb">red</span>. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- (id_left (id v)).
+    <span class="nb">rewrite</span> binprod_comp.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition, pathsinv0, functor_comp. }
+    <span class="nb">assert</span> (Hypηinst := Hypη a v).
+    <span class="nb">assert</span> (Hypη'inst := Hypη' a v).
+    <span class="nb">red</span> <span class="k">in</span> Hypηinst, Hypη'inst.
+    etrans.
+    { <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition. <span class="bp">exact</span> Hypηinst. }
+    etrans.
+    { <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> Hypη'inst. }
+    <span class="nb">apply</span> assoc.
+  - <span class="nb">intros</span> A1 A2 A3 F G1 G2 η actn1 actn2 actn3 ζ ζ1 ζ2 Hypη a v.
+    <span class="nb">red</span>. <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (Hypηinst := Hypη (pr1 F a) v).
+    <span class="nb">red</span> <span class="k">in</span> Hypηinst. <span class="nb">unfold</span> ActionBasedStrongFunctorCategory.ζ <span class="k">in</span> Hypηinst. <span class="nb">cbn</span> <span class="k">in</span> Hypηinst.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+         <span class="bp">exact</span> Hypηinst. }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> nat_trans_ax.
+  - <span class="nb">intros</span> A1 A2 A3 F1 F2 G η actn1 actn2 actn3 ζ1 ζ2 ζ Hypη a v.
+    <span class="nb">red</span>. <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (Hypηinst := Hypη a v).
+    <span class="nb">red</span> <span class="k">in</span> Hypηinst. <span class="nb">unfold</span> ActionBasedStrongFunctorCategory.ζ <span class="k">in</span> Hypηinst. <span class="nb">cbn</span> <span class="k">in</span> Hypηinst.
+    etrans.
+    { <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> pathsinv0, functor_comp. }
+    etrans.
+    { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> Hypηinst. }
+    <span class="nb">clear</span> Hypηinst.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">assert</span> (ζnatinst := nat_trans_ax (pr1 ζ) (pr1 F1 a,, v) (pr1 F2 a,, v) (pr1 η a,, id₁ v)).
+    <span class="nb">apply</span> pathsinv0, ζnatinst.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">actions_disp_prebicat_data</span> : disp_prebicat_data CAT :=
+  actions_disp_prebicat_1_id_comp_cells ,, actions_disp_prebicat_ops.
+
+<span class="sd">(** the laws are all trivial since the 2-cells do not come with data on top of the natural transformations</span>
+<span class="sd">    of the base bicategory [CAT] - this shows the benefits of the displayed approach *)</span>
+<span class="kn">Lemma</span> <span class="nf">actions_disp_prebicat_laws</span> : disp_prebicat_laws actions_disp_prebicat_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> actions_disp_2cells_isaprop.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">actions_disp_prebicat</span> : disp_prebicat CAT :=
+  actions_disp_prebicat_data ,, actions_disp_prebicat_laws.
+
+<span class="kn">Lemma</span> <span class="nf">actions_has_disp_cellset</span> : has_disp_cellset actions_disp_prebicat.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> A A'. <span class="nb">intros</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> isasetaprop.
+  <span class="nb">apply</span> actions_disp_2cells_isaprop.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">actions_disp_bicat</span> : disp_bicat CAT :=
+  actions_disp_prebicat ,, actions_has_disp_cellset.
+
+<span class="kn">Definition</span> <span class="nf">actions_disp_locally_groupoid</span> : disp_locally_groupoid actions_disp_bicat.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> A A' F F' invertibleη actn actn' ζ ζ' Hypη.
+  use tpair.
+  - <span class="nb">intros</span> a v.
+    <span class="nb">red</span>.
+    <span class="nb">assert</span> (Hypηinst := Hypη a v).
+    <span class="nb">red</span> <span class="k">in</span> Hypηinst.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">set</span> (η_nat_z_iso := nat_z_iso_from_z_iso (homset_property A') invertibleη).
+    <span class="nb">set</span> (η_nat_z_iso_inst1 := nat_z_iso_pointwise_z_iso η_nat_z_iso (ActionBasedStrongFunctorCategory.odot Mon_V actn (a, v))).
+    <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ η_nat_z_iso_inst1).
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">set</span> (η_nat_z_iso_inst2 := nat_z_iso_pointwise_z_iso η_nat_z_iso a).
+    <span class="nb">set</span> (aux1_z_iso := precatbinprod_z_iso η_nat_z_iso_inst2 (identity_z_iso v)).
+    <span class="nb">set</span> (aux2_z_iso := functor_on_z_iso (ActionBasedStrongFunctorCategory.odot' Mon_V actn') aux1_z_iso).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ aux2_z_iso).
+    <span class="bp">exact</span> Hypηinst.
+  - <span class="nb">split</span>; <span class="nb">apply</span> actions_disp_2cells_isaprop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">actions_bicat</span> : bicat := total_bicat actions_disp_bicat.
+
+<span class="kn">End</span> <span class="nf">FixAMonoidalCategory</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/ActionsFormBicategory.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

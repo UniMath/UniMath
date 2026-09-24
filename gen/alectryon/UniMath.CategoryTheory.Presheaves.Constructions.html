@@ -1,0 +1,1154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Constructions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Constructions of dependent presheaves</span>
+
+<span class="sd"> We give various constructions of dependent presheaves, which allows us to establish</span>
+<span class="sd"> simple type formers in the presheaf model. Specifically, we show that the displayed</span>
+<span class="sd"> category of dependent presheaves has fiberwise finite limits and fiberwise finite</span>
+<span class="sd"> coproducts. We also construct constant dependent presheaves and we show that the</span>
+<span class="sd"> resulting model is democratic.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Fiberwise initial object</span>
+<span class="sd"> 2. Fiberwise terminal object</span>
+<span class="sd"> 3. Fiberwise binary products</span>
+<span class="sd"> 4. Fiberwise binary coproducts</span>
+<span class="sd"> 5. Fiberwise equalizers</span>
+<span class="sd"> 6. Constant dependent presheaves</span>
+<span class="sd"> 7. Democracy of the presheaf model</span>
+<span class="sd"> 8. Presheaf of morphisms</span>
+<span class="sd"> 9. Statements for fiberwise limits and colimits</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.TotalPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ExamplesDepPsh</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="sd">(** * 1. Fiberwise initial object *)</span>
+  <span class="kn">Definition</span> <span class="nf">empty_dep_psh</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : dep_psh Γ.
+  <span class="kn">Proof</span>.
+    use make_dep_psh.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, emptyset).
+    - <span class="nb">intros</span> x y xx yy s p a.
+      <span class="nb">induction</span> a.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> isapropempty).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> isapropempty).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_nat_trans_from_empty</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             (<span class="nv">A</span> : dep_psh Γ)
+    : dep_psh_nat_trans
+        (empty_dep_psh Γ)
+        A
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="nb">intros</span> x xx a.
+      <span class="nb">induction</span> a.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q a ;
+         <span class="nb">induction</span> a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dep_psh_nat_trans_from_empty_eq</span>
+              {<span class="nv">Γ</span> : C^op ⟶ HSET}
+              {<span class="nv">A</span> : dep_psh Γ}
+              (<span class="nv">τ₁</span> <span class="nv">τ₂</span> : dep_psh_nat_trans
+                         (empty_dep_psh Γ)
+                         A
+                         (nat_trans_id _))
+    : τ₁ = τ₂.
+  <span class="kn">Proof</span>.
+    use dep_psh_nat_trans_eq.
+    <span class="nb">intros</span> x xx a.
+    <span class="nb">induction</span> a.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">empty_dep_psh_subst</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+    : dep_psh_nat_trans
+        (empty_dep_psh Γ₁)
+        (dep_psh_subst s (empty_dep_psh Γ₂))
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">a</span>, a).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q a ;
+         <span class="nb">induction</span> a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">empty_dep_psh_subst_inv</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+    : dep_psh_nat_trans
+        (dep_psh_subst s (empty_dep_psh Γ₂))
+        (empty_dep_psh Γ₁)
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">a</span>, a).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q a ;
+         <span class="nb">induction</span> a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_fiber_initial</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : Initial ((disp_cat_dep_psh C) [{ Γ }]).
+  <span class="kn">Proof</span>.
+    use make_Initial.
+    - <span class="bp">exact</span> (empty_dep_psh Γ).
+    - <span class="nb">intros</span> A.
+      use make_iscontr.
+      + <span class="bp">exact</span> (dep_psh_nat_trans_from_empty A).
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> dep_psh_nat_trans_from_empty_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_preserves_initial</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+    : preserves_initial
+        (fiber_functor_from_cleaving
+           (disp_cat_dep_psh C)
+           (cleaving_disp_cat_dep_psh C)
+           s).
+  <span class="kn">Proof</span>.
+    use preserves_initial_if_preserves_chosen.
+    {
+      <span class="nb">apply</span> dep_psh_fiber_initial.
+    }
+    use iso_to_Initial.
+    {
+      <span class="nb">apply</span> dep_psh_fiber_initial.
+    }
+    use make_z_iso.
+    - <span class="bp">exact</span> (empty_dep_psh_subst s).
+    - <span class="bp">exact</span> (empty_dep_psh_subst_inv s).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (use dep_psh_nat_trans_eq ;
+           <span class="nb">intros</span> x xx a ;
+           <span class="nb">induction</span> a).
+      + <span class="kp">abstract</span>
+          (use dep_psh_nat_trans_eq ;
+           <span class="nb">intros</span> x xx a ;
+           <span class="nb">induction</span> a).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Fiberwise terminal object *)</span>
+  <span class="kn">Definition</span> <span class="nf">unit_dep_psh</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : dep_psh Γ.
+  <span class="kn">Proof</span>.
+    use make_dep_psh.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, unitset).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, tt).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> isapropunit).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> isapropunit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_nat_trans_to_unit</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             (<span class="nv">A</span> : dep_psh Γ)
+    : dep_psh_nat_trans
+        A
+        (unit_dep_psh Γ)
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">a</span>, tt).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isapropunit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dep_psh_nat_trans_to_unit_eq</span>
+              {<span class="nv">Γ</span> : C^op ⟶ HSET}
+              {<span class="nv">A</span> : dep_psh Γ}
+              (<span class="nv">τ₁</span> <span class="nv">τ₂</span> : dep_psh_nat_trans
+                         A
+                         (unit_dep_psh Γ)
+                         (nat_trans_id _))
+    : τ₁ = τ₂.
+  <span class="kn">Proof</span>.
+    use dep_psh_nat_trans_eq.
+    <span class="nb">intros</span> x xx a.
+    <span class="nb">apply</span> isapropunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unit_dep_psh_subst</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+    : dep_psh_nat_trans
+        (unit_dep_psh Γ₁)
+        (dep_psh_subst s (unit_dep_psh Γ₂))
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">a</span>, a).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q a ;
+         <span class="nb">apply</span> isapropunit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unit_dep_psh_subst_inv</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+    : dep_psh_nat_trans
+        (dep_psh_subst s (unit_dep_psh Γ₂))
+        (unit_dep_psh Γ₁)
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">a</span>, a).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q a ;
+         <span class="nb">apply</span> isapropunit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_fiber_terminal</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : Terminal ((disp_cat_dep_psh C) [{ Γ }]).
+  <span class="kn">Proof</span>.
+    use make_Terminal.
+    - <span class="bp">exact</span> (unit_dep_psh Γ).
+    - <span class="nb">intros</span> A.
+      use make_iscontr.
+      + <span class="bp">exact</span> (dep_psh_nat_trans_to_unit A).
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> dep_psh_nat_trans_to_unit_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_preserves_terminal</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+    : preserves_terminal
+        (fiber_functor_from_cleaving
+           (disp_cat_dep_psh C)
+           (cleaving_disp_cat_dep_psh C)
+           s).
+  <span class="kn">Proof</span>.
+    use preserves_terminal_if_preserves_chosen.
+    {
+      <span class="nb">apply</span> dep_psh_fiber_terminal.
+    }
+    use iso_to_Terminal.
+    {
+      <span class="nb">apply</span> dep_psh_fiber_terminal.
+    }
+    use make_z_iso.
+    - <span class="bp">exact</span> (unit_dep_psh_subst s).
+    - <span class="bp">exact</span> (unit_dep_psh_subst_inv s).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (use dep_psh_nat_trans_eq ;
+           <span class="nb">intros</span> x xx a ;
+           <span class="nb">apply</span> isapropunit).
+      + <span class="kp">abstract</span>
+          (use dep_psh_nat_trans_eq ;
+           <span class="nb">intros</span> x xx a ;
+           <span class="nb">apply</span> isapropunit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_unit_z_iso</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : is_z_isomorphism (C := PreShv C) (total_psh_pr (unit_dep_psh Γ)).
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    - use make_nat_trans.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, xx ,, tt).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ]) ;
+         <span class="nb">intro</span> x ;
+         use funextsec ;
+         <span class="nb">intros</span> xx ;
+         [ | <span class="nb">apply</span> idpath ] ;
+         <span class="nb">induction</span> xx <span class="k">as</span> [ xx [ ] ] ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. Fiberwise binary products *)</span>
+  <span class="kn">Definition</span> <span class="nf">prod_dep_psh</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             (<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ)
+    : dep_psh Γ.
+  <span class="kn">Proof</span>.
+    use make_dep_psh.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, A x xx × B x xx)%<span class="nb">set</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">s</span> <span class="nv">p</span> <span class="nv">ab</span>, #d A s p (pr1 ab) ,, #d B s p (pr2 ab)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x xx p a ;
+         use pathsdirprod ;
+         <span class="nb">apply</span> dep_psh_mor_id).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y z xx yy zz s₁ s₂ p q r a ;
+         use pathsdirprod ;
+         <span class="nb">apply</span> dep_psh_mor_comp).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_dep_psh_pr1</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             (<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ)
+    : dep_psh_nat_trans
+        (prod_dep_psh A B)
+        A
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">ab</span>, pr1 ab).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> dep_psh_mor_path_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_dep_psh_pr2</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             (<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ)
+    : dep_psh_nat_trans
+        (prod_dep_psh A B)
+        B
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">ab</span>, pr2 ab).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> dep_psh_mor_path_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_dep_psh_pair</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             {<span class="nv">Z</span> <span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ}
+             (<span class="nv">τ₁</span> : dep_psh_nat_trans Z A (nat_trans_id _))
+             (<span class="nv">τ₂</span> : dep_psh_nat_trans Z B (nat_trans_id _))
+    : dep_psh_nat_trans Z (prod_dep_psh A B) (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">z</span>, τ₁ x xx z ,, τ₂ x xx z).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q z ; <span class="nb">cbn</span> ;
+         use (pathsdirprod (dep_psh_nat_trans_ax τ₁ f p q z)) ;
+         <span class="bp">exact</span> (dep_psh_nat_trans_ax τ₂ f p q z)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_dep_psh_subst</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+             (<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ₂)
+    : dep_psh_nat_trans
+        (dep_psh_subst s (prod_dep_psh A B))
+        (prod_dep_psh (dep_psh_subst s A) (dep_psh_subst s B))
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">ab</span>, ab).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">intros</span> ;
+         <span class="nb">apply</span> pathsdirprod ;
+         <span class="nb">apply</span> dep_psh_mor_path_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_dep_psh_subst_inv</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+             (<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ₂)
+    : dep_psh_nat_trans
+        (prod_dep_psh (dep_psh_subst s A) (dep_psh_subst s B))
+        (dep_psh_subst s (prod_dep_psh A B))
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">ab</span>, ab).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">intros</span> ;
+         <span class="nb">apply</span> pathsdirprod ;
+         <span class="nb">apply</span> dep_psh_mor_path_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_fiber_binproducts</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : BinProducts ((disp_cat_dep_psh C) [{ Γ }]).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> A B.
+    use make_BinProduct.
+    - <span class="bp">exact</span> (prod_dep_psh A B).
+    - <span class="bp">exact</span> (prod_dep_psh_pr1 A B).
+    - <span class="bp">exact</span> (prod_dep_psh_pr2 A B).
+    - <span class="nb">intros</span> Z τ₁ τ₂.
+      use make_iscontr.
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (prod_dep_psh_pair τ₁ τ₂).
+        * <span class="kp">abstract</span>
+            (use dep_psh_nat_trans_eq ;
+             <span class="nb">intros</span> x xx a ;
+             <span class="bp">exact</span> (dep_psh_fiber_comp _ _ _ _)).
+        * <span class="kp">abstract</span>
+            (use dep_psh_nat_trans_eq ;
+             <span class="nb">intros</span> x xx a ;
+             <span class="bp">exact</span> (dep_psh_fiber_comp _ _ _ _)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> τ ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+           use dep_psh_nat_trans_eq ;
+           <span class="nb">intros</span> x xx a ;
+           use pathsdirprod ;
+           [ <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> (<span class="nv">z</span> : dep_psh_nat_trans _ _ _), z x xx a) (pr12 τ)) ;
+             <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _) ;
+             <span class="nb">apply</span> idpath
+           | <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> (<span class="nv">z</span> : dep_psh_nat_trans _ _ _), z x xx a) (pr22 τ)) ;
+             <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _) ;
+             <span class="nb">apply</span> idpath ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_preserves_binproduct</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+    : preserves_binproduct
+        (fiber_functor_from_cleaving
+           (disp_cat_dep_psh C)
+           (cleaving_disp_cat_dep_psh C)
+           s).
+  <span class="kn">Proof</span>.
+    use preserves_binproduct_if_preserves_chosen.
+    {
+      <span class="nb">apply</span> dep_psh_fiber_binproducts.
+    }
+    <span class="nb">intros</span> A B.
+    use (isBinProduct_z_iso (isBinProduct_BinProduct _ (dep_psh_fiber_binproducts Γ₁ _ _))).
+    - use make_z_iso.
+      + <span class="bp">exact</span> (prod_dep_psh_subst s A B).
+      + <span class="bp">exact</span> (prod_dep_psh_subst_inv s A B).
+      + <span class="kp">abstract</span>
+          (<span class="nb">split</span> ;
+           use dep_psh_nat_trans_eq ;
+           <span class="nb">intros</span> x xx a ;
+           <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (use dep_psh_nat_trans_eq ;
+         <span class="nb">intros</span> x xx a ;
+         <span class="nb">refine</span> (dep_psh_fiber_functor_from_cleaving _ s _ _ @ _) ;
+         <span class="nb">refine</span> (_ @ !(dep_psh_fiber_comp _ _ _ _)) ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (use dep_psh_nat_trans_eq ;
+         <span class="nb">intros</span> x xx a ;
+         <span class="nb">refine</span> (dep_psh_fiber_functor_from_cleaving _ s _ _ @ _) ;
+         <span class="nb">refine</span> (_ @ !(dep_psh_fiber_comp _ _ _ _)) ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. Fiberwise binary coproducts *)</span>
+  <span class="kn">Definition</span> <span class="nf">coprod_dep_psh</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             (<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ)
+    : dep_psh Γ.
+  <span class="kn">Proof</span>.
+    use make_dep_psh.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, setcoprod (A x xx) (B x xx))%<span class="nb">set</span>.
+    - <span class="nb">intros</span> x y xx yy s p ab.
+      <span class="nb">induction</span> ab <span class="k">as</span> [ a | b ].
+      + <span class="bp">exact</span> (inl (#d A s p a)).
+      + <span class="bp">exact</span> (inr (#d B s p b)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x xx p ab ;
+         <span class="nb">induction</span> ab ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> dep_psh_mor_id).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y z xx yy zz s₁ s₂ p q r ab ;
+         <span class="nb">induction</span> ab ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> dep_psh_mor_comp).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprod_dep_psh_inl</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             (<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ)
+    : dep_psh_nat_trans
+        A
+        (coprod_dep_psh A B)
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">a</span>, inl a).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> dep_psh_mor_path_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprod_dep_psh_inr</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             (<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ)
+    : dep_psh_nat_trans
+        B
+        (coprod_dep_psh A B)
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">a</span>, inr a).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> dep_psh_mor_path_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprod_dep_psh_copair</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             {<span class="nv">Z</span> <span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ}
+             (<span class="nv">τ₁</span> : dep_psh_nat_trans A Z (nat_trans_id _))
+             (<span class="nv">τ₂</span> : dep_psh_nat_trans B Z (nat_trans_id _))
+    : dep_psh_nat_trans
+        (coprod_dep_psh A B)
+        Z
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="nb">intros</span> x xx ab.
+      <span class="nb">induction</span> ab <span class="k">as</span> [ a | b ].
+      + <span class="bp">exact</span> (τ₁ x xx a).
+      + <span class="bp">exact</span> (τ₂ x xx b).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q ab ;
+         <span class="nb">induction</span> ab <span class="k">as</span> [ a | b ] ;
+         [ <span class="nb">apply</span> (dep_psh_nat_trans_ax τ₁) | ] ;
+      <span class="nb">apply</span> (dep_psh_nat_trans_ax τ₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprod_dep_psh_subst</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+             (<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ₂)
+    : dep_psh_nat_trans
+        (dep_psh_subst s (coprod_dep_psh A B))
+        (coprod_dep_psh (dep_psh_subst s A) (dep_psh_subst s B))
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">ab</span>, ab).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">intros</span> x y xx yy f p q ab ;
+         <span class="nb">induction</span> ab ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> dep_psh_mor_path_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprod_dep_psh_subst_inv</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+             (<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ₂)
+    : dep_psh_nat_trans
+        (coprod_dep_psh (dep_psh_subst s A) (dep_psh_subst s B))
+        (dep_psh_subst s (coprod_dep_psh A B))
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">ab</span>, ab).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">intros</span> x y xx yy f p q ab ;
+         <span class="nb">induction</span> ab ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> dep_psh_mor_path_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_fiber_bincoproducts</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : BinCoproducts ((disp_cat_dep_psh C) [{ Γ }]).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> A B.
+    use make_BinCoproduct.
+    - <span class="bp">exact</span> (coprod_dep_psh A B).
+    - <span class="bp">exact</span> (coprod_dep_psh_inl A B).
+    - <span class="bp">exact</span> (coprod_dep_psh_inr A B).
+    - <span class="nb">intros</span> Z τ₁ τ₂.
+      use make_iscontr.
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (coprod_dep_psh_copair τ₁ τ₂).
+        * <span class="kp">abstract</span>
+            (use dep_psh_nat_trans_eq ;
+             <span class="nb">intros</span> x xx a ;
+             <span class="bp">exact</span> (dep_psh_fiber_comp _ _ _ _)).
+        * <span class="kp">abstract</span>
+            (use dep_psh_nat_trans_eq ;
+             <span class="nb">intros</span> x xx a ;
+             <span class="bp">exact</span> (dep_psh_fiber_comp _ _ _ _)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> τ ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+           use dep_psh_nat_trans_eq ;
+           <span class="nb">intros</span> x xx ab ;
+           <span class="nb">induction</span> ab <span class="k">as</span> [ a | b ] ;
+           [ <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> (<span class="nv">z</span> : dep_psh_nat_trans _ _ _), z x xx a) (pr12 τ)) ;
+             <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _) ;
+             <span class="nb">apply</span> idpath
+           | <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> (<span class="nv">z</span> : dep_psh_nat_trans _ _ _), z x xx b) (pr22 τ)) ;
+             <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _) ;
+             <span class="nb">apply</span> idpath ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_preserves_bincoproduct</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+    : preserves_bincoproduct
+        (fiber_functor_from_cleaving
+           (disp_cat_dep_psh C)
+           (cleaving_disp_cat_dep_psh C)
+           s).
+  <span class="kn">Proof</span>.
+    use preserves_bincoproduct_if_preserves_chosen.
+    {
+      <span class="nb">apply</span> dep_psh_fiber_bincoproducts.
+    }
+    <span class="nb">intros</span> A B.
+    use (isBinCoproduct_z_iso
+           (isBinCoproduct_BinCoproduct _ (dep_psh_fiber_bincoproducts Γ₁ _ _))).
+    - use make_z_iso.
+      + <span class="bp">exact</span> (coprod_dep_psh_subst s A B).
+      + <span class="bp">exact</span> (coprod_dep_psh_subst_inv s A B).
+      + <span class="kp">abstract</span>
+          (<span class="nb">split</span> ;
+           use dep_psh_nat_trans_eq ;
+           <span class="nb">intros</span> x xx a ;
+           <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (use dep_psh_nat_trans_eq ;
+         <span class="nb">intros</span> x xx a ;
+         <span class="nb">refine</span> (dep_psh_fiber_functor_from_cleaving _ s _ _ @ _) ;
+         <span class="nb">refine</span> (_ @ !(dep_psh_fiber_comp _ _ _ _)) ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (use dep_psh_nat_trans_eq ;
+         <span class="nb">intros</span> x xx a ;
+         <span class="nb">refine</span> (dep_psh_fiber_functor_from_cleaving _ s _ _ @ _) ;
+         <span class="nb">refine</span> (_ @ !(dep_psh_fiber_comp _ _ _ _)) ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 5. Fiberwise equalizers *)</span>
+  <span class="kn">Definition</span> <span class="nf">equalizer_dep_psh</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             {<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ}
+             (<span class="nv">τ₁</span> <span class="nv">τ₂</span> : dep_psh_nat_trans A B (nat_trans_id _))
+    : dep_psh Γ.
+  <span class="kn">Proof</span>.
+    use make_dep_psh.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, ∑ (a : A x xx), hProp_to_hSet (τ₁ x xx a = τ₂ x xx a)%logic)%<span class="nb">set</span>.
+    - <span class="nb">intros</span> x y xx yy s p aq.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (#d A s p (pr1 aq)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (dep_psh_nat_trans_ax τ₁ s p p _ @ _) ;
+           <span class="nb">refine</span> (_ @ !(dep_psh_nat_trans_ax τ₂ s p p _)) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (pr2 aq)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x xx p a ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+         <span class="nb">apply</span> dep_psh_mor_id).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y z xx yy zz s₁ s₂ p q r a ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+         <span class="nb">apply</span> dep_psh_mor_comp).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equalizer_dep_psh_arrow</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             {<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ}
+             (<span class="nv">τ₁</span> <span class="nv">τ₂</span> : dep_psh_nat_trans A B (nat_trans_id _))
+    : dep_psh_nat_trans
+        (equalizer_dep_psh τ₁ τ₂)
+        A
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">ap</span>, pr1 ap).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q ap ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> dep_psh_mor_path_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equalizer_dep_psh_in</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             {<span class="nv">Z</span> <span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ}
+             {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : dep_psh_nat_trans A B (nat_trans_id _)}
+             (<span class="nv">θ</span> : dep_psh_nat_trans Z A (nat_trans_id _))
+             (<span class="nv">q</span> : ∏ (x : C)
+                    (xx : Γ x : hSet)
+                    (z : Z x xx),
+                  τ₁ x xx (θ x xx z) = τ₂ x xx (θ x xx z))
+    : dep_psh_nat_trans
+        Z
+        (equalizer_dep_psh τ₁ τ₂)
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">z</span>, θ x xx z ,, q x xx z).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f r₁ r₂ z ; <span class="nb">cbn</span> ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> (dep_psh_nat_trans_ax θ)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equalizer_dep_psh_subst</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+             {<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ₂}
+             (<span class="nv">τ₁</span> <span class="nv">τ₂</span> : dep_psh_nat_trans A B (nat_trans_id _))
+    : dep_psh_nat_trans
+        (dep_psh_subst s (equalizer_dep_psh τ₁ τ₂))
+        (equalizer_dep_psh
+           (# (fiber_functor_from_cleaving _ (cleaving_disp_cat_dep_psh C) s) τ₁)
+           (# (fiber_functor_from_cleaving _ (cleaving_disp_cat_dep_psh C) s) τ₂))
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">ap</span>, pr1 ap ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (dep_psh_fiber_functor_from_cleaving _ s _ _ @ _) ;
+         <span class="nb">refine</span> (_ @ !(dep_psh_fiber_functor_from_cleaving _ s _ _)) ;
+         <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (pr2 ap)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q ap ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> dep_psh_mor_path_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equalizer_dep_psh_subst_inv</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+             {<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ₂}
+             (<span class="nv">τ₁</span> <span class="nv">τ₂</span> : dep_psh_nat_trans A B (nat_trans_id _))
+    : dep_psh_nat_trans
+        (equalizer_dep_psh
+           (# (fiber_functor_from_cleaving _ (cleaving_disp_cat_dep_psh C) s) τ₁)
+           (# (fiber_functor_from_cleaving _ (cleaving_disp_cat_dep_psh C) s) τ₂))
+        (dep_psh_subst s (equalizer_dep_psh τ₁ τ₂))
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">ap</span>, pr1 ap ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (!(dep_psh_fiber_functor_from_cleaving _ s _ _) @ _) ;
+         <span class="nb">refine</span> (_ @ dep_psh_fiber_functor_from_cleaving _ s _ _) ;
+         <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (pr2 ap)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q ap ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> dep_psh_mor_path_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dep_psh_fiber_equalizers_eq</span>
+              {<span class="nv">Γ</span> : C^op ⟶ HSET}
+              {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">Z</span> : dep_psh Γ}
+              (<span class="nv">τ₁</span> <span class="nv">τ₂</span> : dep_psh_nat_trans A B (nat_trans_id _))
+              (<span class="nv">θ</span> : dep_psh_nat_trans Z A (nat_trans_id _))
+              (<span class="nv">p</span> : compose
+                     (C := (disp_cat_dep_psh C) [{ Γ }])
+                     θ τ₁
+                   =
+                   compose
+                     (C := (disp_cat_dep_psh C) [{ Γ }])
+                     θ τ₂)
+              (<span class="nv">x</span> : C)
+              (<span class="nv">xx</span> : (Γ x : hSet))
+              (<span class="nv">z</span> : Z x xx)
+    : τ₁ x xx (θ x xx z) = τ₂ x xx (θ x xx z).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!(dep_psh_fiber_comp _ _ _ _) @ _ @ dep_psh_fiber_comp _ _ _ _).
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> (<span class="nv">ζ</span> : dep_psh_nat_trans _ _ _), ζ x xx z) p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_fiber_equalizers</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : Equalizers ((disp_cat_dep_psh C) [{ Γ }]).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> A B τ₁ τ₂.
+    use make_Equalizer.
+    - <span class="bp">exact</span> (equalizer_dep_psh τ₁ τ₂).
+    - <span class="bp">exact</span> (equalizer_dep_psh_arrow τ₁ τ₂).
+    - <span class="kp">abstract</span>
+        (use dep_psh_nat_trans_eq ;
+         <span class="nb">intros</span> x xx a ;
+         <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _) ;
+         <span class="nb">refine</span> (_ @ !(dep_psh_fiber_comp _ _ _ _)) ;
+         <span class="bp">exact</span> (pr2 a)).
+    - <span class="nb">intros</span> Z θ p.
+      <span class="nb">pose</span> (q := dep_psh_fiber_equalizers_eq τ₁ τ₂ θ p).
+      use make_iscontr.
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="bp">exact</span> (equalizer_dep_psh_in θ q).
+        * <span class="kp">abstract</span>
+            (use dep_psh_nat_trans_eq ;
+             <span class="nb">intros</span> x xx a ;
+             <span class="bp">exact</span> (dep_psh_fiber_comp _ _ _ _)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> τ ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+           use dep_psh_nat_trans_eq ;
+           <span class="nb">intros</span> x xx a ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+           <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> (<span class="nv">z</span> : dep_psh_nat_trans _ _ _), z x xx a) (pr2 τ)) ;
+           <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _) ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_preserves_equalizer</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+    : preserves_equalizer
+        (fiber_functor_from_cleaving
+           (disp_cat_dep_psh C)
+           (cleaving_disp_cat_dep_psh C)
+           s).
+  <span class="kn">Proof</span>.
+    use preserves_equalizer_if_preserves_chosen.
+    {
+      <span class="nb">apply</span> dep_psh_fiber_equalizers.
+    }
+    <span class="nb">intros</span> A B τ₁ τ₂ p.
+    use (isEqualizer_z_iso (isEqualizer_Equalizer (dep_psh_fiber_equalizers Γ₁ _ _ _ _))).
+    - use make_z_iso.
+      + <span class="bp">exact</span> (equalizer_dep_psh_subst s τ₁ τ₂).
+      + <span class="bp">exact</span> (equalizer_dep_psh_subst_inv s τ₁ τ₂).
+      + <span class="kp">abstract</span>
+          (<span class="nb">split</span> ;
+           use dep_psh_nat_trans_eq ;
+           <span class="nb">intros</span> x xx a ;
+           <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _) ;
+           (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ]) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (use dep_psh_nat_trans_eq ;
+         <span class="nb">intros</span> x xx a ;
+         <span class="nb">refine</span> (dep_psh_fiber_functor_from_cleaving _ s _ _ @ _) ;
+         <span class="nb">refine</span> (_ @ !(dep_psh_fiber_comp _ _ _ _)) ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 6. Constant dependent presheaves *)</span>
+  <span class="kn">Definition</span> <span class="nf">constant_dep_psh</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+             (<span class="nv">A</span> : hSet)
+    : dep_psh Γ.
+  <span class="kn">Proof</span>.
+    use make_dep_psh.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, A).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">s</span> <span class="nv">p</span> <span class="nv">a</span>, a).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> ; <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> ; <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">constant_dep_psh_el</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             (<span class="nv">A</span> : dep_psh Γ)
+             {<span class="nv">B</span> : hSet}
+             (<span class="nv">b</span> : B)
+    : dep_psh_nat_trans A (constant_dep_psh Γ B) (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, b).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 7. Democracy of the presheaf model *)</span>
+  <span class="kn">Definition</span> <span class="nf">constant_dep_psh_map</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             {<span class="nv">A</span> <span class="nv">B</span> : hSet}
+             (<span class="nv">f</span> : A → B)
+    : dep_psh_nat_trans
+        (constant_dep_psh Γ A)
+        (constant_dep_psh Γ B)
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">a</span>, f a).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psh_to_dep_psh</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : dep_psh (constant_functor C^op HSET unitHSET).
+  <span class="kn">Proof</span>.
+    use make_dep_psh.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">_</span>, (Γ x : hSet)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">p</span> <span class="nv">a</span>, #Γ f a).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x ? ? a ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (eqtohomot (functor_id Γ _) a)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y z ? ? ? s₁ s₂ ? ? ? a ;
+         <span class="bp">exact</span> (eqtohomot (functor_comp Γ _ _) a)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psh_to_dep_psh_z_iso_mor</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : Γ ⟹ total_psh (psh_to_dep_psh Γ).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, tt ,, xx).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psh_to_dep_psh_z_iso_inv</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : total_psh (psh_to_dep_psh Γ) ⟹ Γ.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, pr2 xx).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psh_to_dep_psh_z_iso</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : z_iso (C := PreShv C) Γ (total_psh (psh_to_dep_psh Γ)).
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> (psh_to_dep_psh_z_iso_mor Γ).
+    - <span class="bp">exact</span> (psh_to_dep_psh_z_iso_inv Γ).
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ]) ;
+         <span class="nb">intros</span> ; <span class="nb">cbn</span> ; [ <span class="nb">apply</span> idpath | ] ;
+         use funextsec ;
+         <span class="nb">intro</span> xx ;
+         <span class="nb">induction</span> xx <span class="k">as</span> [ [ ] xx ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 8. Presheaf of morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">mor_dep_psh</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> : (Γ x : hSet))
+    : dep_psh Γ.
+  <span class="kn">Proof</span>.
+    use make_dep_psh.
+    - <span class="nb">intros</span> y yy.
+      use make_hSet.
+      + <span class="bp">exact</span> (∑ (f : y --&gt; x), #Γ f xx = yy).
+      + <span class="kp">abstract</span>
+          (use isaset_total2 ; [ <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">intro</span> ;
+           <span class="nb">apply</span> isasetaprop ;
+           <span class="nb">apply</span> setproperty).
+    - <span class="nb">intros</span> y₁ y₂ yy₁ yy₂ s p a.
+      <span class="nb">refine</span> (s · pr1 a ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> <span class="k">in</span> a ;
+         <span class="nb">refine</span> (_ @ p) ;
+         <span class="nb">refine</span> (eqtohomot (functor_comp Γ _ _) _ @ _) ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (pr2 a)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y yy p a ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> id_left).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y₁ y₂ y₃ yy₁ yy₂ yy₃ s₁ s₂ p q r a ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> assoc').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">id_mor_dep_psh</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> : (Γ x : hSet))
+    : mor_dep_psh xx x xx.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (identity _ ,, _).
+    <span class="bp">exact</span> (eqtohomot (functor_id Γ _) _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_nat_trans_from_mor_dep_psh</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             {<span class="nv">A</span> : dep_psh Γ}
+             {<span class="nv">x</span> : C}
+             {<span class="nv">xx</span> : (Γ x : hSet)}
+             (<span class="nv">a</span> : A x xx)
+    : dep_psh_nat_trans (mor_dep_psh xx) A (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">yy</span> <span class="nv">b</span>, #d A (pr1 b) (pr2 b) a).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y₁ y₂ yy₁ yy₂ f p q b ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> dep_psh_mor_comp' ;
+         <span class="nb">apply</span> dep_psh_mor_path_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ExamplesDepPsh</span>.
+
+<span class="sd">(** * 9. Statements for fiberwise limits and colimits *)</span>
+<span class="kn">Definition</span> <span class="nf">dep_psh_fiberwise_terminal</span>
+           (<span class="nv">C</span> : category)
+  : fiberwise_terminal (cleaving_disp_cat_dep_psh C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> dep_psh_fiber_terminal.
+  - <span class="nb">intros</span> Γ₁ Γ₂ s.
+    <span class="bp">exact</span> (dep_psh_preserves_terminal s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_psh_fiberwise_initial</span>
+           (<span class="nv">C</span> : category)
+  : fiberwise_initial (cleaving_disp_cat_dep_psh C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> dep_psh_fiber_initial.
+  - <span class="nb">intros</span> Γ₁ Γ₂ s.
+    <span class="bp">exact</span> (dep_psh_preserves_initial s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_psh_fiberwise_binproducts</span>
+           (<span class="nv">C</span> : category)
+  : fiberwise_binproducts (cleaving_disp_cat_dep_psh C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> dep_psh_fiber_binproducts.
+  - <span class="nb">intros</span> Γ₁ Γ₂ s.
+    <span class="bp">exact</span> (dep_psh_preserves_binproduct s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_psh_fiberwise_bincoproducts</span>
+           (<span class="nv">C</span> : category)
+  : fiberwise_bincoproducts (cleaving_disp_cat_dep_psh C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> dep_psh_fiber_bincoproducts.
+  - <span class="nb">intros</span> Γ₁ Γ₂ s.
+    <span class="bp">exact</span> (dep_psh_preserves_bincoproduct s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_psh_fiberwise_equalizers</span>
+           (<span class="nv">C</span> : category)
+  : fiberwise_equalizers (cleaving_disp_cat_dep_psh C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> dep_psh_fiber_equalizers.
+  - <span class="nb">intros</span> Γ₁ Γ₂ s.
+    <span class="bp">exact</span> (dep_psh_preserves_equalizer s).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/Constructions.v</tt>, line 23)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  9. Statements for fiberwise limits and colimits
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Presheaf.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

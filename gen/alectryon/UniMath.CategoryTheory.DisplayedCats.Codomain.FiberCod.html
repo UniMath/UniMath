@@ -1,0 +1,750 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FiberCod.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************</span>
+
+<span class="sd"> Facts about the fiber of the codomain</span>
+
+<span class="sd"> We establish some basic facts for the fiber of the codomain. In addition, we give some</span>
+<span class="sd"> calculational lemmas which are useful when working with the fiber.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Accessors for the fiber of the codomain</span>
+<span class="sd"> 2. Builders for the fiber of the codomain</span>
+<span class="sd"> 3. Standard objects and morphisms in the codomain</span>
+<span class="sd"> 4. Calculations for codomain fiber</span>
+<span class="sd"> 5. The fiber of terminal objects</span>
+<span class="sd"> 6. Builders for isomorphisms</span>
+
+<span class="sd"> **************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">cod_slice</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">x</span> : C)
+  : category
+  := (disp_codomain C)[{x}].
+
+<span class="kn">Notation</span> <span class="s2">"C / x"</span> := (@cod_slice C x) : cat.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_cod_slice</span>
+            {<span class="nv">C</span> : univalent_category}
+            (<span class="nv">x</span> : C)
+  : is_univalent (C/x).
+<span class="kn">Proof</span>.
+  use is_univalent_fiber.
+  <span class="nb">apply</span> disp_univalent_disp_codomain.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cod_pb</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : Pullbacks C)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">HD</span> := disp_codomain_cleaving HC)
+  : (C/y) ⟶ (C/x)
+  := fiber_functor_from_cleaving _ HD f.
+
+<span class="kn">Section</span> <span class="nf">CodomainFiber</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="sd">(** * 1. Accessors for the fiber of the codomain *)</span>
+  <span class="kn">Definition</span> <span class="nf">cod_dom</span>
+             {<span class="nv">y</span> : C}
+             (<span class="nv">f</span> : C/y)
+    : C
+    := pr1 f.
+
+  <span class="kn">Definition</span> <span class="nf">cod_mor</span>
+             {<span class="nv">y</span> : C}
+             (<span class="nv">f</span> : C/y)
+    : cod_dom f --&gt; y
+    := pr2 f.
+
+  <span class="kn">Definition</span> <span class="nf">dom_mor</span>
+             {<span class="nv">y</span> : C}
+             {<span class="nv">f₁</span> <span class="nv">f₂</span> : C/y}
+             (<span class="nv">g</span> : f₁ --&gt; f₂)
+    : cod_dom f₁ --&gt; cod_dom f₂
+    := pr1 g.
+
+  <span class="kn">Proposition</span> <span class="nf">mor_eq</span>
+              {<span class="nv">y</span> : C}
+              {<span class="nv">f₁</span> <span class="nv">f₂</span> : C/y}
+              (<span class="nv">g</span> : f₁ --&gt; f₂)
+    : dom_mor g · cod_mor f₂ = cod_mor f₁.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 g @ id_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_mor_cod_fib</span>
+              {<span class="nv">y</span> : C}
+              {<span class="nv">f₁</span> <span class="nv">f₂</span> : C/y}
+              {<span class="nv">g₁</span> <span class="nv">g₂</span> : f₁ --&gt; f₂}
+              (<span class="nv">p</span> : dom_mor g₁ = dom_mor g₂)
+    : g₁ = g₂.
+  <span class="kn">Proof</span>.
+    use eq_cod_mor.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. Builders for the fiber of the codomain *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_cod_fib_ob</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+    : C/y
+    := x ,, f.
+
+  <span class="kn">Definition</span> <span class="nf">make_cod_fib_mor</span>
+             {<span class="nv">x</span> : C}
+             {<span class="nv">f₁</span> <span class="nv">f₂</span> : C/x}
+             (<span class="nv">g</span> : cod_dom f₁ --&gt; cod_dom f₂)
+             (<span class="nv">p</span> : g · cod_mor f₂ = cod_mor f₁)
+    : f₁ --&gt; f₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (g ,, _).
+    <span class="bp">exact</span> (p @ !(id_right _)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. Standard objects and morphisms in the codomain *)</span>
+  <span class="kn">Definition</span> <span class="nf">cod_fib_id</span>
+             (<span class="nv">x</span> : C)
+    : C/x
+    := make_cod_fib_ob (identity x).
+
+  <span class="kn">Definition</span> <span class="nf">mor_to_cod_fib_id</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">f</span> : C/x)
+    : f --&gt; cod_fib_id x.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (make_cod_fib_mor _ _).
+    - <span class="bp">exact</span> (cod_mor f).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">apply</span> id_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_fib_comp</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">g</span> : C/x)
+    : C/y
+    := make_cod_fib_ob (cod_mor g · f).
+
+  <span class="kn">Definition</span> <span class="nf">pr_cod_fib</span>
+             (<span class="nv">P</span> : BinProducts C)
+             (<span class="nv">x</span> : C)
+             (<span class="nv">y</span> : C)
+    : C/x.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_ob.
+    - <span class="bp">exact</span> (P x y).
+    - <span class="nb">apply</span> BinProductPr1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mor_to_pr_cod_fib</span>
+             (<span class="nv">P</span> : BinProducts C)
+             {<span class="nv">x</span> : C}
+             {<span class="nv">y</span> : C}
+             (<span class="nv">f</span> : C/x)
+             (<span class="nv">g</span> : cod_dom f --&gt; y)
+    : f --&gt; pr_cod_fib P x y.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - use BinProductArrow.
+      + <span class="bp">exact</span> (cod_mor f).
+      + <span class="bp">exact</span> g.
+    - <span class="nb">apply</span> BinProductPr1Commutes.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. Calculations for codomain fiber *)</span>
+  <span class="kn">Proposition</span> <span class="nf">comp_in_cod_fib</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">gz₁</span> <span class="nv">gz₂</span> <span class="nv">gz₃</span> : C/x}
+              (<span class="nv">φp</span> : gz₁ --&gt; gz₂)
+              (<span class="nv">ψq</span> : gz₂ --&gt; gz₃)
+    : dom_mor (φp · ψq) = dom_mor φp · dom_mor ψq.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> ; <span class="nb">unfold</span> dom_mor.
+    <span class="nb">rewrite</span> transportf_cod_disp.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Context</span> (<span class="nv">HC</span> : Pullbacks C).
+
+  <span class="kn">Definition</span> <span class="nf">cod_fib_pb_comp</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">zg</span> : C/x)
+    : zg --&gt; cod_pb HC f (cod_fib_comp f zg).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - use PullbackArrow.
+      + <span class="bp">exact</span> (identity _).
+      + <span class="bp">exact</span> (pr2 zg).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> id_left).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_fiber_functor_pb</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             {<span class="nv">zg₁</span> <span class="nv">zg₂</span> : C/y}
+             (<span class="nv">gp</span> : zg₁ --&gt; zg₂)
+    : cod_pb HC f zg₁
+      --&gt;
+      cod_pb HC f zg₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+    - use PullbackArrow.
+      + <span class="bp">exact</span> (PullbackPr1 _ · pr1 gp).
+      + <span class="nb">apply</span> PullbackPr2.
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (_ @ PullbackSqrCommutes (HC y (pr1 zg₁) x (pr2 zg₁) f)) ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">refine</span> (pr2 gp @ _) ;
+           <span class="nb">apply</span> id_right).
+    - <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cod_fiber_functor_on_mor</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+              {<span class="nv">zg₁</span> <span class="nv">zg₂</span> : C/y}
+              (<span class="nv">gp</span> : zg₁ --&gt; zg₂)
+    : #(cod_pb HC f) gp
+      =
+      cod_fiber_functor_pb f gp.
+  <span class="kn">Proof</span>.
+    use eq_mor_cod_fib.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> cartesian_cod_disp_map.
+    use (MorphismsIntoPullbackEqual
+           (isPullback_Pullback (HC y (pr1 zg₂) x (pr2 zg₂) f))) ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+      etrans.
+      {
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (HC y (pr1 zg₂) x (pr2 zg₂) f)).
+      }
+      <span class="nb">rewrite</span> transportf_cod_disp.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+      etrans.
+      {
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (HC y (pr1 zg₂) x (pr2 zg₂) f)).
+      }
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_fiber_functor_on_eq_mor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">p</span> : f = g)
+             (<span class="nv">φ</span> : C/y)
+    : fiber_functor_from_cleaving (disp_codomain C) (disp_codomain_cleaving HC) f φ
+      --&gt;
+      fiber_functor_from_cleaving (disp_codomain C) (disp_codomain_cleaving HC) g φ.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - use PullbackArrow.
+      + <span class="nb">apply</span> PullbackPr1.
+      + <span class="nb">apply</span> PullbackPr2.
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (PullbackSqrCommutes (HC y (pr1 φ) x (pr2 φ) f) @ _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> p).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">HD</span> : cleaving (disp_codomain C) := disp_codomain_cleaving HC.
+
+  <span class="kn">Proposition</span> <span class="nf">cod_fiber_functor_on_eq</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+              (<span class="nv">p</span> : f = g)
+              (<span class="nv">φ</span> : C/y)
+    : fiber_functor_on_eq HD p φ
+      =
+      cod_fiber_functor_on_eq_mor p φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    use eq_mor_cod_fib.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_fiber_functor_from_cleaving_comp_mor</span>
+              {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+              (<span class="nv">g</span> : y --&gt; z)
+              (<span class="nv">φ</span> : C/z)
+    : cod_pb HC f (cod_pb HC g φ) --&gt; cod_pb HC (f · g) φ.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - use PullbackArrow.
+      + <span class="bp">exact</span> (PullbackPr1 _ · PullbackPr1 _).
+      + <span class="bp">exact</span> (PullbackPr2 _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> !assoc ;
+           <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · g) (PullbackSqrCommutes _)) ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> PullbackSqrCommutes).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cod_fiber_functor_from_cleaving_comp</span>
+              {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+              (<span class="nv">g</span> : y --&gt; z)
+              (<span class="nv">φ</span> : C/z)
+    : fiber_functor_from_cleaving_comp HD g f φ
+      =
+      cod_fiber_functor_from_cleaving_comp_mor f g φ.
+  <span class="kn">Proof</span>.
+    use eq_mor_cod_fib.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> cartesian_cod_disp_map ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (PullbackArrow_PullbackPr1 _ _ _ _ _ @ _).
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">unfold</span> transportb ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> pr1_transportf, transportf_const.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> cartesian_cod_disp_map ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (PullbackArrow_PullbackPr2 _ _ _ _ _ @ _).
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_fiber_functor_from_cleaving_comp_mor_inv</span>
+             {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">g</span> : y --&gt; z)
+             (<span class="nv">φ</span> : C/z)
+    : cod_pb HC (f · g) φ --&gt; cod_pb HC f (cod_pb HC g φ).
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - use PullbackArrow.
+      + use PullbackArrow.
+        * <span class="bp">exact</span> (PullbackPr1 _).
+        * <span class="bp">exact</span> (PullbackPr2 _ · f).
+        * <span class="kp">abstract</span>
+            (<span class="nb">refine</span> (PullbackSqrCommutes _ @ _) ;
+             <span class="nb">apply</span> assoc).
+      + <span class="bp">exact</span> (PullbackPr2 _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ;
+           <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cod_fiber_functor_from_cleaving_comp_inv</span>
+              {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+              (<span class="nv">g</span> : y --&gt; z)
+              (<span class="nv">φ</span> : C/z)
+    : fiber_functor_from_cleaving_comp_inv HD g f φ
+      =
+      cod_fiber_functor_from_cleaving_comp_mor_inv f g φ.
+  <span class="kn">Proof</span>.
+    use eq_mor_cod_fib.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> cartesian_cod_disp_map ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (PullbackArrow_PullbackPr1 _ _ _ _ _ @ _).
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      + <span class="nb">refine</span> (PullbackArrow_PullbackPr1 _ _ _ _ _ @ _).
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">rewrite</span> pr1_transportf, transportf_const ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">refine</span> (PullbackArrow_PullbackPr2 _ _ _ _ _ @ _).
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> cartesian_cod_disp_map ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (PullbackArrow_PullbackPr2 _ _ _ _ _ @ _).
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_pb_left_functorial</span>
+             {<span class="nv">x</span> : C}
+             {<span class="nv">f</span> <span class="nv">g</span> : C/x}
+             (<span class="nv">h</span> : C/x)
+             (<span class="nv">k</span> : f --&gt; g)
+    : cod_dom (cod_pb HC (cod_mor f) h)
+      --&gt;
+      cod_dom (cod_pb HC (cod_mor g) h).
+  <span class="kn">Proof</span>.
+    use PullbackArrow.
+    - <span class="bp">exact</span> (PullbackPr1 _).
+    - <span class="bp">exact</span> (PullbackPr2 _ · dom_mor k).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (PullbackSqrCommutes _ @ _) ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (!(mor_eq k))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cod_pb_left_functorial_natural</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">f</span> <span class="nv">g</span> : C/x}
+              {<span class="nv">h</span> <span class="nv">h'</span> : C/x}
+              (<span class="nv">mh</span> : h --&gt; h')
+              (<span class="nv">k</span> : f --&gt; g)
+    : cod_pb_left_functorial h k · dom_mor (#(cod_pb HC (cod_mor g)) mh)
+      =
+      dom_mor (#(cod_pb HC (cod_mor f)) mh) · cod_pb_left_functorial h' k.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !cod_fiber_functor_on_mor.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    - <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      }
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cod_pb_left_functorial_id</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">f</span> : C/x}
+              (<span class="nv">h</span> : C/x)
+    : cod_pb_left_functorial h (identity f)
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    - etrans.
+      {
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_pb_left_functorial_comp</span>
+             {<span class="nv">x</span> : C}
+             {<span class="nv">f₁</span> <span class="nv">f₂</span> <span class="nv">f₃</span> : C/x}
+             (<span class="nv">h</span> : C/x)
+             (<span class="nv">k₁</span> : f₁ --&gt; f₂)
+             (<span class="nv">k₂</span> : f₂ --&gt; f₃)
+    : cod_pb_left_functorial h (k₁ · k₂)
+      =
+      cod_pb_left_functorial h k₁ · cod_pb_left_functorial h k₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cod_pb_left_functorial.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    - <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      }
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. The fiber of terminal objects *)</span>
+  <span class="kn">Section</span> <span class="nf">FibTerminal</span>.
+    <span class="kn">Context</span> (<span class="nv">T</span> : Terminal C).
+
+    <span class="kn">Definition</span> <span class="nf">cod_fib_terminal_to_base_data</span>
+      : functor_data (C/T) C.
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">yf</span>, cod_dom yf).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">φp</span>, dom_mor φp).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">cod_fib_terminal_to_base_laws</span>
+      : is_functor cod_fib_terminal_to_base_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> dom_mor.
+        <span class="nb">rewrite</span> transportf_cod_disp.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cod_fib_terminal_to_base</span>
+      : (C/T) ⟶ C.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> cod_fib_terminal_to_base_data.
+      - <span class="bp">exact</span> cod_fib_terminal_to_base_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cod_fib_terminal_from_base_data</span>
+      : functor_data C (C/T).
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, make_cod_fib_ob (TerminalArrow T x)).
+      - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, make_cod_fib_mor _ _).
+        + <span class="bp">exact</span> f.
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">apply</span> TerminalArrowEq).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">cod_fib_terminal_from_base_laws</span>
+      : is_functor cod_fib_terminal_from_base_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> x.
+        use eq_mor_cod_fib ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+        use eq_mor_cod_fib.
+        <span class="nb">rewrite</span> comp_in_cod_fib.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cod_fib_terminal_from_base</span>
+      : C ⟶ (C/T).
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> cod_fib_terminal_from_base_data.
+      - <span class="bp">exact</span> cod_fib_terminal_from_base_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cod_fib_terminal_unit</span>
+      : functor_identity _
+        ⟹
+        cod_fib_terminal_to_base ∙ cod_fib_terminal_from_base.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">x</span>, make_cod_fib_mor _ _).
+        + <span class="nb">apply</span> identity.
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">apply</span> TerminalArrowEq).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ;
+           use eq_mor_cod_fib ;
+           <span class="nb">rewrite</span> !comp_in_cod_fib ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cod_fib_terminal_counit</span>
+      : cod_fib_terminal_from_base ∙ cod_fib_terminal_to_base
+        ⟹
+        functor_identity C.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cod_fib_terminal_equivalence</span>
+      : equivalence_of_cats (C/T) C.
+    <span class="kn">Proof</span>.
+      use make_equivalence_of_cats.
+      - use make_adjunction_data.
+        + <span class="bp">exact</span> cod_fib_terminal_to_base.
+        + <span class="bp">exact</span> cod_fib_terminal_from_base.
+        + <span class="bp">exact</span> cod_fib_terminal_unit.
+        + <span class="bp">exact</span> cod_fib_terminal_counit.
+      - <span class="nb">split</span>.
+        + <span class="nb">intro</span> x.
+          use is_z_iso_fiber_from_is_z_iso_disp.
+          use is_z_iso_disp_codomain.
+          <span class="nb">apply</span> identity_is_z_iso.
+        + <span class="nb">intro</span> x.
+          <span class="nb">apply</span> identity_is_z_iso.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cod_fib_terminal</span>
+      : adj_equivalence_of_cats
+          cod_fib_terminal_to_base
+      := adjointification cod_fib_terminal_equivalence.
+  <span class="kn">End</span> <span class="nf">FibTerminal</span>.
+<span class="kn">End</span> <span class="nf">CodomainFiber</span>.
+
+<span class="sd">(** * 6. Isomorphisms builders in the slice category *)</span>
+<span class="kn">Section</span> <span class="nf">IsoInSlice</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">z</span> : C) (<span class="nv">a</span> <span class="nv">b</span> : C / z).
+
+  <span class="kn">Lemma</span> <span class="nf">make_is_z_iso_in_slice</span> {<span class="nv">f</span> : C/z⟦a, b⟧}
+    (<span class="nv">i</span> : is_z_isomorphism (dom_mor f))
+    : is_z_isomorphism f.
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    - use tpair.
+      + <span class="bp">exact</span> (inv_from_z_iso (_,, i)).
+      + <span class="kp">abstract</span> (
+            <span class="nb">simpl</span>;
+            <span class="nb">refine</span> (_ @ ! id_right _);
+            <span class="nb">rewrite</span> (! id_right _ @ ! pr2 f);
+            <span class="nb">rewrite</span> assoc;
+            <span class="nb">rewrite</span> z_iso_after_z_iso_inv;
+            <span class="nb">apply</span> id_left).
+    - <span class="kp">abstract</span> (
+          <span class="nb">split</span> ; use eq_mor_cod_fib;
+          [ etrans;
+            [ <span class="nb">apply</span> transportf_cod_disp
+            | <span class="bp">exact</span> (z_iso_inv_after_z_iso (_ ,, i)) ]
+          | etrans ;
+            [ <span class="nb">apply</span> transportf_cod_disp
+            | <span class="bp">exact</span> (z_iso_after_z_iso_inv (_ ,, i)) ]
+          ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">make_z_iso_in_slice</span>
+    (<span class="nv">i</span> : z_iso (cod_dom a) (cod_dom b))
+    (<span class="nv">pf</span> : i · cod_mor b = cod_mor a)
+    : z_iso a b.
+  <span class="kn">Proof</span>.
+    use make_z_iso'.
+    - <span class="k">exists</span> <span class="nv">i</span>.
+      <span class="kp">abstract</span> (<span class="bp">exact</span> (pf @ ! id_right _)).
+    - use make_is_z_iso_in_slice.
+      <span class="nb">apply</span> i.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_to_cod_dom</span>
+             (<span class="nv">f</span> : z_iso a b)
+    : z_iso (cod_dom a) (cod_dom b).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (disp_iso_to_iso _ _ (z_iso_disp_from_z_iso_fiber _ _ _ _ f))).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">IsoInSlice</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Codomain/FiberCod.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Builders for isomorphisms
+  &gt;
+  &gt;  **************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

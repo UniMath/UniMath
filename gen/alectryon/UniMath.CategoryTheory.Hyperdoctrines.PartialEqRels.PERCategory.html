@@ -1,0 +1,618 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PERCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> The category of partial setoids</span>
+
+<span class="sd"> Given a hyperdoctrine `H`, we can define the type of partial setoids in `H`. Concretely,</span>
+<span class="sd"> a partial setoid is a type `X` in `H` together with a partial equvialence relation (i.e.,</span>
+<span class="sd"> a formula on `X ×h X` that is symmetric and transitive). We also defined the notion of a</span>
+<span class="sd"> morphism between partial setoids: morphisms from a partial setoid `X` to a partial setoid</span>
+<span class="sd"> `Y` are given by relations on `X` and `Y` satisfying some properties (which are described</span>
+<span class="sd"> in the file `PerMorphisms.v`). In this file, we show how partial setoids together with</span>
+<span class="sd"> partial setoid morphisms form a category. To do so, we define the identity partial setoid</span>
+<span class="sd"> morphism and the composition, and we show that the category laws are satisfied.</span>
+
+<span class="sd"> Note that the category of partial setoids is the basis for the tripos-to-topos construction.</span>
+<span class="sd"> If one looks at triposes, then the category of partial setoids actually is a topos.</span>
+<span class="sd"> However, even if one only looks at first-order hyperdoctrines, then this category still</span>
+<span class="sd"> has a lot of structure. For instance, it has all finite limits.</span>
+
+<span class="sd"> The most interesting aspect of this construction is that in general this does not give</span>
+<span class="sd"> rise to a univalent category. For instance, on the category of sets we can define the</span>
+<span class="sd"> trivial hyperdoctrine, whose formulas in context `Γ` are given by inhabitants of the unit</span>
+<span class="sd"> type. In this case, partial setoids are the same as sets: this is because every set has</span>
+<span class="sd"> a unique partial equivalence relation in this hyperdoctrine since there is only one</span>
+<span class="sd"> formula. However, there also always is a unique morphism between any two partial setoids.</span>
+<span class="sd"> For that reason, the resulting category is not univalent. For this reason, if one wants</span>
+<span class="sd"> a tripos-to-univalent-topos construction, then one needs to apply the Rezk completion</span>
+<span class="sd"> to the category of partial setoids. This works well due to the universal property of the</span>
+<span class="sd"> tripos-to-topos construction (see Theorem 3.6 in "Tripos Theory in Retrospect" by Andrew</span>
+<span class="sd"> Pitts).</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Tripos Theory in Retrospect" by Andrew Pitts</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The identity morphism</span>
+<span class="sd"> 2. The composition of morphisms of partial setoids</span>
+<span class="sd"> 3. The category of partial setoids</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="sd">(** * 1. The identity morphism *)</span>
+<span class="kn">Definition</span> <span class="nf">id_partial_setoid_morphism_form</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">X</span> : partial_setoid H)
+  : form (X ×h X)
+  := π₁ (tm_var _) ~ π₂ (tm_var _).
+
+<span class="kn">Arguments</span> id_partial_setoid_morphism_form {H} X /.
+
+<span class="kn">Proposition</span> <span class="nf">id_partial_setoid_morphism_laws</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            (<span class="nv">X</span> : partial_setoid H)
+  : partial_setoid_morphism_laws (id_partial_setoid_morphism_form X).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">unfold</span> partial_setoid_mor_dom_defined_law.
+    <span class="nb">pose</span> (T := X).
+    <span class="nb">pose</span> (x := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T)))).
+    <span class="nb">pose</span> (y := π₂ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T))).
+    <span class="nb">unfold</span> T <span class="k">in</span> *.
+    <span class="nb">fold</span> x y.
+    <span class="nb">cbn</span>.
+    use forall_intro.
+    use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    hypersimplify.
+    <span class="bp">exact</span> (partial_setoid_refl_l (hyperdoctrine_hyp _)).
+  - <span class="nb">unfold</span> partial_setoid_mor_cod_defined_law.
+    <span class="nb">pose</span> (T := X).
+    <span class="nb">pose</span> (x := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T)))).
+    <span class="nb">pose</span> (y := π₂ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T))).
+    <span class="nb">unfold</span> T <span class="k">in</span> *.
+    <span class="nb">fold</span> x y.
+    <span class="nb">cbn</span>.
+    use forall_intro.
+    use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    hypersimplify.
+    <span class="bp">exact</span> (partial_setoid_refl_r (hyperdoctrine_hyp _)).
+  - <span class="nb">unfold</span> partial_setoid_mor_eq_defined_law.
+    <span class="nb">pose</span> (T := X).
+    <span class="nb">pose</span> (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h T) ×h T) ×h T) ×h T)))))).
+    <span class="nb">pose</span> (x₂ := π₂ (π₁ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h T) ×h T) ×h T) ×h T))))).
+    <span class="nb">pose</span> (y₁ := π₂ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h T) ×h T) ×h T) ×h T)))).
+    <span class="nb">pose</span> (y₂ := π₂ (tm_var ((((<span class="mi">𝟙</span> ×h T) ×h T) ×h T) ×h T))).
+    <span class="nb">unfold</span> T <span class="k">in</span> *.
+    <span class="nb">fold</span> x₁ x₂ y₁ y₂.
+    <span class="nb">cbn</span>.
+    use forall_intro.
+    use forall_intro.
+    use forall_intro.
+    use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    use impl_intro.
+    use impl_intro.
+    hypersimplify.
+    use partial_setoid_trans.
+    + <span class="bp">exact</span> x₁.
+    + use partial_setoid_sym.
+      <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+      use hyperdoctrine_hyp.
+    + use partial_setoid_trans.
+      * <span class="bp">exact</span> y₁.
+      * use weaken_right.
+        use hyperdoctrine_hyp.
+      * use weaken_left.
+        use weaken_right.
+        use hyperdoctrine_hyp.
+  - <span class="nb">unfold</span> partial_setoid_mor_unique_im_law.
+    <span class="nb">pose</span> (T := X).
+    <span class="nb">pose</span> (x := π₂ (π₁ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T) ×h T))))).
+    <span class="nb">pose</span> (y₁ := π₂ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T) ×h T)))).
+    <span class="nb">pose</span> (y₂ := π₂ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T) ×h T))).
+    <span class="nb">unfold</span> T <span class="k">in</span> *.
+    <span class="nb">fold</span> x y₁ y₂.
+    <span class="nb">cbn</span>.
+    use forall_intro.
+    use forall_intro.
+    use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    use impl_intro.
+    hypersimplify.
+    use partial_setoid_trans.
+    + <span class="bp">exact</span> x.
+    + use partial_setoid_sym.
+      use weaken_left.
+      use hyperdoctrine_hyp.
+    + use weaken_right.
+      use hyperdoctrine_hyp.
+  - <span class="nb">unfold</span> partial_setoid_mor_hom_exists_law.
+    <span class="nb">pose</span> (T := X).
+    <span class="nb">pose</span> (x := π₂ (tm_var (<span class="mi">𝟙</span> ×h T))).
+    <span class="nb">pose</span> (y := π₂ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T))).
+    <span class="nb">unfold</span> T <span class="k">in</span> *.
+    <span class="nb">fold</span> x y.
+    <span class="nb">cbn</span>.
+    use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    hypersimplify.
+    use exists_intro.
+    + <span class="bp">exact</span> x.
+    + <span class="nb">unfold</span> y.
+      hypersimplify.
+      use hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_partial_setoid_morphism</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">X</span> : partial_setoid H)
+  : partial_setoid_morphism X X.
+<span class="kn">Proof</span>.
+  use make_partial_setoid_morphism.
+  - <span class="bp">exact</span> (id_partial_setoid_morphism_form X).
+  - <span class="bp">exact</span> (id_partial_setoid_morphism_laws X).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. The composition of morphisms of partial setoids *)</span>
+<span class="kn">Section</span> <span class="nf">CompPartialSetoidMorphism</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : first_order_hyperdoctrine}
+          {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : partial_setoid H}
+          (<span class="nv">φ₁</span> : partial_setoid_morphism X Y)
+          (<span class="nv">φ₂</span> : partial_setoid_morphism Y Z).
+
+  <span class="kn">Definition</span> <span class="nf">partial_setoid_comp_morphism_form</span>
+    : form (X ×h Z)
+    := <span class="k">let</span> <span class="nv">x</span> := π₁ (π₁ (tm_var _)) : tm ((X ×h Z) ×h Y) X <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">y</span> := π₂ (tm_var _) : tm ((X ×h Z) ×h Y) Y <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">z</span> := π₂ (π₁ (tm_var _)) : tm ((X ×h Z) ×h Y) Z <span class="k">in</span>
+       (<span class="k">∃</span><span class="nv">h</span> (<span class="nv">φ₁</span> [ ⟨ x , y ⟩ ] ∧ φ₂ [ ⟨ y , z ⟩ ])).
+
+  <span class="kn">Arguments</span> partial_setoid_comp_morphism_form /.
+
+  <span class="kn">Proposition</span> <span class="nf">partial_setoid_comp_morphism_laws</span>
+    : partial_setoid_morphism_laws
+        partial_setoid_comp_morphism_form.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">unfold</span> partial_setoid_mor_dom_defined_law.
+      <span class="nb">pose</span> (T := X).
+      <span class="nb">pose</span> (T' := Z).
+      <span class="nb">pose</span> (x := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T')))).
+      <span class="nb">pose</span> (z := π₂ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T'))).
+      <span class="nb">unfold</span> T, T' <span class="k">in</span> *.
+      <span class="nb">fold</span> x z.
+      <span class="nb">unfold</span> partial_setoid_comp_morphism_form.
+      hypersimplify.
+      <span class="nb">pose</span> (y := π₂ (tm_var (((<span class="mi">𝟙</span> ×h X) ×h Z) ×h Y))).
+      <span class="nb">fold</span> y.
+      use forall_intro.
+      use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use (exists_elim (hyperdoctrine_hyp _)).
+      use weaken_right.
+      <span class="nb">rewrite</span> partial_setoid_subst.
+      <span class="nb">unfold</span> x, y, z.
+      hypersimplify.
+      use weaken_left.
+      <span class="nb">apply</span> (partial_setoid_mor_dom_defined φ₁ _ _ (hyperdoctrine_hyp _)).
+    - <span class="nb">unfold</span> partial_setoid_mor_cod_defined_law.
+      <span class="nb">pose</span> (T := X).
+      <span class="nb">pose</span> (T' := Z).
+      <span class="nb">pose</span> (x := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T')))).
+      <span class="nb">pose</span> (z := π₂ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T'))).
+      <span class="nb">unfold</span> T, T' <span class="k">in</span> *.
+      <span class="nb">fold</span> x z.
+      <span class="nb">unfold</span> partial_setoid_comp_morphism_form.
+      hypersimplify.
+      <span class="nb">pose</span> (y := π₂ (tm_var (((<span class="mi">𝟙</span> ×h X) ×h Z) ×h Y))).
+      <span class="nb">fold</span> y.
+      use forall_intro.
+      use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use (exists_elim (hyperdoctrine_hyp _)).
+      use weaken_right.
+      <span class="nb">rewrite</span> partial_setoid_subst.
+      <span class="nb">unfold</span> x, y, z.
+      hypersimplify.
+      use weaken_right.
+      <span class="nb">apply</span> (partial_setoid_mor_cod_defined φ₂ _ _ (hyperdoctrine_hyp _)).
+    - <span class="nb">unfold</span> partial_setoid_mor_eq_defined_law.
+      <span class="nb">pose</span> (T := X).
+      <span class="nb">pose</span> (T' := Z).
+      <span class="nb">pose</span> (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h T) ×h T) ×h T') ×h T')))))).
+      <span class="nb">pose</span> (x₂ := π₂ (π₁ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h T) ×h T) ×h T') ×h T'))))).
+      <span class="nb">pose</span> (z₁ := π₂ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h T) ×h T) ×h T') ×h T')))).
+      <span class="nb">pose</span> (z₂ := π₂ (tm_var ((((<span class="mi">𝟙</span> ×h T) ×h T) ×h T') ×h T'))).
+      <span class="nb">unfold</span> T, T' <span class="k">in</span> *.
+      <span class="nb">fold</span> x₁ x₂ z₁ z₂.
+      <span class="nb">unfold</span> partial_setoid_comp_morphism_form.
+      hypersimplify.
+      <span class="nb">pose</span> (y := π₂ (tm_var (((((<span class="mi">𝟙</span> ×h X) ×h X) ×h Z) ×h Z) ×h Y))).
+      <span class="nb">fold</span> y.
+      <span class="kp">do</span> <span class="mi">4</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="kp">do</span> <span class="mi">2</span> use impl_intro.
+      use hyp_sym.
+      <span class="nb">refine</span> (exists_elim _ _) ; [ use weaken_left ; <span class="nb">apply</span> hyperdoctrine_hyp | ].
+      <span class="nb">rewrite</span> conj_subst.
+      use hyp_ltrans.
+      use weaken_right.
+      hypersimplify.
+      use exists_intro.
+      + <span class="bp">exact</span> (π₂ (tm_var _)).
+      + hypersimplify.
+        use conj_intro.
+        * use hyp_rtrans.
+          use weaken_left.
+          use hyp_sym.
+          use hyp_rtrans.
+          use weaken_left.
+          <span class="nb">unfold</span> x₁, x₂, y.
+          hypersimplify.
+          use (partial_setoid_mor_eq_defined
+                 φ₁
+                 _
+                 _
+                 (weaken_left (hyperdoctrine_hyp _) _)).
+          ** use weaken_right.
+             use hyperdoctrine_hyp.
+          ** use weaken_left.
+             <span class="bp">exact</span> (partial_setoid_mor_cod_defined φ₁ _ _ (hyperdoctrine_hyp _)).
+        * use hyp_ltrans.
+          use weaken_right.
+          use hyp_sym.
+          use hyp_ltrans.
+          use weaken_right.
+          <span class="nb">unfold</span> z₁, z₂, y.
+          hypersimplify.
+          use (partial_setoid_mor_eq_defined
+                 φ₂
+                 _
+                 _
+                 (weaken_left (hyperdoctrine_hyp _) _)).
+          ** use weaken_left.
+             <span class="bp">exact</span> (partial_setoid_mor_dom_defined φ₂ _ _ (hyperdoctrine_hyp _)).
+          ** use weaken_right.
+             use hyperdoctrine_hyp.
+    - <span class="nb">unfold</span> partial_setoid_mor_unique_im_law.
+      <span class="nb">pose</span> (T := X).
+      <span class="nb">pose</span> (T' := Z).
+      <span class="nb">pose</span> (x := π₂ (π₁ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T') ×h T'))))).
+      <span class="nb">pose</span> (z₁ := π₂ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T') ×h T')))).
+      <span class="nb">pose</span> (z₂ := π₂ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T') ×h T'))).
+      <span class="nb">unfold</span> T, T' <span class="k">in</span> *.
+      <span class="nb">fold</span> x z₁ z₂.
+      <span class="nb">unfold</span> partial_setoid_comp_morphism_form.
+      hypersimplify.
+      <span class="kp">do</span> <span class="mi">3</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use (exists_elim (hyperdoctrine_hyp _)).
+      use weaken_right.
+      hypersimplify.
+      use impl_intro.
+      use hyp_sym.
+      use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
+      <span class="nb">rewrite</span> conj_subst.
+      use hyp_ltrans.
+      use weaken_right.
+      hypersimplify.
+      <span class="nb">unfold</span> x, z₁, z₂.
+      <span class="nb">clear</span> x z₁ z₂.
+      hypersimplify.
+      <span class="nb">pose</span> (x := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var (((((<span class="mi">𝟙</span> ×h X) ×h Z) ×h Z) ×h Y) ×h Y))))))).
+      <span class="nb">pose</span> (y := π₂ (π₁ (tm_var (((((<span class="mi">𝟙</span> ×h X) ×h Z) ×h Z) ×h Y) ×h Y)))).
+      <span class="nb">pose</span> (y' := π₂ (tm_var (((((<span class="mi">𝟙</span> ×h X) ×h Z) ×h Z) ×h Y) ×h Y))).
+      <span class="nb">pose</span> (z₁ := π₂ (π₁ (π₁ (π₁ (tm_var (((((<span class="mi">𝟙</span> ×h X) ×h Z) ×h Z) ×h Y) ×h Y)))))).
+      <span class="nb">pose</span> (z₂ := π₂ (π₁ (π₁ (tm_var (((((<span class="mi">𝟙</span> ×h X) ×h Z) ×h Z) ×h Y) ×h Y))))).
+      <span class="nb">fold</span> x y y' z₁ z₂.
+      use (partial_setoid_mor_unique_im φ₂).
+      + <span class="bp">exact</span> y.
+      + use weaken_left.
+        use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use (partial_setoid_mor_eq_defined φ₂).
+        * <span class="bp">exact</span> y'.
+        * <span class="bp">exact</span> z₂.
+        * use hyp_rtrans.
+          use weaken_left.
+          use hyp_sym.
+          use hyp_rtrans.
+          use weaken_left.
+          use (partial_setoid_mor_unique_im φ₁).
+          ** <span class="bp">exact</span> x.
+          ** use weaken_left.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+          ** use weaken_right.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use (partial_setoid_mor_cod_defined φ₂).
+          ** <span class="bp">exact</span> y'.
+          ** <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+        * <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">unfold</span> partial_setoid_mor_hom_exists_law.
+      <span class="nb">pose</span> (x := π₂ (tm_var (<span class="mi">𝟙</span> ×h X))).
+      <span class="nb">pose</span> (z := π₂ (tm_var ((<span class="mi">𝟙</span> ×h X) ×h Z))).
+      <span class="nb">fold</span> x z.
+      use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use (exists_elim (partial_setoid_mor_hom_exists φ₁ (hyperdoctrine_hyp _))).
+      use weaken_right.
+      <span class="nb">pose</span> (y := π₂ (tm_var ((<span class="mi">𝟙</span> ×h X) ×h Y))).
+      <span class="nb">fold</span> y.
+      use weaken_cut.
+      + <span class="bp">exact</span> (y ~ y).
+      + <span class="bp">exact</span> (partial_setoid_mor_cod_defined φ₁ _ _ (hyperdoctrine_hyp _)).
+      + use (exists_elim
+               (partial_setoid_mor_hom_exists φ₂ (weaken_right (hyperdoctrine_hyp _) _))).
+        hypersimplify_form.
+        use hyp_sym.
+        use hyp_rtrans.
+        use weaken_left.
+        use hyp_sym.
+        use exists_intro.
+        * <span class="bp">exact</span> (π₂ (tm_var _)).
+        * <span class="nb">unfold</span> partial_setoid_comp_morphism_form.
+          hypersimplify.
+          use exists_intro.
+          ** <span class="bp">exact</span> (π₂ (π₁ (tm_var _))).
+          ** <span class="nb">unfold</span> x, y, z.
+             hypersimplify.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">partial_setoid_comp_morphism</span>
+    : partial_setoid_morphism X Z.
+  <span class="kn">Proof</span>.
+    use make_partial_setoid_morphism.
+    - <span class="bp">exact</span> partial_setoid_comp_morphism_form.
+    - <span class="bp">exact</span> partial_setoid_comp_morphism_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CompPartialSetoidMorphism</span>.
+
+<span class="kn">Arguments</span> partial_setoid_comp_morphism_form {H X Y Z} φ₁ φ₂ /.
+
+<span class="sd">(** * 3. The category of partial setoids *)</span>
+<span class="kn">Section</span> <span class="nf">CategoryOfPartialSetoids</span>.
+  <span class="kn">Context</span> (<span class="nv">H</span> : first_order_hyperdoctrine).
+
+  <span class="kn">Definition</span> <span class="nf">precategory_ob_mor_of_partial_setoids</span>
+    : precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    use make_precategory_ob_mor.
+    - <span class="bp">exact</span> (partial_setoid H).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : partial_setoid H), partial_setoid_morphism X Y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precategory_data_of_partial_setoids</span>
+    : precategory_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - <span class="bp">exact</span> precategory_ob_mor_of_partial_setoids.
+    - <span class="bp">exact</span> id_partial_setoid_morphism.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, partial_setoid_comp_morphism f g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">precategory_of_partial_setoids_laws</span>
+    : is_precategory precategory_data_of_partial_setoids.
+  <span class="kn">Proof</span>.
+    use make_is_precategory_one_assoc.
+    - <span class="nb">intros</span> X Y φ.
+      use eq_partial_setoid_morphism ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      + use (exists_elim (hyperdoctrine_hyp _)).
+        use weaken_right.
+        hypersimplify.
+        <span class="nb">pose</span> (x := π₁ (π₁ (tm_var ((X ×h Y) ×h X)))).
+        <span class="nb">pose</span> (x' := π₂ (tm_var ((X ×h Y) ×h X))).
+        <span class="nb">pose</span> (y := π₂ (π₁ (tm_var ((X ×h Y) ×h X)))).
+        <span class="nb">fold</span> x x' y.
+        <span class="nb">rewrite</span> (hyperdoctrine_pair_eta (π₁ (tm_var ((X ×h Y) ×h X)))).
+        <span class="nb">fold</span> x y.
+        use (partial_setoid_mor_eq_defined φ).
+        * <span class="bp">exact</span> x'.
+        * <span class="bp">exact</span> y.
+        * use weaken_left.
+          use partial_setoid_sym.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use weaken_right.
+          <span class="bp">exact</span> (partial_setoid_mor_cod_defined φ _ _ (hyperdoctrine_hyp _)).
+        * use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      + hypersimplify.
+        <span class="nb">pose</span> (x := π₁ (π₁ (tm_var ((X ×h Y) ×h X)))).
+        <span class="nb">pose</span> (x' := π₂ (tm_var ((X ×h Y) ×h X))).
+        <span class="nb">pose</span> (y := π₂ (π₁ (tm_var ((X ×h Y) ×h X)))).
+        <span class="nb">fold</span> x x' y.
+        use exists_intro.
+        * <span class="bp">exact</span> (π₁ (tm_var (X ×h Y))).
+        * hypersimplify_form.
+          <span class="nb">rewrite</span> partial_setoid_subst.
+          <span class="nb">unfold</span> x, x', y ; <span class="nb">clear</span> x x' y.
+          hypersimplify.
+          use conj_intro.
+          ** use (partial_setoid_mor_dom_defined φ _ (π₂ (tm_var _))).
+             <span class="nb">rewrite</span> &lt;- hyperdoctrine_pair_eta.
+             <span class="nb">rewrite</span> hyperdoctrine_id_subst.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+          ** <span class="nb">rewrite</span> &lt;- hyperdoctrine_pair_eta.
+             <span class="nb">rewrite</span> hyperdoctrine_id_subst.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">intros</span> X Y φ.
+      use eq_partial_setoid_morphism ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      + use (exists_elim (hyperdoctrine_hyp _)).
+        use weaken_right.
+        hypersimplify.
+        <span class="nb">pose</span> (x := π₁ (π₁ (tm_var ((X ×h Y) ×h Y)))).
+        <span class="nb">pose</span> (y := π₂ (π₁ (tm_var ((X ×h Y) ×h Y)))).
+        <span class="nb">pose</span> (y' := π₂ (tm_var ((X ×h Y) ×h Y))).
+        <span class="nb">fold</span> x y y'.
+        <span class="nb">rewrite</span> (hyperdoctrine_pair_eta (π₁ (tm_var ((X ×h Y) ×h Y)))).
+        <span class="nb">fold</span> x y.
+        use (partial_setoid_mor_eq_defined φ).
+        * <span class="bp">exact</span> x.
+        * <span class="bp">exact</span> y'.
+        * use weaken_left.
+          <span class="bp">exact</span> (partial_setoid_mor_dom_defined φ _ _ (hyperdoctrine_hyp _)).
+        * use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      + hypersimplify.
+        <span class="nb">pose</span> (x := π₁ (π₁ (tm_var ((X ×h Y) ×h Y)))).
+        <span class="nb">pose</span> (y := π₂ (π₁ (tm_var ((X ×h Y) ×h Y)))).
+        <span class="nb">pose</span> (y' := π₂ (tm_var ((X ×h Y) ×h Y))).
+        <span class="nb">fold</span> x y y'.
+        use exists_intro.
+        * <span class="bp">exact</span> (π₂ (tm_var (X ×h Y))).
+        * hypersimplify_form.
+          <span class="nb">rewrite</span> partial_setoid_subst.
+          <span class="nb">unfold</span> x, y, y' ; <span class="nb">clear</span> x y y'.
+          hypersimplify.
+          use conj_intro.
+          ** <span class="nb">rewrite</span> &lt;- hyperdoctrine_pair_eta.
+             <span class="nb">rewrite</span> hyperdoctrine_id_subst.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+          ** use (partial_setoid_mor_cod_defined φ (π₁ (tm_var _))).
+             <span class="nb">rewrite</span> &lt;- hyperdoctrine_pair_eta.
+             <span class="nb">rewrite</span> hyperdoctrine_id_subst.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">intros</span> W X Y Z φ₁ φ₂ φ₃.
+      use eq_partial_setoid_morphism ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      + use (exists_elim (hyperdoctrine_hyp _)).
+        use weaken_right.
+        hypersimplify_form.
+        use hyp_sym.
+        use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
+        hypersimplify_form.
+        use hyp_ltrans.
+        use weaken_right.
+        hypersimplify.
+        <span class="nb">pose</span> (w := π₁ (π₁ (π₁ (tm_var (((W ×h Z) ×h X) ×h Y))))).
+        <span class="nb">pose</span> (x := π₂ (π₁ (tm_var (((W ×h Z) ×h X) ×h Y)))).
+        <span class="nb">pose</span> (y := π₂ (tm_var (((W ×h Z) ×h X) ×h Y))).
+        <span class="nb">pose</span> (z := π₂ (π₁ (π₁ (tm_var (((W ×h Z) ×h X) ×h Y))))).
+        <span class="nb">fold</span> w x y z.
+        use exists_intro.
+        * <span class="bp">exact</span> y.
+        * hypersimplify.
+          <span class="nb">fold</span> z.
+          use conj_intro.
+          ** use exists_intro.
+             *** <span class="bp">exact</span> x.
+             *** hypersimplify.
+                 <span class="nb">fold</span> w.
+                 use conj_intro.
+                 **** use weaken_left.
+                      <span class="nb">apply</span> hyperdoctrine_hyp.
+                 **** use weaken_right.
+                      use weaken_left.
+                      <span class="nb">apply</span> hyperdoctrine_hyp.
+          ** <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use (exists_elim (hyperdoctrine_hyp _)).
+        use weaken_right.
+        hypersimplify_form.
+        use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
+        hypersimplify_form.
+        use hyp_ltrans.
+        use weaken_right.
+        hypersimplify.
+        <span class="nb">pose</span> (w := π₁ (π₁ (π₁ (tm_var (((W ×h Z) ×h Y) ×h X))))).
+        <span class="nb">pose</span> (x := π₂ (tm_var (((W ×h Z) ×h Y) ×h X))).
+        <span class="nb">pose</span> (y := π₂ (π₁ (tm_var (((W ×h Z) ×h Y) ×h X)))).
+        <span class="nb">pose</span> (z := π₂ (π₁ (π₁ (tm_var (((W ×h Z) ×h Y) ×h X))))).
+        <span class="nb">fold</span> w x y z.
+        use exists_intro.
+        * <span class="bp">exact</span> x.
+        * hypersimplify.
+          <span class="nb">fold</span> w.
+          use conj_intro.
+          ** use weaken_right.
+             use weaken_left.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+          ** use exists_intro.
+             *** <span class="bp">exact</span> y.
+             *** hypersimplify.
+                 <span class="nb">fold</span> z.
+                 use conj_intro.
+                 **** <span class="kp">do</span> <span class="mi">2</span>  use weaken_right.
+                      <span class="nb">apply</span> hyperdoctrine_hyp.
+                 **** use weaken_left.
+                      <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precategory_of_partial_setoids</span>
+    : precategory.
+  <span class="kn">Proof</span>.
+    use make_precategory.
+    - <span class="bp">exact</span> precategory_data_of_partial_setoids.
+    - <span class="bp">exact</span> precategory_of_partial_setoids_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">category_of_partial_setoids</span>
+    : category.
+  <span class="kn">Proof</span>.
+    use make_category.
+    - <span class="bp">exact</span> precategory_of_partial_setoids.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y ;
+         <span class="bp">exact</span> isaset_partial_setoid_morphism).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CategoryOfPartialSetoids</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/PartialEqRels/PERCategory.v</tt>, line 40)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The category of partial setoids
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

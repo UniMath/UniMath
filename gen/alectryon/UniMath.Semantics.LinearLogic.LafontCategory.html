@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LafontCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(****************************************************************************</span>
+
+<span class="sd"> Lafont Categories</span>
+
+<span class="sd"> In this file, we define Lafont categories and we show that every Lafont</span>
+<span class="sd"> category gives rise to a linear-non-linear model.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Lafont category</span>
+<span class="sd"> 2. Every Lafont category gives rise to a linear-non-linear model</span>
+<span class="sd"> 3. Builder for Lafont categories</span>
+
+<span class="sd"> ****************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Adjunctions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.FunctorCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.CommComonoidsCartesian.
+<span class="kn">Require Import</span> UniMath.Semantics.LinearLogic.LinearNonLinear.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Lafont category</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lafont_category</span>
+  : UU
+  := ∑ (V : sym_mon_closed_cat),
+     is_left_adjoint (underlying_commutative_comonoid V).
+
+<span class="kn">Coercion</span> <span class="nf">lafont_category_to_sym_mon_closed_cat</span>
+         (V : lafont_category)
+  : sym_mon_closed_cat
+  := pr1 V.
+
+<span class="kn">Definition</span> <span class="nf">is_left_adjoint_lafont_category</span>
+           (<span class="nv">V</span> : lafont_category)
+  : is_left_adjoint (underlying_commutative_comonoid V)
+  := pr2 V.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Every Lafont category gives rise to a linear-non-linear model</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">linear_non_linear_model_from_lafont_category</span>
+           (<span class="nv">V</span> : lafont_category)
+  : linear_non_linear_model.
+<span class="kn">Proof</span>.
+  use make_linear_non_linear_from_strong.
+  - <span class="bp">exact</span> V.
+  - <span class="bp">exact</span> (symmetric_cat_commutative_comonoids V).
+  - use make_adjunction.
+    + use make_adjunction_data.
+      * <span class="bp">exact</span> (underlying_commutative_comonoid V).
+      * <span class="bp">exact</span> (right_adjoint (is_left_adjoint_lafont_category V)).
+      * <span class="bp">exact</span> (adjunit (is_left_adjoint_lafont_category V)).
+      * <span class="bp">exact</span> (adjcounit (is_left_adjoint_lafont_category V)).
+    + <span class="bp">exact</span> (pr22 (is_left_adjoint_lafont_category V)).
+  - <span class="nb">apply</span> cartesian_monoidal_cat_of_comm_comonoids.
+  - <span class="nb">apply</span> projection_fmonoidal.
+  - <span class="nb">apply</span> projection_is_symmetric.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Builder for Lafont categories</span>
+
+<span class="sd"> Note: it is convenient to use `coreflections_to_is_left_adjoint` to</span>
+<span class="sd"> construct Lafont categories.</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">make_lafont_category</span>
+           (<span class="nv">V</span> : sym_mon_closed_cat)
+           (<span class="nv">HV</span> : is_left_adjoint (underlying_commutative_comonoid V))
+  : lafont_category
+  := V ,, HV.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Semantics/LinearLogic/LafontCategory.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Builder for Lafont categories
+  &gt;
+  &gt;  ****************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DoubleTerminal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*************************************************************************************</span>
+
+<span class="sd"> Terminal objects in double categories</span>
+
+<span class="sd"> In this file, we define terminal objects in double categories. A double terminal object</span>
+<span class="sd"> is given by a terminal object in the vertical object that satisfies an additional</span>
+<span class="sd"> universal property. This additional universal property says that the horizontal identity</span>
+<span class="sd"> morphism of the terminal object is terminal in the category of horizontal morphisms and</span>
+<span class="sd"> squares. Concretely, it allows one to make squares from any horizontal morphism to the</span>
+<span class="sd"> identity morphism on the terminal object. We also give builders and accessors for</span>
+<span class="sd"> terminal objects, and we give some examples of terminal objects.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - Section 5.1.5 in "Higher Dimensional Categories, From Double to Multiple Categories"</span>
+<span class="sd">   by Grandis</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Terminal objects in double categories</span>
+<span class="sd"> 2. Accessors and builders</span>
+<span class="sd"> 3. Terminal object in the double category of relations</span>
+<span class="sd"> 4. Terminal object in the double category of enriched relations</span>
+<span class="sd"> 5. Terminal object in the double category of spans</span>
+
+<span class="sd"> *************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Spans.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Examples.RelationsDoubleCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Examples.SpansDoubleCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="sd">(** * 1. Terminal objects in double categories *)</span>
+<span class="kn">Definition</span> <span class="nf">is_double_terminal</span>
+           (<span class="nv">C</span> : double_cat)
+           (<span class="nv">T</span> : Terminal C)
+  : UU
+  := ∏ (x₁ x₂ : C)
+       (h : x₁ --&gt;h x₂),
+     iscontr (square (TerminalArrow T x₁) (TerminalArrow T x₂) h (identity_h T)).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_double_terminal</span>
+            (<span class="nv">C</span> : double_cat)
+            (<span class="nv">T</span> : Terminal C)
+  : isaprop (is_double_terminal C T).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_terminal</span>
+           (<span class="nv">C</span> : double_cat)
+  : UU
+  := ∑ (T : Terminal C), is_double_terminal C T.
+
+<span class="sd">(** * 2. Accessors and builders *)</span>
+<span class="kn">Proposition</span> <span class="nf">make_is_double_terminal_flat_double_cat</span>
+            {<span class="nv">C</span> : double_cat}
+            (<span class="nv">H</span> : is_flat_double_cat C)
+            (<span class="nv">T</span> : Terminal C)
+            (<span class="nv">HT</span> : ∏ (x₁ x₂ : C)
+                    (h : x₁ --&gt;h x₂),
+                  square (TerminalArrow T x₁) (TerminalArrow T x₂) h (identity_h T))
+  : is_double_terminal C T.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x₁ x₂ h.
+  <span class="nb">refine</span> (HT x₁ x₂ h ,, _).
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_double_terminal</span>
+           {<span class="nv">C</span> : double_cat}
+           (<span class="nv">T</span> : Terminal C)
+           (<span class="nv">HT</span> : is_double_terminal C T)
+  : double_terminal C
+  := T ,, HT.
+
+<span class="kn">Coercion</span> <span class="nf">double_terminal_to_ob</span>
+         {C : double_cat}
+         (T : double_terminal C)
+  : C.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr11 T).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_terminal_ver</span>
+           {<span class="nv">C</span> : double_cat}
+           (<span class="nv">T</span> : double_terminal C)
+           (<span class="nv">x</span> : C)
+  : x --&gt;v T
+  := TerminalArrow (pr1 T) x.
+
+<span class="kn">Proposition</span> <span class="nf">double_terminal_ver_eq</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">T</span> : double_terminal C}
+            {<span class="nv">x</span> : C}
+            (<span class="nv">f</span> <span class="nv">g</span> : x --&gt;v T)
+  : f = g.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (TerminalArrowEq (T := pr1 T) f g).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_terminal_sqr</span>
+           {<span class="nv">C</span> : double_cat}
+           (<span class="nv">T</span> : double_terminal C)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C}
+           (<span class="nv">h</span> : x₁ --&gt;h x₂)
+  : square
+      (double_terminal_ver T x₁)
+      (double_terminal_ver T x₂)
+      h
+      (identity_h T).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr2 T x₁ x₂ h)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_terminal_sqr'</span>
+           {<span class="nv">C</span> : double_cat}
+           (<span class="nv">T</span> : double_terminal C)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C}
+           (<span class="nv">f</span> : x₁ --&gt;v T)
+           (<span class="nv">g</span> : x₂ --&gt;v T)
+           (<span class="nv">h</span> : x₁ --&gt;h x₂)
+  : square f g h (identity_h T)
+  := transportf_square
+       (double_terminal_ver_eq _ _)
+       (double_terminal_ver_eq _ _)
+       (double_terminal_sqr T h).
+
+<span class="kn">Proposition</span> <span class="nf">double_terminal_sqr_eq</span>
+            {<span class="nv">C</span> : double_cat}
+            (<span class="nv">T</span> : double_terminal C)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> : C}
+            {<span class="nv">h</span> : x₁ --&gt;h x₂}
+            (<span class="nv">s₁</span> <span class="nv">s₂</span> : square
+                       (double_terminal_ver T x₁)
+                       (double_terminal_ver T x₂)
+                       h
+                       (identity_h T))
+  : s₁ = s₂.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (proofirrelevance _ (isapropifcontr (pr2 T x₁ x₂ h)) s₁ s₂).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Terminal object in the double category of relations *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_double_terminal_rel_double_cat</span>
+  : is_double_terminal rel_double_cat TerminalHSET.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X₁ X₂ R.
+  use make_is_double_terminal_flat_double_cat.
+  {
+    <span class="nb">apply</span> is_flat_rel_double_cat.
+  }
+  <span class="nb">intros</span> ? ? ? ? ? ? ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> isapropunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_terminal_relations</span>
+  : double_terminal rel_double_cat.
+<span class="kn">Proof</span>.
+  use make_double_terminal.
+  - <span class="bp">exact</span> TerminalHSET.
+  - <span class="bp">exact</span> is_double_terminal_rel_double_cat.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Terminal object in the double category of enriched relations *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_double_terminal_enriched_rel_double_cat</span>
+            (<span class="nv">V</span> : quantale_cosmos)
+            (<span class="nv">HV</span> : is_semicartesian V)
+  : is_double_terminal (enriched_rel_double_cat V) TerminalHSET.
+<span class="kn">Proof</span>.
+  use make_is_double_terminal_flat_double_cat.
+  {
+    <span class="nb">apply</span> is_flat_enriched_rel_double_cat.
+  }
+  <span class="nb">intros</span> ? ? ? ? ? ; <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (_ · CoproductIn _ _ _ (idpath _)).
+  <span class="nb">apply</span> (semi_cart_to_unit HV).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_terminal_enriched_rel</span>
+           (<span class="nv">V</span> : quantale_cosmos)
+           (<span class="nv">HV</span> : is_semicartesian V)
+  : double_terminal (enriched_rel_double_cat V).
+<span class="kn">Proof</span>.
+  use make_double_terminal.
+  - <span class="bp">exact</span> TerminalHSET.
+  - <span class="bp">exact</span> (is_double_terminal_enriched_rel_double_cat V HV).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Terminal object in the double category of spans *)</span>
+<span class="kn">Definition</span> <span class="nf">is_double_terminal_spans_double_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">T</span> : Terminal C)
+           (<span class="nv">PC</span> : Pullbacks C)
+  : is_double_terminal (spans_double_cat PC) T.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x₁ x₂ s.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> φ₁ φ₂ ;
+       use span_sqr_eq ;
+       <span class="nb">apply</span> TerminalArrowEq).
+  - use make_span_sqr.
+    + <span class="nb">apply</span> TerminalArrow.
+    + <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; <span class="nb">apply</span> TerminalArrowEq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_terminal_spans</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">T</span> : Terminal C)
+           (<span class="nv">PC</span> : Pullbacks C)
+  : double_terminal (spans_double_cat PC).
+<span class="kn">Proof</span>.
+  use make_double_terminal.
+  - <span class="bp">exact</span> T.
+  - <span class="bp">exact</span> (is_double_terminal_spans_double_cat T PC).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Limits/DoubleTerminal.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Terminal object in the double category of spans
+  &gt;
+  &gt;  *************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

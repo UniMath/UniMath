@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ActionOfEndomorphismsInBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Constructs the action of the endomorphisms by precomposition on a fixed hom-category of a bicategory</span>
+
+<span class="sd">Author: Ralph Matthes 2021</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.Actions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+
+<span class="kn">Import</span> Bicat.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Action_From_Precomposition</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+<span class="kn">Context</span> (<span class="nv">c0</span> <span class="nv">d0</span>: ob C).
+
+<span class="c">(* swapping is needed in the following due to the unconventional argument order of the action functor in the def. of actions *)</span>
+<span class="kn">Local Definition</span> <span class="nf">Mon_endo</span>: monoidal_cat := swapping_of_monoidal_cat (monoidal_cat_from_bicat_and_ob c0).
+
+<span class="kn">Local Definition</span> <span class="nf">homcat</span> : category := hom c0 d0.
+
+<span class="kn">Definition</span> <span class="nf">precomp_odot</span> : homcat ⊠ Mon_endo ⟶ homcat
+  := functor_composite binswap_pair_functor hcomp_functor.
+
+<span class="kn">Definition</span> <span class="nf">precomp_right_unitor_nat_trans</span> : odot_I_functor Mon_endo homcat precomp_odot ⟹ functor_identity homcat
+  := lunitor_transf c0 d0.
+
+<span class="kn">Definition</span> <span class="nf">precomp_right_unitor</span> : action_right_unitor Mon_endo homcat precomp_odot.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">precomp_right_unitor_nat_trans</span>.
+  <span class="nb">intro</span> f. <span class="nb">apply</span> is_z_iso_lunitor.
+<span class="kn">Defined</span>.
+
+<span class="c">(* I would like to know how to use the library results better, but there are problems with the order of arguments *)</span>
+<span class="kn">Definition</span> <span class="nf">precomp_convertor_nat_trans_data</span> : nat_trans_data (odot_x_odot_y_functor Mon_endo homcat precomp_odot) (odot_x_otimes_y_functor Mon_endo homcat precomp_odot).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">induction</span> x <span class="k">as</span> [x12 x3]. <span class="nb">induction</span> x12 <span class="k">as</span> [x1 x2].
+  <span class="nb">apply</span> lassociator.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">precomp_convertor_data_is_nat_trans</span> : is_nat_trans _ _ precomp_convertor_nat_trans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>. <span class="nb">intros</span> x x' f.
+  <span class="nb">unfold</span> odot_x_odot_y_functor, odot_x_otimes_y_functor, precomp_odot.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> hcomp_lassoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">precomp_convertor_nat_trans</span> :
+  odot_x_odot_y_functor Mon_endo homcat precomp_odot ⟹ odot_x_otimes_y_functor Mon_endo homcat precomp_odot
+  := (precomp_convertor_nat_trans_data,,precomp_convertor_data_is_nat_trans).
+
+<span class="kn">Definition</span> <span class="nf">precomp_convertor</span> : action_convertor Mon_endo homcat precomp_odot.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">precomp_convertor_nat_trans</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> is_z_iso_lassociator.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">action_from_precomp_laws</span> :
+  action_triangle_eq Mon_endo homcat precomp_odot precomp_right_unitor precomp_convertor
+                     × action_pentagon_eq Mon_endo homcat precomp_odot precomp_convertor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">intros</span> a x.
+    <span class="nb">rewrite</span> hcomp_identity_right.
+    <span class="nb">rewrite</span> hcomp_identity_left.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> runitor_rwhisker.
+  - <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">intros</span> a x y z.
+    <span class="nb">rewrite</span> hcomp_identity_left.
+    <span class="nb">rewrite</span> hcomp_identity_right.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> lassociator_lassociator.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">action_from_precomp</span> : action Mon_endo homcat.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">precomp_odot</span>.
+  <span class="k">exists</span> <span class="nv">precomp_right_unitor</span>.
+  <span class="k">exists</span> <span class="nv">precomp_convertor</span>.
+  <span class="bp">exact</span> action_from_precomp_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Action_From_Precomposition</span>.
+
+<span class="kn">Section</span> <span class="nf">Instantiation_To_Bicategory_Of_Categories</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category).
+
+  <span class="kn">Local Definition</span> <span class="nf">actfromprecomp</span> : action (Mon_endo(C:=bicat_of_cats) C)
+                                           (homcat(C:=bicat_of_cats) C D)
+    := action_from_precomp(C:=bicat_of_cats) C D.
+
+
+  <span class="c">(* the following is not possible since the notions for functor the functor are not precise instances of the bicategorical ones:</span>
+<span class="c">  Lemma actfromprecomp_odot_ok : pr1 actfromprecomp = binswap_pair_functor ∙ (functorial_composition C C D hs hsD).</span>
+<span class="c">  Proof.</span>
+<span class="c">    UniMath.MoreFoundations.Tactics.show_id_type.</span>
+<span class="c">    cbn.</span>
+<span class="c">    unfold precomp_odot.</span>
+<span class="c">    apply idpath.</span>
+<span class="c">   *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">actfromprecomp_odot_pointwise_ok</span> (<span class="nv">g</span> : functor C D) (<span class="nv">f</span>: functor C C) : pr1 actfromprecomp (g,,f) = (binswap_pair_functor ∙ (functorial_composition _ _ _)) (g,,f).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Instantiation_To_Bicategory_Of_Categories</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/ActionOfEndomorphismsInBicat.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

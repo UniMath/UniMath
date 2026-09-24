@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Core.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">   The basics of weak equivalences</span>
+
+<span class="sd">   Contents.</span>
+<span class="sd">   1. Section ``WeakEquivalences'' contains:</span>
+<span class="sd">      - the definition of a weak equivalence (i.e., essentially surjective and fully faithful);</span>
+<span class="sd">      - together with accessors;</span>
+<span class="sd">      - a proof that ``is a weak equivalence'' is a proposition;</span>
+<span class="sd">      - a proof that every identity functor (resp. the composite of weak equivalences) is a weak equivalence</span>
+
+<span class="sd">   2. Section ``WeakEquivalenceInducesIsoOnUnivalentFunctorCategories'' contains a proof for the statement:</span>
+<span class="sd">   Let H : C → D be a weak equivalence (between not-necesssarily univalent categories) and E a univalent category.</span>
+<span class="sd">   Then, the functor (H · -) : [D, E] → [C, E] is an isomorphism of (univalent) categories; and hence an isomorphism.</span>
+
+<span class="sd">   3. Section ``WeakAndAdjointEquivalences'' contains relations between weak and adjoint equivalences</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecompEquivalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">WeakEquivalences</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_weak_equiv</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">H</span> : functor C D) : UU
+    := essentially_surjective H × fully_faithful H.
+
+  <span class="kn">Definition</span> <span class="nf">eso_from_weak_equiv</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : C ⟶ D)
+    : is_weak_equiv F → essentially_surjective F
+    := pr1.
+
+  <span class="kn">Definition</span> <span class="nf">ff_from_weak_equiv</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : C ⟶ D)
+    : is_weak_equiv F → fully_faithful F
+    := pr2.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_weak_equiv</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">H</span> : functor C D)
+    : isaprop (is_weak_equiv H).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> isaprop_essentially_surjective.
+    - <span class="nb">apply</span> isaprop_fully_faithful.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">id_is_weak_equiv</span>
+    (<span class="nv">C</span> : category)
+    : is_weak_equiv (functor_identity C).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> identity_functor_is_essentially_surjective.
+    - <span class="nb">apply</span> identity_functor_is_fully_faithful.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_is_weak_equiv</span>
+    {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+    (<span class="nv">H</span> : C ⟶ D) (<span class="nv">I</span> : D ⟶ E)
+    : is_weak_equiv H → is_weak_equiv I
+      → is_weak_equiv (H ∙ I).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hw Iw.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (comp_essentially_surjective
+        _ (eso_from_weak_equiv _ Hw)
+        _ (eso_from_weak_equiv _ Iw)).
+    - <span class="bp">exact</span> (comp_ff_is_ff _ _ _
+               _ (ff_from_weak_equiv _ Hw)
+               _ (ff_from_weak_equiv _ Iw)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weak_equiv</span>
+    (<span class="nv">C</span> <span class="nv">D</span> : category) : UU
+    := ∑ H : C ⟶ D, is_weak_equiv H.
+
+<span class="kn">End</span> <span class="nf">WeakEquivalences</span>.
+
+<span class="kn">Section</span> <span class="nf">WeakEquivalenceInducesIsoOnUnivalentFunctorCategories</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+    (<span class="nv">H</span> : C ⟶ D)
+    (<span class="nv">Hw</span> : is_weak_equiv H).
+
+  <span class="kn">Definition</span> <span class="nf">precomp_is_iso</span>
+    : ∏ E : univalent_category, is_catiso (pre_composition_functor _ _ E H).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> E.
+    transparent <span class="nb">assert</span> (a : (Core.adj_equivalence_of_cats (pre_composition_functor _ _ (pr1 E) H))). {
+      <span class="nb">apply</span> precomp_adjoint_equivalence ; <span class="nb">apply</span> Hw.
+    }
+
+    use (pr2 (adj_equivalence_of_cats_to_cat_iso a _ _))
+    ; <span class="nb">apply</span> is_univalent_functor_category ; <span class="nb">apply</span> E.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_is_equality</span>
+    : ∏ E : univalent_category,  [D, E] = [C, E].
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> E.
+    <span class="nb">apply</span> catiso_to_category_path.
+    <span class="bp">exact</span> (_ ,, precomp_is_iso E).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">WeakEquivalenceInducesIsoOnUnivalentFunctorCategories</span>.
+
+<span class="kn">Section</span> <span class="nf">WeakAndAdjointEquivalences</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : category} {<span class="nv">F</span> : A ⟶ B}.
+
+  <span class="kn">Lemma</span> <span class="nf">rad_equivalence_of_cats''</span>
+    (<span class="nv">A_univ</span> : is_univalent A)
+    (<span class="nv">F_weq</span> : is_weak_equiv F)
+    : adj_equivalence_of_cats F.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> rad_equivalence_of_cats.
+    - <span class="bp">exact</span> A_univ.
+    - <span class="nb">apply</span> F_weq.
+    - <span class="nb">apply</span> F_weq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_from_equiv</span>
+    (<span class="nv">Fe</span> : adj_equivalence_of_cats F)
+    : is_weak_equiv F.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> functor_from_equivalence_is_essentially_surjective, Fe.
+    - <span class="nb">apply</span> fully_faithful_from_equivalence, Fe.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">WeakAndAdjointEquivalences</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/WeakEquivalences/Core.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

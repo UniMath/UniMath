@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LiftingModel.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(****************************************************************************</span>
+
+<span class="sd"> Linear category from the lifting operation on posets</span>
+
+<span class="sd"> We construct an example of a linear category coming from lifting posets.</span>
+
+<span class="sd"> ****************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.PointedPosetStrict.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.FunctorCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.SmashProductMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.PosetsMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.LiftPoset.
+<span class="kn">Require Import</span> UniMath.Semantics.LinearLogic.LinearCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Definition</span> <span class="nf">lifting_linear_category_data</span>
+  : linear_category_data.
+<span class="kn">Proof</span>.
+  use make_linear_category_data.
+  - <span class="bp">exact</span> pointed_poset_sym_mon_closed_cat.
+  - <span class="bp">exact</span> lift_poset_symmetric_monoidal_comonad.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, lift_poset_comult X).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, lift_poset_counit X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lifting_linear_category_laws</span>
+  : linear_category_laws lifting_linear_category_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y f.
+    <span class="bp">exact</span> (nat_trans_ax lift_poset_comult X Y f).
+  - <span class="nb">intros</span> X Y f.
+    <span class="nb">refine</span> (nat_trans_ax lift_poset_counit X Y f @ _).
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">intros</span> X.
+    use eq_mor_hset_struct.
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="k">in</span> x.
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ].
+    + <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.
+    + <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X.
+    use eq_mor_hset_struct.
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="k">in</span> x.
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ].
+    + <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.
+    + <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X.
+    use eq_mor_hset_struct.
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="k">in</span> x.
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ].
+    + <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.
+    + <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X.
+    use eq_mor_hset_struct.
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="k">in</span> x.
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ].
+    + <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.
+    + <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X.
+    <span class="nb">rewrite</span> &lt;-tensor_mor_left. <span class="nb">rewrite</span> &lt;-tensor_mor_right.
+    <span class="nb">apply</span> pathsinv0, (comonoid_to_law_assoc _ (lift_commutative_comonoid X)).
+  - <span class="nb">intros</span> X.
+    <span class="nb">rewrite</span> &lt;-tensor_mor_right.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> (comonoid_to_law_unit_left _ (lift_commutative_comonoid X)). }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X.
+    <span class="nb">apply</span> (commutative_comonoid_is_commutative _ (lift_commutative_comonoid X)).
+  - <span class="nb">intros</span> X Y.
+    use eq_mor_hset_struct.
+    use setquotunivprop' ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].
+    <span class="nb">intros</span> xy.
+    <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ], y <span class="k">as</span> [ y | ] ; <span class="nb">simpl</span> ; <span class="nb">apply</span> idpath.
+  - use eq_mor_hset_struct.
+    <span class="nb">intro</span> x.
+    <span class="nb">induction</span> x <span class="k">as</span> [ | ].
+    + <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    + use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (hinhpr (inr _)).
+      <span class="nb">split</span>.
+      * <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (inl (idpath _)).
+      * <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (inr (idpath _)).
+  - <span class="nb">intros</span> X Y.
+    use eq_mor_hset_struct.
+    use setquotunivprop' ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].
+    <span class="nb">intros</span> xy.
+    <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ], y <span class="k">as</span> [ y | ] ; <span class="nb">cbn</span>.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+  - use eq_mor_hset_struct.
+    <span class="nb">intro</span> x.
+    <span class="nb">induction</span> x <span class="k">as</span> [ | ] ; <span class="nb">cbn</span>.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lifting_linear_category</span>
+  : linear_category.
+<span class="kn">Proof</span>.
+  use make_linear_category.
+  - <span class="bp">exact</span> lifting_linear_category_data.
+  - <span class="bp">exact</span> lifting_linear_category_laws.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Semantics/LinearLogic/LiftingModel.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  We construct an example of a linear category coming from lifting posets.
+  &gt;
+  &gt;  ****************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

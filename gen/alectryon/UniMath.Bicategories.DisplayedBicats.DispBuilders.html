@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DispBuilders.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispModification.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+
+<span class="kn">Section</span> <span class="nf">NiceBuilders</span>.
+
+  <span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          {<span class="nv">D₁</span> : disp_bicat B₁}
+          {<span class="nv">D₂</span> : disp_bicat B₂}
+          (<span class="nv">HD₁</span> : disp_2cells_isaprop D₂)
+          (<span class="nv">HD₂</span> : disp_locally_groupoid D₂).
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_psfunctor</span>
+             {<span class="nv">F</span> : psfunctor B₁ B₂}
+             (<span class="nv">obFF</span> : ∏ x:B₁, D₁ x → D₂ (F x))
+             (<span class="nv">morFF</span> : ∏ (x y : B₁) (f : B₁⟦x,y⟧) (xx : D₁ x) (yy : D₁ y),
+                      (xx --&gt;[f] yy) →
+                      (obFF x xx --&gt;[#F f] obFF y yy))
+             (<span class="nv">cellFF</span> : ∏ (x y : B₁) (f g : B₁⟦x,y⟧) (α : f ==&gt; g) (xx : D₁ x) (yy : D₁ y)
+                         (ff : xx --&gt;[f] yy) (gg : xx --&gt;[g] yy),
+                       (ff ==&gt;[α] gg) → (morFF x y f xx yy ff ==&gt;[##F α] morFF x y g xx yy gg))
+             (<span class="nv">disp_psfunctor_id</span> : ∏ (x : B₁) (xx : D₁ x),
+                                  id_disp (obFF x xx) ==&gt;[ psfunctor_id F x ] morFF x x (id₁ x) xx xx (id_disp xx))
+             (<span class="nv">disp_psfunctor_comp</span> : ∏ (x y z : B₁) (f : x --&gt; y) (g : y --&gt; z)
+                                      (xx : D₁ x) (yy : D₁ y) (zz : D₁ z)
+                                      (ff : xx --&gt;[f] yy) (gg : yy --&gt;[g] zz),
+                                    (comp_disp (morFF x y f xx yy ff) (morFF y z g yy zz gg))
+                                      ==&gt;[ psfunctor_comp F f g ]
+                                      morFF x z (f · g) xx zz (comp_disp ff gg))
+    : disp_psfunctor D₁ D₂ F.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use make_disp_psfunctor_data.
+      + <span class="bp">exact</span> obFF.
+      + <span class="bp">exact</span> morFF.
+      + <span class="bp">exact</span> cellFF.
+      + <span class="nb">intros</span>.
+        use tpair.
+        * <span class="nb">apply</span> disp_psfunctor_id.
+        * <span class="nb">apply</span> HD₂.
+      + <span class="nb">intros</span>.
+        use tpair.
+        * <span class="nb">apply</span> disp_psfunctor_comp.
+        * <span class="nb">apply</span> HD₂.
+    - <span class="kp">abstract</span> (<span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> HD₁).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_pstrans</span>
+             {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+             {<span class="nv">FF₁</span> : disp_psfunctor D₁ D₂ F₁}
+             {<span class="nv">FF₂</span> : disp_psfunctor D₁ D₂ F₂}
+             {<span class="nv">α</span> : pstrans F₁ F₂}
+             (<span class="nv">αα₁</span> : ∏ (x : B₁) (xx : D₁ x), FF₁ x xx --&gt;[ α x] FF₂ x xx)
+             (<span class="nv">αα₂</span> : ∏ (x y : B₁) (f : B₁ ⟦ x, y ⟧) (xx : D₁ x) (yy : D₁ y) (ff : xx --&gt;[ f] yy),
+                    (αα₁ x xx;; disp_psfunctor_mor D₁ D₂ F₂ FF₂ ff)
+                      ==&gt;[ psnaturality_of α f ]
+                      disp_psfunctor_mor D₁ D₂ F₁ FF₁ ff;; αα₁ y yy)
+    : disp_pstrans FF₁ FF₂ α.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use make_disp_pstrans_data.
+      + <span class="bp">exact</span> αα₁.
+      + <span class="nb">intros</span>.
+        use tpair.
+        * <span class="nb">apply</span> αα₂.
+        * <span class="nb">apply</span> HD₂.
+    - <span class="kp">abstract</span> (<span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> HD₁).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_invmodification</span>
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+            {<span class="nv">α</span> <span class="nv">β</span> : pstrans F₁ F₂}
+            {<span class="nv">FF₁</span> : disp_psfunctor D₁ D₂ F₁}
+            {<span class="nv">FF₂</span> : disp_psfunctor D₁ D₂ F₂}
+            {<span class="nv">αα</span> : disp_pstrans FF₁ FF₂ α}
+            {<span class="nv">ββ</span> : disp_pstrans FF₁ FF₂ β}
+            {<span class="nv">m</span> : invertible_modification α β}
+            (<span class="nv">mm</span> : ∏ (x : B₁) (xx : D₁ x),
+                  αα x xx ==&gt;[ invertible_modcomponent_of m x ] ββ x xx)
+    : disp_invmodification _ _ _ _ αα ββ m.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      use tpair.
+      + <span class="nb">apply</span> mm.
+      + <span class="nb">apply</span> HD₂.
+    - <span class="kp">abstract</span> (<span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> HD₁).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_invmodification'</span>
+      {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+      {<span class="nv">α</span> <span class="nv">β</span> : pstrans F₁ F₂}
+      {<span class="nv">FF₁</span> : disp_psfunctor D₁ D₂ F₁}
+      {<span class="nv">FF₂</span> : disp_psfunctor D₁ D₂ F₂}
+      (<span class="nv">αα</span> : disp_pstrans FF₁ FF₂ α)
+      (<span class="nv">ββ</span> : disp_pstrans FF₁ FF₂ β)
+      (<span class="nv">m</span> : modification α β)
+      (<span class="nv">Hm</span> : is_invertible_modification m)
+      (<span class="nv">mm</span> : disp_modification _ _ _ _ αα ββ m)
+      (<span class="nv">Hmm</span> : ∏ (x : B₁) (xx : D₁ x),
+             is_disp_invertible_2cell (is_invertible_modcomponent_of m Hm x) (pr1 mm x xx))
+    : disp_invmodification _ _ _ _ αα ββ (m,,Hm).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> x xx. use tpair.
+      + <span class="bp">exact</span> (pr1 mm x xx).
+      + <span class="nb">simpl</span>. <span class="bp">exact</span> (Hmm x xx).
+    - <span class="nb">simpl</span>. <span class="bp">exact</span> (pr2 mm).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">NiceBuilders</span>.
+
+<span class="kn">Section</span> <span class="nf">NiceBuildersContr</span>.
+
+  <span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          {<span class="nv">D₁</span> : disp_bicat B₁}
+          {<span class="nv">D₂</span> : disp_bicat B₂}
+          (<span class="nv">HD₁</span> : disp_2cells_iscontr D₂).
+
+  <span class="kn">Let</span> <span class="nf">HD₂</span> : disp_locally_groupoid D₂
+    := disp_2cells_isgroupoid_from_disp_2cells_iscontr _ HD₁.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_psfunctor_contr</span>
+             {<span class="nv">F</span> : psfunctor B₁ B₂}
+             (<span class="nv">obFF</span> : ∏ x:B₁, D₁ x → D₂ (F x))
+             (<span class="nv">morFF</span> : ∏ (x y : B₁) (f : B₁⟦x,y⟧) (xx : D₁ x) (yy : D₁ y),
+                      (xx --&gt;[f] yy) →
+                      (obFF x xx --&gt;[#F f] obFF y yy))
+    : disp_psfunctor D₁ D₂ F.
+  <span class="kn">Proof</span>.
+    use make_disp_psfunctor.
+    - <span class="nb">intros</span> x y f g τ xx yy ff gg.
+      <span class="nb">apply</span> isapropifcontr.
+      <span class="nb">apply</span> HD₁.
+    - <span class="bp">exact</span> HD₂.
+    - <span class="bp">exact</span> obFF.
+    - <span class="bp">exact</span> morFF.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> HD₁.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> HD₁.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> HD₁.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_pstrans_contr</span>
+             {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+             {<span class="nv">FF₁</span> : disp_psfunctor D₁ D₂ F₁}
+             {<span class="nv">FF₂</span> : disp_psfunctor D₁ D₂ F₂}
+             {<span class="nv">α</span> : pstrans F₁ F₂}
+             (<span class="nv">αα₁</span> : ∏ (x : B₁) (xx : D₁ x), FF₁ x xx --&gt;[ α x ] FF₂ x xx)
+    : disp_pstrans FF₁ FF₂ α.
+  <span class="kn">Proof</span>.
+    use make_disp_pstrans.
+    - <span class="nb">intros</span> x y f g τ xx yy ff gg.
+      <span class="nb">apply</span> isapropifcontr.
+      <span class="nb">apply</span> HD₁.
+    - <span class="bp">exact</span> HD₂.
+    - <span class="bp">exact</span> αα₁.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> HD₁.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_pstrans_inv_contr</span>
+             (<span class="nv">HB₂</span> : is_univalent_2 B₂)
+             {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+             {<span class="nv">FF₁</span> : disp_psfunctor D₁ D₂ F₁}
+             {<span class="nv">FF₂</span> : disp_psfunctor D₁ D₂ F₂}
+             {<span class="nv">α</span> : pstrans F₁ F₂}
+             (<span class="nv">Hα</span> : ∏ (x : B₁), left_adjoint_equivalence (α x))
+             (<span class="nv">αα₁</span> : ∏ (x : B₁) (xx : D₁ x), FF₁ x xx --&gt;[ α x ] FF₂ x xx)
+             (<span class="nv">Hαα₁</span> : ∏ (x : B₁) (xx : D₁ x),
+                     disp_left_adjoint_equivalence (Hα x) (αα₁ x xx))
+    : disp_pstrans
+        FF₂
+        FF₁
+        (left_adjoint_right_adjoint (pointwise_adjequiv_to_adjequiv HB₂ α Hα)).
+  <span class="kn">Proof</span>.
+    use make_disp_pstrans_contr.
+    <span class="nb">intros</span> x xx.
+    <span class="nb">refine</span> (transportf
+              (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+              (!(right_adjoint_pointwise_adjequiv _ _ _ _))
+              _).
+    <span class="bp">exact</span> (pr11 (Hαα₁ x xx)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_invmodification_contr</span>
+             {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+             {<span class="nv">α</span> <span class="nv">β</span> : pstrans F₁ F₂}
+             {<span class="nv">FF₁</span> : disp_psfunctor D₁ D₂ F₁}
+             {<span class="nv">FF₂</span> : disp_psfunctor D₁ D₂ F₂}
+             {<span class="nv">αα</span> : disp_pstrans FF₁ FF₂ α}
+             {<span class="nv">ββ</span> : disp_pstrans FF₁ FF₂ β}
+             (<span class="nv">m</span> : invertible_modification α β)
+    : disp_invmodification _ _ _ _ αα ββ m.
+  <span class="kn">Proof</span>.
+    use make_disp_invmodification.
+    - <span class="nb">intros</span> x y f g τ xx yy ff gg.
+      <span class="nb">apply</span> isapropifcontr.
+      <span class="nb">apply</span> HD₁.
+    - <span class="bp">exact</span> HD₂.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> HD₁.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">NiceBuildersContr</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/DispBuilders.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

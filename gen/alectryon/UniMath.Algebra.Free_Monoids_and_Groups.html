@@ -1,0 +1,809 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Free_Monoids_and_Groups.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Authors Floris van Doorn, December 2017 *)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Subtypes.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Sets.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Import</span> UniMath.Algebra.IteratedBinaryOperations.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Free monoid on a set</span>
+<span class="sd">- Monoid presented by a set of generators and relations</span>
+<span class="sd">- Free abelian monoid on a set</span>
+<span class="sd">- Abelian monoid presented by a set of generators and relations</span>
+<span class="sd">- Free group on a set</span>
+<span class="sd">- Group presented by a set of generators and relations</span>
+<span class="sd">- Free abelian group on set</span>
+<span class="sd">- Abelian group presented by a set of generators and relations</span>
+<span class="sd">*)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> multmonoid.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[]"</span> := nil (<span class="kn">at level</span> <span class="mi">0</span>, <span class="kn">format</span> <span class="s2">"[]"</span>).
+<span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"::"</span> := cons.
+
+<span class="c">(* Free monoid on a set *)</span>
+<span class="kn">Lemma</span> <span class="nf">ismonoidop_concatenate</span> (<span class="nv">X</span> : UU) : ismonoidop (@concatenate X).
+<span class="kn">Proof</span>.
+  use make_ismonoidop.
+  - use assoc_concatenate.
+  - use make_isunital.
+    + <span class="bp">exact</span> [].
+    + use make_isunit.
+      * use nil_concatenate.
+      * use concatenate_nil.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid</span> (<span class="nv">X</span> : hSet) : monoid :=
+  make_monoid (make_setwithbinop (make_hSet (list X) (isofhlevellist <span class="mi">0</span> (pr2 X))) _)
+             (ismonoidop_concatenate X).
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_unit</span> {<span class="nv">X</span> : hSet} (<span class="nv">x</span> : X) : free_monoid X :=
+  x::[].
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_extend</span> {<span class="nv">X</span> : hSet} {<span class="nv">Y</span> : monoid} (<span class="nv">f</span> : X → Y) : monoidfun (free_monoid X) Y.
+<span class="kn">Proof</span>.
+  use make_monoidfun.
+  - <span class="nb">intro</span> l. <span class="bp">exact</span> (iterop_list_mon (map f l)).
+  - use make_ismonoidfun.
+    + <span class="nb">intros</span> l1 l2. <span class="nb">refine</span> (maponpaths _ (map_concatenate _ _ _) @ _).
+      <span class="nb">apply</span> iterop_list_mon_concatenate.
+    + <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_monoid_extend_homot</span> {<span class="nv">X</span> : hSet} {<span class="nv">Y</span> : monoid} {<span class="nv">f</span> <span class="nv">f'</span> : X → Y} (<span class="nv">h</span> : f ~ f') :
+  free_monoid_extend f ~ free_monoid_extend f'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x. <span class="nb">refine</span> (maponpaths iterop_list_mon _). <span class="bp">exact</span> (map_homot h x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_monoid_extend_comp</span> {<span class="nv">X</span> : hSet} {<span class="nv">Y</span> : monoid} (<span class="nv">g</span> : monoidfun (free_monoid X) Y):
+  free_monoid_extend (g ∘ free_monoid_unit) ~ g.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot. <span class="nb">simpl</span>. <span class="nb">apply</span> list_ind.
+    + <span class="bp">exact</span> (! monoidfununel g).
+    + <span class="nb">intros</span> x xs IH. <span class="nb">rewrite</span> map_cons, iterop_list_mon_step, IH.
+      <span class="bp">exact</span> (!monoidfunmul g _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_universal_property</span> (<span class="nv">X</span> : hSet) (<span class="nv">Y</span> : monoid) : (X → Y) ≃ monoidfun (free_monoid X) Y.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">apply</span> free_monoid_extend.
+  - <span class="nb">intro</span> g. <span class="bp">exact</span> (g ∘ free_monoid_unit).
+  - <span class="nb">intro</span> f. <span class="nb">apply</span> funextfun. <span class="nb">intro</span> x. <span class="bp">reflexivity</span>.
+  - <span class="nb">intro</span> g. <span class="nb">apply</span> monoidfun_paths. <span class="nb">apply</span> funextfun. <span class="bp">exact</span> (free_monoid_extend_comp g).
+<span class="kn">Defined</span>.
+
+<span class="c">(* We don't use free_monoid_extend, so that the underlying function is map *)</span>
+<span class="kn">Definition</span> <span class="nf">free_monoidfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">f</span> : X → Y) : monoidfun (free_monoid X) (free_monoid Y).
+<span class="kn">Proof</span>.
+  use make_monoidfun.
+  - <span class="nb">intro</span> l. <span class="bp">exact</span> (map f l).
+  - use make_ismonoidfun.
+    + <span class="nb">intros</span> l1 l2. <span class="nb">apply</span> map_concatenate.
+    + <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_monoidfun_homot_extend</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">f</span> : X → Y) :
+  free_monoidfun f ~ free_monoid_extend (free_monoid_unit ∘ f).
+<span class="kn">Proof</span>. <span class="bp">exact</span> (foldr1_concatenate f). <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_monoid_extend_funcomp</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} {<span class="nv">Z</span> : monoid} (<span class="nv">f</span> : X → Y) (<span class="nv">g</span> : Y → Z) :
+  free_monoid_extend (g ∘ f) ~ free_monoid_extend g ∘ free_monoidfun f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot. <span class="nb">simpl</span>. <span class="nb">apply</span> list_ind.
+    + <span class="bp">reflexivity</span>.
+    + <span class="nb">intros</span> x xs IH. <span class="bp">now</span> <span class="nb">rewrite</span> !map_cons, !iterop_list_mon_step, IH.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_monoid_extend_funcomp2</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+  {<span class="nv">Z</span> : monoid}
+  (<span class="nv">f</span>: (X → free_monoid Y))
+  (<span class="nv">g</span>: (Y → Z))
+  : monoidfuncomp (free_monoid_extend f) (free_monoid_extend g) = free_monoid_extend (<span class="k">λ</span> <span class="nv">x</span>, free_monoid_extend g (f x)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (invmaponpathsweq (invweq (free_monoid_universal_property _ _)) _ _).
+  <span class="bp">now</span> <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Functoriality of the [free_monoidfun] *)</span>
+<span class="kn">Lemma</span> <span class="nf">free_monoidfun_comp_homot</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet} (<span class="nv">f</span> : X → Y) (<span class="nv">g</span> : Y → Z) :
+  (free_monoidfun (g ∘ f)) ~ free_monoidfun g ∘ free_monoidfun f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>; <span class="nb">apply</span> map_compose.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">reverse_binopfun</span> (<span class="nv">X</span> : hSet) :
+  binopfun (free_monoid X) (setwithbinop_rev (free_monoid X)).
+<span class="kn">Proof</span>.
+  use make_binopfun.
+  - <span class="bp">exact</span> reverse.
+  - <span class="nb">intros</span> x x'. <span class="nb">apply</span> reverse_concatenate.
+<span class="kn">Defined</span>.
+
+<span class="c">(* Monoid presented by a set of generators and relations *)</span>
+
+<span class="kn">Definition</span> <span class="nf">presented_monoid</span> (<span class="nv">X</span> : hSet) (<span class="nv">R</span> : hrel (free_monoid X)) : monoid :=
+  monoidquot (generated_binopeqrel R).
+
+<span class="kn">Definition</span> <span class="nf">presented_monoid_pr</span> {<span class="nv">X</span> : hSet} (<span class="nv">R</span> : hrel (free_monoid X)) :
+  monoidfun (free_monoid X) (presented_monoid X R) :=
+  monoidquotpr _.
+
+<span class="kn">Definition</span> <span class="nf">presented_monoid_intro</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_monoid X)} :
+  X → presented_monoid X R :=
+  presented_monoid_pr R ∘ free_monoid_unit.
+
+<span class="kn">Definition</span> <span class="nf">presented_monoid_extend</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_monoid X)} {<span class="nv">Y</span> : monoid} (<span class="nv">f</span> : X → Y)
+  (<span class="nv">H</span> : iscomprelfun R (free_monoid_extend f)) : monoidfun (presented_monoid X R) Y.
+<span class="kn">Proof</span>.
+  use monoidquotuniv.
+  - <span class="bp">exact</span> (free_monoid_extend f).
+  - <span class="bp">exact</span> (iscomprelfun_generated_binopeqrel _ H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscomprelfun_presented_monoidfun</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_monoid X)} {<span class="nv">Y</span> : monoid}
+      (<span class="nv">g</span> : monoidfun (presented_monoid X R) Y) :
+  iscomprelfun R (free_monoid_extend (g ∘ presented_monoid_intro)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x x' r.
+  <span class="nb">rewrite</span> !(free_monoid_extend_comp (monoidfuncomp (presented_monoid_pr R) g)).
+  <span class="nb">apply</span> (maponpaths g). <span class="nb">apply</span> iscompsetquotpr. <span class="bp">exact</span> (generated_binopeqrel_intro r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">presented_monoid_extend_comp</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_monoid X)} {<span class="nv">Y</span> : monoid}
+      (<span class="nv">g</span> : monoidfun (presented_monoid X R) Y)
+      (<span class="nv">H</span> : iscomprelfun R (free_monoid_extend (g ∘ presented_monoid_intro))) :
+  presented_monoid_extend (g ∘ presented_monoid_intro) H ~ g.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot. <span class="nb">apply</span> setquotunivprop'.
+    + <span class="nb">intro</span>. <span class="nb">apply</span> isasetmonoid.
+    + <span class="nb">intro</span> x. <span class="nb">refine</span> (setquotunivcomm _ _ _ _ _ @ _).
+      <span class="bp">exact</span> (free_monoid_extend_comp (monoidfuncomp (presented_monoid_pr R) g) x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">presented_monoid_universal_property</span> {<span class="nv">X</span> : hSet} (<span class="nv">R</span> : hrel (free_monoid X)) (<span class="nv">Y</span> : monoid) :
+  monoidfun (presented_monoid X R) Y ≃ ∑(f : X → Y), iscomprelfun R (free_monoid_extend f).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intro</span> g. <span class="bp">exact</span> (tpair _ (g ∘ presented_monoid_intro) (iscomprelfun_presented_monoidfun g)).
+  - <span class="nb">intro</span> f. <span class="bp">exact</span> (presented_monoid_extend (pr1 f) (pr2 f)).
+  - <span class="nb">intro</span> g. <span class="nb">apply</span> monoidfun_paths, funextfun, presented_monoid_extend_comp.
+  - <span class="nb">intro</span> f. use total2_paths_f.
+    + <span class="nb">apply</span> funextfun. <span class="nb">intro</span> x. <span class="bp">reflexivity</span>.
+    + <span class="nb">apply</span> isapropiscomprelfun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">presented_monoidfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} {<span class="nv">R</span> : hrel (free_monoid X)} {<span class="nv">S</span> : hrel (free_monoid Y)}
+           (<span class="nv">f</span> : X → Y) (<span class="nv">H</span> : iscomprelrelfun R S (free_monoidfun f)) :
+  monoidfun (presented_monoid X R) (presented_monoid Y S).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (presented_monoid_extend (presented_monoid_intro ∘ f)).
+  <span class="nb">intros</span> x x' r.
+  <span class="nb">rewrite</span> !free_monoid_extend_funcomp. <span class="nb">unfold</span> funcomp.
+  <span class="nb">rewrite</span> !(free_monoid_extend_comp (presented_monoid_pr S)).
+  <span class="nb">apply</span> iscompsetquotpr. <span class="nb">apply</span> generated_binopeqrel_intro. <span class="bp">exact</span> (H x x' r).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Free abelian monoid on a set *)</span>
+
+<span class="kn">Definition</span> <span class="nf">free_abmonoid_hrel</span> (<span class="nv">X</span> : hSet) : hrel (free_monoid X) :=
+  <span class="k">λ</span> <span class="nv">g</span> <span class="nv">h</span>, <span class="k">∃</span> <span class="nv">x</span> <span class="nv">y</span>, x * y = g × y * x = h.
+
+<span class="kn">Lemma</span> <span class="nf">free_abmonoid_hrel_intro</span> {<span class="nv">X</span> : hSet} (<span class="nv">l1</span> <span class="nv">l2</span> : free_monoid X) :
+  free_abmonoid_hrel X (l1 * l2) (l2 * l1).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> wittohexists <span class="k">with</span> l1. <span class="nb">split with</span> l2. <span class="nb">split</span>; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_abmonoid_hrel_univ</span> {<span class="nv">X</span> : hSet} (<span class="nv">P</span> : free_monoid X → free_monoid X → UU)
+      (<span class="nv">HP</span> : ∏ (x y : free_monoid X), isaprop (P x y))
+      (<span class="nv">Hind</span> : ∏ x y, P (x * y) (y * x)) (<span class="nv">x</span> <span class="nv">y</span> : free_monoid X) :
+  free_abmonoid_hrel X x y → P x y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@hinhuniv _ (make_hProp (P x y) (HP x y))). <span class="nb">intro</span> v.
+  <span class="nb">induction</span> v <span class="k">as</span> (x',v). <span class="nb">induction</span> v <span class="k">as</span> (y',v). <span class="nb">induction</span> v <span class="k">as</span> (p1,p2).
+  <span class="nb">induction</span> p1. <span class="nb">induction</span> p2. <span class="nb">apply</span> Hind.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_abmonoid'</span> (<span class="nv">X</span> : hSet) : monoid :=
+  presented_monoid X (free_abmonoid_hrel X).
+
+<span class="kn">Lemma</span> <span class="nf">iscomm_free_abmonoid</span> (<span class="nv">X</span> : hSet) : iscomm (@op (free_abmonoid' X)).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (setquotuniv2prop' _ _ _).
+  - <span class="nb">intros</span>. <span class="nb">apply</span> (isasetmonoid (free_abmonoid' X)).
+  - <span class="nb">intros</span> x1 x2. <span class="nb">apply</span> (iscompsetquotpr _ (x1 * x2) (x2 * x1)).
+      <span class="nb">apply</span> generated_binopeqrel_intro, free_abmonoid_hrel_intro.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_abmonoid</span> (<span class="nv">X</span> : hSet) : abmonoid :=
+  abmonoid_of_monoid (free_abmonoid' X) (iscomm_free_abmonoid X).
+
+<span class="kn">Definition</span> <span class="nf">free_abmonoid_pr</span> (<span class="nv">X</span> : hSet) : monoidfun (free_monoid X) (free_abmonoid X) :=
+  presented_monoid_pr _.
+
+<span class="kn">Definition</span> <span class="nf">free_abmonoid_unit</span> {<span class="nv">X</span> : hSet} (<span class="nv">x</span> : X) : free_abmonoid X :=
+  presented_monoid_intro x.
+
+<span class="kn">Definition</span> <span class="nf">free_abmonoid_extend</span> {<span class="nv">X</span> : hSet} {<span class="nv">Y</span> : abmonoid} (<span class="nv">f</span> : X → Y) :
+  abelian_monoid_morphism (free_abmonoid X) Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> monoidfun_to_abelian_monoid_morphism.
+  <span class="nb">apply</span> (presented_monoid_extend f). <span class="nb">unfold</span> iscomprelfun. <span class="nb">apply</span> free_abmonoid_hrel_univ.
+  - <span class="nb">intros</span>. <span class="nb">apply</span> (isasetmonoid Y).
+  - <span class="nb">intros</span> x y. <span class="nb">rewrite</span> !monoidfunmul. <span class="nb">apply</span> commax.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_abmonoid_extend_homot</span> {<span class="nv">X</span> : hSet} {<span class="nv">Y</span> : abmonoid} {<span class="nv">f</span> <span class="nv">f'</span> : X → Y} (<span class="nv">h</span> : f ~ f') :
+  free_abmonoid_extend f ~ free_abmonoid_extend f'.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot. <span class="nb">apply</span> setquotunivprop'.
+  - <span class="nb">intro</span> x. <span class="nb">apply</span> isasetmonoid.
+  - <span class="bp">exact</span> (free_monoid_extend_homot h).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_abmonoid_extend_comp</span> {<span class="nv">X</span> : hSet} {<span class="nv">Y</span> : abmonoid} (<span class="nv">g</span> : abelian_monoid_morphism (free_abmonoid X) Y):
+  free_abmonoid_extend (g ∘ free_abmonoid_unit) ~ g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (presented_monoid_extend_comp g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_abmonoid_universal_property</span> (<span class="nv">X</span> : hSet) (<span class="nv">Y</span> : abmonoid) : (X → Y) ≃ abelian_monoid_morphism (free_abmonoid X) Y.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">apply</span> free_abmonoid_extend.
+  - <span class="nb">intro</span> g. <span class="bp">exact</span> (g ∘ free_abmonoid_unit).
+  - <span class="nb">intro</span> f. <span class="nb">apply</span> funextfun. <span class="nb">intro</span> x. <span class="bp">reflexivity</span>.
+  - <span class="nb">intro</span> g. <span class="nb">apply</span> abelian_monoid_morphism_eq, free_abmonoid_extend_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_abelian_monoid_morphism</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">f</span> : X → Y) :
+  abelian_monoid_morphism (free_abmonoid X) (free_abmonoid Y) :=
+  free_abmonoid_extend (free_abmonoid_unit ∘ f).
+
+<span class="kn">Lemma</span> <span class="nf">free_abelian_monoid_morphism_setquotpr</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">f</span> : X → Y) (<span class="nv">x</span> : free_monoid X) :
+  free_abelian_monoid_morphism f (setquotpr _ x) = setquotpr _ (free_monoidfun f x).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (setquotunivcomm _ _ _ _ _ @ _).
+  <span class="nb">rewrite</span> free_monoid_extend_funcomp.
+  <span class="nb">apply</span> free_monoid_extend_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_abmonoid_extend_funcomp</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} {<span class="nv">Z</span> : abmonoid} (<span class="nv">f</span> : X → Y) (<span class="nv">g</span> : Y → Z) :
+  free_abmonoid_extend (g ∘ f) ~ free_abmonoid_extend g ∘ free_abelian_monoid_morphism f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot. <span class="nb">apply</span> setquotunivprop'.
+  - <span class="nb">intro</span>. <span class="nb">apply</span> isasetmonoid.
+  - <span class="nb">intro</span> x. <span class="nb">refine</span> (setquotunivcomm _ _ _ _ _ @ _).
+    <span class="nb">refine</span> (free_monoid_extend_funcomp f g x @ _).
+    <span class="nb">unfold</span> funcomp. <span class="nb">rewrite</span> free_abelian_monoid_morphism_setquotpr.
+    <span class="nb">refine</span> (!setquotunivcomm _ _ _ _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">free_abmonoid_mor_eq</span>
+            {<span class="nv">X</span> : hSet}
+            {<span class="nv">Y</span> : abmonoid}
+            {<span class="nv">f</span> <span class="nv">g</span> : abelian_monoid_morphism (free_abmonoid X) Y}
+            (<span class="nv">p</span> : ∏ (x : X), f (free_abmonoid_unit x) = g (free_abmonoid_unit x))
+  : f = g.
+<span class="kn">Proof</span>.
+  use (invmaponpathsweq (invweq (free_abmonoid_universal_property X Y)) f g).
+  use funextsec.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="c">(* Abelian monoid presented by a set of generators and relations *)</span>
+
+<span class="kn">Definition</span> <span class="nf">presented_abmonoid</span> (<span class="nv">X</span> : hSet) (<span class="nv">R</span> : hrel (free_abmonoid X)) : abmonoid :=
+  abmonoidquot (generated_binopeqrel R).
+
+<span class="kn">Definition</span> <span class="nf">presented_abmonoid_pr</span> {<span class="nv">X</span> : hSet} (<span class="nv">R</span> : hrel (free_abmonoid X)) :
+  abelian_monoid_morphism (free_abmonoid X) (presented_abmonoid X R) :=
+  monoidfun_to_abelian_monoid_morphism (Y := presented_abmonoid X R) (monoidquotpr _).
+
+<span class="kn">Definition</span> <span class="nf">presented_abmonoid_intro</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_abmonoid X)} :
+  X → presented_abmonoid X R :=
+  presented_abmonoid_pr R ∘ free_abmonoid_unit.
+
+<span class="kn">Definition</span> <span class="nf">presented_abmonoid_extend</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_abmonoid X)} {<span class="nv">Y</span> : abmonoid} (<span class="nv">f</span> : X → Y)
+  (<span class="nv">H</span> : iscomprelfun R (free_abmonoid_extend f)) : abelian_monoid_morphism (presented_abmonoid X R) Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> monoidfun_to_abelian_monoid_morphism.
+  use monoidquotuniv.
+  - <span class="bp">exact</span> (free_abmonoid_extend f).
+  - <span class="bp">exact</span> (iscomprelfun_generated_binopeqrel _ H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscomprelfun_presented_abelian_monoid_morphism</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_abmonoid X)} {<span class="nv">Y</span> : abmonoid}
+      (<span class="nv">g</span> : abelian_monoid_morphism (presented_abmonoid X R) Y) :
+  iscomprelfun R (free_abmonoid_extend (g ∘ presented_abmonoid_intro)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x x' r.
+  <span class="nb">rewrite</span> !(free_abmonoid_extend_comp (composite_abelian_monoid_morphism (presented_abmonoid_pr R) g)).
+  <span class="nb">apply</span> (maponpaths g). <span class="nb">apply</span> iscompsetquotpr. <span class="bp">exact</span> (generated_binopeqrel_intro r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">presented_abmonoid_extend_comp</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_abmonoid X)} {<span class="nv">Y</span> : abmonoid}
+      (<span class="nv">g</span> : abelian_monoid_morphism (presented_abmonoid X R) Y)
+      (<span class="nv">H</span> : iscomprelfun R (free_abmonoid_extend (g ∘ presented_abmonoid_intro))) :
+  presented_abmonoid_extend (g ∘ presented_abmonoid_intro) H ~ g.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot. <span class="nb">apply</span> setquotunivprop'.
+    + <span class="nb">intro</span>. <span class="nb">apply</span> isasetmonoid.
+    + <span class="nb">intro</span> x. <span class="nb">refine</span> (setquotunivcomm _ _ _ _ _ @ _).
+      <span class="bp">exact</span> (free_abmonoid_extend_comp (composite_abelian_monoid_morphism (presented_abmonoid_pr R) g) x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">presented_abmonoid_universal_property</span> {<span class="nv">X</span> : hSet} (<span class="nv">R</span> : hrel (free_abmonoid X)) (<span class="nv">Y</span> : abmonoid) :
+  abelian_monoid_morphism (presented_abmonoid X R) Y ≃ ∑(f : X → Y), iscomprelfun R (free_abmonoid_extend f).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intro</span> g. <span class="bp">exact</span> (tpair _ (g ∘ presented_abmonoid_intro) (iscomprelfun_presented_abelian_monoid_morphism g)).
+  - <span class="nb">intro</span> f. <span class="bp">exact</span> (presented_abmonoid_extend (pr1 f) (pr2 f)).
+  - <span class="nb">intro</span> g. <span class="nb">apply</span> abelian_monoid_morphism_eq, presented_abmonoid_extend_comp.
+  - <span class="nb">intro</span> f. use total2_paths_f.
+    + <span class="nb">apply</span> funextfun. <span class="nb">intro</span> x. <span class="bp">reflexivity</span>.
+    + <span class="nb">apply</span> isapropiscomprelfun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">presented_abelian_monoid_morphism</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} {<span class="nv">R</span> : hrel (free_abmonoid X)} {<span class="nv">S</span> : hrel (free_abmonoid Y)}
+           (<span class="nv">f</span> : X → Y) (<span class="nv">H</span> : iscomprelrelfun R S (free_abelian_monoid_morphism f)) :
+  abelian_monoid_morphism (presented_abmonoid X R) (presented_abmonoid Y S).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (presented_abmonoid_extend (presented_abmonoid_intro ∘ f)).
+  <span class="nb">intros</span> x x' r.
+  <span class="nb">rewrite</span> !(free_abmonoid_extend_funcomp _ _ _). <span class="nb">unfold</span> funcomp.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (free_abmonoid_extend_comp (presented_abmonoid_pr S) _ @ !_).
+  <span class="nb">apply</span> iscompsetquotpr. <span class="nb">apply</span> generated_binopeqrel_intro. <span class="bp">exact</span> (H x x' r).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Free group on a set. We define it as a quotient of the free monoid on X ⨿ X, where (inr x) is to be treated</span>
+<span class="c">   as the inverse of x. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">free_gr_hrel</span> (<span class="nv">X</span> : hSet) : hrel (free_monoid (setcoprod X X)) :=
+  <span class="k">λ</span> <span class="nv">g</span> <span class="nv">h</span>, <span class="k">∃</span> <span class="nv">x</span>, x::coprodcomm X X x::[] = g × [] = h.
+
+<span class="kn">Lemma</span> <span class="nf">free_gr_hrel_in</span> {<span class="nv">X</span> : hSet} (<span class="nv">x</span> : X ⨿ X) : free_gr_hrel X (x::coprodcomm X X x::[]) [].
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> wittohexists <span class="k">with</span> x. <span class="nb">split</span>; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_gr_hrel_in_rev</span> {<span class="nv">X</span> : hSet} (<span class="nv">x</span> : X ⨿ X) : free_gr_hrel X (coprodcomm X X x::x::[]) [].
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (H := free_gr_hrel_in (coprodcomm X X x)).
+  <span class="nb">rewrite</span> coprodcomm_coprodcomm <span class="k">in</span> H. <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_gr_hrel_univ</span> {<span class="nv">X</span> : hSet}
+      (<span class="nv">P</span> : free_monoid (setcoprod X X) → free_monoid (setcoprod X X) → UU)
+      (<span class="nv">HP</span> : ∏ x y, isaprop (P x y))
+      (<span class="nv">Hind</span> : ∏ x, P (x::coprodcomm X X x::[]) [])
+      (<span class="nv">x</span> <span class="nv">y</span> : free_monoid (setcoprod X X)) : free_gr_hrel X x y → P x y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@hinhuniv _ (make_hProp (P x y) (HP x y))).
+  <span class="nb">intro</span> v. <span class="nb">induction</span> v <span class="k">as</span> (x',v), v <span class="k">as</span> (p1,p2), p1, p2. <span class="nb">apply</span> Hind.
+<span class="kn">Defined</span>.
+
+<span class="c">(* [fginv x] will be the inverse of [x] in the free group *)</span>
+<span class="kn">Local Definition</span> <span class="nf">fginv</span> {<span class="nv">X</span> : hSet} (<span class="nv">l</span> : free_monoid (setcoprod X X)) : free_monoid (setcoprod X X) :=
+  reverse (map (coprodcomm X X) l).
+
+<span class="kn">Definition</span> <span class="nf">fginv_binopfun</span> (<span class="nv">X</span> : hSet) :
+  binopfun (free_monoid (setcoprod X X)) (setwithbinop_rev (free_monoid (setcoprod X X))).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (binopfuncomp (free_monoidfun _) (reverse_binopfun _)). <span class="bp">exact</span> (coprodcomm X X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fginv_binopfun_homot</span> {<span class="nv">X</span> : hSet} (<span class="nv">l</span> : free_monoid (setcoprod X X)) :
+  fginv_binopfun X l = fginv l :=
+  idpath _.
+
+<span class="kn">Lemma</span> <span class="nf">fginv_fginv</span> {<span class="nv">X</span> : hSet} (<span class="nv">l</span> : free_monoid (setcoprod X X)) : fginv (fginv l) = l.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> fginv. <span class="nb">rewrite</span> map_reverse, reverse_reverse, &lt;- map_compose, &lt;- map_idfun.
+  <span class="nb">apply</span> map_homot. <span class="bp">exact</span> coprodcomm_coprodcomm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">generated_free_gr_hrel_in</span> {<span class="nv">X</span> : hSet} (<span class="nv">l</span> : free_monoid (setcoprod X X)) :
+  generated_binopeqrel (free_gr_hrel X) (l * fginv l) [].
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> R H. <span class="nb">revert</span> l. <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> eqrelrefl.
+  - <span class="nb">intros</span> x xs IH.
+    <span class="nb">change</span> (R ((free_monoid_unit x * xs) * (fginv xs * @free_monoid_unit (setcoprod X X) (coprodcomm X X x)))
+              []).
+    <span class="nb">rewrite</span> assocax, &lt;- (assocax _ _ _ (free_monoid_unit _)).
+    <span class="nb">refine</span> (eqreltrans (pr1 R) _ _ _ (binopeqrel_resp_left R _ (binopeqrel_resp_right R _ IH)) _).
+    <span class="nb">apply</span> H, free_gr_hrel_in.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">generated_free_gr_hrel_in_rev</span> {<span class="nv">X</span> : hSet} (<span class="nv">l</span> : free_monoid (setcoprod X X)) :
+  generated_binopeqrel (free_gr_hrel X) (fginv l * l) [].
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (H := generated_free_gr_hrel_in (fginv l)).
+  <span class="nb">rewrite</span> fginv_fginv <span class="k">in</span> H. <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">free_gr'</span> (<span class="nv">X</span> : hSet) : monoid :=
+  presented_monoid (setcoprod X X) (free_gr_hrel X).
+
+<span class="kn">Definition</span> <span class="nf">invstruct_free_gr</span> (<span class="nv">X</span> : hSet) : invstruct (@op (free_gr' X)) (pr2 (free_gr' X)).
+<span class="kn">Proof</span>.
+  use make_invstruct.
+  - use setquotfun.
+    + <span class="bp">exact</span> fginv.
+    + <span class="nb">refine</span> (iscomprelrelfun_generated_binopeqrel_rev (fginv_binopfun X) _). <span class="nb">unfold</span> iscomprelrelfun.
+      <span class="nb">apply</span> free_gr_hrel_univ.
+      * <span class="nb">intros</span>. <span class="nb">apply</span> pr2.
+      * <span class="nb">intro</span> x. <span class="nb">refine</span> (transportb (<span class="k">λ</span> <span class="nv">x</span>, free_gr_hrel X x (fginv_binopfun X [])) (fginv_binopfun_homot _) _). <span class="nb">apply</span> free_gr_hrel_in_rev.
+  - <span class="nb">apply</span> make_isinv.
+    + <span class="nb">refine</span> (setquotunivprop' _ _ _).
+      * <span class="nb">intro</span>. <span class="nb">apply</span> isasetmonoid.
+      * <span class="nb">intro</span> l. <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * _) (setquotunivcomm _ _ _ _ _) @ _).
+        <span class="nb">apply</span> (iscompsetquotpr _ (fginv l * l) []).
+        <span class="nb">apply</span> generated_free_gr_hrel_in_rev.
+    + <span class="nb">refine</span> (setquotunivprop' _ _ _).
+      * <span class="nb">intro</span>. <span class="nb">apply</span> isasetmonoid.
+      * <span class="nb">intro</span> l. <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ * x) (setquotunivcomm _ _ _ _ _) @ _).
+        <span class="nb">apply</span> (iscompsetquotpr _ (l * fginv l) []).
+        <span class="nb">apply</span> generated_free_gr_hrel_in.
+<span class="kn">Defined</span>.
+
+<span class="c">(* The free group is actually a group *)</span>
+<span class="kn">Definition</span> <span class="nf">free_gr</span> (<span class="nv">X</span> : hSet) : gr :=
+  gr_of_monoid (free_gr' X) (invstruct_free_gr X).
+
+<span class="kn">Definition</span> <span class="nf">free_gr_pr</span> (<span class="nv">X</span> : hSet) : monoidfun (free_monoid (setcoprod X X)) (free_gr X) :=
+  monoidquotpr _.
+
+<span class="kn">Definition</span> <span class="nf">free_gr_unit</span> {<span class="nv">X</span> : hSet} (<span class="nv">x</span> : X) : free_gr X.
+<span class="kn">Proof</span>. <span class="nb">apply</span> presented_monoid_intro. <span class="bp">exact</span> (inl x). <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_gr_extend</span> {<span class="nv">X</span> : hSet} {<span class="nv">Y</span> : gr} (<span class="nv">f</span> : X → Y) :
+  group_morphism (free_gr X) Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> binopfun_to_group_morphism.
+  use presented_monoid_extend.
+  - <span class="bp">exact</span> (sumofmaps f (grinv Y ∘ f)).
+  - <span class="nb">unfold</span> iscomprelfun. <span class="nb">apply</span> free_gr_hrel_univ.
+    + <span class="nb">intros</span> x y. <span class="nb">apply</span> (isasetmonoid Y).
+    + <span class="nb">intro</span> x. <span class="nb">induction</span> x <span class="k">as</span> [x|x].
+      * <span class="nb">apply</span> (grrinvax Y (f x)).
+      * <span class="nb">apply</span> (grlinvax Y (f x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_gr_extend_homot</span> {<span class="nv">X</span> : hSet} {<span class="nv">Y</span> : gr} {<span class="nv">f</span> <span class="nv">f'</span> : X → Y} (<span class="nv">h</span> : f ~ f') :
+  free_gr_extend f ~ free_gr_extend f'.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot. <span class="nb">apply</span> setquotunivprop'.
+  - <span class="nb">intro</span> x. <span class="nb">apply</span> isasetmonoid.
+  - <span class="nb">refine</span> (free_monoid_extend_homot _).
+    <span class="nb">apply</span> sumofmaps_homot.
+    + <span class="bp">exact</span> h.
+    + <span class="nb">intro</span> x. <span class="bp">exact</span> (maponpaths (grinv Y) (h x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_gr_extend_comp</span> {<span class="nv">X</span> : hSet} {<span class="nv">Y</span> : gr} (<span class="nv">g</span> : group_morphism (free_gr X) Y):
+  free_gr_extend (g ∘ free_gr_unit) ~ g.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot.
+  <span class="nb">apply</span> setquotunivprop'.
+  - <span class="nb">intro</span>. <span class="nb">apply</span> (isasetmonoid Y).
+  - <span class="nb">intro</span> l. <span class="nb">refine</span> (setquotunivcomm _ _ _ _ _ @ _).
+    <span class="nb">refine</span> (_ @ (free_monoid_extend_comp (monoidfuncomp (free_gr_pr X) g)) l).
+    <span class="nb">refine</span> (maponpaths iterop_list_mon _). <span class="nb">apply</span> map_homot. <span class="nb">intro</span> x.
+    <span class="nb">induction</span> x <span class="k">as</span> [x|x].
+    + <span class="bp">reflexivity</span>.
+    + <span class="nb">simpl</span>. <span class="nb">refine</span> (!group_morphism_inv g _ @ _). <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_gr_universal_property</span> (<span class="nv">X</span> : hSet) (<span class="nv">Y</span> : gr) : (X → Y) ≃ group_morphism (free_gr X) Y.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">apply</span> free_gr_extend.
+  - <span class="nb">intro</span> g. <span class="bp">exact</span> (g ∘ free_gr_unit).
+  - <span class="nb">intro</span> f. <span class="nb">apply</span> funextfun. <span class="nb">intro</span> x. <span class="bp">reflexivity</span>.
+  - <span class="nb">intro</span> g.
+    <span class="nb">apply</span> group_morphism_eq, free_gr_extend_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_grfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">f</span> : X → Y) : group_morphism (free_gr X) (free_gr Y) :=
+  free_gr_extend (free_gr_unit ∘ f).
+
+
+<span class="kn">Lemma</span> <span class="nf">sumofmaps_free_gr_unit</span> {<span class="nv">X</span> : hSet} :
+  sumofmaps free_gr_unit (grinv (free_gr X) ∘ free_gr_unit) ~
+            @presented_monoid_intro (setcoprod X X) (free_gr_hrel X).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x. <span class="nb">induction</span> x <span class="k">as</span> [x|x]; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_grfun_setquotpr</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">f</span> : X → Y) (<span class="nv">x</span> : free_monoid (setcoprod X X)) :
+  free_grfun f (setquotpr _ x) = setquotpr _ (@free_monoidfun (setcoprod X X) (setcoprod Y Y) (coprodf f f) x).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (setquotunivcomm _ _ _ _ _ @ _).
+  <span class="nb">refine</span> (free_monoid_extend_homot _ x @ _).
+  <span class="bp">exact</span> (sumofmaps_funcomp f free_gr_unit f (grinv (free_gr Y) ∘ free_gr_unit)).
+  <span class="nb">rewrite</span> (@free_monoid_extend_funcomp (setcoprod X X) (setcoprod Y Y)).
+  <span class="nb">refine</span> (free_monoid_extend_homot _ _ @ _).
+  <span class="bp">exact</span> (sumofmaps_free_gr_unit).
+  <span class="nb">apply</span> (@free_monoid_extend_comp (setcoprod _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_gr_extend_funcomp</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} {<span class="nv">Z</span> : gr} (<span class="nv">f</span> : X → Y) (<span class="nv">g</span> : Y → Z) :
+  free_gr_extend (g ∘ f) ~ free_gr_extend g ∘ free_grfun f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot. <span class="nb">apply</span> setquotunivprop'.
+  - <span class="nb">intro</span>. <span class="nb">apply</span> isasetmonoid.
+  - <span class="nb">intro</span> x. <span class="nb">refine</span> (setquotunivcomm _ _ _ _ _ @ _).
+    <span class="nb">refine</span> (free_monoid_extend_homot _ x @ _).
+    <span class="bp">exact</span> (sumofmaps_funcomp f g f (grinv Z ∘ g)).
+    <span class="nb">refine</span> (@free_monoid_extend_funcomp (setcoprod X X) (setcoprod Y Y) _ _ _ x @ _).
+    <span class="nb">unfold</span> funcomp. <span class="nb">rewrite</span> free_grfun_setquotpr.
+    <span class="nb">refine</span> (!setquotunivcomm _ _ _ _ _).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Group presented by a set of generators and relations *)</span>
+
+<span class="kn">Definition</span> <span class="nf">presented_gr</span> (<span class="nv">X</span> : hSet) (<span class="nv">R</span> : hrel (free_gr X)) : gr :=
+  grquot (generated_binopeqrel R).
+
+<span class="kn">Definition</span> <span class="nf">presented_gr_pr</span> {<span class="nv">X</span> : hSet} (<span class="nv">R</span> : hrel (free_gr X)) :
+  group_morphism (free_gr X) (presented_gr X R) :=
+  binopfun_to_group_morphism (Y := presented_gr X R) (monoidquotpr _).
+
+<span class="kn">Definition</span> <span class="nf">presented_gr_intro</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_gr X)} :
+  X → presented_gr X R :=
+  presented_gr_pr R ∘ free_gr_unit.
+
+<span class="kn">Definition</span> <span class="nf">presented_gr_extend</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_gr X)} {<span class="nv">Y</span> : gr} (<span class="nv">f</span> : X → Y)
+  (<span class="nv">H</span> : iscomprelfun R (free_gr_extend f)) : group_morphism (presented_gr X R) Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> binopfun_to_group_morphism.
+  use monoidquotuniv.
+  - <span class="bp">exact</span> (free_gr_extend f).
+  - <span class="bp">exact</span> (iscomprelfun_generated_binopeqrel _ H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscomprelfun_presented_grfun</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_gr X)} {<span class="nv">Y</span> : gr}
+      (<span class="nv">g</span> : group_morphism (presented_gr X R) Y) :
+  iscomprelfun R (free_gr_extend (g ∘ presented_gr_intro)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x x' r.
+  <span class="nb">rewrite</span> !(free_gr_extend_comp (composite_group_morphism (presented_gr_pr R) g)).
+  <span class="nb">apply</span> (maponpaths g). <span class="nb">apply</span> iscompsetquotpr. <span class="bp">exact</span> (generated_binopeqrel_intro r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">presented_gr_extend_comp</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_gr X)} {<span class="nv">Y</span> : gr}
+      (<span class="nv">g</span> : group_morphism (presented_gr X R) Y)
+      (<span class="nv">H</span> : iscomprelfun R (free_gr_extend (g ∘ presented_gr_intro))) :
+  presented_gr_extend (g ∘ presented_gr_intro) H ~ g.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot. <span class="nb">apply</span> setquotunivprop'.
+    + <span class="nb">intro</span>. <span class="nb">apply</span> isasetmonoid.
+    + <span class="nb">intro</span> x. <span class="nb">refine</span> (setquotunivcomm _ _ _ _ _ @ _).
+      <span class="bp">exact</span> (free_gr_extend_comp (composite_group_morphism (presented_gr_pr R) g) _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">presented_gr_universal_property</span> {<span class="nv">X</span> : hSet} (<span class="nv">R</span> : hrel (free_gr X)) (<span class="nv">Y</span> : gr) :
+  group_morphism (presented_gr X R) Y ≃ ∑(f : X → Y), iscomprelfun R (free_gr_extend f).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intro</span> g. <span class="bp">exact</span> (tpair _ (g ∘ presented_gr_intro) (iscomprelfun_presented_grfun g)).
+  - <span class="nb">intro</span> f. <span class="bp">exact</span> (presented_gr_extend (pr1 f) (pr2 f)).
+  - <span class="nb">intro</span> g. <span class="nb">apply</span> group_morphism_eq, presented_gr_extend_comp.
+  - <span class="nb">intro</span> f. use total2_paths_f.
+    + <span class="nb">apply</span> funextfun. <span class="nb">intro</span> x. <span class="bp">reflexivity</span>.
+    + <span class="nb">apply</span> isapropiscomprelfun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">presented_grfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} {<span class="nv">R</span> : hrel (free_gr X)} {<span class="nv">S</span> : hrel (free_gr Y)}
+           (<span class="nv">f</span> : X → Y) (<span class="nv">H</span> : iscomprelrelfun R S (free_grfun f)) :
+  group_morphism (presented_gr X R) (presented_gr Y S).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (presented_gr_extend (presented_gr_intro ∘ f)).
+  <span class="nb">intros</span> x x' r.
+  <span class="nb">rewrite</span> !(free_gr_extend_funcomp _ _ _). <span class="nb">unfold</span> funcomp.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (free_gr_extend_comp (presented_gr_pr S) _ @ !_).
+  <span class="nb">apply</span> iscompsetquotpr. <span class="nb">apply</span> generated_binopeqrel_intro. <span class="bp">exact</span> (H x x' r).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Free abelian group on a set *)</span>
+
+<span class="kn">Definition</span> <span class="nf">free_abgr_hrel</span> (<span class="nv">X</span> : hSet) : hrel (free_gr X) :=
+  <span class="k">λ</span> <span class="nv">g</span> <span class="nv">h</span>, <span class="k">∃</span> <span class="nv">x</span> <span class="nv">y</span>, x * y = g × y * x = h.
+
+<span class="kn">Lemma</span> <span class="nf">free_abgr_hrel_intro</span> {<span class="nv">X</span> : hSet} (<span class="nv">l1</span> <span class="nv">l2</span> : free_gr X) :
+  free_abgr_hrel X (l1 * l2) (l2 * l1).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> wittohexists <span class="k">with</span> l1. <span class="nb">split with</span> l2. <span class="nb">split</span>; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_abgr_hrel_univ</span> {<span class="nv">X</span> : hSet} (<span class="nv">P</span> : free_gr X → free_gr X → UU)
+      (<span class="nv">HP</span> : ∏ (x y : free_gr X), isaprop (P x y))
+      (<span class="nv">Hind</span> : ∏ x y, P (x * y) (y * x)) (<span class="nv">x</span> <span class="nv">y</span> : free_gr X) :
+  free_abgr_hrel X x y → P x y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@hinhuniv _ (make_hProp (P x y) (HP x y))). <span class="nb">intro</span> v.
+  <span class="nb">induction</span> v <span class="k">as</span> (x',v). <span class="nb">induction</span> v <span class="k">as</span> (y',v). <span class="nb">induction</span> v <span class="k">as</span> (p1,p2).
+  <span class="nb">induction</span> p1. <span class="nb">induction</span> p2. <span class="nb">apply</span> Hind.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_abgr'</span> (<span class="nv">X</span> : hSet) : gr :=
+  presented_gr X (free_abgr_hrel X).
+
+<span class="kn">Lemma</span> <span class="nf">iscomm_free_abgr</span> (<span class="nv">X</span> : hSet) : iscomm (@op (free_abgr' X)).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (setquotuniv2prop' _ _ _).
+  - <span class="nb">intros</span>. <span class="nb">apply</span> (isasetmonoid (free_abgr' X)).
+  - <span class="nb">intros</span> x1 x2. <span class="nb">apply</span> (iscompsetquotpr _ (x1 * x2) (x2 * x1)).
+      <span class="nb">apply</span> generated_binopeqrel_intro, free_abgr_hrel_intro.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_abgr</span> (<span class="nv">X</span> : hSet) : abgr :=
+  abgr_of_gr (free_abgr' X) (iscomm_free_abgr X).
+
+<span class="kn">Definition</span> <span class="nf">free_abgr_pr</span> (<span class="nv">X</span> : hSet) : group_morphism (free_gr X) (free_abgr X) :=
+  binopfun_to_group_morphism (Y := free_abgr X) (monoidquotpr _).
+
+<span class="kn">Definition</span> <span class="nf">free_abgr_unit</span> {<span class="nv">X</span> : hSet} (<span class="nv">x</span> : X) : free_abgr X :=
+   presented_gr_intro x.
+
+<span class="kn">Definition</span> <span class="nf">free_abgr_extend</span> {<span class="nv">X</span> : hSet} {<span class="nv">Y</span> : abgr} (<span class="nv">f</span> : X → Y) : abelian_group_morphism (free_abgr X) Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> binopfun_to_abelian_group_morphism.
+  <span class="nb">apply</span> (presented_gr_extend f).
+  <span class="nb">unfold</span> iscomprelfun. <span class="nb">apply</span> free_abgr_hrel_univ.
+  - <span class="nb">intros</span>. <span class="nb">apply</span> (isasetmonoid Y).
+  - <span class="nb">intros</span> x y. <span class="nb">rewrite</span> !monoidfunmul. <span class="nb">apply</span> (commax Y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_abgr_extend_homot</span> {<span class="nv">X</span> : hSet} {<span class="nv">Y</span> : abgr} {<span class="nv">f</span> <span class="nv">f'</span> : X → Y} (<span class="nv">h</span> : f ~ f') :
+  free_abgr_extend f ~ free_abgr_extend f'.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot. <span class="nb">apply</span> setquotunivprop'.
+  - <span class="nb">intro</span> x. <span class="nb">apply</span> isasetmonoid.
+  - <span class="bp">exact</span> (free_gr_extend_homot h).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_abgr_extend_comp</span> {<span class="nv">X</span> : hSet} {<span class="nv">Y</span> : abgr} (<span class="nv">g</span> : abelian_group_morphism (free_abgr X) Y):
+  free_abgr_extend (g ∘ free_abgr_unit) ~ g.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (presented_gr_extend_comp g _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_abgr_universal_property</span> (<span class="nv">X</span> : hSet) (<span class="nv">Y</span> : abgr) : (X → Y) ≃ abelian_group_morphism (free_abgr X) Y.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">apply</span> free_abgr_extend.
+  - <span class="nb">intro</span> g. <span class="bp">exact</span> (g ∘ free_abgr_unit).
+  - <span class="nb">intro</span> f. <span class="nb">apply</span> funextfun. <span class="nb">intro</span> x. <span class="bp">reflexivity</span>.
+  - <span class="nb">intro</span> g. <span class="nb">apply</span> abelian_group_morphism_eq, free_abgr_extend_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_abgrfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">f</span> : X → Y) :
+  abelian_group_morphism (free_abgr X) (free_abgr Y) :=
+  free_abgr_extend (free_abgr_unit ∘ f).
+
+<span class="kn">Lemma</span> <span class="nf">free_abgrfun_setquotpr</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">f</span> : X → Y) (<span class="nv">x</span> : free_gr X) :
+  free_abgrfun f (setquotpr _ x) = setquotpr _ (free_grfun f x).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (setquotunivcomm _ _ _ _ _ @ _).
+  <span class="nb">rewrite</span> free_gr_extend_funcomp.
+  <span class="bp">exact</span> (free_gr_extend_comp _ (free_grfun f x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_abgr_extend_funcomp</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} {<span class="nv">Z</span> : abgr} (<span class="nv">f</span> : X → Y) (<span class="nv">g</span> : Y → Z) :
+  free_abgr_extend (g ∘ f) ~ free_abgr_extend g ∘ free_abgrfun f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot. <span class="nb">apply</span> setquotunivprop'.
+  - <span class="nb">intro</span>. <span class="nb">apply</span> isasetmonoid.
+  - <span class="nb">intro</span> x. <span class="nb">refine</span> (setquotunivcomm _ _ _ _ _ @ _).
+    <span class="nb">refine</span> (free_gr_extend_funcomp _ _ x @ _).
+    <span class="nb">unfold</span> funcomp. <span class="nb">rewrite</span> free_abgrfun_setquotpr.
+    <span class="nb">refine</span> (!setquotunivcomm _ _ _ _ _).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Abelian group presented by a set of generators and relations *)</span>
+
+<span class="kn">Definition</span> <span class="nf">presented_abgr</span> (<span class="nv">X</span> : hSet) (<span class="nv">R</span> : hrel (free_abgr X)) : abgr :=
+  abgrquot (generated_binopeqrel R).
+
+<span class="kn">Definition</span> <span class="nf">presented_abgr_pr</span> {<span class="nv">X</span> : hSet} (<span class="nv">R</span> : hrel (free_abgr X)) :
+  abelian_group_morphism (free_abgr X) (presented_abgr X R) :=
+  binopfun_to_abelian_group_morphism (Y := presented_abgr X R) (monoidquotpr _).
+
+<span class="kn">Definition</span> <span class="nf">presented_abgr_intro</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_abgr X)} :
+  X → presented_abgr X R :=
+  presented_abgr_pr R ∘ free_abgr_unit.
+
+<span class="kn">Definition</span> <span class="nf">presented_abgr_extend</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_abgr X)} {<span class="nv">Y</span> : abgr} (<span class="nv">f</span> : X → Y)
+  (<span class="nv">H</span> : iscomprelfun R (free_abgr_extend f)) : abelian_group_morphism (presented_abgr X R) Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> binopfun_to_abelian_group_morphism.
+  use monoidquotuniv.
+  - <span class="bp">exact</span> (free_abgr_extend f).
+  - <span class="bp">exact</span> (iscomprelfun_generated_binopeqrel _ H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscomprelfun_presented_abgrfun</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_abgr X)} {<span class="nv">Y</span> : abgr}
+      (<span class="nv">g</span> : abelian_group_morphism (presented_abgr X R) Y) :
+  iscomprelfun R (free_abgr_extend (g ∘ presented_abgr_intro)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x x' r.
+  <span class="nb">rewrite</span> !(free_abgr_extend_comp (composite_abelian_group_morphism (presented_abgr_pr R) g)).
+  <span class="nb">apply</span> (maponpaths g). <span class="nb">apply</span> iscompsetquotpr. <span class="bp">exact</span> (generated_binopeqrel_intro r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">presented_abgr_extend_comp</span> {<span class="nv">X</span> : hSet} {<span class="nv">R</span> : hrel (free_abgr X)} {<span class="nv">Y</span> : abgr}
+      (<span class="nv">g</span> : abelian_group_morphism (presented_abgr X R) Y)
+      (<span class="nv">H</span> : iscomprelfun R (free_abgr_extend (g ∘ presented_abgr_intro))) :
+  presented_abgr_extend (g ∘ presented_abgr_intro) H ~ g.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homot. <span class="nb">apply</span> setquotunivprop'.
+    + <span class="nb">intro</span>. <span class="nb">apply</span> isasetmonoid.
+    + <span class="nb">intro</span> x. <span class="nb">refine</span> (setquotunivcomm _ _ _ _ _ @ _).
+      <span class="bp">exact</span> (free_abgr_extend_comp (composite_abelian_group_morphism (presented_abgr_pr R) g) x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">presented_abgr_universal_property</span> {<span class="nv">X</span> : hSet} (<span class="nv">R</span> : hrel (free_abgr X)) (<span class="nv">Y</span> : abgr) :
+  abelian_group_morphism (presented_abgr X R) Y ≃ ∑(f : X → Y), iscomprelfun R (free_abgr_extend f).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intro</span> g. <span class="bp">exact</span> (tpair _ (g ∘ presented_abgr_intro) (iscomprelfun_presented_abgrfun g)).
+  - <span class="nb">intro</span> f. <span class="bp">exact</span> (presented_abgr_extend (pr1 f) (pr2 f)).
+  - <span class="nb">intro</span> g. <span class="nb">apply</span> abelian_group_morphism_eq, presented_abgr_extend_comp.
+  - <span class="nb">intro</span> f. use total2_paths_f.
+    + <span class="nb">apply</span> funextfun. <span class="nb">intro</span> x. <span class="bp">reflexivity</span>.
+    + <span class="nb">apply</span> isapropiscomprelfun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">presented_abgrfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} {<span class="nv">R</span> : hrel (free_abgr X)} {<span class="nv">S</span> : hrel (free_abgr Y)}
+           (<span class="nv">f</span> : X → Y) (<span class="nv">H</span> : iscomprelrelfun R S (free_abgrfun f)) :
+  abelian_group_morphism (presented_abgr X R) (presented_abgr Y S).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (presented_abgr_extend (presented_abgr_intro ∘ f)).
+  <span class="nb">intros</span> x x' r.
+  <span class="nb">rewrite</span> !(free_abgr_extend_funcomp _ _ _). <span class="nb">unfold</span> funcomp.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (free_abgr_extend_comp (presented_abgr_pr S) _ @ !_).
+  <span class="nb">apply</span> iscompsetquotpr. <span class="nb">apply</span> generated_binopeqrel_intro. <span class="bp">exact</span> (H x x' r).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Free_Monoids_and_Groups.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Subtypes.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** Authors Floris van Doorn, December 2017 *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.Subtypes.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Sets.
+  &gt; Require Import UniMath.Algebra.Monoids.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

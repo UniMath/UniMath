@@ -1,0 +1,1874 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FirstOrderHyperdoctrine.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************************</span>
+
+<span class="sd"> First-order Hyperdoctrines</span>
+
+<span class="sd"> Hyperdoctrines provide a framework in which one can interpret the basic judgments of</span>
+<span class="sd"> first-order predicate logic. However, if one actually wants to study predicate logic, then</span>
+<span class="sd"> one also needs to have suitable connectives for the formulas, and one also needs to have an</span>
+<span class="sd"> equality predicate.</span>
+
+<span class="sd"> In this file, we define first-order hyperdoctrines. First-order hyperdoctrines are an extension</span>
+<span class="sd"> of ordinary hyperdoctrines. In a first-order hyperdoctrine, we can interpret all the usual</span>
+<span class="sd"> connectives from first-order predicate logic and equality. Note that we focus on intuitionistic</span>
+<span class="sd"> first-order hyperdoctrines, so the law of excluded middle does not hold in them. For each of</span>
+<span class="sd"> the connectives, we also define accessors, which are similar to the elimination and introduction</span>
+<span class="sd"> rules in natural deduction.</span>
+
+<span class="sd"> Note that the connectives are defined as follows:</span>
+<span class="sd"> - Truth: fiberwise terminal object</span>
+<span class="sd"> - Falsity: fiberwise initial object</span>
+<span class="sd"> - Conjunction: fiberwise binary products</span>
+<span class="sd"> - Disjunction: fiberwise binary coproducts</span>
+<span class="sd"> - Implication: fiberwise exponentials</span>
+<span class="sd"> - Universal quantification: right adjoint to substitution</span>
+<span class="sd"> - Existential quantification: left adjoint to substitution</span>
+<span class="sd"> - Equality: left adjoint to the diagonal</span>
+<span class="sd"> For the propositional connectives, the introduction and elimination rules arise rather directly</span>
+<span class="sd"> from the definition of limits and colimits, whereas their preservation under substitution</span>
+<span class="sd"> follow from the fiberwise preservation. For the quantifiers, their preservation under</span>
+<span class="sd"> substitution follows from the Beck-Chevalley condition, and their introduction and elimination</span>
+<span class="sd"> rules follow from the unit and counit of the adjunctions.</span>
+
+<span class="sd"> Technically there are some interesting points in this file. To derive the elimination rule for</span>
+<span class="sd"> disjunction, we use distributivity of products and coproducts. This follows from the fact that</span>
+<span class="sd"> we have exponentials. As such, taking the binary product with a fixed object is a left adjoint,</span>
+<span class="sd"> and it thus preserves coproducts.</span>
+
+<span class="sd"> Another point arises from the existential quantification. The elimination rule for the</span>
+<span class="sd"> existential quantifier says that `Δ ⊢ ψ` follows from `Δ ⊢ ∃ φ` and `Δ ∧ φ ⊢ ψ`. To derive this</span>
+<span class="sd"> rule, we need Frobenius reciprocity, which says that `∃ (Δ ∧ φ)` follows from `Δ ∧ ∃ φ`. Without</span>
+<span class="sd"> this assumption, we would only be able to derive a weaker rule, where we need to show `φ ⊢ ψ`,</span>
+<span class="sd"> so without the assumptions in `Δ`. To prove Frobenius reciprocity, we use the implication.</span>
+
+<span class="sd"> The equality formula also comes with an introduction and elimination rule. From the elimination</span>
+<span class="sd"> rule, we can derive symmetry and transitivity of equality. The proof is similar to how one uses</span>
+<span class="sd"> the J-rule to derive symmetry and transitivity of the identity type. We also derive equality</span>
+<span class="sd"> principles for terms of the unit type and of the product type. To prove the desired J-rule, we</span>
+<span class="sd"> use that our hyperdoctrines support universal quantification.</span>
+
+<span class="sd"> Finally, note that in our definition, we require left and right adjoints to exist for</span>
+<span class="sd"> substitution along all morphisms rather than just projections. This is stronger than one would</span>
+<span class="sd"> usually require, and it does eliminate the syntax as a model. However, in many models all</span>
+<span class="sd"> of the aforementioned adjoints do exist.</span>
+
+<span class="sd"> An important use case of first-order hyperdoctrines is using the internal language for reasoning.</span>
+<span class="sd"> The internal language is implemented via a shallow embedding. However, one challenge that one</span>
+<span class="sd"> meets when using this shallow embedding directly, is that one must simplify the goal completely</span>
+<span class="sd"> by hand. More concretely, there might be several substitutions in the statement that one is</span>
+<span class="sd"> proving, and to simplify it, one must rewrite using the right substitution laws. The same holds</span>
+<span class="sd"> for normalizing terms: one must simplify every β-redex by using an appropriate rewrite statement.</span>
+<span class="sd"> In this file, we also give a tactic that automates these processes. Below we comment on the</span>
+<span class="sd"> design of this tactic and in the file `PERs.v` in the proof of [eq_per_axioms], we explain</span>
+<span class="sd"> and demonstrate how this tactic is used.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Adjointness in Foundations" by William Lawvere</span>
+<span class="sd"> - "Categorical logic" by Andrew Pitts in Handbook of logic in computer science, Volume 5</span>
+<span class="sd"> - "Tripos Theory in Retrospect" by Andrew Pitts</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. First-order hyperdoctrines</span>
+<span class="sd"> 2. The truth formula</span>
+<span class="sd"> 3. The falsity formula</span>
+<span class="sd"> 4. Conjunction</span>
+<span class="sd"> 5. Weakening of hypotheses</span>
+<span class="sd"> 6. Disjunction</span>
+<span class="sd"> 7. Implication</span>
+<span class="sd"> 8. Universal quantification</span>
+<span class="sd"> 9. Existential quantification</span>
+<span class="sd"> 10. Equality</span>
+<span class="sd"> 11. Derived rules for equality</span>
+<span class="sd"> 12. Derived connectives</span>
+<span class="sd"> 12.1. Bi-implication</span>
+<span class="sd"> 13. A tactic for simplifying goals in the internal language of first-order hyperdoctrines</span>
+
+<span class="sd"> **********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCartesianClosed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+
+<span class="kn">Require Import</span> UniMath.Tactics.Simplify.
+<span class="kn">Require Import</span> UniMath.Tactics.Utilities.
+<span class="kn">Require Import</span> <span class="kn">Ltac2</span>.<span class="kn">Ltac2</span>.
+<span class="kn">Require Import</span> <span class="kn">Ltac2</span>.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="kt">Set</span> Default <span class="kn">Proof</span> Mode <span class="s2">"Classic"</span>.
+
+<span class="sd">(** * 1. First-order hyperdoctrines *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_preorder_hyperdoctrine</span>
+  : UU
+  := ∑ (H : preorder_hyperdoctrine),
+     fiberwise_terminal (hyperdoctrine_cleaving H)
+     ×
+     fiberwise_initial (hyperdoctrine_cleaving H)
+     ×
+     ∑ (P : fiberwise_binproducts (hyperdoctrine_cleaving H)),
+     fiberwise_bincoproducts (hyperdoctrine_cleaving H)
+     ×
+     fiberwise_exponentials P
+     ×
+     has_dependent_products (hyperdoctrine_cleaving H)
+     ×
+     has_dependent_sums (hyperdoctrine_cleaving H).
+
+<span class="kn">Coercion</span> <span class="nf">first_order_preorder_hyperdoctrine_to_preorder_hyperdoctrine</span>
+         (H : first_order_preorder_hyperdoctrine)
+  : preorder_hyperdoctrine.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine</span>
+  : UU
+  := ∑ (H : hyperdoctrine),
+     fiberwise_terminal (hyperdoctrine_cleaving H)
+     ×
+     fiberwise_initial (hyperdoctrine_cleaving H)
+     ×
+     ∑ (P : fiberwise_binproducts (hyperdoctrine_cleaving H)),
+     fiberwise_bincoproducts (hyperdoctrine_cleaving H)
+     ×
+     fiberwise_exponentials P
+     ×
+     has_dependent_products (hyperdoctrine_cleaving H)
+     ×
+     has_dependent_sums (hyperdoctrine_cleaving H).
+
+<span class="kn">Coercion</span> <span class="nf">first_order_hyperdoctrine_to_hyperdoctrine</span>
+         (H : first_order_hyperdoctrine)
+  : hyperdoctrine.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">first_order_hyperdoctrine_to_preorder_hyperdoctrine</span>
+         (H : first_order_hyperdoctrine)
+  : first_order_preorder_hyperdoctrine.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (_
+         ,,
+         pr12 H
+         ,,
+         pr122 H
+         ,,
+         pr1 (pr222 H)
+         ,,
+         pr12 (pr222 H)
+         ,,
+         pr122 (pr222 H)
+         ,,
+         pr1 (pr222 (pr222 H))
+         ,,
+         pr2 (pr222 (pr222 H))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_first_order_hyperdoctrine</span>
+  : UU
+  := ∑ (H : univalent_hyperdoctrine),
+     fiberwise_terminal (hyperdoctrine_cleaving H)
+     ×
+     fiberwise_initial (hyperdoctrine_cleaving H)
+     ×
+     ∑ (P : fiberwise_binproducts (hyperdoctrine_cleaving H)),
+     fiberwise_bincoproducts (hyperdoctrine_cleaving H)
+     ×
+     fiberwise_exponentials P
+     ×
+     has_dependent_products (hyperdoctrine_cleaving H)
+     ×
+     has_dependent_sums (hyperdoctrine_cleaving H).
+
+<span class="kn">Coercion</span> <span class="nf">univalent_first_order_hyperdoctrine_to_hyperdoctrine</span>
+         (H : univalent_first_order_hyperdoctrine)
+  : univalent_hyperdoctrine.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">univalent_first_order_hyperdoctrine_to_first_order</span>
+         (H : univalent_first_order_hyperdoctrine)
+  : first_order_hyperdoctrine.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (_
+         ,,
+         pr12 H
+         ,,
+         pr122 H
+         ,,
+         pr1 (pr222 H)
+         ,,
+         pr12 (pr222 H)
+         ,,
+         pr122 (pr222 H)
+         ,,
+         pr1 (pr222 (pr222 H))
+         ,,
+         pr2 (pr222 (pr222 H))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_first_order_preorder_hyperdoctrine</span>
+           (<span class="nv">H</span> : preorder_hyperdoctrine)
+           (<span class="nv">TH</span> : fiberwise_terminal (hyperdoctrine_cleaving H))
+           (<span class="nv">IH</span> : fiberwise_initial (hyperdoctrine_cleaving H))
+           (<span class="nv">PH</span> : fiberwise_binproducts (hyperdoctrine_cleaving H))
+           (<span class="nv">CH</span> : fiberwise_bincoproducts (hyperdoctrine_cleaving H))
+           (<span class="nv">IMPH</span> : fiberwise_exponentials PH)
+           (<span class="nv">DPH</span> : has_dependent_products (hyperdoctrine_cleaving H))
+           (<span class="nv">DSH</span> : has_dependent_sums (hyperdoctrine_cleaving H))
+  : first_order_preorder_hyperdoctrine
+  := H
+     ,,
+     TH
+     ,,
+     IH
+     ,,
+     PH
+     ,,
+     CH
+     ,,
+     IMPH
+     ,,
+     DPH
+     ,,
+     DSH.
+
+<span class="kn">Definition</span> <span class="nf">make_first_order_hyperdoctrine</span>
+           (<span class="nv">H</span> : hyperdoctrine)
+           (<span class="nv">TH</span> : fiberwise_terminal (hyperdoctrine_cleaving H))
+           (<span class="nv">IH</span> : fiberwise_initial (hyperdoctrine_cleaving H))
+           (<span class="nv">PH</span> : fiberwise_binproducts (hyperdoctrine_cleaving H))
+           (<span class="nv">CH</span> : fiberwise_bincoproducts (hyperdoctrine_cleaving H))
+           (<span class="nv">IMPH</span> : fiberwise_exponentials PH)
+           (<span class="nv">DPH</span> : has_dependent_products (hyperdoctrine_cleaving H))
+           (<span class="nv">DSH</span> : has_dependent_sums (hyperdoctrine_cleaving H))
+  : first_order_hyperdoctrine
+  := H
+     ,,
+     TH
+     ,,
+     IH
+     ,,
+     PH
+     ,,
+     CH
+     ,,
+     IMPH
+     ,,
+     DPH
+     ,,
+     DSH.
+
+<span class="kn">Definition</span> <span class="nf">make_univalent_first_order_hyperdoctrine</span>
+           (<span class="nv">H</span> : univalent_hyperdoctrine)
+           (<span class="nv">TH</span> : fiberwise_terminal (hyperdoctrine_cleaving H))
+           (<span class="nv">IH</span> : fiberwise_initial (hyperdoctrine_cleaving H))
+           (<span class="nv">PH</span> : fiberwise_binproducts (hyperdoctrine_cleaving H))
+           (<span class="nv">CH</span> : fiberwise_bincoproducts (hyperdoctrine_cleaving H))
+           (<span class="nv">IMPH</span> : fiberwise_exponentials PH)
+           (<span class="nv">DPH</span> : has_dependent_products (hyperdoctrine_cleaving H))
+           (<span class="nv">DSH</span> : has_dependent_sums (hyperdoctrine_cleaving H))
+  : univalent_first_order_hyperdoctrine
+  := H
+     ,,
+     TH
+     ,,
+     IH
+     ,,
+     PH
+     ,,
+     CH
+     ,,
+     IMPH
+     ,,
+     DPH
+     ,,
+     DSH.
+
+<span class="sd">(** * 2. The truth formula *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_truth</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">Γ</span> : ty H}
+  : form Γ
+  := terminal_obj_in_fib (pr12 H) Γ.
+
+<span class="kn">Notation</span> <span class="s2">"'⊤'"</span> := first_order_hyperdoctrine_truth : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">truth_intro</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">Δ</span> : form Γ)
+  : Δ ⊢ ⊤.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (TerminalArrow (terminal_in_fib (pr12 H) Γ) Δ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">truth_subst</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+  : ⊤ [ s ] = ⊤.
+<span class="kn">Proof</span>.
+  use (isotoid_disp _ (idpath _)).
+  - <span class="nb">apply</span> is_univalent_disp_hyperdoctrine.
+  - use z_iso_disp_from_z_iso_fiber.
+    <span class="nb">apply</span> (preserves_terminal_to_z_iso _ (pr212 H _ _ s) _ _).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. The falsity formula *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_false</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">Γ</span> : ty H}
+  : form Γ
+  := initial_obj_in_fib (pr122 H) Γ.
+
+<span class="kn">Notation</span> <span class="s2">"'⊥'"</span> := first_order_hyperdoctrine_false : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">false_elim</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">Δ</span> <span class="nv">φ</span> : form Γ)
+            (<span class="nv">p</span> : Δ ⊢ ⊥)
+  : Δ ⊢ φ.
+<span class="kn">Proof</span>.
+  use (hyperdoctrine_cut p).
+  <span class="bp">exact</span> (InitialArrow (initial_in_fib (pr122 H) Γ) φ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">false_subst</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+  : ⊥ [ s ] = ⊥.
+<span class="kn">Proof</span>.
+  use (isotoid_disp _ (idpath _)).
+  - <span class="nb">apply</span> is_univalent_disp_hyperdoctrine.
+  - use z_iso_disp_from_z_iso_fiber.
+    <span class="nb">apply</span> (preserves_initial_to_z_iso _ (pr2 (pr122 H) _ _ s) _ _).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Conjunction *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_conj</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">Γ</span> : ty H}
+           (<span class="nv">φ</span> <span class="nv">ψ</span> : form Γ)
+  : form Γ
+  := BinProductObject _ (binprod_in_fib (pr1 (pr222 H)) φ ψ).
+
+<span class="kn">Notation</span> <span class="s2">"φ ∧ ψ"</span> := (first_order_hyperdoctrine_conj φ ψ) : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">conj_intro</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ)
+            (<span class="nv">q</span> : Δ ⊢ ψ)
+  : Δ ⊢ φ ∧ ψ.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (BinProductArrow _ (binprod_in_fib (pr1 (pr222 H)) φ ψ) p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">conj_elim_left</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ ∧ ψ)
+  : Δ ⊢ φ.
+<span class="kn">Proof</span>.
+  use (hyperdoctrine_cut p).
+  <span class="nb">apply</span> (BinProductPr1 _ (binprod_in_fib (pr1 (pr222 H)) φ ψ)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">conj_elim_right</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ ∧ ψ)
+  : Δ ⊢ ψ.
+<span class="kn">Proof</span>.
+  use (hyperdoctrine_cut p).
+  <span class="nb">apply</span> (BinProductPr2 _ (binprod_in_fib (pr1 (pr222 H)) φ ψ)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">conj_subst</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">φ</span> <span class="nv">ψ</span> : form Γ₂)
+  : (φ ∧ ψ) [ s ] = (φ [ s ] ∧ ψ [ s ]).
+<span class="kn">Proof</span>.
+  use (isotoid_disp _ (idpath _)).
+  - <span class="nb">apply</span> is_univalent_disp_hyperdoctrine.
+  - use z_iso_disp_from_z_iso_fiber.
+    use (preserves_binproduct_to_z_iso _ (pr21 (pr222 H) _ _ s)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Weakening of hypotheses *)</span>
+
+<span class="sd">(**</span>
+<span class="sd">   The presence of conjunction allows us to add assumptions to the formula context.</span>
+<span class="sd">   We can derive the proper weaking rules for that.</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">weaken_left</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ₁</span> <span class="nv">φ</span> : form Γ}
+            (<span class="nv">p</span> : Δ₁ ⊢ φ)
+            (<span class="nv">Δ₂</span> : form Γ)
+  : Δ₁ ∧ Δ₂ ⊢ φ.
+<span class="kn">Proof</span>.
+  use (hyperdoctrine_cut _ p).
+  <span class="nb">apply</span> (BinProductPr1 _ (binprod_in_fib (pr1 (pr222 H)) Δ₁ Δ₂)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">weaken_right</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ₂</span> <span class="nv">φ</span> : form Γ}
+            (<span class="nv">p</span> : Δ₂ ⊢ φ)
+            (<span class="nv">Δ₁</span> : form Γ)
+  : Δ₁ ∧ Δ₂ ⊢ φ.
+<span class="kn">Proof</span>.
+  use (hyperdoctrine_cut _ p).
+  <span class="nb">apply</span> (BinProductPr2 _ (binprod_in_fib (pr1 (pr222 H)) Δ₁ Δ₂)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">weaken_cut</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ)
+            (<span class="nv">q</span> : Δ ∧ φ ⊢ ψ)
+  : Δ ⊢ ψ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_cut _ q).
+  use (BinProductArrow _ (binprod_in_fib _ Δ φ)).
+  - <span class="nb">apply</span> hyperdoctrine_hyp.
+  - <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">weaken_to_empty</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> : form Γ}
+            (<span class="nv">p</span> : ⊤ ⊢ φ)
+  : Δ ⊢ φ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_cut _ p).
+  use truth_intro.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyp_sym</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">Δ'</span> <span class="nv">φ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ∧ Δ' ⊢ φ)
+  : Δ' ∧ Δ ⊢ φ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_cut _ p).
+  use conj_intro.
+  - use weaken_right.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  - use weaken_left.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyp_ltrans</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">Δ'</span> <span class="nv">Δ''</span> <span class="nv">φ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ∧ (Δ' ∧ Δ'') ⊢ φ)
+  : (Δ ∧ Δ') ∧ Δ'' ⊢ φ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_cut _ p).
+  use conj_intro.
+  - <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  - use conj_intro.
+    + use weaken_left.
+      use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    + use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyp_rtrans</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">Δ'</span> <span class="nv">Δ''</span> <span class="nv">φ</span> : form Γ}
+            (<span class="nv">p</span> : (Δ ∧ Δ') ∧ Δ'' ⊢ φ)
+  : Δ ∧ (Δ' ∧ Δ'') ⊢ φ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_cut _ p).
+  use conj_intro.
+  - use conj_intro.
+    + use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    + use weaken_right.
+      use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+  - <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">conj_assoc</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">φ₁</span> <span class="nv">φ₂</span> <span class="nv">φ₃</span> : form Γ)
+  : ((φ₁ ∧ φ₂) ∧ φ₃) = (φ₁ ∧ (φ₂ ∧ φ₃)).
+<span class="kn">Proof</span>.
+  use hyperdoctrine_formula_eq.
+  - <span class="nb">apply</span> hyp_ltrans.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  - <span class="nb">apply</span> hyp_rtrans.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Disjunction *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_disj</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">Γ</span> : ty H}
+           (<span class="nv">φ</span> <span class="nv">ψ</span> : form Γ)
+  : form Γ
+  := BinCoproductObject (bincoprod_in_fib (pr12 (pr222 H)) φ ψ).
+
+<span class="kn">Notation</span> <span class="s2">"φ ∨ ψ"</span> := (first_order_hyperdoctrine_disj φ ψ) : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">disj_intro_left</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ)
+  : Δ ⊢ φ ∨ ψ.
+<span class="kn">Proof</span>.
+  use (hyperdoctrine_cut p).
+  <span class="nb">apply</span> (BinCoproductIn1 (bincoprod_in_fib (pr12 (pr222 H)) φ ψ)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disj_intro_right</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ ψ)
+  : Δ ⊢ φ ∨ ψ.
+<span class="kn">Proof</span>.
+  use (hyperdoctrine_cut p).
+  <span class="nb">apply</span> (BinCoproductIn2 (bincoprod_in_fib (pr12 (pr222 H)) φ ψ)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">distributivity</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">φ</span> <span class="nv">ψ</span> <span class="nv">χ</span> : form Γ)
+  : φ ∧ (ψ ∨ χ) ⊢ (φ ∧ ψ) ∨ (φ ∧ χ).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (distributivity_fiberwise_exponentials
+                (pr12 (pr222 H))
+                (pr122 (pr222 H))
+                φ ψ χ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disj_elim</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> <span class="nv">χ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ ∨ ψ)
+            (<span class="nv">q</span> : Δ ∧ φ ⊢ χ)
+            (<span class="nv">r</span> : Δ ∧ ψ ⊢ χ)
+  : Δ ⊢ χ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_cut
+            _
+            (BinCoproductArrow (bincoprod_in_fib (pr12 (pr222 H)) (Δ ∧ φ) (Δ ∧ ψ)) q r)).
+  use (weaken_cut p).
+  <span class="nb">apply</span> distributivity.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disj_subst</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">φ</span> <span class="nv">ψ</span> : form Γ₂)
+  : (φ ∨ ψ) [ s ] = (φ [ s ] ∨ ψ [ s ]).
+<span class="kn">Proof</span>.
+  use (isotoid_disp _ (idpath _)).
+  - <span class="nb">apply</span> is_univalent_disp_hyperdoctrine.
+  - use z_iso_disp_from_z_iso_fiber.
+    use (preserves_bincoproduct_to_z_iso _ (pr212 (pr222 H) _ _ s)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. Implication *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_impl</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">Γ</span> : ty H}
+           (<span class="nv">φ</span> <span class="nv">ψ</span> : form Γ)
+  : form Γ
+  := exp_in_fib (pr122 (pr222 H)) φ ψ.
+
+<span class="kn">Notation</span> <span class="s2">"φ ⇒ ψ"</span> := (first_order_hyperdoctrine_impl φ ψ) : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">impl_intro</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ∧ φ ⊢ ψ)
+  : Δ ⊢ φ ⇒ ψ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (lam_in_fib (pr122 (pr222 H)) _).
+  use (hyperdoctrine_cut _ p).
+  <span class="nb">apply</span> hyp_sym.
+  <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">impl_elim</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ)
+            (<span class="nv">q</span> : Δ ⊢ φ ⇒ ψ)
+  : Δ ⊢ ψ.
+<span class="kn">Proof</span>.
+  use (hyperdoctrine_cut _ (eval_in_fib (pr122 (pr222 H)) φ ψ)).
+  use conj_intro.
+  - <span class="bp">exact</span> p.
+  - <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">impl_subst</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">φ</span> <span class="nv">ψ</span> : form Γ₂)
+  : (φ ⇒ ψ) [ s ] = (φ [ s ] ⇒ ψ [ s ]).
+<span class="kn">Proof</span>.
+  use (isotoid_disp _ (idpath _)).
+  - <span class="nb">apply</span> is_univalent_disp_hyperdoctrine.
+  - use z_iso_disp_from_z_iso_fiber.
+    <span class="bp">exact</span> (_ ,, preserves_exponentials_in_fib (pr122 (pr222 H)) s φ ψ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">impl_id</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">φ</span> : form Γ)
+  : ⊤ ⊢ φ ⇒ φ.
+<span class="kn">Proof</span>.
+  use impl_intro.
+  use weaken_right.
+  <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 8. Universal quantification *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_forall</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+           (<span class="nv">φ</span> : form (Γ ×h A))
+  : form Γ
+  := dep_prod (pr1 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) φ.
+
+<span class="kn">Notation</span> <span class="s2">"'∀h' φ"</span> := (first_order_hyperdoctrine_forall φ) (<span class="kn">at level</span> <span class="mi">10</span>)
+    : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">forall_intro</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">φ</span> : form (Γ ×h A)}
+            (<span class="nv">p</span> : Δ [ π₁ (tm_var _) ] ⊢ φ)
+  : Δ ⊢ <span class="k">∀</span><span class="nv">h</span> <span class="nv">φ</span>.
+<span class="kn">Proof</span>.
+  use (hyperdoctrine_cut
+         (dep_prod_unit (pr1 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) Δ)).
+  use dep_prod_mor.
+  <span class="nb">cbn</span>.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">forall_elim</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">φ</span> : form (Γ ×h A)}
+            (<span class="nv">p</span> : Δ ⊢ <span class="k">∀</span><span class="nv">h</span> <span class="nv">φ</span>)
+            (<span class="nv">t</span> : tm Γ A)
+  : Δ ⊢ φ [ ⟨ tm_var _ , t ⟩ ].
+<span class="kn">Proof</span>.
+  use (hyperdoctrine_cut p).
+  <span class="nb">assert</span> ((<span class="k">∀</span><span class="nv">h</span> <span class="nv">φ</span>)[ π₁ (tm_var (Γ ×h A)) ] ⊢ φ) <span class="k">as</span> r.
+  {
+    <span class="bp">exact</span> (dep_prod_counit (pr1 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) φ).
+  }
+  <span class="nb">pose</span> (hyperdoctrine_proof_subst ⟨ tm_var Γ , t ⟩ r) <span class="k">as</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_comp_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1 <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_id_subst <span class="k">in</span> r'.
+  <span class="bp">exact</span> r'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">quantifier_subst_pb_eq</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            (<span class="nv">A</span> : ty H)
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+  : s [ π₁ (tm_var (Γ₁ ×h A)) ]tm
+    =
+    (π₁ (tm_var _)) [ ⟨ s [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩ ]tm.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">quantifier_subst_pb</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+           (<span class="nv">A</span> : ty H)
+           (<span class="nv">s</span> : tm Γ₁ Γ₂)
+  : isPullback (!(quantifier_subst_pb_eq A s)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Γ' t t' p.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> ζ₁ ζ₂ ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+       <span class="nb">refine</span> (hyperdoctrine_pair_eta _ @ _ @ !(hyperdoctrine_pair_eta _)) ;
+       <span class="nb">pose</span> (pr22 ζ₁) <span class="k">as</span> q ;
+       <span class="nb">rewrite</span> hyperdoctrine_pr1_comp <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> id_right <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> q ; <span class="nb">clear</span> q ;
+       <span class="nb">pose</span> (pr22 ζ₂) <span class="k">as</span> q ;
+       <span class="nb">rewrite</span> hyperdoctrine_pr1_comp <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> id_right <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> q ; <span class="nb">clear</span> q ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, π₂ z) (pr12 ζ₁)) <span class="k">as</span> q ; <span class="nb">cbn</span> <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> (hyperdoctrine_pair_comp (H := H)) <span class="k">in</span> q ;
+       <span class="nb">unfold</span> tm_subst <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> !assoc <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> (hyperdoctrine_pr1_comp (H := H)) <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> hyperdoctrine_pr2_comp <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> !id_right <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> q ;
+       <span class="nb">clear</span> q ;
+       <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, π₂ z) (pr12 ζ₂)) <span class="k">as</span> q ; <span class="nb">cbn</span> <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> (hyperdoctrine_pair_comp (H := H)) <span class="k">in</span> q ;
+       <span class="nb">unfold</span> tm_subst <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> !assoc <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> (hyperdoctrine_pr1_comp (H := H)) <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> hyperdoctrine_pr2_comp <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> !id_right <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> q ;
+       <span class="nb">clear</span> q ;
+       <span class="nb">apply</span> idpath).
+  - <span class="nb">refine</span> (⟨ t' , t · π₂ (tm_var _) ⟩ ,, _ ,, _).
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> hyperdoctrine_pair_comp ;
+         <span class="nb">unfold</span> tm_subst ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1' ;
+         <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2' ;
+         <span class="nb">rewrite</span> &lt;- p ;
+         <span class="nb">rewrite</span> hyperdoctrine_pr1_comp ;
+         <span class="nb">rewrite</span> hyperdoctrine_pr2_comp ;
+         <span class="nb">rewrite</span> !id_right ;
+         <span class="nb">rewrite</span> &lt;- hyperdoctrine_pair_eta ;
+         <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1' ;
+         <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">forall_subst</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+            (<span class="nv">φ</span> : form (Γ₂ ×h A))
+  : (<span class="k">∀</span><span class="nv">h</span> <span class="nv">φ</span>) [ s ]
+    =
+    (<span class="k">∀</span><span class="nv">h</span> (<span class="nv">φ</span> [ ⟨ s [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩ ])).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (pr21 (pr222 (pr222 H)) _ _ _ _ _ _ _ _ _ (quantifier_subst_pb A s) φ) <span class="k">as</span> p.
+  <span class="nb">pose</span> (f := (_ ,, p) : z_iso _ _).
+  use hyperdoctrine_formula_eq.
+  - <span class="nb">apply</span> f.
+  - <span class="bp">exact</span> (inv_from_z_iso f).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 9. Existential quantification *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_exists</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+           (<span class="nv">φ</span> : form (Γ ×h A))
+  : form Γ
+  := dep_sum (pr2 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) φ.
+
+<span class="kn">Notation</span> <span class="s2">"'∃h' φ"</span> := (first_order_hyperdoctrine_exists φ) (<span class="kn">at level</span> <span class="mi">10</span>)
+    : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">exists_subst</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+            (<span class="nv">φ</span> : form (Γ₂ ×h A))
+  : (<span class="k">∃</span><span class="nv">h</span> <span class="nv">φ</span>) [ s ]
+    =
+    <span class="k">∃</span><span class="nv">h</span> (<span class="nv">φ</span> [ ⟨ s [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩ ]).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (pr22 (pr222 (pr222 H)) _ _ _ _ _ _ _ _ _ (quantifier_subst_pb A s) φ) <span class="k">as</span> p.
+  <span class="nb">pose</span> (f := (_ ,, p) : z_iso _ _).
+  use hyperdoctrine_formula_eq.
+  - <span class="bp">exact</span> (inv_from_z_iso f).
+  - <span class="nb">apply</span> f.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">exists_intro</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">φ</span> : form (Γ ×h A)}
+            {<span class="nv">t</span> : tm Γ A}
+            (<span class="nv">p</span> : Δ ⊢ φ [ ⟨ tm_var _ , t ⟩ ])
+  : Δ ⊢ <span class="k">∃</span><span class="nv">h</span> <span class="nv">φ</span>.
+<span class="kn">Proof</span>.
+  use (hyperdoctrine_cut p).
+  <span class="nb">assert</span> (φ ⊢ (<span class="k">∃</span><span class="nv">h</span> <span class="nv">φ</span>) [ π₁ (tm_var (Γ ×h A)) ]) <span class="k">as</span> r.
+  {
+    <span class="bp">exact</span> (dep_sum_unit (pr2 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) φ).
+  }
+  <span class="nb">pose</span> (hyperdoctrine_proof_subst ⟨ tm_var Γ , t ⟩ r) <span class="k">as</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_comp_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1 <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_id_subst <span class="k">in</span> r'.
+  <span class="bp">exact</span> r'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">exists_elim_empty</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">ψ</span> : form Γ}
+            {<span class="nv">φ</span> : form (Γ ×h A)}
+            (<span class="nv">p</span> : Δ ⊢ <span class="k">∃</span><span class="nv">h</span> <span class="nv">φ</span>)
+            (<span class="nv">q</span> : φ ⊢ ψ [ π₁ (tm_var (Γ ×h A)) ])
+  : Δ ⊢ ψ.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (<span class="k">∃</span><span class="nv">h</span> (<span class="nv">ψ</span> [ π₁ (tm_var (Γ ×h A)) ]) ⊢ ψ) <span class="k">as</span> r.
+  {
+    <span class="bp">exact</span> (dep_sum_counit (pr2 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) ψ).
+  }
+  use (hyperdoctrine_cut _ r).
+  use (hyperdoctrine_cut p).
+  use dep_sum_mor.
+  <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">frobenius_reciprocity</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">φ</span> : form (Γ ×h A))
+            (<span class="nv">Δ</span> : form Γ)
+  : Δ ∧ (<span class="k">∃</span><span class="nv">h</span> <span class="nv">φ</span>) ⊢ (<span class="k">∃</span><span class="nv">h</span> (<span class="nv">Δ</span> [ π₁ (tm_var (Γ ×h A)) ] ∧ φ)).
+<span class="kn">Proof</span>.
+  <span class="nb">enough</span> (<span class="k">∃</span><span class="nv">h</span> <span class="nv">φ</span> ⊢ Δ ⇒ <span class="k">∃</span><span class="nv">h</span> (<span class="nv">Δ</span> [ π₁ (tm_var (Γ ×h A)) ] ∧ φ)) <span class="k">as</span> r₁.
+  {
+    <span class="nb">assert</span> (Δ ∧ <span class="k">∃</span><span class="nv">h</span> <span class="nv">φ</span> ⊢ Δ ⇒ <span class="k">∃</span><span class="nv">h</span> (<span class="nv">Δ</span> [ π₁ (tm_var (Γ ×h A)) ] ∧ φ)) <span class="k">as</span> r₂.
+    {
+      use weaken_right.
+      <span class="bp">exact</span> r₁.
+    }
+    <span class="nb">refine</span> (impl_elim _ r₂).
+    use weaken_left.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  }
+  use (exists_elim_empty (hyperdoctrine_hyp _)).
+  <span class="nb">rewrite</span> impl_subst.
+  use impl_intro.
+  <span class="nb">rewrite</span> exists_subst.
+  use exists_intro.
+  - <span class="bp">exact</span> (π₂ (tm_var _)).
+  - <span class="nb">rewrite</span> hyperdoctrine_comp_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_subst.
+    <span class="nb">rewrite</span> tm_subst_comp.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2.
+    <span class="nb">rewrite</span> tm_subst_var.
+    <span class="nb">rewrite</span> conj_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_comp_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1.
+    <span class="nb">rewrite</span> &lt;- hyperdoctrine_pair_eta.
+    <span class="nb">rewrite</span> hyperdoctrine_id_subst.
+    use hyp_sym.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">exists_elim</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">ψ</span> : form Γ}
+            {<span class="nv">φ</span> : form (Γ ×h A)}
+            (<span class="nv">p</span> : Δ ⊢ <span class="k">∃</span><span class="nv">h</span> <span class="nv">φ</span>)
+            (<span class="nv">q</span> : Δ [ π₁ (tm_var (Γ ×h A)) ] ∧ φ ⊢ ψ [ π₁ (tm_var (Γ ×h A)) ])
+  : Δ ⊢ ψ.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (<span class="k">∃</span><span class="nv">h</span> (<span class="nv">ψ</span> [ π₁ (tm_var (Γ ×h A)) ]) ⊢ ψ) <span class="k">as</span> r.
+  {
+    <span class="bp">exact</span> (dep_sum_counit (pr2 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) ψ).
+  }
+  use (hyperdoctrine_cut _ r).
+  use (weaken_cut p).
+  use (hyperdoctrine_cut (frobenius_reciprocity _ _)).
+  use dep_sum_mor.
+  <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 10. Equality *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_equal</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+           (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+  : form Γ
+  := (dep_sum (pr2 (pr222 (pr222 H))) (Δ_{A}) ⊤) [ ⟨ t₁ , t₂ ⟩ ].
+
+<span class="kn">Notation</span> <span class="s2">"t₁ ≡ t₂"</span> := (first_order_hyperdoctrine_equal t₁ t₂)
+    : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">equal_subst</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ₂ A)
+  : (t₁ ≡ t₂) [ s ] = (t₁ [ s ]tm ≡ t₂ [ s ]tm).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> first_order_hyperdoctrine_equal.
+  <span class="nb">rewrite</span> hyperdoctrine_comp_subst.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_subst.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_refl'</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">t</span> : tm Γ A)
+  : ⊤ ⊢ t ≡ t.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (⊤ ⊢ (dep_sum (pr2 (pr222 (pr222 H))) (Δ_{A}) ⊤) [ Δ_{A} ]) <span class="k">as</span> p.
+  {
+    <span class="bp">exact</span> (dep_sum_unit (pr2 (pr222 (pr222 H))) (Δ_{A}) ⊤).
+  }
+  <span class="nb">pose</span> (hyperdoctrine_proof_subst t p) <span class="k">as</span> q.
+  <span class="nb">rewrite</span> truth_subst <span class="k">in</span> q.
+  <span class="nb">rewrite</span> hyperdoctrine_comp_subst <span class="k">in</span> q.
+  <span class="nb">rewrite</span> hyperdoctrine_diag_subst <span class="k">in</span> q.
+  <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_refl</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">Δ</span> : form Γ)
+            (<span class="nv">t</span> : tm Γ A)
+  : Δ ⊢ t ≡ t.
+<span class="kn">Proof</span>.
+  use weaken_to_empty.
+  use hyperdoctrine_refl'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_refl_eq</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">Δ</span> : form Γ)
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A}
+            (<span class="nv">p</span> : t₁ = t₂)
+  : Δ ⊢ t₁ ≡ t₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> hyperdoctrine_refl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_elim_help</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">φ</span> : form (A ×h A))
+            (<span class="nv">p</span> : ⊤ ⊢ φ [ Δ_{A} ])
+            (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+  : t₁ ≡ t₂ ⊢ φ [ ⟨ t₁ , t₂ ⟩ ].
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (dep_sum_counit (pr2 (pr222 (pr222 H))) (Δ_{A}) φ) <span class="k">as</span> r.
+  <span class="nb">pose</span> (hyperdoctrine_proof_subst ⟨ t₁ , t₂ ⟩ r) <span class="k">as</span> r'.
+  use (hyperdoctrine_cut _ r').
+  <span class="nb">unfold</span> first_order_hyperdoctrine_equal.
+  use hyperdoctrine_proof_subst.
+  use dep_sum_mor.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_elim_help_con'</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">φ</span> : form ((A ×h A) ×h Γ))
+            (<span class="nv">p</span> : ⊤ ⊢ φ [ ⟨ Δ_{A} [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩ ])
+            (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+  : t₁ ≡ t₂ ⊢ φ [ ⟨ ⟨ t₁ , t₂ ⟩ , tm_var _ ⟩ ].
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (⊤ ⊢ (<span class="k">∀</span><span class="nv">h</span> <span class="nv">φ</span>) [ Δ_{ A } ]) <span class="k">as</span> q.
+  {
+    <span class="nb">rewrite</span> forall_subst.
+    use forall_intro.
+    <span class="nb">rewrite</span> truth_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_diag_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_diag_subst <span class="k">in</span> p.
+    <span class="bp">exact</span> p.
+  }
+  <span class="nb">refine</span> (hyperdoctrine_cut (hyperdoctrine_eq_elim_help (<span class="k">∀</span><span class="nv">h</span> <span class="nv">φ</span>) q t₁ t₂) _).
+  <span class="nb">rewrite</span> forall_subst.
+  use (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) (tm_var _))).
+  <span class="nb">rewrite</span> hyperdoctrine_comp_subst.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_subst.
+  <span class="nb">rewrite</span> tm_subst_comp.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2.
+  <span class="nb">rewrite</span> tm_subst_var.
+  <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_eq_elim_help_con_sub</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">Γ</span> <span class="nv">A</span> : ty H)
+  : tm ((A ×h A) ×h Γ) (Γ ×h (A ×h A)).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> ⟨ _ , ⟨ _ , _ ⟩ ⟩.
+  - <span class="bp">exact</span> (π₂ (tm_var _)).
+  - <span class="bp">exact</span> ((π₁ (tm_var _)) [ π₁ (tm_var _) ]tm).
+  - <span class="bp">exact</span> ((π₂ (tm_var _)) [ π₁ (tm_var _) ]tm).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_elim_help_con</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            (<span class="nv">φ</span> : form (Γ ×h (A ×h A)))
+            (<span class="nv">p</span> : ⊤ ⊢ φ [ ⟨ π₁ (tm_var _) , Δ_{A} [ π₂ (tm_var _) ]tm ⟩ ])
+            (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+  : t₁ ≡ t₂ ⊢ φ [ ⟨ tm_var _ , ⟨ t₁ , t₂ ⟩ ⟩ ].
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (s := hyperdoctrine_eq_elim_help_con_sub Γ A).
+  <span class="nb">assert</span> (⊤ ⊢ φ [s] [⟨ Δ_{ A } [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩])
+    <span class="k">as</span> q.
+  {
+    <span class="nb">unfold</span> s, hyperdoctrine_eq_elim_help_con_sub.
+    <span class="nb">rewrite</span> hyperdoctrine_comp_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_diag_subst.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2.
+    <span class="nb">rewrite</span> !tm_subst_comp.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_comp_pr1.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2.
+    <span class="nb">rewrite</span> hyperdoctrine_diag_subst <span class="k">in</span> p.
+    <span class="nb">pose</span> (hyperdoctrine_proof_subst ⟨ π₂ (tm_var _) , π₁ (tm_var _) ⟩ p) <span class="k">as</span> p'.
+    <span class="nb">rewrite</span> truth_subst <span class="k">in</span> p'.
+    <span class="nb">refine</span> (hyperdoctrine_cut p' _).
+    <span class="nb">rewrite</span> hyperdoctrine_comp_subst.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_comp_pr1.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  }
+  use (hyperdoctrine_cut (hyperdoctrine_eq_elim_help_con' (φ [ s ]) q t₁ t₂)).
+  <span class="nb">unfold</span> s, hyperdoctrine_eq_elim_help_con_sub.
+  <span class="nb">rewrite</span> hyperdoctrine_comp_subst.
+  <span class="nb">rewrite</span> !hyperdoctrine_pair_subst.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2.
+  <span class="nb">rewrite</span> !tm_subst_comp.
+  <span class="nb">rewrite</span> !hyperdoctrine_pair_comp_pr1.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2.
+  <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_elim</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            (<span class="nv">φ</span> : form (Γ ×h A))
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A}
+            (<span class="nv">p</span> : Δ ⊢ t₁ ≡ t₂)
+            (<span class="nv">q</span> : Δ ⊢ φ [ ⟨ tm_var _ , t₁ ⟩ ])
+  : Δ ⊢ φ [ ⟨ tm_var _ , t₂ ⟩ ].
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (φ [ ⟨ π₁ (tm_var _) , (π₁ (tm_var _)) [ π₂ (tm_var _) ]tm ⟩ ]
+        ⇒
+        φ [ ⟨ π₁ (tm_var _) , (π₂ (tm_var _)) [ π₂ (tm_var _) ]tm ⟩ ])
+    <span class="k">as</span> ψ.
+  <span class="nb">assert</span> (⊤ ⊢ ψ [⟨ π₁ (tm_var (Γ ×h A)), Δ_{ A } [ π₂ (tm_var (Γ ×h A)) ]tm ⟩])
+    <span class="k">as</span> r.
+  {
+    <span class="nb">unfold</span> ψ.
+    <span class="nb">rewrite</span> impl_subst.
+    <span class="nb">rewrite</span> !hyperdoctrine_comp_subst.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst.
+    <span class="nb">rewrite</span> !tm_subst_comp.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2.
+    <span class="nb">rewrite</span> &lt;- !tm_subst_comp.
+    <span class="nb">unfold</span> hyperdoctrine_diag.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2.
+    <span class="nb">rewrite</span> !var_tm_subst.
+    <span class="nb">apply</span> impl_id.
+  }
+  <span class="nb">pose proof</span> (hyperdoctrine_eq_elim_help_con ψ r t₁ t₂) <span class="k">as</span> r'.
+  <span class="nb">unfold</span> ψ <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> impl_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !hyperdoctrine_comp_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !hyperdoctrine_pair_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !tm_subst_comp <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1 <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2 <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1 <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2 <span class="k">in</span> r'.
+  use (impl_elim q).
+  use (hyperdoctrine_cut p).
+  <span class="bp">exact</span> r'.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 11. Derived rules for equality *)</span>
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_sym</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A}
+            (<span class="nv">p</span> : Δ ⊢ t₁ ≡ t₂)
+  : Δ ⊢ t₂ ≡ t₁.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (φ := (π₂ (tm_var _) ≡ t₁ [ π₁ (tm_var _) ]tm) : form (Γ ×h A)).
+  <span class="nb">assert</span> (Δ ⊢ φ [⟨ tm_var Γ , t₁ ⟩]) <span class="k">as</span> q.
+  {
+    <span class="nb">unfold</span> φ.
+    <span class="nb">rewrite</span> equal_subst.
+    <span class="nb">rewrite</span> !tm_subst_comp.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1.
+    <span class="nb">rewrite</span> tm_subst_var.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2.
+    <span class="nb">apply</span> hyperdoctrine_refl.
+  }
+  <span class="nb">pose</span> (hyperdoctrine_eq_elim φ p q) <span class="k">as</span> r.
+  <span class="nb">unfold</span> φ <span class="k">in</span> r.
+  <span class="nb">rewrite</span> equal_subst <span class="k">in</span> r.
+  <span class="nb">rewrite</span> !tm_subst_comp <span class="k">in</span> r.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1 <span class="k">in</span> r.
+  <span class="nb">rewrite</span> tm_subst_var <span class="k">in</span> r.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2 <span class="k">in</span> r.
+  <span class="bp">exact</span> r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_trans</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> <span class="nv">t₃</span> : tm Γ A}
+            (<span class="nv">p</span> : Δ ⊢ t₁ ≡ t₂)
+            (<span class="nv">p'</span> : Δ ⊢ t₂ ≡ t₃)
+  : Δ ⊢ t₁ ≡ t₃.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (φ := (π₂ (tm_var _) ≡ t₃ [ π₁ (tm_var _) ]tm) : form (Γ ×h A)).
+  <span class="nb">assert</span> (Δ ⊢ φ [⟨ tm_var Γ , t₂ ⟩]) <span class="k">as</span> q.
+  {
+    <span class="nb">unfold</span> φ.
+    <span class="nb">rewrite</span> equal_subst.
+    <span class="nb">rewrite</span> !tm_subst_comp.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1.
+    <span class="nb">rewrite</span> tm_subst_var.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2.
+    <span class="bp">exact</span> p'.
+  }
+  <span class="nb">pose</span> (hyperdoctrine_eq_elim φ (hyperdoctrine_eq_sym p) q) <span class="k">as</span> r.
+  <span class="nb">unfold</span> φ <span class="k">in</span> r.
+  <span class="nb">rewrite</span> equal_subst <span class="k">in</span> r.
+  <span class="nb">rewrite</span> !tm_subst_comp <span class="k">in</span> r.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr1 <span class="k">in</span> r.
+  <span class="nb">rewrite</span> tm_subst_var <span class="k">in</span> r.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_comp_pr2 <span class="k">in</span> r.
+  <span class="bp">exact</span> r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_transportf</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A}
+            (<span class="nv">φ</span> : form A)
+            (<span class="nv">p</span> : Δ ⊢ t₁ ≡ t₂)
+            (<span class="nv">q</span> : Δ ⊢ φ [ t₁ ])
+  : Δ ⊢ φ [ t₂ ].
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (Δ ⊢ t₁ ≡ t₂ ∧ φ [ t₁ ]) <span class="k">as</span> r.
+  {
+    <span class="bp">exact</span> (conj_intro p q).
+  }
+  <span class="nb">refine</span> (hyperdoctrine_cut r _).
+  <span class="nb">pose</span> (hyperdoctrine_eq_elim
+          (φ [ π₂ (tm_var _) ])
+          (weaken_left (hyperdoctrine_hyp _) _)
+          (weaken_right (hyperdoctrine_hyp _) (t₁ ≡ t₂)))
+    <span class="k">as</span> h.
+  <span class="nb">rewrite</span> !hyperdoctrine_comp_subst <span class="k">in</span> h.
+  <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst <span class="k">in</span> h.
+  <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> h.
+  <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2 <span class="k">in</span> h.
+  <span class="bp">exact</span> h.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_transportb</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A}
+            (<span class="nv">φ</span> : form A)
+            (<span class="nv">p</span> : Δ ⊢ t₁ ≡ t₂)
+            (<span class="nv">q</span> : Δ ⊢ φ [ t₂ ])
+  : Δ ⊢ φ [ t₁ ].
+<span class="kn">Proof</span>.
+  use (hyperdoctrine_eq_transportf _ _ q).
+  use hyperdoctrine_eq_sym.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_unit_eq_prf</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">t</span> : tm Γ <span class="mi">𝟙</span>)
+            (<span class="nv">Δ</span> : form Γ)
+  : Δ ⊢ t ≡ !!.
+<span class="kn">Proof</span>.
+  use hyperdoctrine_refl_eq.
+  <span class="nb">apply</span> hyperdoctrine_unit_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_unit_tm_eq</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">t</span> <span class="nv">t'</span> : tm Γ <span class="mi">𝟙</span>)
+            (<span class="nv">Δ</span> : form Γ)
+  : Δ ⊢ t ≡ t'.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_eq_trans (hyperdoctrine_unit_eq_prf t Δ) _).
+  use hyperdoctrine_eq_sym.
+  <span class="nb">apply</span> hyperdoctrine_unit_eq_prf.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_pr1</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">t</span> <span class="nv">t'</span> : tm Γ (A ×h B)}
+            (<span class="nv">p</span> : Δ ⊢ t ≡ t')
+  : Δ ⊢ π₁ t ≡ π₁ t'.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (φ := ((π₁ t) [ π₁ (tm_var _) ]tm ≡ π₁ (π₂ (tm_var (Γ ×h A ×h B)))) : form (Γ ×h A ×h B)).
+  <span class="nb">assert</span> (Δ ⊢ φ [⟨ tm_var Γ , t ⟩]) <span class="k">as</span> r.
+  {
+    <span class="nb">unfold</span> φ.
+    <span class="nb">rewrite</span> equal_subst.
+    <span class="nb">rewrite</span> !tm_subst_comp.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+    <span class="nb">rewrite</span> var_tm_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr1.
+    <span class="nb">rewrite</span> tm_subst_var.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+    <span class="nb">rewrite</span> var_tm_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr2.
+    <span class="nb">apply</span> hyperdoctrine_refl.
+  }
+  <span class="nb">pose</span> (hyperdoctrine_eq_elim φ p r) <span class="k">as</span> r'.
+  <span class="nb">unfold</span> φ <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> equal_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !tm_subst_comp <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> var_tm_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr1 <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> tm_subst_var <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> var_tm_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> r'.
+  <span class="bp">exact</span> r'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_pr2</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">t</span> <span class="nv">t'</span> : tm Γ (A ×h B)}
+            (<span class="nv">p</span> : Δ ⊢ t ≡ t')
+  : Δ ⊢ π₂ t ≡ π₂ t'.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (φ := ((π₂ t) [ π₁ (tm_var _) ]tm ≡ π₂ (π₂ (tm_var (Γ ×h A ×h B)))) : form (Γ ×h A ×h B)).
+  <span class="nb">assert</span> (Δ ⊢ φ [⟨ tm_var Γ , t ⟩]) <span class="k">as</span> r.
+  {
+    <span class="nb">unfold</span> φ.
+    <span class="nb">rewrite</span> equal_subst.
+    <span class="nb">rewrite</span> !tm_subst_comp.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+    <span class="nb">rewrite</span> var_tm_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr1.
+    <span class="nb">rewrite</span> tm_subst_var.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+    <span class="nb">rewrite</span> var_tm_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr2.
+    <span class="nb">apply</span> hyperdoctrine_refl.
+  }
+  <span class="nb">pose</span> (hyperdoctrine_eq_elim φ p r) <span class="k">as</span> r'.
+  <span class="nb">unfold</span> φ <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> equal_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !tm_subst_comp <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> var_tm_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr1 <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> tm_subst_var <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> var_tm_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> r'.
+  <span class="bp">exact</span> r'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_pair_left</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> : tm Γ A}
+            (<span class="nv">p</span> : Δ ⊢ s₁ ≡ s₂)
+            (<span class="nv">t</span> : tm Γ B)
+  : Δ ⊢ ⟨ s₁ , t ⟩ ≡ ⟨ s₂ , t ⟩.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (φ := (⟨ s₁ [ π₁ (tm_var _) ]tm , t [ π₁ (tm_var _) ]tm ⟩
+              ≡
+              ⟨ π₂ (tm_var _) , t [ π₁ (tm_var _) ]tm ⟩)
+          : form (Γ ×h A)).
+  <span class="nb">assert</span> (Δ ⊢ φ [⟨ tm_var Γ , s₁ ⟩]) <span class="k">as</span> r.
+  {
+    <span class="nb">unfold</span> φ.
+    <span class="nb">rewrite</span> equal_subst.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst.
+    <span class="nb">rewrite</span> !tm_subst_comp.
+    <span class="nb">rewrite</span> hyperdoctrine_pr1_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pr2_subst.
+    <span class="nb">rewrite</span> !var_tm_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr1.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr2.
+    <span class="nb">rewrite</span> !tm_subst_var.
+    <span class="nb">apply</span> hyperdoctrine_refl.
+  }
+  <span class="nb">pose</span> (hyperdoctrine_eq_elim φ p r) <span class="k">as</span> r'.
+  <span class="nb">unfold</span> φ <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> equal_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !hyperdoctrine_pair_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !tm_subst_comp <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pr1_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pr2_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr1 <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !tm_subst_var <span class="k">in</span> r'.
+  <span class="bp">exact</span> r'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_pair_right</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            (<span class="nv">s</span> : tm Γ A)
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ B}
+            (<span class="nv">p</span> : Δ ⊢ t₁ ≡ t₂)
+  : Δ ⊢ ⟨ s , t₁ ⟩ ≡ ⟨ s , t₂ ⟩.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (φ := (⟨ s [ π₁ (tm_var _) ]tm , t₁ [ π₁ (tm_var _) ]tm ⟩
+              ≡
+              ⟨ s [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩)
+          : form (Γ ×h B)).
+  <span class="nb">assert</span> (Δ ⊢ φ [⟨ tm_var Γ , t₁ ⟩]) <span class="k">as</span> r.
+  {
+    <span class="nb">unfold</span> φ.
+    <span class="nb">rewrite</span> equal_subst.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst.
+    <span class="nb">rewrite</span> !tm_subst_comp.
+    <span class="nb">rewrite</span> hyperdoctrine_pr1_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pr2_subst.
+    <span class="nb">rewrite</span> !var_tm_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr1.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr2.
+    <span class="nb">rewrite</span> !tm_subst_var.
+    <span class="nb">apply</span> hyperdoctrine_refl.
+  }
+  <span class="nb">pose</span> (hyperdoctrine_eq_elim φ p r) <span class="k">as</span> r'.
+  <span class="nb">unfold</span> φ <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> equal_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !hyperdoctrine_pair_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !tm_subst_comp <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pr1_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pr2_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr1 <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> r'.
+  <span class="nb">rewrite</span> !tm_subst_var <span class="k">in</span> r'.
+  <span class="bp">exact</span> r'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_pair_eq</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> : tm Γ A}
+            (<span class="nv">p</span> : Δ ⊢ s₁ ≡ s₂)
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ B}
+            (<span class="nv">q</span> : Δ ⊢ t₁ ≡ t₂)
+  : Δ ⊢ ⟨ s₁ , t₁ ⟩ ≡ ⟨ s₂ , t₂ ⟩.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (hyperdoctrine_eq_trans
+           (hyperdoctrine_eq_pair_left p _)
+           (hyperdoctrine_eq_pair_right _ q)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_eq_prod_eq</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (A ×h B)}
+            (<span class="nv">p</span> : Δ ⊢ π₁ t₁ ≡ π₁ t₂)
+            (<span class="nv">q</span> : Δ ⊢ π₂ t₁ ≡ π₂ t₂)
+  : Δ ⊢ t₁ ≡ t₂.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> (hyperdoctrine_pair_eta t₁).
+  <span class="nb">rewrite</span> (hyperdoctrine_pair_eta t₂).
+  use hyperdoctrine_eq_pair_eq.
+  - <span class="bp">exact</span> p.
+  - <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hyperdoctrine_subst_eq</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> <span class="nv">Γ'</span> <span class="nv">B</span> : ty H}
+            {<span class="nv">Δ</span> : form _}
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> : tm Γ Γ'}
+            (<span class="nv">p</span> : Δ ⊢ s₁ ≡ s₂)
+            (<span class="nv">t</span> : tm Γ' B)
+  : Δ ⊢ t [ s₁ ]tm ≡ t [ s₂ ]tm.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (φ := t [ s₁ [ π₁ (tm_var _) ]tm ]tm ≡ t [ π₂ (tm_var _) ]tm).
+  <span class="nb">assert</span> (Δ ⊢ φ [⟨ tm_var Γ, s₁ ⟩]) <span class="k">as</span> q.
+  {
+    <span class="nb">unfold</span> φ.
+    <span class="nb">rewrite</span> equal_subst.
+    <span class="nb">rewrite</span> !tm_subst_comp.
+    <span class="nb">rewrite</span> hyperdoctrine_pr1_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pr2_subst.
+    <span class="nb">rewrite</span> var_tm_subst.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr1.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr2.
+    <span class="nb">rewrite</span> tm_subst_var.
+    <span class="nb">apply</span> hyperdoctrine_refl.
+  }
+  <span class="nb">pose</span> (r := hyperdoctrine_eq_elim φ p q).
+  <span class="nb">unfold</span> φ <span class="k">in</span> r.
+  <span class="nb">rewrite</span> equal_subst <span class="k">in</span> r.
+  <span class="nb">rewrite</span> !tm_subst_comp <span class="k">in</span> r.
+  <span class="nb">rewrite</span> hyperdoctrine_pr1_subst <span class="k">in</span> r.
+  <span class="nb">rewrite</span> hyperdoctrine_pr2_subst <span class="k">in</span> r.
+  <span class="nb">rewrite</span> var_tm_subst <span class="k">in</span> r.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr1 <span class="k">in</span> r.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> r.
+  <span class="nb">rewrite</span> tm_subst_var <span class="k">in</span> r.
+  <span class="bp">exact</span> r.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 12. Derived connectives *)</span>
+
+<span class="sd">(** * 12.1. Bi-implication *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_iff</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">Γ</span> : ty H}
+           (<span class="nv">φ</span> <span class="nv">ψ</span> : form Γ)
+  : form Γ
+  := (φ ⇒ ψ) ∧ (ψ ⇒ φ).
+
+<span class="kn">Notation</span> <span class="s2">"φ ⇔ ψ"</span> := (first_order_hyperdoctrine_iff φ ψ) : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">iff_intro</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ∧ φ ⊢ ψ)
+            (<span class="nv">q</span> : Δ ∧ ψ ⊢ φ)
+  : Δ ⊢ φ ⇔ ψ.
+<span class="kn">Proof</span>.
+  use conj_intro.
+  - use impl_intro.
+    <span class="bp">exact</span> p.
+  - use impl_intro.
+    <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">iff_elim_left</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ ⇔ ψ)
+            (<span class="nv">q</span> : Δ ⊢ φ)
+  : Δ ⊢ ψ.
+<span class="kn">Proof</span>.
+  use (impl_elim q).
+  <span class="bp">exact</span> (conj_elim_left p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">iff_elim_right</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ ⇔ ψ)
+            (<span class="nv">q</span> : Δ ⊢ ψ)
+  : Δ ⊢ φ.
+<span class="kn">Proof</span>.
+  use (impl_elim q).
+  <span class="bp">exact</span> (conj_elim_right p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">iff_subst</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+            (<span class="nv">φ</span> <span class="nv">ψ</span> : form Γ₂)
+  : ((φ ⇔ ψ) [ s ])
+    =
+    (φ [ s ] ⇔ ψ [ s ]).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> first_order_hyperdoctrine_iff.
+  <span class="nb">rewrite</span> conj_subst.
+  <span class="nb">rewrite</span> !impl_subst.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">iff_refl</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">Δ</span> <span class="nv">φ</span> : form Γ)
+  : Δ ⊢ φ ⇔ φ.
+<span class="kn">Proof</span>.
+  use iff_intro.
+  - use weaken_right.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  - use weaken_right.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">iff_sym</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ ⇔ ψ)
+  : Δ ⊢ ψ ⇔ φ.
+<span class="kn">Proof</span>.
+  use iff_intro.
+  - use (iff_elim_right (weaken_left p _)).
+    use weaken_right.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  - use (iff_elim_left (weaken_left p _)).
+    use weaken_right.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">iff_trans</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> <span class="nv">χ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ ⇔ ψ)
+            (<span class="nv">q</span> : Δ ⊢ ψ ⇔ χ)
+  : Δ ⊢ φ ⇔ χ.
+<span class="kn">Proof</span>.
+  use iff_intro.
+  - use (iff_elim_left (weaken_left q _)).
+    use (iff_elim_left (weaken_left p _)).
+    use weaken_right.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  - use (iff_elim_right (weaken_left p _)).
+    use (iff_elim_right (weaken_left q _)).
+    use weaken_right.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">iff_true_true</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ)
+            (<span class="nv">q</span> : Δ ⊢ ψ)
+  : Δ ⊢ φ ⇔ ψ.
+<span class="kn">Proof</span>.
+  use iff_intro.
+  - use weaken_left.
+    <span class="bp">exact</span> q.
+  - use weaken_left.
+    <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 12.2. Negation *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_neg</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">Γ</span> : ty H}
+           (<span class="nv">φ</span> : form Γ)
+  : form Γ
+  := φ ⇒ ⊥.
+
+<span class="kn">Notation</span> <span class="s2">"¬ φ"</span> := (first_order_hyperdoctrine_neg φ) : hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">neg_intro</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ∧ φ ⊢ ⊥)
+  : Δ ⊢ ¬ φ.
+<span class="kn">Proof</span>.
+  use impl_intro.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">neg_elim</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> <span class="nv">ψ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ φ)
+            (<span class="nv">q</span> : Δ ⊢ ¬ φ)
+  : Δ ⊢ ψ.
+<span class="kn">Proof</span>.
+  use false_elim.
+  use (impl_elim p).
+  <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">neg_subst</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+            (<span class="nv">φ</span> : form Γ₂)
+  : (¬ φ) [ s ]
+    =
+    ¬ (φ [ s ]).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> first_order_hyperdoctrine_neg.
+  <span class="nb">rewrite</span> impl_subst.
+  <span class="nb">rewrite</span> false_subst.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 13. A tactic for simplifying goals in the internal language of first-order hyperdoctrines *)</span>
+
+<span class="sd">(**</span>
+<span class="sd">  The tactic `hypersimplify` helps proving statements in the internal language of a hyperdoctrine.</span>
+<span class="sd">  Such goals are of the shape `Δ ⊢ φ`. The tactic simplifies `Δ` and φ` by propagating the</span>
+<span class="sd">  substitutions and by putting all terms that occur in either `Δ` or φ` in normal form. The tactic</span>
+<span class="sd">  can print the rewrite statements that can replace it, by invoking `hypersimplify true` in Ltac2 or</span>
+<span class="sd">  `hypersimplifyp` in Ltac1 (see the `Notation` commands further down).</span>
+
+<span class="sd">  The tactic uses identities with two different levels:</span>
+<span class="sd">  - The rewrites with level 0 are those that express how substitution acts on formulas, and are used</span>
+<span class="sd">    to propagate substitutions in `Δ` and `φ`.</span>
+<span class="sd">  - The rewrites with level 1 are all rewrite rules on terms in the language, used to normalize all</span>
+<span class="sd">    terms in `Δ` and `φ`.</span>
+
+<span class="sd">  In some cases, it is a bit faster to use `hypersimplify_form` to simplify the formula and delay using</span>
+<span class="sd">  the full `hypersimplify` until it is necessary. The reason why this helps, is because one might</span>
+<span class="sd">  have made the goal smaller and removed some unnecessary assumptions using weakening.</span>
+<span class="sd">  This is demonstrated in `PERs.v` in the proof of [eq_per_axioms].</span>
+
+<span class="sd">  The tactic can be extended with new traversals and rewrites. For example, handling of `~` is added</span>
+<span class="sd">  in `PERs.v`.</span>
+<span class="sd"> *)</span>
+
+<span class="kt">Set</span> Default <span class="kn">Proof</span> Mode <span class="s2">"Ltac2"</span>.
+
+<span class="kn">Ltac2 mutable</span> hypertraversals () : t_traversal list := [].
+
+<span class="kn">Ltac2 Set</span> hypertraversals <span class="k">as</span> traversals := <span class="k">fun</span> <span class="nv">_</span> =&gt;
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (_  [ <span class="nl">?b</span>]tm) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  x [$b ]tm) <span class="k">end</span>)  <span class="s2">""</span> <span class="s2">" [ _ ]tm"</span>) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (<span class="nl">?a</span> [  _]tm) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  $a[ x ]tm) <span class="k">end</span>)    <span class="s2">"_ ["</span> <span class="s2">"]tm"</span>) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (_  [ <span class="nl">?b</span>]  ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  x [$b ]  ) <span class="k">end</span>) <span class="s2">" "</span> <span class="s2">" [ _ ]"</span>  ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (<span class="nl">?a</span> [  _]  ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  $a[ x ]  ) <span class="k">end</span>)    <span class="s2">"_ ["</span> <span class="s2">"]"</span>  ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (_  ∧ <span class="nl">?b</span>   ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  x ∧$b    ) <span class="k">end</span>)  <span class="s2">""</span> <span class="s2">" ∧ _"</span>    ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (<span class="nl">?a</span> ∧  _   ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  $a∧ x    ) <span class="k">end</span>)    <span class="s2">"_ ∧ "</span> <span class="s2">""</span>  ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (_  ∨ <span class="nl">?b</span>   ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  x ∨$b    ) <span class="k">end</span>)  <span class="s2">""</span> <span class="s2">" ∨ _"</span>    ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (<span class="nl">?a</span> ∨  _   ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  $a∨ x    ) <span class="k">end</span>)    <span class="s2">"_ ∨ "</span> <span class="s2">""</span>  ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (_  ⇒ <span class="nl">?b</span>   ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  x ⇒$b    ) <span class="k">end</span>)  <span class="s2">""</span> <span class="s2">" ⇒ _"</span>    ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (<span class="nl">?a</span> ⇒  _   ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  $a⇒ x    ) <span class="k">end</span>)    <span class="s2">"_ ⇒ "</span> <span class="s2">""</span>  ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (_  ≡ <span class="nl">?b</span>   ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  x ≡$b    ) <span class="k">end</span>)  <span class="s2">""</span> <span class="s2">" ≡ _"</span>    ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (<span class="nl">?a</span> ≡  _   ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  $a≡ x    ) <span class="k">end</span>)    <span class="s2">"_ ≡ "</span> <span class="s2">""</span>  ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (_  ⇔ <span class="nl">?b</span>   ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  x ⇔$b    ) <span class="k">end</span>)  <span class="s2">""</span> <span class="s2">" ⇔ _"</span>    ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (<span class="nl">?a</span> ⇔  _   ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>,  $a⇔ x    ) <span class="k">end</span>)    <span class="s2">"_ ⇔ "</span> <span class="s2">""</span>  ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (⟨_ ,<span class="nl">?b</span>⟩   ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>, ⟨x ,$b⟩   ) <span class="k">end</span>) <span class="s2">"⟨"</span> <span class="s2">" , _⟩"</span>   ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (⟨<span class="nl">?a</span>, _⟩   ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>, ⟨$a, x⟩   ) <span class="k">end</span>)   <span class="s2">"⟨_ , "</span> <span class="s2">"⟩"</span> ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (<span class="k">∀</span><span class="nv">h</span> <span class="nv">_</span>      ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>, <span class="k">∀</span><span class="nv">h</span> <span class="nv">x</span>      ) <span class="k">end</span>)  <span class="s2">"∀h "</span> <span class="s2">""</span>     ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (<span class="k">∃</span><span class="nv">h</span> <span class="nv">_</span>      ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>, <span class="k">∃</span><span class="nv">h</span> <span class="nv">x</span>      ) <span class="k">end</span>)  <span class="s2">"∃h "</span> <span class="s2">""</span>     ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (¬  _      ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>, ¬  x      ) <span class="k">end</span>)   <span class="s2">"¬ "</span> <span class="s2">""</span>     ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (π₁ _      ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>, π₁ x      ) <span class="k">end</span>)  <span class="s2">"π₁ "</span> <span class="s2">""</span>     ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (π₂ _      ) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>, π₂ x      ) <span class="k">end</span>)  <span class="s2">"π₂ "</span> <span class="s2">""</span>     ) ::
+  traversals ().
+
+<span class="kn">Ltac2 mutable</span> hyperrewrites () : (int * t_rewrite) list := [].
+
+<span class="kn">Ltac2 Set</span> hyperrewrites <span class="k">as</span> rewrites := <span class="k">fun</span> () =&gt;
+  (<span class="mi">0</span>, (pn:(⊤[_]),            (<span class="k">fun</span> () =&gt; '(truth_subst _                 )), <span class="s2">"truth_subst _"</span>                 )) ::
+  (<span class="mi">0</span>, (pn:(⊥[_]),            (<span class="k">fun</span> () =&gt; '(false_subst _                 )), <span class="s2">"false_subst _"</span>                 )) ::
+  (<span class="mi">0</span>, (pn:((_ ∧ _)[_]),      (<span class="k">fun</span> () =&gt; '(conj_subst _ _ _              )), <span class="s2">"conj_subst _ _ _"</span>              )) ::
+  (<span class="mi">0</span>, (pn:((_ ∨ _)[_]),      (<span class="k">fun</span> () =&gt; '(disj_subst _ _ _              )), <span class="s2">"disj_subst _ _ _"</span>              )) ::
+  (<span class="mi">0</span>, (pn:((_ ⇒ _)[_]),      (<span class="k">fun</span> () =&gt; '(impl_subst _ _ _              )), <span class="s2">"impl_subst _ _ _"</span>              )) ::
+  (<span class="mi">0</span>, (pn:((_ ⇔ _)[_]),      (<span class="k">fun</span> () =&gt; '(iff_subst _ _ _               )), <span class="s2">"iff_subst _ _ _"</span>               )) ::
+  (<span class="mi">0</span>, (pn:((_ ≡ _)[_]),      (<span class="k">fun</span> () =&gt; '(equal_subst _ _ _             )), <span class="s2">"equal_subst _ _ _"</span>             )) ::
+  (<span class="mi">0</span>, (pn:((<span class="k">∀</span><span class="nv">h</span> <span class="nv">_</span>)[_]),       (<span class="k">fun</span> () =&gt; '(forall_subst _ _              )), <span class="s2">"forall_subst _ _"</span>              )) ::
+  (<span class="mi">0</span>, (pn:((<span class="k">∃</span><span class="nv">h</span> <span class="nv">_</span>)[_]),       (<span class="k">fun</span> () =&gt; '(exists_subst _ _              )), <span class="s2">"exists_subst _ _"</span>              )) ::
+  (<span class="mi">0</span>, (pn:((¬ _)[_]),        (<span class="k">fun</span> () =&gt; '(neg_subst _ _                 )), <span class="s2">"neg_subst _ _"</span>                 )) ::
+  (<span class="mi">0</span>, (pn:((_[_])[_]),       (<span class="k">fun</span> () =&gt; '(hyperdoctrine_comp_subst _ _ _)), <span class="s2">"hyperdoctrine_comp_subst _ _ _"</span>)) ::
+  (<span class="mi">0</span>, (pn:(_[tm_var _]),     (<span class="k">fun</span> () =&gt; '(hyperdoctrine_id_subst _      )), <span class="s2">"hyperdoctrine_id_subst _"</span>      )) ::
+  (<span class="mi">1</span>, (pn:((π₁ _)[_]tm),     (<span class="k">fun</span> () =&gt; '(hyperdoctrine_pr1_subst _ _   )), <span class="s2">"hyperdoctrine_pr1_subst _ _"</span>   )) ::
+  (<span class="mi">1</span>, (pn:((π₂ _)[_]tm),     (<span class="k">fun</span> () =&gt; '(hyperdoctrine_pr2_subst _ _   )), <span class="s2">"hyperdoctrine_pr2_subst _ _"</span>   )) ::
+  (<span class="mi">1</span>, (pn:(⟨_, _⟩[_]tm),     (<span class="k">fun</span> () =&gt; '(hyperdoctrine_pair_subst _ _ _)), <span class="s2">"hyperdoctrine_pair_subst _ _ _"</span>)) ::
+  (<span class="mi">1</span>, (pn:((tm_var _)[_]tm), (<span class="k">fun</span> () =&gt; '(var_tm_subst _                )), <span class="s2">"var_tm_subst _"</span>                )) ::
+  (<span class="mi">1</span>, (pn:((_ [_]tm)[_]tm),  (<span class="k">fun</span> () =&gt; '(tm_subst_comp _ _ _           )), <span class="s2">"tm_subst_comp _ _ _"</span>           )) ::
+  (<span class="mi">1</span>, (pn:(_[tm_var _]tm),   (<span class="k">fun</span> () =&gt; '(tm_subst_var _                )), <span class="s2">"tm_subst_var _"</span>                )) ::
+  (<span class="mi">1</span>, (pn:(π₁⟨_, _⟩),        (<span class="k">fun</span> () =&gt; '(hyperdoctrine_pair_pr1 _ _    )), <span class="s2">"hyperdoctrine_pair_pr1 _ _"</span>    )) ::
+  (<span class="mi">1</span>, (pn:(π₂⟨_, _⟩),        (<span class="k">fun</span> () =&gt; '(hyperdoctrine_pair_pr2 _ _    )), <span class="s2">"hyperdoctrine_pair_pr2 _ _"</span>    )) ::
+  (<span class="mi">1</span>, (pn:(!![_]tm),         (<span class="k">fun</span> () =&gt; '(hyperdoctrine_unit_tm_subst _ )), <span class="s2">"hyperdoctrine_unit_tm_subst _ "</span>)) ::
+  rewrites ().
+
+<span class="kn">Ltac2</span> hypertop_traversals (<span class="k">ltac2</span> : bool) (print: bool) : ((unit -&gt; unit) * navigation) list :=
+  ((<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span>
+    | [ |- _ = _ ] =&gt; <span class="nb">refine</span> '(!(_ @ !_))
+    <span class="k">end</span>), {
+      <span class="nb">left</span> := [<span class="s2">""</span>];
+      <span class="nb">right</span> := [<span class="s2">""</span>];
+      preinpostfix := (String.concat <span class="s2">""</span> [<span class="s2">"refine "</span>; (<span class="k">if</span> <span class="k">ltac2</span> <span class="k">then</span> <span class="s2">"'"</span> <span class="k">else</span> <span class="s2">""</span>); <span class="s2">"(_ @ !maponpaths "</span>], <span class="s2">" "</span>, <span class="s2">")."</span>);
+      print := print
+  }) :: ((<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span>
+    | [ |- _ = _ ] =&gt; <span class="nb">refine</span> '(_ @ _)
+    <span class="k">end</span>), {
+      <span class="nb">left</span> := [<span class="s2">""</span>];
+      <span class="nb">right</span> := [<span class="s2">""</span>];
+      preinpostfix := (String.concat <span class="s2">""</span> [<span class="s2">"refine "</span>; (<span class="k">if</span> <span class="k">ltac2</span> <span class="k">then</span> <span class="s2">"'"</span> <span class="k">else</span> <span class="s2">""</span>); <span class="s2">"(maponpaths "</span>], <span class="s2">" "</span>, <span class="s2">" @ _)."</span>);
+      print := print
+  }) :: ((<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span>
+    | [ |- <span class="nl">?a</span> ⊢ _ ] =&gt; <span class="nb">refine</span> '(transportb (<span class="k">λ</span> <span class="nv">x</span>, $a ⊢ x) _ _); <span class="nb">cbv</span> beta
+    <span class="k">end</span>), {
+      <span class="nb">left</span> := [<span class="s2">"_ ⊢ "</span>];
+      <span class="nb">right</span> := [<span class="s2">""</span>];
+      preinpostfix := (String.concat <span class="s2">""</span> [<span class="s2">"refine "</span>; (<span class="k">if</span> <span class="k">ltac2</span> <span class="k">then</span> <span class="s2">"'"</span> <span class="k">else</span> <span class="s2">""</span>); <span class="s2">"(transportb "</span>], <span class="s2">" "</span>, <span class="s2">" _)."</span>);
+      print := print
+  }) :: ((<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span>
+    | [ |- _ ⊢ <span class="nl">?b</span> ] =&gt; <span class="nb">refine</span> '(transportb (<span class="k">λ</span> <span class="nv">x</span>, x ⊢ $b) _ _); <span class="nb">cbv</span> beta
+    <span class="k">end</span>), {
+      <span class="nb">left</span> := [<span class="s2">""</span>];
+      <span class="nb">right</span> := [<span class="s2">" ⊢ _"</span>];
+      preinpostfix := (String.concat <span class="s2">""</span> [<span class="s2">"refine "</span>; (<span class="k">if</span> <span class="k">ltac2</span> <span class="k">then</span> <span class="s2">"'"</span> <span class="k">else</span> <span class="s2">""</span>); <span class="s2">"(transportb "</span>], <span class="s2">" "</span>, <span class="s2">" _)."</span>);
+      print := print
+  }) :: [].
+
+<span class="kn">Ltac2</span> hypersimplify0 (<span class="k">ltac2</span> : bool option) (print: bool option) : int option -&gt; unit :=
+  simplify
+  (List.rev (hypertraversals ()))
+  (List.rev (hyperrewrites ()))
+  (List.rev (hypertop_traversals (Option.default true <span class="k">ltac2</span>) (Option.default false print))).
+
+<span class="kn">Ltac2 Notation</span> <span class="s2">"hypersimplify"</span> print(opt(next)) n(opt(next)) := hypersimplify0 (Some true) print (n).
+
+<span class="kt">Set</span> Default <span class="kn">Proof</span> Mode <span class="s2">"Classic"</span>.
+
+<span class="kn">Tactic Notation</span> <span class="s2">"hypersimplify"</span> := <span class="k">ltac2</span>:(hypersimplify0 (Some false) (Some false) None).
+<span class="kn">Tactic Notation</span> <span class="s2">"hypersimplifyp"</span> := <span class="k">ltac2</span>:(hypersimplify0 (Some false) (Some true) None).
+<span class="kn">Tactic Notation</span> <span class="s2">"hypersimplify_form"</span> := <span class="k">ltac2</span>:(hypersimplify0 (Some false) (Some false) (Some <span class="mi">0</span>)).
+<span class="kn">Tactic Notation</span> <span class="s2">"hypersimplifyp_form"</span> := <span class="k">ltac2</span>:(hypersimplify0 (Some false) (Some true) (Some <span class="mi">0</span>)).
+
+<span class="kn">Ltac</span> <span class="nf">simplify_form_step</span> :=
+  <span class="nb">rewrite</span> <span class="nl">?truth_subst</span>,
+    <span class="nl">?false_subst</span>,
+    <span class="nl">?conj_subst</span>,
+    <span class="nl">?disj_subst</span>,
+    <span class="nl">?impl_subst</span>,
+    <span class="nl">?forall_subst</span>,
+    <span class="nl">?exists_subst</span>,
+    <span class="nl">?equal_subst</span>,
+    <span class="nl">?iff_subst</span>,
+    <span class="nl">?neg_subst</span>,
+    <span class="nl">?hyperdoctrine_comp_subst</span>,
+    <span class="nl">?hyperdoctrine_id_subst</span>.
+
+<span class="kn">Ltac</span> <span class="nf">simplify_form</span> :=
+  <span class="kp">repeat</span> (<span class="kp">progress</span> simplify_form_step).
+
+<span class="kn">Ltac</span> <span class="nf">simplify_term_step</span> :=
+  <span class="nb">rewrite</span> <span class="nl">?hyperdoctrine_pr1_subst</span>,
+    <span class="nl">?hyperdoctrine_pr2_subst</span>,
+    <span class="nl">?hyperdoctrine_pair_subst</span>,
+    <span class="nl">?var_tm_subst</span>,
+    <span class="nl">?tm_subst_comp</span>,
+    <span class="nl">?tm_subst_var</span>,
+    <span class="nl">?hyperdoctrine_pair_pr1</span>,
+    <span class="nl">?hyperdoctrine_pair_pr2</span>,
+    <span class="nl">?hyperdoctrine_unit_tm_subst</span>.
+
+<span class="kn">Ltac</span> <span class="nf">simplify_term</span> :=
+  <span class="kp">repeat</span> (<span class="kp">progress</span> simplify_term_step).
+
+<span class="kn">Ltac</span> <span class="nf">simplify</span> := simplify_form ; simplify_term.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/FirstOrderHyperdoctrine.v</tt>, line 86)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  13. A tactic for simplifying goals in the internal language of first-order hyperdoctrines
+  &gt;
+  &gt;  **********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

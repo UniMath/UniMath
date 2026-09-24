@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Propositions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Generalities on hProp.  Vladimir Voevodsky . May - Sep. 2011 .</span>
+
+<span class="sd">In this file we introduce the hProp - an analog of Prop defined based on the</span>
+<span class="sd">univalent semantics. We further introduce the hProp version of the "inhabited"</span>
+<span class="sd">construction - i.e. for any [T] in [UU0] we construct an object [ishinh T] and a</span>
+<span class="sd">function [hinhpr : T -&gt; ishinh T] which plays the role of [inhabits] from the</span>
+<span class="sd">Coq standard library. The semantic meaning of [hinhpr] is that it is universal</span>
+<span class="sd">among functions from [T] to objects of hProp. Proving that [ishinh T] is in</span>
+<span class="sd">[hProp] requires a resizing rule which can be written in the putative notation</span>
+<span class="sd">for such rules as follows :</span>
+
+<span class="sd">Resizing Rule RR1 (U1 U2 : Univ) (X : U1) (isp : isaprop X) |- X : U2.</span>
+
+<span class="sd">Further in the file we introduce the univalence axiom [hPropUnivalence] for</span>
+<span class="sd">hProp and a proof of the fact that it is equivalent to a simplier and better</span>
+<span class="sd">known axiom [propositionalUnivalenceAxiom]. We prove that this axiom implies</span>
+<span class="sd">that [hProp] satisfies [isaset] i.e. it is a type of h-level 2. This requires</span>
+<span class="sd">another resizing rule :</span>
+
+<span class="sd">Resizing Rule RR2 (U1 U2 : Univ) |- @hProp U1 : U2.</span>
+
+<span class="sd">Since resizing rules are not currently implemented in Coq the file does not</span>
+<span class="sd">compile without a patch provided by Hugo Herbelin which turns off the universe</span>
+<span class="sd">consistency verification. We do however keep track of universes in our</span>
+<span class="sd">development "by hand" to ensure that when the resizing rules will become</span>
+<span class="sd">available the current proofs will verify correctly. To point out which results</span>
+<span class="sd">require resizing rules in a substantial way we mark the first few of such reults</span>
+<span class="sd">by (** RR1 *) or (** RR2 *) comment.</span>
+
+<span class="sd">One can achieve similar results with a combination of usual axioms which imitate</span>
+<span class="sd">the resizing rules. However unlike the usual axioms the resizing rules do not</span>
+<span class="sd">affect the computation/normalization abilities of Coq which makes them the</span>
+<span class="sd">preferred choice in this situation.</span>
+<span class="sd">*)</span>
+
+<span class="sd">(** ** Contents</span>
+<span class="sd">- The type [hProp] of types of h-level 1</span>
+<span class="sd">- The type [tildehProp] of pairs (P, p : P) where [P : hProp]</span>
+<span class="sd">- Intuitionistic logic on [hProp]</span>
+<span class="sd"> - The [hProp] version of the "inhabited" construction.</span>
+<span class="sd"> - [ishinh] and negation [neg]</span>
+<span class="sd"> - [ishinh] and [coprod]</span>
+<span class="sd">- Images and surjectivity for functions between types</span>
+<span class="sd"> - The two-out-of-three properties of surjections</span>
+<span class="sd"> - A function between types which is an inclusion and a surjection is a weak</span>
+<span class="sd">   equivalence</span>
+<span class="sd"> - Intuitionistic logic on [hProp]</span>
+<span class="sd"> - Associativity and commutativity of [hdisj] and [hconj] up to logical</span>
+<span class="sd">   equivalence</span>
+<span class="sd"> - Proof of the only non-trivial axiom of intuitionistic logic for our</span>
+<span class="sd">   constructions</span>
+<span class="sd"> - Negation and quantification</span>
+<span class="sd"> - Negation and conjunction ("and") and disjunction ("or")</span>
+<span class="sd"> - Property of being decidable and [hdisj] ("or")</span>
+<span class="sd"> - The double negation version of [hinhabited] (does not require RR1)</span>
+<span class="sd">- Univalence for hProp</span>
+<span class="sd">*)</span>
+
+
+<span class="sd">(** ** Preamble *)</span>
+
+<span class="sd">(** Imports *)</span>
+
+<span class="kn">Require Export</span> UniMath.Foundations.PartD.
+
+<span class="sd">(** Universe structure *)</span>
+
+<span class="c">(* Definition UU0 := UU. *)</span>
+
+<span class="c">(* end of " Preamble ". *)</span>
+
+
+<span class="sd">(** ** To upstream files *)</span>
+
+
+
+<span class="sd">(** ** The type [hProp] of types of h-level 1 *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">hProp</span> := total2 (<span class="k">λ</span> <span class="nv">X</span> : UU, isaprop X).
+<span class="kn">Definition</span> <span class="nf">make_hProp</span> (<span class="nv">X</span> : UU) (<span class="nv">isp</span> : isaprop X) : hProp
+  := tpair (<span class="k">λ</span> <span class="nv">X</span> : UU, isaprop X) X isp.
+<span class="kn">Definition</span> <span class="nf">hProptoType</span> := @pr1 _ _ : hProp -&gt; UU.
+<span class="kn">Coercion</span> <span class="nf">hProptoType</span> : hProp &gt;-&gt; UU.
+
+<span class="kn">Definition</span> <span class="nf">propproperty</span> (<span class="nv">P</span> : hProp) := pr2 P : isaprop (pr1 P).
+
+<span class="sd">(** ** The type [tildehProp] of pairs (P, p : P) where [P : hProp] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">tildehProp</span> := total2 (<span class="k">λ</span> <span class="nv">P</span> : hProp, P).
+<span class="kn">Definition</span> <span class="nf">make_tildehProp</span> {<span class="nv">P</span> : hProp} (<span class="nv">p</span> : P) : tildehProp := tpair _ P p.
+
+<span class="c">(* convenient corollaries of some theorems that take separate isaprop</span>
+<span class="c">   arguments: *)</span>
+
+<span class="kn">Corollary</span> <span class="nf">subtypeInjectivity_prop</span> {<span class="nv">A</span> : UU} (<span class="nv">B</span> : A -&gt; hProp) :
+  ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> subtypeInjectivity. <span class="nb">intro</span>. <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">subtypePath_prop</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A -&gt; hProp}
+   {<span class="nv">s</span> <span class="nv">s'</span> : total2 (<span class="k">λ</span> <span class="nv">x</span>, B x)} : pr1 s = pr1 s' -&gt; s = s'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invmap. <span class="nb">apply</span> subtypeInjectivity_prop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">impred_prop</span> {<span class="nv">T</span> : UU} (<span class="nv">P</span> : T -&gt; hProp) : isaprop (∏ t : T, P t).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> impred; <span class="nb">intro</span>. <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">isaprop_total2</span> (<span class="nv">X</span> : hProp) (<span class="nv">Y</span> : X -&gt; hProp) : isaprop (∑ x, Y x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">1</span>).
+  - <span class="nb">apply</span> propproperty.
+  - <span class="nb">intro</span> x. <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_forall_hProp</span> (<span class="nv">X</span> : UU) (<span class="nv">Y</span> : X -&gt; hProp) : isaprop (∏ x, Y x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> impred_isaprop. <span class="nb">intro</span> x. <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">forall_hProp</span> {<span class="nv">X</span> : UU} (<span class="nv">Y</span> : X -&gt; hProp) : hProp
+  := make_hProp (∏ x, Y x) (isaprop_forall_hProp X Y).
+
+<span class="kn">Notation</span> <span class="s2">"∀  x .. y , P"</span>
+  := (forall_hProp (<span class="k">λ</span> <span class="nv">x</span>, .. (forall_hProp (<span class="k">λ</span> <span class="nv">y</span>, P))..))
+       (<span class="kn">at level</span> <span class="mi">200</span>, x <span class="kn">binder</span>, y <span class="kn">binder</span>, <span class="kn">right associativity</span>) : type_scope.
+  <span class="c">(* type this in emacs in agda-input method with \prod *)</span>
+
+<span class="sd">(** The following re-definitions should make proofs easier in the future when</span>
+<span class="sd">  the unification algorithms in Coq are improved. At the moment they create more</span>
+<span class="sd">  complications than they eliminate (e.g. try to prove [isapropishinh] with</span>
+<span class="sd">  [isaprop] in [hProp]) so for the time being they are commented out.</span>
+
+
+<span class="sd">(** *** Re-definitions of some of the standard constructions of uu0.v which lift these contructions from UU to hProp. *)</span>
+
+
+<span class="sd">Definition iscontr (X : UU) : hProp := make_hProp _ (isapropiscontr X).</span>
+
+<span class="sd">Definition isweq {X Y : UU} (f : X -&gt; Y) : hProp</span>
+<span class="sd">:= make_hProp _ (isapropisweq f).</span>
+
+<span class="sd">Definition isofhlevel (n : nat) (X : UU) : hProp</span>
+<span class="sd">:= make_hProp _ (isapropisofhlevel n X).</span>
+
+<span class="sd">Definition isaprop (X : UU) : hProp := make_hProp (isaprop X) (isapropisaprop X).</span>
+
+<span class="sd">Definition isaset (X : UU) : hProp := make_hProp _ (isapropisaset X).</span>
+
+<span class="sd">Definition isisolated (X : UU) (x : X) : hProp</span>
+<span class="sd">:= make_hProp _ (isapropisisolated X x).</span>
+
+<span class="sd">Definition isdecEq (X : UU) : hProp := make_hProp _ (isapropisdeceq X).</span>
+
+<span class="sd">*)</span>
+
+
+<span class="sd">(** ** Intuitionistic logic on [hProp] *)</span>
+
+
+<span class="sd">(** *** The [hProp] version of the "inhabited" construction. *)</span>
+
+
+
+<span class="kn">Definition</span> <span class="nf">ishinh_UU</span> (<span class="nv">X</span> : UU) : UU := ∏ P : hProp, ((X -&gt; P) -&gt; P).
+
+<span class="kn">Lemma</span> <span class="nf">isapropishinh</span> (<span class="nv">X</span> : UU) : isaprop (ishinh_UU X).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred.
+  <span class="nb">intro</span> P. <span class="nb">apply</span> impred.
+  <span class="nb">intro</span>. <span class="nb">apply</span> (pr2 P).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ishinh</span> (<span class="nv">X</span> : UU) : hProp := make_hProp (ishinh_UU X) (isapropishinh X).
+
+<span class="kn">Notation</span> <span class="nf">nonempty</span> := ishinh (<span class="kn">only parsing</span>).
+
+<span class="kn">Notation</span> <span class="s2">"∥ A ∥"</span> := (ishinh A) (<span class="kn">at level</span> <span class="mi">20</span>) : type_scope.
+<span class="c">(* written \|| in agda-input method *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hinhpr</span> {<span class="nv">X</span> : UU} : X -&gt; ∥ X ∥
+  := <span class="k">λ</span> <span class="nv">x</span> : X, <span class="k">λ</span> <span class="nv">P</span> : hProp, <span class="k">fun</span> <span class="nv">f</span> : X -&gt; P =&gt; f x.
+
+<span class="kn">Definition</span> <span class="nf">hinhfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) : ∥ X ∥ -&gt; ∥ Y ∥ :=
+  <span class="k">fun</span> <span class="nv">isx</span> : ∥ X ∥ =&gt; <span class="k">λ</span> <span class="nv">P</span> : _, <span class="k">fun</span> <span class="nv">yp</span> : Y -&gt; P =&gt; isx P (<span class="k">λ</span> <span class="nv">x</span> : X, yp (f x)).
+
+<span class="sd">(** Note that the previous definitions do not require RR1 in an essential way</span>
+<span class="sd">  (except for the placing of [ishinh] in [hProp UU] - without RR1 it would be</span>
+<span class="sd">  placed in [hProp UU1]). The first place where RR1 is essentially required is</span>
+<span class="sd">  in application of [hinhuniv] to a function [X -&gt; ishinh Y] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hinhuniv</span> {<span class="nv">X</span> : UU} {<span class="nv">P</span> : hProp} (<span class="nv">f</span> : X -&gt; P) (<span class="nv">wit</span> : ∥ X ∥) : P
+  := wit P f.
+
+<span class="kn">Corollary</span> <span class="nf">factor_through_squash</span> {<span class="nv">X</span> <span class="nv">Q</span> : UU} : isaprop Q -&gt; (X -&gt; Q) -&gt; ∥ X ∥ -&gt; Q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i f h. <span class="bp">exact</span> (@hinhuniv X (Q,,i) f h).
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">squash_to_prop</span> {<span class="nv">X</span> <span class="nv">Q</span> : UU} : ∥ X ∥ -&gt; isaprop Q -&gt; (X -&gt; Q) -&gt; Q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> h i f. <span class="bp">exact</span> (@hinhuniv X (Q,,i) f h).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hinhand</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">inx1</span> : ∥ X ∥) (<span class="nv">iny1</span> : ∥ Y ∥) : ∥ X × Y ∥
+  := <span class="k">λ</span> <span class="nv">P</span> : _, ddualand (inx1 P) (iny1 P).
+
+<span class="kn">Definition</span> <span class="nf">hinhuniv2</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">P</span> : hProp} (<span class="nv">f</span> : X -&gt; Y -&gt; P)
+           (<span class="nv">isx</span> : ∥ X ∥) (<span class="nv">isy</span> : ∥ Y ∥) : P
+  := hinhuniv (<span class="k">λ</span> <span class="nv">xy</span> : X × Y, f (pr1 xy) (pr2 xy)) (hinhand isx isy).
+
+<span class="kn">Definition</span> <span class="nf">hinhfun2</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Y -&gt; Z)
+           (<span class="nv">isx</span> : ∥ X ∥) (<span class="nv">isy</span> : ∥ Y ∥) : ∥ Z ∥
+  := hinhfun (<span class="k">λ</span> <span class="nv">xy</span>: X × Y, f (pr1 xy) (pr2 xy)) (hinhand isx isy).
+
+<span class="kn">Definition</span> <span class="nf">hinhunivcor1</span> (<span class="nv">P</span> : hProp) : ∥ P ∥ -&gt; P := hinhuniv (idfun P).
+<span class="kn">Notation</span> <span class="nf">hinhprinv</span> := hinhunivcor1.
+
+
+<span class="sd">(** *** [ishinh] and negation [neg] *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">weqishinhnegtoneg</span> (<span class="nv">X</span> : UU) : ∥ ¬ X ∥ ≃ ¬ X.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (lg : logeq (ishinh (neg X)) (neg X)).
+  {
+    <span class="nb">split</span>.
+    - <span class="nb">simpl</span>. <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ (isapropneg X))).
+      <span class="nb">simpl</span>. <span class="nb">intro</span> nx. <span class="nb">apply</span> nx.
+    - <span class="nb">apply</span> hinhpr.
+  }
+  <span class="nb">apply</span> (weqimplimpl (pr1 lg) (pr2 lg) (pr2 (ishinh _)) (isapropneg X)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqnegtonegishinh</span> (<span class="nv">X</span> : UU) : ¬ X ≃ ¬ ∥ X ∥.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (lg : logeq (neg (ishinh X)) (neg X)).
+  {
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> (negf (@hinhpr X)).
+    - <span class="nb">intro</span> nx. <span class="nb">unfold</span> neg. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ isapropempty)).
+      <span class="nb">apply</span> nx.
+  }
+  <span class="nb">apply</span> (weqimplimpl (pr2 lg) (pr1 lg) (isapropneg _) (isapropneg _)).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** [ishinh] and [coprod] *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">hinhcoprod</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) : ∥ (∥ X ∥ ⨿ ∥ Y ∥) ∥ -&gt; ∥ X ⨿ Y ∥.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isin. <span class="nb">unfold</span> ishinh. <span class="nb">intro</span> P. <span class="nb">intro</span> CP.
+  <span class="nb">set</span> (CPX := <span class="k">λ</span> <span class="nv">x</span> : X, CP (ii1 x)).
+  <span class="nb">set</span> (CPY := <span class="k">λ</span> <span class="nv">y</span> : Y, CP (ii2 y)).
+  <span class="nb">set</span> (is1P := isin P).
+  <span class="nb">assert</span> (f : (ishinh X) ⨿ (ishinh Y) -&gt; P).
+  <span class="nb">apply</span> (sumofmaps (hinhuniv CPX) (hinhuniv CPY)).
+  <span class="nb">apply</span> (is1P f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** [ishinh] and decidability  *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">decidable_ishinh</span> {<span class="nv">X</span>} : decidable X → decidable(∥X∥).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> d.
+  <span class="nb">unfold</span> decidable <span class="k">in</span> *.
+  <span class="nb">induction</span> d <span class="k">as</span> [x|x'].
+  - <span class="nb">apply</span> ii1. <span class="nb">apply</span> hinhpr. <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ii2. <span class="nb">intros</span> p.
+    <span class="nb">apply</span> (squash_to_prop p).
+    + <span class="bp">exact</span> isapropempty.
+    + <span class="bp">exact</span> x'.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Images and surjectivity for functions between types</span>
+<span class="sd">(both depend only on the behavior of the corresponding function between the sets</span>
+<span class="sd">of connected components) **)</span>
+
+<span class="kn">Definition</span> <span class="nf">image</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) : UU
+  := total2 (<span class="k">λ</span> <span class="nv">y</span> : Y, ishinh (hfiber f y)).
+<span class="kn">Definition</span> <span class="nf">make_image</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) :
+  ∏ (t : Y), (<span class="k">λ</span> <span class="nv">y</span> : Y, ∥ hfiber f y ∥) t → ∑ y : Y, ∥ hfiber f y ∥
+  := tpair (<span class="k">λ</span> <span class="nv">y</span> : Y, ishinh (hfiber f y)).
+<span class="kn">Definition</span> <span class="nf">pr1image</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) :
+  (∑ y : Y, ∥ hfiber f y ∥) → Y
+  := @pr1 _  (<span class="k">λ</span> <span class="nv">y</span> : Y, ishinh (hfiber f y)).
+
+<span class="kn">Definition</span> <span class="nf">prtoimage</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) : X -&gt; image f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X0.
+  <span class="nb">apply</span> (make_image _ (f X0) (hinhpr (make_hfiber f X0 (idpath _)))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">issurjective</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) := ∏ y : Y, ishinh (hfiber f y).
+
+<span class="kn">Lemma</span> <span class="nf">isapropissurjective</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) : isaprop (issurjective f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> impred.
+  <span class="nb">intro</span> t. <span class="nb">apply</span> (pr2 (ishinh (hfiber f t))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinclpr1image</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y): isincl (pr1image f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">refine</span> (isofhlevelfpr1 _ _ _).
+  <span class="nb">intro</span>. <span class="nb">apply</span> (pr2 (ishinh (hfiber f x))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">issurjprtoimage</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) : issurjective (prtoimage f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> z.
+  <span class="nb">set</span> (f' := prtoimage f).
+  <span class="nb">assert</span> (ff: hfiber (funcomp f' (pr1image f)) (pr1 z) -&gt; hfiber f' z)
+    <span class="bp">by</span> <span class="nb">refine</span> (invweq (samehfibers _ _ (isinclpr1image f) z)).
+  <span class="nb">apply</span> (hinhfun ff).
+  <span class="bp">exact</span> (pr2 z).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** The two-out-of-three properties of surjections *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">issurjcomp</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">g</span> : Y -&gt; Z)
+      (<span class="nv">isf</span> : issurjective f) (<span class="nv">isg</span> : issurjective g) :
+  issurjective (funcomp f g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> issurjective.
+  <span class="nb">intro</span> z. <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">ff</span>, hinhuniv ff (isg z)).
+  <span class="nb">intro</span> ye. <span class="nb">apply</span> (hinhfun (hfibersftogf f g z ye)).
+  <span class="nb">apply</span> (isf).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="nf">issurjtwooutof3c</span> := issurjcomp.
+
+<span class="kn">Lemma</span> <span class="nf">issurjtwooutof3b</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">g</span> : Y -&gt; Z)
+      (<span class="nv">isgf</span> : issurjective (funcomp f g)) : issurjective g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> issurjective.
+  <span class="nb">intro</span> z. <span class="nb">apply</span> (hinhfun (hfibersgftog f g z) (isgf z)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** A function between types which is an inclusion and a surjection is a weak equivalence *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isweqinclandsurj</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) :
+  isincl f -&gt; issurjective f -&gt; isweq f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hincl Hsurj.
+  <span class="nb">intro</span> y.
+  <span class="nb">set</span> (H := make_hProp (iscontr (hfiber f y)) (isapropiscontr _)).
+  <span class="nb">apply</span> (Hsurj y H).
+  <span class="nb">intro</span> x.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> iscontraprop1.
+  - <span class="nb">apply</span> Hincl.
+  - <span class="nb">apply</span> x.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** On the other hand, a weak equivalence is surjective *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">issurjectiveweq</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">f</span> : X -&gt; Y) : isweq f -&gt; issurjective f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H y.
+  <span class="nb">apply</span> hinhpr.
+  <span class="nb">apply</span> (pr1 (H y)).
+<span class="kn">Defined</span>.
+
+
+
+
+<span class="sd">(** *** Intuitionistic logic on [hProp]. *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">htrue</span> : hProp := make_hProp unit isapropunit.
+
+<span class="kn">Definition</span> <span class="nf">hfalse</span> : hProp := make_hProp empty isapropempty.
+
+<span class="kn">Definition</span> <span class="nf">hconj</span> (<span class="nv">P</span> <span class="nv">Q</span> : hProp) : hProp
+  := make_hProp (P × Q) (isapropdirprod _ _ (pr2 P) (pr2 Q)).
+
+<span class="kn">Notation</span> <span class="s2">"A ∧ B"</span> := (hconj A B) (<span class="kn">at level</span> <span class="mi">80</span>, <span class="kn">right associativity</span>) : type_scope.
+  <span class="c">(* precedence same as /\ *)</span>
+  <span class="c">(* in agda-input method, type \and or \wedge *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hdisj</span> (<span class="nv">P</span> <span class="nv">Q</span> : UU) : hProp := ishinh (coprod P Q).
+
+<span class="kn">Notation</span> <span class="s2">"X ∨ Y"</span> := (hdisj X Y) (<span class="kn">at level</span> <span class="mi">85</span>, <span class="kn">right associativity</span>) : type_scope.
+  <span class="c">(* in agda-input method, type \or *)</span>
+  <span class="c">(* precedence same as ‌\/, whereas ⨿ has the opposite associativity *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hdisj_in1</span> {<span class="nv">P</span> <span class="nv">Q</span> : UU} : P -&gt; P ∨ Q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> hinhpr. <span class="nb">apply</span> ii1. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hdisj_in2</span> {<span class="nv">P</span> <span class="nv">Q</span> : UU} : Q -&gt; P ∨ Q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> hinhpr. <span class="nb">apply</span> ii2. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disjoint_disjunction</span> (<span class="nv">P</span> <span class="nv">Q</span> : hProp) : (P -&gt; Q -&gt; ∅) -&gt; hProp.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n.
+  <span class="bp">exact</span> (P ⨿ Q,, isapropcoprod P Q (propproperty P) (propproperty Q) n).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hneg</span> (<span class="nv">P</span> : UU) : hProp := make_hProp (¬ P) (isapropneg P).
+<span class="c">(* uses funextemptyAxiom *)</span>
+
+<span class="c">(* use scope "logic" for notations that might conflict with others *)</span>
+
+<span class="kn">Declare Scope</span> logic.
+<span class="kn">Notation</span> <span class="s2">"'¬' X"</span> := (hneg X) (<span class="kn">at level</span> <span class="mi">35</span>, <span class="kn">right associativity</span>) : logic.
+  <span class="c">(* type this in emacs in agda-input method with \neg *)</span>
+<span class="kn">Delimit Scope</span> logic <span class="k">with</span> logic.
+
+<span class="kn">Definition</span> <span class="nf">himpl</span> (<span class="nv">P</span> : UU) (<span class="nv">Q</span> : hProp) : hProp.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">split with</span> (P -&gt; Q). <span class="nb">apply</span> impred. <span class="nb">intro</span>. <span class="nb">apply</span> (pr2 Q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A ⇒ B"</span> := (himpl A B) : logic.
+  <span class="c">(* precedence same as &lt;-&gt; *)</span>
+  <span class="c">(* in agda-input method, type \r= or \Rightarrow or \=&gt; *)</span>
+  <span class="c">(* can't make it global, because it's defined differently in</span>
+<span class="c">     CategoryTheory/UnicodeNotations.v *)</span>
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+
+<span class="kn">Definition</span> <span class="nf">hexists</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : X -&gt; UU) := ∥ total2 P ∥.
+
+<span class="kn">Notation</span> <span class="s2">"'∃' x .. y , P"</span>
+  := (ishinh (∑ x ,.. (∑ y , P)..))
+       (<span class="kn">at level</span> <span class="mi">200</span>, x <span class="kn">binder</span>, y <span class="kn">binder</span>, <span class="kn">right associativity</span>) : type_scope.
+  <span class="c">(* in agda-input method, type \ex *)</span>
+
+<span class="kn">Definition</span> <span class="nf">wittohexists</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : X -&gt; UU) (<span class="nv">x</span> : X) (<span class="nv">isp</span> : P x) : hexists P
+  := @hinhpr (total2 P) (tpair _ x isp).
+
+<span class="kn">Definition</span> <span class="nf">total2tohexists</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : X -&gt; UU) : total2 P -&gt; hexists P
+  := hinhpr.
+
+<span class="kn">Definition</span> <span class="nf">weqneghexistsnegtotal2</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : X -&gt; UU) :
+  weq (neg (hexists P)) (neg (total2 P)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (lg : (neg (hexists P)) &lt;-&gt; (neg (total2 P))).
+  {
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> (negf (total2tohexists P)).
+    - <span class="nb">intro</span> nt2. <span class="nb">unfold</span> neg. <span class="nb">change</span> (ishinh_UU (total2 P) -&gt; hfalse).
+      <span class="nb">apply</span> (hinhuniv). <span class="nb">apply</span> nt2.
+  }
+  <span class="nb">apply</span> (weqimplimpl (pr1 lg) (pr2 lg) (isapropneg _) (isapropneg _)).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Associativity and commutativity of [hdisj] and [hconj] up to logical equivalence *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">islogeqcommhdisj</span> {<span class="nv">P</span> <span class="nv">Q</span> : hProp} : hdisj P Q &lt;-&gt; hdisj Q P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">split</span>.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">apply</span> coprodcomm.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">apply</span> coprodcomm.
+<span class="kn">Defined</span>.
+
+
+
+<span class="sd">(** *** Proof of the only non-trivial axiom of intuitionistic logic for our constructions. For the full list of axioms see e.g.  http://plato.stanford.edu/entries/logic-intuitionistic/ *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">hconjtohdisj</span> (<span class="nv">P</span> <span class="nv">Q</span> : UU) (<span class="nv">R</span> : hProp) : (P ⇒ R) ∧ (Q ⇒ R) -&gt; (P ∨ Q) ⇒ R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X0.
+  <span class="nb">assert</span> (s1: hdisj P Q -&gt; R).
+  {
+    <span class="nb">intro</span> X1.
+    <span class="nb">assert</span> (s2: coprod P Q -&gt; R).
+    {
+      <span class="nb">intro</span> X2.
+      <span class="nb">induction</span> X2 <span class="k">as</span> [ XP | XQ ].
+      - <span class="nb">apply</span> X0. <span class="nb">apply</span> XP.
+      - <span class="nb">apply</span> (pr2 X0). <span class="nb">apply</span> XQ.
+    }
+    <span class="nb">apply</span> (hinhuniv s2). <span class="nb">apply</span> X1.
+  }
+  <span class="nb">unfold</span> himpl. <span class="nb">simpl</span>. <span class="nb">apply</span> s1.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Negation and quantification.</span>
+
+<span class="sd">There are four standard implications in classical logic which can be summarized</span>
+<span class="sd">as (neg (∏ P)) &lt;-&gt; (exists (neg P)) and (neg (exists P)) &lt;-&gt; (∏ (neg P)). Of</span>
+<span class="sd">these four implications three are provable in the intuitionistic logic. The</span>
+<span class="sd">remaining implication (neg (∏ P)) -&gt; (exists (neg P)) is not provable in</span>
+<span class="sd">general. For a proof in the case of bounded quantification of decidable</span>
+<span class="sd">predicates on natural numbers see hnat.v. For some other cases when these</span>
+<span class="sd">implications hold see ???. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hexistsnegtonegforall</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> : X -&gt; UU) :
+  (<span class="k">∃</span> <span class="nv">x</span> : X, neg (F x)) -&gt; neg (∏ x : X, F x).
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ (isapropneg (∏ x : X, F x)))).
+  <span class="nb">simpl</span>. <span class="nb">intros</span> t2 f2. <span class="nb">induction</span> t2 <span class="k">as</span> [ x d2 ]. <span class="nb">apply</span> (d2 (f2 x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">forallnegtoneghexists</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> : X -&gt; UU) :
+  (∏ x : X, neg (F x)) -&gt; neg (<span class="k">∃</span> <span class="nv">x</span>, F x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> nf.
+  <span class="nb">change</span> ((ishinh_UU (total2 F)) -&gt; hfalse).
+  <span class="nb">apply</span> hinhuniv. <span class="nb">intro</span> t2. <span class="nb">induction</span> t2 <span class="k">as</span> [ x f ]. <span class="nb">apply</span> (nf x f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">neghexisttoforallneg</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> : X -&gt; UU) :
+  ¬ (<span class="k">∃</span> <span class="nv">x</span>, F x) -&gt; ∏ x : X, ¬ (F x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> nhe x. <span class="nb">intro</span> fx.
+  <span class="nb">apply</span> (nhe (hinhpr (tpair F x fx))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqforallnegtonegexists</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> : X -&gt; UU) :
+  (∏ x : X, ¬ F x) ≃ (¬ <span class="k">∃</span> <span class="nv">x</span>, F x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (weqimplimpl (forallnegtoneghexists F) (neghexisttoforallneg F)).
+  <span class="nb">apply</span> impred. <span class="nb">intro</span> x. <span class="nb">apply</span> isapropneg. <span class="nb">apply</span> isapropneg.
+<span class="kn">Defined</span>.
+
+
+
+<span class="sd">(** *** Negation and conjunction ("and") and disjunction ("or").</span>
+
+<span class="sd">There are four implications in classical logic</span>
+<span class="sd">((¬ X) and (¬ Y)) &lt;-&gt; (¬ (X or Y)) and ((¬ X) or (¬ Y)) &lt;-&gt; (¬ (X and Y)). Of</span>
+<span class="sd">these four, three are provable unconditionally in the intuitionistic logic and</span>
+<span class="sd">the remaining one (¬ (X and Y)) -&gt; ((¬ X) or (¬ Y)) is provable only if one of</span>
+<span class="sd">the propositions is decidable. These two cases are proved in PartC.v under the</span>
+<span class="sd">names [fromneganddecx] and [fromneganddecy]. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">tonegdirprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} : ¬ X ∨ ¬ Y -&gt; ¬ (X × Y).
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ (isapropneg (X × Y)))).
+  <span class="nb">intro</span> c. <span class="nb">induction</span> c <span class="k">as</span> [ nx | ny ].
+  - <span class="nb">simpl</span>. <span class="nb">intro</span> xy. <span class="nb">apply</span> (nx (pr1 xy)).
+  - <span class="nb">simpl</span>. <span class="nb">intro</span> xy. <span class="nb">apply</span> (ny (pr2 xy)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weak_fromnegdirprod</span> (<span class="nv">P</span> <span class="nv">Q</span>: hProp) : ¬ (P ∧ Q) -&gt; ¬¬(¬ P ∨ ¬ Q).
+<span class="c">(* this is also called a weak deMorgan law *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> npq k.
+  <span class="nb">assert</span> (e : ¬¬ Q).
+  {
+    <span class="nb">intro</span> n. <span class="nb">apply</span> k. <span class="nb">apply</span> hdisj_in2. <span class="bp">assumption</span>.
+  }
+  <span class="nb">assert</span> (d : ¬¬ P).
+  {
+    <span class="nb">intro</span> n. <span class="nb">apply</span> k. <span class="nb">apply</span> hdisj_in1. <span class="bp">assumption</span>.
+  }
+  <span class="nb">clear</span> k.
+  <span class="nb">apply</span> d; <span class="nb">clear</span> d. <span class="nb">intro</span> p. <span class="nb">apply</span> e; <span class="nb">clear</span> e. <span class="nb">intro</span> q.
+  <span class="nb">refine</span> (npq _). <span class="bp">exact</span> (p,,q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">tonegcoprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} : ¬ X × ¬ Y -&gt; ¬ (X ⨿ Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isp. <span class="nb">intro</span> c. <span class="nb">induction</span> c <span class="k">as</span> [ x | y ].
+  - <span class="nb">apply</span> (pr1 isp x).
+  - <span class="nb">apply</span> (pr2 isp y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">toneghdisj</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} : ¬ X × ¬ Y -&gt; ¬ (X ∨ Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isp. <span class="nb">unfold</span> hdisj.
+  <span class="nb">apply</span> weqnegtonegishinh.
+  <span class="nb">apply</span> tonegcoprod.
+  <span class="nb">apply</span> isp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">fromnegcoprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} : ¬ (X ⨿ Y) -&gt; ¬X × ¬Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isn. <span class="nb">split</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, isn (ii1 x)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, isn (ii2 y)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">fromnegcoprod_prop</span> {<span class="nv">X</span> <span class="nv">Y</span> : hProp} : ¬ (X ∨ Y) -&gt; ¬ X ∧ ¬ Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n.
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">assert</span> (n' := negf hinhpr n); <span class="nb">simpl</span> <span class="k">in</span> n'; <span class="nb">clear</span> n.
+  <span class="nb">apply</span> fromnegcoprod. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hdisjtoimpl</span> {<span class="nv">P</span> : UU} {<span class="nv">Q</span> : hProp} : P ∨ Q -&gt; ¬ P -&gt; Q.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (int : isaprop (¬ P -&gt; Q)).
+  {
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> (pr2 Q).
+  }
+  <span class="nb">simpl</span>. <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ int)).
+  <span class="nb">simpl</span>. <span class="nb">intro</span> pq. <span class="nb">induction</span> pq <span class="k">as</span> [ p | q ].
+  - <span class="nb">intro</span> np. <span class="nb">induction</span> (np p).
+  - <span class="nb">intro</span> np. <span class="nb">apply</span> q.
+<span class="kn">Defined</span>.
+
+
+
+<span class="sd">(** *** Property of being decidable and [hdisj] ("or").</span>
+
+<span class="sd">For being decidable [hconj] see [isdecpropdirprod] in uu0.v  *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isdecprophdisj</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">isx</span> : isdecprop X) (<span class="nv">isy</span> : isdecprop Y) :
+  isdecprop (hdisj X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isdecpropif. <span class="nb">apply</span> (pr2 (hdisj X Y)).
+  <span class="nb">induction</span> (pr1 isx) <span class="k">as</span> [ x | nx ].
+  - <span class="nb">apply</span> (ii1 (hinhpr (ii1 x))).
+  - <span class="nb">induction</span> (pr1 isy) <span class="k">as</span> [ y | ny ].
+    + <span class="nb">apply</span> (ii1 (hinhpr (ii2 y))).
+    + <span class="nb">apply</span> (ii2 (toneghdisj (make_dirprod nx ny))).
+<span class="kn">Defined</span>.
+
+
+
+
+
+<span class="sd">(** *** The double negation version of [hinhabited] (does not require RR1). *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">isinhdneg</span> (<span class="nv">X</span> : UU) : hProp := make_hProp (dneg X) (isapropdneg X).
+
+<span class="kn">Definition</span> <span class="nf">inhdnegpr</span> (<span class="nv">X</span> : UU) : X -&gt; isinhdneg X := todneg X.
+
+<span class="kn">Definition</span> <span class="nf">inhdnegfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) : isinhdneg X -&gt; isinhdneg Y
+  := dnegf f.
+
+<span class="kn">Definition</span> <span class="nf">inhdneguniv</span> (<span class="nv">X</span> : UU) (<span class="nv">P</span> : UU) (<span class="nv">isw</span> : isweq (todneg P)) :
+  (X -&gt; P) -&gt; ((isinhdneg X) -&gt; P)
+  := <span class="k">λ</span> <span class="nv">xp</span> : _, <span class="k">λ</span> <span class="nv">inx0</span> : _, (invmap (make_weq _ isw) (dnegf  xp inx0)).
+
+<span class="kn">Definition</span> <span class="nf">inhdnegand</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">inx0</span> : isinhdneg X) (<span class="nv">iny0</span> : isinhdneg Y) :
+  isinhdneg (X × Y) := dneganddnegimpldneg inx0 iny0.
+
+<span class="kn">Definition</span> <span class="nf">hinhimplinhdneg</span> (<span class="nv">X</span> : UU) (<span class="nv">inx1</span> : ishinh X) : isinhdneg X
+  := inx1 hfalse.
+
+<span class="sd">(** ** Univalence for hProp *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">hPropUnivalence</span> : ∏ (P Q : hProp), (P -&gt; Q) -&gt; (Q -&gt; P) -&gt; P = Q.
+  <span class="c">(* this theorem replaced a former axiom, with the same statement, called</span>
+<span class="c">     "uahp" *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? f g.
+  <span class="nb">apply</span> subtypePath.
+  - <span class="nb">intro</span> X. <span class="nb">apply</span> isapropisaprop.
+  - <span class="nb">apply</span> propositionalUnivalenceAxiom.
+    + <span class="nb">apply</span> propproperty.
+    + <span class="nb">apply</span> propproperty.
+    + <span class="bp">assumption</span>.
+    + <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">eqweqmaphProp</span> {<span class="nv">P</span> <span class="nv">P'</span> : hProp} (<span class="nv">e</span> : @paths hProp P P') : P ≃ P'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> e. <span class="nb">apply</span> idweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqtopathshProp</span> {<span class="nv">P</span> <span class="nv">P'</span> : hProp} (<span class="nv">w</span> : P ≃ P') : P = P'
+  := hPropUnivalence P P' w (invweq w).
+
+<span class="kn">Definition</span> <span class="nf">weqpathsweqhProp</span> {<span class="nv">P</span> <span class="nv">P'</span> : hProp} (<span class="nv">w</span> : P ≃ P') :
+  eqweqmaphProp (weqtopathshProp w) = w.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> proofirrelevance.
+  <span class="nb">apply</span> (isapropweqtoprop P P' (pr2 P')).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Theorem</span> <span class="nf">univfromtwoaxiomshProp</span> (<span class="nv">P</span> <span class="nv">P'</span> : hProp) : isweq (@eqweqmaphProp P P').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+
+  <span class="nb">set</span> (P1 := <span class="k">λ</span> <span class="nv">XY</span> : hProp × hProp, paths (pr1 XY) (pr2 XY)).
+  <span class="nb">set</span> (P2 := <span class="k">λ</span> <span class="nv">XY</span> : hProp × hProp, (pr1 XY) ≃ (pr2 XY)).
+  <span class="nb">set</span> (Z1 :=  total2 P1).
+  <span class="nb">set</span> (Z2 :=  total2 P2).
+  <span class="nb">set</span> (f := (totalfun _ _ (<span class="k">λ</span> <span class="nv">XY</span> : hProp × hProp,
+                             @eqweqmaphProp (pr1 XY) (pr2 XY)): Z1 -&gt; Z2)).
+  <span class="nb">set</span> (g := (totalfun _ _ (<span class="k">λ</span> <span class="nv">XY</span> : hProp × hProp,
+                             @weqtopathshProp (pr1 XY) (pr2 XY)): Z2 -&gt; Z1)).
+  <span class="nb">assert</span> (efg : ∏ z2 : Z2 , paths (f (g z2)) z2).
+  {
+    <span class="nb">intros</span>. <span class="nb">induction</span> z2 <span class="k">as</span> [ XY w].
+    <span class="bp">exact</span> (maponpaths (<span class="k">fun</span> <span class="nv">w</span> : (pr1 XY) ≃ (pr2 XY) =&gt; tpair P2 XY w)
+                      (@weqpathsweqhProp (pr1 XY) (pr2 XY) w)).
+  }
+
+  <span class="nb">set</span> (h := <span class="k">λ</span> <span class="nv">a1</span> : Z1, (pr1 (pr1 a1))).
+  <span class="nb">assert</span> (egf0 : ∏ a1 : Z1, paths (pr1 (g (f a1))) (pr1 a1))
+         <span class="bp">by</span> (<span class="nb">intro</span>; <span class="nb">apply</span> idpath).
+  <span class="nb">assert</span> (egf1 : ∏ a1 a1' : Z1, paths (pr1 a1') (pr1 a1) -&gt; a1' = a1).
+  {
+    <span class="nb">intros</span> ? ? X.
+    <span class="nb">set</span> (X' := maponpaths (@pr1 _ _) X).
+    <span class="nb">assert</span> (isw : isweq h) <span class="bp">by</span> <span class="nb">apply</span> (isweqpr1pr1 hProp).
+    <span class="nb">apply</span> (invmaponpathsweq (make_weq h isw) _ _ X').
+  }
+  <span class="nb">set</span> (egf := <span class="k">λ</span> <span class="nv">a1</span>, (egf1 _ _ (egf0 a1))).
+  <span class="nb">set</span> (is2 := isweq_iso _ _ egf efg).
+  <span class="nb">apply</span> (isweqtotaltofib P1 P2 (<span class="k">λ</span> <span class="nv">XY</span> : hProp × hProp,
+                                  @eqweqmaphProp (pr1 XY) (pr2 XY)) is2
+                         (make_dirprod P P')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqeqweqhProp</span> (<span class="nv">P</span> <span class="nv">P'</span> : hProp) : P = P' ≃ (P ≃ P')
+  := make_weq _ (univfromtwoaxiomshProp P P').
+
+<span class="kn">Corollary</span> <span class="nf">isasethProp</span> : isaset hProp.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> isaset. <span class="nb">simpl</span>. <span class="nb">intros</span> x x'.
+  <span class="nb">apply</span> (isofhlevelweqb (S O) (weqeqweqhProp x x')
+                        (isapropweqtoprop x x' (pr2 x'))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqpathsweqhProp'</span> {<span class="nv">P</span> <span class="nv">P'</span> : hProp} (<span class="nv">e</span> : P = P') :
+  weqtopathshProp (eqweqmaphProp e) = e.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> isasethProp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscontrtildehProp</span> : iscontr tildehProp.
+<span class="kn">Proof</span>.
+  <span class="nb">split with</span> (tpair _ htrue tt). <span class="nb">intro</span> tP. <span class="nb">induction</span> tP <span class="k">as</span> [ P p ].
+  <span class="nb">apply</span> (invmaponpathsincl _ (isinclpr1 (<span class="k">λ</span> <span class="nv">P</span> : hProp, P) (<span class="k">λ</span> <span class="nv">P</span>, pr2 P))).
+  <span class="nb">simpl</span>. <span class="nb">apply</span> hPropUnivalence. <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">x</span>, tt). <span class="nb">intro</span> t. <span class="nb">apply</span> p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaproptildehProp</span> : isaprop tildehProp.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isapropifcontr iscontrtildehProp).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isasettildehProp</span> : isaset tildehProp.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isasetifcontr iscontrtildehProp).
+<span class="kn">Defined</span>.
+
+
+<span class="c">(* ** Logical equivalence yields weak equivalence *)</span>
+
+<span class="kn">Definition</span> <span class="nf">logeqweq</span> (<span class="nv">P</span> <span class="nv">Q</span> : hProp) : (P -&gt; Q) -&gt; (Q -&gt; P) -&gt; P ≃ Q :=
+  <span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span>, weqimplimpl f g (pr2 P) (pr2 Q).
+
+<span class="c">(* ** A variant of a lemma proved in uu0b.v *)</span>
+<span class="kn">Theorem</span> <span class="nf">total2_paths_hProp_equiv</span> {<span class="nv">A</span> : UU} (<span class="nv">B</span> : A -&gt; hProp)
+   (<span class="nv">x</span> <span class="nv">y</span> : total2 (<span class="k">λ</span> <span class="nv">x</span>, B x)) : (x = y) ≃ (pr1 x = pr1 y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> subtypeInjectivity.
+  <span class="nb">intro</span> a. <span class="nb">apply</span> (pr2 (B a)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Foundations/Propositions.v</tt>, line 64)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** Imports *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt;
+  &gt; (** Universe structure *)
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

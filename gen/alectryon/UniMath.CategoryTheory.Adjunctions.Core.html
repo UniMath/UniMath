@@ -1,0 +1,1045 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Core.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Benedikt Ahrens, Chris Kapulkin, Mike Shulman</span>
+<span class="sd">january 2013</span>
+
+<span class="sd">Extended by: Anders Mörtberg, 2016</span>
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- Definition of adjunction</span>
+<span class="sd">- Post-composition with a left adjoint is a left adjoint ([is_left_adjoint_post_composition_functor])</span>
+<span class="sd">- Lemmas about adjunctions</span>
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SplitMonicsAndEpis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Adjunctions *)</span>
+<span class="kn">Section</span> <span class="nf">adjunctions</span>.
+
+<span class="kn">Definition</span> <span class="nf">adjunction_data</span> (<span class="nv">A</span> <span class="nv">B</span> : precategory) : UU
+  := ∑ (F : functor A B) (G : functor B A),
+     nat_trans (functor_identity A) (F ∙ G) ×
+               nat_trans (G ∙ F) (functor_identity B).
+
+<span class="kn">Definition</span> <span class="nf">make_adjunction_data</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+           (<span class="nv">F</span> : functor A B)
+           (<span class="nv">G</span> : functor B A)
+           (<span class="nv">η</span> : functor_identity _ ⟹ (F ∙ G))
+           (<span class="nv">ε</span> : (G ∙ F) ⟹ functor_identity _) : adjunction_data A B
+  := (F ,, G ,, (η ,, ε)).
+
+<span class="kn">Definition</span> <span class="nf">left_functor</span> {<span class="nv">A</span> <span class="nv">B</span>} (<span class="nv">X</span> : adjunction_data A B) : functor A B
+  := pr1 X.
+
+<span class="kn">Definition</span> <span class="nf">right_functor</span> {<span class="nv">A</span> <span class="nv">B</span>} (<span class="nv">X</span> : adjunction_data A B) : functor B A
+  := pr1 (pr2 X).
+
+<span class="kn">Definition</span> <span class="nf">adjunit</span> {<span class="nv">A</span> <span class="nv">B</span>} (<span class="nv">X</span> : adjunction_data A B)
+  : nat_trans (functor_identity _) (_ ∙ _)
+  := pr1 (pr2 (pr2 X)).
+
+<span class="kn">Definition</span> <span class="nf">adjcounit</span> {<span class="nv">A</span> <span class="nv">B</span>} (<span class="nv">X</span> : adjunction_data A B)
+  : nat_trans (_ ∙ _ ) (functor_identity _)
+  := pr2 (pr2 (pr2 X)).
+
+<span class="kn">Definition</span> <span class="nf">triangle_1_statement</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory} (<span class="nv">X</span> : adjunction_data A B)
+           (<span class="nv">F</span> := left_functor X) (<span class="nv">η</span> := adjunit X) (<span class="nv">ε</span> := adjcounit X)
+  : UU
+  :=  ∏ a : A, # F (η a) · ε (F a) = identity (F a).
+
+<span class="kn">Definition</span> <span class="nf">triangle_2_statement</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory} (<span class="nv">X</span> : adjunction_data A B)
+           (<span class="nv">G</span> := right_functor X) (<span class="nv">η</span> := adjunit X) (<span class="nv">ε</span> := adjcounit X)
+  : UU
+  := ∏ b : B, η (G b) · # G (ε b) = identity (G b).
+
+<span class="kn">Definition</span> <span class="nf">form_adjunction'</span> {<span class="nv">A</span> <span class="nv">B</span>} (<span class="nv">X</span> : adjunction_data A B) : UU
+  := triangle_1_statement X × triangle_2_statement X.
+
+<span class="kn">Definition</span> <span class="nf">form_adjunction</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory} (<span class="nv">F</span> : functor A B) (<span class="nv">G</span> : functor B A)
+             (<span class="nv">eta</span> : nat_trans (functor_identity A) (functor_composite F G))
+             (<span class="nv">eps</span> : nat_trans (functor_composite G F) (functor_identity B)) : UU :=
+  form_adjunction' (F,,G,,eta,,eps).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_form_adjunction</span> {<span class="nv">A</span> <span class="nv">B</span> : category} (<span class="nv">F</span> : functor A B) (<span class="nv">G</span> : functor B A)
+             (<span class="nv">eta</span> : nat_trans (functor_identity A) (functor_composite F G))
+             (<span class="nv">eps</span> : nat_trans (functor_composite G F) (functor_identity B))
+      : isaprop (form_adjunction F G eta eps).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>.
+  - <span class="nb">apply</span> B.
+  - <span class="nb">apply</span> A.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_form_adjunction</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory} {<span class="nv">F</span> : functor A B} {<span class="nv">G</span> : functor B A}
+           {<span class="nv">eta</span> : nat_trans (functor_identity A) (functor_composite F G)}
+           {<span class="nv">eps</span> : nat_trans (functor_composite G F) (functor_identity B)}
+           (<span class="nv">H1</span> : ∏ a : A, # F (eta a) · eps (F a) = identity (F a))
+           (<span class="nv">H2</span> : ∏ b : B, eta (G b) · # G (eps b) = identity (G b)) :
+  form_adjunction F G eta eps := (H1,,H2).
+
+  <span class="kn">Definition</span> <span class="nf">are_adjoints</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory} (<span class="nv">F</span> : functor A B) (<span class="nv">G</span> : functor B A) : UU :=
+    ∑ (etaeps : (nat_trans (functor_identity A) (functor_composite F G))
+                  × (nat_trans (functor_composite G F) (functor_identity B))),
+    form_adjunction F G (pr1 etaeps) (pr2 etaeps).
+
+  <span class="kn">Definition</span> <span class="nf">make_are_adjoints</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             (<span class="nv">F</span> : functor A B) (<span class="nv">G</span> : functor B A)
+             (<span class="nv">eta</span> : nat_trans (functor_identity A) (functor_composite F G))
+             (<span class="nv">eps</span> : nat_trans (functor_composite G F) (functor_identity B))
+             (<span class="nv">HH</span> : form_adjunction F G eta eps) : are_adjoints F G.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">eta</span>,,<span class="nv">eps</span>).
+    <span class="bp">exact</span> HH.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjunction</span> (<span class="nv">A</span> <span class="nv">B</span> : precategory) : UU
+    := ∑ X : adjunction_data A B, form_adjunction' X.
+
+  <span class="kn">Coercion</span> <span class="nf">data_from_adjunction</span> {A B} (X : adjunction A B)
+    : adjunction_data _ _ := pr1 X.
+
+  <span class="kn">Definition</span> <span class="nf">make_adjunction</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             (<span class="nv">adjData</span> : adjunction_data A B)
+             (<span class="nv">adjProp</span> : form_adjunction' adjData) : adjunction A B
+    := (adjData ,, adjProp).
+
+  <span class="kn">Definition</span> <span class="nf">form_adjunction_from_adjunction</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             (<span class="nv">adj</span> : adjunction A B) : form_adjunction' adj
+    := pr2 adj.
+
+  <span class="kn">Definition</span> <span class="nf">triangle_1_statement_from_adjunction</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             (<span class="nv">adj</span> : adjunction A B) : triangle_1_statement adj
+    := pr1 (pr2 adj).
+
+  <span class="kn">Definition</span> <span class="nf">triangle_2_statement_from_adjunction</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             (<span class="nv">adj</span> : adjunction A B) : triangle_2_statement adj
+    := pr2 (pr2 adj).
+
+  <span class="kn">Coercion</span> <span class="nf">are_adjoints_from_adjunction</span> {A B} (X : adjunction A B)
+    : are_adjoints (left_functor X) (right_functor X).
+  <span class="kn">Proof</span>.
+    use make_are_adjoints.
+    - <span class="bp">exact</span>(adjunit X).
+    - <span class="bp">exact</span>(adjcounit X).
+    - <span class="bp">exact</span>(form_adjunction_from_adjunction X).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unit_from_are_adjoints</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             {<span class="nv">F</span> : functor A B} {<span class="nv">G</span> : functor B A} (<span class="nv">H</span> : are_adjoints F G) :
+    nat_trans (functor_identity A) (functor_composite F G) := pr1 (pr1 H).
+
+  <span class="kn">Definition</span> <span class="nf">counit_from_are_adjoints</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             {<span class="nv">F</span> : functor A B} {<span class="nv">G</span> : functor B A} (<span class="nv">H</span> : are_adjoints F G)  :
+    nat_trans (functor_composite G F) (functor_identity B) := pr2 (pr1 H).
+
+  <span class="kn">Definition</span> <span class="nf">is_left_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory} (<span class="nv">F</span> : functor A B) : UU :=
+    ∑ (G : functor B A), are_adjoints F G.
+
+  <span class="kn">Coercion</span> <span class="nf">adjunction_data_from_is_left_adjoint</span> {A B : precategory}
+         {F : functor A B} (HF : is_left_adjoint F)
+  : adjunction_data A B
+  := (F,, _ ,,unit_from_are_adjoints (pr2 HF) ,,counit_from_are_adjoints (pr2 HF) ).
+
+  <span class="kn">Definition</span> <span class="nf">is_right_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory} (<span class="nv">G</span> : functor B A) : UU :=
+    ∑ (F : functor A B), are_adjoints F G.
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_data_from_is_right_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+         {<span class="nv">F</span> : functor A B} (<span class="nv">HF</span> : is_right_adjoint F)
+  : adjunction_data B A
+  := make_adjunction_data _ F (unit_from_are_adjoints (pr2 HF)) (counit_from_are_adjoints (pr2 HF)).
+
+  <span class="kn">Definition</span> <span class="nf">are_adjoints_to_is_left_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory} (<span class="nv">F</span> : functor A B) (<span class="nv">G</span> : functor B A)
+             (<span class="nv">H</span> : are_adjoints F G) : is_left_adjoint F := (G,,H).
+
+  <span class="kn">Coercion</span> <span class="nf">are_adjoints_to_is_left_adjoint</span> : are_adjoints &gt;-&gt; is_left_adjoint.
+
+  <span class="kn">Definition</span> <span class="nf">are_adjoints_to_is_right_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory} (<span class="nv">F</span> : functor A B)
+             (<span class="nv">G</span> : functor B A) (<span class="nv">H</span> : are_adjoints F G) : is_right_adjoint G := (F,,H).
+
+  <span class="kn">Coercion</span> <span class="nf">are_adjoints_to_is_right_adjoint</span> : are_adjoints &gt;-&gt; is_right_adjoint.
+
+  <span class="kn">Definition</span> <span class="nf">right_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             {<span class="nv">F</span> : functor A B} (<span class="nv">H</span> : is_left_adjoint F) : functor B A := pr1 H.
+
+  <span class="kn">Lemma</span> <span class="nf">is_right_adjoint_right_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+        {<span class="nv">F</span> : functor A B} (<span class="nv">H</span> : is_left_adjoint F) : is_right_adjoint (right_adjoint H).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (F,,pr2 H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             {<span class="nv">G</span> : functor B A} (<span class="nv">H</span> : is_right_adjoint G) : functor A B := pr1 H.
+
+  <span class="kn">Lemma</span> <span class="nf">is_left_adjoint_left_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+        {<span class="nv">G</span> : functor B A} (<span class="nv">H</span> : is_right_adjoint G) : is_left_adjoint (left_adjoint H).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (G,,pr2 H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unit_from_left_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             {<span class="nv">F</span> : functor A B}  (<span class="nv">H</span> : is_left_adjoint F) :
+    nat_trans (functor_identity A) (functor_composite F (right_adjoint H))
+    := adjunit H. <span class="c">(* makes use of the coercion above *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">unit_from_right_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             {<span class="nv">G</span> : functor B A}  (<span class="nv">H</span> : is_right_adjoint G) :
+    nat_trans (functor_identity A) (functor_composite (left_adjoint H) G)
+    := unit_from_are_adjoints (pr2 H).
+
+  <span class="kn">Definition</span> <span class="nf">counit_from_left_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             {<span class="nv">F</span> : functor A B}   (<span class="nv">H</span> : is_left_adjoint F)  :
+    nat_trans (functor_composite (right_adjoint H) F) (functor_identity B)
+    := counit_from_are_adjoints (pr2 H).
+
+  <span class="kn">Definition</span> <span class="nf">counit_from_right_adjoint</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+             {<span class="nv">G</span> : functor B A} (<span class="nv">H</span> : is_right_adjoint G)  :
+    nat_trans (functor_composite G (left_adjoint H)) (functor_identity B)
+    := counit_from_are_adjoints (pr2 H).
+
+  <span class="kn">Definition</span> <span class="nf">triangle_id_left_ad</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory} {<span class="nv">F</span> : functor A B} {<span class="nv">G</span> : functor B A}
+             (<span class="nv">H</span> : are_adjoints F G) :
+    ∏ a, # F (unit_from_are_adjoints H a)
+           · counit_from_are_adjoints H (F a) = identity (F a) := pr1 (pr2 H).
+
+  <span class="kn">Definition</span> <span class="nf">triangle_id_right_ad</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory} {<span class="nv">F</span> : functor A B} {<span class="nv">G</span> : functor B A}
+             (<span class="nv">H</span> : are_adjoints F G) :
+    ∏ b, unit_from_are_adjoints H (G b) · # G (counit_from_are_adjoints H b) = identity (G b)
+    := pr2 (pr2 H).
+
+  <span class="kn">Lemma</span> <span class="nf">are_adjoints_functor_composite</span>
+        {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : precategory} {<span class="nv">F1</span> : functor A B} {<span class="nv">F2</span> : functor B C}
+        {<span class="nv">G1</span> : functor B A} {<span class="nv">G2</span> : functor C B}
+        (<span class="nv">H1</span> : are_adjoints F1 G1) (<span class="nv">H2</span> : are_adjoints F2 G2) :
+    are_adjoints (functor_composite F1 F2) (functor_composite G2 G1).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> H1 <span class="k">as</span> [[eta1 eps1] [H11 H12]].
+    <span class="nb">destruct</span> H2 <span class="k">as</span> [[eta2 eps2] [H21 H22]].
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    use make_are_adjoints.
+    - <span class="nb">apply</span> (nat_trans_comp _ _ _ eta1).
+      use (nat_trans_comp _ _ _ _ (nat_trans_functor_assoc_inv _ _ _)).
+      <span class="nb">apply</span> pre_whisker.
+      <span class="nb">apply</span> (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv _)
+                            (post_whisker eta2 G1)).
+    - use (nat_trans_comp _ _ _ _ eps2).
+      <span class="nb">apply</span> (nat_trans_comp _ _ _ (nat_trans_functor_assoc _ _ _)).
+      <span class="nb">apply</span> pre_whisker.
+      <span class="nb">apply</span> (nat_trans_comp _ _ _ (nat_trans_functor_assoc_inv _ _ _)).
+      <span class="nb">apply</span> (nat_trans_comp _ _ _ (post_whisker eps1 _)
+                            (nat_trans_functor_id_left _)).
+    - <span class="nb">split</span>; <span class="nb">intros</span> a; <span class="nb">simpl</span>.
+      + <span class="nb">rewrite</span> !id_left, !id_right, &lt;-functor_id, &lt;- H11, !functor_comp, &lt;-!assoc.
+        <span class="nb">apply</span> maponpaths; <span class="nb">rewrite</span> assoc.
+        etrans; [<span class="nb">eapply</span> cancel_postcomposition, pathsinv0, functor_comp|].
+        etrans.
+        <span class="nb">apply</span> cancel_postcomposition, maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax eps1 (F1 a) (G2 (F2 (F1 a))) (eta2 (F1 a))).
+        <span class="nb">simpl</span>; <span class="nb">rewrite</span> functor_comp, &lt;- assoc.
+        etrans; [<span class="nb">eapply</span> maponpaths, H21|].
+        <span class="bp">now</span> <span class="nb">apply</span> id_right.
+      + <span class="nb">rewrite</span> !id_left, !id_right, &lt;- functor_id, &lt;- H22, !functor_comp, assoc.
+        <span class="nb">apply</span> cancel_postcomposition; <span class="nb">rewrite</span> &lt;- assoc.
+        etrans; [<span class="nb">eapply</span> maponpaths, pathsinv0, functor_comp|].
+        etrans.
+        <span class="nb">eapply</span> maponpaths, maponpaths, pathsinv0.
+        <span class="nb">apply</span> (nat_trans_ax eta2 (F1 (G1 (G2 a))) (G2 a) (eps1 _)).
+        <span class="nb">simpl</span>; <span class="nb">rewrite</span> functor_comp, assoc.
+        etrans; [<span class="nb">apply</span> cancel_postcomposition, H12|].
+        <span class="bp">now</span> <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_left_adjoint_functor_composite</span>
+        {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : precategory} {<span class="nv">F1</span> : functor A B} {<span class="nv">F2</span> : functor B C}
+        (<span class="nv">H1</span> : is_left_adjoint F1) (<span class="nv">H2</span> : is_left_adjoint F2) :
+    is_left_adjoint (functor_composite F1 F2).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> (functor_composite (pr1 H2) (pr1 H1)).
+    - <span class="nb">apply</span> are_adjoints_functor_composite.
+      + <span class="nb">apply</span> (pr2 H1).
+      + <span class="nb">apply</span> (pr2 H2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">are_adjoints_closed_under_iso_data</span> {<span class="nv">A</span> <span class="nv">B</span> : category}
+    (<span class="nv">F</span> <span class="nv">G</span> : functor A B) (<span class="nv">H</span> : functor B A) (<span class="nv">αiso</span> : @z_iso [A,B] F G) (<span class="nv">HF</span> : are_adjoints F H)
+    : adjunction_data A B.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (α := pr1 αiso : nat_trans F G).
+    <span class="nb">set</span> (αinv := inv_from_z_iso αiso : nat_trans G F).
+    <span class="nb">destruct</span> HF <span class="k">as</span> [[α' β'] [HF1 HF2]].
+    <span class="k">exists</span> <span class="nv">G</span>. <span class="k">exists</span> <span class="nv">H</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> (nat_trans_comp _ _ _ α' (post_whisker α H)).
+    - <span class="nb">apply</span> (nat_trans_comp _ _ _ (pre_whisker H αinv) β').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">are_adjoints_closed_under_iso_laws</span> {<span class="nv">A</span> <span class="nv">B</span> : category}
+    (<span class="nv">F</span> <span class="nv">G</span> : functor A B) (<span class="nv">H</span> : functor B A) (<span class="nv">αiso</span> : @z_iso [A,B] F G) (<span class="nv">HF</span> : are_adjoints F H)
+    : form_adjunction' (are_adjoints_closed_under_iso_data F G H αiso HF).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (α := pr1 αiso : nat_trans F G).
+    <span class="nb">set</span> (αinv := inv_from_z_iso αiso : nat_trans G F).
+    <span class="nb">destruct</span> HF <span class="k">as</span> [[α' β'] [HF1 HF2]]; <span class="nb">simpl</span> <span class="k">in</span> HF1, HF2.
+    <span class="nb">split</span>.
+    - <span class="nb">unfold</span> triangle_1_statement.
+      <span class="nb">simpl</span>; <span class="nb">intro</span> a; <span class="nb">rewrite</span> assoc, functor_comp.
+      etrans; [ <span class="nb">apply</span> cancel_postcomposition; <span class="nb">rewrite</span> &lt;- assoc;
+                <span class="nb">apply</span> maponpaths, (nat_trans_ax αinv)|].
+      etrans; [ <span class="nb">rewrite</span> assoc, &lt;- !assoc;
+                <span class="nb">apply</span> maponpaths, maponpaths, (nat_trans_ax β')|].
+      <span class="nb">simpl</span>; <span class="nb">rewrite</span> assoc.
+      etrans; [ <span class="nb">apply</span> cancel_postcomposition, (nat_trans_ax αinv)|].
+      <span class="nb">rewrite</span> assoc.
+      etrans; [ <span class="nb">apply</span> cancel_postcomposition; <span class="nb">rewrite</span> &lt;- assoc;
+                <span class="nb">apply</span> maponpaths, HF1|].
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> (nat_trans_eq_pointwise (z_iso_after_z_iso_inv αiso)).
+    - <span class="nb">unfold</span> triangle_2_statement <span class="k">in</span> *.
+      <span class="nb">simpl</span>; <span class="nb">intro</span> b; <span class="nb">rewrite</span> functor_comp, assoc.
+      etrans; [ <span class="nb">apply</span> cancel_postcomposition; <span class="nb">rewrite</span> &lt;- assoc;
+                <span class="nb">eapply</span> maponpaths, pathsinv0, functor_comp|].
+      etrans; [ <span class="nb">apply</span> cancel_postcomposition, maponpaths, maponpaths,
+          (nat_trans_eq_pointwise (z_iso_inv_after_z_iso αiso))|].
+      <span class="nb">cbn</span>. <span class="nb">rewrite</span> (functor_id H), id_right. <span class="nb">apply</span> (HF2 b).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">are_adjoints_closed_under_iso</span> {<span class="nv">A</span> <span class="nv">B</span> : category}
+        (<span class="nv">F</span> <span class="nv">G</span> : functor A B) (<span class="nv">H</span> : functor B A) (<span class="nv">αiso</span> : @z_iso [A,B] F G) (<span class="nv">HF</span> : are_adjoints F H) :
+    are_adjoints G H.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (adj_data := are_adjoints_closed_under_iso_data F G H αiso HF).
+    use make_are_adjoints.
+    - <span class="bp">exact</span> (adjunit adj_data).
+    - <span class="bp">exact</span> (adjcounit adj_data).
+    - <span class="nb">apply</span> are_adjoints_closed_under_iso_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">is_left_adjoint_closed_under_iso</span> {<span class="nv">A</span> <span class="nv">B</span> : category}
+        (<span class="nv">F</span> <span class="nv">G</span> : functor A B) (<span class="nv">αiso</span> : @z_iso [A,B] F G) (<span class="nv">HF</span> : is_left_adjoint F) :
+    is_left_adjoint G.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> HF <span class="k">as</span> [F' Hisadj].
+    <span class="bp">exact</span> (F',,are_adjoints_closed_under_iso F G F' αiso Hisadj).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * Identity functor is a left adjoint *)</span>
+
+
+  <span class="kn">Lemma</span> <span class="nf">is_left_adjoint_functor_identity</span> {<span class="nv">A</span> : precategory} :
+    is_left_adjoint (functor_identity A).
+  <span class="kn">Proof</span>.
+    use tpair.
+    + <span class="bp">exact</span> (functor_identity A).
+    + <span class="k">exists</span> (<span class="nv">nat_trans_id</span> <span class="nv">_</span>,, <span class="nv">nat_trans_id</span> <span class="nv">_</span>).
+      <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">split</span>; [<span class="nb">intros</span> a; <span class="nb">apply</span> id_left| <span class="nb">intros</span> a; <span class="nb">apply</span> id_left]).
+  <span class="kn">Defined</span>.
+
+<span class="sd">(** * Post-composition with a left adjoint is a left adjoint *)</span>
+<span class="kn">Section</span> <span class="nf">postcomp</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+        (<span class="nv">F</span> : functor D E) (<span class="nv">HF</span> : is_left_adjoint F).
+
+<span class="kn">Let</span> <span class="nf">G</span> : functor E D := right_adjoint HF.
+<span class="kn">Let</span> <span class="nf">H</span> : are_adjoints F G := pr2 HF.
+<span class="kn">Let</span> <span class="nf">η</span> : nat_trans (functor_identity D) (functor_composite F G):= unit_from_left_adjoint H.
+<span class="kn">Let</span> <span class="nf">ε</span> : nat_trans (functor_composite G F) (functor_identity E) := counit_from_left_adjoint H.
+<span class="kn">Let</span> <span class="nf">H1</span> : ∏ a : D, # F (η a) · ε (F a) = identity (F a) := triangle_id_left_ad H.
+<span class="kn">Let</span> <span class="nf">H2</span> : ∏ b : E, η (G b) · # G (ε b) = identity (G b) := triangle_id_right_ad H.
+
+<span class="kn">Lemma</span> <span class="nf">is_left_adjoint_post_composition_functor</span> :
+  is_left_adjoint (post_composition_functor C D E F).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">post_composition_functor</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">G</span>).
+  use tpair.
+  - <span class="nb">split</span>.
+    + use make_nat_trans.
+      * <span class="nb">simpl</span>; <span class="nb">intros</span> F'. <span class="nb">simpl</span> <span class="k">in</span> F'.
+        <span class="nb">apply</span> (nat_trans_comp _ _ _
+                              (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv F')
+                                              (pre_whisker F' η))
+                              (nat_trans_functor_assoc_inv _ _ _)).
+      * <span class="kp">abstract</span> (<span class="nb">intros</span> F1 F2 α; <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c; <span class="nb">simpl</span> <span class="k">in</span> *;
+                    <span class="bp">now</span> <span class="nb">rewrite</span> !id_right, !id_left; <span class="nb">apply</span> (nat_trans_ax η (F1 c) _ (α c))).
+    + use make_nat_trans.
+      * <span class="nb">simpl</span>; <span class="nb">intros</span> F'. <span class="nb">simpl</span> <span class="k">in</span> F'.
+        <span class="nb">apply</span> (nat_trans_comp _ _ _
+                              (nat_trans_functor_assoc _ _ _)
+                              (nat_trans_comp _ _ _ (pre_whisker F' ε)
+                                              (nat_trans_functor_id_left _))).
+      * <span class="kp">abstract</span> (<span class="nb">intros</span> F1 F2 α; <span class="nb">apply</span> (nat_trans_eq E); <span class="nb">intro</span> c; <span class="nb">simpl</span> <span class="k">in</span> *;
+                    <span class="bp">now</span> <span class="nb">rewrite</span> !id_right, !id_left; <span class="nb">apply</span> (nat_trans_ax ε _ _ (α c))).
+  - <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intro</span> F';
+              [ <span class="nb">apply</span> (nat_trans_eq E); <span class="nb">simpl</span>; <span class="nb">intro</span> c;
+                <span class="bp">now</span> <span class="nb">rewrite</span> !id_left, !id_right; <span class="nb">apply</span> H1
+              | <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">simpl</span>; <span class="nb">intro</span> c;
+                <span class="bp">now</span> <span class="nb">rewrite</span> !id_left, !id_right; <span class="nb">apply</span> H2]).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">postcomp</span>.
+
+<span class="sd">(** * Post-composition with a right adjoint is a right adjoint *)</span>
+<span class="kn">Section</span> <span class="nf">postcomp_right</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+        (<span class="nv">F</span> : functor D E) (<span class="nv">HF</span> : is_right_adjoint F).
+
+<span class="kn">Let</span> <span class="nf">G</span> : functor E D := left_adjoint HF.
+<span class="kn">Let</span> <span class="nf">H</span> : are_adjoints G F := pr2 HF.
+<span class="kn">Let</span> <span class="nf">ε</span> : nat_trans (functor_composite F G) (functor_identity D) := counit_from_left_adjoint H.
+<span class="kn">Let</span> <span class="nf">η</span> : nat_trans (functor_identity E) (functor_composite G F) := unit_from_left_adjoint H.
+<span class="kn">Let</span> <span class="nf">H1</span> : ∏ d : D, _ = identity (F d) := triangle_id_right_ad H.
+<span class="kn">Let</span> <span class="nf">H2</span> : ∏ e : E, _ = identity (G e) := triangle_id_left_ad H.
+
+<span class="kn">Lemma</span> <span class="nf">is_right_adjoint_post_composition_functor</span> :
+  is_right_adjoint (post_composition_functor C D E F).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">post_composition_functor</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">G</span>).
+  use tpair.
+  - <span class="nb">split</span>.
+    + use make_nat_trans.
+      * <span class="nb">simpl</span>; <span class="nb">intros</span> F'. <span class="nb">simpl</span> <span class="k">in</span> F'.
+        <span class="nb">apply</span> (nat_trans_comp _ _ _
+                              (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv F')
+                                              (pre_whisker F' η))
+                              (nat_trans_functor_assoc_inv _ _ _)).
+      * <span class="kp">abstract</span> (<span class="nb">intros</span> F1 F2 α; <span class="nb">apply</span> (nat_trans_eq E); <span class="nb">intro</span> c; <span class="nb">simpl</span> <span class="k">in</span> *;
+                    <span class="bp">now</span> <span class="nb">rewrite</span> !id_right, !id_left; <span class="nb">apply</span> (nat_trans_ax η (F1 c) _ (α c))).
+    + use make_nat_trans.
+      * <span class="nb">simpl</span>; <span class="nb">intros</span> F'. <span class="nb">simpl</span> <span class="k">in</span> F'.
+        <span class="nb">apply</span> (nat_trans_comp _ _ _
+                              (nat_trans_functor_assoc _ _ _)
+                              (nat_trans_comp _ _ _ (pre_whisker F' ε)
+                                              (nat_trans_functor_id_left _))).
+      * <span class="kp">abstract</span> (<span class="nb">intros</span> F1 F2 α; <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c; <span class="nb">simpl</span> <span class="k">in</span> *;
+                    <span class="bp">now</span> <span class="nb">rewrite</span> !id_right, !id_left; <span class="nb">apply</span> (nat_trans_ax ε _ _ (α c))).
+  - <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intro</span> F';
+              [ <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">simpl</span>; <span class="nb">intro</span> c;
+                <span class="bp">now</span> <span class="nb">rewrite</span> !id_right, !id_left; <span class="nb">apply</span> H2
+              | <span class="nb">apply</span> (nat_trans_eq E); <span class="nb">simpl</span>; <span class="nb">intro</span> c;
+                <span class="bp">now</span> <span class="nb">rewrite</span> !id_left, !id_right; <span class="nb">apply</span> H1]).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">postcomp_right</span>.
+
+<span class="kn">End</span> <span class="nf">adjunctions</span>.
+
+
+<span class="kn">Section</span> <span class="nf">HomSetIso_from_Adjunction</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D C} (<span class="nv">H</span> : are_adjoints F G).
+
+  <span class="kn">Let</span> <span class="nf">η</span> := unit_from_are_adjoints H.
+  <span class="kn">Let</span> <span class="nf">ε</span> := counit_from_are_adjoints H.
+
+  <span class="sd">(** * Definition of the maps on hom-types *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">φ_adj</span> {<span class="nv">A</span> : C} {<span class="nv">B</span> : D} : F A --&gt; B → A --&gt; G B
+    := <span class="k">λ</span> <span class="nv">f</span> : F A --&gt; B, η _ · #G f.
+
+  <span class="kn">Definition</span> <span class="nf">φ_adj_inv</span> {<span class="nv">A</span> : C} {<span class="nv">B</span> : D} : A --&gt; G B → F A --&gt; B
+    := <span class="k">λ</span> <span class="nv">g</span> : A --&gt; G B, #F g · ε _ .
+
+  <span class="sd">(** * Proof that those maps are inverse to each other *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">φ_adj_after_φ_adj_inv</span> {<span class="nv">A</span> : C} {<span class="nv">B</span> : D} (<span class="nv">g</span> : A --&gt; G B)
+    : φ_adj (φ_adj_inv g) = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> φ_adj.
+    <span class="nb">unfold</span> φ_adj_inv.
+    <span class="nb">assert</span> (X':=triangle_id_right_ad H).
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">assert</span> (X2 := nat_trans_ax η). <span class="nb">simpl</span> <span class="k">in</span> X2.
+    <span class="nb">rewrite</span> &lt;- X2; <span class="nb">clear</span> X2.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    intermediate_path (g · identity _).
+    - <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> X'.
+    - <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">φ_adj_inv_after_φ_adj</span> {<span class="nv">A</span> : C} {<span class="nv">B</span> : D} (<span class="nv">f</span> : F A --&gt; B)
+    : φ_adj_inv (φ_adj f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> φ_adj, φ_adj_inv.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">assert</span> (X2 := nat_trans_ax ε); <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> X2; <span class="nb">clear</span> X2.
+    <span class="nb">rewrite</span> assoc.
+    intermediate_path (identity _ · f).
+    - <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> triangle_id_left_ad.
+    - <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">φ_adj_identity</span> (<span class="nv">A</span> : C) : φ_adj (identity (F A)) = η _ .
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> φ_adj. <span class="nb">rewrite</span> functor_id.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">φ_adj_inv_unit</span> (<span class="nv">A</span> : C) : φ_adj_inv (η A) = identity _ .
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> triangle_id_left_ad.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_hom_weq</span> (<span class="nv">A</span> : C) (<span class="nv">B</span> : D) : F A --&gt; B ≃ A --&gt; G B.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">φ_adj</span>.
+    <span class="nb">apply</span> (isweq_iso _ φ_adj_inv).
+    - <span class="nb">apply</span> φ_adj_inv_after_φ_adj.
+    - <span class="nb">apply</span> φ_adj_after_φ_adj_inv.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * Proof of the equations (naturality squares) of the adjunction *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">φ_adj_natural_precomp</span> (<span class="nv">A</span> : C) (<span class="nv">B</span> : D) (<span class="nv">f</span> : F A --&gt; B) (<span class="nv">X</span> : C) (<span class="nv">h</span> : X --&gt; A)
+    : φ_adj (#F h · f) = h · φ_adj f.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> φ_adj.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">set</span> (T:=nat_trans_ax η); <span class="nb">simpl</span> <span class="k">in</span> T.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- T.
+    <span class="nb">apply</span> pathsinv0, assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">φ_adj_natural_postcomp</span> (<span class="nv">A</span> : C) (<span class="nv">B</span> : D) (<span class="nv">f</span> : F A --&gt; B) (<span class="nv">Y</span> : D) (<span class="nv">k</span> : B --&gt; Y)
+    : φ_adj (f · k) = φ_adj f · #G k.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> φ_adj.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (functor_comp G).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">φ_adj_natural_prepostcomp</span> (<span class="nv">A</span> <span class="nv">X</span> : C) (<span class="nv">B</span> <span class="nv">Y</span> : D) (<span class="nv">f</span> : F A --&gt; B) (<span class="nv">h</span> : X --&gt; A) (<span class="nv">k</span> : B --&gt; Y)
+    : φ_adj (#F h · f · k) = h · φ_adj f · #G k.
+  <span class="kn">Proof</span>.
+    etrans.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> φ_adj_natural_precomp.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> φ_adj_natural_postcomp.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">φ_adj_inv_natural_precomp</span> (<span class="nv">A</span> : C) (<span class="nv">B</span> : D) (<span class="nv">g</span> : A --&gt; G B) (<span class="nv">X</span> : C) (<span class="nv">h</span> : X --&gt; A)
+    : φ_adj_inv (h · g) = #F h · φ_adj_inv g.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> φ_adj_inv.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">apply</span> pathsinv0, assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">φ_adj_inv_natural_postcomp</span> (<span class="nv">A</span> : C) (<span class="nv">B</span> : D) (<span class="nv">g</span> : A --&gt; G B) (<span class="nv">Y</span> : D) (<span class="nv">k</span> : B --&gt; Y)
+    : φ_adj_inv (g · #G k) = φ_adj_inv g · k.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> φ_adj_inv.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">set</span> (T:=nat_trans_ax ε); <span class="nb">simpl</span> <span class="k">in</span> T.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> T.
+    <span class="nb">apply</span> assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">φ_adj_inv_natural_prepostcomp</span> (<span class="nv">A</span> <span class="nv">X</span> : C) (<span class="nv">B</span> <span class="nv">Y</span> : D) (<span class="nv">g</span> : A --&gt; G B) (<span class="nv">h</span> : X --&gt; A) (<span class="nv">k</span> : B --&gt; Y)
+    : φ_adj_inv (h · g · #G k) = #F h · φ_adj_inv g · k.
+  <span class="kn">Proof</span>.
+    etrans.
+    <span class="nb">apply</span> φ_adj_inv_natural_postcomp.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> φ_adj_inv_natural_precomp.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">HomSetIso_from_Adjunction</span>.
+
+<span class="kn">Section</span> <span class="nf">HomSetIsoClosedUnderIso</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">C'</span> : category}.
+  <span class="kn">Context</span> (<span class="nv">F</span> <span class="nv">F'</span> : C ⟶ C').
+  <span class="kn">Context</span> (<span class="nv">G</span> : C' ⟶ C).
+  <span class="kn">Context</span> (<span class="nv">α</span> : z_iso (C := [C, C']) F F').
+  <span class="kn">Context</span> (<span class="nv">H</span> : are_adjoints F G).
+  <span class="kn">Context</span> (<span class="nv">c</span> : C).
+  <span class="kn">Context</span> (<span class="nv">c'</span> : C').
+
+  <span class="kn">Lemma</span> <span class="nf">φ_adj_under_iso</span>
+    (<span class="nv">f</span> : C'⟦F' c, c'⟧)
+    : φ_adj (are_adjoints_closed_under_iso _ _ _ α H) f
+    = φ_adj H (((α : [C, C'] ⟦F, F'⟧) : F ⟹ F') c · f).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x)).
+    <span class="bp">exact</span> (!functor_comp G _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">φ_adj_inv_under_iso</span>
+    (<span class="nv">f</span> : C⟦c, G c'⟧)
+    : φ_adj_inv (are_adjoints_closed_under_iso _ _ _ α H) f
+    = ((z_iso_inv α : [C, C'] ⟦F', F⟧) : F' ⟹ F) c · φ_adj_inv H f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (_ @ assoc' _ _ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (nat_trans_ax (inv_from_z_iso α)).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">HomSetIsoClosedUnderIso</span>.
+
+<span class="sd">(** * Adjunction defined from a natural isomorphism on homsets (F A --&gt; B) ≃ (A --&gt; G B) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natural_hom_weq</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} (<span class="nv">F</span> : functor C D) (<span class="nv">G</span> : functor D C) : UU
+  := ∑ (hom_weq :  ∏ {A : C} {B : D}, F A --&gt; B ≃ A --&gt; G B),
+       (∏ (A : C) (B : D) (f : F A --&gt; B) (X : C) (h : X --&gt; A),
+        hom_weq (#F h · f) = h · hom_weq f) ×
+       (∏ (A : C) (B : D) (f : F A --&gt; B) (Y : D) (k : B --&gt; Y),
+        hom_weq (f · k) = hom_weq f · #G k).
+
+<span class="kn">Definition</span> <span class="nf">hom_weq</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D C}
+           (<span class="nv">H</span> : natural_hom_weq F G) : ∏ {A : C} {B : D}, F A --&gt; B ≃ A --&gt; G B := pr1 H.
+
+<span class="kn">Definition</span> <span class="nf">hom_natural_precomp</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D C}
+           (<span class="nv">H</span> : natural_hom_weq F G) : ∏ (A : C) (B : D) (f : F A --&gt; B) (X : C) (h : X --&gt; A),
+                       hom_weq H (#F h · f) = h · hom_weq H f := pr1 (pr2 H).
+
+<span class="kn">Definition</span> <span class="nf">hom_natural_postcomp</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> : functor C D} { <span class="nv">G</span> : functor D C}
+           (<span class="nv">H</span> : natural_hom_weq F G) : ∏ (A : C) (B : D) (f : F A --&gt; B) (Y : D) (k : B --&gt; Y),
+                       hom_weq H (f · k) = hom_weq H f · #G k := pr2 (pr2 H).
+
+<span class="kn">Section</span> <span class="nf">Adjunction_from_HomSetIso</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D C}
+          (<span class="nv">H</span> : natural_hom_weq F G).
+
+  <span class="kn">Local Definition</span> <span class="nf">hom_inv</span> : ∏ {A : C} {B : D}, A --&gt; G B → F A --&gt; B
+    := <span class="k">λ</span> <span class="nv">A</span> <span class="nv">B</span>, invmap (hom_weq H).
+
+  <span class="kn">Definition</span> <span class="nf">inv_natural_precomp</span> {<span class="nv">A</span> : C} {<span class="nv">B</span> : D} (<span class="nv">g</span> : A --&gt; G B) {<span class="nv">X</span> : C} (<span class="nv">h</span> : X --&gt; A)
+    : hom_inv (h · g) = #F h · hom_inv g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0, pathsweq1.
+    <span class="nb">rewrite</span> hom_natural_precomp.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> homotweqinvweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">inv_natural_postcomp</span> {<span class="nv">A</span> : C} {<span class="nv">B</span> : D} (<span class="nv">g</span> : A --&gt; G B) {<span class="nv">Y</span> : D} (<span class="nv">k</span> : B --&gt; Y)
+    : hom_inv (g · #G k) = hom_inv g · k.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0, pathsweq1.
+    <span class="nb">rewrite</span> hom_natural_postcomp.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> homotweqinvweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unit_from_hom</span> : nat_trans (functor_identity C) (F ∙ G).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">A</span>, (hom_weq H (identity (F A)))).
+    - <span class="nb">intros</span> A A' h. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- hom_natural_precomp.
+      <span class="nb">rewrite</span> &lt;- hom_natural_postcomp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">counit_from_hom</span> : nat_trans (G ∙ F) (functor_identity D).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">B</span>, hom_inv (identity (G B))).
+    - <span class="nb">intros</span> B B' k. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- inv_natural_postcomp.
+      <span class="nb">rewrite</span> &lt;- inv_natural_precomp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_from_nathomweq</span> : are_adjoints F G.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_are_adjoints F G unit_from_hom counit_from_hom).
+    <span class="nb">apply</span> make_dirprod.
+    - <span class="nb">intro</span> a. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- inv_natural_precomp.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> homotinvweqweq.
+    - <span class="nb">intro</span> b. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- hom_natural_postcomp.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> homotweqinvweq.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Adjunction_from_HomSetIso</span>.
+
+
+<span class="sd">(** * Weak equivalence between adjunctions F -| G and natural weqs of homsets (F A --&gt; B) ≃ (A --&gt; G B) *)</span>
+
+<span class="kn">Section</span> <span class="nf">Adjunction_HomSetIso_weq</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D C}.
+
+  <span class="kn">Definition</span> <span class="nf">nathomweq_from_adj</span> : (are_adjoints F G) → (natural_hom_weq F G)
+    := <span class="k">λ</span> <span class="nv">H</span>, (adjunction_hom_weq H,, (φ_adj_natural_precomp H,, φ_adj_natural_postcomp H)).
+
+  <span class="kn">Lemma</span> <span class="nf">adj_after_nathomweq</span> (<span class="nv">H</span> : are_adjoints F G)
+    : adj_from_nathomweq (nathomweq_from_adj H) = H.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypePath.
+    - <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_form_adjunction.
+    - <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> (nat_trans_eq (homset_property C)).
+        <span class="nb">intro</span> c. <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> φ_adj, unit_from_are_adjoints.
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">apply</span> id_right.
+      + <span class="nb">apply</span> (nat_trans_eq (homset_property D)).
+        <span class="nb">intro</span> d. <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> φ_adj_inv, counit_from_are_adjoints.
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">nathomweq_after_adj</span> (<span class="nv">H</span> : natural_hom_weq F G)
+    : nathomweq_from_adj (adj_from_nathomweq H) = H.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypePath.
+    - <span class="nb">intros</span> p. <span class="nb">apply</span> isapropdirprod.
+      + <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+        <span class="nb">apply</span> C.
+      + <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+        <span class="nb">apply</span> C.
+    - <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> adjunction_hom_weq.
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+      <span class="nb">apply</span> subtypePath.
+      + <span class="nb">intro</span>. <span class="nb">apply</span> isapropisweq.
+      + <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> φ_adj, adj_from_nathomweq. <span class="nb">cbn</span>.
+        <span class="nb">apply</span> funextsec.
+        <span class="nb">intro</span> f.
+        <span class="nb">rewrite</span> &lt;- hom_natural_postcomp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">adjunction_homsetiso_weq</span> : (are_adjoints F G) ≃ (natural_hom_weq F G).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">nathomweq_from_adj</span>.
+    <span class="nb">apply</span> (isweq_iso _ adj_from_nathomweq).
+    - <span class="nb">apply</span> adj_after_nathomweq.
+    - <span class="nb">apply</span> nathomweq_after_adj.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Adjunction_HomSetIso_weq</span>.
+
+<span class="kn">Section</span> <span class="nf">RelativeAdjunction_by_natural_hom_weq</span>.
+
+<span class="sd">(** this definition is according to Altenkirch, Chapman and Uustalu</span>
+<span class="sd">Reference: % \cite{DBLP:journals/corr/AltenkirchCU14} \par %</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">are_relative_adjoints</span> {<span class="nv">I</span>: precategory_data} {<span class="nv">C</span> <span class="nv">D</span>: precategory_data}
+  (<span class="nv">J</span>: functor_data I C) (<span class="nv">L</span>: functor_data I D) (<span class="nv">R</span>: functor_data D C) : UU
+  :=  ∑ (hom_weq :  ∏ {X : I} {Y : D}, L X --&gt; Y ≃ J X --&gt; R Y),
+       (∏ (Y : I) (Z : D) (f : L Y --&gt; Z) (X : I) (h : X --&gt; Y),
+        hom_weq (#L h · f) = #J h · hom_weq f) ×
+       (∏ (X : I) (Y : D) (f : L X --&gt; Y) (Z : D) (k : Y --&gt; Z),
+        hom_weq (f · k) = hom_weq f · #R k).
+
+<span class="sd">(** the notion is a proper generalization of one of the criteria for being an adjunction *)</span>
+<span class="kn">Lemma</span> <span class="nf">natural_hom_weq_is_are_relative_adjoints</span> {<span class="nv">C</span> <span class="nv">D</span>: precategory}
+      (<span class="nv">L</span>: functor C D) (<span class="nv">R</span>: functor  D C):
+   are_relative_adjoints (functor_identity C) L R = natural_hom_weq L R.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">RelativeAdjunction_by_natural_hom_weq</span>.
+
+<span class="sd">(** ** Lemmas about adjunctions *)</span>
+
+<span class="kn">Section</span> <span class="nf">AdjunctionLemmas</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D C}.
+  <span class="kn">Context</span> (<span class="nv">are</span> : are_adjoints F G).
+
+  <span class="kn">Let</span> <span class="nf">η</span> : nat_trans (functor_identity C) (functor_composite F G) := unit_from_left_adjoint are.
+  <span class="kn">Let</span> <span class="nf">ε</span> : nat_trans (functor_composite G F) (functor_identity D) := counit_from_left_adjoint are.
+
+  <span class="c">(* Pre- and post- whiskering while treating functors/natural transformations as</span>
+<span class="c">     elements of functor categories. *)</span>
+  <span class="kn">Let</span> <span class="nf">pre_whisker_functor_cat</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : category} {<span class="nv">f</span> <span class="nv">g</span> : functor b c}
+      (<span class="nv">h</span> : functor a b) (<span class="nv">n</span> : [b, c]⟦f, g⟧) :
+    [a, c]⟦functor_composite h f, functor_composite h g⟧ := pre_whisker h n.
+  <span class="kn">Let</span> <span class="nf">post_whisker_functor_cat</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : category} {<span class="nv">f</span> <span class="nv">g</span> : functor a b}
+      (<span class="nv">n</span> : [a, b]⟦f, g⟧) (<span class="nv">h</span> : functor b c) :
+    [a, c]⟦functor_composite f h, functor_composite g h⟧ := post_whisker n h.
+
+  <span class="kn">Let</span> <span class="nf">Fη</span> := post_whisker_functor_cat η F.
+  <span class="kn">Let</span> <span class="nf">εF</span> := pre_whisker_functor_cat F ε.
+  <span class="kn">Let</span> <span class="nf">ηG</span> := pre_whisker_functor_cat G η.
+  <span class="kn">Let</span> <span class="nf">Gε</span> := post_whisker_functor_cat ε G.
+
+  <span class="c">(* Rephrase in terms of functor category objects/arrows *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">triangle_eq_l</span> : Fη · εF = identity (F : ob [C, D]).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property|].
+    <span class="nb">intro</span>; <span class="nb">apply</span> triangle_id_left_ad.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Rephrase in terms of functor category objects/arrows *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">triangle_eq_r</span> : ηG · Gε = identity (G : ob [D, C]).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property|].
+    <span class="nb">intro</span>; <span class="nb">apply</span> triangle_id_right_ad.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Rephrase in terms of functor category objects/arrows *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_epi_post_whisker_right_adjoint_counit_pointwise</span> :
+    ∏ x, isEpi (nat_trans_data_from_nat_trans Gε x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">assert</span> (is0 : isEpi (nat_trans_data_from_nat_trans (ηG · Gε) x)).
+    {
+      <span class="nb">rewrite</span> (maponpaths nat_trans_data_from_nat_trans triangle_eq_r).
+      <span class="nb">apply</span> identity_isEpi.
+    }
+    <span class="nb">apply</span> (isEpi_precomp _ _ _ is0).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">is_epi_post_whisker_right_adjoint_counit</span> : isEpi Gε.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_nat_trans_epi_from_pointwise_epis.
+    <span class="nb">apply</span> is_epi_post_whisker_right_adjoint_counit_pointwise.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_monic_pre_whisker_right_adjoint_unit_pointwise</span> :
+    ∏ x, isMonic (nat_trans_data_from_nat_trans ηG x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">assert</span> (is0 : isMonic (nat_trans_data_from_nat_trans (ηG · Gε) x)).
+    {
+      <span class="nb">rewrite</span> (maponpaths nat_trans_data_from_nat_trans triangle_eq_r).
+      <span class="nb">apply</span> identity_isMonic.
+    }
+    <span class="nb">apply</span> (isMonic_postcomp _ _ _ is0).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">is_monic_pre_whisker_right_adjoint_unit</span> : isMonic ηG.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_nat_trans_monic_from_pointwise_monics.
+    <span class="nb">apply</span> is_monic_pre_whisker_right_adjoint_unit_pointwise.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_epi_pre_whisker_left_adjoint_counit_pointwise</span> :
+    ∏ x, isEpi (nat_trans_data_from_nat_trans εF x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">assert</span> (is0 : isEpi (nat_trans_data_from_nat_trans (Fη · εF) x)).
+    {
+      <span class="nb">rewrite</span> (maponpaths nat_trans_data_from_nat_trans triangle_eq_l).
+      <span class="nb">apply</span> identity_isEpi.
+    }
+    <span class="nb">apply</span> (isEpi_precomp _ _ _ is0).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">is_epi_pre_whisker_left_adjoint_counit</span> : isEpi εF.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_nat_trans_epi_from_pointwise_epis.
+    <span class="nb">apply</span> is_epi_pre_whisker_left_adjoint_counit_pointwise.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_monic_post_whisker_left_adjoint_unit_pointwise</span> :
+    ∏ x, isMonic (nat_trans_data_from_nat_trans Fη x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">assert</span> (is0 : isMonic (nat_trans_data_from_nat_trans (Fη · εF) x)).
+    {
+      <span class="nb">rewrite</span> (maponpaths nat_trans_data_from_nat_trans triangle_eq_l).
+      <span class="nb">apply</span> identity_isMonic.
+    }
+    <span class="nb">apply</span> (isMonic_postcomp _ _ _ is0).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">is_monic_post_whisker_left_adjoint_unit</span> : isMonic Fη.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_nat_trans_monic_from_pointwise_monics.
+    <span class="nb">apply</span> is_monic_post_whisker_left_adjoint_unit_pointwise.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Riehl, "Category Theory in Context", Lemma 4.5.13(i)/Exercise 4.5.vi *)</span>
+  <span class="kn">Lemma</span> <span class="nf">counit_is_epi_if_right_adjoint_is_faithful</span> :
+    faithful G -&gt; ∏ x, isEpi (ε x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> faithfulG.
+    <span class="nb">intros</span> x y f g H.
+
+    <span class="nb">apply</span> (Injectivity (# G)).
+    <span class="nb">apply</span> incl_injectivity.
+    - <span class="nb">apply</span> faithfulG.
+    - <span class="nb">apply</span> (is_epi_post_whisker_right_adjoint_counit_pointwise x).
+      <span class="nb">apply</span> (maponpaths #G) <span class="k">in</span> H.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp <span class="k">in</span> H.
+      <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">issurjective_postcomp_with_weq</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">E</span> : UU}
+        (<span class="nv">f</span> : A -&gt; B) (<span class="nv">w</span> : B ≃ E) : issurjective (w ∘ f)%functions -&gt; issurjective f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> iss b.
+    <span class="nb">specialize</span> (iss (w b)).
+    <span class="nb">apply</span> (squash_to_prop iss); [<span class="nb">apply</span> isapropishinh|].
+    <span class="nb">intros</span> a; <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">hfiberpr1</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">a</span>).
+    <span class="nb">apply</span> (make_weq _ (isweqmaponpaths w _ _)).
+    <span class="nb">apply</span> (hfiberpr2 _ _ a).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Riehl, "Category Theory in Context", Lemma 4.5.13(ii)/Exercise 4.5.vi</span>
+
+<span class="sd">      Proof appears on the nLab (§ Basic properties):</span>
+<span class="sd">      http://ncatlab.org/nlab/revision/adjoint%20functor/87</span>
+<span class="sd">   *)</span>
+  <span class="kn">Lemma</span> <span class="nf">counit_is_split_monic_if_right_adjoint_is_full</span> :
+    full G -&gt; ∏ x, is_merely_split_monic (ε x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> fullG x.
+
+    <span class="nb">set</span> (pcw c := (@precomp_with _ _ _ (ε x) c)).
+
+    <span class="nb">cut</span> (∏ c : D, issurjective (pcw c));
+      [<span class="nb">apply</span> is_merely_split_monic_weq_precomp_is_surjection|].
+    <span class="nb">intros</span> c.
+
+    <span class="nb">cut</span> (issurjective (hom_weq (nathomweq_from_adj are) ∘
+                               @precomp_with _ _ _ (ε x) c)%functions);
+      [<span class="nb">apply</span> issurjective_postcomp_with_weq|].
+
+    <span class="nb">assert</span> (E : (hom_weq (nathomweq_from_adj are) ∘ pcw c)%functions = # G).
+    {
+      <span class="nb">apply</span> funextfun; <span class="nb">intro</span> z; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> φ_adj, pcw, precomp_with.
+      <span class="nb">rewrite</span> functor_comp, assoc.
+      <span class="nb">change</span> ε <span class="k">with</span> (counit_from_are_adjoints are).
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">f</span> =&gt; f · _)).
+      <span class="nb">apply</span> (triangle_id_right_ad are x).
+    }
+
+    <span class="nb">cut</span> (issurjective (@functor_on_morphisms _ _ G x c)).
+    - <span class="nb">intros</span>; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> pcw <span class="k">in</span> *; <span class="nb">cbn</span> <span class="k">in</span> E.
+      <span class="nb">rewrite</span> E.
+      <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> fullG.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">counit_is_z_iso_if_right_adjoint_is_fully_faithful</span> :
+    fully_faithful G -&gt; ∏ x, is_z_isomorphism (ε x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ?.
+    <span class="nb">apply</span> merely_split_monic_is_epi_to_is_z_iso.
+    - <span class="nb">apply</span> counit_is_split_monic_if_right_adjoint_is_full.
+      <span class="nb">apply</span> fully_faithful_implies_full_and_faithful; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> counit_is_epi_if_right_adjoint_is_faithful.
+      <span class="nb">apply</span> fully_faithful_implies_full_and_faithful; <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">AdjunctionLemmas</span>.
+
+<span class="sd">(** More builders for adjunctions *)</span>
+<span class="kn">Definition</span> <span class="nf">left_adjoint_to_adjunction</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">L</span> : C₁ ⟶ C₂}
+           (<span class="nv">HL</span> : is_left_adjoint L)
+  : adjunction C₁ C₂.
+<span class="kn">Proof</span>.
+  use make_adjunction.
+  - use make_adjunction_data.
+    + <span class="bp">exact</span> L.
+    + <span class="bp">exact</span> (right_adjoint HL).
+    + <span class="bp">exact</span> (adjunit HL).
+    + <span class="bp">exact</span> (adjcounit HL).
+  - <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr122 HL).
+    + <span class="bp">exact</span> (pr222 HL).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">right_adjoint_to_adjunction</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">R</span> : C₁ ⟶ C₂}
+           (<span class="nv">HR</span> : is_right_adjoint R)
+  : adjunction C₂ C₁.
+<span class="kn">Proof</span>.
+  use make_adjunction.
+  - use make_adjunction_data.
+    + <span class="bp">exact</span> (left_adjoint HR).
+    + <span class="bp">exact</span> R.
+    + <span class="bp">exact</span> (adjunit (pr2 HR)).
+    + <span class="bp">exact</span> (adjcounit (pr2 HR)).
+  - <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr122 HR).
+    + <span class="bp">exact</span> (pr222 HR).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Adjunctions/Core.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; ************************************************************)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

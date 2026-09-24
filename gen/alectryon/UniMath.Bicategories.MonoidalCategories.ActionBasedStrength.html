@@ -1,0 +1,1089 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ActionBasedStrength.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">  Definition of tensorial strength between actions over monoidal categories, as introduced</span>
+<span class="sd">  under the name C-categories and C-functors (for C a monoidal category) by Bodo Pareigis (1977).</span>
+
+<span class="sd">  The concrete definition is close to the paper "Second-Order and Dependently-Sorted Abstract Syntax" by Marcelo Fiore (2008). Notably, the strength itself is not required to be an isomorphism.</span>
+
+<span class="sd">  To distinguish this from less general approaches, we will speak of action-based strength.</span>
+
+<span class="sd">  Added by Ralph Matthes in 2021: relative strength of Ahrens and Matthes defined and shown to be an instance of action-based strength, another general definition in the spirit of Janelidze and Kelly</span>
+<span class="sd">**)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.Actions.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+<span class="kn">Context</span> (<span class="nv">Mon_V</span> : MonoidalCategoriesTensored.monoidal_cat).
+
+<span class="kn">Local Definition</span> <span class="nf">I</span> := monoidal_cat_unit Mon_V.
+<span class="kn">Local Definition</span> <span class="nf">tensor</span> := monoidal_cat_tensor Mon_V.
+<span class="kn">Notation</span> <span class="s2">"X ⊗ Y"</span> := (tensor (X ,, Y)).
+
+<span class="kn">Section</span> <span class="nf">ActionBasedStrengths_Definition</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">A'</span>: category}.
+<span class="kn">Context</span> (<span class="nv">actn</span> : action Mon_V A)(<span class="nv">actn'</span> : action Mon_V A').
+
+<span class="kn">Local Definition</span> <span class="nf">ϱ</span> := act_ϱ actn.
+<span class="kn">Local Definition</span> <span class="nf">χ</span> := act_χ actn.
+<span class="kn">Local Definition</span> <span class="nf">ϱ'</span> := act_ϱ actn'.
+<span class="kn">Local Definition</span> <span class="nf">χ'</span> := act_χ actn'.
+
+<span class="kn">Section</span> <span class="nf">ActionBasedStrengths_Natural_Transformation</span>.
+
+<span class="kn">Context</span> (<span class="nv">F</span> : A ⟶ A').
+
+<span class="kn">Notation</span> <span class="s2">"X ⊙ Y"</span> := (act_odot actn (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+<span class="kn">Notation</span> <span class="s2">"f #⊙ g"</span> := (#(act_odot actn) (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+<span class="kn">Notation</span> <span class="s2">"X ⊙' Y"</span> := (act_odot actn' (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+<span class="kn">Notation</span> <span class="s2">"f #⊙' g"</span> := (#(act_odot actn') (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+<span class="kn">Definition</span> <span class="nf">actionbased_strength_dom</span> : A ⊠ Mon_V ⟶ A' :=
+  functor_composite (pair_functor F (functor_identity _)) (act_odot actn').
+
+<span class="kn">Lemma</span> <span class="nf">actionbased_strength_dom_ok</span>: functor_on_objects actionbased_strength_dom = <span class="k">λ</span> <span class="nv">ax</span>, F (ob1 ax) ⊙' (ob2 ax).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">actionbased_strength_codom</span> : A ⊠ Mon_V ⟶ A' :=
+  functor_composite (act_odot actn) F.
+
+<span class="kn">Lemma</span> <span class="nf">actionbased_strength_codom_ok</span>: functor_on_objects actionbased_strength_codom = <span class="k">λ</span> <span class="nv">ax</span>, F (ob1 ax ⊙ ob2 ax).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">actionbased_strength_nat</span> : UU := nat_trans actionbased_strength_dom actionbased_strength_codom.
+
+<span class="kn">Definition</span> <span class="nf">actionbased_strength_nat_funclass</span> (<span class="nv">ϛ</span> : actionbased_strength_nat):
+  ∏ x : ob (A ⊠ Mon_V), actionbased_strength_dom x --&gt; actionbased_strength_codom x
+  := pr1 ϛ.
+<span class="kn">Coercion</span> <span class="nf">actionbased_strength_nat_funclass</span> : actionbased_strength_nat &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">actionbased_strength_triangle_eq</span> (<span class="nv">ϛ</span> : actionbased_strength_nat) :=
+  ∏ (a : A), (ϛ (a, I)) · (#F (ϱ a)) = ϱ' (F a).
+
+<span class="kn">Definition</span> <span class="nf">actionbased_strength_pentagon_eq</span> (<span class="nv">ϛ</span> : actionbased_strength_nat): UU := ∏ (a : A), ∏ (v w : Mon_V),
+  (χ' ((F a, v), w)) · ϛ (a, v ⊗ w) =
+  (ϛ (a, v)) #⊙' (id w) · (ϛ (a ⊙ v, w)) · (#F (χ ((a, v), w))).
+
+<span class="sd">(** the notion in Fiore's LICS'08 paper *)</span>
+<span class="kn">Definition</span> <span class="nf">actionbased_strength_pentagon_eq_variant1</span> (<span class="nv">ϛ</span> : actionbased_strength_nat): UU := ∏ (a : A), ∏ (v w : Mon_V),
+  ϛ (a, v ⊗ w) =
+  (nat_z_iso_to_trans_inv χ' ((F a, v), w)) · (ϛ (a, v)) #⊙' (id w) · (ϛ (a ⊙ v, w)) · (#F (χ ((a, v), w))).
+
+<span class="sd">(** the notion that fits with the definition of relative strength in the TYPES'15 post-proceedings paper by Ahrens and Matthes *)</span>
+<span class="kn">Definition</span> <span class="nf">actionbased_strength_pentagon_eq_variant2</span> (<span class="nv">ϛ</span> : actionbased_strength_nat): UU := ∏ (a : A), ∏ (v w : Mon_V),
+  ϛ (a, v ⊗ w) · (#F (nat_z_iso_to_trans_inv χ ((a, v), w))) =
+  (nat_z_iso_to_trans_inv χ' ((F a, v), w)) · (ϛ (a, v)) #⊙' (id w) · (ϛ (a ⊙ v, w)).
+
+<span class="sd">(** as expected, the notions are logically equivalent *)</span>
+<span class="kn">Lemma</span> <span class="nf">actionbased_strength_pentagon_eq_tovariant1</span> (<span class="nv">ϛ</span> : actionbased_strength_nat): actionbased_strength_pentagon_eq ϛ -&gt; actionbased_strength_pentagon_eq_variant1 ϛ.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Heq a v w.
+  <span class="nb">red</span> <span class="k">in</span> Heq.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">unfold</span> nat_z_iso_to_trans_inv; <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> is_z_isomorphism_mor.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (make_z_iso _ _ (pr2 χ' ((F a, v), w)))).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> Heq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">actionbased_strength_pentagon_eq_fromvariant1</span> (<span class="nv">ϛ</span> : actionbased_strength_nat): actionbased_strength_pentagon_eq_variant1 ϛ -&gt; actionbased_strength_pentagon_eq ϛ.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Heq a v w.
+  <span class="nb">red</span> <span class="k">in</span> Heq.
+  <span class="nb">unfold</span> nat_z_iso_to_trans_inv <span class="k">in</span> Heq; <span class="nb">cbn</span> <span class="k">in</span> Heq.
+  <span class="nb">unfold</span> is_z_isomorphism_mor <span class="k">in</span> Heq.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (make_z_iso _ _ (pr2 χ' ((F a, v), w)))).
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> Heq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">actionbased_strength_pentagon_eq_variant1variant2</span> (<span class="nv">ϛ</span> : actionbased_strength_nat): actionbased_strength_pentagon_eq_variant1 ϛ -&gt; actionbased_strength_pentagon_eq_variant2 ϛ.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Heq a v w.
+  <span class="nb">red</span> <span class="k">in</span> Heq.
+  etrans.
+  { <span class="nb">unfold</span> nat_z_iso_to_trans_inv.  <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> functor_on_inv_from_z_iso'.
+  }
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ (make_z_iso (# F (χ ((a, v), w)))
+         (is_z_isomorphism_mor (functor_on_is_z_isomorphism F (pr2 χ ((a, v), w))))
+         (functor_on_is_z_isomorphism F (pr2 χ ((a, v), w))))).
+  <span class="nb">apply</span> Heq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">actionbased_strength_pentagon_eq_variant2variant1</span> (<span class="nv">ϛ</span> : actionbased_strength_nat): actionbased_strength_pentagon_eq_variant2 ϛ -&gt; actionbased_strength_pentagon_eq_variant1 ϛ.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Heq a v w.
+  <span class="nb">red</span> <span class="k">in</span> Heq.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ (make_z_iso (# F (χ ((a, v), w)))
+         (is_z_isomorphism_mor (functor_on_is_z_isomorphism F (pr2 χ ((a, v), w))))
+         (functor_on_is_z_isomorphism F (pr2 χ ((a, v), w))))).
+  etrans.
+  { <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> Heq. }
+  <span class="nb">clear</span> Heq.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (functor_on_inv_from_z_iso' _ (pr2 χ ((a, v), w))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_actionbased_strength_triangle_eq</span> (<span class="nv">ϛ</span> : actionbased_strength_nat) : isaprop (actionbased_strength_triangle_eq ϛ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred; <span class="nb">intros</span> a.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_actionbased_strength_pentagon_eq</span> (<span class="nv">ϛ</span> : actionbased_strength_nat) : isaprop (actionbased_strength_pentagon_eq ϛ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred; <span class="nb">intros</span> a.
+  <span class="nb">apply</span> impred; <span class="nb">intros</span> v.
+  <span class="nb">apply</span> impred; <span class="nb">intros</span> w.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">ActionBasedStrengths_Natural_Transformation</span>.
+
+<span class="kn">Definition</span> <span class="nf">actionbased_strength</span> (<span class="nv">F</span> : A ⟶ A') : UU := ∑ (ϛ : actionbased_strength_nat F),
+   (actionbased_strength_triangle_eq F ϛ) × (actionbased_strength_pentagon_eq F ϛ).
+
+<span class="kn">Lemma</span> <span class="nf">actionbased_strength_eq</span> {<span class="nv">F</span> : A ⟶ A'} (<span class="nv">sη</span> <span class="nv">sη'</span>: actionbased_strength F) :
+  pr1 sη = pr1 sη' -&gt; sη = sη'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Heq.
+  <span class="nb">apply</span> subtypePath; <span class="nb">trivial</span>.
+  <span class="nb">intro</span> ϛ. <span class="nb">apply</span> isapropdirprod.
+  + <span class="nb">apply</span> isaprop_actionbased_strength_triangle_eq.
+  + <span class="nb">apply</span> isaprop_actionbased_strength_pentagon_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">actionbased_strength_to_nat</span> {<span class="nv">F</span> : A ⟶ A'} (<span class="nv">FF</span> : actionbased_strength F) :
+  actionbased_strength_nat F
+  := pr1 FF.
+<span class="kn">Coercion</span> <span class="nf">actionbased_strength_to_nat</span> : actionbased_strength &gt;-&gt; actionbased_strength_nat.
+
+<span class="c">(*</span>
+<span class="c">Definition actionbased_strength_to_nat_trans {F : A ⟶ A'} (FF : actionbased_strength F) :</span>
+<span class="c">  nat_trans (actionbased_strength_dom F) (actionbased_strength_codom F)</span>
+<span class="c">  := pr1 FF.</span>
+<span class="c">Coercion actionbased_strength_to_nat_trans : actionbased_strength &gt;-&gt; nat_trans.</span>
+<span class="c"> *)</span>
+<span class="kn">Identity Coercion</span> <span class="nf">actionbased_strength_nat_to_nat_trans</span> : actionbased_strength_nat &gt;-&gt; nat_trans.
+
+<span class="kn">Definition</span> <span class="nf">ab_strength_triangle</span> {<span class="nv">F</span> : A ⟶ A'} (<span class="nv">FF</span> : actionbased_strength F) :
+  actionbased_strength_triangle_eq F FF
+  := pr1 (pr2 FF).
+
+<span class="kn">Definition</span> <span class="nf">ab_strength_pentagon</span> {<span class="nv">F</span> : A ⟶ A'} (<span class="nv">FF</span> : actionbased_strength F) :
+  actionbased_strength_pentagon_eq F FF
+  := pr2 (pr2 FF).
+
+<span class="kn">End</span> <span class="nf">ActionBasedStrengths_Definition</span>.
+
+<span class="kn">Definition</span> <span class="nf">ab_strength_identity_functor</span> {<span class="nv">A</span> : category} (<span class="nv">actn</span> : action Mon_V A) :
+  actionbased_strength actn actn (functor_identity A).
+<span class="kn">Proof</span>.
+  use tpair.
+  - use make_nat_trans.
+    + <span class="nb">intro</span> av. <span class="nb">apply</span> identity.
+    + <span class="nb">intros</span> av av' fg.
+      <span class="nb">cbn</span>. <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_right.
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span> a. <span class="nb">cbn</span>. <span class="nb">apply</span> id_left.
+    + <span class="nb">intros</span> a v w. <span class="nb">cbn</span>. <span class="nb">rewrite</span> binprod_id. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+      etrans.
+      <span class="mi">2</span>: {<span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> pathsinv0, functor_id. }
+      <span class="nb">apply</span> pathsinv0, id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ab_strength_composition</span> {<span class="nv">A1</span> <span class="nv">A2</span> <span class="nv">A3</span> : category}
+           {<span class="nv">actn1</span> : action Mon_V A1} {<span class="nv">actn2</span> : action Mon_V A2} {<span class="nv">actn3</span> : action Mon_V A3}
+           {<span class="nv">F</span> : A1 ⟶ A2} {<span class="nv">F'</span> : A2 ⟶ A3} :
+  actionbased_strength actn1 actn2 F -&gt; actionbased_strength actn2 actn3 F' -&gt;
+  actionbased_strength actn1 actn3 (F ∙ F').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ζ ζ'.
+  use tpair.
+  - use make_nat_trans.
+    + <span class="nb">intro</span> av. <span class="nb">induction</span> av <span class="k">as</span> [a v].
+      <span class="bp">exact</span> (ζ' (F a,, v) · # F' (ζ (a,, v))).
+    + <span class="nb">intros</span> av av' fg. <span class="nb">induction</span> av <span class="k">as</span> [a v]. <span class="nb">induction</span> av' <span class="k">as</span> [a' v']. <span class="nb">induction</span> fg <span class="k">as</span> [f g].
+      <span class="nb">cbn</span>.
+      <span class="nb">assert</span> (ζisnatinst := nat_trans_ax ζ (a,, v) (a',, v') (f,, g)).
+      <span class="nb">assert</span> (ζ'isnatinst := nat_trans_ax ζ' (F a,, v) (F a',, v') (# F f,, g)).
+      <span class="nb">rewrite</span> assoc.
+      etrans.
+      { <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> ζ'isnatinst. }
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> ζisnatinst.
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span> a. <span class="nb">cbn</span>.
+      <span class="nb">assert</span> (ζtriangleeqinst := ab_strength_triangle _ _ ζ a).
+      <span class="nb">assert</span> (ζ'triangleeqinst := ab_strength_triangle _ _ ζ' (F a)).
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      etrans.
+      { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> ζtriangleeqinst. }
+      <span class="bp">exact</span> ζ'triangleeqinst.
+    + <span class="nb">intros</span> a v w. <span class="nb">cbn</span>.
+      <span class="nb">assert</span> (ζpentagoneqinst := ab_strength_pentagon _ _ ζ a v w).
+      <span class="nb">assert</span> (ζ'pentagoneqinst := ab_strength_pentagon _ _ ζ' (F a) v w).
+      etrans.
+      { <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition. <span class="bp">exact</span> ζ'pentagoneqinst. }
+      <span class="nb">clear</span> ζ'pentagoneqinst.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> &lt;- (id_right (id w)).
+           <span class="nb">rewrite</span> binprod_comp.
+           <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+           <span class="nb">apply</span> pathsinv0, functor_comp. }
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> (functor_comp F' (χ actn2 ((F a, v), w)) (ζ (a,, v ⊗ w))).
+      }
+      etrans.
+      { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> ζpentagoneqinst. }
+      <span class="nb">clear</span> ζpentagoneqinst.
+      etrans.
+      { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp. <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> idpath. }
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">assert</span> (ζ'natinst := nat_trans_ax ζ' (act_odot actn2 (F a, v),, w)
+                                        (F(act_odot actn1 (a, v)),, w)
+                                        (ζ (a,, v),, id w)).
+      <span class="nb">cbn</span> <span class="k">in</span> ζ'natinst.
+      etrans.
+      <span class="mi">2</span> : { <span class="nb">apply</span> pathsinv0, ζ'natinst. }
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">actionbased_strong_functor</span> {<span class="nv">A</span> <span class="nv">A'</span> : category} (<span class="nv">actn</span> : action Mon_V A)(<span class="nv">actn'</span> : action Mon_V A') : UU
+  := ∑ (F : A ⟶ A'), actionbased_strength actn actn' F.
+
+<span class="kn">Definition</span> <span class="nf">actionbased_strong_functor_to_functor</span> (<span class="nv">A</span> <span class="nv">A'</span> : category) (<span class="nv">actn</span> : action Mon_V A)(<span class="nv">actn'</span> : action Mon_V A') (<span class="nv">FF</span> : actionbased_strong_functor actn actn') : A ⟶ A' := pr1 FF.
+<span class="kn">Coercion</span> <span class="nf">actionbased_strong_functor_to_functor</span> : actionbased_strong_functor &gt;-&gt; functor.
+
+<span class="kn">Definition</span> <span class="nf">ab_strong_functor_strength</span> {<span class="nv">A</span> <span class="nv">A'</span> : category} (<span class="nv">actn</span> : action Mon_V A)(<span class="nv">actn'</span> : action Mon_V A')
+           (<span class="nv">FF</span> : actionbased_strong_functor actn actn') : actionbased_strength_nat actn actn' FF
+  := pr1 (pr2 FF).
+
+<span class="c">(*</span>
+<span class="c">  The standard tensorial strength:</span>
+<span class="c">  F(A) ⊗ B --&gt; F(A ⊗ B)</span>
+<span class="c">*)</span>
+<span class="kn">Definition</span> <span class="nf">tensorial_strength</span> : Mon_V ⟶ Mon_V → UU := actionbased_strength (tensorial_action Mon_V) (tensorial_action Mon_V).
+
+<span class="kn">Section</span> <span class="nf">Alternative_Definition</span>.
+<span class="sd">(** we continue in the spirit of the definition of actions given by Janelidze and Kelly, however we are not aware</span>
+<span class="sd">    of this definition in the literature *)</span>
+
+  <span class="kn">Context</span> (<span class="nv">A</span> <span class="nv">A'</span> : category).
+
+  <span class="kn">Let</span> <span class="nf">Mon_EndA</span> : monoidal_cat := monoidal_cat_of_endofunctors A.
+  <span class="kn">Let</span> <span class="nf">Mon_EndA'</span> : monoidal_cat := monoidal_cat_of_endofunctors A'.
+
+  <span class="kn">Context</span> (<span class="nv">FA</span>: strong_monoidal_functor Mon_V Mon_EndA).
+  <span class="kn">Context</span> (<span class="nv">FA'</span>: strong_monoidal_functor Mon_V Mon_EndA').
+
+<span class="kn">Section</span> <span class="nf">Param_Distr</span>.
+
+  <span class="kn">Context</span> (<span class="nv">F</span> : [A, A']).
+
+  <span class="kn">Local Definition</span> <span class="nf">precompF</span> := pre_composition_functor _ A' A' F.
+  <span class="kn">Local Definition</span> <span class="nf">postcompF</span> {<span class="nv">C</span>: category} := post_composition_functor C A A' F.
+
+  <span class="sd">(** a parameterized form of distributivity as strength *)</span>
+  <span class="kn">Definition</span> <span class="nf">param_distributivity_dom</span> : functor Mon_V [A, A'] :=
+    functor_compose (pr11 FA') precompF.
+
+  <span class="kn">Goal</span> ∏ v, param_distributivity_dom v = functor_compose F (FA' v).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> v.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">param_distributivity_codom</span> : functor Mon_V [A, A'] :=
+    functor_compose (pr11 FA) postcompF.
+
+  <span class="kn">Goal</span> ∏ v, param_distributivity_codom v = functor_compose (FA v) F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> v.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">parameterized_distributivity_nat</span> : UU := param_distributivity_dom ⟹ param_distributivity_codom.
+
+    <span class="kn">Definition</span> <span class="nf">parameterized_distributivity_nat_funclass</span> (<span class="nv">δ</span> : parameterized_distributivity_nat):
+      ∏ v : ob (Mon_V), param_distributivity_dom v --&gt; param_distributivity_codom v
+      := pr1 δ.
+    <span class="kn">Coercion</span> <span class="nf">parameterized_distributivity_nat_funclass</span> : parameterized_distributivity_nat &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Section</span> <span class="nf">The_Laws</span>.
+
+  <span class="kn">Context</span> (<span class="nv">δ</span> : parameterized_distributivity_nat).
+
+  <span class="kn">Definition</span> <span class="nf">param_distr_triangle_eq</span> : UU :=
+      # precompF (lax_monoidal_functor_ϵ FA') · (δ I) = # postcompF (lax_monoidal_functor_ϵ FA).
+
+    <span class="sd">(** the type of the following def. is the same as that of [δ I], as seen from the definition that comes</span>
+<span class="sd">        directly afterwards *)</span>
+  <span class="kn">Definition</span> <span class="nf">param_distr_triangle_eq_variant0_RHS</span> :
+    [A, A'] ⟦ precompF (FA' (MonoidalFunctorsTensored.I_C Mon_V)), postcompF (FA (MonoidalFunctorsTensored.I_C Mon_V)) ⟧ :=
+    # precompF (strong_monoidal_functor_ϵ_inv FA') · # postcompF (lax_monoidal_functor_ϵ FA).
+
+    <span class="kn">Definition</span> <span class="nf">param_distr_triangle_eq_variant0</span> : UU := δ I = param_distr_triangle_eq_variant0_RHS.
+
+    <span class="kn">Definition</span> <span class="nf">param_distr_triangle_eq_variant</span> : UU :=
+      (δ I) · (# postcompF (strong_monoidal_functor_ϵ_inv FA))  =
+      # precompF (strong_monoidal_functor_ϵ_inv FA').
+
+    <span class="kn">Definition</span> <span class="nf">postwhisker_with_ϵ_inv_z_iso</span> :
+      z_iso (postcompF (FA (MonoidalFunctorsTensored.I_C Mon_V))) (postcompF (MonoidalFunctorsTensored.I_D Mon_EndA)).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> functor_on_z_iso.
+      use tpair.
+      - <span class="bp">exact</span> (strong_monoidal_functor_ϵ_inv FA).
+      - <span class="nb">cbn</span> beta <span class="k">in</span> |- *.
+        <span class="nb">apply</span> is_z_isomorphism_inv.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">prewhisker_with_ϵ_inv_z_iso</span> :
+      z_iso (precompF (FA' (MonoidalFunctorsTensored.I_C Mon_V))) (precompF (MonoidalFunctorsTensored.I_D Mon_EndA')).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> functor_on_z_iso.
+      use tpair.
+      - <span class="bp">exact</span> (strong_monoidal_functor_ϵ_inv FA').
+      - <span class="nb">cbn</span> beta <span class="k">in</span> |- *.
+        <span class="nb">apply</span> is_z_isomorphism_inv.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">param_distr_triangle_eq_variant0_follows</span> :
+      param_distr_triangle_eq -&gt; param_distr_triangle_eq_variant0.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> Hyp.
+      <span class="nb">red</span>.
+      <span class="nb">unfold</span> param_distr_triangle_eq_variant0_RHS.
+      <span class="nb">apply</span> pathsinv0 <span class="k">in</span> Hyp.
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ prewhisker_with_ϵ_inv_z_iso).
+      <span class="nb">apply</span> pathsinv0.
+      <span class="bp">exact</span> Hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">param_distr_triangle_eq_variant0_implies</span> :
+      param_distr_triangle_eq_variant0 -&gt; param_distr_triangle_eq.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> Hyp.
+      <span class="nb">red</span> <span class="k">in</span> Hyp.
+      <span class="nb">unfold</span> param_distr_triangle_eq_variant0_RHS <span class="k">in</span> Hyp.
+      <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ prewhisker_with_ϵ_inv_z_iso) <span class="k">in</span> Hyp.
+      <span class="nb">red</span>.
+      <span class="bp">exact</span> Hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">param_distr_triangle_eq_variant_follows</span> :
+      param_distr_triangle_eq -&gt; param_distr_triangle_eq_variant.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> Hyp.
+      <span class="nb">red</span>.
+      <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ postwhisker_with_ϵ_inv_z_iso).
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ prewhisker_with_ϵ_inv_z_iso).
+      <span class="bp">exact</span> Hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">param_distr_triangle_eq_variant_implies</span> :
+      param_distr_triangle_eq_variant -&gt; param_distr_triangle_eq.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> Hyp.
+      <span class="nb">red</span> <span class="k">in</span> Hyp.
+      <span class="nb">apply</span> pathsinv0 <span class="k">in</span> Hyp.
+      <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ postwhisker_with_ϵ_inv_z_iso) <span class="k">in</span> Hyp.
+      <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ prewhisker_with_ϵ_inv_z_iso) <span class="k">in</span> Hyp.
+      <span class="bp">exact</span> Hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** we also abstract over the constituent distributivities *)</span>
+    <span class="kn">Definition</span> <span class="nf">param_distr_pentagon_eq_body_RHS</span> (<span class="nv">v</span> <span class="nv">w</span> : Mon_V)
+               (<span class="nv">dv</span>: [A, A'] ⟦ param_distributivity_dom v, param_distributivity_codom v ⟧)
+               (<span class="nv">dw</span>: [A, A'] ⟦ param_distributivity_dom w, param_distributivity_codom w ⟧) :
+      [A, A']
+        ⟦ precompF (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w)),
+          postcompF (monoidal_functor_map_codom Mon_V Mon_EndA FA (v,, w))⟧.
+    <span class="kn">Proof</span>.
+      <span class="nb">set</span> (aux1 := # (post_comp_functor (FA' w)) dv).
+      <span class="nb">set</span> (aux2 := # (pre_comp_functor (FA v)) dw).
+      <span class="nb">set</span> (aux3 := # postcompF (lax_monoidal_functor_μ FA (v,,w))).
+      <span class="nb">set</span> (auxr := aux1 · aux2).
+      <span class="bp">exact</span> (auxr · aux3).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">param_distr_pentagon_eq_body</span> (<span class="nv">v</span> <span class="nv">w</span> : Mon_V) : UU.
+    <span class="kn">Proof</span>.
+      <span class="nb">set</span> (aux := # precompF (lax_monoidal_functor_μ FA' (v,,w))).
+      <span class="bp">exact</span> (aux · δ (v ⊗ w) = param_distr_pentagon_eq_body_RHS v w (δ v) (δ w)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">param_distr_pentagon_eq</span> : UU := ∏ (v w : Mon_V), param_distr_pentagon_eq_body v w.
+
+    <span class="kn">Definition</span> <span class="nf">param_distr_pentagon_eq_body_variant_RHS</span> (<span class="nv">v</span> <span class="nv">w</span> : Mon_V)
+               (<span class="nv">dv</span>: [A, A'] ⟦ param_distributivity_dom v, param_distributivity_codom v ⟧)
+               (<span class="nv">dw</span>: [A, A'] ⟦ param_distributivity_dom w, param_distributivity_codom w ⟧) :
+      [A, A'] ⟦ param_distributivity_dom (v ⊗ w), param_distributivity_codom (v ⊗ w) ⟧.
+    <span class="kn">Proof</span>.
+      <span class="nb">set</span> (aux1inv := # precompF (strong_monoidal_functor_μ_inv FA' (v,,w))).
+      <span class="bp">exact</span> (aux1inv · (param_distr_pentagon_eq_body_RHS v w dv dw)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">param_distr_pentagon_eq_body_variant</span> (<span class="nv">v</span> <span class="nv">w</span> : Mon_V): UU :=
+      δ (v ⊗ w) = param_distr_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
+
+    <span class="kn">Definition</span> <span class="nf">prewhisker_with_μ_inv_z_iso</span> (<span class="nv">v</span> <span class="nv">w</span> : Mon_V):
+      z_iso (precompF (monoidal_functor_map_codom Mon_V Mon_EndA' FA' (v,, w)))
+            (precompF (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w))).
+    <span class="kn">Proof</span>.
+      use tpair.
+      - <span class="bp">exact</span> (# precompF (strong_monoidal_functor_μ_inv FA' (v,,w))).
+      - <span class="nb">cbn</span> beta <span class="k">in</span> |- *.
+        <span class="nb">apply</span> functor_on_is_z_isomorphism.
+        <span class="nb">apply</span> is_z_isomorphism_inv.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">param_distr_pentagon_eq_body_variant_follows</span> (<span class="nv">v</span> <span class="nv">w</span> : Mon_V):
+      param_distr_pentagon_eq_body v w -&gt; param_distr_pentagon_eq_body_variant v w.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> Hyp.
+      <span class="nb">red</span>.
+      <span class="nb">unfold</span> param_distr_pentagon_eq_body_variant_RHS.
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (prewhisker_with_μ_inv_z_iso v w)).
+      <span class="bp">exact</span> Hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">param_distr_pentagon_eq_body_variant_implies</span> (<span class="nv">v</span> <span class="nv">w</span> : Mon_V):
+      param_distr_pentagon_eq_body_variant v w -&gt; param_distr_pentagon_eq_body v w.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> Hyp.
+      <span class="nb">red</span> <span class="k">in</span> Hyp.
+      <span class="nb">unfold</span> param_distr_pentagon_eq_body_variant_RHS <span class="k">in</span> Hyp.
+      <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (prewhisker_with_μ_inv_z_iso v w)) <span class="k">in</span> Hyp.
+      <span class="bp">exact</span> Hyp.
+    <span class="kn">Qed</span>.
+
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_param_distr_triangle_eq</span> : isaprop param_distr_triangle_eq.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> homset_property.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_param_distr_pentagon_eq</span> : isaprop param_distr_pentagon_eq.
+    <span class="kn">Proof</span>.
+      <span class="nb">red</span>.
+      <span class="nb">apply</span> impred; <span class="nb">intros</span> v.
+      <span class="nb">apply</span> impred; <span class="nb">intros</span> w.
+      <span class="nb">apply</span> isaset_nat_trans, homset_property.
+    <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">The_Laws</span>.
+
+   <span class="kn">Definition</span> <span class="nf">parameterized_distributivity</span> : UU := ∑ (δ : parameterized_distributivity_nat),
+     (param_distr_triangle_eq δ) × (param_distr_pentagon_eq δ).
+
+   <span class="kn">Lemma</span> <span class="nf">parameterized_distributivity_eq</span> (<span class="nv">sδ</span> <span class="nv">sδ'</span>: parameterized_distributivity) :
+     pr1 sδ = pr1 sδ' -&gt; sδ = sδ'.
+   <span class="kn">Proof</span>.
+     <span class="nb">intro</span> Heq.
+     <span class="nb">apply</span> subtypePath; <span class="nb">trivial</span>.
+     <span class="nb">intro</span> δ. <span class="nb">apply</span> isapropdirprod.
+     - <span class="nb">apply</span> isaprop_param_distr_triangle_eq.
+     - <span class="nb">apply</span> isaprop_param_distr_pentagon_eq.
+   <span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">parameterized_distributivity_to_nat</span> (<span class="nv">sδ</span> : parameterized_distributivity) :
+  parameterized_distributivity_nat
+  := pr1 sδ.
+<span class="kn">Coercion</span> <span class="nf">parameterized_distributivity_to_nat</span> : parameterized_distributivity &gt;-&gt; parameterized_distributivity_nat.
+
+<span class="kn">Identity Coercion</span> <span class="nf">parameterized_distributivity_nat_to_nat_trans</span> : parameterized_distributivity_nat &gt;-&gt; nat_trans.
+
+
+   <span class="kn">Context</span> (<span class="nv">sδ</span> : parameterized_distributivity).
+
+   <span class="kn">Let</span> <span class="nf">δ_triangle_eq</span> : param_distr_triangle_eq (pr1 sδ) := pr1 (pr2 sδ).
+   <span class="kn">Let</span> <span class="nf">δ_pentagon_eq</span> : param_distr_pentagon_eq (pr1 sδ) := pr2 (pr2 sδ).
+   <span class="kn">Let</span> <span class="nf">actionA</span> : action Mon_V A := action_from_alt Mon_V A FA.
+   <span class="kn">Let</span> <span class="nf">actionA'</span> : action Mon_V A':= action_from_alt Mon_V A' FA'.
+
+   <span class="kn">Definition</span> <span class="nf">strength_nat_from_alt_aux_dom</span> :
+     actionbased_strength_dom actionA' F ⟹ uncurry_functor _ _ _ param_distributivity_dom.
+   <span class="kn">Proof</span>.
+     use make_nat_trans.
+     - <span class="nb">intro</span> av.
+       <span class="nb">apply</span> identity.
+     - <span class="nb">intros</span> av av' fg.
+       <span class="nb">cbn</span>.
+       <span class="nb">rewrite</span> id_left, id_right.
+       <span class="nb">apply</span> idpath.
+   <span class="kn">Defined</span>.
+
+   <span class="kn">Definition</span> <span class="nf">strength_nat_from_alt_aux_codom</span> :
+     uncurry_functor _ _ _ param_distributivity_codom ⟹ actionbased_strength_codom actionA F.
+   <span class="kn">Proof</span>.
+     use make_nat_trans.
+     - <span class="nb">intro</span> av.
+       <span class="nb">apply</span> identity.
+     - <span class="nb">intros</span> av av' fg.
+       <span class="nb">cbn</span>.
+       <span class="nb">rewrite</span> id_left, id_right.
+       <span class="nb">apply</span> pathsinv0.
+       <span class="nb">apply</span> functor_comp.
+   <span class="kn">Defined</span>.
+
+   <span class="kn">Definition</span> <span class="nf">strength_nat_from_alt</span> : actionbased_strength_nat actionA actionA' F.
+   <span class="kn">Proof</span>.
+     <span class="nb">red</span>.
+     <span class="nb">refine</span> (nat_trans_comp _ _ _ strength_nat_from_alt_aux_dom _).
+     <span class="nb">refine</span> (nat_trans_comp _ _ _ _ strength_nat_from_alt_aux_codom).
+     <span class="bp">exact</span> (uncurry_nattrans _ _ _ sδ).
+   <span class="kn">Defined</span>.
+
+   <span class="kn">Lemma</span> <span class="nf">triangle_eq_from_alt</span> : actionbased_strength_triangle_eq actionA actionA' F strength_nat_from_alt.
+   <span class="kn">Proof</span>.
+     <span class="nb">red</span>.
+     <span class="nb">intro</span> a.
+     <span class="nb">apply</span> param_distr_triangle_eq_variant_follows <span class="k">in</span> δ_triangle_eq.
+     <span class="nb">red</span> <span class="k">in</span> δ_triangle_eq.
+     <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> δ_triangle_eq.
+     <span class="nb">apply</span> toforallpaths <span class="k">in</span> δ_triangle_eq.
+     <span class="nb">assert</span> (δ_triangle_eq_inst := δ_triangle_eq a).
+     <span class="nb">clear</span> δ_triangle_eq δ_pentagon_eq.
+     <span class="nb">cbn</span> <span class="k">in</span> δ_triangle_eq_inst.
+     <span class="nb">unfold</span> strength_nat_from_alt, actionA, actionA'.
+     <span class="nb">cbn</span>.
+     <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_left.
+     <span class="nb">rewrite</span> id_right.
+     <span class="bp">exact</span> δ_triangle_eq_inst.
+   <span class="kn">Qed</span>.
+
+   <span class="kn">Lemma</span> <span class="nf">pentagon_eq_from_alt</span> : actionbased_strength_pentagon_eq actionA actionA' F strength_nat_from_alt.
+   <span class="kn">Proof</span>.
+     <span class="nb">red</span>.
+     <span class="nb">intros</span> a v w.
+     <span class="nb">clear</span> δ_triangle_eq.
+     <span class="nb">assert</span> (Hyp := δ_pentagon_eq v w).
+     <span class="nb">red</span> <span class="k">in</span> Hyp.
+     <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> Hyp.
+     <span class="nb">apply</span> toforallpaths <span class="k">in</span> Hyp.
+     <span class="nb">assert</span> (Hypinst := Hyp a).
+     <span class="nb">clear</span> Hyp.
+     <span class="nb">cbn</span> <span class="k">in</span> Hypinst.
+     <span class="nb">unfold</span> strength_nat_from_alt, actionA, actionA'.
+     <span class="nb">cbn</span>.
+     <span class="kp">do</span> <span class="mi">5</span> <span class="nb">rewrite</span> id_left.
+     <span class="kp">do</span> <span class="mi">5</span> <span class="nb">rewrite</span> id_right.
+     <span class="nb">assert</span> (aux := functor_id FA' w).
+     <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> aux.
+     <span class="nb">apply</span> toforallpaths <span class="k">in</span> aux.
+     <span class="nb">rewrite</span> aux.
+     <span class="nb">rewrite</span> id_right.
+     <span class="bp">exact</span> Hypinst.
+   <span class="kn">Qed</span>.
+
+   <span class="kn">Definition</span> <span class="nf">actionbased_strong_functor_from_alt</span> : actionbased_strong_functor actionA actionA'.
+   <span class="kn">Proof</span>.
+     <span class="k">exists</span> <span class="nv">F</span>. <span class="k">exists</span> <span class="nv">strength_nat_from_alt</span>.
+     <span class="nb">split</span>.
+     - <span class="bp">exact</span> triangle_eq_from_alt.
+     - <span class="bp">exact</span> pentagon_eq_from_alt.
+   <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Param_Distr</span>.
+
+<span class="kn">End</span> <span class="nf">Alternative_Definition</span>.
+
+<span class="kn">End</span> <span class="nf">A</span>.
+
+
+<span class="kn">Section</span> <span class="nf">Alternative_Definition_Whiskered</span>.
+  <span class="kn">Import</span> BifunctorNotations.
+  <span class="kn">Import</span> MonoidalNotations.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category}.
+  <span class="kn">Context</span> (<span class="nv">Mon_V</span> : monoidal V).
+
+  <span class="kn">Notation</span> <span class="s2">"X ⊗ Y"</span> := (X ⊗_{ Mon_V } Y).
+
+  <span class="kn">Context</span> (<span class="nv">A</span> <span class="nv">A'</span> : category).
+
+  <span class="kn">Let</span> <span class="nf">Mon_EndA</span> : monoidal (cat_of_endofunctors A) := monoidal_of_endofunctors A.
+  <span class="kn">Let</span> <span class="nf">Mon_EndA'</span> : monoidal (cat_of_endofunctors A') := monoidal_of_endofunctors A'.
+
+  <span class="kn">Context</span> {<span class="nv">FA</span>: functor V (cat_of_endofunctors A)}.
+  <span class="kn">Context</span> {<span class="nv">FA'</span>: functor V (cat_of_endofunctors A')}.
+
+  <span class="kn">Context</span> (<span class="nv">FAm</span>: fmonoidal Mon_V Mon_EndA FA).
+  <span class="kn">Context</span> (<span class="nv">FA'm</span>: fmonoidal Mon_V Mon_EndA' FA').
+
+<span class="kn">Section</span> <span class="nf">Param_Distr</span>.
+
+  <span class="kn">Context</span> (<span class="nv">F</span> : [A, A']).
+
+  <span class="sd">(** the expected definitions:</span>
+<span class="sd">  Local Definition precomp'F := pre_composition_functor _ A' A' F.</span>
+<span class="sd">  Local Definition postcomp'F {C: category} := post_composition_functor C A A' F.</span>
+<span class="sd">   *)</span>
+
+  <span class="sd">(** the definitions that are more compatible with the bicategorical scenario</span>
+<span class="sd">  Local Definition precomp'F := functor_fix_fst_arg _ _ _ (functorial_composition _ _ A') F.</span>
+<span class="sd">  Local Definition postcomp'F {C: category} := functor_fix_snd_arg _ _ _ (functorial_composition C _ A') F.</span>
+<span class="sd">   *)</span>
+
+  <span class="sd">(** the definitions that force full compatibility with the bicategorical scenario *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">precomp'F</span> := UniMath.Bicategories.Core.Bicat.lwhisker_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(c:=A') F.
+  <span class="kn">Local Definition</span> <span class="nf">postcomp'F</span> {<span class="nv">C</span>: category} := UniMath.Bicategories.Core.Bicat.rwhisker_functor(C:=UniMath.Bicategories.Core.Examples.BicatOfCats.bicat_of_cats)(a:=C)(c:=A') F.
+
+  <span class="sd">(** a parameterized form of distributivity as strength *)</span>
+  <span class="kn">Definition</span> <span class="nf">param_distributivity'_dom</span> : functor V [A, A'] :=
+    functor_compose FA' precomp'F.
+
+  <span class="kn">Goal</span> ∏ v, param_distributivity'_dom v = functor_compose F (FA' v).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> v.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">param_distributivity'_codom</span> : functor V [A, A'] :=
+    functor_compose FA postcomp'F.
+
+  <span class="kn">Goal</span> ∏ v, param_distributivity'_codom v = functor_compose (FA v) F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> v.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">parameterized_distributivity'_nat</span> : UU := param_distributivity'_dom ⟹ param_distributivity'_codom.
+
+  <span class="kn">Definition</span> <span class="nf">parameterized_distributivity'_nat_funclass</span> (<span class="nv">δ</span> : parameterized_distributivity'_nat):
+    ∏ v : V, param_distributivity'_dom v --&gt; param_distributivity'_codom v
+    := pr1 δ.
+  <span class="kn">Coercion</span> <span class="nf">parameterized_distributivity'_nat_funclass</span> : parameterized_distributivity'_nat &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Section</span> <span class="nf">The_Laws</span>.
+
+  <span class="kn">Context</span> (<span class="nv">δ</span> : parameterized_distributivity'_nat).
+
+  <span class="kn">Definition</span> <span class="nf">param_distr'_triangle_eq</span> : UU :=
+      # precomp'F (fmonoidal_preservesunit FA'm) · (δ I_{Mon_V}) = # postcomp'F (fmonoidal_preservesunit FAm).
+
+    <span class="sd">(** the type of the following def. is the same as that of [δ I_{Mon_V}], as seen from the definition that comes</span>
+<span class="sd">        directly afterwards *)</span>
+  <span class="kn">Definition</span> <span class="nf">param_distr'_triangle_eq_variant0_RHS</span> :
+    [A, A'] ⟦ precomp'F (FA' I_{ Mon_V}), postcomp'F (FA I_{ Mon_V}) ⟧ :=
+    # precomp'F (pr1 (fmonoidal_preservesunitstrongly FA'm)) · # postcomp'F (fmonoidal_preservesunit FAm).
+
+    <span class="kn">Definition</span> <span class="nf">param_distr'_triangle_eq_variant0</span> : UU := δ I_{Mon_V} = param_distr'_triangle_eq_variant0_RHS.
+
+    <span class="kn">Definition</span> <span class="nf">prewhisker_with_ϵ_inv_z_iso'</span> :
+      z_iso (precomp'F (FA' I_{Mon_V})) (precomp'F (I_{Mon_EndA'})).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> functor_on_z_iso.
+      use tpair.
+      - <span class="bp">exact</span> (pr1 (fmonoidal_preservesunitstrongly FA'm)).
+      - <span class="nb">cbn</span> beta <span class="k">in</span> |- *.
+        <span class="nb">apply</span> is_z_isomorphism_inv.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">param_distr'_triangle_eq_variant0_follows</span> :
+      param_distr'_triangle_eq -&gt; param_distr'_triangle_eq_variant0.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> Hyp.
+      <span class="nb">red</span>.
+      <span class="nb">unfold</span> param_distr'_triangle_eq_variant0_RHS.
+      <span class="nb">apply</span> pathsinv0 <span class="k">in</span> Hyp.
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ prewhisker_with_ϵ_inv_z_iso').
+      <span class="nb">apply</span> pathsinv0.
+      <span class="bp">exact</span> Hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">param_distr'_triangle_eq_variant0_implies</span> :
+      param_distr'_triangle_eq_variant0 -&gt; param_distr'_triangle_eq.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> Hyp.
+      <span class="nb">red</span> <span class="k">in</span> Hyp.
+      <span class="nb">unfold</span> param_distr'_triangle_eq_variant0_RHS <span class="k">in</span> Hyp.
+      <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ prewhisker_with_ϵ_inv_z_iso') <span class="k">in</span> Hyp.
+      <span class="nb">red</span>.
+      <span class="bp">exact</span> Hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** we also abstract over the constituent distributivities *)</span>
+    <span class="kn">Definition</span> <span class="nf">param_distr'_pentagon_eq_body_RHS</span> (<span class="nv">v</span> <span class="nv">w</span> : V)
+               (<span class="nv">dv</span>: [A, A'] ⟦ param_distributivity'_dom v, param_distributivity'_codom v ⟧)
+               (<span class="nv">dw</span>: [A, A'] ⟦ param_distributivity'_dom w, param_distributivity'_codom w ⟧) :
+      [A, A'] ⟦ precomp'F ((FA' v) ⊗_{Mon_EndA'} (FA' w)), postcomp'F (FA (v ⊗_{Mon_V} w))⟧.
+    <span class="kn">Proof</span>.
+      <span class="nb">set</span> (aux1 := # (post_comp_functor (FA' w)) dv).
+      <span class="nb">set</span> (aux2 := # (pre_comp_functor (FA v)) dw).
+      <span class="nb">set</span> (aux3 := # postcomp'F (fmonoidal_preservestensordata FAm v w)).
+      <span class="nb">set</span> (auxr := aux1 · aux2).
+      <span class="bp">exact</span> (auxr · aux3).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">param_distr'_pentagon_eq_body</span> (<span class="nv">v</span> <span class="nv">w</span> : V) : UU.
+    <span class="kn">Proof</span>.
+      <span class="nb">set</span> (aux := # precomp'F (fmonoidal_preservestensordata FA'm v w)).
+      <span class="bp">exact</span> (aux · δ (v ⊗ w) = param_distr'_pentagon_eq_body_RHS v w (δ v) (δ w)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">param_distr'_pentagon_eq</span> : UU := ∏ (v w : V), param_distr'_pentagon_eq_body v w.
+
+    <span class="kn">Definition</span> <span class="nf">param_distr'_pentagon_eq_body_variant_RHS</span> (<span class="nv">v</span> <span class="nv">w</span> : V)
+               (<span class="nv">dv</span>: [A, A'] ⟦ param_distributivity'_dom v, param_distributivity'_codom v ⟧)
+               (<span class="nv">dw</span>: [A, A'] ⟦ param_distributivity'_dom w, param_distributivity'_codom w ⟧) :
+      [A, A'] ⟦ param_distributivity'_dom (v ⊗ w), param_distributivity'_codom (v ⊗ w) ⟧.
+    <span class="kn">Proof</span>.
+      <span class="nb">set</span> (aux1inv := # precomp'F (pr1 (fmonoidal_preservestensorstrongly FA'm v w))).
+      <span class="bp">exact</span> (aux1inv · (param_distr'_pentagon_eq_body_RHS v w dv dw)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">param_distr'_pentagon_eq_body_variant</span> (<span class="nv">v</span> <span class="nv">w</span> : V): UU :=
+      δ (v ⊗ w) = param_distr'_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
+
+    <span class="kn">Definition</span> <span class="nf">param_distr'_pentagon_eq_variant</span>: UU :=
+      ∏ (v w : V), param_distr'_pentagon_eq_body_variant v w.
+
+    <span class="kn">Definition</span> <span class="nf">prewhisker_with_μ_inv_z_iso'</span> (<span class="nv">v</span> <span class="nv">w</span> : V):
+      z_iso (precomp'F (FA' (v ⊗ w)))
+            (precomp'F ((FA' v) ⊗_{Mon_EndA'} (FA' w))).
+    <span class="kn">Proof</span>.
+      use tpair.
+      - <span class="bp">exact</span> (# precomp'F (pr1 (fmonoidal_preservestensorstrongly FA'm v w))).
+      - <span class="nb">cbn</span> beta <span class="k">in</span> |- *.
+        <span class="nb">apply</span> functor_on_is_z_isomorphism.
+        <span class="nb">apply</span> is_z_isomorphism_inv.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">param_distr'_pentagon_eq_body_variant_follows</span> (<span class="nv">v</span> <span class="nv">w</span> : V):
+      param_distr'_pentagon_eq_body v w -&gt; param_distr'_pentagon_eq_body_variant v w.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> Hyp.
+      <span class="nb">red</span>.
+      <span class="nb">unfold</span> param_distr'_pentagon_eq_body_variant_RHS.
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (prewhisker_with_μ_inv_z_iso' v w)).
+      <span class="bp">exact</span> Hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">param_distr'_pentagon_eq_body_variant_implies</span> (<span class="nv">v</span> <span class="nv">w</span> : V):
+      param_distr'_pentagon_eq_body_variant v w -&gt; param_distr'_pentagon_eq_body v w.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> Hyp.
+      <span class="nb">red</span> <span class="k">in</span> Hyp.
+      <span class="nb">unfold</span> param_distr'_pentagon_eq_body_variant_RHS <span class="k">in</span> Hyp.
+      <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (prewhisker_with_μ_inv_z_iso' v w)) <span class="k">in</span> Hyp.
+      <span class="bp">exact</span> Hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_param_distr'_triangle_eq</span> : isaprop param_distr'_triangle_eq.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> homset_property.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_param_distr'_pentagon_eq</span> : isaprop param_distr'_pentagon_eq.
+    <span class="kn">Proof</span>.
+      <span class="nb">red</span>.
+      <span class="nb">apply</span> impred; <span class="nb">intros</span> v.
+      <span class="nb">apply</span> impred; <span class="nb">intros</span> w.
+      <span class="nb">apply</span> isaset_nat_trans, homset_property.
+    <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">The_Laws</span>.
+
+   <span class="kn">Definition</span> <span class="nf">parameterized_distributivity'</span> : UU := ∑ (δ : parameterized_distributivity'_nat),
+     (param_distr'_triangle_eq δ) × (param_distr'_pentagon_eq δ).
+
+   <span class="kn">Lemma</span> <span class="nf">parameterized_distributivity'_eq</span> (<span class="nv">sδ</span> <span class="nv">sδ'</span>: parameterized_distributivity') :
+     pr1 sδ = pr1 sδ' -&gt; sδ = sδ'.
+   <span class="kn">Proof</span>.
+     <span class="nb">intro</span> Heq.
+     <span class="nb">apply</span> subtypePath; <span class="nb">trivial</span>.
+     <span class="nb">intro</span> δ. <span class="nb">apply</span> isapropdirprod.
+     - <span class="nb">apply</span> isaprop_param_distr'_triangle_eq.
+     - <span class="nb">apply</span> isaprop_param_distr'_pentagon_eq.
+   <span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">parameterized_distributivity'_to_nat</span> (<span class="nv">sδ</span> : parameterized_distributivity') :
+  parameterized_distributivity'_nat
+  := pr1 sδ.
+<span class="kn">Coercion</span> <span class="nf">parameterized_distributivity'_to_nat</span> : parameterized_distributivity' &gt;-&gt; parameterized_distributivity'_nat.
+
+<span class="kn">Identity Coercion</span> <span class="nf">parameterized_distributivity'_nat_to_nat_trans</span> : parameterized_distributivity'_nat &gt;-&gt; nat_trans.
+
+<span class="kn">End</span> <span class="nf">Param_Distr</span>.
+<span class="kn">End</span> <span class="nf">Alternative_Definition_Whiskered</span>.
+
+<span class="kn">Section</span> <span class="nf">B</span>.
+<span class="sd">(** following the TYPES'15 post-proceedings paper by Ahrens and Matthes - will be identified as an instance of the previous *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">Mon_W</span> <span class="nv">Mon_V</span> : monoidal_cat}.
+
+  <span class="kn">Local Definition</span> <span class="nf">timesV</span> := monoidal_cat_tensor Mon_V.
+  <span class="kn">Local Definition</span> <span class="nf">lambda</span> := monoidal_cat_left_unitor Mon_V.
+  <span class="kn">Local Definition</span> <span class="nf">alpha</span> := monoidal_cat_associator Mon_V.
+
+  <span class="kn">Local Definition</span> <span class="nf">timesW</span> := monoidal_cat_tensor Mon_W.
+
+  <span class="kn">Context</span> (<span class="nv">U</span> : strong_monoidal_functor Mon_W Mon_V).
+
+<span class="kn">Section</span> <span class="nf">RelativeStrengths_Natural_Transformation</span>.
+  <span class="kn">Context</span> (<span class="nv">F</span>: Mon_V ⟶ Mon_V).
+
+  <span class="kn">Notation</span> <span class="s2">"X ⊗V Y"</span> := (timesV (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"X •W Y"</span> := (timesW (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Notation</span> <span class="s2">"f #⊗V g"</span> := (#timesV (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #•W g"</span> := (#timesW (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Definition</span> <span class="nf">rel_strength_dom</span> : Mon_W ⊠ Mon_V ⟶ Mon_V :=
+    functor_composite (pair_functor U F) timesV.
+
+  <span class="kn">Lemma</span> <span class="nf">rel_strength_dom_ok</span>: functor_on_objects rel_strength_dom = <span class="k">λ</span> <span class="nv">ax</span>, U (ob1 ax) ⊗V  F (ob2 ax).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rel_strength_codom</span> : Mon_W ⊠ Mon_V ⟶ Mon_V :=
+  functor_composite (functor_composite (pair_functor U (functor_identity _)) timesV) F.
+
+  <span class="kn">Lemma</span> <span class="nf">rel_strength_codom_ok</span>: functor_on_objects rel_strength_codom = <span class="k">λ</span> <span class="nv">ax</span>, F (U (ob1 ax) ⊗V ob2 ax).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rel_strength_nat</span> : UU := nat_trans rel_strength_dom rel_strength_codom.
+
+  <span class="kn">Definition</span> <span class="nf">rel_strength_nat_funclass</span> (<span class="nv">ϛ</span> : rel_strength_nat):
+  ∏ x : ob (Mon_W ⊠ Mon_V), rel_strength_dom x --&gt; rel_strength_codom x
+  := pr1 ϛ.
+  <span class="kn">Coercion</span> <span class="nf">rel_strength_nat_funclass</span> : rel_strength_nat &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="sd">(** the following looks like a pentagon but is of the nature of a triangle equation *)</span>
+  <span class="kn">Definition</span> <span class="nf">rel_strength_pentagon_eq</span> (<span class="nv">ϛ</span> : rel_strength_nat) :=
+    ∏ (v : Mon_V), ϛ (monoidal_cat_unit Mon_W, v) · #F (strong_monoidal_functor_ϵ_inv U #⊗V identity v) · #F (lambda v)  =
+               strong_monoidal_functor_ϵ_inv U #⊗V identity (F v) · lambda (F v).
+
+  <span class="sd">(** the following looks like a rectangle in the paper but is of the nature of a pentagon equation *)</span>
+  <span class="kn">Definition</span> <span class="nf">rel_strength_rectangle_eq</span> (<span class="nv">ϛ</span> : rel_strength_nat): UU := ∏ (w w' : Mon_W), ∏ (v : Mon_V),
+  ϛ (w •W w', v) · #F (strong_monoidal_functor_μ_inv U (w, w') #⊗V identity v) · #F (alpha ((U w, U w'), v)) =
+  strong_monoidal_functor_μ_inv U (w, w') #⊗V identity (F v) · alpha ((U w, U w'), F v) ·
+                                        identity (U w) #⊗V ϛ (w', v) · ϛ (w, U w' ⊗V v).
+
+<span class="kn">End</span> <span class="nf">RelativeStrengths_Natural_Transformation</span>.
+
+<span class="kn">Definition</span> <span class="nf">rel_strength</span> (<span class="nv">F</span> : Mon_V ⟶ Mon_V): UU :=
+  ∑ (ϛ : rel_strength_nat F), (rel_strength_pentagon_eq F ϛ) × (rel_strength_rectangle_eq F ϛ).
+
+
+<span class="kn">Definition</span> <span class="nf">rel_strength_to_rel_strength_nat</span> {<span class="nv">F</span> : Mon_V ⟶ Mon_V} (<span class="nv">str</span> : rel_strength F) :
+  rel_strength_nat F
+  := pr1 str.
+<span class="kn">Coercion</span> <span class="nf">rel_strength_to_rel_strength_nat</span> : rel_strength &gt;-&gt; rel_strength_nat.
+
+<span class="c">(* Definition rel_strength_to_nat_trans {F : Mon_V ⟶ Mon_V} (str : rel_strength F) :</span>
+<span class="c">  nat_trans (rel_strength_dom F) (rel_strength_codom F)</span>
+<span class="c">  := pr1 str.</span>
+<span class="c">Coercion rel_strength_to_nat_trans : rel_strength &gt;-&gt; nat_trans. *)</span>
+
+<span class="kn">Identity Coercion</span> <span class="nf">rel_strength_nat_to_nat_trans</span> : rel_strength_nat &gt;-&gt; nat_trans.
+
+<span class="kn">Definition</span> <span class="nf">rel_strength_pentagon</span> {<span class="nv">F</span> : Mon_V ⟶ Mon_V} (<span class="nv">str</span> : rel_strength F) :
+  rel_strength_pentagon_eq F str
+  := pr1 (pr2 str).
+
+<span class="kn">Definition</span> <span class="nf">rel_strength_rectangle</span> {<span class="nv">F</span> : Mon_V ⟶ Mon_V} (<span class="nv">str</span> : rel_strength F) :
+  rel_strength_rectangle_eq F str
+  := pr2 (pr2 str).
+
+<span class="kn">Section</span> <span class="nf">RelativeStrength_Is_An_ActionBasedStrength</span>.
+
+  <span class="kn">Context</span> (<span class="nv">F</span>: Mon_V ⟶ Mon_V) (<span class="nv">str</span>: rel_strength F).
+
+  <span class="kn">Local Definition</span> <span class="nf">pentagon</span> := rel_strength_pentagon str.
+  <span class="kn">Local Definition</span> <span class="nf">rectangle</span> := rel_strength_rectangle str.
+
+  <span class="kn">Local Definition</span> <span class="nf">Mon_W'</span> := swapping_of_monoidal_cat Mon_W.
+  <span class="kn">Local Definition</span> <span class="nf">timesW'</span> := monoidal_cat_tensor Mon_W'.
+  <span class="kn">Local Definition</span> <span class="nf">Mon_V'</span> := swapping_of_monoidal_cat Mon_V.
+  <span class="kn">Local Definition</span> <span class="nf">timesV'</span> := monoidal_cat_tensor Mon_V'.
+
+  <span class="kn">Local Definition</span> <span class="nf">U'</span> := swapping_of_strong_monoidal_functor U: strong_monoidal_functor Mon_W' Mon_V'.
+  <span class="kn">Local Definition</span> <span class="nf">phiinv'</span> := pre_whisker binswap_pair_functor (strong_monoidal_functor_μ_inv U).
+
+  <span class="kn">Local Definition</span> <span class="nf">UAct</span> := U_action Mon_W' U': action Mon_W' Mon_V'.
+
+  <span class="kn">Local Definition</span> <span class="nf">ϛ'</span> := pre_whisker binswap_pair_functor str.
+
+<span class="kn">Definition</span> <span class="nf">actionbased_strength_from_relative_strength</span>: actionbased_strength Mon_W' UAct UAct F.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">ϛ'</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">red</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">intro</span> v.
+    <span class="nb">change</span> (str (monoidal_cat_unit Mon_W, v) · # F (# timesV (strong_monoidal_functor_ϵ_inv U #, id v) · lambda v) =
+            # timesV (strong_monoidal_functor_ϵ_inv U #, id F v) · lambda (F v)).
+    <span class="nb">rewrite</span> &lt;- pentagon.
+    <span class="nb">rewrite</span> assoc'. <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> actionbased_strength_pentagon_eq_fromvariant1.
+    <span class="nb">apply</span> actionbased_strength_pentagon_eq_variant2variant1.
+    <span class="nb">red</span>.
+    <span class="nb">intros</span> v w' w.
+    <span class="nb">unfold</span> ϛ', Mon_W', Mon_V', U'.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> is_z_isomorphism_mor, pre_whisker_on_nat_z_iso.
+    <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (Hyp := rectangle w w' v).
+    <span class="nb">fold</span> timesV.
+    <span class="nb">fold</span> timesW.
+    <span class="nb">fold</span> alpha.
+    <span class="nb">change</span> (str (timesW (w, w'), v)
+  · # F (# timesV (strong_monoidal_functor_μ_inv U (w, w') #, id v) · alpha ((U w, U w'), v)) =
+  # timesV (strong_monoidal_functor_μ_inv U (w, w') #, id F v) · alpha ((U w, U w'), F v)
+  · # timesV (# U (id w) #, str (w', v)) · str (w, timesV (U w', v))).
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> assoc.
+    <span class="bp">exact</span> Hyp.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">RelativeStrength_Is_An_ActionBasedStrength</span>.
+
+<span class="kn">Section</span> <span class="nf">ActionBasedStrength_Instantiates_To_RelativeStrength</span>.
+
+  <span class="kn">Context</span> (<span class="nv">F</span>: Mon_V ⟶ Mon_V) (<span class="nv">ab_str</span>: actionbased_strength Mon_W' UAct UAct F).
+
+  <span class="kn">Local Definition</span> <span class="nf">θ'</span> : rel_strength_nat F := pre_whisker binswap_pair_functor ab_str.
+
+  <span class="kn">Lemma</span> <span class="nf">relative_strength_from_actionbased_strength_laws</span> : rel_strength_pentagon_eq F θ' × rel_strength_rectangle_eq F θ'.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">red</span>.
+      <span class="nb">cbn</span>.
+      <span class="nb">intro</span> v.
+      <span class="nb">assert</span> (Hyp := ab_strength_triangle _ _ _ ab_str v).
+      <span class="nb">cbn</span> <span class="k">in</span> Hyp. <span class="nb">fold</span> timesV <span class="k">in</span> Hyp.
+      etrans.
+      <span class="mi">2</span>: <span class="bp">exact</span> Hyp.
+      <span class="nb">clear</span> Hyp.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> functor_comp.
+    - <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">intros</span> w w' v.
+      <span class="nb">assert</span> (Hyp := actionbased_strength_pentagon_eq_variant1variant2 _ _ _ _ ab_str
+                     (actionbased_strength_pentagon_eq_tovariant1 _ _ _ _ ab_str
+                                              (ab_strength_pentagon _ _ _ ab_str)) v w' w).
+      <span class="nb">cbn</span> <span class="k">in</span> Hyp.
+      <span class="nb">unfold</span> is_z_isomorphism_mor, pre_whisker_on_nat_z_iso <span class="k">in</span> Hyp.
+      <span class="nb">cbn</span> <span class="k">in</span> Hyp.
+      <span class="nb">unfold</span> is_z_isomorphism_mor.
+      <span class="nb">rewrite</span> functor_id <span class="k">in</span> Hyp.
+      <span class="nb">rewrite</span> functor_comp <span class="k">in</span> Hyp.
+      <span class="nb">rewrite</span> assoc <span class="k">in</span> Hyp.
+      <span class="bp">exact</span> Hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">relative_strength_from_actionbased_strength</span>: rel_strength F.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">θ'</span>.
+    <span class="bp">exact</span> relative_strength_from_actionbased_strength_laws.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ActionBasedStrength_Instantiates_To_RelativeStrength</span>.
+
+<span class="kn">End</span> <span class="nf">B</span>.
+
+<span class="kn">Arguments</span> ab_strength_triangle {_ _ _ _ _} _.
+<span class="kn">Arguments</span> ab_strength_pentagon {_ _ _ _ _} _.
+<span class="kn">Arguments</span> ab_strong_functor_strength {_ _ _ _} _.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/ActionBasedStrength.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   Added by Ralph Matthes in 2021: relative strength of Ahrens and Matthes defined and shown to be an instance of action-based strength, another general definition in the spirit of Janelidze and Kelly
+  &gt; **)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

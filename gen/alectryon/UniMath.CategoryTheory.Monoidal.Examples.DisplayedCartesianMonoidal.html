@@ -1,0 +1,1006 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisplayedCartesianMonoidal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+<span class="sd">Ralph Matthes</span>
+<span class="sd">2022</span>
+<span class="sd">*)</span>
+
+<span class="sd">(** **********************************************************</span>
+<span class="sd">Contents :</span>
+<span class="sd">- constructs a displayed monoidal category that is displayed over a cartesian monoidal category with the displayed tensor and displayed unit coming from displayed binary products and displayed terminal objects</span>
+<span class="sd"> ************************************************************)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Binproducts.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Import</span> DisplayedBifunctorNotations.
+
+<span class="kn">Section</span> <span class="nf">FixADisplayedCategory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">CP</span> : BinProducts C) (<span class="nv">terminal</span> : Terminal C)
+    (<span class="nv">D</span> : disp_cat C) (<span class="nv">dP</span> : dispBinProducts D CP) (<span class="nv">dterminal</span> : dispTerminal D terminal).
+
+  <span class="kn">Local Definition</span> <span class="nf">M</span> : monoidal C := cartesian_monoidal C CP terminal.
+
+  <span class="kn">Definition</span> <span class="nf">DCM_tensor_data</span> : disp_bifunctor_data M D D D.
+  <span class="kn">Proof</span>.
+    use make_disp_bifunctor_data.
+    - <span class="nb">intros</span> c d cc dd.
+      <span class="bp">exact</span> (dispBinProductObject D (CP c d) (dP c d cc dd)).
+    - <span class="nb">intros</span> c d1 d2 g cc dd1 dd2 gg.
+      <span class="bp">exact</span> (dispBinProductOfArrows _ _ _ (id_disp cc) gg).
+    - <span class="nb">intros</span> c1 c2 d f cc1 cc2 dd ff.
+      <span class="bp">exact</span> (dispBinProductOfArrows _ _ _ ff (id_disp dd)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DCM_tensor_laws</span> : is_disp_bifunctor M DCM_tensor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span>.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> dispBinProductOfArrows. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> dispBinProductArrowUnique.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">rewrite</span> id_left_disp.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> transport_b_b.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">apply</span> transportf_comp_lemma_hset;
+            <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">rewrite</span> id_left_disp.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> transport_b_b.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">apply</span> transportf_comp_lemma_hset;
+          <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> dispBinProductOfArrows. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> dispBinProductArrowUnique.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">rewrite</span> id_left_disp.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> transport_b_b.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">apply</span> transportf_comp_lemma_hset;
+            <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">rewrite</span> id_left_disp.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> transport_b_b.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">apply</span> transportf_comp_lemma_hset;
+          <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> dispBinProductOfArrows. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> dispBinProductArrowUnique.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> transport_b_b.
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        etrans; [| <span class="nb">apply</span> maponpaths, maponpaths, pathsinv0, dispBinProductPr1Commutes].
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> transport_b_b.
+        etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+        <span class="nb">apply</span> transportf_comp_lemma.
+        etrans; [| <span class="nb">apply</span> pathsinv0, dispBinProductPr1Commutes].
+        <span class="nb">rewrite</span> transport_b_b.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">apply</span> transportf_comp_lemma_hset;
+          <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        etrans; [| <span class="nb">apply</span> maponpaths, maponpaths, pathsinv0, dispBinProductPr2Commutes].
+        <span class="nb">apply</span> transportf_comp_lemma.
+        etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+        <span class="nb">apply</span> transportf_comp_lemma.
+        etrans; [| <span class="nb">rewrite</span> assoc_disp; <span class="nb">apply</span> idpath].
+        <span class="k">match goal with</span> | [ |- _ = transportb _ _ (<span class="nl">?auxH1</span> ;; gg2) ] =&gt; <span class="nb">set</span> (aux1 := auxH1) <span class="k">end</span>.
+        <span class="nb">assert</span> (H: aux1 = transportb (mor_disp (dispBinProductObject D (CP x y1) (dP x y1 xx yy1)) yy2)
+           (BinProductPr2Commutes C x y2 (CP x y2) (BinProductObject C (CP x y1))
+              (BinProductPr1 C (CP x y1) · identity x) (BinProductPr2 C (CP x y1) · g1))
+           (dispBinProductPr2 D (CP x y1) (dP x y1 xx yy1) ;; gg1)).
+        { <span class="nb">apply</span> dispBinProductPr2Commutes. }
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">unfold</span> transportb <span class="k">in</span> H.
+        etrans; [| <span class="nb">apply</span> pathsinv0, (cancel_postcomposition_disp gg2 H)].
+        <span class="nb">clear</span> aux1 H.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">apply</span> transportf_comp_lemma_hset;
+          <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> dispBinProductOfArrows. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> dispBinProductArrowUnique.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        etrans; [| <span class="nb">apply</span> maponpaths, maponpaths, pathsinv0, dispBinProductPr1Commutes].
+        <span class="nb">apply</span> transportf_comp_lemma.
+        etrans; [| <span class="nb">apply</span> pathsinv0,  mor_disp_transportf_prewhisker].
+        etrans; [| <span class="nb">rewrite</span> assoc_disp; <span class="nb">apply</span> idpath].
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="k">match goal with</span> | [ |- _ = transportf _ _ (<span class="nl">?auxH1</span> ;; ff2) ] =&gt; <span class="nb">set</span> (aux1 := auxH1) <span class="k">end</span>.
+        <span class="nb">assert</span> (H: aux1 = transportb (mor_disp (dispBinProductObject D (CP x1 y) (dP x1 y xx1 yy)) xx2)
+           (BinProductPr1Commutes C x2 y (CP x2 y) (BinProductObject C (CP x1 y))
+              (BinProductPr1 C (CP x1 y) · f1) (BinProductPr2 C (CP x1 y) · identity y))
+           (dispBinProductPr1 D (CP x1 y) (dP x1 y xx1 yy) ;; ff1)).
+        { <span class="nb">apply</span> dispBinProductPr1Commutes. }
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">unfold</span> transportb <span class="k">in</span> H.
+        etrans; [| <span class="nb">apply</span> pathsinv0, (cancel_postcomposition_disp ff2 H)].
+        <span class="nb">clear</span> aux1 H.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">apply</span> transportf_comp_lemma_hset;
+          <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> transport_b_b.
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        etrans; [| <span class="nb">apply</span> maponpaths, maponpaths, pathsinv0, dispBinProductPr2Commutes].
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">rewrite</span> transport_b_b.
+        etrans; [| <span class="nb">apply</span> pathsinv0,  mor_disp_transportf_prewhisker].
+        <span class="nb">apply</span> transportf_comp_lemma.
+        etrans; [| <span class="nb">apply</span> pathsinv0, dispBinProductPr2Commutes].
+        <span class="nb">rewrite</span> transport_b_b.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">apply</span> transportf_comp_lemma_hset;
+          <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> dispfunctoronmorphisms1, dispfunctoronmorphisms2,
+        disp_leftwhiskering_on_morphisms, disp_rightwhiskering_on_morphisms.
+      <span class="nb">cbn</span>. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> dispBinProductOfArrows_comp.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left_disp.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right_disp.
+      <span class="nb">rewrite</span> transport_b_b.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">unfold</span> dispBinProductOfArrows. <span class="nb">apply</span> dispBinProductArrowUnique.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        etrans; [<span class="nb">apply</span> maponpaths, dispBinProductPr1Commutes |].
+        <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+        etrans; [<span class="nb">apply</span> maponpaths, mor_disp_transportf_prewhisker |].
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        etrans; [<span class="nb">apply</span> maponpaths, dispBinProductPr2Commutes |].
+        <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+        etrans; [<span class="nb">apply</span> maponpaths, mor_disp_transportf_prewhisker |].
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DCM_tensor</span> : disp_tensor D M.
+  <span class="kn">Proof</span>.
+    use make_disp_bifunctor.
+    - <span class="bp">exact</span> DCM_tensor_data.
+    - <span class="bp">exact</span> DCM_tensor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DCM_unit</span> : D I_{ M} := dispTerminalObject _ dterminal.
+
+  <span class="kn">Definition</span> <span class="nf">DCM_leftunitor_data</span> : disp_leftunitor_data DCM_tensor DCM_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span>. <span class="nb">apply</span> dispBinProductPr2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DCM_leftunitorinv_data</span> : disp_leftunitorinv_data DCM_tensor DCM_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span>. <span class="nb">apply</span> dispBinProductArrow.
+    - <span class="nb">apply</span> dispTerminalArrow.
+    - <span class="nb">apply</span> id_disp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DCM_rightunitor_data</span> : disp_rightunitor_data DCM_tensor DCM_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span>. <span class="nb">apply</span> dispBinProductPr1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DCM_rightunitorinv_data</span> : disp_rightunitorinv_data DCM_tensor DCM_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span>. <span class="nb">apply</span> dispBinProductArrow.
+    - <span class="nb">apply</span> id_disp.
+    - <span class="nb">apply</span> dispTerminalArrow.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DCM_associator_data</span> : disp_associator_data DCM_tensor.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span>.
+    <span class="nb">apply</span> dispBinProductArrow.
+    + use comp_disp.
+      <span class="mi">2</span>: {<span class="nb">apply</span> dispBinProductPr1. }
+      <span class="nb">apply</span> dispBinProductPr1.
+    + <span class="nb">apply</span> dispBinProductArrow.
+      * use comp_disp.
+        <span class="mi">2</span>: {<span class="nb">apply</span> dispBinProductPr1. }
+        <span class="nb">apply</span> dispBinProductPr2.
+      * <span class="nb">apply</span> dispBinProductPr2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DCM_associatorinv_data</span> : disp_associatorinv_data DCM_tensor.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span>.
+    <span class="nb">apply</span> dispBinProductArrow.
+    + <span class="nb">apply</span> dispBinProductArrow.
+      * <span class="nb">apply</span> dispBinProductPr1.
+      * use comp_disp.
+        <span class="mi">2</span>: {<span class="nb">apply</span> dispBinProductPr2. }
+        <span class="nb">apply</span> dispBinProductPr1.
+    + use comp_disp.
+      <span class="mi">2</span>: {<span class="nb">apply</span> dispBinProductPr2. }
+      <span class="nb">apply</span> dispBinProductPr2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DCM_data</span> : disp_monoidal_data D M.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">DCM_tensor</span>. <span class="k">exists</span> <span class="nv">DCM_unit</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> DCM_leftunitor_data.
+    - <span class="bp">exact</span> DCM_leftunitorinv_data.
+    - <span class="bp">exact</span> DCM_rightunitor_data.
+    - <span class="bp">exact</span> DCM_rightunitorinv_data.
+    - <span class="bp">exact</span> DCM_associator_data.
+    - <span class="bp">exact</span> DCM_associatorinv_data.
+  <span class="kn">Defined</span>.
+
+<span class="c">(* Set Default Goal Selector "1". *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">DCM_leftunitor_law</span> : disp_leftunitor_law DCM_leftunitor_data DCM_leftunitorinv_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; [| <span class="nb">split</span>]; <span class="kp">try</span> <span class="nb">red</span>; <span class="nb">intros</span>.
+    - <span class="nb">cbn</span>.
+      etrans.
+      { <span class="nb">apply</span> dispBinProductOfArrowsPr2. }
+      <span class="nb">unfold</span> DCM_leftunitor_data.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> DCM_leftunitorinv_data, DCM_leftunitor_data.
+      <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> DCM_leftunitorinv_data, DCM_leftunitor_data.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="c">(* eapply (pathscomp0(b:=?[sh1])).</span>
+<span class="c">      Show sh1. *)</span>
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">simple refine</span> (dispBinProduct_endo_is_identity _ _ _ _ _ _ ?[shH1] _ ?[shH2] _). <span class="nb">shelve</span>. <span class="c">(* creates one shelved goal *)</span>
+           + <span class="nb">apply</span> dispTerminalArrowEq. <span class="c">(* resolves the shelved goal *)</span>
+           + <span class="nb">shelve</span>. <span class="c">(* creates one shelved goal *)</span>
+           + <span class="nb">rewrite</span> assoc_disp_var.
+             <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+             <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+             etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+             <span class="nb">rewrite</span> id_right_disp.
+             <span class="nb">rewrite</span> transport_f_b.
+             <span class="nb">apply</span> transportf_comp_lemma.
+             <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      <span class="kn">Unshelve</span>.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> BinProductPr2Commutes. <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">DCM_rightunitor_law</span> : disp_rightunitor_law DCM_rightunitor_data DCM_rightunitorinv_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; [| <span class="nb">split</span>]; <span class="kp">try</span> <span class="nb">red</span>; <span class="nb">intros</span>.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> DCM_rightunitor_data.
+      etrans; [<span class="nb">apply</span> dispBinProductOfArrowsPr1 |].
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> DCM_rightunitorinv_data, DCM_rightunitor_data.
+      <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> DCM_rightunitorinv_data, DCM_rightunitor_data.
+      <span class="nb">apply</span> pathsinv0.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">simple refine</span> (dispBinProduct_endo_is_identity _ _ _ _ _ _ ?[shH1] _ ?[shH2] _). <span class="nb">shelve</span>. <span class="c">(* creates one shelved goal *)</span>
+           <span class="c">(* Show shH1. *)</span>
+           + <span class="nb">rewrite</span> assoc_disp_var.
+             <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+             <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+             etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+             <span class="nb">rewrite</span> id_right_disp.
+             <span class="nb">rewrite</span> transport_f_b.
+             <span class="nb">apply</span> transportf_comp_lemma.
+             <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+           + <span class="nb">shelve</span>. <span class="c">(* creates one shelved goal *)</span>
+           + <span class="nb">apply</span> dispTerminalArrowEq. <span class="c">(* resolves second shelved goal *)</span>
+             <span class="c">(* Show shH1. *)</span>
+      }
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      <span class="kn">Unshelve</span>.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> BinProductPr1Commutes. <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+<span class="c">(* Export Set Default Goal Selector "!". *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">DCM_associator_law</span> : disp_associator_law DCM_associator_data DCM_associatorinv_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="kp">try</span> <span class="nb">red</span>; <span class="nb">intros</span>.
+    - <span class="nb">unfold</span> DCM_associator_data. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> dispPostcompWithBinProductArrow.
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      <span class="nb">apply</span> dispBinProductArrowUnique.
+      + <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> transport_b_b.
+        etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">rewrite</span> assoc_disp.
+        <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> transport_b_b.
+        etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_postwhisker].
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+        <span class="nb">rewrite</span> transport_f_f.
+        etrans; [<span class="nb">apply</span> maponpaths, mor_disp_transportf_prewhisker |].
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> dispPrecompWithBinProductArrow.
+        <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        <span class="nb">apply</span> dispBinProductArrowUnique.
+        * etrans; [ <span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          <span class="nb">rewrite</span> assoc_disp_var.
+          <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+          <span class="nb">rewrite</span> id_right_disp.
+          <span class="nb">rewrite</span> transport_b_b.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+          <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+          <span class="nb">rewrite</span> transport_f_b.
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          <span class="nb">rewrite</span> assoc_disp.
+          <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+          <span class="nb">rewrite</span> id_right_disp.
+          <span class="nb">rewrite</span> transport_b_b.
+          etrans; [| <span class="nb">apply</span> maponpaths, pathsinv0, mor_disp_transportf_postwhisker].
+          <span class="nb">rewrite</span> transport_b_f.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+        * etrans; [ <span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          <span class="nb">rewrite</span> assoc_disp_var.
+          <span class="nb">rewrite</span> dispBinProductOfArrowsPr2.
+          <span class="nb">rewrite</span> transport_f_b.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">rewrite</span> dispBinProductOfArrowsPr2.
+          etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">rewrite</span> assoc_disp.
+          <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+          etrans; [| <span class="nb">apply</span> maponpaths, pathsinv0, mor_disp_transportf_postwhisker].
+          <span class="nb">rewrite</span> transport_b_f.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> DCM_associator_data. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> dispPostcompWithBinProductArrow.
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      <span class="nb">apply</span> dispBinProductArrowUnique.
+      + <span class="nb">rewrite</span> dispPrecompWithBinProductArrow.
+        <span class="nb">rewrite</span> transport_f_b.
+        etrans; [ <span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+        <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        <span class="nb">rewrite</span> assoc_disp.
+        <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+        etrans; [| <span class="nb">apply</span> maponpaths, pathsinv0, mor_disp_transportf_postwhisker].
+        <span class="nb">rewrite</span> transport_b_f.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc_disp_var.
+             <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+             <span class="nb">rewrite</span> transport_f_f.
+             <span class="nb">unfold</span> transportb.
+             <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+             <span class="nb">rewrite</span> transport_f_f.
+             <span class="nb">rewrite</span> assoc_disp.
+             <span class="nb">rewrite</span> transport_f_b.
+             <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      + etrans; [ <span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+        <span class="nb">rewrite</span> transport_f_f.
+        etrans; [<span class="nb">apply</span> maponpaths, mor_disp_transportf_prewhisker |].
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> dispPrecompWithBinProductArrow.
+        <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        <span class="nb">apply</span> dispBinProductArrowUnique.
+        * <span class="nb">rewrite</span> id_right_disp.
+          <span class="nb">rewrite</span> transport_f_b.
+          etrans; [ <span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          <span class="nb">rewrite</span> assoc_disp.
+          <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+          etrans; [| <span class="nb">apply</span> maponpaths, pathsinv0, mor_disp_transportf_postwhisker].
+          <span class="nb">rewrite</span> transport_b_f.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">rewrite</span> assoc_disp_var.
+          <span class="nb">rewrite</span> dispBinProductOfArrowsPr2.
+          <span class="nb">rewrite</span> id_right_disp.
+          <span class="nb">rewrite</span> transport_b_b.
+          etrans; [| <span class="nb">apply</span> maponpaths, pathsinv0, mor_disp_transportf_prewhisker].
+          <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+        * etrans; [ <span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          <span class="nb">rewrite</span> assoc_disp_var.
+          <span class="nb">rewrite</span> dispBinProductOfArrowsPr2.
+          <span class="nb">rewrite</span> transport_f_b.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">rewrite</span> id_left_disp.
+          etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+          <span class="nb">rewrite</span> id_right_disp.
+          <span class="nb">rewrite</span> transport_f_b.
+          <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+          <span class="nb">rewrite</span> transport_f_b.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> DCM_associator_data. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> dispPostcompWithBinProductArrow.
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      <span class="nb">apply</span> dispBinProductArrowUnique.
+      + <span class="nb">rewrite</span> dispPrecompWithBinProductArrow.
+        <span class="nb">rewrite</span> transport_f_b.
+        etrans; [ <span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+        <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        <span class="nb">rewrite</span> assoc_disp.
+        <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+        etrans; [| <span class="nb">apply</span> maponpaths, pathsinv0, mor_disp_transportf_postwhisker].
+        <span class="nb">rewrite</span> transport_b_f.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc_disp_var.
+             <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+             <span class="nb">rewrite</span> transport_f_f.
+             <span class="nb">unfold</span> transportb.
+             <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+             <span class="nb">rewrite</span> transport_f_f.
+             <span class="nb">rewrite</span> id_right_disp.
+             <span class="nb">unfold</span> transportb.
+             <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+             <span class="nb">rewrite</span> transport_f_f.
+             <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+        <span class="nb">rewrite</span> transport_f_f.
+        etrans; [<span class="nb">apply</span> maponpaths, mor_disp_transportf_prewhisker |].
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> dispPrecompWithBinProductArrow.
+        <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        <span class="nb">apply</span> dispBinProductArrowUnique.
+        * etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          <span class="nb">rewrite</span> assoc_disp_var.
+          <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+          etrans; [| <span class="nb">apply</span> maponpaths, pathsinv0, mor_disp_transportf_prewhisker].
+          <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          etrans.
+          <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc_disp.
+               <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+               <span class="nb">unfold</span> transportb.
+               <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+               <span class="nb">rewrite</span> transport_f_f.
+               <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          etrans.
+          <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc_disp.
+               <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+               <span class="nb">apply</span> maponpaths.
+               <span class="nb">apply</span> pathsinv0, mor_disp_transportf_postwhisker.
+          }
+          <span class="nb">rewrite</span> transport_b_f.
+          etrans.
+          <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc_disp_var.
+               <span class="nb">rewrite</span> dispBinProductOfArrowsPr2.
+               <span class="nb">unfold</span> transportb.
+               <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+               <span class="nb">rewrite</span> transport_f_f.
+               <span class="nb">rewrite</span> assoc_disp.
+               <span class="nb">rewrite</span> transport_f_f.
+               <span class="nb">rewrite</span> transport_f_b.
+               <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+        * etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          <span class="nb">rewrite</span> assoc_disp_var.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> dispBinProductOfArrowsPr2.
+          <span class="nb">rewrite</span> transport_f_b.
+          <span class="nb">rewrite</span> id_right_disp.
+          <span class="nb">rewrite</span> transport_f_b.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+          <span class="nb">rewrite</span> id_right_disp.
+          etrans; [| <span class="nb">apply</span> maponpaths, pathsinv0, mor_disp_transportf_prewhisker].
+          <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+          <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">rewrite</span> transport_f_b.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> DCM_associator_data, DCM_associatorinv_data. <span class="nb">cbn</span>.
+      etrans.
+      { <span class="nb">apply</span> pathsinv0. <span class="nb">simple refine</span> (dispBinProduct_endo_is_identity _ _ _ _ _ _ ?[shH1] _ ?[shH2] _).
+        + <span class="nb">change</span> (αinv^{M}_{ x, y, z} · α^{M}_{ x, y, z} · BinProductPr1 C (CP x (y ⊗_{M} z)) = BinProductPr1 C (CP x (y ⊗_{M} z))). <span class="sd">(** it thus appears as intermediary result in Lemma [CartesianMonoidalCategoriesWhiskered.associator_law_from_binprod], but we reprove it here, analogously with the three other goals of this kind to come *)</span>
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">apply</span> BinProductPr1Commutes.
+        + <span class="nb">rewrite</span> assoc_disp_var.
+          <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+          etrans; [<span class="nb">apply</span> maponpaths, mor_disp_transportf_prewhisker |].
+          <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          <span class="nb">rewrite</span> assoc_disp.
+          <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+          <span class="nb">unfold</span> transportb.
+          <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+          <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+          <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">rewrite</span> transport_f_b.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+        + <span class="nb">change</span>( αinv^{M}_{ x, y, z} · α^{M}_{ x, y, z} · BinProductPr2 C (CP x (y ⊗_{M} z)) = BinProductPr2 C (CP x (y ⊗_{M} z))).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">rewrite</span> precompWithBinProductArrow.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">apply</span> pathsinv0, BinProductArrowUnique; <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> assoc_disp_var.
+          <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+          etrans; [<span class="nb">apply</span> maponpaths, mor_disp_transportf_prewhisker |].
+          <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          <span class="nb">rewrite</span> dispPrecompWithBinProductArrow.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">apply</span> dispBinProductArrowUnique.
+          * etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+            <span class="nb">apply</span> transportf_comp_lemma.
+            <span class="nb">rewrite</span> assoc_disp.
+            <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+            etrans; [| <span class="nb">apply</span> maponpaths, pathsinv0, mor_disp_transportf_postwhisker].
+            <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+            <span class="nb">rewrite</span> transport_b_f.
+            <span class="nb">rewrite</span> transport_f_b.
+            <span class="nb">apply</span> transportf_comp_lemma.
+            <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+          * etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+            <span class="nb">apply</span> transportf_comp_lemma.
+            <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+            <span class="nb">apply</span> transportf_comp_lemma.
+            <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> DCM_associator_data, DCM_associatorinv_data. <span class="nb">cbn</span>.
+      etrans.
+      { <span class="nb">apply</span> pathsinv0. <span class="nb">simple refine</span> (dispBinProduct_endo_is_identity _ _ _ _ _ _ ?[shH1] _ ?[shH2] _).
+        + <span class="nb">change</span> (α^{M}_{ x, y, z} · αinv^{M}_{ x, y, z} · BinProductPr1 C (CP (x ⊗_{M} y) z) = BinProductPr1 C (CP (x ⊗_{M} y) z)).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">rewrite</span> precompWithBinProductArrow.
+          <span class="nb">apply</span> pathsinv0, BinProductArrowUnique.
+          * <span class="nb">apply</span> pathsinv0, BinProductPr1Commutes.
+          * <span class="nb">rewrite</span> assoc.
+            <span class="nb">rewrite</span> BinProductPr2Commutes.
+            <span class="nb">apply</span> pathsinv0, BinProductPr1Commutes.
+        + <span class="nb">rewrite</span> assoc_disp_var.
+          <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+          <span class="nb">rewrite</span> dispPrecompWithBinProductArrow.
+          <span class="nb">rewrite</span> transport_f_b.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">apply</span> dispBinProductArrowUnique.
+          * etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+            <span class="nb">apply</span> transportf_comp_lemma.
+            <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+            <span class="nb">apply</span> transportf_comp_lemma.
+            <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+          * etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+            <span class="nb">apply</span> transportf_comp_lemma.
+            <span class="nb">rewrite</span> assoc_disp.
+            <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+            etrans; [| <span class="nb">apply</span> maponpaths, pathsinv0, mor_disp_transportf_postwhisker].
+            <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+            <span class="nb">rewrite</span> transport_b_f.
+            <span class="nb">rewrite</span> transport_f_b.
+            <span class="nb">apply</span> transportf_comp_lemma.
+            <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+        + <span class="nb">change</span> (α^{M}_{ x, y, z} · αinv^{M}_{ x, y, z} · BinProductPr2 C (CP (x ⊗_{M} y) z) = BinProductPr2 C (CP (x ⊗_{M} y) z)).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">apply</span> BinProductPr2Commutes.
+        + <span class="nb">rewrite</span> assoc_disp_var.
+          <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+          etrans; [<span class="nb">apply</span> maponpaths, mor_disp_transportf_prewhisker |].
+          <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          <span class="nb">rewrite</span> assoc_disp.
+          <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+          <span class="nb">unfold</span> transportb.
+          <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+          <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+          <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">rewrite</span> transport_f_b.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">DCM_triangle_identity</span> : disp_triangle_identity DCM_leftunitor_data DCM_rightunitor_data DCM_associator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span>.
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> DCM_associator_data.
+    <span class="nb">rewrite</span> dispPostcompWithBinProductArrow.
+    <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+    <span class="nb">apply</span> dispBinProductArrowUnique.
+    - etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      etrans; [| <span class="nb">apply</span> pathsinv0, dispBinProductOfArrowsPr1].
+      <span class="nb">unfold</span> DCM_rightunitor_data.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> id_right_disp.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      etrans; [| <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker].
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      etrans; [| <span class="nb">apply</span> pathsinv0, dispBinProductOfArrowsPr2].
+      <span class="nb">rewrite</span> id_right_disp.
+      <span class="nb">unfold</span> DCM_leftunitor_data.
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+      <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">DCM_pentagon_identity</span> : disp_pentagon_identity DCM_associator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span>.
+    <span class="nb">unfold</span> DCM_associator_data. <span class="nb">cbn</span>.
+    etrans; [<span class="nb">apply</span> assoc_disp_var |].
+    <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> dispPostcompWithBinProductArrow.
+         <span class="nb">rewrite</span> dispPrecompWithBinProductArrow.
+         <span class="nb">unfold</span> transportb.
+         <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker.
+    }
+    etrans; [| <span class="nb">apply</span> maponpaths, pathsinv0, dispPrecompWithBinProductArrow].
+    <span class="nb">rewrite</span> transport_f_b.
+    <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+    etrans; [| <span class="nb">apply</span> pathsinv0, dispPrecompWithBinProductArrow].
+    <span class="nb">apply</span> transportf_comp_lemma.
+    <span class="nb">apply</span> dispBinProductArrowUnique.
+    - etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+           <span class="nb">apply</span> maponpaths.
+           <span class="nb">rewrite</span> id_right_disp.
+           <span class="nb">unfold</span> transportb.
+           <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+           <span class="nb">apply</span> maponpaths.
+           <span class="nb">rewrite</span> assoc_disp.
+           <span class="nb">apply</span> maponpaths.
+           <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+           <span class="nb">unfold</span> transportb.
+           <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+           <span class="nb">apply</span> maponpaths.
+           <span class="nb">rewrite</span> assoc_disp_var.
+           <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+           <span class="nb">unfold</span> transportb.
+           <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+           <span class="nb">rewrite</span> assoc_disp.
+           <span class="nb">rewrite</span> transport_f_f.
+           <span class="nb">rewrite</span> transport_f_b.
+           <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> transport_b_f.
+      <span class="nb">rewrite</span> transport_f_b.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc_disp.
+           <span class="nb">apply</span> maponpaths.
+           <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+           <span class="nb">unfold</span> transportb.
+           <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+           <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> transport_b_f.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+           <span class="nb">apply</span> maponpaths.
+           <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+           <span class="nb">apply</span> maponpaths.
+           <span class="nb">apply</span> pathsinv0, dispPrecompWithBinProductArrow.
+      }
+      <span class="nb">rewrite</span> transport_b_f.
+      <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> dispBinProductArrowUnique.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">rewrite</span> dispPrecompWithBinProductArrow.
+             <span class="nb">unfold</span> transportb.
+             <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">rewrite</span> assoc_disp.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+             <span class="nb">unfold</span> transportb.
+             <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+             <span class="nb">apply</span> idpath.
+        }
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths. <span class="nb">rewrite</span> assoc_disp.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+             <span class="nb">unfold</span> transportb.
+             <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+             <span class="nb">apply</span> idpath.
+        }
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">rewrite</span> transport_b_f.
+             <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">rewrite</span> assoc_disp.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">rewrite</span> assoc_disp.
+             <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+             <span class="nb">unfold</span> transportb.
+             <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+             <span class="nb">rewrite</span> assoc_disp_var.
+             <span class="nb">rewrite</span> transport_f_f.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">rewrite</span> assoc_disp_var.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">rewrite</span> assoc_disp.
+             <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+             <span class="nb">unfold</span> transportb.
+             <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+             <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+             <span class="nb">rewrite</span> transport_f_f.
+             <span class="nb">rewrite</span> transport_f_b.
+             <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">rewrite</span> assoc_disp.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+      + etrans; [<span class="nb">apply</span> mor_disp_transportf_postwhisker |].
+        <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">rewrite</span> dispPrecompWithBinProductArrow.
+             <span class="nb">unfold</span> transportb.
+             <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+             <span class="nb">apply</span> idpath.
+        }
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> transport_f_b.
+        <span class="nb">apply</span> transportf_comp_lemma.
+        <span class="nb">apply</span> dispBinProductArrowUnique.
+        * <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          etrans.
+          <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc_disp_var.
+               <span class="nb">apply</span> maponpaths.
+               <span class="nb">apply</span> maponpaths.
+               <span class="nb">rewrite</span> assoc_disp_var.
+               <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+               <span class="nb">unfold</span> transportb.
+               <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+               <span class="nb">rewrite</span> transport_f_f.
+               <span class="nb">rewrite</span> assoc_disp.
+               <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+               <span class="nb">unfold</span> transportb.
+               <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+               <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> transport_f_f.
+               <span class="nb">apply</span> idpath.
+          }
+          etrans.
+          <span class="mi">2</span>: { <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+               <span class="nb">rewrite</span> transport_f_f.
+               <span class="nb">apply</span> idpath. }
+          <span class="nb">apply</span> transportf_comp_lemma.
+          etrans.
+          <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+               <span class="nb">rewrite</span> assoc_disp_var.
+               <span class="nb">apply</span> idpath. }
+          etrans.
+          <span class="mi">2</span>: { <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+               <span class="nb">apply</span> maponpaths.
+               <span class="nb">rewrite</span> assoc_disp.
+               <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+               <span class="nb">unfold</span> transportb.
+               <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+               <span class="nb">rewrite</span> transport_f_f.
+               <span class="nb">apply</span> maponpaths.
+               <span class="nb">rewrite</span> assoc_disp_var.
+               <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+               <span class="nb">rewrite</span> assoc_disp.
+               <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+               <span class="nb">unfold</span> transportb.
+               <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+               <span class="nb">rewrite</span> transport_f_f.
+               <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+               <span class="nb">rewrite</span> transport_f_b.
+               <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+        * <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+          <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+          etrans.
+          <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc_disp_var.
+               <span class="nb">apply</span> maponpaths.
+               <span class="nb">apply</span> maponpaths.
+               <span class="nb">rewrite</span> assoc_disp_var.
+               <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+               <span class="nb">unfold</span> transportb.
+               <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+               <span class="nb">rewrite</span> transport_f_f.
+               <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+               <span class="nb">rewrite</span> transport_f_b.
+               <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+          <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">apply</span> transportf_comp_lemma.
+          etrans.
+          <span class="mi">2</span>: { <span class="nb">rewrite</span> dispBinProductOfArrowsPr2.
+               <span class="nb">rewrite</span> id_right_disp.
+               <span class="nb">rewrite</span> transport_b_b.
+               <span class="nb">apply</span> idpath. }
+          <span class="nb">apply</span> transportf_comp_lemma.
+          <span class="nb">apply</span> transportf_comp_lemma_hset; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">DCM_laws</span> : disp_monoidal_laws DCM_data.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">DCM_leftunitor_law</span>.
+    <span class="k">exists</span> <span class="nv">DCM_rightunitor_law</span>.
+    <span class="k">exists</span> <span class="nv">DCM_associator_law</span>.
+    <span class="k">exists</span> <span class="nv">DCM_triangle_identity</span>.
+    <span class="bp">exact</span> DCM_pentagon_identity.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">displayedcartesianmonoidalcat</span>: disp_monoidal D M := DCM_data ,, DCM_laws.
+<span class="kn">End</span> <span class="nf">FixADisplayedCategory</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Examples/DisplayedCartesianMonoidal.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  ************************************************************)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

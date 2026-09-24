@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.AlgebraicTheories.Examples.EmptyPresheaf</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.AlgebraicTheories.Examples.EmptyPresheaf</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#"><span class="id" title="library">UniMath.AlgebraicTheories.AlgebraicTheories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.Presheaves.html#"><span class="id" title="library">UniMath.AlgebraicTheories.Presheaves</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab421"></a><h1 class="section">1. The empty presheaf</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="EmptyPresheaf" class="idref" href="#EmptyPresheaf"><span class="id" title="section">EmptyPresheaf</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="EmptyPresheaf.L" class="idref" href="#EmptyPresheaf.L"><span class="id" title="variable">L</span></a> : <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#algebraic_theory"><span class="id" title="definition">algebraic_theory</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="empty_presheaf_data" class="idref" href="#empty_presheaf_data"><span class="id" title="definition">empty_presheaf_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.Presheaves.html#presheaf_data"><span class="id" title="definition">presheaf_data</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.EmptyPresheaf.html#EmptyPresheaf.L"><span class="id" title="variable">L</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.AlgebraicTheories.Presheaves.html#make_presheaf_data"><span class="id" title="definition">make_presheaf_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Sets.html#make_hSet"><span class="id" title="definition">make_hSet</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#1dc2cb66c5ede645202bae131cc6745c"><span class="id" title="notation">∅</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isasetempty"><span class="id" title="lemma">isasetempty</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">m</span> <span class="id" title="var">n</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="empty_is_presheaf" class="idref" href="#empty_is_presheaf"><span class="id" title="lemma">empty_is_presheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.Presheaves.html#is_presheaf"><span class="id" title="definition">is_presheaf</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.EmptyPresheaf.html#empty_presheaf_data"><span class="id" title="definition">empty_presheaf_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.AlgebraicTheories.Presheaves.html#make_is_presheaf"><span class="id" title="definition">make_is_presheaf</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#fromempty"><span class="id" title="definition">fromempty</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="empty_presheaf" class="idref" href="#empty_presheaf"><span class="id" title="definition">empty_presheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.Presheaves.html#presheaf"><span class="id" title="definition">presheaf</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.EmptyPresheaf.html#EmptyPresheaf.L"><span class="id" title="variable">L</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.AlgebraicTheories.Presheaves.html#make_presheaf"><span class="id" title="definition">make_presheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.AlgebraicTheories.Examples.EmptyPresheaf.html#empty_presheaf_data"><span class="id" title="definition">empty_presheaf_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.AlgebraicTheories.Examples.EmptyPresheaf.html#empty_is_presheaf"><span class="id" title="lemma">empty_is_presheaf</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.AlgebraicTheories.Examples.EmptyPresheaf.html#EmptyPresheaf"><span class="id" title="section">EmptyPresheaf</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

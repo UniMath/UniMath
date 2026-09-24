@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Terminal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Terminal object defined as a limit *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">def_terminal</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+<span class="kn">Definition</span> <span class="nf">empty_graph</span> : graph.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">empty</span>.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">termDiagram</span> : diagram empty_graph C.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> <span class="nv">fromempty</span>.
+<span class="nb">intros</span> u; <span class="nb">induction</span> u.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">termCone</span> (<span class="nv">c</span> : C) : cone termDiagram c.
+<span class="kn">Proof</span>.
+use make_cone; <span class="nb">intro</span> v; <span class="nb">induction</span> v.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isTerminal</span> (<span class="nv">a</span> : C) :=
+  isLimCone termDiagram a (termCone a).
+
+<span class="kn">Definition</span> <span class="nf">make_isTerminal</span> (<span class="nv">b</span> : C) (<span class="nv">H</span> : ∏ (a : C), iscontr (a --&gt; b)) :
+  isTerminal b.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> a ca.
+use tpair.
+- <span class="k">exists</span> (<span class="nv">pr1</span> (H a)); <span class="nb">intro</span> v; <span class="nb">induction</span> v.
+- <span class="nb">intro</span> t.
+  <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>;
+    [ <span class="nb">intro</span> f; <span class="nb">apply</span> impred; <span class="nb">intro</span> v; <span class="nb">induction</span> v|].
+  <span class="nb">apply</span> (pr2 (H a)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Terminal</span> : UU := LimCone termDiagram.
+<span class="c">(* Definition Terminal := total2 (λ a, isTerminal a). *)</span>
+
+<span class="kn">Definition</span> <span class="nf">make_Terminal</span> (<span class="nv">b</span> : C) (<span class="nv">H</span> : isTerminal b) : Terminal.
+<span class="kn">Proof</span>.
+use (make_LimCone _ b (termCone b)).
+<span class="nb">apply</span> make_isTerminal.
+<span class="nb">intro</span> a.
+<span class="nb">set</span> (x := H a (termCone a)).
+use tpair.
+- <span class="nb">apply</span> (pr1 x).
+- <span class="nb">simpl</span>; <span class="nb">intro</span> f; <span class="nb">apply</span> path_to_ctr; <span class="nb">intro</span> v; <span class="nb">induction</span> v.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">TerminalObject</span> (<span class="nv">T</span> : Terminal) : C := lim T.
+<span class="c">(* Coercion TerminalObject : Terminal &gt;-&gt; ob. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">TerminalArrow</span> (<span class="nv">T</span> : Terminal) (<span class="nv">b</span> : C) : C⟦b,TerminalObject T⟧ :=
+  limArrow _ _ (termCone b).
+
+<span class="kn">Lemma</span> <span class="nf">TerminalArrowUnique</span> (<span class="nv">T</span> : Terminal) (<span class="nv">b</span> : C)
+  (<span class="nv">f</span> : C⟦b,TerminalObject T⟧) : f = TerminalArrow T _.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> limArrowUnique; <span class="nb">intro</span> v; <span class="nb">induction</span> v.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ArrowsToTerminal</span> (<span class="nv">T</span> : Terminal) (<span class="nv">b</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : C⟦b,TerminalObject T⟧) : f = g.
+<span class="kn">Proof</span>.
+<span class="nb">eapply</span> pathscomp0.
+<span class="nb">apply</span> TerminalArrowUnique.
+<span class="bp">now</span> <span class="nb">apply</span> pathsinv0, TerminalArrowUnique.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">TerminalEndo_is_identity</span> (<span class="nv">T</span> : Terminal) (<span class="nv">f</span> : C⟦TerminalObject T,TerminalObject T⟧) :
+  identity (TerminalObject T) = f.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> ArrowsToTerminal.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isiso_from_Terminal_to_Terminal</span> (<span class="nv">T</span> <span class="nv">T'</span> : Terminal) :
+   is_iso (TerminalArrow T (TerminalObject T')).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (is_iso_qinv _ (TerminalArrow T' (TerminalObject T))).
+  <span class="nb">split</span>; <span class="nb">apply</span> pathsinv0, TerminalEndo_is_identity.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_Terminals</span> (<span class="nv">T</span> <span class="nv">T'</span> : Terminal) : iso (TerminalObject T) (TerminalObject T') :=
+   tpair _ (TerminalArrow T' (TerminalObject T)) (isiso_from_Terminal_to_Terminal T' T) .
+
+<span class="kn">Definition</span> <span class="nf">hasTerminal</span> := ishinh Terminal.
+
+<span class="c">(* TODO: This should be an instance of a general result for limits *)</span>
+<span class="c">(* Section Terminal_Unique. *)</span>
+
+<span class="c">(* Hypothesis H : is_univalent C. *)</span>
+
+<span class="c">(* Lemma isaprop_Terminal : isaprop Terminal. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(*   apply invproofirrelevance. *)</span>
+<span class="c">(*   intros T T'. *)</span>
+<span class="c">(*   apply (total2_paths_f (isotoid _ H (iso_Terminals T T')) ). *)</span>
+<span class="c">(*   apply proofirrelevance. *)</span>
+<span class="c">(*   unfold isTerminal. *)</span>
+<span class="c">(*   apply impred. *)</span>
+<span class="c">(*   intro t ; apply isapropiscontr. *)</span>
+<span class="c">(* Qed. *)</span>
+
+<span class="c">(* End Terminal_Unique. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isTerminal_Terminal</span> (<span class="nv">T</span> : Terminal) :
+  isTerminal (TerminalObject T).
+<span class="kn">Proof</span>.
+  use make_isTerminal.
+  <span class="nb">intros</span> a.
+  use tpair.
+  - <span class="bp">exact</span> (TerminalArrow T a).
+  - <span class="nb">intros</span> t. use (TerminalArrowUnique T a).
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** ** Maps between terminal as a special limit and direct definition *)</span>
+<span class="kn">Lemma</span> <span class="nf">equiv_isTerminal1</span> (<span class="nv">c</span> : C) :
+  Limits.Terminal.isTerminal C c -&gt; isTerminal c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  use make_isTerminal.
+  <span class="nb">intros</span> b.
+  <span class="nb">apply</span> (X b).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">equiv_isTerminal2</span> (<span class="nv">c</span> : C) :
+  Limits.Terminal.isTerminal C c &lt;- isTerminal c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  <span class="nb">set</span> (XT := make_Terminal c X).
+  <span class="nb">intros</span> b.
+  use tpair.
+  - <span class="bp">exact</span> (TerminalArrow XT b).
+  - <span class="nb">intros</span> t. use (TerminalArrowUnique XT b).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">equiv_Terminal1</span> :
+  Limits.Terminal.Terminal C -&gt; Terminal.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> T.
+  <span class="bp">exact</span> (make_Terminal T (equiv_isTerminal1 _ (pr2 T))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">equiv_Terminal2</span> :
+  Limits.Terminal.Terminal C &lt;- Terminal.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> T.
+  <span class="bp">exact</span> (Limits.Terminal.make_Terminal
+           (TerminalObject T)
+           (equiv_isTerminal2 _ (isTerminal_Terminal T))).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">def_terminal</span>.
+
+<span class="kn">Arguments</span> Terminal : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> isTerminal : <span class="kn">clear implicits</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Terminal_from_Lims</span> (<span class="nv">C</span> : category) :
+  Lims_of_shape empty_graph  C -&gt; Terminal C.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> H; <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Graphs/Terminal.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** Terminal object defined as a limit *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Semantics.EnrichedEffectCalculus.EECModel</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Semantics.EnrichedEffectCalculus.EECModel</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Adjunctions.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#"><span class="id" title="library">UniMath.CategoryTheory.Exponentials</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Cartesian.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Cartesian</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Symmetric</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Closed</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Enrichment</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentAdjunction.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.EnrichmentAdjunction</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedTerminal.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedTerminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedBinaryProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedBinaryProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedPowers.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedPowers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedInitial.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedInitial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedBinaryCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedBinaryCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCopowers.html#"><span class="id" title="library">UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCopowers</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. Definition of models of the enriched calculus
+ 
+<div class="paragraph"> </div>
+
+
+<div class="paragraph"> </div>
+
+ 1.1. Model of the enriched effect calculus
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="eec_model" class="idref" href="#eec_model"><span class="id" title="definition">eec_model</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="VC:1" class="idref" href="#VC:1"><span class="id" title="binder">VC</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="TV:2" class="idref" href="#TV:2"><span class="id" title="binder">TV</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#Terminal"><span class="id" title="definition">Terminal</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#VC:1"><span class="id" title="variable">VC</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="VP:3" class="idref" href="#VP:3"><span class="id" title="binder">VP</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProducts"><span class="id" title="definition">BinProducts</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#VC:1"><span class="id" title="variable">VC</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="expV:4" class="idref" href="#expV:4"><span class="id" title="binder">expV</span></a> : <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#Exponentials"><span class="id" title="definition">Exponentials</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#VP:3"><span class="id" title="variable">VP</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="V:5" class="idref" href="#V:5"><span class="id" title="binder">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Closed.html#sym_mon_closed_cat"><span class="id" title="definition">sym_mon_closed_cat</span></a> := <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.html#sym_mon_closed_cartesian_cat"><span class="id" title="definition">sym_mon_closed_cartesian_cat</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#VC:1"><span class="id" title="variable">VC</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#VP:3"><span class="id" title="variable">VP</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#TV:2"><span class="id" title="variable">TV</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#expV:4"><span class="id" title="variable">expV</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:6" class="idref" href="#C:6"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="EC:7" class="idref" href="#EC:7"><span class="id" title="binder">EC</span></a> : <a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Enrichment.html#enrichment"><span class="id" title="definition">enrichment</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#C:6"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#V:5"><span class="id" title="variable">V</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.EnrichedCats.EnrichmentAdjunction.html#enriched_adjunction"><span class="id" title="definition">enriched_adjunction</span></a> (<a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.html#self_enrichment"><span class="id" title="definition">self_enrichment</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#V:5"><span class="id" title="variable">V</span></a>) <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#EC:7"><span class="id" title="variable">EC</span></a><a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedTerminal.html#terminal_enriched"><span class="id" title="definition">terminal_enriched</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#EC:7"><span class="id" title="variable">EC</span></a><a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedInitial.html#initial_enriched"><span class="id" title="definition">initial_enriched</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#EC:7"><span class="id" title="variable">EC</span></a><a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedPowers.html#enrichment_power"><span class="id" title="definition">enrichment_power</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#EC:7"><span class="id" title="variable">EC</span></a><a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCopowers.html#enrichment_copower"><span class="id" title="definition">enrichment_copower</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#EC:7"><span class="id" title="variable">EC</span></a><a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedBinaryProducts.html#enrichment_binary_prod"><span class="id" title="definition">enrichment_binary_prod</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#EC:7"><span class="id" title="variable">EC</span></a><a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedBinaryCoproducts.html#enrichment_binary_coprod"><span class="id" title="definition">enrichment_binary_coprod</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#EC:7"><span class="id" title="variable">EC</span></a><a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">)</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1.2. Model of the enriched effect calculus with additives
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="eec_plus_model" class="idref" href="#eec_plus_model"><span class="id" title="definition">eec_plus_model</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="M:8" class="idref" href="#M:8"><span class="id" title="binder">M</span></a> : <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#eec_model"><span class="id" title="definition">eec_model</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#M:8"><span class="id" title="variable">M</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#BinCoproducts"><span class="id" title="definition">BinCoproducts</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#M:8"><span class="id" title="variable">M</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Coercion</span> <a id="eec_plus_model_to_eec_model" class="idref" href="#eec_plus_model_to_eec_model"><span class="id" title="definition">eec_plus_model_to_eec_model</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="E:9" class="idref" href="#E:9"><span class="id" title="binder">E</span></a> : <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#eec_plus_model"><span class="id" title="definition">eec_plus_model</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#eec_model"><span class="id" title="definition">eec_model</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Semantics.EnrichedEffectCalculus.EECModel.html#E:9"><span class="id" title="variable">E</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

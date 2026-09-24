@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OpDoubleCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(************************************************************************************</span>
+
+<span class="sd"> The opposite of double categories</span>
+
+<span class="sd"> Every double category gives rise to multiple opposite double categories. The first</span>
+<span class="sd"> one is given by the vertical opposite. Here we reverse the vertical morphisms. The</span>
+<span class="sd"> second one is given by the horizontal opposite where we reverse the horizontal</span>
+<span class="sd"> morphisms. In this file we construct these double categories.</span>
+
+<span class="sd"> One technical aspect to note about the construction: at several points, we need to</span>
+<span class="sd"> prove a coherence, like the triangle law or pentagon law. See, for instance,</span>
+<span class="sd"> [ver_opposite_double_cat_triangle]. To do so, we use the underlying horizontal</span>
+<span class="sd"> bicategory and we reuse that certain coherences already hold for bicategories. This</span>
+<span class="sd"> allows us to deduce them for double categories as well.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Vertical opposites of double categories</span>
+<span class="sd"> 1.1. Horizontal identity in the vertical opposite</span>
+<span class="sd"> 1.2. Horizontal composition in the vertical opposite</span>
+<span class="sd"> 1.3. Unitors and associators</span>
+<span class="sd"> 1.4. Triangle and pentagon</span>
+<span class="sd"> 1.5. The vertical opposite</span>
+<span class="sd"> 2. Horizontal opposites of double categories</span>
+<span class="sd"> 2.1. Horizontal identity in the horizontal opposite</span>
+<span class="sd"> 2.2. Horizontal composition in the horizontal opposite</span>
+<span class="sd"> 2.3. Unitors and associators</span>
+<span class="sd"> 2.4. Triangle and pentagon</span>
+<span class="sd"> 2.5. The horizontal opposite</span>
+
+<span class="sd"> ************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Opposites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DerivedLaws.TransportLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DerivedLaws.Variations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Underlying.HorizontalBicategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="sd">(** * 1. Vertical opposites of double categories *)</span>
+<span class="kn">Section</span> <span class="nf">VerOpposite</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : double_cat).
+
+  <span class="sd">(** * 1.1. Horizontal identity in the vertical opposite *)</span>
+  <span class="kn">Definition</span> <span class="nf">hor_id_ver_opposite_double_cat_data</span>
+    : hor_id_data (ver_op_twosided_disp_cat (hor_mor C)).
+  <span class="kn">Proof</span>.
+    use make_hor_id_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> : C), identity_h x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : y --&gt;v x), id_h_square f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hor_id_ver_opposite_double_cat_laws</span>
+    : hor_id_laws hor_id_ver_opposite_double_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> id_h_square_id.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> id_h_square_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_id_ver_opposite_double_cat</span>
+    : hor_id (ver_op_twosided_disp_cat (hor_mor C)).
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - <span class="bp">exact</span> hor_id_ver_opposite_double_cat_data.
+    - <span class="bp">exact</span> hor_id_ver_opposite_double_cat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 1.2. Horizontal composition in the vertical opposite *)</span>
+  <span class="kn">Definition</span> <span class="nf">hor_comp_ver_opposite_double_cat_data</span>
+    : hor_comp_data (ver_op_twosided_disp_cat (hor_mor C)).
+  <span class="kn">Proof</span>.
+    use make_hor_comp_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) (<span class="nv">h</span> : x --&gt;h y) (<span class="nv">k</span> : y --&gt;h z), h ·h k).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C)
+               (<span class="nv">v₁</span> : x₂ --&gt;v x₁)
+               (<span class="nv">v₂</span> : y₂ --&gt;v y₁)
+               (<span class="nv">v₃</span> : z₂ --&gt;v z₁)
+               (<span class="nv">h₁</span> : x₁ --&gt;h y₁)
+               (<span class="nv">h₂</span> : y₁ --&gt;h z₁)
+               (<span class="nv">k₁</span> : x₂ --&gt;h y₂)
+               (<span class="nv">k₂</span> : y₂ --&gt;h z₂)
+               (<span class="nv">s₁</span> : square v₁ v₂ k₁ h₁)
+               (<span class="nv">s₂</span> : square v₂ v₃ k₂ h₂),
+             s₁ ⋆h s₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hor_comp_ver_opposite_double_cat_laws</span>
+    : hor_comp_laws hor_comp_ver_opposite_double_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> comp_h_square_id.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> comp_h_square_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_comp_ver_opposite_double_cat</span>
+    : hor_comp (ver_op_twosided_disp_cat (hor_mor C)).
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - <span class="bp">exact</span> hor_comp_ver_opposite_double_cat_data.
+    - <span class="bp">exact</span> hor_comp_ver_opposite_double_cat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 1.3. Unitors and associators *)</span>
+  <span class="kn">Definition</span> <span class="nf">ver_opposite_double_cat_lunitor_data</span>
+    : double_lunitor_data
+        hor_id_ver_opposite_double_cat
+        hor_comp_ver_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">h</span> : x --&gt;h y), _).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (linvunitor_h h).
+    - use to_iso_ver_op_twosided_disp_cat.
+      <span class="nb">refine</span> (lunitor_h h ,, _ ,, _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> linvunitor_lunitor_h).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> lunitor_linvunitor_h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ver_opposite_double_cat_lunitor_laws</span>
+    : double_lunitor_laws ver_opposite_double_cat_lunitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ !(linvunitor_square _)).
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ver_opposite_double_cat_lunitor</span>
+    : double_cat_lunitor
+        hor_id_ver_opposite_double_cat
+        hor_comp_ver_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="bp">exact</span> ver_opposite_double_cat_lunitor_data.
+    - <span class="bp">exact</span> ver_opposite_double_cat_lunitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ver_opposite_double_cat_runitor_data</span>
+    : double_runitor_data
+        hor_id_ver_opposite_double_cat
+        hor_comp_ver_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">h</span> : x --&gt;h y), _).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (rinvunitor_h h).
+    - use to_iso_ver_op_twosided_disp_cat.
+      <span class="nb">refine</span> (runitor_h h ,, _ ,, _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> rinvunitor_runitor_h).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> runitor_rinvunitor_h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ver_opposite_double_cat_runitor_laws</span>
+    : double_runitor_laws ver_opposite_double_cat_runitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ !(rinvunitor_square _)).
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ver_opposite_double_cat_runitor</span>
+    : double_cat_runitor
+        hor_id_ver_opposite_double_cat
+        hor_comp_ver_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="bp">exact</span> ver_opposite_double_cat_runitor_data.
+    - <span class="bp">exact</span> ver_opposite_double_cat_runitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ver_opposite_double_cat_associator_data</span>
+    : double_associator_data
+        hor_comp_ver_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) (<span class="nv">h₁</span> : w --&gt;h x) (<span class="nv">h₂</span> : x --&gt;h y) (<span class="nv">h₃</span> : y --&gt;h z), _).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (rassociator_h h₁ h₂ h₃).
+    - use to_iso_ver_op_twosided_disp_cat.
+      <span class="nb">refine</span> (lassociator_h h₁ h₂ h₃ ,, _ ,, _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> rassociator_lassociator_h).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> lassociator_rassociator_h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ver_opposite_double_cat_associator_laws</span>
+    : double_associator_laws ver_opposite_double_cat_associator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">refine</span> (_ @ !(rassociator_square _ _ _)).
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ver_opposite_double_cat_associator</span>
+    : double_cat_associator
+        hor_comp_ver_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="bp">exact</span> ver_opposite_double_cat_associator_data.
+    - <span class="bp">exact</span> ver_opposite_double_cat_associator_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 1.4. Triangle and pentagon *)</span>
+  <span class="kn">Proposition</span> <span class="nf">ver_opposite_double_cat_triangle</span>
+    : triangle_law
+        ver_opposite_double_cat_lunitor
+        ver_opposite_double_cat_runitor
+        ver_opposite_double_cat_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (triangle_r_inv (C := horizontal_bicat C) k h) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !comp_h_square_id <span class="k">in</span> p.
+    <span class="nb">rewrite</span> square_id_left_v <span class="k">in</span> p.
+    <span class="nb">rewrite</span> square_id_right_v <span class="k">in</span> p.
+    <span class="nb">unfold</span> transportb_square <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transportf_f_square <span class="k">in</span> p.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">refine</span> (_ @ maponpaths (transportb_square (id_v_left _) (id_v_left _)) p @ _).
+    - <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> !transportf_square_prewhisker.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ver_opposite_double_cat_pentagon</span>
+    : pentagon_law ver_opposite_double_cat_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v w x y z h₁ h₂ h₃ h₄ ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (rassociator_rassociator (C := horizontal_bicat C) h₁ h₂ h₃ h₄) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">refine</span> (_
+            @ maponpaths
+                (transportb_square
+                   (id_v_left _ @ id_v_left _)
+                   (id_v_left _ @ id_v_left _))
+                (!p)
+            @ _).
+    - <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> square_assoc_v'.
+      }
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 1.5. The vertical opposite *)</span>
+  <span class="kn">Definition</span> <span class="nf">ver_opposite_double_cat</span>
+    : double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_cat.
+    - <span class="bp">exact</span> C^op.
+    - <span class="bp">exact</span> (ver_op_twosided_disp_cat (hor_mor C)).
+    - <span class="bp">exact</span> hor_id_ver_opposite_double_cat.
+    - <span class="bp">exact</span> hor_comp_ver_opposite_double_cat.
+    - <span class="bp">exact</span> ver_opposite_double_cat_lunitor.
+    - <span class="bp">exact</span> ver_opposite_double_cat_runitor.
+    - <span class="bp">exact</span> ver_opposite_double_cat_associator.
+    - <span class="bp">exact</span> ver_opposite_double_cat_triangle.
+    - <span class="bp">exact</span> ver_opposite_double_cat_pentagon.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_flat_ver_opposite_double_cat</span>
+              (<span class="nv">H</span> : is_flat_double_cat C)
+    : is_flat_double_cat ver_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">VerOpposite</span>.
+
+<span class="kn">Definition</span> <span class="nf">ver_opposite_univalent_double_cat</span>
+           (<span class="nv">C</span> : univalent_double_cat)
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_univalent_double_cat.
+  - <span class="bp">exact</span> (ver_opposite_double_cat C).
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> op_is_univalent.
+    + <span class="nb">apply</span> is_univalent_ver_op_twosided_disp_cat.
+      <span class="nb">apply</span> is_univalent_twosided_disp_cat_hor_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ver_opposite_pseudo_double_set_cat</span>
+           (<span class="nv">C</span> : pseudo_double_setcat)
+  : pseudo_double_setcat.
+<span class="kn">Proof</span>.
+  use make_pseudo_double_setcat.
+  - <span class="bp">exact</span> (ver_opposite_double_cat C).
+  - <span class="nb">apply</span> opp_setcategory.
+  - <span class="nb">apply</span> is_strict_ver_op_twosided_disp_cat.
+    <span class="nb">apply</span> is_strict_twosided_disp_cat_hor_mor.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Horizontal opposites of double categories *)</span>
+<span class="kn">Section</span> <span class="nf">HorOpposite</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : double_cat).
+
+  <span class="sd">(** * 2.1. Horizontal identity in the horizontal opposite *)</span>
+  <span class="kn">Definition</span> <span class="nf">hor_id_hor_opposite_double_cat_data</span>
+    : hor_id_data (hor_op_twosided_disp_cat (hor_mor C)).
+  <span class="kn">Proof</span>.
+    use make_hor_id_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> : C), identity_h x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : x --&gt;v y), id_h_square f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hor_id_hor_opposite_double_cat_laws</span>
+    : hor_id_laws hor_id_hor_opposite_double_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> id_h_square_id.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> id_h_square_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_id_hor_opposite_double_cat</span>
+    : hor_id (hor_op_twosided_disp_cat (hor_mor C)).
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - <span class="bp">exact</span> hor_id_hor_opposite_double_cat_data.
+    - <span class="bp">exact</span> hor_id_hor_opposite_double_cat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2.2. Horizontal composition in the horizontal opposite *)</span>
+  <span class="kn">Definition</span> <span class="nf">hor_comp_hor_opposite_double_cat_data</span>
+    : hor_comp_data (hor_op_twosided_disp_cat (hor_mor C)).
+  <span class="kn">Proof</span>.
+    use make_hor_comp_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) (<span class="nv">h</span> : y --&gt;h x) (<span class="nv">k</span> : z --&gt;h y), k ·h h).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C)
+               (<span class="nv">v₁</span> : x₁ --&gt;v x₂)
+               (<span class="nv">v₂</span> : y₁ --&gt;v y₂)
+               (<span class="nv">v₃</span> : z₁ --&gt;v z₂)
+               (<span class="nv">h₁</span> : y₁ --&gt;h x₁)
+               (<span class="nv">h₂</span> : z₁ --&gt;h y₁)
+               (<span class="nv">k₁</span> : y₂ --&gt;h x₂)
+               (<span class="nv">k₂</span> : z₂ --&gt;h y₂)
+               (<span class="nv">s₁</span> : square v₂ v₁ h₁ k₁)
+               (<span class="nv">s₂</span> : square v₃ v₂ h₂ k₂),
+             s₂ ⋆h s₁).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hor_comp_hor_opposite_double_cat_laws</span>
+    : hor_comp_laws hor_comp_hor_opposite_double_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> comp_h_square_id.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> comp_h_square_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_comp_hor_opposite_double_cat</span>
+    : hor_comp (hor_op_twosided_disp_cat (hor_mor C)).
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - <span class="bp">exact</span> hor_comp_hor_opposite_double_cat_data.
+    - <span class="bp">exact</span> hor_comp_hor_opposite_double_cat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2.3. Unitors and associators *)</span>
+  <span class="kn">Definition</span> <span class="nf">hor_opposite_double_cat_lunitor_data</span>
+    : double_lunitor_data
+        hor_id_hor_opposite_double_cat
+        hor_comp_hor_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">h</span> : y --&gt;h x), _).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (runitor_h h).
+    - use to_iso_hor_op_twosided_disp_cat.
+      <span class="nb">refine</span> (rinvunitor_h h ,, _ ,, _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> runitor_rinvunitor_h).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> rinvunitor_runitor_h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hor_opposite_double_cat_lunitor_laws</span>
+    : double_lunitor_laws hor_opposite_double_cat_lunitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ !(runitor_square _)).
+    <span class="nb">rewrite</span> transportb_disp_mor2_hor_op.
+    use transportb_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_opposite_double_cat_lunitor</span>
+    : double_cat_lunitor
+        hor_id_hor_opposite_double_cat
+        hor_comp_hor_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="bp">exact</span> hor_opposite_double_cat_lunitor_data.
+    - <span class="bp">exact</span> hor_opposite_double_cat_lunitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_opposite_double_cat_runitor_data</span>
+    : double_runitor_data
+        hor_id_hor_opposite_double_cat
+        hor_comp_hor_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">h</span> : y --&gt;h x), _).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (lunitor_h h).
+    - use to_iso_hor_op_twosided_disp_cat.
+      <span class="nb">refine</span> (linvunitor_h h ,, _ ,, _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> lunitor_linvunitor_h).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> linvunitor_lunitor_h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hor_opposite_double_cat_runitor_laws</span>
+    : double_runitor_laws hor_opposite_double_cat_runitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ !(lunitor_square _)).
+    <span class="nb">rewrite</span> transportb_disp_mor2_hor_op.
+    use transportb_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_opposite_double_cat_runitor</span>
+    : double_cat_runitor
+        hor_id_hor_opposite_double_cat
+        hor_comp_hor_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="bp">exact</span> hor_opposite_double_cat_runitor_data.
+    - <span class="bp">exact</span> hor_opposite_double_cat_runitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_opposite_double_cat_associator_data</span>
+    : double_associator_data
+        hor_comp_hor_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) (<span class="nv">h₁</span> : x --&gt;h w) (<span class="nv">h₂</span> : y --&gt;h x) (<span class="nv">h₃</span> : z --&gt;h y), _).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (rassociator_h h₃ h₂ h₁).
+    - use to_iso_hor_op_twosided_disp_cat.
+      <span class="nb">refine</span> (lassociator_h h₃ h₂ h₁ ,, _ ,, _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> rassociator_lassociator_h).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> lassociator_rassociator_h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hor_opposite_double_cat_associator_laws</span>
+    : double_associator_laws hor_opposite_double_cat_associator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">refine</span> (_ @ rassociator_square' _ _ _).
+    <span class="nb">rewrite</span> transportb_disp_mor2_hor_op.
+    use transportb_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_opposite_double_cat_associator</span>
+    : double_cat_associator
+        hor_comp_hor_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="bp">exact</span> hor_opposite_double_cat_associator_data.
+    - <span class="bp">exact</span> hor_opposite_double_cat_associator_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2.4. Triangle and pentagon *)</span>
+  <span class="kn">Proposition</span> <span class="nf">hor_opposite_double_cat_triangle</span>
+    : triangle_law
+        hor_opposite_double_cat_lunitor
+        hor_opposite_double_cat_runitor
+        hor_opposite_double_cat_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (triangle_l (C := horizontal_bicat C) h k) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !comp_h_square_id <span class="k">in</span> p.
+    <span class="nb">rewrite</span> square_id_left_v <span class="k">in</span> p.
+    <span class="nb">rewrite</span> square_id_right_v <span class="k">in</span> p.
+    <span class="nb">unfold</span> transportb_square <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !transportf_square_postwhisker <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !transportf_f_square <span class="k">in</span> p.
+    <span class="nb">refine</span> (_ @ maponpaths (transportb_square (id_v_left _) (id_v_left _)) p @ _).
+    - <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> transportf_square_id.
+    - <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      <span class="nb">rewrite</span> transportb_disp_mor2_hor_op.
+      use transportf_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hor_opposite_double_cat_pentagon</span>
+    : pentagon_law hor_opposite_double_cat_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v w x y z h₁ h₂ h₃ h₄ ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (rassociator_rassociator (C := horizontal_bicat C) h₄ h₃ h₂ h₁) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">simple refine</span> (_
+            @ maponpaths
+                (transportb_square
+                   (id_v_right _ @ id_v_right _)
+                   (id_v_right _ @ id_v_right _))
+                (!p)
+            @ _).
+    - <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> transportb_disp_mor2_hor_op.
+      use transportf_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2.5. The horizontal opposite *)</span>
+  <span class="kn">Definition</span> <span class="nf">hor_opposite_double_cat</span>
+    : double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_cat.
+    - <span class="bp">exact</span> C.
+    - <span class="bp">exact</span> (hor_op_twosided_disp_cat (hor_mor C)).
+    - <span class="bp">exact</span> hor_id_hor_opposite_double_cat.
+    - <span class="bp">exact</span> hor_comp_hor_opposite_double_cat.
+    - <span class="bp">exact</span> hor_opposite_double_cat_lunitor.
+    - <span class="bp">exact</span> hor_opposite_double_cat_runitor.
+    - <span class="bp">exact</span> hor_opposite_double_cat_associator.
+    - <span class="bp">exact</span> hor_opposite_double_cat_triangle.
+    - <span class="bp">exact</span> hor_opposite_double_cat_pentagon.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_flat_hor_opposite_double_cat</span>
+              (<span class="nv">H</span> : is_flat_double_cat C)
+    : is_flat_double_cat hor_opposite_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">HorOpposite</span>.
+
+<span class="kn">Definition</span> <span class="nf">hor_opposite_univalent_double_cat</span>
+           (<span class="nv">C</span> : univalent_double_cat)
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_univalent_double_cat.
+  - <span class="bp">exact</span> (hor_opposite_double_cat C).
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> univalent_category_is_univalent.
+    + <span class="nb">apply</span> is_univalent_hor_op_twosided_disp_cat.
+      <span class="nb">apply</span> is_univalent_twosided_disp_cat_hor_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hor_opposite_pseudo_double_set_cat</span>
+           (<span class="nv">C</span> : pseudo_double_setcat)
+  : pseudo_double_setcat.
+<span class="kn">Proof</span>.
+  use make_pseudo_double_setcat.
+  - <span class="bp">exact</span> (hor_opposite_double_cat C).
+  - <span class="nb">apply</span> is_setcategory_vertical_cat.
+  - <span class="nb">apply</span> is_strict_hor_op_twosided_disp_cat.
+    <span class="nb">apply</span> is_strict_twosided_disp_cat_hor_mor.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/OpDoubleCat.v</tt>, line 31)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2.5. The horizontal opposite
+  &gt;
+  &gt;  ************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>GenericPredicate.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************************</span>
+
+<span class="sd"> Generic predicates in triposes</span>
+
+<span class="sd"> We show that every tripos has a generic predicate (Theorem 4.4 in "Tripos Theory in Retrospect"</span>
+<span class="sd"> by Andrew Pitts). In essence, a generic predicate is a formula from which all other formulas</span>
+<span class="sd"> can be constructed. More concretely, a generic predicate in a tripos consists of</span>
+<span class="sd"> - a type `Ω`;</span>
+<span class="sd"> - a formula `prf` on `Ω`;</span>
+<span class="sd"> - for every formula `φ` in some context `Γ` a substitution `f` from `Γ` to `Ω` such that `φ`</span>
+<span class="sd">   is equal to `prf [ t ]`.</span>
+<span class="sd"> Every term `t` of type `Ω` in context `Γ` thus gives rise to a formula in context `Γ`, namely</span>
+<span class="sd"> `prf [ t ]`. In addition, every formula `φ` in context ‵Γ` is equal to `prf [ f ]` for some</span>
+<span class="sd"> substitution `f` from `Γ` to `Ω`. Hence, we have a surjection from terms of type `Ω` in context</span>
+<span class="sd"> `Γ` to formulas in context `Γ`.</span>
+
+<span class="sd"> The generic predicate is used in the tripos to topos construction to construct the subobject</span>
+<span class="sd"> classifier of the topos. Note that a first-order hyperdoctrine with generic predicate does not</span>
+<span class="sd"> necessarily give rise to a tripos. This would be the case if we assume the category of types to</span>
+<span class="sd"> be Cartesian closed.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Tripos Theory in Retrospect" by Andrew Pitts</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Definition of generic predicates in first-order hyperdoctrines</span>
+<span class="sd"> 2. Construction of generic predicates in triposes</span>
+
+<span class="sd"> **********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Tripos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="sd">(** * 1. Definition of generic predicates in first-order hyperdoctrines *)</span>
+<span class="kn">Definition</span> <span class="nf">is_generic_predicate</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">Ω</span> : ty H)
+           (<span class="nv">prf</span> : form Ω)
+  : UU
+  := ∏ (Γ : ty H)
+       (φ : form Γ),
+     ∑ (f : tm Γ Ω),
+     φ = prf [ f ].
+
+<span class="kn">Definition</span> <span class="nf">generic_predicate</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+  : UU
+  := ∑ (Ω : ty H)
+       (prf : form Ω),
+     is_generic_predicate Ω prf.
+
+<span class="kn">Definition</span> <span class="nf">make_generic_predicate</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">Ω</span> : ty H)
+           (<span class="nv">prf</span> : form Ω)
+           (<span class="nv">HΩ</span> : is_generic_predicate Ω prf)
+  : generic_predicate H
+  := Ω ,, prf ,, HΩ.
+
+<span class="kn">Coercion</span> <span class="nf">ty_of_generic_predicate</span>
+         {H : first_order_hyperdoctrine}
+         (Ω : generic_predicate H)
+  : ty H.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 Ω).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">prf_of_generic_predicate</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">Ω</span> : generic_predicate H)
+  : form Ω
+  := pr12 Ω.
+
+<span class="kn">Definition</span> <span class="nf">mor_to_generic_predicate</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">Ω</span> : generic_predicate H)
+           {<span class="nv">Γ</span> : ty H}
+           (<span class="nv">φ</span> : form Γ)
+  : tm Γ Ω
+  := pr1 (pr22 Ω Γ φ).
+
+<span class="kn">Proposition</span> <span class="nf">mor_to_generic_predicate_eq</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            (<span class="nv">Ω</span> : generic_predicate H)
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">φ</span> : form Γ)
+  : φ
+    =
+    (prf_of_generic_predicate Ω) [ mor_to_generic_predicate Ω φ ].
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (pr22 Ω Γ φ)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** 2. Construction of generic predicates in triposes *)</span>
+<span class="kn">Definition</span> <span class="nf">tripos_generic_predicate</span>
+           (<span class="nv">H</span> : tripos)
+  : generic_predicate H.
+<span class="kn">Proof</span>.
+  use make_generic_predicate.
+  - <span class="bp">exact</span> (ℙ <span class="mi">𝟙</span>).
+  - <span class="bp">exact</span> (<span class="k">let</span> <span class="nv">P</span> := tm_var (ℙ <span class="mi">𝟙</span>) <span class="k">in</span>
+           !! ∈ P).
+  - <span class="nb">intros</span> Γ A.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> {{ A [ π₂ (tm_var _) ] }}.
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> tripos_in_subst ;
+         simplify ;
+         <span class="nb">pose</span> (maponpaths
+                 (<span class="k">λ</span> <span class="nv">φ</span>, φ [ ⟨ !! , tm_var _ ⟩ ])
+                 (mor_to_tripos_power_eq <span class="mi">𝟙</span> Γ (A [ π₂ (tm_var _) ])))
+           <span class="k">as</span> p ;
+         <span class="nb">cbn</span> <span class="k">in</span> p ;
+         <span class="nb">rewrite</span> !hyperdoctrine_comp_subst <span class="k">in</span> p ;
+         <span class="nb">rewrite</span> hyperdoctrine_pr2_subst <span class="k">in</span> p ;
+         <span class="nb">rewrite</span> var_tm_subst <span class="k">in</span> p ;
+         <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> p ;
+         <span class="nb">rewrite</span> hyperdoctrine_id_subst <span class="k">in</span> p ;
+         <span class="nb">refine</span> (p @ _) ; <span class="nb">clear</span> p ;
+         use hyperdoctrine_formula_eq ;
+         simplify ;
+         <span class="nb">apply</span> hyperdoctrine_hyp).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"'Ω'"</span> := (ty_of_generic_predicate (tripos_generic_predicate _)).
+<span class="kn">Notation</span> <span class="s2">"'Prf'"</span> := (prf_of_generic_predicate (tripos_generic_predicate _)).
+
+<span class="kn">Definition</span> <span class="nf">tripos_form_to_tm</span>
+           {<span class="nv">H</span> : tripos}
+           {<span class="nv">Γ</span> : ty H}
+           (<span class="nv">φ</span> : form Γ)
+  : tm Γ Ω
+  := mor_to_generic_predicate _ φ.
+
+<span class="kn">Proposition</span> <span class="nf">tripos_form_to_tm_Prf</span>
+            {<span class="nv">H</span> : tripos}
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">φ</span> : form Γ)
+  : Prf [ tripos_form_to_tm φ ] = φ.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (!(mor_to_generic_predicate_eq (tripos_generic_predicate H) φ)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   This way the construction of the generic predicate in a tripos does not get unfolded.</span>
+<span class="sd"> *)</span>
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> ty_of_generic_predicate.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> prf_of_generic_predicate.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> mor_to_generic_predicate.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/GenericPredicate.v</tt>, line 30)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Construction of generic predicates in triposes
+  &gt;
+  &gt;  **********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

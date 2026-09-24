@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EqDiag.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">- Custom notion of equality between diagrams (eq_diag) over the same graph</span>
+<span class="sd">- Transports of cones and cocones between equal diagrams.</span>
+<span class="sd">- Limits/Colimits are the same for equal diagrams.</span>
+
+<span class="sd">This notion of equality is useful to make the link between standard</span>
+<span class="sd">diagrams (pushouts, coequalizers, ...) in a functor category and</span>
+<span class="sd">the induced pointwise diagram given an object of the source category</span>
+
+<span class="sd">Example of the binary product :</span>
+
+<span class="sd">Let</span>
+<span class="sd">- C,D be two categories,</span>
+<span class="sd">- A and B two functors from C to D</span>
+<span class="sd">- x an object of C</span>
+
+<span class="sd">Let J := binproduct_diagram  (A x) (B x)</span>
+<span class="sd">Let J' := diagram_pointwise (binproduct_diagram A B) x.</span>
+
+<span class="sd">J and J' are not definitionnally equal.</span>
+
+<span class="sd">Let co a cone of J based on c.</span>
+
+<span class="sd">Using a (not too stupid) proof (e : eq_diag J J'), we can transport the cone co</span>
+<span class="sd">with make_eq_diag_cone to get a cone co' of J' based on c that satisfies the</span>
+<span class="sd">definitional equalities :</span>
+<span class="sd">  coneOut co' true  ≡ coneOut co true</span>
+<span class="sd">  coneOut co' false ≡ coneOut co false</span>
+
+<span class="sd">(true and false are the two vertices of the binproduct graph).</span>
+
+<span class="sd">This equality would not be needed if functional extensionality computed.</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.TransportMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="kn">Lemma</span> <span class="nf">is_exists_unique</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A → UU} (<span class="nv">H</span> : <span class="k">∃</span>! a : A, B a) :
+  B ( pr1 (iscontrpr1 H)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span>(pr2 (pr1 H)).
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">transport_swap</span>: ∏ {X Y : UU} (P : X -&gt; Y → UU) {x x':X} {y  y' : Y}
+                        (e : x = x') (e' : y = y') (p : P x y),
+                  transportf (<span class="k">λ</span> <span class="nv">a</span>, P _ a) e' (transportf (<span class="k">λ</span> <span class="nv">a</span>, P a _) e p) =
+                  transportf (<span class="k">λ</span> <span class="nv">a</span>, P a _) e (transportf (<span class="k">λ</span> <span class="nv">a</span>, P _ a) e' p) .
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">induction</span> e'.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf2_comp</span>  {<span class="nv">X</span>  : UU} (<span class="nv">P</span> : X -&gt; X → UU) (<span class="nv">x</span> <span class="nv">x'</span>  : X)
+      (<span class="nv">ex</span> : x = x')  (<span class="nv">t</span>:P x x) :
+  transportf (<span class="k">λ</span> <span class="nv">y</span>, P y y) ex t = transportf (<span class="k">λ</span> <span class="nv">y</span>, P y x') ex
+                                             (transportf (<span class="k">λ</span> <span class="nv">y</span>, P x y) ex t).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">induction</span> ex.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">eq_diag</span>  {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} (<span class="nv">d</span> <span class="nv">d'</span> : diagram g C) :=
+  ∑ (eq_v : ∏ v: vertex g, dob d v = dob d' v), ∏ (v v':vertex g) (f:edge v v'),
+  transportf (<span class="k">λ</span> <span class="nv">obj</span>, C⟦obj, dob d v'⟧)  (eq_v v) (dmor d f) =
+  transportb (<span class="k">λ</span> <span class="nv">obj</span>, C⟦_, obj⟧) (eq_v v') (dmor d' f).
+
+<span class="kn">Lemma</span> <span class="nf">eq_is_eq_diag</span> {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} (<span class="nv">d</span> <span class="nv">d'</span> : diagram g C)  :
+  d = d' -&gt; eq_diag d d'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> e.
+  <span class="nb">induction</span> e.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span>, <span class="nv">idpath</span> <span class="nv">_</span>).
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>, idpath _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">eq_diag_is_eq</span> {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} (<span class="nv">d</span> <span class="nv">d'</span> : diagram g C) :
+  eq_diag d d' -&gt; d = d'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [eqv autreq].
+  use total2_paths_f.
+  - <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span> v.
+    <span class="nb">apply</span> eqv.
+  - <span class="nb">rewrite</span> (transportf2_comp
+               (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : vertex g → C, ∏ a b : vertex g, edge a b →
+                                                        C ⟦ y a, x b ⟧)).
+    <span class="k">match goal with</span> |- transportf <span class="nl">?Pf</span> <span class="nl">?x1</span> (transportf <span class="nl">?Pf2</span> <span class="nl">?s1</span> <span class="nl">?s2</span> )  = _ =&gt;
+                    <span class="nb">set</span> (e := x1);
+                      <span class="nb">set</span> (P := Pf);
+                      <span class="nb">set</span> (P2 := Pf2);
+                      <span class="nb">set</span> (tp2:=transportf P2 s1 s2);
+                      <span class="nb">set</span> (trp := transportf P x1 tp2)
+    <span class="k">end</span>.
+    <span class="nb">change</span> (trp = pr2 d').
+    <span class="nb">unfold</span> trp.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> v; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> v'.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> ed.
+    <span class="nb">specialize</span> (autreq v v' ed).
+    <span class="nb">rewrite</span>  &lt;- (pathsinv0inv0 (eqv v)) <span class="k">in</span> autreq.
+    <span class="nb">apply</span> pathsinv0 <span class="k">in</span> autreq.
+    <span class="nb">apply</span> transportf_transpose_right <span class="k">in</span> autreq.
+    <span class="nb">unfold</span> dmor <span class="k">in</span> autreq.
+    <span class="nb">rewrite</span> autreq.
+    <span class="nb">rewrite</span> pathsinv0inv0.
+    etrans.
+    <span class="nb">eapply</span> pathsinv0.
+    <span class="nb">apply</span> (  transport_map (P:=P) (Q:=_) (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">tp</span>, tp  v v' ed)).
+    etrans.
+    <span class="nb">apply</span> (transportf_funextfun (<span class="k">λ</span> <span class="nv">x</span>, C⟦ pr1 d' v,x⟧)).
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    <span class="nb">eapply</span> pathsinv0.
+    <span class="nb">apply</span> (  transport_map (P:=P2) (Q:=_) (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">tp</span>, tp  v v' ed)).
+    <span class="nb">apply</span> (transportf_funextfun (<span class="k">λ</span> <span class="nv">x</span>, C⟦ x,pr1 d v'⟧)).
+<span class="kn">Qed</span>.
+
+<span class="c">(* We don't want to use the equivalence with bare identity to show the</span>
+<span class="c">apply pathsinv0 because we want computation (Defined)</span>
+<span class="c"> *)</span>
+<span class="kn">Lemma</span> <span class="nf">sym_eq_diag</span>  {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} (<span class="nv">d</span> <span class="nv">d'</span> : diagram g C) :
+  eq_diag d d' -&gt; eq_diag d' d.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> eq_d.
+  <span class="nb">set</span> (eq_d1 := pr1 eq_d).
+  <span class="nb">set</span> (eq_d2 := pr2 eq_d).
+  use tpair.
+  - <span class="nb">intro</span> v.
+    <span class="nb">apply</span> (! (eq_d1 v)).
+  - <span class="c">(* here we use equality *)</span>
+    <span class="nb">unfold</span> eq_d1.
+    <span class="nb">assert</span> (heqdag:eq_diag d' d).
+    + <span class="nb">apply</span> eq_is_eq_diag.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> eq_diag_is_eq.
+      <span class="bp">assumption</span>.
+    +
+<span class="c">(* Proof without using equality *)</span>
+    <span class="kp">abstract</span> (<span class="nb">cbn</span>;
+    <span class="nb">intros</span> v v' f;
+    <span class="nb">specialize</span> (eq_d2 v v' f);
+    <span class="nb">apply</span> pathsinv0;
+    <span class="nb">unfold</span> transportb;
+    <span class="nb">rewrite</span> pathsinv0inv0;
+    <span class="nb">apply</span> (transportf_transpose_right (P:=(<span class="k">λ</span> <span class="nv">obj</span> : C, C ⟦ obj, dob d' v' ⟧)));
+    <span class="nb">assert</span> (eq_d2':=transportf_transpose_right
+                      (P:=(precategory_morphisms (dob d' v))) (! eq_d2));
+    <span class="nb">rewrite</span> eq_d2';
+    <span class="nb">unfold</span> transportb; <span class="nb">rewrite</span> pathsinv0inv0;
+    <span class="nb">apply</span> (transport_swap (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, C⟦b,a⟧))).
+
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">make_eq_diag_cocone</span>  :
+  ∏ {C : category} {g : graph} {d : diagram g C}
+    (d' : diagram g C)
+    (heq_d: eq_diag d d')
+    {c : C} (cc:cocone d c),
+  cocone d' c.
+<span class="kn">Proof</span>.
+  <span class="nb">clear</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">destruct</span> heq_d <span class="k">as</span> [heq heq2].
+  use make_cocone.
+  <span class="nb">intro</span> v.
+  use (transportf (<span class="k">λ</span> <span class="nv">obj</span>, C⟦obj,_⟧ ) (heq v)); <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (coconeIn cc).
+  <span class="kp">abstract</span>(
+      <span class="nb">intros</span> u v e; <span class="nb">simpl</span>;
+      <span class="nb">rewrite</span> &lt;- ( coconeInCommutes cc u v e);
+      <span class="nb">apply</span> (pathscomp0 (b:=transportb (precategory_morphisms (dob d' u)) (heq v)
+                                       (dmor d' e) · (coconeIn cc v)));
+      [
+        <span class="nb">unfold</span> transportb; (<span class="nb">set</span> (z:= ! heq v));
+        <span class="nb">rewrite</span> &lt;- (pathsinv0inv0 (heq v));
+        <span class="nb">apply</span> pathsinv0;
+        <span class="nb">apply</span> transport_compose|];
+      etrans; [
+        <span class="nb">apply</span> cancel_postcomposition;
+        <span class="nb">eapply</span> pathsinv0; <span class="nb">apply</span> heq2|];
+      <span class="nb">clear</span>;
+      <span class="bp">now</span> <span class="nb">destruct</span> (heq u)).
+<span class="kn">Defined</span>.
+
+
+<span class="c">(* The dual proof *)</span>
+<span class="kn">Lemma</span> <span class="nf">make_eq_diag_cone</span>  :
+  ∏ {C : category} {g : graph} {d : diagram g C}
+    (d' : diagram g C)
+    (heq_d: eq_diag d d')
+    {c : C} (cc:cone d c),
+  cone d' c.
+<span class="kn">Proof</span>.
+  <span class="nb">clear</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (heq := pr1 heq_d).
+  <span class="nb">set</span> (heq2 := pr2 heq_d).
+  use make_cone.
+  <span class="nb">intro</span> v.
+  <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">obj</span>, C⟦_,obj⟧ ) (heq v) (coneOut cc v)).
+    <span class="kp">abstract</span>(
+      <span class="nb">intros</span> u v e; <span class="nb">simpl</span>;
+      <span class="nb">rewrite</span> &lt;- ( coneOutCommutes cc u v e);
+      etrans;[
+        <span class="nb">apply</span> transport_compose|];
+      <span class="nb">rewrite</span> transport_target_postcompose;
+      <span class="nb">apply</span> cancel_precomposition;
+      <span class="nb">apply</span> transportf_transpose_right;
+      etrans;[
+        <span class="nb">apply</span> (transport_swap (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, C⟦a,b⟧))|];
+      etrans;[
+        <span class="nb">apply</span> maponpaths;
+        <span class="nb">eapply</span> pathsinv0;
+        <span class="nb">apply</span> heq2|];
+      <span class="nb">unfold</span> heq;
+      <span class="nb">induction</span> (pr1 heq_d u);
+      <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Lemma</span> <span class="nf">eq_diag_islimcone</span>:
+  ∏ {C : category} {g : graph} {d : diagram g C}
+    (d' : diagram g C)
+    (eq_d : eq_diag d d')
+    {c : C} {cc:cone d c}
+    (islimcone : isLimCone _ _ cc) ,
+  isLimCone _ _ (make_eq_diag_cone d' eq_d cc).
+<span class="kn">Proof</span>.
+
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (eq_d1 := pr1 eq_d);
+    <span class="nb">set</span> (eq_d2 := pr1 eq_d).
+  <span class="nb">set</span> (eq_d' := sym_eq_diag _ _ eq_d).
+  <span class="nb">set</span> (eq_d1' := pr1 eq_d').
+  <span class="nb">set</span> (eq_d2' := pr2 eq_d').
+    <span class="nb">red</span>.
+  <span class="nb">intros</span> c' cc'.
+  <span class="nb">set</span> (cc'2 := make_eq_diag_cone _ eq_d' cc').
+  <span class="nb">specialize</span> (islimcone c' cc'2).
+  <span class="nb">apply</span> (unique_exists (pr1 (pr1 islimcone))).
+  - <span class="nb">intro</span> v.
+    <span class="nb">assert</span> (islim := is_exists_unique islimcone v).
+    <span class="nb">cbn</span> <span class="k">in</span> islim.
+    <span class="nb">cbn</span>.
+    etrans.
+    <span class="nb">eapply</span> pathsinv0.
+    <span class="nb">apply</span> transport_target_postcompose.
+    etrans.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> islim.
+    <span class="nb">apply</span> transportfbinv.
+  - <span class="nb">intro</span> y.
+    <span class="nb">apply</span> impred_isaprop.
+    <span class="nb">intro</span> t.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> y hy.
+    <span class="nb">apply</span> (path_to_ctr _ _ islimcone).
+    <span class="nb">intro</span> v; <span class="nb">specialize</span> (hy v).
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> transportf_transpose_right.
+    <span class="nb">rewrite</span> &lt;- hy.
+    etrans.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> pathsinv0inv0.
+    <span class="nb">apply</span> transport_target_postcompose.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The dual proof .</span>
+<span class="sd">This proof could be deduced from the previous if there was a lemma</span>
+<span class="sd">stating that colimits are limits in the dual category.</span>
+<span class="sd"> *)</span>
+<span class="kn">Lemma</span> <span class="nf">eq_diag_iscolimcocone</span>:
+  ∏ {C : category} {g : graph} {d : diagram g C}
+    (d' : diagram g C)
+    (eq_d : eq_diag d d')
+    {c : C} {cc:cocone d c}
+    (islimcone : isColimCocone _ _ cc) ,
+  isColimCocone _ _ (make_eq_diag_cocone d' eq_d cc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">destruct</span> eq_d <span class="k">as</span> [eq_d1 eq_d2].
+  <span class="nb">set</span> (eq_d := eq_d1,,eq_d2).
+  <span class="nb">set</span> (eq_d'' := sym_eq_diag _ _ eq_d).
+  <span class="nb">set</span> (eq_d1' := pr1 eq_d'').
+  <span class="nb">set</span> (eq_d2' := pr2 eq_d'').
+  <span class="nb">set</span> (eq_d'  := (eq_d1',,eq_d2'):eq_diag d' d).
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> c' cc'.
+  <span class="nb">set</span> (cc'2 := make_eq_diag_cocone _ eq_d' cc').
+  <span class="nb">specialize</span> (islimcone c' cc'2).
+  <span class="nb">apply</span> (unique_exists (pr1 (pr1 islimcone))).
+  - <span class="nb">intro</span> v.
+    <span class="nb">assert</span> (islim := is_exists_unique islimcone v).
+    <span class="nb">cbn</span> <span class="k">in</span> islim.
+    <span class="nb">cbn</span>.
+    etrans.
+    <span class="nb">rewrite</span> &lt;- (pathsinv0inv0 (eq_d1 v)).
+    <span class="nb">eapply</span> pathsinv0.
+    <span class="nb">apply</span> transport_source_precompose.
+    etrans.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> islim.
+    <span class="nb">cbn</span>.
+    <span class="bp">now</span> <span class="nb">apply</span> (transportbfinv ( (<span class="k">λ</span> <span class="nv">x'</span> : C, C ⟦ x', c' ⟧) )).
+  - <span class="nb">intro</span> y.
+    <span class="nb">apply</span> impred_isaprop.
+    <span class="nb">intro</span> t.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> y hy.
+    <span class="nb">apply</span> (path_to_ctr _ _ islimcone).
+    <span class="nb">intro</span> v; <span class="nb">specialize</span> (hy v).
+    <span class="nb">revert</span> hy.
+    <span class="nb">cbn</span>.
+    <span class="nb">intro</span> hy.
+    <span class="nb">apply</span> (transportf_transpose_right (P:=(<span class="k">λ</span> <span class="nv">obj</span> : C, C ⟦ obj, c' ⟧))).
+    etrans.
+    <span class="nb">apply</span> transport_source_precompose.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> pathsinv0inv0.
+    <span class="nb">apply</span> hy.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">eq_diag_liftcolimcocone</span>
+           {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+           (<span class="nv">d'</span> : diagram g C)
+           (<span class="nv">eq_d</span> : eq_diag d d')
+           (<span class="nv">cc</span>:ColimCocone d ) : ColimCocone d'
+  := make_ColimCocone _ _ _ (eq_diag_iscolimcocone _ eq_d
+                                                 (isColimCocone_from_ColimCocone cc)).
+
+<span class="kn">Definition</span> <span class="nf">eq_diag_liftlimcone</span>
+           {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+           (<span class="nv">d'</span> : diagram g C)
+           (<span class="nv">eq_d</span> : eq_diag d d')
+           (<span class="nv">cc</span>:LimCone d ) : LimCone d'
+  := make_LimCone _ _ _ (eq_diag_islimcone _ eq_d
+                                         (isLimCone_LimCone cc)).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Graphs/EqDiag.v</tt>, line 37)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

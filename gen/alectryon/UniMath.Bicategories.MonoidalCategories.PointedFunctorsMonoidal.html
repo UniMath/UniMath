@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PointedFunctorsMonoidal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Ralph Matthes</span>
+
+<span class="sd">2021</span>
+<span class="sd">*)</span>
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- build monoidal category for the pointed endofunctors</span>
+
+<span class="sd">************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctorsComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">PointedFunctors_as_monoidal_category</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'Ptd'"</span> := (category_Ptd C).
+
+  <span class="kn">Definition</span> <span class="nf">tensor_pointedfunctor_data</span>: functor_data (Ptd ⊠ Ptd) Ptd.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intros</span> PF1PF2.
+      <span class="bp">exact</span> (ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2)).
+    - <span class="nb">intros</span> PF1PF2 PF1PF2' α1α2.
+      <span class="nb">induction</span> α1α2 <span class="k">as</span> [α1 α2].
+      <span class="nb">induction</span> PF1PF2 <span class="k">as</span> [PF1 PF2]. <span class="nb">induction</span> PF1PF2' <span class="k">as</span> [PF1' PF2'].
+      <span class="nb">cbn</span> <span class="k">in</span> α1, α2 |- *.
+      <span class="nb">set</span> (α1' := pr1 α1).
+      <span class="nb">set</span> (α2' := pr1 α2).
+      <span class="k">exists</span> (# (functorial_composition _ _ _) (α1',,α2':
+                 [C, C] ⊠ [C, C]⟦(pr1 PF1,,pr1 PF2),(pr1 PF1',,pr1 PF2')⟧)).
+      <span class="kp">abstract</span> ( <span class="nb">intro</span> c;
+                 <span class="nb">assert</span> (α1commutes := ptd_mor_commutes _ α1);
+                 <span class="nb">assert</span> (α2commutes := ptd_mor_commutes _ α2);
+                 <span class="nb">cbn</span>;
+                 etrans;
+                 [ <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> nat_trans_ax |
+                   <span class="nb">rewrite</span> &lt;- α1commutes;
+                   <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc;
+                   <span class="nb">apply</span> maponpaths;
+                   <span class="nb">rewrite</span> assoc;
+                   <span class="nb">unfold</span> α2';
+                   etrans;
+                   [<span class="nb">apply</span> cancel_postcomposition;
+                    <span class="nb">apply</span> α2commutes |
+                     etrans;
+                     [<span class="nb">assert</span> (η2'nat := nat_trans_ax (pr2 PF2'));
+                      <span class="nb">apply</span> pathsinv0, η2'nat |
+                       <span class="nb">apply</span> idpath]]] ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_pointedfunctor_is_functor</span>: is_functor tensor_pointedfunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> PF1PF2.
+      <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+      <span class="nb">apply</span> eq_ptd_mor.
+      <span class="nb">unfold</span> tensor_pointedfunctor_data.
+      <span class="nb">simpl</span>. <span class="nb">unfold</span> post_whisker_in_funcat, pre_whisker_in_funcat.
+      <span class="nb">rewrite</span> pre_whisker_identity.
+      <span class="nb">rewrite</span> post_whisker_identity.
+      <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property | <span class="nb">intro</span> c].
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">intros</span> PF1PF2 PF1'PF2' PF1''PF2'' α1α2 α1'α2'.
+      <span class="nb">apply</span> eq_ptd_mor.
+      <span class="nb">unfold</span> tensor_pointedfunctor_data.
+      <span class="nb">simpl</span>. <span class="nb">unfold</span> post_whisker_in_funcat, pre_whisker_in_funcat.
+      <span class="nb">rewrite</span> (post_whisker_composition _ _ _).
+      <span class="nb">rewrite</span> (pre_whisker_composition _ _ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property | <span class="nb">intro</span> c].
+      <span class="nb">cbn</span>.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> nat_trans_ax.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_pointedfunctors</span>:
+    category_Ptd C ⊠ category_Ptd C ⟶ category_Ptd C.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> tensor_pointedfunctor_data.
+    - <span class="bp">exact</span> tensor_pointedfunctor_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** a preparation for the lemma afterwards *)</span>
+  <span class="kn">Lemma</span> <span class="nf">ptd_mor_z_iso_from_underlying_mor</span> {<span class="nv">F</span> <span class="nv">G</span> : Ptd} (<span class="nv">α</span> : ptd_mor C F G):
+    is_nat_z_iso (pr1 α) -&gt; is_z_isomorphism(C:=Ptd) α.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Hyp.
+    use tpair.
+    - use tpair.
+      <span class="nb">apply</span> nat_z_iso_to_trans_inv.
+      + <span class="bp">exact</span> (pr1 α ,, Hyp).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span>; <span class="nb">red</span>; <span class="nb">intro</span> c;
+           <span class="nb">cbn</span>;
+           <span class="nb">apply</span> pathsinv0;
+           <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ (make_z_iso _ _ (Hyp c)));
+           <span class="nb">cbn</span>;
+           <span class="nb">apply</span> pathsinv0;
+           <span class="nb">apply</span> ptd_mor_commutes).
+    - <span class="kp">abstract</span>
+        (<span class="nb">red</span>; <span class="nb">split</span>; <span class="nb">apply</span> eq_ptd_mor; <span class="nb">apply</span> (nat_trans_eq (homset_property C)); <span class="nb">intro</span> c; <span class="nb">cbn</span> ;
+         [ <span class="nb">apply</span> (z_iso_inv_after_z_iso (make_z_iso _ _ (Hyp c)))
+          | <span class="nb">apply</span> (z_iso_after_z_iso_inv (make_z_iso _ _ (Hyp c))) ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_unitor_of_pointedfunctors</span>:
+    left_unitor tensor_pointedfunctors (id_Ptd C).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    + use make_nat_trans.
+      * <span class="nb">intro</span> PF.
+        <span class="k">exists</span> (<span class="nv">λ_functors</span> (pr1 PF)).
+        <span class="kp">abstract</span> ( <span class="nb">intro</span> c; <span class="nb">cbn</span>; <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> id_left ).
+      * <span class="kp">abstract</span> ( <span class="nb">intros</span> PF PF' α;
+                   <span class="nb">apply</span> eq_ptd_mor;
+                   <span class="nb">apply</span> (nat_trans_eq (homset_property C)); <span class="nb">intro</span> c; <span class="nb">cbn</span>;
+                   <span class="nb">rewrite</span> id_left;
+                   <span class="nb">rewrite</span> id_right;
+                   etrans; [<span class="nb">apply</span> cancel_postcomposition, functor_id | <span class="nb">apply</span> id_left] ).
+    + <span class="nb">intro</span> PF. <span class="nb">cbn</span>.
+      <span class="nb">apply</span> ptd_mor_z_iso_from_underlying_mor.
+      <span class="nb">intro</span> c.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> identity_is_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">right_unitor_of_pointedfunctors</span>:
+    right_unitor tensor_pointedfunctors (id_Ptd C).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    + use make_nat_trans.
+      * <span class="nb">intro</span> PF.
+        <span class="k">exists</span> (<span class="nv">ρ_functors</span> (pr1 PF)).
+        <span class="kp">abstract</span> ( <span class="nb">intro</span> c;
+                   <span class="nb">cbn</span>;
+                   <span class="nb">rewrite</span> id_right;
+                   <span class="nb">apply</span> id_right ).
+      * <span class="kp">abstract</span> ( <span class="nb">intros</span> PF PF' α;
+                   <span class="nb">apply</span> eq_ptd_mor;
+                   <span class="nb">apply</span> (nat_trans_eq (homset_property C));
+                   <span class="nb">intro</span> c; <span class="nb">cbn</span>;
+                   <span class="nb">rewrite</span> id_left;
+                   <span class="nb">rewrite</span> id_right;
+                   <span class="nb">apply</span> id_right ).
+    + <span class="nb">intro</span> PF. <span class="nb">cbn</span>.
+      <span class="nb">apply</span> ptd_mor_z_iso_from_underlying_mor.
+      <span class="nb">intro</span> c.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> identity_is_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">associator_of_pointedfunctors</span> : associator tensor_pointedfunctors.
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    + use make_nat_trans.
+      * <span class="nb">intro</span> PFtriple.
+        <span class="nb">induction</span> PFtriple <span class="k">as</span> [[PF1 PF2] PF3].
+        <span class="k">exists</span> (<span class="nv">α_functors</span> (pr1 PF1) (pr1 PF2) (pr1 PF3)).
+        <span class="kp">abstract</span> ( <span class="nb">intro</span> c;
+                   <span class="nb">cbn</span>;
+                   <span class="nb">rewrite</span> id_right;
+                   <span class="nb">apply</span> pathsinv0, assoc ).
+      * <span class="kp">abstract</span> ( <span class="nb">intros</span> PFtriple PFtriple' αtriple;
+                   <span class="nb">apply</span> eq_ptd_mor;
+                   <span class="nb">apply</span> (nat_trans_eq (homset_property C));
+                   <span class="nb">intro</span> c; <span class="nb">cbn</span>;
+                   <span class="nb">rewrite</span> id_right;
+                   <span class="nb">rewrite</span> id_left;
+                   <span class="nb">rewrite</span> assoc;
+                   <span class="nb">apply</span> cancel_postcomposition;
+                   <span class="nb">apply</span> functor_comp ).
+    + <span class="nb">intro</span> PFtriple. <span class="nb">cbn</span>.
+      <span class="nb">apply</span> ptd_mor_z_iso_from_underlying_mor.
+      <span class="nb">intro</span> c.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> identity_is_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">triangle_eq_of_pointedfunctors</span> :
+    triangle_eq tensor_pointedfunctors (id_Ptd C)
+                left_unitor_of_pointedfunctors
+                right_unitor_of_pointedfunctors
+                associator_of_pointedfunctors.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> PF1 PF2.
+    <span class="nb">apply</span> eq_ptd_mor.
+    <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+    <span class="nb">apply</span> (nat_trans_eq (homset_property C)).
+    <span class="nb">intro</span> c.
+    <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> pathsinv0, id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pentagon_eq_of_pointedfunctors</span> :
+    pentagon_eq tensor_pointedfunctors associator_of_pointedfunctors.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> PF1 PF2 PF3 PF4.
+    <span class="nb">apply</span> eq_ptd_mor.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> functor_id.
+    <span class="kp">do</span> <span class="mi">5</span> <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> pathsinv0, functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_cat_of_pointedfunctors</span> : monoidal_cat.
+  <span class="kn">Proof</span>.
+    use make_monoidal_cat.
+    - <span class="bp">exact</span> Ptd.
+    - <span class="nb">apply</span> tensor_pointedfunctors.
+    - <span class="nb">apply</span> id_Ptd.
+    - <span class="bp">exact</span> left_unitor_of_pointedfunctors.
+    - <span class="bp">exact</span> right_unitor_of_pointedfunctors.
+    - <span class="bp">exact</span> associator_of_pointedfunctors.
+    - <span class="bp">exact</span> triangle_eq_of_pointedfunctors.
+    - <span class="bp">exact</span> pentagon_eq_of_pointedfunctors.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">forgetful_functor_from_ptd_as_strong_monoidal_functor</span>
+    : strong_monoidal_functor
+        monoidal_cat_of_pointedfunctors
+        (monoidal_cat_of_endofunctors C).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> (make_lax_monoidal_functor
+               monoidal_cat_of_pointedfunctors
+               (monoidal_cat_of_endofunctors C)
+               (functor_ptd_forget C)
+               (nat_trans_id _)
+               (nat_trans_id _)).
+      + <span class="kp">abstract</span> ( <span class="nb">intros</span> PF1 PF2 PF3;
+                   <span class="nb">apply</span> nat_trans_eq_alt;
+                   <span class="nb">intro</span> c;
+                   <span class="nb">cbn</span>;
+                   <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id;
+                   <span class="kp">repeat</span> <span class="nb">rewrite</span> id_right;
+                   <span class="nb">apply</span> functor_id ).
+      + <span class="kp">abstract</span> ( <span class="nb">intro</span> PF;
+                   <span class="nb">split</span>; <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">cbn</span>; <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_right;
+                   [ <span class="nb">apply</span> pathsinv0, functor_id | <span class="nb">apply</span> idpath ] ).
+    - <span class="nb">split</span>;
+        [ <span class="nb">apply</span> (nat_trafo_z_iso_if_pointwise_z_iso C);
+          <span class="nb">apply</span> is_nat_z_iso_nat_trans_id
+        | <span class="nb">apply</span> (is_nat_z_iso_nat_trans_id
+                   ((functor_composite
+                       (PrecategoryBinProduct.pair_functor
+                          (functor_ptd_forget C)
+                          (functor_ptd_forget C))
+                       (functorial_composition _ _ _))))].
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PointedFunctors_as_monoidal_category</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/PointedFunctorsMonoidal.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; ************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

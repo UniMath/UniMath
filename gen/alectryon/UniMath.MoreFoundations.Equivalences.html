@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Equivalences.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Equivalences *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Definition</span> <span class="nf">post_cat</span> {<span class="nv">X</span>} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>:X} {<span class="nv">p</span>:y = z} : x = y -&gt; x = z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> q. <span class="bp">exact</span> (pathscomp0 q p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_cat</span> {<span class="nv">X</span>} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>:X} {<span class="nv">p</span>:x = y} : y = z -&gt; x = z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> q. <span class="bp">exact</span> (pathscomp0 p q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isEquivalence</span> {<span class="nv">X</span> <span class="nv">Y</span>:<span class="kt">Type</span>} (<span class="nv">f</span>:X-&gt;Y) :=
+  ∑ (g:Y-&gt;X) (p:∏ y, f(g y) = y) (q:∏ x, g(f x) = x), ∏ x, maponpaths f (q x) = p(f x).
+
+<span class="kn">Definition</span> <span class="nf">isEquivalence_toInverseFunction</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">f</span>:X-&gt;Y} : isEquivalence f -&gt; Y-&gt;X := pr1.
+
+<span class="kn">Definition</span> <span class="nf">isEquivalence_toTargetHomotopy</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">f</span>:X-&gt;Y} (<span class="nv">i</span>:isEquivalence f) : ∏ y, f (isEquivalence_toInverseFunction i y) = y := pr12 i.
+
+<span class="kn">Definition</span> <span class="nf">isEquivalence_toSourceHomotopy</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">f</span>:X-&gt;Y} (<span class="nv">i</span>:isEquivalence f) : ∏ x, isEquivalence_toInverseFunction i (f x) = x := pr122 i.
+
+<span class="kn">Definition</span> <span class="nf">isEquivalence_toAdjointness</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">f</span>:X-&gt;Y} (<span class="nv">i</span>:isEquivalence f)
+  : ∏ x, maponpaths f (isEquivalence_toSourceHomotopy i x) = isEquivalence_toTargetHomotopy i (f x) := pr222 i.
+
+<span class="kn">Definition</span> <span class="nf">Equivalence</span> <span class="nv">X</span> <span class="nv">Y</span> := ∑ (f:X-&gt;Y), isEquivalence f.
+
+<span class="kn">Notation</span> <span class="s2">"X ≅ Y"</span> := (Equivalence X Y) (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">no associativity</span>) : type_scope.
+
+<span class="kn">Definition</span> <span class="nf">makeEquivalence</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">p</span> <span class="nv">q</span> <span class="nv">h</span> := (f,,g,,p,,q,,h) : X ≅ Y.
+
+<span class="kn">Definition</span> <span class="nf">Equivalence_toFunction</span> {<span class="nv">X</span> <span class="nv">Y</span>} : X≅Y -&gt; X-&gt;Y := pr1.
+
+<span class="kn">Coercion</span> <span class="nf">Equivalence_toFunction</span> : Equivalence &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">Equivalence_to_isEquivalence</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">w</span>:X≅Y) : isEquivalence w := pr2 w.
+
+<span class="kn">Definition</span> <span class="nf">Equivalence_toInverseFunction</span> {<span class="nv">X</span> <span class="nv">Y</span>} : X≅Y -&gt; Y-&gt;X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f. <span class="bp">exact</span> (pr1 (pr2 f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Equivalence_toTargetHomotopy</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span>:Equivalence X Y) : ∏ y, f (Equivalence_toInverseFunction f y) = y
+  := pr1 (pr2 (pr2 f)).
+
+<span class="kn">Definition</span> <span class="nf">Equivalence_toSourceHomotopy</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span>:Equivalence X Y) : ∏ x, Equivalence_toInverseFunction f (f x) = x
+  := pr1 (pr2 (pr2 (pr2 f))).
+
+<span class="kn">Definition</span> <span class="nf">Equivalence_toAdjointness</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span>:Equivalence X Y)
+  : ∏ x, maponpaths f (Equivalence_toSourceHomotopy f x) = Equivalence_toTargetHomotopy f (f x)
+  := pr2 (pr2 (pr2 (pr2 f))).
+
+<span class="kn">Lemma</span> <span class="nf">transportf_fun_idpath</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">f</span>:X-&gt;Y} <span class="nv">x</span> <span class="nv">x'</span> (<span class="nv">w</span>:x = x') (<span class="nv">t</span>:f x = f x) :
+              transportf (<span class="k">λ</span> <span class="nv">x'</span>, f x' = f x) w (idpath (f x)) = maponpaths f (!w).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> w. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isEquivalence_to_isweq</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">f</span>:X-&gt;Y} : isEquivalence f -&gt; isweq f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i.
+  <span class="nb">set</span> (g := isEquivalence_toInverseFunction i).
+  <span class="nb">set</span> (p := isEquivalence_toTargetHomotopy i).
+  <span class="nb">set</span> (q := isEquivalence_toSourceHomotopy i).
+  <span class="nb">set</span> (h := isEquivalence_toAdjointness i).
+  <span class="nb">intro</span> y.
+  <span class="k">exists</span> (<span class="nv">g</span> <span class="nv">y</span>,,<span class="nv">p</span> <span class="nv">y</span>).
+  <span class="nb">intros</span> xe.
+  <span class="nb">simple refine</span> (hfibertriangle2 _ _ _ _ _).
+  - <span class="bp">exact</span> (! (q (pr1 xe)) @ maponpaths g (pr2 xe)).
+  - <span class="nb">induction</span> xe <span class="k">as</span> [x e]; <span class="nb">simpl</span>. <span class="nb">induction</span> e; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> pathscomp0rid.
+    <span class="nb">rewrite</span> maponpathsinv0.
+    <span class="nb">rewrite</span> h.
+    <span class="bp">now</span> <span class="nb">rewrite</span> pathsinv0l.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Equivalence_to_weq</span> {<span class="nv">X</span> <span class="nv">Y</span>} : X ≅ Y -&gt; X ≃ Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w.
+  <span class="bp">exact</span> (make_weq (Equivalence_toFunction w) (isEquivalence_to_isweq (Equivalence_to_isEquivalence w))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_to_Equivalence</span> {<span class="nv">X</span> <span class="nv">Y</span>} : X ≃ Y -&gt; X ≅ Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f.
+  <span class="bp">exact</span> (makeEquivalence X Y f (invmap f)
+                         (homotweqinvweq f) (homotinvweqweq f)
+                         (homotweqinvweqweq f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">check1</span> <span class="nv">X</span> <span class="nv">Y</span> (<span class="nv">w</span>:X≅Y) :
+  Equivalence_toFunction (weq_to_Equivalence (Equivalence_to_weq w)) = Equivalence_toFunction w.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">check2</span> <span class="nv">X</span> <span class="nv">Y</span> (<span class="nv">w</span>:X≅Y) :
+  Equivalence_toInverseFunction (weq_to_Equivalence (Equivalence_to_weq w)) = Equivalence_toInverseFunction w.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">check3</span> <span class="nv">X</span> <span class="nv">Y</span> (<span class="nv">w</span>:X≅Y) :
+  Equivalence_toTargetHomotopy (weq_to_Equivalence (Equivalence_to_weq w)) = Equivalence_toTargetHomotopy w.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">check4</span> <span class="nv">X</span> <span class="nv">Y</span> (<span class="nv">w</span>:X≅Y) :
+  Equivalence_toSourceHomotopy (weq_to_Equivalence (Equivalence_to_weq w)) = Equivalence_toSourceHomotopy w.
+<span class="kn">Proof</span>.
+  <span class="kp">try</span> <span class="bp">reflexivity</span>.
+  <span class="nb">revert</span> w.
+  <span class="nb">intros</span> [f [g [p [q h]]]].
+  <span class="nb">unfold</span> Equivalence_toSourceHomotopy; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> funextsec; <span class="nb">intros</span> x.
+  <span class="kp">try</span> <span class="bp">reflexivity</span>.
+<span class="kn">Abort</span>.
+
+
+<span class="c">(* another proof *)</span>
+<span class="kn">Definition</span> <span class="nf">weq_to_Equivalence'</span> <span class="nv">X</span> <span class="nv">Y</span> : X ≃ Y -&gt; Equivalence X Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [f r].
+  <span class="nb">unfold</span> isweq <span class="k">in</span> r.
+  <span class="nb">set</span> (g := <span class="k">λ</span> <span class="nv">y</span>, hfiberpr1 f y (pr1 (r y))).
+  <span class="nb">set</span> (p := <span class="k">λ</span> <span class="nv">y</span>, pr2 (pr1 (r y))).
+  <span class="nb">simpl</span> <span class="k">in</span> p.
+  <span class="nb">set</span> (L := <span class="k">λ</span> <span class="nv">x</span>, pr2 (r (f x)) (make_hfiber f x (idpath (f x)))).
+  <span class="nb">set</span> (q := <span class="k">λ</span> <span class="nv">x</span>, maponpaths pr1 (L x)).
+  <span class="nb">set</span> (q' := <span class="k">λ</span> <span class="nv">x</span>, !q x).
+  <span class="bp">exact</span> (makeEquivalence X Y f g p q'
+             (<span class="k">λ</span> <span class="nv">x</span>,
+                 ! transportf_fun_idpath x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x))
+                 @ (fiber_paths (L x)))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_inv_rotate_lr</span> {<span class="nv">X</span>} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>:X} (<span class="nv">r</span>:a = b) (<span class="nv">p</span>:b = c) (<span class="nv">q</span>:a = c) :
+  q = r @ p -&gt; q @ !p = r.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">destruct</span> p. <span class="nb">destruct</span> q. <span class="nb">rewrite</span> pathscomp0rid <span class="k">in</span> e. <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_inv_rotate_rr</span> {<span class="nv">X</span>} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>:X} (<span class="nv">r</span>:a = b) (<span class="nv">p</span>:b = c) (<span class="nv">q</span>:a = c) :
+  r @ p = q -&gt; r = q @ !p.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">destruct</span> p. <span class="nb">destruct</span> q. <span class="nb">rewrite</span> pathscomp0rid <span class="k">in</span> e. <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_inv_rotate_ll</span> {<span class="nv">X</span>} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>:X} (<span class="nv">p</span>:a = b) (<span class="nv">r</span>:b = c) (<span class="nv">q</span>:a = c) :
+  q = p @ r -&gt; !p @ q = r.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">destruct</span> p. <span class="nb">destruct</span> q. <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_inv_rotate_rl</span> {<span class="nv">X</span>} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>:X} (<span class="nv">p</span>:a = b) (<span class="nv">r</span>:b = c) (<span class="nv">q</span>:a = c) :
+  p @ r = q -&gt; r = !p @ q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">destruct</span> p. <span class="nb">destruct</span> q. <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_inverse_from_right</span> {<span class="nv">X</span>} {<span class="nv">x</span> <span class="nv">y</span>:X} (<span class="nv">p</span> <span class="nv">q</span>:x = y) : !q@p = idpath _ -&gt; p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">destruct</span> q. <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_inverse_from_right'</span> {<span class="nv">X</span>} {<span class="nv">x</span> <span class="nv">y</span>:X} (<span class="nv">p</span> <span class="nv">q</span>:x = y) : p@!q = idpath _ -&gt; p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">destruct</span> q.
+  intermediate_path (p @ idpath x).
+  { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> pathscomp0rid. }
+  <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_fun_fun_natl</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>} {<span class="nv">g</span> <span class="nv">g'</span>:X-&gt;Y} {<span class="nv">f</span> <span class="nv">f'</span>:Y-&gt;Z}
+           (<span class="nv">q</span>:homot g g') (<span class="nv">p</span>:homot f f') <span class="nv">x</span> :
+  maponpaths f (q x) @ p (g' x) = p (g x) @ maponpaths f' (q x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> (q x). <span class="nb">simpl</span>. <span class="nb">rewrite</span> pathscomp0rid. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_fun_fun_fun_natl</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">W</span>} {<span class="nv">g</span> <span class="nv">g'</span>:X-&gt;Y}
+           (<span class="nv">q</span>:homot g g') (<span class="nv">h</span>:Y-&gt;Z) {<span class="nv">f</span> <span class="nv">f'</span>:Z-&gt;W} (<span class="nv">p</span>:homot f f') <span class="nv">x</span> :
+  maponpaths f (maponpaths h (q x)) @ p (h (g' x)) = p (h (g x)) @ maponpaths f' (maponpaths h (q x)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> (q x). <span class="nb">simpl</span>. <span class="nb">rewrite</span> pathscomp0rid. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_comp_inv_inv</span> {<span class="nv">X</span>} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>:X} (<span class="nv">p</span>:a = b) (<span class="nv">q</span>:b = c) :
+  ! q @ ! p = ! (p @ q).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> p,q. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"p @' q"</span> := (pathscomp0 p q) (<span class="kn">only parsing</span>, <span class="kn">at level</span> <span class="mi">61</span>, <span class="kn">left associativity</span>).
+<span class="kn">Local</span> <span class="kn">Arguments</span> idpath {_ _}.
+
+<span class="kn">Lemma</span> <span class="nf">other_adjoint</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">g</span> : Y -&gt; X)
+      (<span class="nv">p</span> : ∏ y : Y, f (g y) = y)
+      (<span class="nv">q</span> : ∏ x : X, g (f x) = x)
+      (<span class="nv">h</span> : ∏ x : X, maponpaths f (q x) = p (f x)) :
+ ∏ y : Y, maponpaths g (p y) = q (g y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> pathsinv0.
+  intermediate_path (
+       !(maponpaths g (p (f (g y))))
+       @' maponpaths g (p (f (g y)))
+       @' q (g y)).
+  { <span class="nb">rewrite</span> pathsinv0l. <span class="bp">reflexivity</span>. }
+  intermediate_path (
+       !(maponpaths g (maponpaths f (q (g y))))
+       @' maponpaths g (p (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="nb">apply</span> (maponpaths pathsinv0). <span class="nb">apply</span> (maponpaths (maponpaths g)).
+    <span class="nb">set</span> (y' := g y). <span class="nb">apply</span> pathsinv0. <span class="bp">exact</span> (h y'). }
+  intermediate_path (
+       !(maponpaths g (maponpaths f (q (g y))))
+       @' maponpaths g (p (f (g y)))
+       @' ((!q (g (f (g y))))
+           @' q (g (f (g y)))
+           @' q (g y))).
+  { <span class="nb">rewrite</span> pathsinv0l. <span class="bp">reflexivity</span>. }
+  intermediate_path (
+       !(maponpaths g (maponpaths f (q (g y))))
+       @' maponpaths g (p (f (g y)))
+       @' ((!q (g (f (g y))))
+           @' (maponpaths g (p (f (g y)))
+               @' !(maponpaths g (p (f (g y))))
+               @' q (g (f (g y))))
+           @' q (g y))).
+  { maponpaths_pre_post_cat. <span class="nb">apply</span> path_inv_rotate_rr. <span class="bp">reflexivity</span>. }
+  <span class="nb">apply</span> path_inverse_from_right.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> path_assoc.
+  intermediate_path (
+       !(maponpaths g (p y))
+       @' !(maponpaths g (maponpaths f (q (g y))))
+       @' !(q (g (f (g (f (g y))))))
+       @' maponpaths (funcomp f g) (maponpaths g (p (f (g y))))
+       @' maponpaths g (p (f (g y)))
+       @' !(maponpaths g (p (f (g y))))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat.
+    <span class="nb">apply</span> path_inv_rotate_lr. <span class="nb">rewrite</span> &lt;- path_assoc.
+    <span class="nb">apply</span> path_inv_rotate_rl. <span class="nb">apply</span> pathsinv0.
+    <span class="nb">rewrite</span> &lt;- (maponpathscomp f g). <span class="nb">set</span> (y' := f (g y)).
+    <span class="nb">assert</span> (r := maponpaths_fun_fun_fun_natl p g q y'). <span class="nb">simpl</span> <span class="k">in</span> r.
+    <span class="nb">rewrite</span> (maponpathscomp f). <span class="nb">rewrite</span> (maponpathscomp g).
+    <span class="nb">rewrite</span> (maponpathscomp g (<span class="k">λ</span> <span class="nv">x</span> : X, g (f x))) <span class="k">in</span> r.
+    <span class="nb">rewrite</span> maponpathsidfun <span class="k">in</span> r. <span class="bp">exact</span> r. }
+  intermediate_path (
+       !(maponpaths g (p y))
+       @' !(maponpaths g (maponpaths f (q (g y))))
+       @' !(q (g (f (g (f (g y))))))
+       @' maponpaths g (maponpaths f (maponpaths g (p (f (g y)))))
+       @' maponpaths g (p (f (g y)))
+       @' !(maponpaths g (p (f (g y))))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="nb">rewrite</span> &lt;- (maponpathscomp f g). <span class="bp">reflexivity</span>. }
+  intermediate_path (
+       !(maponpaths g (p y))
+       @' !(maponpaths g (maponpaths f (q (g y))))
+       @' !(q (g (f (g (f (g y))))))
+       @' maponpaths g (maponpaths f (maponpaths g (p (f (g y)))) @' p (f (g y)))
+       @' !(maponpaths g (p (f (g y))))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="nb">rewrite</span> &lt;- (maponpathscomp0 g).  <span class="bp">reflexivity</span>. }
+  intermediate_path (
+       !(maponpaths g (p y))
+       @' !(maponpaths g (maponpaths f (q (g y))))
+       @' !(q (g (f (g (f (g y))))))
+       @' maponpaths g (maponpaths (funcomp g f) (p (f (g y))) @' p (f (g y)))
+       @' !(maponpaths g (p (f (g y))))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="nb">rewrite</span> &lt;- (maponpathscomp g f). <span class="bp">reflexivity</span>. }
+  intermediate_path (
+       !(maponpaths g (p y))
+       @' !(maponpaths g (maponpaths f (q (g y))))
+       @' !(q (g (f (g (f (g y))))))
+       @' maponpaths g (p (f (g (f (g y)))) @' p (f (g y)))
+       @' !(maponpaths g (p (f (g y))))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="nb">rewrite</span> &lt;- (maponpathscomp g f).
+    <span class="nb">apply</span> (maponpaths (maponpaths g)). <span class="nb">generalize</span> (f (g y)); <span class="nb">clear</span> y; <span class="nb">intro</span> y.
+    <span class="nb">assert</span> (r := maponpaths_fun_fun_natl p p y); <span class="nb">simpl</span> <span class="k">in</span> r.
+    <span class="nb">assert</span> (s := maponpathsidfun (p y)); <span class="nb">unfold</span> idfun <span class="k">in</span> s.
+    <span class="nb">rewrite</span> s <span class="k">in</span> r; <span class="nb">clear</span> s. <span class="nb">rewrite</span> (maponpathscomp g). <span class="bp">exact</span> r. }
+  intermediate_path (
+       !(maponpaths g (p y))
+       @' !(maponpaths g (maponpaths f (q (g y))))
+       @' !(q (g (f (g (f (g y))))))
+       @' maponpaths g (p (f (g (f (g y)))))
+       @' maponpaths g (p (f (g y)))
+       @' !(maponpaths g (p (f (g y))))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="nb">rewrite</span> &lt;- (maponpathscomp0 g). <span class="bp">reflexivity</span>. }
+  intermediate_path (
+       !(maponpaths g (p y))
+       @' !(maponpaths g (maponpaths f (q (g y))))
+       @' !(q (g (f (g (f (g y))))))
+       @' maponpaths g (p (f (g (f (g y)))))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- path_assoc.
+    <span class="nb">rewrite</span> pathsinv0r. <span class="nb">rewrite</span> pathscomp0rid. <span class="bp">reflexivity</span>. }
+  intermediate_path (
+       maponpaths g ((!p y) @' maponpaths f (!q (g y)))
+       @' !(q (g (f (g (f (g y))))))
+       @' maponpaths g (p (f (g (f (g y)))))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- maponpathsinv0.
+    <span class="nb">rewrite</span> &lt;- (maponpathscomp0 g). <span class="bp">reflexivity</span>. }
+  intermediate_path (
+       !(q (g y))
+       @' maponpaths (funcomp f g) (maponpaths g ((!p y) @' maponpaths f (!q (g y))))
+       @' maponpaths g (p (f (g (f (g y)))))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="kp">repeat</span> <span class="nb">rewrite</span> maponpathscomp0.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- (maponpathscomp f g).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> maponpathsinv0. <span class="kp">repeat</span> <span class="nb">rewrite</span> path_comp_inv_inv.
+    <span class="nb">apply</span> (maponpaths pathsinv0).
+    <span class="nb">assert</span> (r := ! maponpaths_fun_fun_fun_natl q (funcomp f g) q (g y)); <span class="nb">simpl</span> <span class="k">in</span> r.
+    <span class="nb">rewrite</span> maponpathsidfun <span class="k">in</span> r. <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- (maponpathscomp f g) <span class="k">in</span> r.
+    <span class="nb">simpl</span> <span class="k">in</span> r. <span class="kp">repeat</span> <span class="nb">rewrite</span> path_assoc.
+    <span class="nb">rewrite</span> r. maponpaths_pre_post_cat. <span class="nb">clear</span> r.
+    <span class="nb">assert</span> (r := ! maponpaths_fun_fun_fun_natl p g q y); <span class="nb">simpl</span> <span class="k">in</span> r.
+    <span class="nb">rewrite</span> maponpathsidfun <span class="k">in</span> r. <span class="nb">rewrite</span> (maponpathscomp f).
+    <span class="nb">rewrite</span> (maponpathscomp g). <span class="nb">rewrite</span> (maponpathscomp g) <span class="k">in</span> r.
+    <span class="bp">exact</span> r. }
+  intermediate_path (
+       !(q (g y))
+       @' maponpaths g (maponpaths (funcomp g f) ((!p y) @' maponpaths f (!q (g y))))
+       @' maponpaths g (p (f (g (f (g y)))))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="nb">rewrite</span> &lt;- (maponpathscomp g f).
+    <span class="nb">rewrite</span> &lt;- (maponpathscomp f g). <span class="bp">reflexivity</span>. }
+  intermediate_path (
+       !(q (g y))
+       @' maponpaths g (maponpaths (funcomp g f) ((!p y) @' maponpaths f (!q (g y)))
+             @' p (f (g (f (g y)))))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="nb">rewrite</span> &lt;- maponpathscomp0. <span class="nb">apply</span> (maponpaths (maponpaths g)).
+    <span class="bp">reflexivity</span>. }
+  intermediate_path (
+       !(q (g y))
+       @' maponpaths g (p y @' ((!p y) @' maponpaths f (!q (g y))))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="nb">rewrite</span> &lt;- (maponpathscomp g f).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> maponpathscomp0. <span class="kp">repeat</span> <span class="nb">rewrite</span> maponpathsinv0.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- path_assoc. <span class="kp">repeat</span> <span class="nb">apply</span> path_inv_rotate_ll.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> path_assoc. <span class="kp">repeat</span> <span class="nb">apply</span> path_inv_rotate_rr.
+    <span class="nb">apply</span> pathsinv0. <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- (maponpathscomp0 g).
+    <span class="nb">apply</span> (maponpaths (maponpaths g)). <span class="nb">rewrite</span> h.
+    <span class="nb">assert</span> (r := ! maponpaths_fun_fun_natl p p (f (g y))); <span class="nb">simpl</span> <span class="k">in</span> r.
+    <span class="nb">rewrite</span> maponpathsidfun <span class="k">in</span> r. <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- (maponpathscomp g f) <span class="k">in</span> r.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> (path_assoc _ _ (p y)). <span class="nb">rewrite</span> r.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- (path_assoc _ _ (p y)). <span class="nb">apply</span> (maponpaths pre_cat). <span class="nb">clear</span> r.
+    <span class="nb">assert</span> (r := maponpaths_fun_fun_natl p p y); <span class="nb">simpl</span> <span class="k">in</span> r.
+    <span class="nb">rewrite</span> maponpathsidfun <span class="k">in</span> r.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- (maponpathscomp g f) <span class="k">in</span> r. <span class="bp">exact</span> r. }
+  intermediate_path (
+       (!q (g y))
+       @' maponpaths g (maponpaths f (!q (g y)))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- maponpathsinv0.
+    <span class="nb">apply</span> (maponpaths (maponpaths g)). <span class="nb">rewrite</span> pathsinv0r. <span class="bp">reflexivity</span>. }
+  intermediate_path (
+       (!q (g y))
+       @' maponpaths (funcomp f g) (!q (g y))
+       @' q (g (f (g y)))
+       @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="nb">rewrite</span> &lt;- (maponpathscomp f g).
+    <span class="bp">reflexivity</span>. }
+  intermediate_path ((!q (g y)) @' q (g y) @' (!q (g y)) @' q (g y)).
+  { maponpaths_pre_post_cat. <span class="nb">rewrite</span> &lt;- (maponpathscomp f g).
+    <span class="nb">apply</span> path_inv_rotate_ll. <span class="kp">repeat</span> <span class="nb">rewrite</span> path_assoc.
+    <span class="nb">apply</span> path_inv_rotate_rr.
+    <span class="nb">assert</span> (r := ! maponpaths_fun_fun_natl q q (g y)); <span class="nb">simpl</span> <span class="k">in</span> r.
+    <span class="nb">rewrite</span> maponpathsidfun <span class="k">in</span> r. <span class="nb">rewrite</span> (maponpathscomp f g).
+    <span class="bp">exact</span> r. }
+  <span class="nb">rewrite</span> pathsinv0l. <span class="nb">simpl</span>. <span class="nb">rewrite</span> pathsinv0l. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">inverseEquivalence</span> {<span class="nv">X</span> <span class="nv">Y</span>} : Equivalence X Y -&gt; Equivalence Y X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [f [g [p [q h]]]]. <span class="nb">simple refine</span> (makeEquivalence Y X g f q p _).
+  <span class="nb">intro</span> y. <span class="nb">apply</span> other_adjoint. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/Equivalences.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Equivalences *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Notations.
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

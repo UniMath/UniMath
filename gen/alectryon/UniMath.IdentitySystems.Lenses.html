@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Lenses.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Reflexive Graph Lenses</span>
+
+<span class="sd"> Reflexive graph lenses characterize transport over the edges of a base</span>
+<span class="sd"> reflexive graph, to construct a new displayed reflexive graph out of a family</span>
+<span class="sd"> of reflexive graphs.  The work here is based on Jon Sterling, 2026, "Reflexive</span>
+<span class="sd"> graph lenses in Univalent Foundations" (doi:10.1017/S0960129526100565,</span>
+<span class="sd"> arXiv:2404.07854).</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Definitions</span>
+<span class="sd"> 1.1. Oplax covariant lenses</span>
+<span class="sd"> 1.2. Lax contravariant lenses</span>
+<span class="sd"> 1.3. Unbiased dependent lenses</span>
+<span class="sd"> 2. Definitional lenses</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> September 2026</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.IdentitySystems.RXGraph.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.Examples.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> rxgraph.
+
+<span class="sd">(** ** Definitions *)</span>
+
+<span class="sd">(** *** Oplax covariant lenses</span>
+
+<span class="sd">    ("covariant" because of the direction of [lens_push],</span>
+<span class="sd">    "oplax" because of the direction of [lens_push_refl])</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">covy_lens_structure</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : B -&gt; rxgraph) : UU
+  := ∑ (push : ∏ (x y : B) (e : x ≈ y), E x -&gt; E y),
+    ∏ (x : B) (a : E x), push x x (refl x) a ≈ a.
+<span class="kn">Definition</span> <span class="nf">covy_lens</span> (<span class="nv">B</span> : rxgraph) : UU
+  := ∑ (E : B -&gt; rxgraph), covy_lens_structure E.
+
+<span class="kn">Definition</span> <span class="nf">covy_lens_rxgraph</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_lens B) := pr1 E.
+<span class="kn">Coercion</span> <span class="nf">covy_lens_rxgraph</span> : covy_lens &gt;-&gt; <span class="kt">Funclass</span>.
+<span class="kn">Coercion</span> <span class="nf">covy_lens_to_structure</span> {B : rxgraph} (E : covy_lens B)
+  : covy_lens_structure E := pr2 E.
+
+<span class="kn">Definition</span> <span class="nf">univalent_covy_lens</span> (<span class="nv">B</span> : rxgraph) : UU
+  := ∑ (E : B -&gt; univalent_rxgraph), covy_lens_structure E.
+<span class="kn">Definition</span> <span class="nf">univalent_covy_lens_rxgraph</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : univalent_covy_lens B) := pr1 E.
+<span class="c">(* (Ambiguous) Coercion univalent_covy_lens_rxgraph : univalent_covy_lens &gt;-&gt; Funclass. *)</span>
+<span class="kn">Coercion</span> <span class="nf">univalent_covy_lens_to_covy_lens</span> {B : rxgraph}
+  (E : univalent_covy_lens B) : covy_lens B
+  := (univalent_rxgraph_to_rxgraph ∘ pr1 E),, pr2 E.
+
+<span class="kn">Definition</span> <span class="nf">lens_push</span> {<span class="nv">B</span> : rxgraph} {<span class="nv">E</span> : B -&gt; rxgraph} (<span class="nv">ℓ</span> : covy_lens_structure E)
+  : ∏ {x y : B} (e : x ≈ y), E x -&gt; E y := pr1 ℓ.
+<span class="kn">Definition</span> <span class="nf">lens_push_refl</span> {<span class="nv">B</span> : rxgraph} {<span class="nv">E</span> : B -&gt; rxgraph} (<span class="nv">ℓ</span> : covy_lens_structure E)
+  : ∏ (x : B) (a : E x), lens_push ℓ (refl x) a ≈ a := pr2 ℓ.
+
+<span class="kn">Definition</span> <span class="nf">make_covy_lens_structure</span> (<span class="nv">B</span> : rxgraph) (<span class="nv">E</span> : B -&gt; rxgraph)
+  (<span class="nv">push</span> : ∏ (x y : B) (e : x ≈ y), E x -&gt; E y)
+  (<span class="nv">push_refl</span> : ∏ (x : B) (a : E x), push x x (refl x) a ≈ a)
+  : covy_lens_structure E
+  := push,, push_refl.
+
+<span class="kn">Definition</span> <span class="nf">make_covy_lens</span> (<span class="nv">B</span> : rxgraph) (<span class="nv">E</span> : B -&gt; rxgraph)
+  (<span class="nv">push</span> : ∏ (x y : B) (e : x ≈ y), E x -&gt; E y)
+  (<span class="nv">push_refl</span> : ∏ (x : B) (a : E x), push x x (refl x) a ≈ a)
+  : covy_lens B
+  := E,, push,, push_refl.
+
+<span class="kn">Definition</span> <span class="nf">make_univalent_covy_lens</span> (<span class="nv">B</span> : rxgraph) (<span class="nv">E</span> : B -&gt; univalent_rxgraph)
+  (<span class="nv">push</span> : ∏ (x y : B) (e : x ≈ y), E x -&gt; E y)
+  (<span class="nv">push_refl</span> : ∏ (x : B) (a : E x), push x x (refl x) a ≈ a)
+  : univalent_covy_lens B
+  := E,, push,, push_refl.
+
+<span class="kn">Definition</span> <span class="nf">make_univalent_covy_lens'</span> (<span class="nv">B</span> : rxgraph)
+  (<span class="nv">E</span> : covy_lens B)
+  (<span class="nv">H</span> : ∏ x, is_univalent (E x))
+  : univalent_covy_lens B
+  := make_univalent_covy_lens B
+       (<span class="k">λ</span> <span class="nv">x</span>, make_univalent_rxgraph (E x) (H x))
+       (@lens_push _ _ E)
+       (@lens_push_refl _ _ E).
+
+<span class="kn">Definition</span> <span class="nf">covy_lens_disp_rxgraph</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : covy_lens B) : disp_rxgraph B.
+<span class="kn">Proof</span>.
+  use make_disp_rxgraph.
+  - <span class="nb">intro</span> x; <span class="bp">exact</span> (E x).
+  - <span class="nb">intros</span> x y e a b.
+    <span class="bp">exact</span> (lens_push E e a ≈ b).
+  - <span class="nb">intros</span> x a.
+    <span class="bp">exact</span> (lens_push_refl E x a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"'disp+'"</span> := covy_lens_disp_rxgraph : rxgraph.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_covy_lens_disp_rxgraph</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_lens B)
+  (<span class="nv">HE</span> : ∏ x, is_univalent (E x))
+  : is_disp_univalent (disp+ E).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> is_univalent_from_isaprop_edges_from; <span class="nb">intro</span> a.
+  <span class="nb">apply</span> (is_univalent_to_isaprop_edges_from _ (HE x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weq_sec_over_contr_total2</span>
+  {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A -&gt; UU}
+  (<span class="nv">H</span> : iscontr (∑ a, B a))
+  (<span class="nv">c</span> := iscontrpr1 H)
+  (<span class="nv">C</span> : ∏ a, B a -&gt; UU)
+  : (∏ (a : A) (b : B a), C a b) ≃ C (pr1 c) (pr2 c).
+<span class="kn">Proof</span>.
+  intermediate_weq (∏ (ab : ∑ a, B a), C (pr1 ab) (pr2 ab)).
+  - <span class="nb">apply</span> invweq, weqsecovertotal2.
+  - <span class="bp">exact</span> (weqsecovercontr _ H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscontr_covy_lens_structure_over_univalent</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : B -&gt; rxgraph)
+  (<span class="nv">HB</span> : is_univalent B)
+  (<span class="nv">HE</span> : ∏ x, is_univalent (E x))
+  : iscontr (covy_lens_structure E).
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> (isofhlevelweqf <span class="mi">0</span>).
+  { <span class="bp">exact</span> (sec_total2_distributivity
+             (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">push</span>, ∏ (a : E x), push x (refl x) a ≈ a)). }
+  <span class="nb">apply</span> impred; <span class="nb">intro</span> x.
+  <span class="nb">apply</span> (isofhlevelweqb <span class="mi">0</span> (Y:=∑ (ϕ : E x -&gt; E x), ∏ a, ϕ a ≈ a)). {
+    use weqbandf; [<span class="nb">apply</span> (weq_sec_over_contr_total2 (is_univalent_to_iscontr_edges_from _ HB x))|].
+    <span class="nb">intro</span>; <span class="bp">exact</span> (idweq _).
+  }
+  <span class="nb">change</span> (iscontr (edges_to (E x ~&gt; E x) (idfun _))).
+  <span class="nb">apply</span> is_univalent_to_iscontr_edges_to.
+  <span class="nb">apply</span> is_univalent_product_rxgraph; <span class="nb">intro</span>.
+  <span class="nb">apply</span> HE.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Lax contravariant lenses</span>
+
+<span class="sd">    ("contravariant" because of the direction of [lens_pull],</span>
+<span class="sd">    "lax" because of the direction of [lens_pull_refl])</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">contra_lens_structure</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : B -&gt; rxgraph)
+  := ∑ (pull : ∏ (x y : B) (e : x ≈ y), E y -&gt; E x),
+    ∏ (x : B) (a : E x), a ≈ pull x x (refl x) a.
+<span class="kn">Definition</span> <span class="nf">contra_lens</span> (<span class="nv">B</span> : rxgraph) : UU
+  := ∑ (E : B -&gt; rxgraph), contra_lens_structure E.
+
+<span class="kn">Definition</span> <span class="nf">contra_lens_rxgraph</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_lens B) := pr1 E.
+<span class="kn">Coercion</span> <span class="nf">contra_lens_rxgraph</span> : contra_lens &gt;-&gt; <span class="kt">Funclass</span>.
+<span class="kn">Coercion</span> <span class="nf">contra_lens_to_structure</span> {B : rxgraph} (E : contra_lens B)
+  : contra_lens_structure E := pr2 E.
+
+<span class="kn">Definition</span> <span class="nf">univalent_contra_lens</span> (<span class="nv">B</span> : rxgraph) : UU
+  := ∑ (E : B -&gt; univalent_rxgraph), contra_lens_structure E.
+<span class="kn">Definition</span> <span class="nf">univalent_contra_lens_rxgraph</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : univalent_contra_lens B) := pr1 E.
+<span class="c">(* (Ambiguous) Coercion univalent_contra_lens_rxgraph : univalent_contra_lens &gt;-&gt; Funclass. *)</span>
+<span class="kn">Coercion</span> <span class="nf">univalent_contra_lens_to_contra_lens</span> {B : rxgraph}
+  (E : univalent_contra_lens B) : contra_lens B
+  := (univalent_rxgraph_to_rxgraph ∘ pr1 E),, pr2 E.
+
+<span class="kn">Definition</span> <span class="nf">lens_pull</span> {<span class="nv">B</span> : rxgraph} {<span class="nv">E</span> : B -&gt; rxgraph} (<span class="nv">ℓ</span> : contra_lens_structure E)
+  : ∏ {x y : B} (e : x ≈ y), E y -&gt; E x := pr1 ℓ.
+<span class="kn">Definition</span> <span class="nf">lens_pull_refl</span> {<span class="nv">B</span> : rxgraph} {<span class="nv">E</span> : B -&gt; rxgraph} (<span class="nv">ℓ</span> : contra_lens_structure E)
+  : ∏ (x : B) (a : E x), a ≈ lens_pull ℓ (refl x) a := pr2 ℓ.
+
+<span class="kn">Definition</span> <span class="nf">make_contra_lens_structure</span> (<span class="nv">B</span> : rxgraph) (<span class="nv">E</span> : B -&gt; rxgraph)
+  (<span class="nv">pull</span> : ∏ (x y : B) (e : x ≈ y), E y -&gt; E x)
+  (<span class="nv">pull_refl</span> : ∏ (x : B) (a : E x), a ≈ pull x x (refl x) a)
+  : contra_lens_structure E
+  := pull,, pull_refl.
+
+<span class="kn">Definition</span> <span class="nf">make_contra_lens</span> (<span class="nv">B</span> : rxgraph) (<span class="nv">E</span> : B -&gt; rxgraph)
+  (<span class="nv">pull</span> : ∏ (x y : B) (e : x ≈ y), E y -&gt; E x)
+  (<span class="nv">pull_refl</span> : ∏ (x : B) (a : E x), a ≈ pull x x (refl x) a)
+  : contra_lens B
+  := E,, pull,, pull_refl.
+
+<span class="kn">Definition</span> <span class="nf">make_univalent_contra_lens</span> (<span class="nv">B</span> : rxgraph) (<span class="nv">E</span> : B -&gt; univalent_rxgraph)
+  (<span class="nv">pull</span> : ∏ (x y : B) (e : x ≈ y), E y -&gt; E x)
+  (<span class="nv">pull_refl</span> : ∏ (x : B) (a : E x), a ≈ pull x x (refl x) a)
+  : univalent_contra_lens B
+  := E,, pull,, pull_refl.
+
+<span class="kn">Definition</span> <span class="nf">make_univalent_contra_lens'</span> (<span class="nv">B</span> : rxgraph)
+  (<span class="nv">E</span> : contra_lens B)
+  (<span class="nv">H</span> : ∏ x, is_univalent (E x))
+  : univalent_contra_lens B
+  := make_univalent_contra_lens B
+       (<span class="k">λ</span> <span class="nv">x</span>, make_univalent_rxgraph (E x) (H x))
+       (@lens_pull _ _ E)
+       (@lens_pull_refl _ _ E).
+
+<span class="kn">Definition</span> <span class="nf">contra_lens_disp_rxgraph</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : contra_lens B) : disp_rxgraph B.
+<span class="kn">Proof</span>.
+  use make_disp_rxgraph.
+  - <span class="nb">intro</span> x; <span class="bp">exact</span> (E x).
+  - <span class="nb">intros</span> x y e a b.
+    <span class="bp">exact</span> (a ≈ lens_pull E e b).
+  - <span class="nb">intros</span> x a.
+    <span class="bp">exact</span> (lens_pull_refl E x a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"'disp-'"</span> := contra_lens_disp_rxgraph : rxgraph.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_contra_lens_disp_rxgraph</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_lens B)
+  (<span class="nv">HE</span> : ∏ x, is_univalent (E x))
+  : is_disp_univalent (disp- E).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> is_univalent_from_isaprop_edges_to; <span class="nb">intro</span> a.
+  <span class="nb">apply</span> (is_univalent_to_isaprop_edges_to _ (HE x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscontr_contra_lens_structure_over_univalent</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : B -&gt; rxgraph)
+  (<span class="nv">HB</span> : is_univalent B)
+  (<span class="nv">HE</span> : ∏ x, is_univalent (E x))
+  : iscontr (contra_lens_structure E).
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> (isofhlevelweqf <span class="mi">0</span>).
+  { <span class="bp">exact</span> (sec_total2_distributivity
+             (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">pull</span>, ∏ (a : E x), a ≈ pull x (refl x) a)). }
+  <span class="nb">apply</span> impred; <span class="nb">intro</span> x.
+  <span class="nb">apply</span> (isofhlevelweqb <span class="mi">0</span> (Y:=∑ (ϕ : E x -&gt; E x), ∏ a, a ≈ ϕ a)). {
+    use weqbandf; [<span class="nb">apply</span> (weq_sec_over_contr_total2 (is_univalent_to_iscontr_edges_from _ HB x))|].
+    <span class="nb">intro</span>; <span class="bp">exact</span> (idweq _).
+  }
+  <span class="nb">change</span> (iscontr (edges_from (E x ~&gt; E x) (idfun _))).
+  <span class="nb">apply</span> is_univalent_to_iscontr_edges_from.
+  <span class="nb">apply</span> is_univalent_product_rxgraph; <span class="nb">intro</span>.
+  <span class="nb">apply</span> HE.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Involution *)</span>
+
+<span class="kn">Definition</span> <span class="nf">covy_to_contra_lens</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : covy_lens B) : contra_lens B^op.
+<span class="kn">Proof</span>.
+  use make_contra_lens.
+  - <span class="nb">intro</span> x; <span class="bp">exact</span> (E x)^op.
+  - <span class="nb">intros</span> x y e; <span class="bp">exact</span> (lens_push E e).
+  - <span class="nb">intros</span> x a; <span class="bp">exact</span> (lens_push_refl E x a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">contra_to_covy_lens</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : contra_lens B) : covy_lens B^op.
+<span class="kn">Proof</span>.
+  use make_covy_lens.
+  - <span class="nb">intro</span> x; <span class="bp">exact</span> (E x)^op.
+  - <span class="nb">intros</span> x y e; <span class="bp">exact</span> (lens_pull E e).
+  - <span class="nb">intros</span> x a; <span class="bp">exact</span> (lens_pull_refl E x a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">contra_to_covy_lens_involution_compute</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_lens B)
+  : contra_to_covy_lens (covy_to_contra_lens E) = E.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">covy_to_contra_lens_involution_compute</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_lens B)
+  : covy_to_contra_lens (contra_to_covy_lens E) = E.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">covy_to_contra_lens_disp_rxgraph_compute</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_lens B)
+  : disp- (covy_to_contra_lens E) = (disp+ E)^op*.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">contra_to_covy_lens_disp_rxgraph_compute</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_lens B)
+  : disp+ (contra_to_covy_lens E) = (disp- E)^op*.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="sd">(** *** Unbiased dependent lenses *)</span>
+
+<span class="kn">Definition</span> <span class="nf">unbiased_lens_structure</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : ∏ {a b : B}, a ≈ b -&gt; rxgraph) : UU
+  := ∑ (lext : ∏ {x y : B} (e : x ≈ y) (a : E (refl x)), E e)
+       (rext : ∏ {x y : B} (e : x ≈ y) (a : E (refl y)), E e),
+    (∏ (x : B) (a : E (refl x)), lext (refl x) a ≈ rext (refl x) a) ×
+    (∏ (x : B) (a : E (refl x)), a ≈ rext (refl x) a).
+
+<span class="kn">Definition</span> <span class="nf">unbiased_lens</span> (<span class="nv">B</span> : rxgraph) : UU
+  := ∑ (E : ∏ {a b : B}, a ≈ b -&gt; rxgraph),
+    unbiased_lens_structure (@E).
+
+<span class="kn">Definition</span> <span class="nf">make_unbiased_lens_structure</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : ∏ {a b : B}, a ≈ b -&gt; rxgraph)
+  (<span class="nv">lext</span> : ∏ {x y : B} (e : x ≈ y) (a : E (refl x)), E e)
+  (<span class="nv">rext</span> : ∏ {x y : B} (e : x ≈ y) (a : E (refl y)), E e)
+  (<span class="nv">ext_refl</span> : ∏ (x : B) (a : E (refl x)), lext (refl x) a ≈ rext (refl x) a)
+  (<span class="nv">rext_refl</span> : ∏ (x : B) (a : E (refl x)), a ≈ rext (refl x) a)
+  : unbiased_lens_structure (@E)
+  := @lext,, @rext,, @ext_refl,, @rext_refl.
+
+<span class="kn">Definition</span> <span class="nf">make_unbiased_lens</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : ∏ {a b : B}, a ≈ b -&gt; rxgraph)
+  (<span class="nv">lext</span> : ∏ {x y : B} (e : x ≈ y) (a : E (refl x)), E e)
+  (<span class="nv">rext</span> : ∏ {x y : B} (e : x ≈ y) (a : E (refl y)), E e)
+  (<span class="nv">ext_refl</span> : ∏ (x : B) (a : E (refl x)), lext (refl x) a ≈ rext (refl x) a)
+  (<span class="nv">rext_refl</span> : ∏ (x : B) (a : E (refl x)), a ≈ rext (refl x) a)
+  : unbiased_lens B
+  := @E,, @lext,, @rext,, @ext_refl,, @rext_refl.
+
+<span class="kn">Definition</span> <span class="nf">unbiased_lens_family</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : unbiased_lens B)
+  : ∏ {a b : B}, a ≈ b -&gt; rxgraph := pr1 E.
+<span class="kn">Coercion</span> <span class="nf">unbiased_lens_family</span> : unbiased_lens &gt;-&gt; <span class="kt">Funclass</span>.
+<span class="kn">Coercion</span> <span class="nf">unbiased_lens_to_structure</span> {B : rxgraph} (E : unbiased_lens B)
+  : unbiased_lens_structure E := pr2 E.
+
+<span class="kn">Definition</span> <span class="nf">lens_lext</span> {<span class="nv">B</span> : rxgraph}
+  {<span class="nv">E</span> : ∏ {a b : B}, a ≈ b -&gt; rxgraph} (<span class="nv">ℓ</span> : unbiased_lens_structure (@E))
+  : ∏ {x y : B} (e : x ≈ y) (a : E (refl x)), E e := pr1 ℓ.
+<span class="kn">Definition</span> <span class="nf">lens_rext</span> {<span class="nv">B</span> : rxgraph}
+  {<span class="nv">E</span> : ∏ {a b : B}, a ≈ b -&gt; rxgraph} (<span class="nv">ℓ</span> : unbiased_lens_structure (@E))
+  : ∏ {x y : B} (e : x ≈ y) (a : E (refl y)), E e := pr12 ℓ.
+<span class="kn">Definition</span> <span class="nf">lens_ext_refl</span> {<span class="nv">B</span> : rxgraph}
+  {<span class="nv">E</span> : ∏ {a b : B}, a ≈ b -&gt; rxgraph} (<span class="nv">ℓ</span> : unbiased_lens_structure (@E))
+  : ∏ (x : B) (a : E (refl x)), lens_lext ℓ (refl x) a ≈ lens_rext ℓ (refl x) a := pr122 ℓ.
+<span class="kn">Definition</span> <span class="nf">lens_rext_refl</span> {<span class="nv">B</span> : rxgraph}
+  {<span class="nv">E</span> : ∏ {a b : B}, a ≈ b -&gt; rxgraph} (<span class="nv">ℓ</span> : unbiased_lens_structure (@E))
+  : ∏ (x : B) (a : E (refl x)), a ≈ lens_rext ℓ (refl x) a := pr222 ℓ.
+
+<span class="kn">Definition</span> <span class="nf">unbiased_lens_disp_rxgraph</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : unbiased_lens B) : disp_rxgraph B.
+<span class="kn">Proof</span>.
+  use make_disp_rxgraph.
+  - <span class="nb">intro</span> x; <span class="bp">exact</span> (E _ _ (refl x)).
+  - <span class="nb">intros</span> x y e a b.
+    <span class="bp">exact</span> (lens_lext E e a ≈ lens_rext E e b).
+  - <span class="nb">intros</span> x a.
+    <span class="bp">exact</span> (lens_ext_refl E x a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"'disp±'"</span> := unbiased_lens_disp_rxgraph.
+<span class="c">(* type in Emacs using agda-input with disp \pm *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_unbiased_lens_disp_rxgraph</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : unbiased_lens B)
+  (<span class="nv">HE</span> : ∏ (x y : B) (e : x ≈ y), is_univalent (E _ _ e))
+  : is_disp_univalent (disp± E).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> is_univalent_from_isaprop_edges_from; <span class="nb">intro</span> a.
+  use (isofhlevelweqb <span class="mi">1</span> (Y:=edges_from (E _ _ (refl x)) (lens_lext E (refl x) a))).
+  - <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> b; <span class="nb">cbn</span>.
+    <span class="nb">elim</span> (lens_rext_refl E x b) <span class="nb">using</span> rxgraph_edge_rect_left.
+    + <span class="nb">apply</span> HE.
+    + <span class="bp">exact</span> (idweq _).
+  - <span class="nb">apply</span> is_univalent_to_isaprop_edges_from, HE.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscontr_unbiased_lens_structure_over_univalent</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : ∏ {x y : B}, x ≈ y -&gt; rxgraph)
+  (<span class="nv">HB</span> : is_univalent B)
+  (<span class="nv">HE</span> : ∏ (x y : B) (e : x ≈ y), is_univalent (E e))
+  : iscontr (unbiased_lens_structure (@E)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> unbiased_lens_structure.
+  <span class="nb">eapply</span> (isofhlevelweqf <span class="mi">0</span>
+            (X:=(∏ x, ∑ (lext : ∏ (y : B) (e : x ≈ y), E x x (refl x) → E x y e)
+                        (rext : ∏ (y : B) (e : x ≈ y), E y y (refl y) → E x y e),
+                  (∏ (a : E x x (refl x)), lext x (refl x) a ≈ rext x (refl x) a)
+                    × (∏ (a : E x x (refl x)), a ≈ rext x (refl x) a)))).
+  { use weq_iso.
+    - <span class="nb">intros</span> f.
+      <span class="bp">exact</span> ((<span class="k">λ</span> <span class="nv">x</span>, pr1 (f x)),, (<span class="k">λ</span> <span class="nv">x</span>, pr12 (f x)),,
+               (<span class="k">λ</span> <span class="nv">x</span>, pr122 (f x)),, (<span class="k">λ</span> <span class="nv">x</span>, pr222 (f x))).
+    - <span class="nb">intros</span> [lext [rext [eq eqr]]] x.
+      <span class="bp">exact</span> (lext x,, rext x,, eq x,, eqr x).
+    - <span class="bp">easy</span>.
+    - <span class="bp">easy</span>. }
+  <span class="nb">apply</span> impred; <span class="nb">intro</span> x.
+  <span class="nb">eapply</span> (isofhlevelweqb <span class="mi">0</span>
+            (Y:=∑ (lext rext : E _ _ (refl x) -&gt; E _ _ (refl x)),
+               (lext ≈{_ ~&gt; _} rext) × (idfun _ ≈{_ ~&gt; _} rext))). {
+    use weqbandf; [<span class="nb">apply</span> (weq_sec_over_contr_total2 (is_univalent_to_iscontr_edges_from _ HB x))|].
+    <span class="nb">intro</span> lext; <span class="nb">cbn</span>.
+    use weqbandf; [<span class="nb">apply</span> (weq_sec_over_contr_total2 (is_univalent_to_iscontr_edges_from _ HB x))|].
+    <span class="nb">intro</span> rext; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (idweq _).
+  }
+  <span class="nb">eapply</span> (isofhlevelweqb <span class="mi">0</span> (Y:=edges_to (_ ~&gt; _) (idfun (E _ _ (refl x))))).
+  { <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> lext.
+    intermediate_weq (∑ (rext : edges_from (_ ~&gt; _) (idfun (E _ _ (refl x)))),
+                       lext ≈{_ ~&gt; _} pr1 rext).
+    { use weq_iso.
+      - <span class="nb">intros</span> [r [p q]]; <span class="bp">exact</span> ((r,,q),,p).
+      - <span class="nb">intros</span> [[r q] p]; <span class="bp">exact</span> (r,, p,, q).
+      - <span class="bp">easy</span>.
+      - <span class="bp">easy</span>. }
+    <span class="nb">refine</span> (weqcomp _ (weqtotal2overunit (<span class="k">λ</span> <span class="nv">_</span>, _))).
+    <span class="nb">apply</span> invweq.
+    use weqbandf. {
+      <span class="nb">apply</span> wequnittocontr, is_univalent_to_iscontr_edges_from.
+      <span class="nb">apply</span> is_univalent_product_rxgraph; <span class="nb">intro</span>; <span class="nb">apply</span> HE.
+    }
+    <span class="nb">intro</span>; <span class="bp">exact</span> (idweq _).
+  }
+  <span class="nb">apply</span> is_univalent_to_iscontr_edges_to.
+  <span class="nb">apply</span> is_univalent_product_rxgraph; <span class="nb">intro</span>; <span class="nb">apply</span> HE.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Unbiased lenses from biased ones *)</span>
+
+<span class="kn">Definition</span> <span class="nf">unbiased_lens_from_covy</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : covy_lens B) : unbiased_lens B.
+<span class="kn">Proof</span>.
+  use make_unbiased_lens.
+  - <span class="nb">intros</span> x y e; <span class="bp">exact</span> (E y).
+  - <span class="nb">intros</span> x y e; <span class="bp">exact</span> (lens_push E e).
+  - <span class="nb">intros</span> x y e; <span class="bp">exact</span> (idfun (E y)).
+  - <span class="nb">intros</span> x a; <span class="bp">exact</span> (lens_push_refl E x a).
+  - <span class="nb">intros</span> x a; <span class="bp">exact</span> (refl a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">unbiased_lens_from_covy_disp_compute</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_lens B)
+  : disp± (unbiased_lens_from_covy E) = disp+ E.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unbiased_lens_from_contra</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : contra_lens B) : unbiased_lens B.
+<span class="kn">Proof</span>.
+  use make_unbiased_lens.
+  - <span class="nb">intros</span> x y e; <span class="bp">exact</span> (E x).
+  - <span class="nb">intros</span> x y e; <span class="bp">exact</span> (idfun (E x)).
+  - <span class="nb">intros</span> x y e; <span class="bp">exact</span> (lens_pull E e).
+  - <span class="nb">intros</span> x a; <span class="bp">exact</span> (lens_pull_refl E x a).
+  - <span class="nb">intros</span> x a; <span class="bp">exact</span> (lens_pull_refl E x a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">unbiased_lens_from_contra_disp_compute</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_lens B)
+  : disp± (unbiased_lens_from_contra E) = disp- E.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="sd">(** ** Definitional lenses *)</span>
+
+<span class="kn">Definition</span> <span class="nf">discrete_covy_lens</span> {<span class="nv">B</span> : UU} (<span class="nv">E</span> : B -&gt; rxgraph)
+  : @covy_lens_structure (Δ B) E.
+<span class="kn">Proof</span>.
+  use make_covy_lens_structure.
+  - <span class="nb">intros</span> x y e; <span class="bp">exact</span> (transportf E e).
+  - <span class="nb">intros</span> x a; <span class="bp">exact</span> (refl a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_discrete_covy_lens</span> {<span class="nv">B</span> : UU} (<span class="nv">E</span> : B -&gt; rxgraph) : covy_lens (Δ B)
+  := E,, discrete_covy_lens E.
+
+<span class="kn">Notation</span> <span class="s2">"'Δ+' x ',' E"</span> :=
+  (make_discrete_covy_lens (<span class="k">λ</span> <span class="nv">x</span>, E))
+    (x <span class="kn">binder</span>, <span class="kn">at level</span> <span class="mi">200</span>) : rxgraph.
+<span class="c">(* type in Emacs using agda-input with \Delta or \GD *)</span>
+
+<span class="kn">Definition</span> <span class="nf">discrete_contra_lens</span> {<span class="nv">B</span> : UU} (<span class="nv">E</span> : B -&gt; rxgraph)
+  : @contra_lens_structure (Δ B) E.
+<span class="kn">Proof</span>.
+  use make_contra_lens_structure.
+  - <span class="nb">intros</span> x y e; <span class="bp">exact</span> (transportb E e).
+  - <span class="nb">intros</span> x a; <span class="bp">exact</span> (refl a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_discrete_contra_lens</span> {<span class="nv">B</span> : UU} (<span class="nv">E</span> : B -&gt; rxgraph) : contra_lens (Δ B)
+  := E,, discrete_contra_lens E.
+
+<span class="kn">Notation</span> <span class="s2">"'Δ-' x ',' E"</span> :=
+  (make_discrete_contra_lens (<span class="k">λ</span> <span class="nv">x</span>, E))
+    (x <span class="kn">binder</span>, <span class="kn">at level</span> <span class="mi">200</span>) : rxgraph.
+<span class="c">(* type in Emacs using agda-input with \Delta or \GD *)</span>
+
+<span class="sd">(** Definitional replacement *)</span>
+
+<span class="kn">Definition</span> <span class="nf">flatten_covy_lens</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : covy_lens B) : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> B.
+  - <span class="nb">intros</span> x y.
+    <span class="bp">exact</span> (∑ (e : x ≈ y) (e' : E x -&gt; E y),
+            ∏ (a : E x), lens_push E e a ≈ e' a).
+  - <span class="nb">intro</span> x; <span class="nb">cbn</span>.
+    <span class="k">exists</span> (<span class="nv">refl</span> <span class="nv">x</span>), (idfun (E x)).
+    <span class="bp">exact</span> (lens_push_refl E x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_flatten_covy_lens</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_lens B)
+  (<span class="nv">HB</span> : is_univalent B)
+  (<span class="nv">HE</span> : ∏ x, is_univalent (E x))
+  : is_univalent (flatten_covy_lens E).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_from_weq.
+  <span class="nb">cbn</span>; <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> (weqcomp (weq_id_to_edge HB x y)).
+  <span class="nb">apply</span> invweq, weqpr1; <span class="nb">intro</span> e.
+  <span class="nb">refine</span> (is_univalent_to_iscontr_edges_from (_ ~&gt; E y) _ (lens_push E e)).
+  <span class="nb">apply</span> is_univalent_product_rxgraph; <span class="nb">intro</span> a.
+  <span class="nb">apply</span> HE.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">flatten_covy_lens_structure</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_lens B)
+  : @covy_lens_structure (flatten_covy_lens E) E.
+<span class="kn">Proof</span>.
+  use make_covy_lens_structure.
+  - <span class="nb">intros</span> x y [e [e' f]].
+    <span class="bp">exact</span> e'.
+  - <span class="nb">intros</span> x a; <span class="bp">exact</span> (refl a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">flatten_contra_lens</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : contra_lens B) : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> B.
+  - <span class="nb">intros</span> x y.
+    <span class="bp">exact</span> (∑ (e : x ≈ y) (e' : E y -&gt; E x),
+            ∏ (a : E y), e' a ≈ lens_pull E e a).
+  - <span class="nb">intro</span> x; <span class="nb">cbn</span>.
+    <span class="k">exists</span> (<span class="nv">refl</span> <span class="nv">x</span>), (idfun (E x)).
+    <span class="bp">exact</span> (lens_pull_refl E x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_flatten_contra_lens</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_lens B)
+  (<span class="nv">HB</span> : is_univalent B)
+  (<span class="nv">HE</span> : ∏ x, is_univalent (E x))
+  : is_univalent (flatten_contra_lens E).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_from_weq.
+  <span class="nb">cbn</span>; <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> (weqcomp (weq_id_to_edge HB x y)).
+  <span class="nb">apply</span> invweq, weqpr1; <span class="nb">intro</span> e.
+  <span class="nb">refine</span> (is_univalent_to_iscontr_edges_to (_ ~&gt; E x) _ (lens_pull E e)).
+  <span class="nb">apply</span> is_univalent_product_rxgraph; <span class="nb">intro</span> a.
+  <span class="nb">apply</span> HE.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">flatten_contra_lens_structure</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_lens B)
+  : @contra_lens_structure (flatten_contra_lens E) E.
+<span class="kn">Proof</span>.
+  use make_contra_lens_structure.
+  - <span class="nb">intros</span> x y [e [e' f]].
+    <span class="bp">exact</span> e'.
+  - <span class="nb">intros</span> x a; <span class="bp">exact</span> (refl a).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/IdentitySystems/Lenses.v</tt>, line 23)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Groupoids.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Groupoids</span>
+
+<span class="sd">  Author: Langston Barrett (@siddharthist), March 2018 *)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">  - Definitions</span>
+<span class="sd">    - Pregroupoid</span>
+<span class="sd">    - Groupoid</span>
+<span class="sd">    - Univalent groupoid</span>
+<span class="sd">  - An alternative characterization of univalence for groupoids</span>
+<span class="sd">  - Lemmas</span>
+<span class="sd">  - Subgroupoids</span>
+<span class="sd">  - Discrete categories</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Definitions *)</span>
+
+<span class="sd">(** A precategory is a pregroupoid when all of its arrows are [iso]s. *)</span>
+<span class="kn">Definition</span> <span class="nf">is_pregroupoid</span> (<span class="nv">C</span> : category) :=
+  ∏ (x y : C) (f : x --&gt; y), is_z_isomorphism f.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_pregroupoid</span> (<span class="nv">C</span> : category) : isaprop (is_pregroupoid C).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pregroupoid</span> : UU := ∑ C : category, is_pregroupoid C.
+
+<span class="sd">(** Constructors, accessors, and coersions *)</span>
+<span class="kn">Definition</span> <span class="nf">make_pregroupoid</span> (<span class="nv">C</span> : category) (<span class="nv">isc</span> : is_pregroupoid C) : pregroupoid :=
+  (C,, isc).
+<span class="kn">Definition</span> <span class="nf">pregroupoid_to_precategory</span> : pregroupoid -&gt; category := pr1.
+<span class="kn">Definition</span> <span class="nf">pregroupoid_is_pregroupoid</span> :
+  ∏ gpd : pregroupoid, is_pregroupoid (pr1 gpd) := pr2.
+<span class="kn">Coercion</span> <span class="nf">pregroupoid_to_precategory</span> : pregroupoid &gt;-&gt; category.
+
+<span class="sd">(** A category is a groupoid when all of its arrows are [iso]s. *)</span>
+<span class="kn">Definition</span> <span class="nf">groupoid</span> : UU := ∑ C : category, is_pregroupoid C.
+
+<span class="sd">(** Constructors, accessors, and coersions *)</span>
+<span class="kn">Definition</span> <span class="nf">make_groupoid</span> (<span class="nv">C</span> : category) (<span class="nv">isc</span> : is_pregroupoid C) : groupoid := (C,, isc).
+<span class="kn">Definition</span> <span class="nf">groupoid_to_category</span> : groupoid -&gt; category := pr1.
+<span class="kn">Definition</span> <span class="nf">groupoid_is_pregroupoid</span> :
+  ∏ gpd : groupoid, is_pregroupoid (pr1 gpd) := pr2.
+<span class="kn">Coercion</span> <span class="nf">groupoid_to_category</span> : groupoid &gt;-&gt; category.
+<span class="kn">Definition</span> <span class="nf">groupoid_to_pregroupoid</span> :
+  groupoid → pregroupoid := <span class="k">λ</span> <span class="nv">gpd</span>, make_pregroupoid gpd (groupoid_is_pregroupoid gpd).
+<span class="kn">Coercion</span> <span class="nf">groupoid_to_pregroupoid</span> : groupoid &gt;-&gt; pregroupoid.
+
+<span class="kn">Definition</span> <span class="nf">univalent_groupoid</span> : UU := ∑ C : univalent_category, is_pregroupoid C.
+
+<span class="sd">(** Constructors, accessors, and coersions *)</span>
+<span class="kn">Definition</span> <span class="nf">make_univalent_groupoid</span> (<span class="nv">C</span> : univalent_category) (<span class="nv">isc</span> : is_pregroupoid C) :
+  univalent_groupoid := (C,, isc).
+<span class="kn">Definition</span> <span class="nf">univalent_groupoid_to_univalent_category</span> :
+  univalent_groupoid -&gt; univalent_category := pr1.
+<span class="kn">Coercion</span> <span class="nf">univalent_groupoid_to_univalent_category</span> :
+  univalent_groupoid &gt;-&gt; univalent_category.
+<span class="kn">Definition</span> <span class="nf">univalent_groupoid_is_pregroupoid</span> :
+  ∏ ugpd : univalent_groupoid, is_pregroupoid (pr1 ugpd) := pr2.
+<span class="kn">Definition</span> <span class="nf">univalent_groupoid_to_groupoid</span> :
+  univalent_groupoid -&gt; groupoid :=
+  <span class="k">λ</span> <span class="nv">ugpd</span>, make_groupoid ugpd (univalent_groupoid_is_pregroupoid ugpd).
+<span class="kn">Coercion</span> <span class="nf">univalent_groupoid_to_groupoid</span> :
+  univalent_groupoid &gt;-&gt; groupoid.
+
+<span class="sd">(** An alternative characterization of univalence for groupoids *)</span>
+<span class="kn">Definition</span> <span class="nf">is_univalent_pregroupoid</span> (<span class="nv">pgpd</span> : pregroupoid) :=
+  (∏ a b : ob pgpd, isweq (<span class="k">fun</span> <span class="nv">path</span> : a = b =&gt; idtomor a b path)) ×
+  has_homsets pgpd.
+
+<span class="sd">(** The morphism part of an isomorphism is an inclusion. *)</span>
+<span class="kn">Lemma</span> <span class="nf">morphism_from_iso_is_incl</span> (<span class="nv">C</span> : category) (<span class="nv">a</span> <span class="nv">b</span> : ob C) :
+  isincl (@morphism_from_z_iso C a b).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> g.
+  <span class="nb">apply</span> (isofhlevelweqf _ (ezweqpr1 _ _)).
+  <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The alternative characterization implies the normal one.</span>
+<span class="sd">    Note that the other implication is missing, it should be completed</span>
+<span class="sd">    if possible. *)</span>
+<span class="kn">Lemma</span> <span class="nf">is_univalent_pregroupoid_is_univalent</span> {<span class="nv">pgpd</span> : groupoid} :
+  is_univalent_pregroupoid pgpd -&gt; is_univalent pgpd.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ig.
+  <span class="nb">intros</span> a b.
+  use (isofhlevelff <span class="mi">0</span> idtoiso (morphism_from_z_iso _ _)).
+  + use (isweqhomot (idtomor _ _)).
+    * <span class="nb">intro</span> p; <span class="nb">destruct</span> p; <span class="bp">reflexivity</span>.
+    * <span class="nb">apply</span> ig.
+  + <span class="nb">apply</span> (morphism_from_iso_is_incl pgpd).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Lemmas *)</span>
+
+<span class="sd">(** In a pregroupoid, the hom-types are equivalent to the type of isomorphisms. *)</span>
+<span class="kn">Lemma</span> <span class="nf">pregroupoid_hom_weq_iso</span> {<span class="nv">pgpd</span> : pregroupoid} (<span class="nv">a</span> <span class="nv">b</span> : pgpd) : (a --&gt; b) ≃ z_iso a b.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intros</span> f; <span class="nb">refine</span> (f,, _); <span class="nb">apply</span> pregroupoid_is_pregroupoid.
+  - <span class="nb">apply</span> pr1.
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">intro</span>; <span class="nb">apply</span> z_iso_eq; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pregroupoid_hom_weq_iso_idtoiso</span> {<span class="nv">pgpd</span> : pregroupoid} (<span class="nv">a</span> : pgpd) :
+  pregroupoid_hom_weq_iso a a (identity a) = idtoiso (idpath a).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> z_iso_eq; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pregroupoid_hom_weq_iso_comp</span> {<span class="nv">pgpd</span> : pregroupoid} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob pgpd}
+      (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c) :
+  z_iso_comp (pregroupoid_hom_weq_iso _ _ f) (pregroupoid_hom_weq_iso _ _ g) =
+  (pregroupoid_hom_weq_iso _ _ (f · g)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> z_iso_eq; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** If D is a groupoid, then a functor category into it is as well. *)</span>
+<span class="kn">Lemma</span> <span class="nf">is_pregroupoid_functor_cat</span> {<span class="nv">C</span> : precategory} {<span class="nv">D</span> : category}
+  (<span class="nv">gr_D</span> : is_pregroupoid D)
+  : is_pregroupoid (functor_category C D).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F G α; <span class="nb">apply</span> nat_trafo_z_iso_if_pointwise_z_iso.
+  <span class="nb">intros</span> c; <span class="nb">apply</span> gr_D.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** In a univalent groupoid, arrows are equivalent to paths *)</span>
+<span class="kn">Lemma</span> <span class="nf">univalent_groupoid_arrow_weq_path</span> {<span class="nv">ugpd</span> : univalent_groupoid} {<span class="nv">a</span> <span class="nv">b</span> : ob ugpd} :
+  (a --&gt; b) ≃ a = b.
+<span class="kn">Proof</span>.
+  intermediate_weq (z_iso a b).
+  - <span class="nb">apply</span> (@pregroupoid_hom_weq_iso ugpd).
+  - <span class="nb">apply</span> invweq; use make_weq.
+    + <span class="bp">exact</span> idtoiso.
+    + <span class="nb">apply</span> univalent_category_is_univalent.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Subgroupoids *)</span>
+
+<span class="sd">(** Every category has a subgroupoid of all the objects and only the [iso]s. *)</span>
+<span class="kn">Definition</span> <span class="nf">maximal_subgroupoid</span> {<span class="nv">C</span> : category} : pregroupoid.
+<span class="kn">Proof</span>.
+  use make_pregroupoid.
+  - use make_category.
+    + use make_precategory; use tpair.
+      * use tpair.
+        -- <span class="bp">exact</span> (ob C).
+        -- <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, ∑ f : a --&gt; b, is_z_isomorphism f).
+      * <span class="nb">unfold</span> precategory_id_comp; <span class="nb">cbn</span>.
+        use make_dirprod.
+        -- <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span>, identity a,, identity_is_z_iso _).
+        -- <span class="nb">intros</span> ? ? ? f g; <span class="bp">exact</span> (z_iso_comp f g).
+      * use make_dirprod;
+        <span class="nb">intros</span>;
+        <span class="nb">apply</span> z_iso_eq.
+        -- <span class="nb">apply</span> id_left.
+        -- <span class="nb">apply</span> id_right.
+      * use make_dirprod; <span class="nb">intros</span>; <span class="nb">apply</span> z_iso_eq.
+        -- <span class="nb">apply</span> assoc.
+        -- <span class="nb">apply</span> assoc'.
+    + <span class="nb">cbn</span>. <span class="nb">intros</span> a b. <span class="nb">cbn</span>. <span class="nb">apply</span> isaset_z_iso.
+  - <span class="nb">intros</span> ? ? f. <span class="k">exists</span> (<span class="nv">z_iso_inv_from_z_iso</span> <span class="nv">f</span>).
+    use make_dirprod; <span class="nb">apply</span> z_iso_eq.
+    + <span class="nb">apply</span> z_iso_inv_after_z_iso.
+    + <span class="nb">apply</span> z_iso_after_z_iso_inv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ C:category, pregroupoid_to_precategory (@maximal_subgroupoid C^op)
+                      = (@maximal_subgroupoid C)^op.
+<span class="kn">Proof</span>.
+  <span class="kn">Fail</span> <span class="bp">reflexivity</span>.
+<span class="kn">Abort</span>.
+<span class="c">(* The first thing preventing the proof above is this: *)</span>
+<span class="kn">Goal</span> ∏ (C:category) (a b:C) (f : C ⟦ b, a ⟧), @is_z_isomorphism C^op a b f = @is_z_isomorphism C b a f.
+<span class="kn">Proof</span>.
+  <span class="kn">Fail</span> <span class="bp">reflexivity</span>.
+<span class="kn">Abort</span>.
+
+
+<span class="sd">(** ** Discrete categories *)</span>
+
+<span class="sd">(** See [Categories.Categories.StandardCategories] for a proof that any discrete</span>
+<span class="sd">    category is equivalent to the path groupoid of its objects. *)</span>
+
+<span class="sd">(** A discrete category is a univalent [pregroupoid] with an underlying [setcategory].</span>
+<span class="sd">    Why? In this case, all arrows must be identities: every arrow has an inverse,</span>
+<span class="sd">    and isos induce equality (by univalence).</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_discrete</span> (<span class="nv">C</span> : category) :=
+  (is_setcategory C × is_pregroupoid C × is_univalent C).
+
+<span class="kn">Definition</span> <span class="nf">discrete_category</span> : UU := ∑ C : category, is_discrete C.
+<span class="kn">Definition</span> <span class="nf">make_discrete_category</span> :
+  ∏ C : category, is_discrete C → discrete_category := tpair is_discrete.
+<span class="kn">Definition</span> <span class="nf">discrete_category_to_univalent_groupoid</span> :
+  discrete_category -&gt; univalent_groupoid :=
+  <span class="k">λ</span> <span class="nv">disc</span>, make_univalent_groupoid
+            (make_univalent_category (pr1 disc) (dirprod_pr2 (dirprod_pr2 (pr2 disc))))
+            (dirprod_pr1 (dirprod_pr2 (pr2 disc))).
+<span class="kn">Coercion</span> <span class="nf">discrete_category_to_univalent_groupoid</span> :
+  discrete_category &gt;-&gt; univalent_groupoid.
+<span class="kn">Definition</span> <span class="nf">discrete_category_is_discrete</span> :
+  ∏ C : discrete_category, is_discrete C := pr2.
+<span class="kn">Definition</span> <span class="nf">discrete_category_is_setcategory</span> :
+  ∏ C : discrete_category, is_setcategory C := <span class="k">λ</span> <span class="nv">C</span>, dirprod_pr1 (pr2 C).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_discrete</span> (<span class="nv">C</span> : category) : isaprop (is_discrete C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod; [|<span class="nb">apply</span> isapropdirprod].
+  - <span class="nb">apply</span> isaprop_is_setcategory.
+  - <span class="nb">apply</span> isaprop_is_pregroupoid.
+  - <span class="nb">apply</span> isaprop_is_univalent.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** In a discrete category, hom-types are propositions. *)</span>
+<span class="kn">Lemma</span> <span class="nf">discrete_category_hom_prop</span> {<span class="nv">disc</span> : discrete_category} {<span class="nv">a</span> <span class="nv">b</span> : ob disc} :
+  isaprop (a --&gt; b).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@isofhlevelweqf _ (a = b)).
+  - <span class="nb">apply</span> invweq, (@univalent_groupoid_arrow_weq_path disc).
+  - <span class="nb">apply</span> (isaset_ob (_ ,, discrete_category_is_setcategory _)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A functor between discrete categories is given by a function</span>
+<span class="sd">    on their objects. *)</span>
+<span class="kn">Lemma</span> <span class="nf">discrete_functor</span> {<span class="nv">C</span> <span class="nv">D</span> : discrete_category} (<span class="nv">f</span> : ob C → ob D) :
+  functor C D.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use make_functor_data.
+    + <span class="nb">apply</span> f.
+    + <span class="nb">intros</span> a b atob.
+      <span class="nb">pose</span> (aeqb := @univalent_groupoid_arrow_weq_path C _ _ atob).
+      <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">z</span>, _ ⟦ f a, z ⟧) (maponpaths f aeqb) (identity _)).
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span>; <span class="nb">apply</span> discrete_category_hom_prop.
+    + <span class="nb">intros</span> ? ? ? ? ?; <span class="nb">apply</span> discrete_category_hom_prop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">discrete_cat_nat_trans</span> {<span class="nv">C</span> : precategory} {<span class="nv">D</span> : discrete_category}
+  {<span class="nv">F</span> <span class="nv">G</span> : functor C D} (<span class="nv">t</span> : ∏ x : ob C, F x --&gt; G x) : is_nat_trans F G t.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ?; <span class="nb">apply</span> discrete_category_hom_prop.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Groupoids.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.PartD.
+  &gt; Require Import UniMath.Foundations.Propositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

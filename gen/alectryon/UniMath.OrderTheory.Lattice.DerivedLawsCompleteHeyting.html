@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DerivedLawsCompleteHeyting.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Derived laws in complete Heyting algebras</span>
+
+<span class="sd"> This file is a collection of various derived laws for complete Heyting algebras. These</span>
+<span class="sd"> are useful in various applications.</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Lattice.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Bounded.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Heyting.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.CompleteHeyting.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> heyting.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_le_min_l</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> : H}
+            (<span class="nv">p</span> : x₁ ≤ x₂)
+            (<span class="nv">y</span> : H)
+  : (x₁ ∧ y) ≤ (x₂ ∧ y).
+<span class="kn">Proof</span>.
+  use cha_min_le_case.
+  - <span class="nb">refine</span> (cha_le_trans _ p).
+    <span class="nb">apply</span> cha_min_le_l.
+  - <span class="nb">apply</span> cha_min_le_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_le_min_r</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : H}
+            (<span class="nv">p</span> : y₁ ≤ y₂)
+  : (x ∧ y₁) ≤ (x ∧ y₂).
+<span class="kn">Proof</span>.
+  use cha_min_le_case.
+  - <span class="nb">apply</span> cha_min_le_l.
+  - <span class="nb">refine</span> (cha_le_trans _ p).
+    <span class="nb">apply</span> cha_min_le_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_le_max_l</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> : H}
+            (<span class="nv">p</span> : x₁ ≤ x₂)
+            (<span class="nv">y</span> : H)
+  : (x₁ ∨ y) ≤ (x₂ ∨ y).
+<span class="kn">Proof</span>.
+  use cha_max_le_case.
+  - <span class="nb">refine</span> (cha_le_trans p _).
+    <span class="nb">apply</span> cha_max_le_l.
+  - <span class="nb">apply</span> cha_max_le_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_le_max_r</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : H}
+            (<span class="nv">p</span> : y₁ ≤ y₂)
+  : (x ∨ y₁) ≤ (x ∨ y₂).
+<span class="kn">Proof</span>.
+  use cha_max_le_case.
+  - <span class="nb">apply</span> cha_max_le_l.
+  - <span class="nb">refine</span> (cha_le_trans p _).
+    <span class="nb">apply</span> cha_max_le_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_curry</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : H)
+  : (x ⇒ (y ⇒ z)) = (x ∧ y ⇒ z).
+<span class="kn">Proof</span>.
+  use cha_le_antisymm.
+  - use cha_to_le_exp.
+    <span class="nb">rewrite</span> &lt;- cha_min_assoc.
+    <span class="nb">refine</span> (cha_le_trans _ (cha_exp_eval y z)).
+    use cha_min_le_min_l.
+    <span class="nb">apply</span> cha_exp_eval.
+  - use cha_to_le_exp.
+    use cha_to_le_exp.
+    <span class="nb">rewrite</span> cha_min_assoc.
+    <span class="nb">apply</span> cha_exp_eval.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_max_min_distributive</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : H)
+  : (x ∧ (y ∨ z)) = ((x ∧ y) ∨ (x ∧ z)).
+<span class="kn">Proof</span>.
+  use cha_le_antisymm.
+  - <span class="nb">rewrite</span> cha_min_comm.
+    use cha_from_le_exp.
+    use cha_max_le_case.
+    + use cha_to_le_exp.
+      <span class="nb">rewrite</span> cha_min_comm.
+      use cha_max_le_l.
+    + use cha_to_le_exp.
+      <span class="nb">rewrite</span> cha_min_comm.
+      use cha_max_le_r.
+  - use cha_min_le_case.
+    + use cha_max_le_case.
+      * <span class="nb">apply</span> cha_min_le_l.
+      * <span class="nb">apply</span> cha_min_le_l.
+    + use cha_max_le_case.
+      * <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+        <span class="nb">apply</span> cha_max_le_l.
+      * <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+        <span class="nb">apply</span> cha_max_le_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_min_max_distributive</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : H)
+  : (x ∨ (y ∧ z)) = ((x ∨ y) ∧ (x ∨ z)).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> (cha_max_min_distributive (x ∨ y) x z).
+  <span class="nb">rewrite</span> (cha_min_comm (x ∨ y) x).
+  <span class="nb">rewrite</span> cha_min_absorb.
+  <span class="nb">rewrite</span> (cha_min_comm (x ∨ y) z).
+  <span class="nb">rewrite</span> cha_max_min_distributive.
+  <span class="nb">rewrite</span> (cha_min_comm z y).
+  <span class="nb">rewrite</span> &lt;- cha_max_assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> (cha_min_comm z x).
+  <span class="nb">rewrite</span> (cha_max_absorb x z).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_frobenius</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">f</span> : I → H)
+            (<span class="nv">x</span> : H)
+  : (x ∧ \/_{ i } f i) = \/_{ i } (x ∧ f i).
+<span class="kn">Proof</span>.
+  use cha_le_antisymm.
+  - <span class="nb">rewrite</span> (cha_min_comm x (\/_{ i } f i)).
+    use cha_from_le_exp.
+    use cha_lub_le.
+    <span class="nb">intro</span> i.
+    use cha_to_le_exp.
+    <span class="nb">rewrite</span> (cha_min_comm (f i) x).
+    <span class="bp">exact</span> (cha_le_lub_pt (<span class="k">λ</span> <span class="nv">j</span>, x ∧ f j) i).
+  - use cha_lub_le.
+    <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+    use cha_min_le_min_r.
+    <span class="nb">apply</span> cha_le_lub_pt.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_not_top</span>
+            (<span class="nv">H</span> : complete_heyting_algebra)
+  : ¬ ⊤ = (⊥ : H).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  use cha_le_antisymm.
+  - <span class="nb">rewrite</span> &lt;- (cha_runit_min_bot (¬ ⊤)).
+    use cha_exp_eval.
+  - use cha_to_le_exp.
+    use cha_min_le_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_not_bot</span>
+            (<span class="nv">H</span> : complete_heyting_algebra)
+  : ¬ ⊥ = (⊤ : H).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  use cha_le_antisymm.
+  - use cha_le_top.
+  - use cha_to_le_exp.
+    use cha_min_le_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_not_not</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : x ≤ ¬ ¬ x.
+<span class="kn">Proof</span>.
+  use cha_to_le_exp.
+  <span class="nb">rewrite</span> cha_min_comm.
+  use cha_exp_eval.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_not_eval</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : (¬x ∧ x) ≤ ⊥.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> cha_exp_eval.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_and_monotone</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : H}
+            (<span class="nv">p</span> : x₁ ≤ x₂)
+            (<span class="nv">q</span> : y₁ ≤ y₂)
+  : (x₁ ∧ y₁) ≤ (x₂ ∧ y₂).
+<span class="kn">Proof</span>.
+  use cha_min_le_case.
+  - <span class="nb">refine</span> (cha_le_trans _ p).
+    <span class="nb">apply</span> cha_min_le_l.
+  - <span class="nb">refine</span> (cha_le_trans _ q).
+    <span class="nb">apply</span> cha_min_le_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_and_monotone_l</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y</span> : H}
+            (<span class="nv">p</span> : x₁ ≤ x₂)
+  : (x₁ ∧ y) ≤ (x₂ ∧ y).
+<span class="kn">Proof</span>.
+  use (cha_and_monotone p).
+  <span class="nb">apply</span> cha_le_refl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_and_monotone_r</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : H}
+            (<span class="nv">q</span> : y₁ ≤ y₂)
+  : (x ∧ y₁) ≤ (x ∧ y₂).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (cha_and_monotone _ q).
+  <span class="nb">apply</span> cha_le_refl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_not_antimonotone</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : H}
+            (<span class="nv">p</span> : y ≤ x)
+  : ¬ x ≤ ¬ y.
+<span class="kn">Proof</span>.
+  use cha_to_le_exp.
+  <span class="nb">refine</span> (cha_le_trans _ _).
+  {
+    <span class="bp">exact</span> (cha_and_monotone_r p).
+  }
+  use cha_exp_eval.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_not_not_monotone</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : H}
+            (<span class="nv">p</span> : x ≤ y)
+  : ¬ ¬ x ≤ ¬ ¬ y.
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> use cha_not_antimonotone.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_not_not_not</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : ¬ ¬ ¬ x = ¬ x.
+<span class="kn">Proof</span>.
+  use cha_le_antisymm.
+  - use cha_to_le_exp.
+    <span class="nb">refine</span> (cha_le_trans _ _).
+    {
+      <span class="nb">refine</span> (cha_and_monotone_r _).
+      <span class="nb">apply</span> cha_not_not.
+    }
+    use cha_exp_eval.
+  - <span class="nb">apply</span> cha_not_not.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_not_not_lem</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : ¬ ¬(x ∨ ¬ x) = ⊤.
+<span class="kn">Proof</span>.
+  use cha_le_antisymm.
+  - <span class="nb">apply</span> cha_le_top.
+  - use cha_to_le_exp.
+    <span class="nb">rewrite</span> cha_lunit_min_top.
+    <span class="nb">refine</span> (cha_le_trans _ (cha_not_eval (¬ x))).
+    use cha_min_le_case.
+    + use cha_to_le_exp.
+      <span class="nb">refine</span> (cha_le_trans _ (cha_exp_eval (x ∨ ¬ x) _)).
+      use cha_and_monotone_r.
+      use cha_max_le_r.
+    + use cha_to_le_exp.
+      <span class="nb">refine</span> (cha_le_trans _ (cha_exp_eval (x ∨ ¬ x) _)).
+      use cha_and_monotone_r.
+      use cha_max_le_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_disj_not</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : (¬x ∨ ¬y) ≤ ¬(x ∧ y).
+<span class="kn">Proof</span>.
+  use cha_max_le_case.
+  - use cha_not_antimonotone.
+    use cha_min_le_l.
+  - use cha_not_antimonotone.
+    use cha_min_le_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_conj_not</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : (¬x ∧ ¬y) = ¬(x ∨ y).
+<span class="kn">Proof</span>.
+  use cha_le_antisymm.
+  - use cha_to_le_exp.
+    <span class="nb">rewrite</span> cha_min_comm.
+    use cha_from_le_exp.
+    use cha_max_le_case.
+    + use cha_to_le_exp.
+      <span class="nb">refine</span> (cha_le_trans _ _).
+      {
+        <span class="bp">exact</span> (cha_and_monotone_r (cha_min_le_l _ _)).
+      }
+      <span class="nb">rewrite</span> cha_min_comm.
+      use cha_exp_eval.
+    + use cha_to_le_exp.
+      <span class="nb">refine</span> (cha_le_trans _ _).
+      {
+        <span class="bp">exact</span> (cha_and_monotone_r (cha_min_le_r _ _)).
+      }
+      <span class="nb">rewrite</span> cha_min_comm.
+      use cha_exp_eval.
+  - use cha_min_le_case.
+    + use cha_to_le_exp.
+      <span class="nb">refine</span> (cha_le_trans _ _).
+      {
+        <span class="nb">refine</span> (cha_and_monotone_r _).
+        <span class="bp">exact</span> (cha_max_le_l x y).
+      }
+      use cha_exp_eval.
+    + use cha_to_le_exp.
+      <span class="nb">refine</span> (cha_le_trans _ _).
+      {
+        <span class="nb">refine</span> (cha_and_monotone_r _).
+        <span class="bp">exact</span> (cha_max_le_r x y).
+      }
+      use cha_exp_eval.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_not_not_conj</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : ¬ ¬(x ∧ y) = (¬ ¬ x ∧ ¬ ¬ y).
+<span class="kn">Proof</span>.
+  use cha_le_antisymm.
+  - use cha_min_le_case.
+    + use cha_not_not_monotone.
+      <span class="nb">apply</span> cha_min_le_l.
+    + use cha_not_not_monotone.
+      <span class="nb">apply</span> cha_min_le_r.
+  - use cha_to_le_exp.
+    <span class="nb">refine</span> (cha_le_trans _ (cha_not_eval (¬ x))).
+    use cha_min_le_case.
+    + <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+      use cha_min_le_l.
+    + use cha_to_le_exp.
+      <span class="nb">refine</span> (cha_le_trans _ (cha_not_eval (¬ y))).
+      use cha_min_le_case.
+      * <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+        <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+        use cha_min_le_r.
+      * use cha_to_le_exp.
+        <span class="nb">refine</span> (cha_le_trans _ (cha_not_eval (x ∧ y))).
+        use cha_min_le_case.
+        ** <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+           <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+           use cha_min_le_r.
+        ** use cha_min_le_case.
+           *** <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+               use cha_min_le_r.
+           *** use cha_min_le_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_not_not_disj_not</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : H)
+  : ¬ ¬ (¬x ∨ ¬y) = ¬(x ∧ y).
+<span class="kn">Proof</span>.
+  use cha_le_antisymm.
+  - <span class="nb">rewrite</span> &lt;- (cha_not_not_not (x ∧ y)).
+    use cha_not_not_monotone.
+    <span class="nb">apply</span> cha_disj_not.
+  - <span class="nb">rewrite</span> &lt;- cha_conj_not.
+    <span class="nb">rewrite</span> &lt;- (cha_not_not_not (x ∧ y)).
+    <span class="nb">rewrite</span> &lt;- cha_not_not_conj.
+    <span class="nb">apply</span> cha_le_refl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_glb_conj</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">f</span> : I → H)
+            (<span class="nv">x</span> : H)
+  : (/\_{ i : I } f i ∧ x) ≤ /\_{ i : I } (f i ∧ x).
+<span class="kn">Proof</span>.
+  use cha_le_glb.
+  <span class="nb">intro</span> i.
+  use cha_and_monotone_l.
+  use cha_glb_le.
+  - <span class="bp">exact</span> i.
+  - <span class="nb">apply</span> cha_le_refl.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Lattice/DerivedLawsCompleteHeyting.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  are useful in various applications.
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Algebra.BinaryOperations.
+  &gt; Require Import UniMath.OrderTheory.Lattice.Lattice.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,916 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AlgebraStructuresColimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Cocompleteness of the category of algebras</span>
+
+<span class="sd"> In this file, we look at the cocompleteness of the category of</span>
+<span class="sd"> algebras for a monad. We proceed in the following steps.</span>
+
+<span class="sd"> We start by looking when the category of algbras has reflexive</span>
+<span class="sd"> coequalizers. This is the case if the monad preserves reflexive</span>
+<span class="sd"> coequalizers. Note that this holds more generally (although we do</span>
+<span class="sd"> not formalize that): if a monad preserves a class of colimits,</span>
+<span class="sd"> then the category of algebras also has that class of colimits.</span>
+
+<span class="sd"> The next step is to construct coproducts in the category of</span>
+<span class="sd"> algebras, and this is where the main work happens. Here we</span>
+<span class="sd"> assume that the category of algebras has reflexive coequalizers.</span>
+
+<span class="sd"> Finally, we conclude cocompleteness, and for that, it suffices to</span>
+<span class="sd"> construct coequalizers. Here we use a general statement: if a</span>
+<span class="sd"> category has reflexive coequalizers and binary coproducts, then</span>
+<span class="sd"> it also has coequalizers.</span>
+
+<span class="sd"> Concluding, if the category of algebras has reflexive</span>
+<span class="sd"> coequalizers, then it is cocomplete. Note that reflexive</span>
+<span class="sd"> coequalizers are colimits, so these two statements are in fact</span>
+<span class="sd"> equivalent.</span>
+
+<span class="sd"> Note that the underlying assumption in this whole story is that</span>
+<span class="sd"> the category of algebras has reflexive coequalizers, which is the</span>
+<span class="sd"> case if the monad preserves reflexive coequalizers. It is</span>
+<span class="sd"> worthwhile to note that every finitary monad preserves reflexive</span>
+<span class="sd"> coequalizers. As such, the category of algebras for every finitary</span>
+<span class="sd"> algebraic theory is thus cocomplete.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Reflexive coequalizers in the Eilenberg-Moore category</span>
+<span class="sd"> 2. Binary Coproducts</span>
+<span class="sd"> 3. Coequalizers</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.AlgebraStructures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">MonadToStruct</span>.
+  <span class="kn">Context</span> (<span class="nv">M</span> : Monad SET).
+
+  <span class="kn">Definition</span> <span class="nf">monad_on_reflexive_coequalizer</span>
+             (<span class="nv">HM</span> : preserves_reflexive_coequalizer M)
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             {<span class="nv">f</span> <span class="nv">g</span> : SET ⟦ X , Y ⟧}
+             {<span class="nv">σ</span> : SET ⟦ Y , X ⟧}
+             (<span class="nv">pf</span> : ∏ (y : Y), f(σ y) = y)
+             (<span class="nv">pg</span> : ∏ (y : Y), g(σ y) = y)
+    : Coequalizer (#M f) (#M g).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (C := pr11 (Coequalizers_HSET _ _ f g)).
+    <span class="nb">pose</span> (π := CoequalizerArrow (Coequalizers_HSET _ _ f g)).
+    <span class="nb">simple refine</span> ((M C ,, #M π) ,, _ ,, _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (!(functor_comp M _ _) @ _ @ functor_comp M _ _) ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (CoequalizerEqAr (Coequalizers_HSET _ _ f g))).
+    - <span class="nb">refine</span> (HM X Y C f g σ _ _ π _ _ (pr22 (Coequalizers_HSET _ _ f g))).
+      + <span class="kp">abstract</span>
+          (use funextsec ;
+           <span class="bp">exact</span> pf).
+      + <span class="kp">abstract</span>
+          (use funextsec ;
+           <span class="bp">exact</span> pg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_on_reflexive_coequalizer_2</span>
+             (<span class="nv">HM</span> : preserves_reflexive_coequalizer M)
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             {<span class="nv">f</span> <span class="nv">g</span> : SET ⟦ X , Y ⟧}
+             {<span class="nv">σ</span> : SET ⟦ Y , X ⟧}
+             (<span class="nv">pf</span> : ∏ (y : Y), f(σ y) = y)
+             (<span class="nv">pg</span> : ∏ (y : Y), g(σ y) = y)
+    : Coequalizer (#M(#M f)) (#M(#M g)).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (C := pr11 (Coequalizers_HSET _ _ f g)).
+    <span class="nb">pose</span> (π := CoequalizerArrow (Coequalizers_HSET _ _ f g)).
+    <span class="nb">simple refine</span> ((M(M C) ,, #M(#M π)) ,, _ ,, _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (!(functor_comp M _ _) @ _ @ functor_comp M _ _) ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">refine</span> (!(functor_comp M _ _) @ _ @ functor_comp M _ _) ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (CoequalizerEqAr (Coequalizers_HSET _ _ f g))).
+    - <span class="nb">simple refine</span> (HM (M X) (M Y) (M C) (#M f) (#M g) (#M σ) _ _ (#M π) _ _ _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (!(functor_comp M _ _) @ _ @ functor_id M _) ;
+           <span class="nb">apply</span> maponpaths ;
+           use funextsec ;
+           <span class="bp">exact</span> pf).
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (!(functor_comp M _ _) @ _ @ functor_id M _) ;
+           <span class="nb">apply</span> maponpaths ;
+           use funextsec ;
+           <span class="bp">exact</span> pg).
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (!(functor_comp M _ _) @ _ @ functor_comp M _ _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (CoequalizerEqAr (Coequalizers_HSET _ _ f g))).
+      + <span class="nb">refine</span> (HM X Y C f g σ _ _ π _ _ (pr22 (Coequalizers_HSET _ _ f g))).
+        * <span class="kp">abstract</span>
+            (use funextsec ;
+             <span class="bp">exact</span> pf).
+        * <span class="kp">abstract</span>
+            (use funextsec ;
+             <span class="bp">exact</span> pg).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Reflexive coequalizers in the Eilenberg-Moore category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">ReflexiveCoequalizers</span>.
+    <span class="kn">Context</span> (<span class="nv">HM</span> : preserves_reflexive_coequalizer M).
+
+    <span class="kn">Section</span> <span class="nf">ReflexiveCoequalizerConstruction</span>.
+      <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">hX</span> : monad_algebra M X}
+              {<span class="nv">hY</span> : monad_algebra M Y}
+              {<span class="nv">f</span> <span class="nv">g</span> : SET ⟦ X , Y ⟧}
+              (<span class="nv">hf</span> : hX · f = # M f · hY)
+              (<span class="nv">hg</span> : hX · g = # M g · hY)
+              {<span class="nv">σ</span> : SET ⟦ Y , X ⟧}
+              (<span class="nv">hσ</span> : hY · σ = #M σ · hX)
+              (<span class="nv">pf</span> : ∏ (y : Y), f(σ y) = y)
+              (<span class="nv">pg</span> : ∏ (y : Y), g(σ y) = y).
+
+      <span class="kn">Let</span> <span class="nf">AX</span> : category_of_monad_algebra M := X ,, hX.
+      <span class="kn">Let</span> <span class="nf">AY</span> : category_of_monad_algebra M := Y ,, hY.
+      <span class="kn">Let</span> <span class="nf">Af</span> : AX --&gt; AY := f ,, hf.
+      <span class="kn">Let</span> <span class="nf">Ag</span> : AX --&gt; AY := g ,, hg.
+      <span class="kn">Let</span> <span class="nf">Aσ</span> : AY --&gt; AX := σ ,, hσ.
+
+      <span class="kn">Let</span> <span class="nf">C</span> : hSet := pr11 (Coequalizers_HSET _ _ f g).
+      <span class="kn">Let</span> <span class="nf">π</span> : SET ⟦ Y , C ⟧ := CoequalizerArrow (Coequalizers_HSET _ _ f g).
+      <span class="kn">Let</span> <span class="nf">Cp</span> : f · π = g · π
+        := CoequalizerEqAr (Coequalizers_HSET _ _ f g).
+      <span class="kn">Let</span> <span class="nf">Coeq</span> : Coequalizer _ _
+        := Coequalizers_HSET _ _ f g.
+
+      <span class="kn">Definition</span> <span class="nf">monad_reflexive_coequalizer_algebra_mor</span>
+        : M C --&gt; C.
+      <span class="kn">Proof</span>.
+        use (CoequalizerOut (monad_on_reflexive_coequalizer HM pf pg)).
+        - <span class="bp">exact</span> (hY · π).
+        - <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> &lt;- hf, &lt;- hg ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> Cp ;
+             <span class="nb">apply</span> idpath).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">monad_reflexive_coequalizer_algebra_laws</span>
+        : monad_algebra_laws M monad_reflexive_coequalizer_algebra_mor.
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - use (CoequalizerOutsEq Coeq).
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">unfold</span> monad_reflexive_coequalizer_algebra_mor.
+          <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (nat_trans_ax (η M) _ _ (CoequalizerArrow Coeq)).
+          }
+          <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (CoequalizerCommutes (monad_on_reflexive_coequalizer _ _ _)).
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> monad_algebra_unit.
+          <span class="nb">apply</span> id_left.
+        - use (CoequalizerOutsEq (monad_on_reflexive_coequalizer_2 HM pf pg)).
+          <span class="nb">unfold</span> monad_reflexive_coequalizer_algebra_mor.
+          <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> (nat_trans_ax (μ M)).
+          }
+          <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (CoequalizerCommutes (monad_on_reflexive_coequalizer _ _ _)).
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> monad_algebra_mu.
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!(functor_comp _ _ _) @ _).
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (CoequalizerCommutes (monad_on_reflexive_coequalizer _ _ _)).
+          }
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (CoequalizerCommutes (monad_on_reflexive_coequalizer _ _ _)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">monad_reflexive_coequalizer_algebra</span>
+        : monad_algebra M (coequalizer_hSet f g).
+      <span class="kn">Proof</span>.
+        use make_monad_algebra.
+        - <span class="bp">exact</span> monad_reflexive_coequalizer_algebra_mor.
+        - <span class="bp">exact</span> monad_reflexive_coequalizer_algebra_laws.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">monad_reflexive_coequalizer_ob</span>
+        : category_of_monad_algebra M
+        := C ,, monad_reflexive_coequalizer_algebra.
+
+      <span class="kn">Definition</span> <span class="nf">monad_reflexive_coequalizer_arrow</span>
+        : AY --&gt; monad_reflexive_coequalizer_ob.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (π ,, _).
+        <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (!_) ;
+           <span class="nb">apply</span> (CoequalizerCommutes (monad_on_reflexive_coequalizer _ _ _))).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">monad_reflexive_coequalizer_arrow_eq</span>
+        : Af · monad_reflexive_coequalizer_arrow
+          =
+          Ag · monad_reflexive_coequalizer_arrow.
+      <span class="kn">Proof</span>.
+        use subtypePath.
+        {
+          <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property.
+        }
+        <span class="bp">exact</span> Cp.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Section</span> <span class="nf">UMP</span>.
+        <span class="kn">Context</span> {<span class="nv">W</span> : hSet}
+                (<span class="nv">hW</span> : monad_algebra M W)
+                {<span class="nv">l</span> : Y → W}
+                (<span class="nv">hl</span> : hY · l = #M l · hW)
+                (<span class="nv">p</span> : f · l = g · l).
+
+        <span class="kn">Let</span> <span class="nf">AW</span> : category_of_monad_algebra M := W ,, hW.
+
+        <span class="kn">Proposition</span> <span class="nf">monad_reflexive_coequalizer_ump_unique</span>
+          : isaprop
+              (∑ (φ : monad_reflexive_coequalizer_ob --&gt; AW),
+               monad_reflexive_coequalizer_arrow · φ = l ,, hl).
+        <span class="kn">Proof</span>.
+          use invproofirrelevance.
+          <span class="nb">intros</span> φ₁ φ₂.
+          use subtypePath.
+          {
+            <span class="nb">intro</span>.
+            <span class="nb">apply</span> homset_property.
+          }
+          use subtypePath.
+          {
+            <span class="nb">intro</span>.
+            <span class="nb">apply</span> homset_property.
+          }
+          use (CoequalizerOutsEq Coeq).
+          <span class="bp">exact</span> (maponpaths pr1 (pr2 φ₁ @ !(pr2 φ₂))).
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">monad_reflexive_coequalizer_ump_mor</span>
+          : monad_reflexive_coequalizer_ob --&gt; AW.
+        <span class="kn">Proof</span>.
+          <span class="nb">simple refine</span> (_ ,, _).
+          - <span class="bp">exact</span> (CoequalizerOut Coeq _ l p).
+          - <span class="kp">abstract</span>
+              (use (CoequalizerOutsEq (monad_on_reflexive_coequalizer HM pf pg)) ;
+               <span class="nb">refine</span> (assoc _ monad_reflexive_coequalizer_algebra_mor _ @ _) ;
+               <span class="nb">unfold</span> monad_reflexive_coequalizer_algebra_mor ;
+               <span class="nb">rewrite</span> !assoc ;
+               <span class="nb">rewrite</span> (CoequalizerCommutes (monad_on_reflexive_coequalizer HM pf pg)) ;
+               <span class="nb">rewrite</span> !assoc' ;
+               <span class="nb">rewrite</span> (CoequalizerCommutes Coeq) ;
+               <span class="nb">refine</span> (hl @ _) ;
+               <span class="nb">rewrite</span> !assoc ;
+               <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (!_)) ;
+               <span class="nb">refine</span> (!(functor_comp M _ _) @ _) ;
+               <span class="nb">apply</span> maponpaths ;
+               <span class="nb">apply</span> (CoequalizerCommutes Coeq)).
+        <span class="kn">Defined</span>.
+
+        <span class="kn">Proposition</span> <span class="nf">monad_reflexive_coequalizer_ump_commutes</span>
+          : monad_reflexive_coequalizer_arrow
+            · monad_reflexive_coequalizer_ump_mor
+            =
+            l ,, hl.
+        <span class="kn">Proof</span>.
+          use subtypePath.
+          {
+            <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property.
+          }
+          <span class="nb">apply</span> idpath.
+        <span class="kn">Qed</span>.
+      <span class="kn">End</span> <span class="nf">UMP</span>.
+
+      <span class="kn">Definition</span> <span class="nf">monad_reflexive_coequalizer</span>
+        : Coequalizer Af Ag.
+      <span class="kn">Proof</span>.
+        use make_Coequalizer.
+        - <span class="bp">exact</span> monad_reflexive_coequalizer_ob.
+        - <span class="bp">exact</span> monad_reflexive_coequalizer_arrow.
+        - <span class="bp">exact</span> monad_reflexive_coequalizer_arrow_eq.
+        - <span class="nb">intros</span> W h p.
+          use iscontraprop1.
+          + <span class="bp">exact</span> (monad_reflexive_coequalizer_ump_unique (pr2 W) (pr2 h)).
+          + <span class="nb">simple refine</span> (_ ,, _).
+            * <span class="nb">apply</span> (monad_reflexive_coequalizer_ump_mor (pr2 W) (pr2 h)).
+              <span class="bp">exact</span> (maponpaths pr1 p).
+            * <span class="nb">apply</span> monad_reflexive_coequalizer_ump_commutes.
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">ReflexiveCoequalizerConstruction</span>.
+
+    <span class="kn">Definition</span> <span class="nf">monad_algebra_reflexive_coequalizers</span>
+      : reflexive_coequalizers (category_of_monad_algebra M).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> hx hy hf hg hh pf pg.
+      use (monad_reflexive_coequalizer (pr2 hf) (pr2 hg) _ _).
+      - <span class="bp">exact</span> (pr1 hh).
+      - <span class="bp">exact</span> (eqtohomot (maponpaths pr1 pf)).
+      - <span class="bp">exact</span> (eqtohomot (maponpaths pr1 pg)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ReflexiveCoequalizers</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Binary Coproducts</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">BinaryCoproductsEM</span>.
+    <span class="kn">Context</span> (<span class="nv">RC</span> : reflexive_coequalizers (category_of_monad_algebra M)).
+
+    <span class="kn">Section</span> <span class="nf">CoproductAlgebra</span>.
+      <span class="kn">Context</span> (<span class="nv">alg_X</span> <span class="nv">alg_Y</span> : category_of_monad_algebra M).
+
+      <span class="kn">Let</span> <span class="nf">F</span> : SET ⟶ category_of_monad_algebra M
+        := monad_free_alg_functor M.
+
+      <span class="kn">Let</span> <span class="nf">U</span> : category_of_monad_algebra M ⟶ SET
+        := underlying_of_hset_struct (monad_to_hset_struct M).
+
+      <span class="kn">Let</span> <span class="nf">X</span> : hSet := underlying_of_hset_struct _ alg_X.
+      <span class="kn">Let</span> <span class="nf">Y</span> : hSet := underlying_of_hset_struct _ alg_Y.
+
+      <span class="kn">Let</span> <span class="nf">XY</span> : @BinCoproduct HSET X Y := BinCoproductsHSET X Y.
+      <span class="kn">Let</span> <span class="nf">ι₁</span> : SET ⟦ X , XY ⟧ := inl.
+      <span class="kn">Let</span> <span class="nf">ι₂</span> : SET ⟦ Y , XY ⟧ := inr.
+
+      <span class="kn">Let</span> <span class="nf">hX</span> : monad_algebra M X := pr2 alg_X.
+      <span class="kn">Let</span> <span class="nf">hY</span> : monad_algebra M Y := pr2 alg_Y.
+
+      <span class="kn">Let</span> <span class="nf">S₁</span> : BinCoproduct (F X) (F Y)
+        := free_alg_coproduct M X Y.
+
+      <span class="kn">Let</span> <span class="nf">S₂</span> : BinCoproduct (F(U(F X))) (F(U(F Y)))
+        := free_alg_coproduct M (U(F X)) (U(F Y)).
+
+      <span class="kn">Definition</span> <span class="nf">binary_coprod_algebra_left_map</span>
+        : S₂ --&gt; S₁.
+      <span class="kn">Proof</span>.
+        use BinCoproductOfArrows.
+        - <span class="bp">exact</span> (monad_free_alg_counit M (F X)).
+        - <span class="bp">exact</span> (monad_free_alg_counit M (F Y)).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Let</span> <span class="nf">l</span> : S₂ --&gt; S₁
+        := binary_coprod_algebra_left_map.
+
+      <span class="kn">Definition</span> <span class="nf">binary_coprod_algebra_right_map</span>
+        : S₂ --&gt; S₁.
+      <span class="kn">Proof</span>.
+        use BinCoproductOfArrows.
+        - <span class="bp">exact</span> (#F(#U (monad_free_alg_counit M alg_X))).
+        - <span class="bp">exact</span> (#F(#U (monad_free_alg_counit M alg_Y))).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Let</span> <span class="nf">r</span> : S₂ --&gt; S₁
+        := binary_coprod_algebra_right_map.
+
+      <span class="kn">Definition</span> <span class="nf">binary_coprod_algebra_section</span>
+        : S₁ --&gt; S₂.
+      <span class="kn">Proof</span>.
+        use BinCoproductOfArrows.
+        - <span class="bp">exact</span> (#F (monad_free_alg_unit M X)).
+        - <span class="bp">exact</span> (#F (monad_free_alg_unit M Y)).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Let</span> <span class="nf">s</span> : S₁ --&gt; S₂
+        := binary_coprod_algebra_section.
+
+      <span class="kn">Proposition</span> <span class="nf">binary_coprod_algebra_section_left_map</span>
+        : s · l = identity _.
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> s, l.
+        use BinCoproductArrowsEq.
+        - <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">unfold</span> binary_coprod_algebra_section.
+          <span class="nb">rewrite</span> BinCoproductOfArrowsIn1.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">unfold</span> binary_coprod_algebra_left_map.
+          <span class="nb">rewrite</span> BinCoproductOfArrowsIn1.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">refine</span> (_ @ id_left _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (triangle_id_left_ad
+                   (pr2 (monad_underlying_is_right_adjoint M))
+                   X).
+        - <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">unfold</span> binary_coprod_algebra_section.
+          <span class="nb">rewrite</span> BinCoproductOfArrowsIn2.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">unfold</span> binary_coprod_algebra_left_map.
+          <span class="nb">rewrite</span> BinCoproductOfArrowsIn2.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">refine</span> (_ @ id_left _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (triangle_id_left_ad
+                   (pr2 (monad_underlying_is_right_adjoint M))
+                   Y).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Let</span> <span class="nf">sl</span> : s · l = identity _
+        := binary_coprod_algebra_section_left_map.
+
+      <span class="kn">Proposition</span> <span class="nf">binary_coprod_algebra_section_right_map</span>
+        : s · r = identity _.
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> s, r.
+        use BinCoproductArrowsEq.
+        - <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">unfold</span> binary_coprod_algebra_section.
+          <span class="nb">rewrite</span> BinCoproductOfArrowsIn1.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">unfold</span> binary_coprod_algebra_right_map.
+          <span class="nb">rewrite</span> BinCoproductOfArrowsIn1.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">refine</span> (_ @ id_left _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> &lt;- (functor_comp F).
+          <span class="nb">refine</span> (_ @ functor_id F _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (triangle_id_right_ad
+                   (pr2 (monad_underlying_is_right_adjoint M))
+                   alg_X).
+        - <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">unfold</span> binary_coprod_algebra_section.
+          <span class="nb">rewrite</span> BinCoproductOfArrowsIn2.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">unfold</span> binary_coprod_algebra_right_map.
+          <span class="nb">rewrite</span> BinCoproductOfArrowsIn2.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">refine</span> (_ @ id_left _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> &lt;- (functor_comp F).
+          <span class="nb">refine</span> (_ @ functor_id F _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (triangle_id_right_ad
+                   (pr2 (monad_underlying_is_right_adjoint M))
+                   alg_Y).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Let</span> <span class="nf">sr</span> : s · r = identity _
+        := binary_coprod_algebra_section_right_map.
+
+      <span class="kn">Definition</span> <span class="nf">binary_coprod_algebra_ob</span>
+        : Coequalizer l r
+        := RC _ _ l r s sl sr.
+
+      <span class="kn">Let</span> <span class="nf">C</span> : hSet := pr111 binary_coprod_algebra_ob.
+      <span class="kn">Let</span> <span class="nf">hC</span> : monad_algebra M C := pr211 binary_coprod_algebra_ob.
+
+      <span class="kn">Lemma</span> <span class="nf">binary_coprod_algebra_in1_eq</span>
+        : μ M X
+          · #M(ι₁ · η M XY)
+          · μ M XY
+          · pr1 (CoequalizerArrow binary_coprod_algebra_ob)
+          =
+          #M (hX · η M X)
+          · μ M X
+          · #M(ι₁ · η M XY)
+          · μ M XY
+          · pr1 (CoequalizerArrow binary_coprod_algebra_ob).
+      <span class="kn">Proof</span>.
+        <span class="nb">assert</span> (BinCoproductIn1 S₂ · (l · CoequalizerArrow binary_coprod_algebra_ob)
+                =
+                BinCoproductIn1 S₂ · (r · CoequalizerArrow binary_coprod_algebra_ob))
+          <span class="k">as</span> p.
+        {
+          <span class="bp">exact</span> (maponpaths
+                   (<span class="k">λ</span> <span class="nv">z</span>, BinCoproductIn1 _ · z)
+                   (CoequalizerEqAr binary_coprod_algebra_ob)).
+        }
+        <span class="nb">unfold</span> l <span class="k">in</span> p.
+        <span class="nb">unfold</span> r <span class="k">in</span> p.
+        <span class="nb">unfold</span> binary_coprod_algebra_left_map <span class="k">in</span> p.
+        <span class="nb">unfold</span> binary_coprod_algebra_right_map <span class="k">in</span> p.
+        <span class="nb">rewrite</span> !assoc <span class="k">in</span> p.
+        <span class="nb">rewrite</span> !BinCoproductOfArrowsIn1 <span class="k">in</span> p.
+        <span class="nb">assert</span> (# M (identity (M X))
+                · μ M X
+                · (# M (ι₁ · η M XY) · μ M XY)
+                · pr1 (CoequalizerArrow binary_coprod_algebra_ob)
+                =
+                # M (# M (identity _)
+                     · hX
+                     · η M X)
+                · μ M X
+                · (# M (ι₁ · η M XY) · μ M XY)
+                · pr1 (CoequalizerArrow binary_coprod_algebra_ob))
+          <span class="k">as</span> q.
+        {
+          <span class="bp">exact</span> (maponpaths pr1 p).
+        }
+        <span class="nb">rewrite</span> !functor_id <span class="k">in</span> q.
+        <span class="nb">rewrite</span> !id_left <span class="k">in</span> q.
+        <span class="nb">refine</span> (_ @ q).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">binary_coprod_algebra_in1</span>
+        : alg_X --&gt; binary_coprod_algebra_ob.
+      <span class="kn">Proof</span>.
+        use (CoequalizerOut (algebra_as_coequalizer M hX)).
+        - <span class="bp">exact</span> (BinCoproductIn1 _ · CoequalizerArrow binary_coprod_algebra_ob).
+        - <span class="kp">abstract</span>
+            (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+             <span class="nb">refine</span> (_ @ binary_coprod_algebra_in1_eq) ;
+             <span class="nb">simpl</span> ;
+             <span class="nb">rewrite</span> (functor_id M) ;
+             <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (id_left (μ M X)))).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">binary_coprod_algebra_in2_eq</span>
+        : μ M Y
+          · #M(ι₂ · η M XY)
+          · μ M XY
+          · pr1 (CoequalizerArrow binary_coprod_algebra_ob)
+          =
+          #M (hY · η M Y)
+          · μ M Y
+          · #M(ι₂ · η M XY)
+          · μ M XY
+          · pr1 (CoequalizerArrow binary_coprod_algebra_ob).
+      <span class="kn">Proof</span>.
+        <span class="nb">assert</span> (BinCoproductIn2 S₂ · (l · CoequalizerArrow binary_coprod_algebra_ob)
+                =
+                BinCoproductIn2 S₂ · (r · CoequalizerArrow binary_coprod_algebra_ob))
+          <span class="k">as</span> p.
+        {
+          <span class="bp">exact</span> (maponpaths
+                   (<span class="k">λ</span> <span class="nv">z</span>, BinCoproductIn2 _ · z)
+                   (CoequalizerEqAr binary_coprod_algebra_ob)).
+        }
+        <span class="nb">unfold</span> l <span class="k">in</span> p.
+        <span class="nb">unfold</span> r <span class="k">in</span> p.
+        <span class="nb">unfold</span> binary_coprod_algebra_left_map <span class="k">in</span> p.
+        <span class="nb">unfold</span> binary_coprod_algebra_right_map <span class="k">in</span> p.
+        <span class="nb">rewrite</span> !assoc <span class="k">in</span> p.
+        <span class="nb">rewrite</span> !BinCoproductOfArrowsIn2 <span class="k">in</span> p.
+        <span class="nb">assert</span> (# M (identity (M Y))
+                · μ M Y
+                · (# M (ι₂ · η M XY) · μ M XY)
+                · pr1 (CoequalizerArrow binary_coprod_algebra_ob)
+                =
+                # M (# M (identity _)
+                     · hY
+                     · η M Y)
+                · μ M Y
+                · (# M (ι₂ · η M XY) · μ M XY)
+                · pr1 (CoequalizerArrow binary_coprod_algebra_ob))
+          <span class="k">as</span> q.
+        {
+          <span class="bp">exact</span> (maponpaths pr1 p).
+        }
+        <span class="nb">rewrite</span> !functor_id <span class="k">in</span> q.
+        <span class="nb">rewrite</span> !id_left <span class="k">in</span> q.
+        <span class="nb">refine</span> (_ @ q).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">binary_coprod_algebra_in2</span>
+        : alg_Y --&gt; binary_coprod_algebra_ob.
+      <span class="kn">Proof</span>.
+        use (CoequalizerOut (algebra_as_coequalizer M hY)).
+        - <span class="bp">exact</span> (BinCoproductIn2 _ · CoequalizerArrow binary_coprod_algebra_ob).
+        - <span class="kp">abstract</span>
+            (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+             <span class="nb">refine</span> (_ @ binary_coprod_algebra_in2_eq) ;
+             <span class="nb">simpl</span> ;
+             <span class="nb">rewrite</span> (functor_id M) ;
+             <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (id_left (μ M Y)))).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Section</span> <span class="nf">UMP</span>.
+        <span class="kn">Context</span> {<span class="nv">Z</span> : category_of_monad_algebra M}
+                (<span class="nv">φ₁</span> : alg_X --&gt; Z)
+                (<span class="nv">φ₂</span> : alg_Y --&gt; Z).
+
+        <span class="kn">Definition</span> <span class="nf">binary_coprod_algebra_arrow_ob</span>
+          : S₁ --&gt; Z.
+        <span class="kn">Proof</span>.
+          use BinCoproductArrow.
+          - <span class="bp">exact</span> (monad_free_alg_counit M alg_X · φ₁).
+          - <span class="bp">exact</span> (monad_free_alg_counit M alg_Y · φ₂).
+        <span class="kn">Defined</span>.
+
+        <span class="kn">Definition</span> <span class="nf">binary_coprod_algebra_arrow</span>
+          : binary_coprod_algebra_ob --&gt; Z.
+        <span class="kn">Proof</span>.
+          use CoequalizerOut.
+          - <span class="bp">exact</span> binary_coprod_algebra_arrow_ob.
+          - use BinCoproductArrowsEq.
+            + <span class="kp">abstract</span>
+                (<span class="nb">rewrite</span> !assoc ;
+                 <span class="nb">unfold</span> l, binary_coprod_algebra_left_map ;
+                 <span class="nb">unfold</span> r, binary_coprod_algebra_right_map ;
+                 <span class="nb">unfold</span> binary_coprod_algebra_arrow_ob ;
+                 <span class="nb">rewrite</span> !BinCoproductOfArrowsIn1 ;
+                 <span class="nb">rewrite</span> !assoc' ;
+                 <span class="nb">rewrite</span> BinCoproductIn1Commutes ;
+                 <span class="nb">rewrite</span> !assoc ;
+                 <span class="nb">apply</span> maponpaths_2 ;
+                 <span class="bp">exact</span> (!(nat_trans_ax (monad_free_alg_counit M) _ _ _))).
+            + <span class="kp">abstract</span>
+                (<span class="nb">rewrite</span> !assoc ;
+                 <span class="nb">unfold</span> l, binary_coprod_algebra_left_map ;
+                 <span class="nb">unfold</span> r, binary_coprod_algebra_right_map ;
+                 <span class="nb">unfold</span> binary_coprod_algebra_arrow_ob ;
+                 <span class="nb">rewrite</span> !BinCoproductOfArrowsIn2 ;
+                 <span class="nb">rewrite</span> !assoc' ;
+                 <span class="nb">rewrite</span> BinCoproductIn2Commutes ;
+                 <span class="nb">rewrite</span> !assoc ;
+                 <span class="nb">apply</span> maponpaths_2 ;
+                 <span class="bp">exact</span> (!(nat_trans_ax (monad_free_alg_counit M) _ _ _))).
+        <span class="kn">Defined</span>.
+
+        <span class="kn">Proposition</span> <span class="nf">binary_coprod_algebra_arrow_in1</span>
+          : binary_coprod_algebra_in1 · binary_coprod_algebra_arrow = φ₁.
+        <span class="kn">Proof</span>.
+          use subtypePath.
+          {
+            <span class="nb">intro</span>.
+            <span class="nb">apply</span> homset_property.
+          }
+          <span class="nb">enough</span> (η M X
+                  · (# M (ι₁ · η M XY) · μ M XY
+                     · pr1 (CoequalizerArrow binary_coprod_algebra_ob))
+                  · pr1 binary_coprod_algebra_arrow
+                  =
+                  pr1 φ₁)
+            <span class="k">as</span> p.
+          {
+            <span class="bp">exact</span> p.
+          }
+          <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (maponpaths
+                     pr1
+                     (CoequalizerCommutes binary_coprod_algebra_ob _ _ _)).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">rewrite</span> functor_comp.
+            <span class="nb">rewrite</span> !assoc'.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="bp">exact</span> (@Monad_law2 _ M XY).
+            }
+            <span class="nb">apply</span> id_right.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">pose</span> (maponpaths
+                    pr1
+                    (BinCoproductIn1Commutes
+                       _ _ _
+                       S₁
+                       Z
+                       (monad_free_alg_counit M alg_X · φ₁)
+                       (monad_free_alg_counit M alg_Y · φ₂)))
+              <span class="k">as</span> p.
+            <span class="nb">refine</span> (_ @ p).
+            <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) _).
+            <span class="nb">refine</span> (!(id_right _) @ _).
+            <span class="nb">simpl</span>.
+            <span class="nb">rewrite</span> (functor_comp M).
+            <span class="nb">refine</span> (_ @ assoc (#M ι₁) _ _).
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (Monad_law2(T:=M)).
+          }
+          <span class="nb">refine</span> (_ @ id_left _).
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">simpl</span>.
+          <span class="nb">rewrite</span> (functor_id M).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (id_left hX).
+          }
+          <span class="nb">apply</span> monad_algebra_unit.
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Proposition</span> <span class="nf">binary_coprod_algebra_arrow_in2</span>
+          : binary_coprod_algebra_in2 · binary_coprod_algebra_arrow = φ₂.
+        <span class="kn">Proof</span>.
+          use subtypePath.
+          {
+            <span class="nb">intro</span>.
+            <span class="nb">apply</span> homset_property.
+          }
+          <span class="nb">enough</span> (η M Y
+                  · (# M (ι₂ · η M XY) · μ M XY
+                     · pr1 (CoequalizerArrow binary_coprod_algebra_ob))
+                  · pr1 binary_coprod_algebra_arrow
+                  =
+                  pr1 φ₂)
+            <span class="k">as</span> p.
+          {
+            <span class="bp">exact</span> p.
+          }
+          <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (maponpaths
+                     pr1
+                     (CoequalizerCommutes binary_coprod_algebra_ob _ _ _)).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">rewrite</span> functor_comp.
+            <span class="nb">rewrite</span> !assoc'.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="bp">exact</span> (@Monad_law2 _ M XY).
+            }
+            <span class="nb">apply</span> id_right.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">pose</span> (maponpaths
+                    pr1
+                    (BinCoproductIn2Commutes
+                       _ _ _
+                       S₁
+                       Z
+                       (monad_free_alg_counit M alg_X · φ₁)
+                       (monad_free_alg_counit M alg_Y · φ₂)))
+              <span class="k">as</span> p.
+            <span class="nb">refine</span> (_ @ p).
+            <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) _).
+            <span class="nb">refine</span> (!(id_right _) @ _).
+            <span class="nb">simpl</span>.
+            <span class="nb">rewrite</span> (functor_comp M).
+            <span class="nb">refine</span> (_ @ assoc (#M ι₂) _ _).
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (Monad_law2(T:=M)).
+          }
+          <span class="nb">refine</span> (_ @ id_left _).
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">simpl</span>.
+          <span class="nb">rewrite</span> (functor_id M).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (id_left hY).
+          }
+          <span class="nb">apply</span> monad_algebra_unit.
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Proposition</span> <span class="nf">binary_coprod_algebra_arrow_unique</span>
+          : isaprop
+              (∑ fg,
+               (binary_coprod_algebra_in1 · fg = φ₁)
+               ×
+               (binary_coprod_algebra_in2 · fg = φ₂)).
+        <span class="kn">Proof</span>.
+          use invproofirrelevance.
+          <span class="nb">intros</span> ψ₁ ψ₂.
+          use subtypePath.
+          {
+            <span class="nb">intro</span>.
+            <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+          }
+          use CoequalizerOutsEq.
+          use BinCoproductArrowsEq.
+          - use mor_from_free_alg_eq.
+            <span class="bp">exact</span> (maponpaths pr1 (pr12 ψ₁ @ !(pr12 ψ₂))).
+          - use mor_from_free_alg_eq.
+            <span class="bp">exact</span> (maponpaths pr1 (pr22 ψ₁ @ !(pr22 ψ₂))).
+        <span class="kn">Qed</span>.
+      <span class="kn">End</span> <span class="nf">UMP</span>.
+
+      <span class="kn">Definition</span> <span class="nf">binary_coprod_algebra</span>
+        : BinCoproduct alg_X alg_Y.
+      <span class="kn">Proof</span>.
+        use make_BinCoproduct.
+        - <span class="bp">exact</span> binary_coprod_algebra_ob.
+        - <span class="bp">exact</span> binary_coprod_algebra_in1.
+        - <span class="bp">exact</span> binary_coprod_algebra_in2.
+        - <span class="nb">intros</span> Z φ₁ φ₂.
+          use iscontraprop1.
+          + <span class="bp">exact</span> (binary_coprod_algebra_arrow_unique φ₁ φ₂).
+          + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+            * <span class="bp">exact</span> (binary_coprod_algebra_arrow φ₁ φ₂).
+            * <span class="bp">exact</span> (binary_coprod_algebra_arrow_in1 φ₁ φ₂).
+            * <span class="bp">exact</span> (binary_coprod_algebra_arrow_in2 φ₁ φ₂).
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">CoproductAlgebra</span>.
+
+    <span class="kn">Definition</span> <span class="nf">monad_algebra_binary_coproducts</span>
+      : BinCoproducts (category_of_monad_algebra M).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> hx hy.
+      <span class="bp">exact</span> (binary_coprod_algebra hx hy).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">BinaryCoproductsEM</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Coequalizers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">monad_algebra_coequalizers</span>
+             (<span class="nv">RC</span> : reflexive_coequalizers (category_of_monad_algebra M))
+    : Coequalizers (category_of_monad_algebra M).
+  <span class="kn">Proof</span>.
+    use coequalizers_from_reflexive.
+    - <span class="bp">exact</span> RC.
+    - <span class="bp">exact</span> (monad_algebra_binary_coproducts RC).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MonadToStruct</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Examples/AlgebraStructuresColimits.v</tt>, line 41)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Coequalizers
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

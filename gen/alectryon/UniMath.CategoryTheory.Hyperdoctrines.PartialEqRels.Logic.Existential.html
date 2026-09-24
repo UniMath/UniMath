@@ -1,0 +1,736 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Existential.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> The existential quantifier</span>
+
+<span class="sd"> In this file, we construct the conjunction in the category of partial setoids. Here we</span>
+<span class="sd"> use the characterization of subobjects in terms of formulas as given in the file</span>
+<span class="sd"> `SubobjectDispCat.v`.</span>
+
+<span class="sd"> The construction of the connectives of subobjects of partial setoids is similar to how</span>
+<span class="sd"> connectives are defined for subsets. For the existential quantifier, we reuse the existential</span>
+<span class="sd"> quantifier of the first-order hyperdoctrine.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The formula</span>
+<span class="sd"> 2. Introduction rule</span>
+<span class="sd"> 3. Elimination rule</span>
+<span class="sd"> 4. Stability under substitution</span>
+<span class="sd"> 5. Dependent sums</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMonomorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERConstantObjects.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="kn">Section</span> <span class="nf">Existential</span>.
+  <span class="kn">Context</span> (<span class="nv">H</span> : first_order_hyperdoctrine).
+
+  <span class="kn">Section</span> <span class="nf">Existential</span>.
+    <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : partial_setoid H}
+            (<span class="nv">φ</span> : partial_setoid_morphism A B)
+            (<span class="nv">ψ</span> : per_subobject A).
+
+    <span class="sd">(** * 1. The formula *)</span>
+    <span class="kn">Definition</span> <span class="nf">per_subobject_exists_form</span>
+      : form B
+      := <span class="k">let</span> <span class="nv">γ₂</span> := π₁ (tm_var (B ×h A)) <span class="k">in</span>
+         <span class="k">let</span> <span class="nv">γ₁</span> := π₂ (tm_var (B ×h A)) <span class="k">in</span>
+         (<span class="k">∃</span><span class="nv">h</span> (<span class="nv">φ</span> [ ⟨ γ₁ , γ₂ ⟩ ] ∧ ψ [ γ₁ ])).
+
+    <span class="kn">Proposition</span> <span class="nf">per_subobject_exists_laws</span>
+      : per_subobject_laws per_subobject_exists_form.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        <span class="nb">unfold</span> per_subobject_exists_form.
+        simplify.
+        use (exists_elim (hyperdoctrine_hyp _)).
+        use weaken_right.
+        <span class="nb">rewrite</span> partial_setoid_subst.
+        simplify.
+        <span class="nb">pose</span> (a := π₂ (tm_var ((<span class="mi">𝟙</span> ×h B) ×h A))).
+        <span class="nb">pose</span> (b := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h B) ×h A)))).
+        <span class="nb">fold</span> a b.
+        use weaken_left.
+        use (partial_setoid_mor_cod_defined φ a b).
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      - <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        use impl_intro.
+        use hyp_sym.
+        <span class="nb">unfold</span> per_subobject_exists_form.
+        simplify.
+        use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
+        <span class="nb">rewrite</span> conj_subst.
+        use hyp_ltrans.
+        use weaken_right.
+        <span class="nb">rewrite</span> partial_setoid_subst.
+        simplify.
+        <span class="nb">pose</span> (b₁ := π₂ (π₁ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h B) ×h B) ×h A))))).
+        <span class="nb">pose</span> (b₂ := π₂ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h B) ×h B) ×h A)))).
+        <span class="nb">pose</span> (a := π₂ (tm_var (((<span class="mi">𝟙</span> ×h B) ×h B) ×h A))).
+        <span class="nb">fold</span> b₁ b₂ a.
+        use exists_intro.
+        + <span class="bp">exact</span> a.
+        + simplify.
+          <span class="nb">fold</span> a b₁ b₂.
+          use conj_intro.
+          * use (partial_setoid_mor_eq_defined φ).
+            ** <span class="bp">exact</span> a.
+            ** <span class="bp">exact</span> b₁.
+            ** use weaken_right.
+               use weaken_left.
+               use (partial_setoid_mor_dom_defined φ a b₁).
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+            ** use weaken_left.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+            ** use weaken_right.
+               use weaken_left.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+          * <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">per_subobject_exists</span>
+      : per_subobject B.
+    <span class="kn">Proof</span>.
+      use make_per_subobject.
+      - <span class="bp">exact</span> per_subobject_exists_form.
+      - <span class="bp">exact</span> per_subobject_exists_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** * 2. Introduction rule *)</span>
+    <span class="kn">Proposition</span> <span class="nf">per_subobject_exists_intro</span>
+      : per_subobject_mor_law
+          (id_partial_setoid_morphism A)
+          ψ
+          (per_subobject_subst φ per_subobject_exists).
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use impl_intro.
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> per_subobject_exists_form.
+      hypersimplify_form.
+      <span class="nb">rewrite</span> partial_setoid_subst.
+      simplify.
+      <span class="nb">simple refine</span> (exists_elim (partial_setoid_mor_hom_exists φ _) _).
+      - <span class="bp">exact</span> (π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h A) ×h A)))).
+      - use weaken_left.
+        <span class="bp">exact</span> (partial_setoid_refl_l (hyperdoctrine_hyp _)).
+      - hypersimplify_form.
+        <span class="nb">rewrite</span> !partial_setoid_subst.
+        simplify.
+        <span class="nb">pose</span> (a₁ := π₂ (π₁ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h A) ×h A) ×h B))))).
+        <span class="nb">pose</span> (a₂ := π₂ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h A) ×h A) ×h B)))).
+        <span class="nb">pose</span> (b := π₂ (tm_var (((<span class="mi">𝟙</span> ×h A) ×h A) ×h B))).
+        <span class="nb">fold</span> a₁ a₂ b.
+        use exists_intro.
+        {
+          <span class="bp">exact</span> b.
+        }
+        simplify.
+        <span class="nb">fold</span> a₂.
+        use conj_intro.
+        + use (partial_setoid_mor_eq_defined φ).
+          ** <span class="bp">exact</span> a₁.
+          ** <span class="bp">exact</span> b.
+          ** <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+          ** use weaken_right.
+             <span class="bp">exact</span> (partial_setoid_mor_cod_defined φ a₁ b (hyperdoctrine_hyp _)).
+          ** use weaken_right.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+        + use exists_intro.
+          {
+            <span class="bp">exact</span> a₁.
+          }
+          simplify.
+          use conj_intro.
+          * use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use weaken_left.
+            use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** * 3. Elimination rule *)</span>
+    <span class="kn">Context</span> {<span class="nv">χ</span> : per_subobject B}
+            (<span class="nv">p</span> : per_subobject_mor_law
+                   (id_partial_setoid_morphism A)
+                   ψ
+                   (per_subobject_subst φ χ)).
+
+    <span class="kn">Proposition</span> <span class="nf">per_subobject_exists_elim</span>
+      : per_subobject_mor_law
+          (id_partial_setoid_morphism B)
+          per_subobject_exists
+          χ.
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use impl_intro.
+      <span class="nb">cbn</span>.
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> per_subobject_exists_form.
+      hypersimplify_form.
+      <span class="nb">rewrite</span> partial_setoid_subst.
+      simplify.
+      use hyp_sym.
+      <span class="nb">simple refine</span> (exists_elim (weaken_left (hyperdoctrine_hyp _) _) _).
+      <span class="nb">rewrite</span> conj_subst.
+      use hyp_ltrans.
+      use weaken_right.
+      hypersimplify_form.
+      <span class="nb">rewrite</span> partial_setoid_subst.
+      simplify.
+      <span class="nb">pose</span> (b₁ := π₂ (π₁ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h B) ×h B) ×h A))))).
+      <span class="nb">pose</span> (b₂ := π₂ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h B) ×h B) ×h A)))).
+      <span class="nb">pose</span> (a := π₂ (tm_var (((<span class="mi">𝟙</span> ×h B) ×h B) ×h A))).
+      <span class="nb">fold</span> a b₁ b₂.
+      <span class="nb">pose</span> (Δ := b₁ ~ b₂ ∧ φ [⟨ a, b₁ ⟩] ∧ ψ [a]).
+      <span class="nb">assert</span> (Δ ⊢ (id_partial_setoid_morphism A) [⟨ a , a ⟩]) <span class="k">as</span> r₁.
+      {
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> partial_setoid_subst.
+        simplify.
+        <span class="nb">unfold</span> Δ.
+        use weaken_right.
+        use weaken_left.
+        use (partial_setoid_mor_dom_defined φ a b₁).
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      }
+      <span class="nb">assert</span> (Δ ⊢ ψ [a]) <span class="k">as</span> r₂.
+      {
+        <span class="nb">unfold</span> Δ.
+        <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      }
+      <span class="nb">pose</span> (per_subobject_mor p r₁ r₂) <span class="k">as</span> r₃.
+      <span class="nb">unfold</span> per_subobject_subst <span class="k">in</span> r₃.
+      <span class="nb">cbn</span> <span class="k">in</span> r₃.
+      <span class="nb">rewrite</span> exists_subst <span class="k">in</span> r₃.
+      <span class="nb">refine</span> (exists_elim r₃ _).
+      <span class="nb">unfold</span> Δ ; <span class="nb">clear</span> Δ r₁ r₂ r₃.
+      <span class="nb">unfold</span> a, b₁, b₂ ; <span class="nb">clear</span> a b₁ b₂.
+      hypersimplify_form.
+      <span class="nb">rewrite</span> partial_setoid_subst.
+      simplify.
+      <span class="nb">pose</span> (b₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h B) ×h B) ×h A) ×h B)))))).
+      <span class="nb">pose</span> (b₂ := π₂ (π₁ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h B) ×h B) ×h A) ×h B))))).
+      <span class="nb">pose</span> (a := π₂ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h B) ×h B) ×h A) ×h B)))).
+      <span class="nb">pose</span> (b₃ := π₂ (tm_var ((((<span class="mi">𝟙</span> ×h B) ×h B) ×h A) ×h B))).
+      <span class="nb">fold</span> a b₁ b₂ b₃.
+      use per_subobject_eq.
+      - <span class="bp">exact</span> b₃.
+      - use partial_setoid_trans.
+        + <span class="bp">exact</span> b₁.
+        + use (partial_setoid_mor_unique_im φ).
+          * <span class="bp">exact</span> a.
+          * use weaken_right.
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use weaken_left.
+            use weaken_right.
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+        + <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      - <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Existential</span>.
+
+  <span class="sd">(** * 4. Stability under substitution *)</span>
+  <span class="kn">Section</span> <span class="nf">ExistentialSubst</span>.
+    <span class="kn">Context</span> {<span class="nv">A₁</span> <span class="nv">A₂</span> <span class="nv">A₃</span> <span class="nv">A₄</span> : partial_setoid H}
+            {<span class="nv">s₁</span> : partial_setoid_morphism A₂ A₁}
+            {<span class="nv">s₂</span> : partial_setoid_morphism A₃ A₁}
+            {<span class="nv">s₃</span> : partial_setoid_morphism A₄ A₃}
+            {<span class="nv">s₄</span> : partial_setoid_morphism A₄ A₂}
+            (<span class="nv">p</span> : partial_setoid_comp_morphism s₄ s₁
+                 =
+                 partial_setoid_comp_morphism s₃ s₂)
+            (<span class="nv">Hp</span> : isPullback (C := category_of_partial_setoids H) p)
+            (<span class="nv">φ</span> : per_subobject A₂).
+
+    <span class="kn">Let</span> <span class="nf">P</span> : Pullback (C := category_of_partial_setoids H) s₁ s₂
+      := make_Pullback _ Hp.
+
+    <span class="kn">Section</span> <span class="nf">PullbackArrow</span>.
+      <span class="kn">Let</span> <span class="nf">Γ</span> : ty H := (((<span class="mi">𝟙</span> ×h A₃) ×h A₃) ×h A₁) ×h A₂.
+      <span class="kn">Let</span> <span class="nf">a₃</span> : tm Γ A₃ := π₂ (π₁ (π₁ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h A₃) ×h A₃) ×h A₁) ×h A₂))))).
+      <span class="kn">Let</span> <span class="nf">a₃'</span> : tm Γ A₃ := π₂ (π₁ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h A₃) ×h A₃) ×h A₁) ×h A₂)))).
+      <span class="kn">Let</span> <span class="nf">a₁</span> : tm Γ A₁ := π₂ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h A₃) ×h A₃) ×h A₁) ×h A₂))).
+      <span class="kn">Let</span> <span class="nf">a₂</span> : tm Γ A₂ := π₂ (tm_var ((((<span class="mi">𝟙</span> ×h A₃) ×h A₃) ×h A₁) ×h A₂)).
+      <span class="kn">Let</span> <span class="nf">Δ</span> : form Γ := (a₃ ~ a₃' ∧ s₂ [⟨ a₃, a₁ ⟩]) ∧ s₁ [⟨ a₂, a₁ ⟩] ∧ φ [a₂].
+
+      <span class="kn">Local Lemma</span> <span class="nf">per_subobject_exists_subst_def_lem_1</span>
+        : Δ ⊢ a₂ ~ a₂.
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> Δ.
+        use weaken_right.
+        use weaken_left.
+        use (partial_setoid_mor_dom_defined s₁ a₂ a₁).
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Local Lemma</span> <span class="nf">per_subobject_exists_subst_def_lem_2</span>
+        : Δ ⊢ a₃ ~ a₃.
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> Δ.
+        use weaken_left.
+        use weaken_right.
+        use (partial_setoid_mor_dom_defined s₂ a₃ a₁).
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Let</span> <span class="nf">f</span> : partial_setoid_morphism (formula_to_partial_setoid H Δ) A₂
+        := point_partial_setoid_morphism H Δ a₂ per_subobject_exists_subst_def_lem_1.
+      <span class="kn">Let</span> <span class="nf">g</span> : partial_setoid_morphism (formula_to_partial_setoid H Δ) A₃
+        := point_partial_setoid_morphism H Δ a₃ per_subobject_exists_subst_def_lem_2.
+
+      <span class="kn">Local Lemma</span> <span class="nf">per_subobject_exists_subst_fun_eq</span>
+        : partial_setoid_comp_morphism f s₁
+          =
+          partial_setoid_comp_morphism g s₂.
+      <span class="kn">Proof</span>.
+        use eq_partial_setoid_morphism.
+        - <span class="nb">cbn</span>.
+          use (exists_elim (hyperdoctrine_hyp _)).
+          use weaken_right.
+          <span class="nb">unfold</span> Γ, Δ, a₁, a₂, a₃, a₃'.
+          hypersimplify_form.
+          <span class="nb">rewrite</span> !partial_setoid_subst.
+          simplify.
+          <span class="nb">pose</span> (Γ' := (((((<span class="mi">𝟙</span> ×h A₃) ×h A₃) ×h A₁) ×h A₂) ×h A₁) ×h A₂).
+          <span class="nb">fold</span> Γ'.
+          <span class="nb">pose</span> (x₁ := π₂ (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ'))))))).
+          <span class="nb">pose</span> (x₂ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var Γ')))))).
+          <span class="nb">pose</span> (x₃ := π₂ (π₁ (π₁ (π₁ (tm_var Γ'))))).
+          <span class="nb">pose</span> (x₄ := π₂ (π₁ (π₁ (tm_var Γ')))).
+          <span class="nb">pose</span> (x₅ := π₂ (π₁ (tm_var Γ'))).
+          <span class="nb">pose</span> (x₆ := π₂ (tm_var Γ')).
+          <span class="nb">fold</span> x₁ x₂ x₃ x₄ x₅ x₆.
+          use exists_intro.
+          {
+            <span class="bp">exact</span> x₁.
+          }
+          hypersimplify_form.
+          <span class="nb">rewrite</span> !partial_setoid_subst.
+          simplify.
+          <span class="nb">fold</span> x₁ x₂ x₃ x₄ x₅ x₆.
+          <span class="kp">repeat</span> use conj_intro.
+          + <span class="kp">do</span> <span class="mi">4</span> use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          + <span class="kp">do</span> <span class="mi">3</span> use weaken_left.
+            use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          + <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+            use weaken_right.
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          + <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+            <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          + <span class="kp">do</span> <span class="mi">4</span> use weaken_left.
+            <span class="bp">exact</span> (partial_setoid_refl_l (hyperdoctrine_hyp _)).
+          + use partial_setoid_mor_eq_defined.
+            * <span class="bp">exact</span> x₁.
+            * <span class="bp">exact</span> x₃.
+            * <span class="kp">do</span> <span class="mi">4</span> use weaken_left.
+              <span class="bp">exact</span> (partial_setoid_refl_l (hyperdoctrine_hyp _)).
+            * use (partial_setoid_mor_unique_im s₁).
+              ** <span class="bp">exact</span> x₄.
+              ** <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+                 use weaken_right.
+                 use weaken_left.
+                 <span class="nb">apply</span> hyperdoctrine_hyp.
+              ** use partial_setoid_mor_eq_defined.
+                 *** <span class="bp">exact</span> x₆.
+                 *** <span class="bp">exact</span> x₅.
+                 *** use weaken_left.
+                     use weaken_right.
+                     <span class="nb">apply</span> hyperdoctrine_hyp.
+                 *** use weaken_right.
+                     use (partial_setoid_mor_cod_defined s₁ x₆ x₅).
+                     <span class="nb">apply</span> hyperdoctrine_hyp.
+                 *** use weaken_right.
+                     <span class="nb">apply</span> hyperdoctrine_hyp.
+            * <span class="kp">do</span> <span class="mi">3</span> use weaken_left.
+              use weaken_right.
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+        - <span class="nb">cbn</span>.
+          use (exists_elim (hyperdoctrine_hyp _)).
+          use weaken_right.
+          <span class="nb">unfold</span> Γ, Δ, a₁, a₂, a₃, a₃'.
+          hypersimplify_form.
+          <span class="nb">rewrite</span> !partial_setoid_subst.
+          simplify.
+          <span class="nb">pose</span> (Γ' := (((((<span class="mi">𝟙</span> ×h A₃) ×h A₃) ×h A₁) ×h A₂) ×h A₁) ×h A₃).
+          <span class="nb">fold</span> Γ'.
+          <span class="nb">pose</span> (x₁ := π₂ (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ'))))))).
+          <span class="nb">pose</span> (x₂ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var Γ')))))).
+          <span class="nb">pose</span> (x₃ := π₂ (π₁ (π₁ (π₁ (tm_var Γ'))))).
+          <span class="nb">pose</span> (x₄ := π₂ (π₁ (π₁ (tm_var Γ')))).
+          <span class="nb">pose</span> (x₅ := π₂ (π₁ (tm_var Γ'))).
+          <span class="nb">pose</span> (x₆ := π₂ (tm_var Γ')).
+          <span class="nb">fold</span> x₁ x₂ x₃ x₄ x₅ x₆.
+          use exists_intro.
+          {
+            <span class="bp">exact</span> x₄.
+          }
+          hypersimplify_form.
+          <span class="nb">rewrite</span> !partial_setoid_subst.
+          simplify.
+          <span class="nb">fold</span> x₁ x₂ x₃ x₄ x₅ x₆.
+          <span class="kp">repeat</span> use conj_intro.
+          + <span class="kp">do</span> <span class="mi">4</span> use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          + <span class="kp">do</span> <span class="mi">3</span> use weaken_left.
+            use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          + <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+            use weaken_right.
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          + <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+            <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          + <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+            use weaken_right.
+            use weaken_left.
+            use (partial_setoid_mor_dom_defined s₁ x₄ x₃).
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          + use partial_setoid_mor_eq_defined.
+            * <span class="bp">exact</span> x₄.
+            * <span class="bp">exact</span> x₃.
+            * <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+              use weaken_right.
+              use weaken_left.
+              use (partial_setoid_mor_dom_defined s₁ x₄ x₃).
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+            * use (partial_setoid_mor_unique_im s₂).
+              ** <span class="bp">exact</span> x₁.
+              ** <span class="kp">do</span> <span class="mi">3</span> use weaken_left.
+                 use weaken_right.
+                 <span class="nb">apply</span> hyperdoctrine_hyp.
+              ** use partial_setoid_mor_eq_defined.
+                 *** <span class="bp">exact</span> x₆.
+                 *** <span class="bp">exact</span> x₅.
+                 *** use weaken_left.
+                     use weaken_right.
+                     <span class="nb">apply</span> hyperdoctrine_hyp.
+                 *** use weaken_right.
+                     use (partial_setoid_mor_cod_defined s₂ x₆ x₅).
+                     <span class="nb">apply</span> hyperdoctrine_hyp.
+                 *** use weaken_right.
+                     <span class="nb">apply</span> hyperdoctrine_hyp.
+            * <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+              use weaken_right.
+              use weaken_left.
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Local Definition</span> <span class="nf">per_subobject_exists_subst_pb_fun</span>
+        : partial_setoid_morphism (formula_to_partial_setoid H Δ) A₄
+        := PullbackArrow P _ _ _ per_subobject_exists_subst_fun_eq.
+
+      <span class="kn">Let</span> <span class="nf">h</span> : partial_setoid_morphism (formula_to_partial_setoid H Δ) A₄
+        := per_subobject_exists_subst_pb_fun.
+      <span class="kn">Let</span> <span class="nf">Γ'</span> : ty H := Γ ×h A₄.
+      <span class="kn">Let</span> <span class="nf">γ</span> : tm Γ' Γ := π₁ (tm_var Γ').
+      <span class="kn">Let</span> <span class="nf">b₃</span> : tm Γ' A₃ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var Γ'))))).
+      <span class="kn">Let</span> <span class="nf">b₃'</span> : tm Γ' A₃ := π₂ (π₁ (π₁ (π₁ (tm_var Γ')))).
+      <span class="kn">Let</span> <span class="nf">b₁</span> : tm Γ' A₁ := π₂ (π₁ (π₁ (tm_var Γ'))).
+      <span class="kn">Let</span> <span class="nf">b₂</span> : tm Γ' A₂ := π₂ (π₁ (tm_var Γ')).
+      <span class="kn">Let</span> <span class="nf">b₄</span> : tm Γ' A₄ := π₂ (tm_var Γ').
+
+      <span class="kn">Context</span> (<span class="nv">Δ'</span> : form Γ').
+
+      <span class="kn">Local Lemma</span> <span class="nf">per_subobject_exists_subst_pb_fun_proj1</span>
+                  (<span class="nv">q</span> : Δ' ⊢ h [ ⟨ γ , b₄ ⟩ ])
+                  (<span class="nv">q'</span> : Δ' ⊢ Δ [ γ ])
+        : Δ' ⊢ s₄ [ ⟨ b₄ , b₂ ⟩ ].
+      <span class="kn">Proof</span>.
+        <span class="nb">assert</span> (partial_setoid_comp_morphism h s₄ = f) <span class="k">as</span> r.
+        {
+          <span class="bp">exact</span> (PullbackArrow_PullbackPr1 P _ _ _ per_subobject_exists_subst_fun_eq).
+        }
+        <span class="nb">assert</span> (Δ' ⊢ f [⟨ γ , b₂ ⟩]) <span class="k">as</span> r'.
+        {
+          <span class="nb">unfold</span> f, a₂ ; <span class="nb">cbn</span>.
+          hypersimplify_form.
+          <span class="nb">rewrite</span> partial_setoid_subst.
+          simplify.
+          use conj_intro.
+          - <span class="bp">exact</span> q'.
+          - <span class="nb">refine</span> (hyperdoctrine_cut q' _).
+            <span class="nb">unfold</span> Δ, a₁, a₂, a₃, a₃', γ.
+            hypersimplify_form.
+            <span class="nb">rewrite</span> partial_setoid_subst.
+            simplify.
+            <span class="nb">fold</span> b₁ b₂ b₃ b₃'.
+            use weaken_right.
+            use weaken_left.
+            use (partial_setoid_mor_dom_defined s₁ b₂ b₁).
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        <span class="nb">refine</span> (exists_elim _ _).
+        {
+          <span class="nb">refine</span> (hyperdoctrine_cut (from_eq_partial_setoid_morphism_b r r') _).
+          <span class="nb">cbn</span>.
+          simplify.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        simplify.
+        use partial_setoid_mor_eq_defined.
+        - <span class="bp">exact</span> (π₂ (tm_var _)).
+        - <span class="bp">exact</span> (b₂ [ π₁ (tm_var _) ]tm).
+        - use (partial_setoid_mor_unique_im h).
+          + <span class="bp">exact</span> (γ [π₁ (tm_var _) ]tm).
+          + use weaken_right.
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          + use weaken_left.
+            <span class="nb">refine</span> (hyperdoctrine_cut
+                      (hyperdoctrine_proof_subst _ q)
+                      _).
+            simplify.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+        - <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+          use (partial_setoid_mor_cod_defined s₄ (π₂ (tm_var _)) _).
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        - <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Local Lemma</span> <span class="nf">per_subobject_exists_subst_pb_fun_proj2</span>
+                  (<span class="nv">q</span> : Δ' ⊢ h [ ⟨ γ , b₄ ⟩ ])
+                  (<span class="nv">q'</span> : Δ' ⊢ Δ [ γ ])
+        : Δ' ⊢ s₃ [ ⟨ b₄ , b₃ ⟩ ].
+      <span class="kn">Proof</span>.
+        <span class="nb">assert</span> (partial_setoid_comp_morphism h s₃ = g) <span class="k">as</span> r.
+        {
+          <span class="bp">exact</span> (PullbackArrow_PullbackPr2 P _ _ _ per_subobject_exists_subst_fun_eq).
+        }
+        <span class="nb">assert</span> (Δ' ⊢ g [⟨ γ , b₃ ⟩]) <span class="k">as</span> r'.
+        {
+          <span class="nb">unfold</span> g, a₃ ; <span class="nb">cbn</span>.
+          hypersimplify_form.
+          <span class="nb">rewrite</span> partial_setoid_subst.
+          simplify.
+          use conj_intro.
+          - <span class="bp">exact</span> q'.
+          - <span class="nb">refine</span> (hyperdoctrine_cut q' _).
+            <span class="nb">unfold</span> Δ, a₁, a₂, a₃, a₃', γ.
+            hypersimplify_form.
+            <span class="nb">rewrite</span> partial_setoid_subst.
+            simplify.
+            <span class="nb">fold</span> b₁ b₂ b₃ b₃'.
+            use weaken_left.
+            use weaken_right.
+            use (partial_setoid_mor_dom_defined s₂ b₃ b₁).
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        <span class="nb">refine</span> (exists_elim _ _).
+        {
+          <span class="nb">refine</span> (hyperdoctrine_cut (from_eq_partial_setoid_morphism_b r r') _).
+          <span class="nb">cbn</span>.
+          simplify.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        simplify.
+        use partial_setoid_mor_eq_defined.
+        - <span class="bp">exact</span> (π₂ (tm_var _)).
+        - <span class="bp">exact</span> (b₃ [ π₁ (tm_var _) ]tm).
+        - use (partial_setoid_mor_unique_im h).
+          + <span class="bp">exact</span> (γ [π₁ (tm_var _) ]tm).
+          + use weaken_right.
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          + use weaken_left.
+            <span class="nb">refine</span> (hyperdoctrine_cut
+                      (hyperdoctrine_proof_subst _ q)
+                      _).
+            simplify.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+        - <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+          use (partial_setoid_mor_cod_defined s₃ (π₂ (tm_var _)) _).
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        - <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">PullbackArrow</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">per_subobject_exists_subst</span>
+      : per_subobject_mor_law
+          (id_partial_setoid_morphism A₃)
+          (per_subobject_subst s₂ (per_subobject_exists s₁ φ))
+          (per_subobject_exists s₃ (per_subobject_subst s₄ φ)).
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use impl_intro.
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> per_subobject_exists_form ; <span class="nb">cbn</span>.
+      hypersimplify_form.
+      <span class="nb">rewrite</span> partial_setoid_subst.
+      simplify.
+      use hyp_sym.
+      use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
+      <span class="nb">rewrite</span> !conj_subst.
+      use hyp_ltrans.
+      use weaken_right.
+      hypersimplify_form.
+      <span class="nb">rewrite</span> !partial_setoid_subst.
+      simplify.
+      use hyp_rtrans.
+      use hyp_sym.
+      use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
+      <span class="nb">rewrite</span> !conj_subst.
+      use hyp_ltrans.
+      use weaken_right.
+      hypersimplify_form.
+      <span class="nb">rewrite</span> !partial_setoid_subst.
+      simplify.
+      <span class="nb">pose</span> (h := per_subobject_exists_subst_pb_fun).
+      <span class="nb">simple refine</span> (exists_elim (partial_setoid_mor_hom_exists h _) _).
+      - <span class="nb">apply</span> tm_var.
+      - <span class="nb">cbn</span>.
+        use eq_in_formula_to_partial_setoid.
+        + <span class="nb">apply</span> hyperdoctrine_refl.
+        + simplify.
+          <span class="nb">pose</span> (Γ := (((<span class="mi">𝟙</span> ×h A₃) ×h A₃) ×h A₁) ×h A₂).
+          <span class="nb">fold</span> Γ.
+          <span class="nb">pose</span> (a₃ := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
+          <span class="nb">pose</span> (a₃' := π₂ (π₁ (π₁ (tm_var Γ)))).
+          <span class="nb">pose</span> (a₁ := π₂ (π₁ (tm_var Γ))).
+          <span class="nb">pose</span> (a₂ := π₂ (tm_var Γ)).
+          <span class="nb">fold</span> a₁ a₂ a₃ a₃'.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      - hypersimplify_form.
+        <span class="nb">rewrite</span> !partial_setoid_subst.
+        simplify.
+        <span class="nb">pose</span> (Γ := ((((<span class="mi">𝟙</span> ×h A₃) ×h A₃) ×h A₁) ×h A₂) ×h A₄).
+        <span class="nb">fold</span> Γ.
+        <span class="nb">pose</span> (a₃ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var Γ)))))).
+        <span class="nb">pose</span> (a₃' := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
+        <span class="nb">pose</span> (a₁ := π₂ (π₁ (π₁ (tm_var Γ)))).
+        <span class="nb">pose</span> (a₂ := π₂ (π₁ (tm_var Γ))).
+        <span class="nb">pose</span> (a₄ := π₂ (tm_var Γ)).
+        <span class="nb">fold</span> a₁ a₂ a₃ a₃' a₄.
+        use exists_intro.
+        {
+          <span class="bp">exact</span> a₄.
+        }
+        simplify.
+        <span class="nb">fold</span> a₃'.
+        use conj_intro.
+        + use partial_setoid_mor_eq_defined.
+          * <span class="bp">exact</span> a₄.
+          * <span class="bp">exact</span> a₃.
+          * use weaken_right.
+            <span class="bp">exact</span> (partial_setoid_mor_cod_defined h _ _ (hyperdoctrine_hyp _)).
+          * <span class="kp">do</span> <span class="mi">3</span> use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use per_subobject_exists_subst_pb_fun_proj2.
+            ** use weaken_right.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+            ** use weaken_left.
+               hypersimplify_form.
+               <span class="nb">rewrite</span> partial_setoid_subst.
+               simplify.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+        + use exists_intro.
+          {
+            <span class="bp">exact</span> a₂.
+          }
+          simplify.
+          use conj_intro.
+          * use per_subobject_exists_subst_pb_fun_proj1.
+            ** use weaken_right.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+            ** use weaken_left.
+               hypersimplify_form.
+               <span class="nb">rewrite</span> partial_setoid_subst.
+               simplify.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use weaken_left.
+            <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">ExistentialSubst</span>.
+
+  <span class="sd">(** * 5. Dependent sums *)</span>
+  <span class="kn">Definition</span> <span class="nf">dependent_sums_per_subobject</span>
+    : has_dependent_sums (disp_cat_per_subobject_cleaving H).
+  <span class="kn">Proof</span>.
+    use make_has_dependent_sums_poset.
+    - <span class="nb">apply</span> locally_prop_disp_cat_per_subobject.
+    - <span class="nb">intros</span> A B φ ψ.
+      <span class="bp">exact</span> (per_subobject_exists φ ψ).
+    - <span class="nb">intros</span> A B φ ψ.
+      <span class="bp">exact</span> (per_subobject_exists_intro φ ψ).
+    - <span class="nb">intros</span> A B φ ψ χ p.
+      <span class="bp">exact</span> (per_subobject_exists_elim φ ψ p).
+    - <span class="nb">intros</span> A₁ A₂ A₃ A₄ s₁ s₂ s₃ s₄ p Hp φ.
+      <span class="bp">exact</span> (per_subobject_exists_subst p Hp φ).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Existential</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/PartialEqRels/Logic/Existential.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Dependent sums
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

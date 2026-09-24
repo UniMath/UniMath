@@ -1,0 +1,1126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FunctorCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************</span>
+
+<span class="sd"> The category of enriched functors</span>
+
+<span class="sd"> We define the category of enriched functors and prove that it gives</span>
+<span class="sd"> rise to a univalent category. To do so, we use displayed categories.</span>
+<span class="sd"> The objects of this category are enriched functors and the morphisms</span>
+<span class="sd"> are enriched natural transformations.</span>
+
+<span class="sd"> In addition, we show that there is an enrichment over the functor</span>
+<span class="sd"> category if the category over which we enriched is a complete monoidal</span>
+<span class="sd"> closed category.</span>
+
+<span class="sd"> To construct this enrichment, we must encode the type of enriched</span>
+<span class="sd"> natural transformations as an object in the monoidal category `V`. The</span>
+<span class="sd"> idea behind this encoding is as follows: first of all, an enriched</span>
+<span class="sd"> transformation consists of a family of morphisms. We encode this by</span>
+<span class="sd"> taking a suitable product (we call it `P₁` below). Second of all, an</span>
+<span class="sd"> enriched transformation satisfies a commutativity condition. We encode</span>
+<span class="sd"> this by taking a suitable equalizer: this means that we look at those</span>
+<span class="sd"> families of morphisms such that a certain square commutes. We do so</span>
+<span class="sd"> by first defining the product `P₂` (note that we take a product over</span>
+<span class="sd"> pairs of objects in `C₁`). As such, we must construct two morphisms</span>
+<span class="sd"> from `P₁` to `P₂`. Each of these represents one side of the naturality</span>
+<span class="sd"> square.</span>
+
+<span class="sd"> It is important to note that in the definition of `P₂`, we make use of</span>
+<span class="sd"> the fact that the monoidal category `V` is closed. The encoded</span>
+<span class="sd"> condition relates to the usual condition of V-naturality by</span>
+<span class="sd"> adjointness.</span>
+
+<span class="sd"> One might think that one could also use ends (as defined in</span>
+<span class="sd"> Limits.Ends) to construct the required object. However, this is not</span>
+<span class="sd"> the case. If one would do so, then only gets natural transformations</span>
+<span class="sd"> that ar not necessarily enriched. This would thus not give  the right</span>
+<span class="sd"> morphisms in the category.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The category of enriched functors</span>
+<span class="sd"> 2. This category is univalent</span>
+<span class="sd"> 3. Operations on the enriched functor category</span>
+<span class="sd"> 4. The enrichment</span>
+<span class="sd"> 5. Enrichment for enriched presheaf categories</span>
+
+<span class="sd"> **********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.HomFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.OppositeEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">EnrichedFunctorCategory</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">E₁</span> : enrichment C₁ V)
+          (<span class="nv">E₂</span> : enrichment C₂ V).
+
+  <span class="kn">Definition</span> <span class="nf">functor_enrichment_disp_cat_ob_mor</span>
+    : disp_cat_ob_mor [C₁ , C₂].
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span>, functor_enrichment F E₁ E₂).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F₁</span> <span class="nv">F₂</span> <span class="nv">FE₁</span> <span class="nv">FE₂</span> <span class="nv">α</span>, nat_trans_enrichment (pr1 α) FE₁ FE₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_enrichment_disp_cat_id_comp</span>
+    : disp_cat_id_comp [C₁, C₂] functor_enrichment_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span> <span class="nv">FE</span>, id_trans_enrichment FE).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F₁</span> <span class="nv">F₂</span> <span class="nv">F₃</span> <span class="nv">τ</span> <span class="nv">θ</span> <span class="nv">FE₁</span> <span class="nv">FE₂</span> <span class="nv">FE₃</span> <span class="nv">τE</span> <span class="nv">θE</span>, comp_trans_enrichment τE θE).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_enrichment_disp_cat_data</span>
+    : disp_cat_data [C₁ , C₂].
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> functor_enrichment_disp_cat_ob_mor.
+    - <span class="bp">exact</span> functor_enrichment_disp_cat_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_enrichment_disp_cat</span>
+    : disp_cat [C₁ , C₂].
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> functor_enrichment_disp_cat_data.
+    - <span class="kp">abstract</span>
+        (<span class="kp">repeat</span> <span class="nb">split</span> ;
+         <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="kp">try</span> (<span class="nb">apply</span> isaprop_nat_trans_enrichment) ;
+         <span class="nb">apply</span> isasetaprop ;
+         <span class="nb">apply</span> isaprop_nat_trans_enrichment).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_disp_functor_enrichment_disp_cat</span>
+    : is_univalent_disp functor_enrichment_disp_cat.
+  <span class="kn">Proof</span>.
+    use is_univalent_disp_from_fibers.
+    <span class="nb">intros</span> F FE₁ FE₂.
+    use isweqimplimpl.
+    - <span class="nb">cbn</span> <span class="k">in</span> * ; <span class="nb">intro</span> τ.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_functor_enrichment.
+      }
+      use funextsec ; <span class="nb">intro</span> x.
+      use funextsec ; <span class="nb">intro</span> y.
+      <span class="nb">pose</span> (p := pr1 τ x y).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !enriched_from_arr_id <span class="k">in</span> p.
+      <span class="nb">refine</span> (_ @ !p @ _) ; <span class="nb">clear</span> p.
+      + <span class="nb">rewrite</span> &lt;- !(functor_enrichment_id FE₁).
+        <span class="nb">rewrite</span> (tensor_comp_r_id_l _ _ (FE₁ x y)).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- (functor_enrichment_comp FE₁).
+        <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (enrichment_id_left E₁ x y).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> mon_linvunitor_lunitor.
+        }
+        <span class="nb">apply</span> id_left.
+      + <span class="nb">rewrite</span> &lt;- !(functor_enrichment_id FE₂).
+        <span class="nb">rewrite</span> (tensor_comp_l_id_l (FE₂ x y)).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- (functor_enrichment_comp FE₂).
+        <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (enrichment_id_right E₁ x y).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> mon_rinvunitor_runitor.
+        }
+        <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> isaset_functor_enrichment.
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_iso_disp.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> isaprop_nat_trans_enrichment.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. The category of enriched functors</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_functor_category</span>
+    : category
+    := total_category functor_enrichment_disp_cat.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. This category is univalent</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_univalent_enriched_functor_cat</span>
+             (<span class="nv">HC₂</span> : is_univalent C₂)
+    : is_univalent enriched_functor_category.
+  <span class="kn">Proof</span>.
+    use is_univalent_total_category.
+    - use is_univalent_functor_category.
+      <span class="bp">exact</span> HC₂.
+    - <span class="bp">exact</span> is_univalent_disp_functor_enrichment_disp_cat.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EnrichedFunctorCategory</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_univalent_functor_category</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category)
+           (<span class="nv">E₁</span> : enrichment C₁ V)
+           (<span class="nv">E₂</span> : enrichment C₂ V)
+  : univalent_category
+  := enriched_functor_category E₁ E₂ ,, is_univalent_enriched_functor_cat _ _ (pr2 C₂).
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Operations on the enriched functor category</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_nat_z_iso_enriched_functor_category_z_iso</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor_category E₁ E₂}
+           (<span class="nv">τ</span> : z_iso F G)
+  : is_nat_z_iso (pr111 τ).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (nat_z_iso_from_z_iso _ (z_iso_base_from_total τ))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_enriched_functor_category</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           (<span class="nv">F</span> : enriched_functor_category E₁ E₂)
+           (<span class="nv">G</span> : enriched_functor_category E₂ E₃)
+  : enriched_functor_category E₁ E₃
+  := pr1 F ∙ pr1 G
+     ,,
+     functor_comp_enrichment (pr2 F) (pr2 G).
+
+<span class="kn">Definition</span> <span class="nf">pre_whisker_enriched_functor_category</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           (<span class="nv">F</span> : enriched_functor_category E₁ E₂)
+           {<span class="nv">G₁</span> <span class="nv">G₂</span> : enriched_functor_category E₂ E₃}
+           (<span class="nv">τ</span> : G₁ --&gt; G₂)
+  : comp_enriched_functor_category F G₁
+    --&gt;
+    comp_enriched_functor_category F G₂.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (pre_whisker (pr11 F) (pr1 τ)).
+  - use pre_whisker_enrichment.
+    <span class="bp">exact</span> (pr2 τ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">post_whisker_enriched_functor_category</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           {<span class="nv">F₁</span> <span class="nv">F₂</span> : enriched_functor_category E₁ E₂}
+           (<span class="nv">τ</span> : F₁ --&gt; F₂)
+           (<span class="nv">G</span> : enriched_functor_category E₂ E₃)
+  : comp_enriched_functor_category F₁ G
+    --&gt;
+    comp_enriched_functor_category F₂ G.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (post_whisker (pr1 τ) (pr1 G)).
+  - use post_whisker_enrichment.
+    <span class="bp">exact</span> (pr2 τ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lassociator_enriched_functor_category</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           {<span class="nv">E₄</span> : enrichment C₄ V}
+           (<span class="nv">F</span> : enriched_functor_category E₁ E₂)
+           (<span class="nv">G</span> : enriched_functor_category E₂ E₃)
+           (<span class="nv">H</span> : enriched_functor_category E₃ E₄)
+  : comp_enriched_functor_category (comp_enriched_functor_category F G) H
+    --&gt;
+    comp_enriched_functor_category F (comp_enriched_functor_category G H)
+  := nat_trans_id _ ,, lassociator_enrichment (pr2 F) (pr2 G) (pr2 H).
+
+<span class="kn">Definition</span> <span class="nf">rassociator_enriched_functor_category</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           {<span class="nv">E₄</span> : enrichment C₄ V}
+           (<span class="nv">F</span> : enriched_functor_category E₁ E₂)
+           (<span class="nv">G</span> : enriched_functor_category E₂ E₃)
+           (<span class="nv">H</span> : enriched_functor_category E₃ E₄)
+  : comp_enriched_functor_category F (comp_enriched_functor_category G H)
+    --&gt;
+    comp_enriched_functor_category (comp_enriched_functor_category F G) H
+  := nat_trans_id _ ,, rassociator_enrichment (pr2 F) (pr2 G) (pr2 H).
+
+<span class="sd">(**</span>
+<span class="sd"> 4. The enrichment</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">EnrichedFunctorCategory</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_mon_closed_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">E₁</span> : enrichment C₁ V)
+          (<span class="nv">E₂</span> : enrichment C₂ V)
+          (<span class="nv">EqV</span> : Equalizers V)
+          (<span class="nv">PV</span> : Products C₁ V)
+          (<span class="nv">PV'</span> : Products (C₁ × C₁) V).
+
+  <span class="kn">Definition</span> <span class="nf">hom_functor_on_functors</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+    : category_binproduct (C₁^opp) C₁ ⟶ V
+    := pair_functor (functor_op F) G ∙ enriched_hom_functor E₂.
+
+  <span class="kn">Section</span> <span class="nf">FunctorEnrichmentConstruction</span>.
+    <span class="kn">Context</span> {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+            (<span class="nv">EF</span> : functor_enrichment F E₁ E₂)
+            (<span class="nv">EG</span> : functor_enrichment G E₁ E₂).
+
+    <span class="kn">Let</span> <span class="nf">P₁</span> : Product C₁ V (<span class="k">λ</span> <span class="nv">x</span>, E₂ ⦃ F x, G x ⦄)
+      := PV (<span class="k">λ</span> <span class="nv">x</span>, E₂ ⦃ F x , G x ⦄).
+
+    <span class="kn">Let</span> <span class="nf">P₂</span> : Product
+               (C₁ × C₁)
+               V
+               (<span class="k">λ</span> <span class="nv">xy</span>, (E₁ ⦃ pr1 xy, pr2 xy ⦄) ⊸ (E₂ ⦃ F (pr1 xy), G (pr2 xy) ⦄))
+      := PV' (<span class="k">λ</span> <span class="nv">xy</span>, E₁ ⦃ pr1 xy , pr2 xy ⦄ ⊸ (E₂ ⦃ F (pr1 xy) , G (pr2 xy) ⦄)).
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_left_map_ob</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C₁)
+      : E₂ ⦃ F x , G x ⦄ --&gt; (E₁ ⦃ x, y ⦄) ⊸ (E₂ ⦃ F x , G y ⦄).
+    <span class="kn">Proof</span>.
+      use internal_lam.
+      <span class="bp">exact</span> (sym_mon_braiding _ _ _
+             · (EG _ _ #⊗ identity _)
+             · enriched_comp _ _ _ _).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">σ</span> : ∏ (x y : C₁), E₂ ⦃ F x , G x ⦄ --&gt; (E₁ ⦃ x, y ⦄) ⊸ (E₂ ⦃ F x , G y ⦄)
+      := enriched_functor_left_map_ob.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_right_map_ob</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C₁)
+      : E₂ ⦃ F y , G y ⦄ --&gt; (E₁ ⦃ x, y ⦄) ⊸ (E₂ ⦃ F x , G y ⦄).
+    <span class="kn">Proof</span>.
+      use internal_lam.
+      <span class="bp">exact</span> ((identity _ #⊗ EF _ _)
+             · enriched_comp _ _ _ _).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">ρ</span> : ∏ (x y : C₁), E₂ ⦃ F y , G y ⦄ --&gt; (E₁ ⦃ x, y ⦄) ⊸ (E₂ ⦃ F x , G y ⦄)
+      := enriched_functor_right_map_ob.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_left_map</span>
+      : P₁ --&gt; P₂.
+    <span class="kn">Proof</span>.
+      use ProductArrow.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span>, ProductPr _ _ _ (pr1 xy) · σ (pr1 xy) (pr2 xy)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_right_map</span>
+      : P₁ --&gt; P₂.
+    <span class="kn">Proof</span>.
+      use ProductArrow.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span>, ProductPr _ _ _ (pr2 xy) · ρ (pr1 xy) (pr2 xy)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_hom</span>
+      : Equalizer enriched_functor_left_map enriched_functor_right_map
+      := EqV _ _ enriched_functor_left_map enriched_functor_right_map.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_hom_pr</span>
+               (<span class="nv">i</span> : C₁)
+      : enriched_functor_hom --&gt; E₂ ⦃ F i, G i ⦄
+      := EqualizerArrow _ · ProductPr _ _ _ i.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_hom_eq</span>
+               (<span class="nv">i</span> <span class="nv">j</span> : C₁)
+      : enriched_functor_hom_pr i · σ i j
+        =
+        enriched_functor_hom_pr j · ρ i j.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (maponpaths
+              (<span class="k">λ</span> <span class="nv">z</span>, z · ProductPr _ _ _ (i ,, j))
+              (EqualizerEqAr enriched_functor_hom))
+        <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">unfold</span> enriched_functor_left_map <span class="k">in</span> p.
+      <span class="nb">unfold</span> enriched_functor_right_map <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !(ProductPrCommutes _ _ _ P₂ _ _ (i ,, j)) <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_hom_eq'</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C₁)
+      : sym_mon_braiding V  _ _
+        · (EG x y #⊗ enriched_functor_hom_pr x · enriched_comp E₂ (F x) (G x) (G y))
+        =
+        enriched_functor_hom_pr y #⊗ EF x y
+        · enriched_comp E₂ (F x) (F y) (G y).
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (maponpaths
+              (<span class="k">λ</span> <span class="nv">z</span>, z #⊗ identity _ · internal_eval _ _)
+              (enriched_functor_hom_eq x y))
+        <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r <span class="k">in</span> p.
+      <span class="nb">unfold</span> σ, ρ <span class="k">in</span> p.
+      <span class="nb">unfold</span> enriched_functor_left_map_ob, enriched_functor_right_map_ob <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !internal_beta <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc <span class="k">in</span> p.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding <span class="k">in</span> p.
+      <span class="nb">rewrite</span> &lt;- tensor_split' <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)) <span class="k">in</span> p.
+      <span class="nb">rewrite</span> &lt;- tensor_split <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">mor_to_enriched_functor_hom</span>
+               {<span class="nv">v</span> : V}
+               (<span class="nv">fv</span> : ∏ (i : C₁) , v --&gt; E₂ ⦃ F i, G i ⦄)
+               (<span class="nv">p</span> : ∏ (x y : C₁), fv x · σ x y = fv y · ρ x y)
+      : v --&gt; enriched_functor_hom.
+    <span class="kn">Proof</span>.
+      use EqualizerIn.
+      - use ProductArrow.
+        <span class="bp">exact</span> fv.
+      - <span class="kp">abstract</span>
+          (use ProductArrow_eq ;
+           <span class="nb">intros</span> xy ;
+           <span class="nb">unfold</span> enriched_functor_left_map ;
+           <span class="nb">unfold</span> enriched_functor_right_map ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> !(ProductPrCommutes _ _ _ P₂) ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> !(ProductPrCommutes _ _ _ P₁) ;
+           <span class="nb">apply</span> p).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">mor_to_enriched_functor_hom_pr</span>
+                {<span class="nv">v</span> : V}
+                (<span class="nv">fv</span> : ∏ (i : C₁) , v --&gt; E₂ ⦃ F i, G i ⦄)
+                (<span class="nv">p</span> : ∏ (x y : C₁), fv x · σ x y = fv y · ρ x y)
+                (<span class="nv">i</span> : C₁)
+      : mor_to_enriched_functor_hom fv p · enriched_functor_hom_pr i
+        =
+        fv i.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> mor_to_enriched_functor_hom, enriched_functor_hom_pr.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> EqualizerCommutes.
+      <span class="nb">apply</span> (ProductPrCommutes _ _ _ P₁).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">mor_to_enriched_functor_unique</span>
+               {<span class="nv">v</span> : V}
+               (<span class="nv">f</span> <span class="nv">g</span> : v --&gt; enriched_functor_hom)
+               (<span class="nv">p</span> : ∏ (x : C₁), f · enriched_functor_hom_pr x
+                                =
+                                g · enriched_functor_hom_pr  x)
+      : f = g.
+    <span class="kn">Proof</span>.
+      use EqualizerInsEq.
+      use ProductArrow_eq.
+      <span class="nb">intro</span> x.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="bp">exact</span> (p x).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FunctorEnrichmentConstruction</span>.
+
+  <span class="kn">Section</span> <span class="nf">EnrichmentIdentity</span>.
+    <span class="kn">Context</span> {<span class="nv">F</span> : C₁ ⟶ C₂}
+            (<span class="nv">EF</span> : functor_enrichment F E₁ E₂).
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_functor_hom_id_eq</span>
+                (<span class="nv">x</span> <span class="nv">y</span> : C₁)
+      : enriched_id E₂ (F x) · enriched_functor_left_map_ob EF x y
+        =
+        enriched_id E₂ (F y) · enriched_functor_right_map_ob EF x y.
+    <span class="kn">Proof</span>.
+      use internal_funext.
+      <span class="nb">intros</span> a h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">unfold</span> enriched_functor_left_map_ob, enriched_functor_right_map_ob.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> tensor_split'.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- enrichment_id_right.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- enrichment_id_left.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> tensor_lunitor.
+      <span class="nb">rewrite</span> tensor_runitor.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> sym_mon_braiding_runitor.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_hom_id</span>
+      : I_{V} --&gt; enriched_functor_hom EF EF.
+    <span class="kn">Proof</span>.
+      use mor_to_enriched_functor_hom.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, enriched_id E₂ (F x)).
+      - <span class="bp">exact</span> enriched_functor_hom_id_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_functor_hom_id_comm</span>
+                (<span class="nv">x</span> : C₁)
+      : enriched_functor_hom_id · enriched_functor_hom_pr EF EF x
+        =
+        enriched_id E₂ (F x).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (mor_to_enriched_functor_hom_pr
+               EF EF
+               _
+               _
+               x).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">EnrichmentIdentity</span>.
+
+  <span class="kn">Section</span> <span class="nf">EnrichmentComp</span>.
+    <span class="kn">Context</span> {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> : C₁ ⟶ C₂}
+            (<span class="nv">EF</span> : functor_enrichment F E₁ E₂)
+            (<span class="nv">EG</span> : functor_enrichment G E₁ E₂)
+            (<span class="nv">EH</span> : functor_enrichment H E₁ E₂).
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_hom_comp_data</span>
+               (<span class="nv">x</span> : C₁)
+      : enriched_functor_hom EG EH ⊗ enriched_functor_hom EF EG
+        --&gt;
+        E₂ ⦃ F x , H x ⦄
+      := enriched_functor_hom_pr EG EH x #⊗ enriched_functor_hom_pr EF EG x
+         · enriched_comp _ _ _ _.
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_functor_hom_comp_laws</span>
+                (<span class="nv">x</span> <span class="nv">y</span> : C₁)
+      : enriched_functor_hom_comp_data x · enriched_functor_left_map_ob EH x y
+        =
+        enriched_functor_hom_comp_data y · enriched_functor_right_map_ob EF x y.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> enriched_functor_hom_comp_data.
+      use internal_funext.
+      <span class="nb">intros</span> a h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">unfold</span> enriched_functor_left_map_ob, enriched_functor_right_map_ob.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !internal_beta.
+      etrans.
+      {
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_split.
+        <span class="nb">rewrite</span> tensor_split'.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> enrichment_assoc'.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_id_id.
+        <span class="nb">rewrite</span> tensor_rassociator.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> tensor_rassociator.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!(id_left _) @ _).
+        <span class="nb">rewrite</span> &lt;- mon_lassociator_rassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> sym_mon_hexagon_rassociator.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+        <span class="nb">rewrite</span> !id_left.
+        <span class="nb">rewrite</span> !id_right.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> tensor_comp_r_id_l.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (enriched_functor_hom_eq' EG EH x y).
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_comp_r_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> enrichment_assoc.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> tensor_comp_r_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> mon_rassociator_lassociator.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> tensor_split'.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+        <span class="nb">rewrite</span> &lt;- tensor_split.
+        <span class="bp">exact</span> (enriched_functor_hom_eq' EF EG x y).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_comp_l_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> enrichment_assoc'.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> &lt;- tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> mon_lassociator_rassociator.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- tensor_split'.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_hom_comp</span>
+      : enriched_functor_hom EG EH ⊗ enriched_functor_hom EF EG
+        --&gt;
+        enriched_functor_hom EF EH.
+    <span class="kn">Proof</span>.
+      use mor_to_enriched_functor_hom.
+      - <span class="bp">exact</span> enriched_functor_hom_comp_data.
+      - <span class="bp">exact</span> enriched_functor_hom_comp_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_functor_hom_comp_comm</span>
+                (<span class="nv">x</span> : C₁)
+      : enriched_functor_hom_comp
+        · enriched_functor_hom_pr EF EH x
+        =
+        (enriched_functor_hom_pr EG EH x
+         #⊗
+         enriched_functor_hom_pr EF EG x)
+        · enriched_comp E₂ (F x) (G x) (H x).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> enriched_functor_hom_comp.
+      <span class="nb">rewrite</span> mor_to_enriched_functor_hom_pr.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">EnrichmentComp</span>.
+
+  <span class="kn">Section</span> <span class="nf">EnrichmentFromArr</span>.
+    <span class="kn">Context</span> {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+            {<span class="nv">τ</span> : F ⟹ G}
+            {<span class="nv">EF</span> : functor_enrichment F E₁ E₂}
+            {<span class="nv">EG</span> : functor_enrichment G E₁ E₂}
+            (<span class="nv">Eτ</span> : nat_trans_enrichment τ EF EG).
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_functor_hom_from_arr_eq</span>
+                (<span class="nv">x</span> <span class="nv">y</span> : C₁)
+      : enriched_from_arr E₂ (τ x) · enriched_functor_left_map_ob EG x y
+        =
+        enriched_from_arr E₂ (τ y) · enriched_functor_right_map_ob EF x y.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (p := Eτ x y).
+      use internal_funext.
+      <span class="nb">intros</span> a h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">unfold</span> enriched_functor_left_map_ob, enriched_functor_right_map_ob.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> tensor_split'.
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_split.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!(id_left _) @ _).
+        <span class="nb">rewrite</span> &lt;- mon_runitor_rinvunitor.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="bp">exact</span> p.
+      }
+      <span class="nb">clear</span> p.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> tensor_split.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> sym_mon_braiding_runitor.
+      <span class="nb">rewrite</span> mon_lunitor_linvunitor.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> &lt;- tensor_split'.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_hom_from_arr</span>
+      : I_{V} --&gt; enriched_functor_hom EF EG.
+    <span class="kn">Proof</span>.
+      use mor_to_enriched_functor_hom.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, enriched_from_arr E₂ (τ x)).
+      - <span class="bp">exact</span> enriched_functor_hom_from_arr_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_functor_hom_from_arr_comm</span>
+                (<span class="nv">x</span> : C₁)
+      : enriched_functor_hom_from_arr
+        · enriched_functor_hom_pr EF EG x
+        =
+        enriched_from_arr E₂ (τ x).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> enriched_functor_hom_from_arr.
+      <span class="nb">rewrite</span> mor_to_enriched_functor_hom_pr.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">EnrichmentFromArr</span>.
+
+  <span class="kn">Section</span> <span class="nf">EnrichmentToArr</span>.
+    <span class="kn">Context</span> {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+            {<span class="nv">EF</span> : functor_enrichment F E₁ E₂}
+            {<span class="nv">EG</span> : functor_enrichment G E₁ E₂}
+            (<span class="nv">τ</span> : I_{V} --&gt; enriched_functor_hom EF EG).
+
+    <span class="kn">Definition</span> <span class="nf">enrichment_functor_hom_to_arr_data</span>
+      : nat_trans_data F G
+      := <span class="k">λ</span> <span class="nv">x</span>, enriched_to_arr E₂ (τ · enriched_functor_hom_pr EF EG x).
+
+    <span class="kn">Proposition</span> <span class="nf">enrichment_functor_hom_to_arr_enrichment</span>
+      : nat_trans_enrichment enrichment_functor_hom_to_arr_data EF EG.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> enrichment_functor_hom_to_arr_data.
+      <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !enriched_from_to_arr.
+      <span class="nb">rewrite</span> tensor_comp_r_id_l.
+      <span class="nb">rewrite</span> tensor_comp_l_id_l.
+      <span class="nb">pose</span> (enriched_functor_hom_eq' EF EG x y) <span class="k">as</span> p.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- p.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> sym_mon_braiding_linvunitor.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enrichment_functor_hom_to_arr</span>
+      : F ⟹ G.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> enrichment_functor_hom_to_arr_data.
+      - <span class="bp">exact</span> (is_nat_trans_from_enrichment enrichment_functor_hom_to_arr_enrichment).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">EnrichmentToArr</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_functor_category_enrichment_data</span>
+    : enrichment_data (enriched_functor_category E₁ E₂) V.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span> <span class="nv">G</span>, enriched_functor_hom (pr2 F) (pr2 G)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span>, enriched_functor_hom_id (pr2 F)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span>, enriched_functor_hom_comp (pr2 F) (pr2 G) (pr2 H)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">τ</span>, enriched_functor_hom_from_arr (pr2 τ)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">τ</span>,
+             enrichment_functor_hom_to_arr τ
+             ,,
+             enrichment_functor_hom_to_arr_enrichment τ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_functor_category_enrichment_laws</span>
+    : enrichment_laws enriched_functor_category_enrichment_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> F G.
+      use mor_to_enriched_functor_unique.
+      <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> enriched_functor_hom_comp_comm.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> enriched_functor_hom_id_comm.
+      }
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- tensor_lunitor.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> enrichment_id_left.
+    - <span class="nb">intros</span> F G.
+      use mor_to_enriched_functor_unique.
+      <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> enriched_functor_hom_comp_comm.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> enriched_functor_hom_id_comm.
+      }
+      <span class="nb">rewrite</span> tensor_split'.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- tensor_runitor.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> enrichment_id_right.
+    - <span class="nb">intros</span> F₁ F₂ F₃ F₄.
+      use mor_to_enriched_functor_unique.
+      <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> enriched_functor_hom_comp_comm.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> enriched_functor_hom_comp_comm.
+      }
+      <span class="nb">rewrite</span> tensor_comp_r_id_l.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> enrichment_assoc.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> enriched_functor_hom_comp_comm.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> enriched_functor_hom_comp_comm.
+      }
+      <span class="nb">rewrite</span> !tensor_comp_l_id_r.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> F G τ.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_nat_trans_enrichment.
+      }
+      use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+      <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> enrichment_functor_hom_to_arr_data.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> enriched_functor_hom_from_arr_comm.
+      }
+      <span class="nb">apply</span> enriched_to_from_arr.
+    - <span class="nb">intros</span> F G τ.
+      use mor_to_enriched_functor_unique.
+      <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> enriched_functor_hom_from_arr_comm.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> enriched_from_to_arr.
+    - <span class="nb">intros</span> F.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_nat_trans_enrichment.
+      }
+      use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+      <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> enrichment_functor_hom_to_arr_data.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> enriched_functor_hom_id_comm.
+      }
+      <span class="nb">apply</span> enriched_to_arr_id.
+    - <span class="nb">intros</span> F G H τ θ.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_nat_trans_enrichment.
+      }
+      use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+      <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> enrichment_functor_hom_to_arr_data.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> enriched_functor_hom_comp_comm.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> !enriched_functor_hom_from_arr_comm.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> enriched_to_arr_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_functor_category_enrichment</span>
+    : enrichment (enriched_functor_category E₁ E₂) V
+    := enriched_functor_category_enrichment_data
+       ,,
+       enriched_functor_category_enrichment_laws.
+<span class="kn">End</span> <span class="nf">EnrichedFunctorCategory</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Enrichment for enriched presheaf categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">enriched_presheaf_enrichment</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C</span> : category}
+           (<span class="nv">E</span> : enrichment C V)
+           (<span class="nv">EqV</span> : Equalizers V)
+           (<span class="nv">PV</span> : Products C V)
+           (<span class="nv">PV'</span> : Products (C × C) V)
+  : enrichment
+      (enriched_functor_category
+         (op_enrichment V E)
+         (self_enrichment V))
+      V
+  := enriched_functor_category_enrichment
+       (op_enrichment V E)
+       (self_enrichment V)
+       EqV
+       PV
+       PV'.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Examples/FunctorCategory.v</tt>, line 46)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Enrichment for enriched presheaf categories
+  &gt;
+  &gt;  **********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

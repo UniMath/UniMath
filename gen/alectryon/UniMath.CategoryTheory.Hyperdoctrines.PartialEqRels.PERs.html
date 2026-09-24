@@ -1,0 +1,821 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PERs.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************************</span>
+
+<span class="sd"> Partial equivalence relations in a first-order hyperdoctrine</span>
+
+<span class="sd"> To construct a topos from a tripos, we look at the category of partial equivalence relations.</span>
+<span class="sd"> This generalizes several constructions in topos theory, such as the construction of</span>
+<span class="sd"> realizability toposes (partial equivalence relations valued in partial combinatory algebras)</span>
+<span class="sd"> and localic toposes (sets with a partial equivalence relation valued in a complete Heyting</span>
+<span class="sd"> algebra). In this file, we define the notion of partial equivalence relation in first-order</span>
+<span class="sd"> hyperdoctrines. Note that we use the terminology 'partial equivalence relation to denote</span>
+<span class="sd"> a relation and the terminology 'partial setoid' to denote a type equipped with a partial</span>
+<span class="sd"> equivalence relation. In the paper "Tripos Theory in Retrospect" by Andrew Pitts only the</span>
+<span class="sd"> terminology partial equivalence relation is used (Definition 3.1) and it agrees with our</span>
+<span class="sd"> usage. However, the word 'partial setoids' is not used</span>
+
+<span class="sd"> To do so, we work in the internal language. The internal language of a first-order</span>
+<span class="sd"> hyperdoctrine is implemented via a shallow embedding. Variable names are represented via</span>
+<span class="sd"> De Bruijn indies, and the laws for substitution are represented via propositional equalities.</span>
+<span class="sd"> As a consequence, goals can easily become very unreadable.</span>
+
+<span class="sd"> However, there are some tricks that we can use to obtain more readable goals. These are</span>
+<span class="sd"> discussed in more detail and using an example in the proof of [eq_per_axioms]. The limitations</span>
+<span class="sd"> of this method are discussed as well.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Tripos Theory in Retrospect" by Andrew Pitts</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Partial equivalence relations</span>
+<span class="sd"> 2. Partial setoids</span>
+<span class="sd"> 3. Every type is a partial setoid with equality</span>
+<span class="sd"> 4. The product of partial setoids</span>
+
+<span class="sd"> ********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+
+<span class="kn">Require Import</span> UniMath.Tactics.Utilities.
+<span class="kn">Require Import</span> UniMath.Tactics.Simplify.
+<span class="kn">Require Import</span> <span class="kn">Ltac2</span>.<span class="kn">Ltac2</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="kt">Set</span> Default <span class="kn">Proof</span> Mode <span class="s2">"Classic"</span>.
+
+<span class="kn">Section</span> <span class="nf">PartialEquivalenceRelation</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : first_order_hyperdoctrine}.
+
+  <span class="sd">(** * 1. Partial equivalence relations *)</span>
+  <span class="kn">Definition</span> <span class="nf">per_data</span>
+             (<span class="nv">X</span> : ty H)
+    : UU
+    := form (X ×h X).
+
+  <span class="sd">(**</span>
+<span class="sd">     Symmetry and transitivity are expressed via the internal language</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">per_symm_axiom</span>
+             {<span class="nv">X</span> : ty H}
+             (<span class="nv">e</span> : per_data X)
+    : UU
+    := <span class="k">let</span> <span class="nv">x</span> := π₂ (π₁ (tm_var _)) : tm ((<span class="mi">𝟙</span> ×h X) ×h X) X <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">y</span> := π₂ (tm_var _) : tm ((<span class="mi">𝟙</span> ×h X) ×h X) X <span class="k">in</span>
+       ⊤ ⊢ (<span class="k">∀</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span> (<span class="nv">e</span> [ ⟨ x , y ⟩ ] ⇒ e [ ⟨ y , x ⟩ ])).
+
+  <span class="kn">Definition</span> <span class="nf">per_trans_axiom</span>
+             {<span class="nv">X</span> : ty H}
+             (<span class="nv">e</span> : per_data X)
+    : UU
+    := <span class="k">let</span> <span class="nv">x</span> := π₂ (π₁ (π₁ (tm_var _))) : tm (((<span class="mi">𝟙</span> ×h X) ×h X) ×h X) X <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">y</span> := π₂ (π₁ (tm_var _)) : tm (((<span class="mi">𝟙</span> ×h X) ×h X) ×h X) X <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">z</span> := π₂ (tm_var _) : tm (((<span class="mi">𝟙</span> ×h X) ×h X) ×h X) X <span class="k">in</span>
+       ⊤ ⊢ (<span class="k">∀</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span> (<span class="nv">e</span> [ ⟨ x , y ⟩ ] ⇒ e [ ⟨ y , z ⟩ ] ⇒ e [ ⟨ x , z ⟩ ])).
+
+  <span class="kn">Definition</span> <span class="nf">per_axioms</span>
+             {<span class="nv">X</span> : ty H}
+             (<span class="nv">e</span> : per_data X)
+    : UU
+    := per_symm_axiom e × per_trans_axiom e.
+
+  <span class="kn">Definition</span> <span class="nf">per</span>
+             (<span class="nv">X</span> : ty H)
+    : UU
+    := ∑ (e : per_data X), per_axioms e.
+
+  <span class="kn">Coercion</span> <span class="nf">per_to_data</span>
+           {X : ty H}
+           (e : per X)
+    : form (X ×h X).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 e).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">     We want to have nice accessors for symmetry and transitivity.</span>
+<span class="sd">     However, while the statements in the internal language accurately</span>
+<span class="sd">     represent symmetry and transitivity, they are not easy to use.</span>
+<span class="sd">     For this reason, the accessors of symmetry and transitivity are</span>
+<span class="sd">     modified. In these accessors elimination rules for the universal</span>
+<span class="sd">     quantifier and implication are already used, and suitable weakenings</span>
+<span class="sd">     are applied. This makes it possible to use symmetry and transitivity</span>
+<span class="sd">     more directly.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">per_sym</span>
+              {<span class="nv">X</span> : ty H}
+              {<span class="nv">e</span> : per X}
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">Δ</span> : form Γ}
+              {<span class="nv">s</span> : tm Γ (X ×h X)}
+              (<span class="nv">p</span> : Δ ⊢ e [ ⟨ π₂ s , π₁ s ⟩ ])
+    : Δ ⊢ e [ s ].
+  <span class="kn">Proof</span>.
+    <span class="nb">pose proof</span> (pr12 e) <span class="k">as</span> q.
+    <span class="nb">unfold</span> per_symm_axiom <span class="k">in</span> q.
+    <span class="nb">pose proof</span> (hyperdoctrine_proof_subst (!! : tm Γ <span class="mi">𝟙</span>) q) <span class="k">as</span> q'.
+    <span class="nb">clear</span> q.
+    <span class="nb">rewrite</span> truth_subst <span class="k">in</span> q'.
+    <span class="nb">rewrite</span> !forall_subst <span class="k">in</span> q'.
+    <span class="nb">rewrite</span> impl_subst <span class="k">in</span> q'.
+    <span class="nb">rewrite</span> !hyperdoctrine_comp_subst <span class="k">in</span> q'.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst <span class="k">in</span> q'.
+    <span class="nb">pose proof</span> (forall_elim q' (π₂ s)) <span class="k">as</span> r.
+    <span class="nb">clear</span> q'.
+    <span class="nb">rewrite</span> !forall_subst <span class="k">in</span> r.
+    <span class="nb">rewrite</span> impl_subst <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !hyperdoctrine_comp_subst <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1 <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2 <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1 <span class="k">in</span> r.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2 <span class="k">in</span> r.
+    <span class="nb">pose proof</span> (forall_elim r (π₁ s)) <span class="k">as</span> r'.
+    <span class="nb">clear</span> r.
+    <span class="nb">rewrite</span> impl_subst <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> !hyperdoctrine_comp_subst <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> !tm_subst_comp <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr1 <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> tm_subst_var <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> r'.
+    <span class="nb">pose proof</span> (weaken_to_empty r' : Δ ⊢ _) <span class="k">as</span> r''.
+    <span class="nb">clear</span> r'.
+    <span class="nb">pose proof</span> (impl_elim p r'') <span class="k">as</span> r'''.
+    <span class="nb">clear</span> r''.
+    <span class="nb">rewrite</span> (hyperdoctrine_pair_eta s).
+    <span class="bp">exact</span> r'''.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">per_trans</span>
+              {<span class="nv">X</span> : ty H}
+              {<span class="nv">e</span> : per X}
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">Δ</span> : form Γ}
+              {<span class="nv">s</span> : tm Γ (X ×h X)}
+              (<span class="nv">t</span> : tm Γ X)
+              (<span class="nv">p</span> : Δ ⊢ e [ ⟨ π₁ s , t ⟩ ])
+              (<span class="nv">q</span> : Δ ⊢ e [ ⟨ t , π₂ s ⟩ ])
+    : Δ ⊢ e [ s ].
+  <span class="kn">Proof</span>.
+    <span class="nb">pose proof</span> (pr22 e) <span class="k">as</span> r₁.
+    <span class="nb">cbn</span> <span class="k">in</span> r₁.
+    <span class="nb">unfold</span> per_trans_axiom <span class="k">in</span> r₁.
+    <span class="nb">pose proof</span> (hyperdoctrine_proof_subst (!! : tm Γ <span class="mi">𝟙</span>) r₁) <span class="k">as</span> r₂.
+    <span class="nb">clear</span> r₁.
+    <span class="nb">rewrite</span> truth_subst <span class="k">in</span> r₂.
+    <span class="nb">rewrite</span> !forall_subst <span class="k">in</span> r₂.
+    <span class="nb">rewrite</span> !impl_subst <span class="k">in</span> r₂.
+    <span class="nb">rewrite</span> !hyperdoctrine_comp_subst <span class="k">in</span> r₂.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst <span class="k">in</span> r₂.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst <span class="k">in</span> r₂.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r₂.
+    <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r₂.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> r₂.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1 <span class="k">in</span> r₂.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2 <span class="k">in</span> r₂.
+    <span class="nb">pose proof</span> (forall_elim r₂ (π₁ s)) <span class="k">as</span> r₃.
+    <span class="nb">clear</span> r₂.
+    <span class="nb">rewrite</span> !forall_subst <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> !impl_subst <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> !hyperdoctrine_comp_subst <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1 <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2 <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1 <span class="k">in</span> r₃.
+    <span class="nb">pose proof</span> (forall_elim r₃ t) <span class="k">as</span> r₄.
+    <span class="nb">clear</span> r₃.
+    <span class="nb">rewrite</span> !forall_subst <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !impl_subst <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !hyperdoctrine_comp_subst <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1 <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2 <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2 <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !tm_subst_comp <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r₄.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1 <span class="k">in</span> r₄.
+    <span class="nb">pose proof</span> (forall_elim r₄ (π₂ s)) <span class="k">as</span> r₅.
+    <span class="nb">clear</span> r₄.
+    <span class="nb">rewrite</span> !impl_subst <span class="k">in</span> r₅.
+    <span class="nb">rewrite</span> !hyperdoctrine_comp_subst <span class="k">in</span> r₅.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_subst <span class="k">in</span> r₅.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst <span class="k">in</span> r₅.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r₅.
+    <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r₅.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> r₅.
+    <span class="nb">rewrite</span> !tm_subst_comp <span class="k">in</span> r₅.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst <span class="k">in</span> r₅.
+    <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> r₅.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1 <span class="k">in</span> r₅.
+    <span class="nb">rewrite</span> !tm_subst_var <span class="k">in</span> r₅.
+    <span class="nb">pose proof</span> (weaken_to_empty r₅ : Δ ⊢ _) <span class="k">as</span> r₆.
+    <span class="nb">clear</span> r₅.
+    <span class="nb">pose proof</span> (impl_elim p r₆) <span class="k">as</span> r₇.
+    <span class="nb">clear</span> r₆.
+    <span class="nb">pose proof</span> (impl_elim q r₇) <span class="k">as</span> r₈.
+    <span class="nb">clear</span> r₇.
+    <span class="nb">rewrite</span> (hyperdoctrine_pair_eta s).
+    <span class="bp">exact</span> r₈.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_per</span>
+             {<span class="nv">X</span> : ty H}
+             (<span class="nv">e</span> : form (X ×h X))
+             (<span class="nv">He</span> : per_axioms e)
+    : per X
+    := e ,, He.
+<span class="kn">End</span> <span class="nf">PartialEquivalenceRelation</span>.
+
+<span class="sd">(** * 2. Partial setoids *)</span>
+<span class="kn">Definition</span> <span class="nf">partial_setoid</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+  : UU
+  := ∑ (X : ty H), per X.
+
+<span class="kn">Definition</span> <span class="nf">make_partial_setoid</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">X</span> : ty H)
+           (<span class="nv">e</span> : per X)
+  : partial_setoid H
+  := X ,, e.
+
+<span class="kn">Coercion</span> <span class="nf">partial_setoid_to_type</span>
+         {H : first_order_hyperdoctrine}
+         (X : partial_setoid H)
+  : ty H.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">partial_setoid_to_per</span>
+         {H : first_order_hyperdoctrine}
+         (X : partial_setoid H)
+  : per X.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">partial_setoid_formula</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">X</span> : partial_setoid H}
+           {<span class="nv">Γ</span> : ty H}
+           (<span class="nv">x</span> <span class="nv">y</span> : tm Γ X)
+  : form Γ
+  := X [ ⟨ x , y ⟩ ].
+
+<span class="kn">Notation</span> <span class="s2">"x ~ y"</span> := (partial_setoid_formula x y) : hyperdoctrine.
+
+<span class="kt">Set</span> Default <span class="kn">Proof</span> Mode <span class="s2">"Ltac2"</span>.
+
+<span class="kn">Ltac2 Set</span> hypertraversals <span class="k">as</span> traversals := <span class="k">fun</span> <span class="nv">_</span> =&gt;
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (_ ~ _) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>, x ~ _) <span class="k">end</span>) <span class="s2">""</span> <span class="s2">" ~ _"</span>  ) ::
+  (make_traversal (<span class="k">fun</span> () =&gt; <span class="k">match! goal with</span> | [|- (<span class="nl">?a</span> ~ _) = _ ] =&gt; '(<span class="k">λ</span> <span class="nv">x</span>, $a ~ x) <span class="k">end</span>)   <span class="s2">"_ ~ "</span> <span class="s2">""</span>) ::
+  traversals ().
+
+<span class="kt">Set</span> Default <span class="kn">Proof</span> Mode <span class="s2">"Classic"</span>.
+
+<span class="kn">Proposition</span> <span class="nf">partial_setoid_sym</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">X</span> : partial_setoid H}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">x</span> <span class="nv">y</span> : tm Γ X}
+            (<span class="nv">p</span> : Δ ⊢ x ~ y)
+  : Δ ⊢ y ~ x.
+<span class="kn">Proof</span>.
+  use per_sym.
+  hypersimplify.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">partial_setoid_trans</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">X</span> : partial_setoid H}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">x</span> : tm Γ X}
+            (<span class="nv">y</span> : tm Γ X)
+            {<span class="nv">z</span> : tm Γ X}
+            (<span class="nv">p</span> : Δ ⊢ x ~ y)
+            (<span class="nv">q</span> : Δ ⊢ y ~ z)
+  : Δ ⊢ x ~ z.
+<span class="kn">Proof</span>.
+  use per_trans.
+  - <span class="bp">exact</span> y.
+  - hypersimplify.
+    <span class="bp">exact</span> p.
+  - hypersimplify.
+    <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">partial_setoid_refl_l</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">X</span> : partial_setoid H}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">x</span> <span class="nv">y</span> : tm Γ X}
+            (<span class="nv">p</span> : Δ ⊢ x ~ y)
+  : Δ ⊢ x ~ x.
+<span class="kn">Proof</span>.
+  use (partial_setoid_trans y p).
+  use partial_setoid_sym.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">partial_setoid_refl_r</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">X</span> : partial_setoid H}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">x</span> <span class="nv">y</span> : tm Γ X}
+            (<span class="nv">p</span> : Δ ⊢ x ~ y)
+  : Δ ⊢ y ~ y.
+<span class="kn">Proof</span>.
+  use (partial_setoid_trans x _ p).
+  use partial_setoid_sym.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">partial_setoid_path_to_eq</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">X</span> : partial_setoid H}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">x</span> <span class="nv">y</span> : tm Γ X}
+            {<span class="nv">Δ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ x ~ x)
+            (<span class="nv">q</span> : Δ ⊢ x ≡ y)
+  : Δ ⊢ x ~ y.
+<span class="kn">Proof</span>.
+  use hyperdoctrine_eq_transportf.
+  - <span class="bp">exact</span> ⟨ x , x ⟩.
+  - use hyperdoctrine_eq_pair_eq.
+    + <span class="nb">apply</span> hyperdoctrine_refl.
+    + <span class="bp">exact</span> q.
+  - <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">partial_setoid_subst</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">X</span> : partial_setoid H}
+            {<span class="nv">Γ</span> <span class="nv">Γ'</span> : ty H}
+            (<span class="nv">s</span> : tm Γ Γ')
+            (<span class="nv">x</span> <span class="nv">y</span> : tm Γ' X)
+  : (x ~ y)[ s ] = (x [ s ]tm ~ y [ s ]tm).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> partial_setoid_formula.
+  hypersimplify.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kt">Set</span> Default <span class="kn">Proof</span> Mode <span class="s2">"Ltac2"</span>.
+
+<span class="kn">Ltac2 Set</span> hyperrewrites <span class="k">as</span> rewrites := <span class="k">fun</span> () =&gt;
+  (<span class="mi">1</span>, (pn:((_ ~ _)[_]),      (<span class="k">fun</span> () =&gt; '(partial_setoid_subst   _ _ _  )), <span class="s2">"partial_setoid_subst   _ _ _"</span>  )) ::
+  rewrites ().
+
+<span class="kt">Set</span> Default <span class="kn">Proof</span> Mode <span class="s2">"Classic"</span>.
+
+<span class="kn">Section</span> <span class="nf">Constructions</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : first_order_hyperdoctrine}.
+
+  <span class="sd">(** * 3. Every type is a partial setoid with equality *)</span>
+  <span class="kn">Proposition</span> <span class="nf">eq_per_axioms</span> (<span class="nv">X</span> : ty H)
+    : per_axioms (π₁ (tm_var (X ×h X)) ≡ π₂ (tm_var (X ×h X))).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">unfold</span> per_symm_axiom.
+      <span class="sd">(**</span>
+<span class="sd">         At this point, the goal is kinda hard to read. It is 5 lines long,</span>
+<span class="sd">         and there are multiple substitutions in place that it hard to read.</span>
+<span class="sd">         In addition, De Bruijn indices were never invented to improve the</span>
+<span class="sd">         readability of formulas and terms. More specifically, the goal looks</span>
+<span class="sd">         as follows</span>
+<span class="sd">         ```</span>
+<span class="sd">         ⊤</span>
+<span class="sd">  ⊢ ∀h (∀h ((π₁ (tm_var (X ×h X)) ≡ π₂ (tm_var (X ×h X)))</span>
+<span class="sd">            [⟨ π₂ (π₁ (tm_var ((𝟙 ×h X) ×h X))), π₂ (tm_var ((𝟙 ×h X) ×h X)) ⟩]</span>
+<span class="sd">            ⇒ (π₁ (tm_var (X ×h X)) ≡ π₂ (tm_var (X ×h X)))</span>
+<span class="sd">              [⟨ π₂ (tm_var ((𝟙 ×h X) ×h X)), π₂ (π₁ (tm_var ((𝟙 ×h X) ×h X))) ⟩]))</span>
+<span class="sd">         ```</span>
+
+<span class="sd">         First, we shall introduce some abbreviations for the variables that</span>
+<span class="sd">         we use in the term. We are using two variables. The first one, which</span>
+<span class="sd">         we call `x`, is represented by `π₂ (π₁ (tm_var _))`, and the second</span>
+<span class="sd">         one, which we call `y`, by `π₂ (tm_var _)`. We want our goal to use</span>
+<span class="sd">         these abbreviations instead of the full De Bruijn indices.</span>
+
+<span class="sd">         To do so, we use the following commands. We pose the variables `x`</span>
+<span class="sd">         and `y`, and then we use `fold` to make the goal use `x` and `y`</span>
+<span class="sd">         instead of the De Bruijn indices.</span>
+
+<span class="sd">         Note that in order to guarantee that Coq can actually type the</span>
+<span class="sd">         terms `x` and `y`, we must give it enough information. For this</span>
+<span class="sd">         reason, we also introduce the type `T`. This `T` is an abbreviation</span>
+<span class="sd">         of the carrier of the partial equivalence relation that we are</span>
+<span class="sd">         defining. The usage of this abbreviation `T` makes it easier to</span>
+<span class="sd">         copy paste this code fragment in other situations where the type</span>
+<span class="sd">         might be more complicated.</span>
+<span class="sd">       *)</span>
+      <span class="nb">pose</span> (T := X).
+      <span class="nb">pose</span> (x := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T)))).
+      <span class="nb">pose</span> (y := π₂ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T))).
+      <span class="nb">unfold</span> T <span class="k">in</span> *.
+      <span class="nb">fold</span> x y.
+      <span class="sd">(**</span>
+<span class="sd">         At this point, the goal has become a bit more readable, but it is</span>
+<span class="sd">         still not readable enough. It looks as follows</span>
+<span class="sd">         ```</span>
+<span class="sd">         ⊤</span>
+<span class="sd">  ⊢ ∀h (∀h ((π₁ (tm_var (X ×h X)) ≡ π₂ (tm_var (X ×h X))) [⟨ x, y ⟩]</span>
+<span class="sd">            ⇒ (π₁ (tm_var (X ×h X)) ≡ π₂ (tm_var (X ×h X))) [⟨ y, x ⟩]))</span>
+<span class="sd">         ```</span>
+
+<span class="sd">         The problem is that there are numerous substitutions here that</span>
+<span class="sd">         destroy the readability. To solve this problem, we must simplify</span>
+<span class="sd">         the term by calculating the substitutions and possibly by doing</span>
+<span class="sd">         some normalization. This process is fully mechanics: one</span>
+<span class="sd">         repeatedly rewrites using the substitution laws. To automate this,</span>
+<span class="sd">         we use the tactic `simplify`. This tactic does the following:</span>
+<span class="sd">         - simplify substitutions of formulas and terms</span>
+<span class="sd">         - simplify beta-redexes in terms</span>
+<span class="sd">         Essentially, the resulting term consists of a bunch of `rewrites`</span>
+<span class="sd">         that are possible in the term.</span>
+<span class="sd">       *)</span>
+      hypersimplify.
+      <span class="sd">(**</span>
+<span class="sd">         Now the goal is as follows</span>
+<span class="sd">         ```</span>
+<span class="sd">         ⊤ ⊢ ∀h (∀h (x ≡ y ⇒ y ≡ x))</span>
+<span class="sd">         ```</span>
+<span class="sd">         This is readable if we keep in mind that `x` is the first</span>
+<span class="sd">         variable over which we quantify and `y` is the second.</span>
+
+<span class="sd">         To prove this goal, we following the usual procedure of</span>
+<span class="sd">         applying introduction and elimination rules.</span>
+<span class="sd">       *)</span>
+      use forall_intro.
+      use forall_intro.
+      use impl_intro.
+      <span class="sd">(**</span>
+<span class="sd">         Now the goal is as follows</span>
+<span class="sd">         ```</span>
+<span class="sd">         (⊤ [π₁ (tm_var (𝟙 ×h X))]) [π₁ (tm_var ((𝟙 ×h X) ×h X))] ∧ x ≡ y ⊢ y ≡ x</span>
+<span class="sd">         ```</span>
+<span class="sd">         We could simplify the context. However, we don't need to</span>
+<span class="sd">         the truth assumption. For this reason, we use weakining</span>
+<span class="sd">         rules. Note that weakening is done by hand as well.</span>
+<span class="sd">       *)</span>
+      use weaken_right.
+      <span class="sd">(**</span>
+<span class="sd">         Now the goal is as follows</span>
+<span class="sd">         ```</span>
+<span class="sd">         x ≡ y ⊢ y ≡ x</span>
+<span class="sd">         ```</span>
+<span class="sd">         We proved symmetry before, so actually, nothing at all</span>
+<span class="sd">         is happening in this proof. We just use symmetry now,</span>
+<span class="sd">         and we finish it.</span>
+<span class="sd">       *)</span>
+      use hyperdoctrine_eq_sym.
+      <span class="sd">(**</span>
+<span class="sd">         Now the goal is as follows</span>
+<span class="sd">         ```</span>
+<span class="sd">         x ≡ y ⊢ x ≡ y</span>
+<span class="sd">         ```</span>
+<span class="sd">         We finish it by using the assumption rule.</span>
+<span class="sd">       *)</span>
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+      <span class="sd">(**</span>
+<span class="sd">         For each of the statements that we prove using the</span>
+<span class="sd">         internal language, we essentally use the same steps</span>
+<span class="sd">         and the same ideas. We first introduce abbreviations</span>
+<span class="sd">         for the De Bruijn indices that we are using. Then we</span>
+<span class="sd">         use the `simplify` tactic to calculate substitutions</span>
+<span class="sd">         and to normalize the term.</span>
+
+<span class="sd">         There are a couple of limitations</span>
+<span class="sd">         - The De Bruijn index of a variable changes if the</span>
+<span class="sd">           context changes. For statements like `∀ x ∀ y, P x y`</span>
+<span class="sd">           where `P` is a propositional formula depending on `x`</span>
+<span class="sd">           and `y`, this is no problem, because the context is</span>
+<span class="sd">           fixed in `P`. However, if we look at a statement like</span>
+<span class="sd">           `∀ x ((∃ y, R x y) ⇒ P x)`, then the De Bruijn index</span>
+<span class="sd">           of `x` is different in the two positions that it has.</span>
+<span class="sd">           As such, for such formulas this method is less suitable.</span>
+<span class="sd">         - The `simplify` tactic works by trying to rewrite</span>
+<span class="sd">           equations if it is possible. This is fine for very small</span>
+<span class="sd">           formulas and terms. However, when the goal becomes more</span>
+<span class="sd">           complicated, `simplify` will become more inefficient.</span>
+<span class="sd">           In this proof, the usage of `simplify` was quite fast</span>
+<span class="sd">           (0.081 seconds). However, this is not the case for</span>
+<span class="sd">           every proof that one might do. For instance, in the</span>
+<span class="sd">           proof of [prod_per_axioms], we do not use `simplify`</span>
+<span class="sd">           after introducing abbreviations for the variables,</span>
+<span class="sd">           because it would take too long (0.447 seconds for</span>
+<span class="sd">           symmetry and 0.938 seconds for transitivity). There</span>
+<span class="sd">           we delay normalizing the terms after doing weakening.</span>
+<span class="sd">           The comments show the simplified goals.</span>
+<span class="sd">       *)</span>
+    - <span class="nb">unfold</span> per_trans_axiom.
+      <span class="nb">pose</span> (T := X).
+      <span class="nb">pose</span> (x := π₂ (π₁ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T) ×h T))))).
+      <span class="nb">pose</span> (y := π₂ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T) ×h T)))).
+      <span class="nb">pose</span> (z := π₂ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T) ×h T))).
+      <span class="nb">unfold</span> T <span class="k">in</span> *.
+      <span class="nb">fold</span> x y z.
+      hypersimplify.
+      use forall_intro.
+      use forall_intro.
+      use forall_intro.
+      use impl_intro.
+      use impl_intro.
+      hypersimplify.
+      <span class="sd">(**</span>
+<span class="sd">         Here the goal is</span>
+<span class="sd">         ```</span>
+<span class="sd">         (⊤ ∧ x ≡ y) ∧ y ≡ z ⊢ x ≡ z</span>
+<span class="sd">         ```</span>
+<span class="sd">         This accurately represents transitivity of equality.</span>
+<span class="sd">       *)</span>
+      use hyperdoctrine_eq_trans.
+      + <span class="bp">exact</span> y.
+      + use weaken_left.
+        use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eq_per</span> (<span class="nv">X</span> : ty H) : per X.
+  <span class="kn">Proof</span>.
+    use make_per.
+    - <span class="bp">exact</span> (π₁ (tm_var _) ≡ π₂ (tm_var _)).
+    - <span class="bp">exact</span> (eq_per_axioms X).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eq_partial_setoid</span> (<span class="nv">X</span> : ty H) : partial_setoid H.
+  <span class="kn">Proof</span>.
+    use make_partial_setoid.
+    - <span class="bp">exact</span> X.
+    - <span class="bp">exact</span> (eq_per X).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_in_eq_partial_setoid</span>
+              {<span class="nv">Γ</span> <span class="nv">X</span> : ty H}
+              {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (eq_partial_setoid X)}
+              {<span class="nv">Δ</span> : form Γ}
+              (<span class="nv">p</span> : Δ ⊢ t₁ ≡ t₂)
+    : Δ ⊢ t₁ ~ t₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> partial_setoid_formula ; <span class="nb">cbn</span>.
+    hypersimplify.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">from_eq_in_eq_partial_setoid</span>
+              {<span class="nv">Γ</span> <span class="nv">X</span> : ty H}
+              {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (eq_partial_setoid X)}
+              {<span class="nv">Δ</span> : form Γ}
+              (<span class="nv">p</span> : Δ ⊢ t₁ ~ t₂)
+    : Δ ⊢ t₁ ≡ t₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> partial_setoid_formula <span class="k">in</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> equal_subst <span class="k">in</span> p.
+    <span class="nb">rewrite</span> hyperdoctrine_pr1_subst <span class="k">in</span> p.
+    <span class="nb">rewrite</span> hyperdoctrine_pr2_subst <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !var_tm_subst <span class="k">in</span> p.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr1 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> hyperdoctrine_pair_pr2 <span class="k">in</span> p.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. The product of partial setoids *)</span>
+  <span class="kn">Section</span> <span class="nf">ProdPartialSetoid</span>.
+    <span class="kn">Context</span> (<span class="nv">X</span> <span class="nv">Y</span> : partial_setoid H).
+
+    <span class="kn">Definition</span> <span class="nf">prod_per_data</span>
+      : form ((X ×h Y) ×h X ×h Y)
+      := <span class="k">let</span> <span class="nv">x</span> := π₁ (tm_var _) : tm ((X ×h Y) ×h X ×h Y) (X ×h Y) <span class="k">in</span>
+         <span class="k">let</span> <span class="nv">y</span> := π₂ (tm_var _) : tm ((X ×h Y) ×h X ×h Y) (X ×h Y) <span class="k">in</span>
+         π₁ x ~ π₁ y ∧ π₂ x ~ π₂ y.
+
+    <span class="kn">Proposition</span> <span class="nf">prod_per_axioms</span>
+      : per_axioms prod_per_data.
+    <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">unfold</span> per_symm_axiom, prod_per_data.
+      <span class="nb">pose</span> (T := X ×h Y).
+      <span class="nb">pose</span> (x := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T)))).
+      <span class="nb">pose</span> (y := π₂ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T))).
+      <span class="nb">unfold</span> T <span class="k">in</span> *.
+      <span class="nb">fold</span> x y.
+      use forall_intro.
+      use forall_intro.
+      use impl_intro.
+      <span class="sd">(**</span>
+<span class="sd">         Using `simplify` would give the following goal</span>
+<span class="sd">         ```</span>
+<span class="sd">         ⊤ ∧ eX [⟨ π₁ x, π₁ y ⟩] ∧ eY [⟨ π₂ x, π₂ y ⟩] ⊢ eX [⟨ π₁ y, π₁ x ⟩] ∧ eY [⟨ π₂ y, π₂ x ⟩]</span>
+<span class="sd">         ```</span>
+<span class="sd">         By delaying simplify the terms, we save some time</span>
+<span class="sd">       *)</span>
+      hypersimplify_form.
+      <span class="nb">rewrite</span> !partial_setoid_subst.
+      use conj_intro.
+      + use partial_setoid_sym.
+        use weaken_right.
+        use weaken_left.
+        simplify_term.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use partial_setoid_sym.
+        use weaken_right.
+        use weaken_right.
+        simplify_term.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">unfold</span> per_trans_axiom, prod_per_data.
+      <span class="nb">pose</span> (T := X ×h Y).
+      <span class="nb">pose</span> (x := π₂ (π₁ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T) ×h T))))).
+      <span class="nb">pose</span> (y := π₂ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T) ×h T)))).
+      <span class="nb">pose</span> (z := π₂ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T) ×h T))).
+      <span class="nb">unfold</span> T <span class="k">in</span> *.
+      <span class="nb">fold</span> x y z.
+      use forall_intro.
+      use forall_intro.
+      use forall_intro.
+      use impl_intro.
+      use impl_intro.
+      <span class="sd">(**</span>
+<span class="sd">         Using `simplify` would give the following goal</span>
+<span class="sd">         ```</span>
+<span class="sd">         (⊤ ∧ eX [⟨ π₁ x, π₁ y ⟩] ∧ eY [⟨ π₂ x, π₂ y ⟩]) ∧ eX [⟨ π₁ y, π₁ z ⟩] ∧ eY [⟨ π₂ y, π₂ z ⟩]</span>
+<span class="sd">  ⊢ eX [⟨ π₁ x, π₁ z ⟩] ∧ eY [⟨ π₂ x, π₂ z ⟩]</span>
+<span class="sd">         ````</span>
+<span class="sd">         By delaying simplify the terms, we save some time</span>
+<span class="sd">       *)</span>
+      hypersimplify_form.
+      <span class="nb">rewrite</span> !partial_setoid_subst.
+      use conj_intro.
+      + use (partial_setoid_trans (π₁ y)).
+        * use weaken_left.
+          use weaken_right.
+          use weaken_left.
+          simplify_term.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use weaken_right.
+          use weaken_left.
+          simplify_term.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use (partial_setoid_trans (π₂ y)).
+        * use weaken_left.
+          use weaken_right.
+          use weaken_right.
+          simplify_term.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use weaken_right.
+          use weaken_right.
+          simplify_term.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">prod_per</span>
+      : per (X ×h Y).
+    <span class="kn">Proof</span>.
+      use make_per.
+      - <span class="bp">exact</span> prod_per_data.
+      - <span class="bp">exact</span> prod_per_axioms.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">prod_partial_setoid</span>
+      : partial_setoid H.
+    <span class="kn">Proof</span>.
+      use make_partial_setoid.
+      - <span class="bp">exact</span> (X ×h Y).
+      - <span class="bp">exact</span> prod_per.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">eq_in_prod_partial_setoid</span>
+                {<span class="nv">Γ</span> : ty H}
+                {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ prod_partial_setoid}
+                {<span class="nv">Δ</span> : form Γ}
+                (<span class="nv">p</span> : Δ ⊢ π₁ t₁ ~ π₁ t₂)
+                (<span class="nv">q</span> : Δ ⊢ π₂ t₁ ~ π₂ t₂)
+      : Δ ⊢ t₁ ~ t₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> partial_setoid_formula ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> prod_per_data.
+      hypersimplify.
+      hypersimplify.
+      use conj_intro.
+      - <span class="bp">exact</span> p.
+      - <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">eq_in_prod_partial_setoid_l</span>
+                {<span class="nv">Γ</span> : ty H}
+                {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ prod_partial_setoid}
+                {<span class="nv">Δ</span> : form Γ}
+                (<span class="nv">p</span> : Δ ⊢ t₁ ~ t₂)
+      : Δ ⊢ π₁ t₁ ~ π₁ t₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (hyperdoctrine_cut p _).
+      <span class="nb">unfold</span> partial_setoid_formula ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> prod_per_data.
+      hypersimplify_form.
+      hypersimplify.
+      use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">eq_in_prod_partial_setoid_r</span>
+                {<span class="nv">Γ</span> : ty H}
+                {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ prod_partial_setoid}
+                {<span class="nv">Δ</span> : form Γ}
+                (<span class="nv">p</span> : Δ ⊢ t₁ ~ t₂)
+      : Δ ⊢ π₂ t₁ ~ π₂ t₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (hyperdoctrine_cut p _).
+      <span class="nb">unfold</span> partial_setoid_formula ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> prod_per_data.
+      hypersimplify_form.
+      hypersimplify.
+      use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">from_eq_in_prod_partial_setoid</span>
+                {<span class="nv">Γ</span> : ty H}
+                {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ prod_partial_setoid}
+                {<span class="nv">Δ</span> : form Γ}
+                (<span class="nv">p</span> : Δ ⊢ t₁ ~ t₂)
+      : Δ ⊢ π₁ t₁ ~ π₁ t₂ ∧ π₂ t₁ ~ π₂ t₂.
+    <span class="kn">Proof</span>.
+      use conj_intro.
+      - use eq_in_prod_partial_setoid_l.
+        <span class="bp">exact</span> p.
+      - use eq_in_prod_partial_setoid_r.
+        <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">ProdPartialSetoid</span>.
+<span class="kn">End</span> <span class="nf">Constructions</span>.
+
+<span class="kn">Arguments</span> prod_per_data {H} X Y /.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/PartialEqRels/PERs.v</tt>, line 35)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The product of partial setoids
+  &gt;
+  &gt;  ********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

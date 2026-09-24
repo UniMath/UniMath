@@ -1,0 +1,1101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LNWFSMonoidalStructure.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Three.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Lifting.
+<span class="kn">Require Import</span> UniMath.ModelCategories.NWFS.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Helpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.LNWFSHelpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.FFMonoidalStructure.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> morcls.
+
+
+<span class="kn">Section</span> <span class="nf">LNWFS_composition</span>.
+
+<span class="c">(*</span>
+<span class="c">All the displayed morphisms can be finished with Qed, since the</span>
+<span class="c">data is always propositional. For the total category morphisms,</span>
+<span class="c">defining it in terms of the displayed morphisms (which are propositional)</span>
+<span class="c">is optimal, since then we know the morphism it lies over, which is sufficient.</span>
+<span class="c">*)</span>
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+<span class="c">(* F ⊗ F' (compose left factors)</span>
+<span class="c">   we flip the terms in Garner to be closer to · notation *)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">left_reduced_lp</span>
+    (<span class="nv">F</span> : Ff C) {<span class="nv">f</span> <span class="nv">g</span> : arrow C}
+    (<span class="nv">γ</span> : f --&gt; g) : (f --&gt; fact_R F g).
+<span class="kn">Proof</span>.
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (arrow_mor00 γ · fact_L F g).
+  - <span class="bp">exact</span> (arrow_mor11 γ).
+  - <span class="kp">abstract</span> (
+      etrans; [<span class="nb">apply</span> assoc'|];
+      etrans; [<span class="nb">apply</span> cancel_precomposition;
+              <span class="nb">apply</span> (three_comp (fact_functor F g))|];
+      <span class="bp">exact</span> (arrow_mor_comm γ)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">left_reduced_lp_lift</span>
+    {<span class="nv">F</span> : Ff C} (<span class="nv">L</span> : lnwfs_over F)
+    {<span class="nv">f</span> <span class="nv">g</span> : arrow C} (<span class="nv">γ</span> : (fact_L F f) --&gt; g) :
+  filler (arrow_mor_comm (left_reduced_lp F γ)).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (Fγ11 := three_mor11 (#(fact_functor F) γ)).
+  <span class="k">exists</span> (<span class="nv">arrow_mor11</span> (pr1 L f) · Fγ11).
+  <span class="kp">abstract</span> (
+    <span class="nb">split</span>; [
+      etrans; [<span class="nb">apply</span> assoc|];
+      etrans; [<span class="nb">apply</span> cancel_postcomposition;
+              <span class="bp">exact</span> (pathsinv0 (arrow_mor_comm (pr1 L f)))|];
+
+      etrans; [<span class="nb">apply</span> assoc'|];
+      etrans; [<span class="nb">apply</span> cancel_precomposition;
+              <span class="bp">exact</span> (pr1 (three_mor_comm (#(fact_functor F) γ)))|];
+
+      etrans; [<span class="nb">apply</span> cancel_postcomposition;
+              <span class="bp">exact</span> (lnwfs_Σ_top_map_id L f)|];
+      <span class="nb">apply</span> id_left
+      |
+      etrans; [<span class="nb">apply</span> assoc'|];
+      etrans; [<span class="nb">apply</span> cancel_precomposition;
+              <span class="bp">exact</span> (pathsinv0 (pr2 (three_mor_comm (#(fact_functor F) γ))))|];
+
+      etrans; [<span class="nb">apply</span> assoc|];
+      etrans; [<span class="nb">apply</span> cancel_postcomposition;
+              <span class="bp">exact</span> (lnwfs_Σ_bottom_map_inv L f)|];
+      <span class="nb">apply</span> id_left
+    ]
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">LNWFS_lcomp_comp_helper</span>
+    (<span class="nv">F</span> <span class="nv">F'</span> : Ff C) (<span class="nv">f</span> : arrow C) :=
+  fact_L F f · fact_L F' (fact_R F f).
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_lcomp_comul_L_lp</span>
+    {<span class="nv">F</span> : Ff C}
+    (<span class="nv">L</span> : lnwfs_over F)
+    (<span class="nv">F'</span> : Ff C)
+    (<span class="nv">f</span> : arrow C) :
+  fact_L F f --&gt; LNWFS_lcomp_comp_helper F F' f.
+<span class="kn">Proof</span>.
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (identity _).
+  - <span class="bp">exact</span> (fact_L F' (fact_R F f)).
+  - <span class="kp">abstract</span> (<span class="nb">apply</span> id_left).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_lcomp_comul_L'_lp</span>
+    {<span class="nv">F'</span> <span class="nv">F</span> : Ff C}
+    (<span class="nv">L'</span> : lnwfs_over F')
+    (<span class="nv">L</span> : lnwfs_over F)
+    (<span class="nv">f</span> : arrow C) :
+  fact_L F' (fact_R F f) --&gt; fact_R F (LNWFS_lcomp_comp_helper F F' f).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (L_lp := LNWFS_lcomp_comul_L_lp L F' f : (fact_L F f --&gt; (LNWFS_lcomp_comp_helper F F' f))).
+  <span class="nb">set</span> (L_lift := left_reduced_lp_lift L L_lp).
+
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (pr1 L_lift).
+  - <span class="bp">exact</span> (identity _).
+  - <span class="kp">abstract</span> (
+      etrans; [<span class="bp">exact</span> (pr22 L_lift)|];
+      <span class="nb">apply</span> pathsinv0;
+      <span class="nb">apply</span> id_right
+    ).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_lcomp_comul_data</span> {<span class="nv">F'</span> <span class="nv">F</span> : Ff C} (<span class="nv">L'</span> : lnwfs_over F') (<span class="nv">L</span> : lnwfs_over F) :
+    nat_trans_data (fact_L (F' ⊗ F)) ((fact_L (F' ⊗ F)) ∙ (fact_L (F' ⊗ F))).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+
+  <span class="nb">set</span> (<span class="k">λ</span><span class="nv">f</span> := fact_L F f).
+  <span class="nb">set</span> (<span class="k">λ</span><span class="nv">'ρf</span> := fact_L F' (fact_R F f)).
+  <span class="nb">set</span> (comp := LNWFS_lcomp_comp_helper F F' f).
+  <span class="nb">set</span> (<span class="k">λ</span><span class="nv">comp</span> := fact_L F comp).
+  <span class="nb">set</span> (ρcomp := fact_R F comp).
+
+  <span class="nb">set</span> (L_lp := LNWFS_lcomp_comul_L_lp L F' f : (fact_L F f --&gt; comp)).
+  <span class="nb">set</span> (L_lift := left_reduced_lp_lift L L_lp).
+
+  <span class="nb">set</span> (L'_lp := LNWFS_lcomp_comul_L'_lp L' L f : (<span class="k">λ</span><span class="nv">'ρf</span> --&gt; ρcomp)).
+  <span class="nb">set</span> (L'_lift := left_reduced_lp_lift L' L'_lp).
+
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (identity _).
+  - <span class="bp">exact</span> (pr1 L'_lift).
+  - <span class="kp">abstract</span> (
+      etrans; [<span class="nb">apply</span> id_left|];
+      <span class="nb">apply</span> pathsinv0;
+      etrans;
+      [
+        etrans; [<span class="nb">apply</span> assoc'|];
+        <span class="nb">apply</span> cancel_precomposition;
+        <span class="bp">exact</span> (pr12 L'_lift)
+      |];
+      etrans;
+      [
+        etrans; [<span class="nb">apply</span> assoc|];
+        <span class="nb">apply</span> cancel_postcomposition;
+        <span class="bp">exact</span> (pr12 L_lift)
+      |];
+      etrans; [<span class="nb">apply</span> assoc'|];
+      etrans; [<span class="nb">apply</span> id_left|];
+      <span class="bp">reflexivity</span>
+    ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* everything used in the construction is natural, so this</span>
+<span class="c">   "should be trivial". Of course it's not in UniMath, but</span>
+<span class="c">   we just have to reverse all the naturalities we used. *)</span>
+<span class="kn">Lemma</span> <span class="nf">LNWFS_lcomp_comul_axioms</span> {<span class="nv">F'</span> <span class="nv">F</span> : Ff C} (<span class="nv">L'</span> : lnwfs_over F') (<span class="nv">L</span> : lnwfs_over F) :
+    is_nat_trans _ _ (LNWFS_lcomp_comul_data L' L).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g γ.
+  use arrow_mor_eq;
+      [etrans; [<span class="nb">apply</span> id_right|]; <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> id_left|].
+  <span class="c">(* work away left side (final step of comul_data was</span>
+<span class="c">     to use L' to get a lift in a specific diagram) *)</span>
+  etrans.
+  {
+    <span class="c">(* rewrite naturality of L' at #ρ γ *)</span>
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">set</span> (L'natργ := nat_trans_ax (pr1 L') _ _ (#(fact_R F) γ)).
+    <span class="nb">set</span> (L'natργ11 := pr2 (pathsdirprodweq (base_paths _ _ L'natργ))).
+
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> L'natργ11.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+
+    use (pr1_section_disp_on_morphisms_comp F').
+  }
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+
+  etrans. use (pr1_section_disp_on_morphisms_comp F').
+  use (section_disp_on_eq_morphisms F'); [|etrans; [<span class="nb">apply</span> id_left|]; <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> id_right].
+
+  <span class="c">(* work away on right side, first step in comul_data</span>
+<span class="c">      was to obtain a lift using L *)</span>
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    <span class="c">(* rewrite naturality of L *)</span>
+    <span class="nb">set</span> (Lnatγ := nat_trans_ax (pr1 L) _ _ γ).
+    <span class="nb">set</span> (Lnatγ11 := pr2 (pathsdirprodweq (base_paths _ _ Lnatγ))).
+    <span class="bp">exact</span> (Lnatγ11).
+  }
+
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+
+  etrans. use (pr1_section_disp_on_morphisms_comp F).
+  <span class="nb">apply</span> pathsinv0.
+  etrans. use (pr1_section_disp_on_morphisms_comp F).
+  use (section_disp_on_eq_morphisms F); [etrans; [<span class="nb">apply</span> id_right|]; <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> id_left|].
+
+  <span class="c">(* cbn.</span>
+<span class="c">  unfold three_mor11, three_mor01.</span>
+<span class="c">  cbn. *)</span>
+  <span class="c">(* commutativity of F' on morphism #ρ γ *)</span>
+  <span class="c">(* middle step was composing a diagram in a specific way *)</span>
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">exact</span> (pr1 (three_mor_comm (#(fact_functor F') (#(fact_R F ) γ)))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_lcomp_comul</span> {<span class="nv">F'</span> <span class="nv">F</span> : Ff C} (<span class="nv">L'</span> : lnwfs_over F') (<span class="nv">L</span> : lnwfs_over F) :
+    (fact_L (F' ⊗ F)) ⟹ ((fact_L (F' ⊗ F)) ∙ (fact_L (F' ⊗ F))) :=
+  (_,, LNWFS_lcomp_comul_axioms L' L).
+
+<span class="kn">Global</span> <span class="kn">Opaque</span> left_reduced_lp.
+<span class="kn">Global</span> <span class="kn">Opaque</span> left_reduced_lp_lift.
+<span class="kn">Global</span> <span class="kn">Opaque</span> LNWFS_lcomp_comul_L_lp.
+<span class="kn">Global</span> <span class="kn">Opaque</span> LNWFS_lcomp_comul_L'_lp.
+
+<span class="c">(* This is perhaps the most interesting proof, proving that</span>
+<span class="c">   the comultiplication is associative on the middle morphisms. *)</span>
+<span class="kn">Lemma</span> <span class="nf">LNWFS_lcomp_comul_mul_law11</span> {<span class="nv">F'</span> <span class="nv">F</span> : Ff C}
+    (<span class="nv">L'</span> : lnwfs_over F') (<span class="nv">L</span> : lnwfs_over F) (<span class="nv">a</span> : arrow C) :
+    arrow_mor11 (
+      (disp_δ (L_monad_data (F' ⊗ F) (LNWFS_lcomp_comul L' L)) a)
+      · (# (fact_L (F' ⊗ F))
+          (disp_δ (L_monad_data (F' ⊗ F) (LNWFS_lcomp_comul L' L)) a))
+    )
+    =
+    arrow_mor11 (
+      (disp_δ (L_monad_data (F' ⊗ F) (LNWFS_lcomp_comul L' L)) a)
+    · (disp_δ (L_monad_data (F' ⊗ F) (LNWFS_lcomp_comul L' L))
+        (fact_L (F' ⊗ F) a))
+    ).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (law3 := @Comonad_law3 _ (L_monad _ _ (pr2 L))).
+  <span class="nb">set</span> (law3' := @Comonad_law3 _ (L_monad _ _ (pr2 L'))).
+
+  <span class="c">(* First we want to rewrite the associativity law for F' *)</span>
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition, assoc.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F').
+  }
+  <span class="nb">set</span> (natL'L'_lp := nat_trans_ax (pr1 L') _ _ (LNWFS_lcomp_comul_L'_lp L' L a)).
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> cancel_precomposition, cancel_postcomposition.
+          <span class="bp">exact</span> (pr2 (pathsdirprodweq (base_paths _ _ (natL'L'_lp)))).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (pathsinv0 (pr2 (pathsdirprodweq (base_paths _ _ (law3' (fact_R F a)))))).
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+
+  <span class="c">(* What is left is F' applied to the associativity law of F *)</span>
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F').
+  etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F').
+  use (section_disp_on_eq_morphisms F').
+  - etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (lnwfs_Σ_top_map_id L' (fact_R F a)).
+    etrans. <span class="nb">apply</span> cancel_postcomposition, id_left.
+    etrans. <span class="nb">apply</span> assoc'.
+
+    <span class="nb">set</span> (natLL_lp := nat_trans_ax (pr1 L) _ _ (LNWFS_lcomp_comul_L_lp L F' a)).
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_precomposition, cancel_postcomposition.
+            <span class="bp">exact</span> (pr2 (pathsdirprodweq (base_paths _ _ natLL_lp))).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (pr2 (pathsdirprodweq (base_paths _ _ (law3 a))))).
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+
+    <span class="c">(* what is left is F applied to some morphism *)</span>
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F).
+    etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F).
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F).
+    <span class="nb">apply</span> (section_disp_on_eq_morphisms F).
+    * <span class="c">(* 00 morphism is just identities, as always *)</span>
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> (lnwfs_Σ_top_map_id L a).
+      <span class="nb">apply</span> id_left.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+      {
+        <span class="nb">set</span> (Σ'ρa := pr1 L' (fact_R F a)).
+        etrans. <span class="bp">exact</span> (pathsinv0 (arrow_mor_comm Σ'ρa)).
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="bp">exact</span> (lnwfs_Σ_top_map_id L' (fact_R F a)).
+        <span class="nb">apply</span> id_left.
+      }
+      <span class="nb">apply</span> pathsinv0.
+      <span class="c">(* cbn in t. *)</span>
+      etrans. <span class="nb">apply</span> assoc.
+      <span class="bp">exact</span> (arrow_mor_comm (#(fact_L F') (LNWFS_lcomp_comul_L'_lp L' L a))).
+  - etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_lcomp_comul_monad_laws</span> {<span class="nv">F'</span> <span class="nv">F</span> : Ff C} (<span class="nv">L'</span> : lnwfs_over F') (<span class="nv">L</span> : lnwfs_over F) :
+    disp_Comonad_laws (L_monad_data (F' ⊗ F) (LNWFS_lcomp_comul L' L)).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span> a.
+  - use arrow_mor_eq; [<span class="nb">apply</span> id_left|].
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="bp">exact</span> (pathsinv0 (lnwfs_Σ_bottom_map_inv L' (fact_R F a))).
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> pathsinv0.
+
+    <span class="nb">set</span> (F'L'_lp := #(fact_functor F') (LNWFS_lcomp_comul_L'_lp L' L a)).
+    etrans. <span class="nb">apply</span> (pathsinv0 (pr2 (three_mor_comm F'L'_lp))).
+    <span class="nb">apply</span> id_right.
+  - use arrow_mor_eq; [<span class="nb">apply</span> id_left|].
+    <span class="nb">set</span> (law2 := @Comonad_law2 _ (L_monad _ (pr1 L') (pr2 L'))).
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="bp">exact</span> (pathsinv0 (pr2 (pathsdirprodweq (base_paths _ _ (law2 (fact_R F a)))))).
+    <span class="c">(* cbn. *)</span>
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. use (pr1_section_disp_on_morphisms_comp F').
+    use (section_disp_on_eq_morphisms F'); [|<span class="nb">apply</span> id_left].
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">set</span> (law2F := @Comonad_law2 _ (L_monad _ _ (pr2 L))).
+    etrans. <span class="bp">exact</span> (pathsinv0 (pr2 (pathsdirprodweq (base_paths _ _ (law2F a))))).
+    <span class="nb">apply</span> cancel_precomposition.
+    use (section_disp_on_eq_morphisms F); [<span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> id_left|].
+    <span class="nb">apply</span> pathsinv0.
+    <span class="bp">exact</span> (three_comp (fact_functor F' (fact_R F a))).
+  - use arrow_mor_eq; [<span class="bp">reflexivity</span>|].
+    <span class="bp">exact</span> (LNWFS_lcomp_comul_mul_law11 L' L a).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_lcomp</span> {<span class="nv">F'</span> <span class="nv">F</span> : Ff C} (<span class="nv">L'</span> : LNWFS C F') (<span class="nv">L</span> : LNWFS C F) :
+    LNWFS C (F' ⊗ F) :=
+  (LNWFS_lcomp_comul L' L,, LNWFS_lcomp_comul_monad_laws L' L).
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_lcomp</span> (<span class="nv">L'</span> <span class="nv">L</span> : total_category (LNWFS C)) :
+    total_category (LNWFS C) :=
+  (_,, LNWFS_lcomp (pr2 L') (pr2 L)).
+
+<span class="kn">Notation</span> <span class="s2">"l L⊗ l'"</span> := (LNWFS_lcomp l l') (<span class="kn">at level</span> <span class="mi">50</span>).
+<span class="kn">Notation</span> <span class="s2">"l Ltot⊗ l'"</span> := (LNWFS_tot_lcomp l l') (<span class="kn">at level</span> <span class="mi">50</span>).
+
+<span class="c">(* I *)</span>
+<span class="kn">Definition</span> <span class="nf">LNWFS_lcomp_unit_comul_data</span> :
+    nat_trans_data (fact_L (@Ff_lcomp_unit C)) ((fact_L Ff_lcomp_unit) ∙ (fact_L Ff_lcomp_unit)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_lcomp_unit_comul_axioms</span> :
+    is_nat_trans _ _ LNWFS_lcomp_unit_comul_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g γ.
+  use arrow_mor_eq.
+  - etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+  - etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_lcomp_unit_comul</span> :
+    (fact_L (@Ff_lcomp_unit C)) ⟹ ((fact_L Ff_lcomp_unit) ∙ (fact_L Ff_lcomp_unit)) :=
+  (_,, LNWFS_lcomp_unit_comul_axioms).
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_lcomp_unit_comul_monad_laws</span> :
+  disp_Comonad_laws (L_monad_data (@Ff_lcomp_unit C) (LNWFS_lcomp_unit_comul)).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>;
+    (<span class="nb">intro</span> f;
+     <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|]);
+      <span class="nb">apply</span> pathsdirprod; <span class="kp">try</span> <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  - <span class="bp">reflexivity</span>.
+  - <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_lcomp_unit</span> :
+    LNWFS C (@Ff_lcomp_unit C) :=
+  (LNWFS_lcomp_unit_comul,, LNWFS_lcomp_unit_comul_monad_laws).
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_lcomp_unit</span> :
+    total_category (LNWFS C) :=
+  (_,, LNWFS_lcomp_unit).
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_l_id_left</span> {<span class="nv">F</span> : Ff C} (<span class="nv">L</span> : LNWFS _ F) :
+    (LNWFS_lcomp_unit L⊗ L) --&gt;[Ff_l_id_left F] L.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; (<span class="nb">intro</span>; use arrow_mor_eq).
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="c">(* cbn. *)</span>
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="bp">exact</span> (pathsinv0 (lnwfs_Σ_top_map_id L a)).
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> id_left.
+    <span class="c">(* cbn.</span>
+<span class="c">    unfold three_mor11.</span>
+<span class="c">    cbn. *)</span>
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F).
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      etrans. use (section_disp_on_eq_morphisms F (γ' := identity _)); <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (section_disp_id F _).
+    }
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_l_id_left</span> (<span class="nv">L</span> : total_category (LNWFS C)) :
+    (LNWFS_tot_lcomp_unit Ltot⊗ L) --&gt; L :=
+  (_,, LNWFS_l_id_left (pr2 L)).
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_l_id_left_rev</span> {<span class="nv">F</span> : Ff C} (<span class="nv">L</span> : LNWFS _ F) :
+    L --&gt;[Ff_l_id_left_rev F] (LNWFS_lcomp_unit L⊗ L).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; (<span class="nb">intro</span>; use arrow_mor_eq).
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="c">(* cbn. *)</span>
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="bp">exact</span> (lnwfs_Σ_top_map_id L a).
+  - etrans. <span class="nb">apply</span> id_left.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="c">(* cbn.</span>
+<span class="c">    unfold three_mor11.</span>
+<span class="c">    cbn. *)</span>
+    <span class="nb">apply</span> cancel_precomposition.
+    use (section_disp_on_eq_morphisms F); <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_l_id_left_rev</span> (<span class="nv">L</span> : total_category (LNWFS C)) :
+    L --&gt; (LNWFS_tot_lcomp_unit Ltot⊗ L) :=
+  (_,, LNWFS_l_id_left_rev (pr2 L)).
+
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_l_id_right</span> {<span class="nv">F</span> : Ff C} (<span class="nv">L</span> : LNWFS _ F) :
+    (L L⊗ LNWFS_lcomp_unit) --&gt;[Ff_l_id_right F] L.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; (<span class="nb">intro</span>; use arrow_mor_eq).
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="c">(* cbn. *)</span>
+    etrans. <span class="nb">apply</span> id_right.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="bp">exact</span> (pathsinv0 (lnwfs_Σ_top_map_id L a)).
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      <span class="c">(* cbn.</span>
+<span class="c">      unfold three_mor11.</span>
+<span class="c">      cbn. *)</span>
+      etrans. use (pr1_section_disp_on_morphisms_comp F).
+      etrans. use (section_disp_on_eq_morphisms F (γ' := identity _)).
+      - etrans. <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> id_right.
+      - <span class="nb">apply</span> id_right.
+      - <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (section_disp_id F _).
+    }
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_l_id_right</span> (<span class="nv">L</span> : total_category (LNWFS C)) :
+    (L Ltot⊗ LNWFS_tot_lcomp_unit) --&gt; L :=
+  (_,, LNWFS_l_id_right (pr2 L)).
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_l_id_right_rev</span> {<span class="nv">F</span> : Ff C} (<span class="nv">L</span> : LNWFS _ F) :
+    L --&gt;[Ff_l_id_right_rev F] (L L⊗ LNWFS_lcomp_unit).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; (<span class="nb">intro</span>; use arrow_mor_eq).
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="bp">exact</span> (lnwfs_Σ_top_map_id L a).
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    use (section_disp_on_eq_morphisms F).
+    * <span class="nb">apply</span> id_left.
+    * <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_l_id_right_rev</span> (<span class="nv">L</span> : total_category (LNWFS C)) :
+    L --&gt; (L Ltot⊗ LNWFS_tot_lcomp_unit) :=
+  (_,, LNWFS_l_id_right_rev (pr2 L)).
+
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_l_assoc_rev</span> {<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : Ff C}
+    (<span class="nv">L</span> : LNWFS _ F) (<span class="nv">L'</span> : LNWFS _ F') (<span class="nv">L''</span> : LNWFS _ F'') :
+  (L L⊗ (L' L⊗ L'')) --&gt;[Ff_l_assoc_rev F F' F''] ((L L⊗ L') L⊗ L'').
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; (<span class="nb">intro</span>; use arrow_mor_eq).
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> id_left.
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F).
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F).
+    use (section_disp_on_eq_morphisms F).
+    * etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F').
+      etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F').
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F').
+      <span class="nb">apply</span> (section_disp_on_eq_morphisms F').
+      + etrans. <span class="nb">apply</span> id_left.
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> assoc'.
+        <span class="nb">apply</span> cancel_precomposition.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F'').
+        etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F'').
+        <span class="nb">apply</span> (section_disp_on_eq_morphisms F'').
+        -- etrans. <span class="nb">apply</span> id_left.
+           <span class="nb">apply</span> id_left.
+        -- <span class="nb">apply</span> cancel_precomposition.
+           <span class="nb">apply</span> id_right.
+      + etrans. <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> id_left.
+    * etrans. <span class="nb">apply</span> id_right.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_l_assoc_rev</span> (<span class="nv">L</span> <span class="nv">L'</span> <span class="nv">L''</span> : total_category (LNWFS C)) :
+    (L Ltot⊗ (L' Ltot⊗ L'')) --&gt; ((L Ltot⊗ L') Ltot⊗ L'') :=
+  (_,, LNWFS_l_assoc_rev (pr2 L) (pr2 L') (pr2 L'')).
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_l_assoc</span> {<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : Ff C}
+    (<span class="nv">L</span> : LNWFS _ F) (<span class="nv">L'</span> : LNWFS _ F') (<span class="nv">L''</span> : LNWFS _ F'') :
+  ((L L⊗ L') L⊗ L'') --&gt;[Ff_l_assoc F F' F''] (L L⊗ (L' L⊗ L'')).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; (<span class="nb">intro</span>; use arrow_mor_eq).
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> id_left.
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F).
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F).
+    use (section_disp_on_eq_morphisms F).
+    * etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F').
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F').
+      etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F').
+      <span class="nb">apply</span> (section_disp_on_eq_morphisms F').
+      + etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> id_left.
+        etrans. <span class="nb">apply</span> assoc'.
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> assoc'.
+        <span class="nb">apply</span> cancel_precomposition.
+        etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F'').
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F'').
+        <span class="nb">apply</span> (section_disp_on_eq_morphisms F''); [<span class="bp">reflexivity</span>|].
+        etrans. <span class="nb">apply</span> assoc'.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> id_right.
+      + etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> id_right.
+        etrans. <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> id_left.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> id_right.
+      <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_l_assoc</span> (<span class="nv">L</span> <span class="nv">L'</span> <span class="nv">L''</span> : total_category (LNWFS C)) :
+    ((L Ltot⊗ L') Ltot⊗ L'' ) --&gt; (L Ltot⊗ (L' Ltot⊗ L'')) :=
+  (_,, LNWFS_l_assoc (pr2 L) (pr2 L') (pr2 L'')).
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_l_rightwhisker</span> {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">G'</span>: Ff C}
+    {<span class="nv">Λ</span> : LNWFS _ G} {<span class="nv">Λ'</span> : LNWFS _ G'} {<span class="nv">τG</span> : G --&gt; G'}
+    (<span class="nv">τ</span> : Λ --&gt;[τG] Λ') (<span class="nv">L</span> : LNWFS _ F) :
+  (Λ L⊗ L) --&gt;[τG ⊗post F] (Λ' L⊗ L).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; (<span class="nb">intro</span>; use arrow_mor_eq).
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> id_right.
+  - etrans.
+    {
+      <span class="c">(* lnwfs_mor_axioms of τ at fact_R F a *)</span>
+      etrans. <span class="nb">apply</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="bp">exact</span> (pr2 (pathsdirprodweq (base_paths _ _ (pr1 τ (fact_R F a))))).
+    }
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+
+    <span class="c">(* naturality of τG at</span>
+<span class="c">        (LNWFS_lcomp_comul_L'_lp L Λ' a)</span>
+<span class="c">    *)</span>
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp G).
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      <span class="nb">set</span> (τGnat := pr2 τG).
+      <span class="bp">exact</span> (pathsinv0 (base_paths _ _ (τGnat _ _ (LNWFS_lcomp_comul_L'_lp Λ' L a)))).
+    }
+
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            use (pr1_transportf_const).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp G).
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> (section_disp_on_eq_morphisms G).
+    * etrans. <span class="nb">apply</span> id_left.
+      <span class="c">(* cbn. *)</span>
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="c">(* unfold three_mor11. *)</span>
+      <span class="c">(* cbn. *)</span>
+      etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F).
+      <span class="nb">apply</span> (section_disp_on_eq_morphisms F).
+      + <span class="nb">apply</span> id_left.
+      + etrans. <span class="bp">exact</span> (pr1 (three_mor_comm (section_nat_trans τG (fact_R F a)))).
+        <span class="nb">apply</span> id_left.
+    * etrans. <span class="nb">apply</span> id_right.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_left.
+  - etrans. <span class="bp">exact</span> (pathsinv0 (pr2 (three_mor_comm (section_nat_trans τG (fact_R F a))))).
+    <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_l_rightwhisker</span>
+    {<span class="nv">Λ</span> <span class="nv">Λ'</span> : total_category (LNWFS C)}
+    (<span class="nv">τ</span> : Λ --&gt; Λ') (<span class="nv">L</span> : total_category (LNWFS C)) :
+  (Λ Ltot⊗ L) --&gt; (Λ' Ltot⊗ L) :=
+    (_,, LNWFS_l_rightwhisker (pr2 τ) (pr2 L)).
+
+<span class="kn">Notation</span> <span class="s2">"τ L⊗post l"</span> := (LNWFS_l_rightwhisker τ l) (<span class="kn">at level</span> <span class="mi">50</span>).
+<span class="kn">Notation</span> <span class="s2">"τ Ltot⊗post l"</span> := (LNWFS_tot_l_rightwhisker τ l) (<span class="kn">at level</span> <span class="mi">50</span>).
+
+<span class="c">(* todo: we _could_ do this for LNWFS (displayed) as well, but</span>
+<span class="c">   it involves a bunch of transportf's, and I don't know if we</span>
+<span class="c">   want to even use this *)</span>
+<span class="kn">Lemma</span> <span class="nf">LNWFS_tot_l_rightwhisker_id</span>
+    (<span class="nv">Λ</span> <span class="nv">L</span> : total_category (LNWFS C)) :
+  (identity Λ Ltot⊗post L) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_lnwfs_mor_axioms|].
+  <span class="c">(* cbn. *)</span>
+  etrans. use Ff_l_rightwhisker_id.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">LNWFS_tot_l_rightwhisker_comp</span>
+    {<span class="nv">Λ</span> <span class="nv">Λ'</span> <span class="nv">Λ''</span>: total_category (LNWFS C)}
+    (<span class="nv">τ</span> : Λ --&gt; Λ') (<span class="nv">τ'</span> : Λ' --&gt; Λ'')
+    (<span class="nv">L</span> : total_category (LNWFS C)) :
+  ((τ · τ') Ltot⊗post L) = (τ Ltot⊗post L) · (τ' Ltot⊗post L).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_lnwfs_mor_axioms|].
+  <span class="c">(* cbn. *)</span>
+  etrans. use Ff_l_rightwhisker_comp.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_l_leftwhisker</span> {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">G'</span>: Ff C}
+    {<span class="nv">Λ</span> : LNWFS _ G} {<span class="nv">Λ'</span> : LNWFS _ G'} {<span class="nv">τG</span> : G --&gt; G'}
+    (<span class="nv">L</span> : LNWFS _ F) (<span class="nv">τ</span> : Λ --&gt;[τG] Λ') :
+  (L L⊗ Λ) --&gt;[F ⊗pre τG] (L L⊗ Λ').
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; (<span class="nb">intro</span>; use arrow_mor_eq).
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans.
+    {
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              use (pr1_section_disp_on_morphisms_comp F).
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      use (pr1_section_disp_on_morphisms_comp F).
+    }
+
+    <span class="nb">set</span> (mor := three_mor_mor12 (section_nat_trans τG a) : fact_R G a --&gt; fact_R G' a).
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">set</span> (Lnatmor := nat_trans_ax (pr1 L) _ _ mor).
+    <span class="nb">set</span> (Lnatmor11 := pr2 (pathsdirprodweq (base_paths _ _ Lnatmor))).
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (Lnatmor11).
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">clear</span> Lnatmor Lnatmor11.
+
+    etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp F).
+    use section_disp_on_eq_morphisms.
+    * <span class="c">(* rewrite lnwfs_mor_axioms of τ *)</span>
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> (pr2 (pathsdirprodweq (base_paths _ _ (pr1 τ a)))).
+
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="c">(* cbn.</span>
+<span class="c">      unfold three_mor11.</span>
+<span class="c">      cbn. *)</span>
+
+      <span class="nb">set</span> (τGnat := base_paths _ _ (pr2 τG _ _ (LNWFS_lcomp_comul_L_lp Λ' F a))).
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="bp">exact</span> (pathsinv0 τGnat).
+
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              use pr1_transportf_const.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp G).
+
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp G).
+
+      <span class="nb">apply</span> cancel_postcomposition.
+      use (section_disp_on_eq_morphisms G).
+      + <span class="bp">reflexivity</span>.
+      + <span class="c">(* commutativity of F on τGa *)</span>
+        <span class="nb">set</span> (FτGa := #(fact_functor F) (three_mor_mor12 (section_nat_trans τG a))).
+        <span class="bp">exact</span> (pr1 (three_mor_comm FτGa)).
+    * etrans. <span class="nb">apply</span> id_right.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">set</span> (FτGa := #(fact_functor F) (three_mor_mor12 (section_nat_trans τG a))).
+    etrans. <span class="nb">apply</span> (pathsinv0 (pr2 (three_mor_comm FτGa))).
+    <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_l_leftwhisker</span> {<span class="nv">Λ</span> <span class="nv">Λ'</span> : total_category (LNWFS C)}
+  (<span class="nv">L</span> : total_category (LNWFS C)) (<span class="nv">τ</span> : Λ --&gt; Λ') :
+  (L Ltot⊗ Λ) --&gt; (L Ltot⊗ Λ'):=
+    (_,, LNWFS_l_leftwhisker (pr2 L) (pr2 τ)).
+
+<span class="kn">Notation</span> <span class="s2">"l L⊗pre τ"</span> := (LNWFS_l_leftwhisker l τ) (<span class="kn">at level</span> <span class="mi">50</span>).
+<span class="kn">Notation</span> <span class="s2">"l Ltot⊗pre τ"</span> := (LNWFS_tot_l_leftwhisker l τ) (<span class="kn">at level</span> <span class="mi">50</span>).
+
+<span class="kn">Lemma</span> <span class="nf">LNWFS_tot_l_leftwhisker_id</span>
+    (<span class="nv">L</span> <span class="nv">Λ</span> : total_category (LNWFS C)) :
+  (L Ltot⊗pre (identity Λ)) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_lnwfs_mor_axioms|].
+  <span class="c">(* cbn. *)</span>
+  etrans. use Ff_l_leftwhisker_id.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">LNWFS_tot_l_leftwhisker_comp</span>
+    {<span class="nv">Λ</span> <span class="nv">Λ'</span> <span class="nv">Λ''</span>: total_category (LNWFS C)}
+    (<span class="nv">L</span> : total_category (LNWFS C))
+    (<span class="nv">τ</span> : Λ --&gt; Λ') (<span class="nv">τ'</span> : Λ' --&gt; Λ'') :
+  (L Ltot⊗pre (τ · τ')) = (L Ltot⊗pre τ) · (L Ltot⊗pre τ').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_lnwfs_mor_axioms|].
+  <span class="c">(* cbn. *)</span>
+  etrans. use Ff_l_leftwhisker_comp.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_l_mor_comp</span> {<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">G</span> <span class="nv">G'</span> : Ff C}
+    {<span class="nv">τF</span> : F --&gt; F'} {<span class="nv">ρG</span> : G --&gt; G'}
+    {<span class="nv">L</span> : LNWFS _ F} {<span class="nv">L'</span> : LNWFS _ F'}
+    {<span class="nv">Λ</span> : LNWFS _ G} {<span class="nv">Λ'</span> : LNWFS _ G'}
+    (<span class="nv">τ</span> : L --&gt;[τF] L') (<span class="nv">ρ</span> : Λ --&gt;[ρG] Λ') :
+  (L L⊗ Λ) --&gt;[Ff_l_mor_comp τF ρG] (L' L⊗ Λ').
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> ((τ L⊗post Λ ;; (L' L⊗pre ρ))%mor_disp).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_l_mor_comp</span> {<span class="nv">L</span> <span class="nv">L'</span> <span class="nv">Λ</span> <span class="nv">Λ'</span> : total_category (LNWFS C)}
+    (<span class="nv">τ</span> : L --&gt; L') (<span class="nv">ρ</span> : Λ --&gt; Λ') :
+  (L Ltot⊗ Λ) --&gt; (L' Ltot⊗ Λ') :=
+    (_,, LNWFS_l_mor_comp (pr2 τ) (pr2 ρ)).
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_l_point</span> {<span class="nv">F</span> : Ff C} (<span class="nv">L</span> : LNWFS _ F) :
+    LNWFS_lcomp_unit --&gt;[Ff_l_point F] L.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; (<span class="nb">intro</span>; use arrow_mor_eq).
+  - etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="bp">exact</span> (pathsinv0 (lnwfs_Σ_top_map_id L a)).
+  - etrans. <span class="bp">exact</span> (pathsinv0 (arrow_mor_comm (pr1 L a))).
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (lnwfs_Σ_top_map_id L a).
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> (three_comp (fact_functor F a)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_l_point</span> (<span class="nv">L</span> : total_category (LNWFS C)) :
+    LNWFS_tot_lcomp_unit --&gt; L :=
+  (_,, LNWFS_l_point (pr2 L)).
+
+<span class="kn">Lemma</span> <span class="nf">LNWFS_tot_mor_eq</span> {<span class="nv">L</span> <span class="nv">L'</span> : total_category (LNWFS C)}
+    (<span class="nv">τ</span> <span class="nv">τ'</span> : L --&gt; L') :
+  (∏ (f : arrow C), pr1 (pr11 τ f) = pr1 (pr11 τ' f)) -&gt;
+      τ = τ'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_lnwfs_mor_axioms|].
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_section_nat_trans_disp_axioms|].
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">intro</span> f.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+  <span class="bp">exact</span> (H f).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">LNWFS_composition</span>.
+
+<span class="kn">Notation</span> <span class="s2">"l L⊗ l'"</span> := (LNWFS_lcomp l l') (<span class="kn">at level</span> <span class="mi">50</span>).
+<span class="kn">Notation</span> <span class="s2">"l Ltot⊗ l'"</span> := (LNWFS_tot_lcomp l l') (<span class="kn">at level</span> <span class="mi">50</span>).
+<span class="kn">Notation</span> <span class="s2">"l L⊗pre τ"</span> := (LNWFS_l_leftwhisker l τ) (<span class="kn">at level</span> <span class="mi">50</span>).
+<span class="kn">Notation</span> <span class="s2">"l Ltot⊗pre τ"</span> := (LNWFS_tot_l_leftwhisker l τ) (<span class="kn">at level</span> <span class="mi">50</span>).
+<span class="kn">Notation</span> <span class="s2">"τ L⊗post l"</span> := (LNWFS_l_rightwhisker τ l) (<span class="kn">at level</span> <span class="mi">50</span>).
+<span class="kn">Notation</span> <span class="s2">"τ Ltot⊗post l"</span> := (LNWFS_tot_l_rightwhisker τ l) (<span class="kn">at level</span> <span class="mi">50</span>).
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+
+<span class="kn">Section</span> <span class="nf">LNWFS_monoidal</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_disp_tensor_data</span> : disp_tensor (LNWFS C) Ff_monoidal.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use tpair.
+    * <span class="bp">exact</span> (@LNWFS_lcomp C).
+    * <span class="nb">split</span>.
+      + <span class="nb">intros</span>; <span class="nb">apply</span> LNWFS_l_leftwhisker.
+        <span class="bp">assumption</span>.
+      + <span class="nb">intros</span> A F F' γ α L L' γγ.
+        <span class="bp">exact</span> (LNWFS_l_rightwhisker γγ L').
+  - <span class="kp">abstract</span> (
+      <span class="kp">repeat</span> <span class="nb">split</span>; <span class="kp">repeat</span> <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_lnwfs_mor_axioms
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_disp_monoidal_data</span> : disp_monoidal_data (LNWFS C) Ff_monoidal.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">LNWFS_disp_tensor_data</span>.
+  <span class="k">exists</span> <span class="nv">LNWFS_lcomp_unit</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">exact</span> (pr1 (LNWFS_l_id_left xx)).
+  - <span class="bp">exact</span> (pr2 (LNWFS_l_id_left xx)).
+  - <span class="bp">exact</span> (pr1 (LNWFS_l_id_left_rev xx)).
+  - <span class="bp">exact</span> (pr2 (LNWFS_l_id_left_rev xx)).
+  - <span class="bp">exact</span> (pr1 (LNWFS_l_id_right xx)).
+  - <span class="bp">exact</span> (pr2 (LNWFS_l_id_right xx)).
+  - <span class="bp">exact</span> (pr1 (LNWFS_l_id_right_rev xx)).
+  - <span class="bp">exact</span> (pr2 (LNWFS_l_id_right_rev xx)).
+  - <span class="bp">exact</span> (pr1 (LNWFS_l_assoc xx yy zz)).
+  - <span class="bp">exact</span> (pr2 (LNWFS_l_assoc xx yy zz)).
+  - <span class="bp">exact</span> (pr1 (LNWFS_l_assoc_rev xx yy zz)).
+  - <span class="bp">exact</span> (pr2 (LNWFS_l_assoc_rev xx yy zz)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_disp_monoidal_laws</span> : disp_monoidal_laws LNWFS_disp_monoidal_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; (<span class="kp">repeat</span> <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_lnwfs_mor_axioms).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_monoidal</span> : disp_monoidal (LNWFS C) Ff_monoidal :=
+    (_,, LNWFS_disp_monoidal_laws).
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_monoidal</span> : monoidal _ :=
+    total_monoidal LNWFS_monoidal.
+
+<span class="kn">Definition</span> <span class="nf">Ff_monoidal</span> : monoidal (Ff C) :=
+    (_,, Ff_monoidal_laws).
+
+<span class="kn">End</span> <span class="nf">LNWFS_monoidal</span>.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+
+<span class="kn">Section</span> <span class="nf">LNWFS_monoid_is_NWFS</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+<span class="kn">Local Definition</span> <span class="nf">LNWFSC</span> := total_category (LNWFS C).
+
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_monoid_is_NWFS_monoid_data</span>
+    {<span class="nv">L</span> : LNWFSC} (<span class="nv">R</span> : monoid (LNWFS_tot_monoidal) L) :
+  monoid_data Ff_monoidal (pr1 L).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (Rμ := pr1 (monoid_to_monoid_data _ R)).
+  <span class="nb">set</span> (RI := pr2 (monoid_to_monoid_data _ R)).
+
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">exact</span> (pr1 Rμ).
+  - <span class="bp">exact</span> (pr1 RI).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_monoid_is_NWFS_monoid_axioms</span>
+    {<span class="nv">L</span> : LNWFSC} (<span class="nv">R</span> : monoid (LNWFS_tot_monoidal) L) :
+  monoid_laws _ (LNWFS_tot_monoid_is_NWFS_monoid_data R).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">set</span> (law := monoid_to_unit_left_law _ R).
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_section_nat_trans_disp_axioms|].
+    <span class="bp">exact</span> (base_paths _ _ (base_paths _ _ law)).
+  - <span class="nb">set</span> (law := monoid_to_unit_right_law _ R).
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_section_nat_trans_disp_axioms|].
+    <span class="bp">exact</span> (base_paths _ _ (base_paths _ _ law)).
+  - <span class="nb">set</span> (law := monoid_to_assoc_law _ R).
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_section_nat_trans_disp_axioms|].
+    <span class="bp">exact</span> (base_paths _ _ (base_paths _ _ law)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_monoid_projection</span>
+      {<span class="nv">L</span> : LNWFSC} (<span class="nv">R</span> : monoid (LNWFS_tot_monoidal) L) :
+  monoid Ff_monoidal (pr1 L) :=
+    (_,, LNWFS_tot_monoid_is_NWFS_monoid_axioms R).
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_tot_monoid_is_NWFS</span>
+    {<span class="nv">L</span> : LNWFSC} (<span class="nv">R</span> : monoid (LNWFS_tot_monoidal) L) :
+  NWFS C (pr1 L).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (pr2 L).
+  - use Ff_monoid_is_RNWFS.
+    <span class="c">(* project monoid R down to Ff C *)</span>
+    <span class="bp">exact</span> (LNWFS_tot_monoid_projection R).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LNWFS_monoid_is_NWFS</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/Generated/LNWFSMonoidalStructure.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,1693 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Bicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** * Bicategories</span>
+<span class="sd">    Benedikt Ahrens, Marco Maggesi</span>
+<span class="sd">    February 2018</span>
+<span class="sd"> ********************************************************************************* *)</span>
+
+<span class="kn">Require Export</span> UniMath.Tactics.EnsureStructuredProofs.
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Definition of prebicategory                                                     *)</span>
+<span class="c">(*                                                                                     *)</span>
+<span class="sd">(** *** Data                                                                           *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">prebicat_2cell_struct</span> (<span class="nv">C</span> : precategory_ob_mor)
+  : UU
+  := ∏ (a b: C), C⟦a, b⟧ → C⟦a, b⟧ → UU.
+
+<span class="kn">Definition</span> <span class="nf">prebicat_1_id_comp_cells</span> : UU
+  := ∑ (C : precategory_data), prebicat_2cell_struct C.
+
+<span class="kn">Coercion</span> <span class="nf">precat_data_from_prebicat_1_id_comp_cells</span> (C : prebicat_1_id_comp_cells)
+  : precategory_data
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">prebicat_cells</span> (<span class="nv">C</span> : prebicat_1_id_comp_cells) {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧)
+  : UU
+  := pr2 C a b f g.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f '==&gt;' g"</span> := (prebicat_cells _ f g) (<span class="kn">at level</span> <span class="mi">60</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f '&lt;==' g"</span> := (prebicat_cells _ g f) (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">only parsing</span>).
+
+<span class="kn">Definition</span> <span class="nf">prebicat_2_id_comp_struct</span> (<span class="nv">C</span> : prebicat_1_id_comp_cells) : UU
+  :=
+       <span class="c">(* 2-unit *)</span>
+       (∏ (a b : C) (f : C⟦a, b⟧), f ==&gt; f)
+     × <span class="c">(* left unitor *)</span>
+       (∏ (a b : C) (f : C⟦a, b⟧), identity _ · f ==&gt; f)
+     × <span class="c">(* right unitor *)</span>
+       (∏ (a b : C) (f : C⟦a, b⟧), f · identity _  ==&gt; f)
+     × <span class="c">(* left inverse unitor *)</span>
+       (∏ (a b : C) (f : C⟦a, b⟧), identity _ · f &lt;== f)
+     × <span class="c">(* right inverse unitor *)</span>
+       (∏ (a b : C) (f : C⟦a, b⟧), f · identity _  &lt;== f)
+     × <span class="c">(* right associator *)</span>
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧),
+        (f · g) · h ==&gt; f · (g · h))
+     × <span class="c">(* left associator *)</span>
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧),
+        f · (g · h) ==&gt; (f · g) · h)
+     × <span class="c">(* vertical composition *)</span>
+       (∏ (a b : C) (f g h : C⟦a, b⟧), f ==&gt; g -&gt; g ==&gt; h -&gt; f ==&gt; h)
+     × <span class="c">(* left whiskering *)</span>
+       (∏ (a b c : C) (f : C⟦a, b⟧) (g1 g2 : C⟦b, c⟧),
+        g1 ==&gt; g2 → f · g1 ==&gt; f · g2)
+     × <span class="c">(* right whiskering *)</span>
+       (∏ (a b c : C) (f1 f2 : C⟦a, b⟧) (g : C⟦b, c⟧),
+        f1 ==&gt; f2 → f1 · g ==&gt; f2 · g).
+
+<span class="kn">Definition</span> <span class="nf">prebicat_data</span> : UU := ∑ C, prebicat_2_id_comp_struct C.
+
+<span class="kn">Definition</span> <span class="nf">make_prebicat_data</span> <span class="nv">C</span> (<span class="nv">str</span> : prebicat_2_id_comp_struct C)
+  : prebicat_data
+  := C,, str.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** Data projections.                                                                  *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Coercion</span> <span class="nf">prebicat_cells_1_id_comp_from_prebicat_data</span> (C : prebicat_data)
+  : prebicat_1_id_comp_cells
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">id2</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) : f ==&gt; f
+  := pr1 (pr2 C) a b f.
+
+<span class="kn">Definition</span> <span class="nf">lunitor</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+  : identity _ · f ==&gt; f
+  := pr1 (pr2 (pr2 C)) a b f.
+
+<span class="kn">Definition</span> <span class="nf">runitor</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+  : f · identity _ ==&gt; f
+  := pr1 (pr2 (pr2 (pr2 C))) a b f.
+
+<span class="kn">Definition</span> <span class="nf">linvunitor</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+  : identity _ · f &lt;== f
+  := pr1 (pr2 (pr2 (pr2 (pr2 C)))) a b f.
+
+<span class="kn">Definition</span> <span class="nf">rinvunitor</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+  : f · identity _ &lt;== f
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 C))))) a b f.
+
+<span class="kn">Definition</span> <span class="nf">rassociator</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+           (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧) (<span class="nv">h</span> : C⟦c, d⟧)
+  : (f · g) · h ==&gt; f · (g · h)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))) a b c d f g h.
+
+<span class="kn">Definition</span> <span class="nf">lassociator</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+           (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧) (<span class="nv">h</span> : C⟦c, d⟧)
+  : f · (g · h) ==&gt; (f · g) · h
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))) a b c d f g h.
+
+<span class="kn">Definition</span> <span class="nf">vcomp2</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>: C⟦a, b⟧}
+  : f ==&gt; g → g ==&gt; h → f ==&gt; h
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))) _ _ _ _ _ x y.
+
+<span class="kn">Definition</span> <span class="nf">lwhisker</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) {<span class="nv">g1</span> <span class="nv">g2</span> : C⟦b, c⟧}
+  : g1 ==&gt; g2 → f · g1 ==&gt; f · g2
+  := <span class="k">λ</span> <span class="nv">x</span>, pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))) _ _ _ _ _ _ x.
+
+<span class="kn">Definition</span> <span class="nf">rwhisker</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f1</span> <span class="nv">f2</span> : C⟦a, b⟧} (<span class="nv">g</span> : C⟦b, c⟧)
+  : f1 ==&gt; f2 → f1 · g ==&gt; f2 · g
+  := <span class="k">λ</span> <span class="nv">x</span>, pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))) _ _ _ _ _ _ x.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x • y"</span> := (vcomp2 x y) (<span class="kn">at level</span> <span class="mi">60</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f ◃ x"</span> := (lwhisker f x) (<span class="kn">at level</span> <span class="mi">60</span>). <span class="c">(* \tw *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"y ▹ g"</span> := (rwhisker g y) (<span class="kn">at level</span> <span class="mi">60</span>). <span class="c">(* \tw nr 2 *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hcomp</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f1</span> <span class="nv">f2</span> : C⟦a, b⟧} {<span class="nv">g1</span> <span class="nv">g2</span> : C⟦b, c⟧}
+  : f1 ==&gt; f2 -&gt; g1 ==&gt; g2 -&gt; f1 · g1 ==&gt; f2 · g2
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (x ▹ g1) • (f2 ◃ y).
+
+<span class="kn">Definition</span> <span class="nf">hcomp'</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f1</span> <span class="nv">f2</span> : C⟦a, b⟧} {<span class="nv">g1</span> <span class="nv">g2</span> : C⟦b, c⟧}
+  : f1 ==&gt; f2 -&gt; g1 ==&gt; g2 -&gt; f1 · g1 ==&gt; f2 · g2
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (f1 ◃ y) • (x ▹ g2).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x ⋆ y"</span> := (hcomp x y) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Laws                                                                            *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** The numbers in the following laws refer to the list of axioms given in ncatlab</span>
+<span class="sd">    (Section "Definition / Details")</span>
+<span class="sd">    https://ncatlab.org/nlab/show/bicategory#detailedDefn</span>
+<span class="sd">    version of October 7, 2015 10:35:36                                                *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">prebicat_laws</span> (<span class="nv">C</span> : prebicat_data)
+  : UU
+  :=   <span class="sd">(** 1a id2_left *)</span>
+       (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==&gt; g), id2 f • x = x)
+     × <span class="sd">(** 1b id2_right *)</span>
+       (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==&gt; g), x • id2 g = x)
+     × <span class="sd">(** 2 vassocr *)</span>
+       (∏ (a b : C) (f g h k : C⟦a, b⟧) (x : f ==&gt; g) (y : g ==&gt; h) (z : h ==&gt; k),
+        x • (y • z) = (x • y) • z)
+     × <span class="sd">(** 3a lwhisker_id2 *)</span>
+       (∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧), f ◃ id2 g = id2 _)
+     × <span class="sd">(** 3b id2_rwhisker *)</span>
+       (∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧), id2 f ▹ g = id2 _)
+     × <span class="sd">(** 4 lwhisker_vcomp *)</span>
+       (∏ (a b c : C) (f : C⟦a, b⟧) (g h i : C⟦b, c⟧) (x : g ==&gt; h) (y : h ==&gt; i),
+        (f ◃ x) • (f ◃ y) = f ◃ (x • y))
+     × <span class="sd">(** 5 rwhisker_vcomp *)</span>
+       (∏ (a b c : C) (f g h : C⟦a, b⟧) (i : C⟦b, c⟧) (x : f ==&gt; g) (y : g ==&gt; h),
+        (x ▹ i) • (y ▹ i) = (x • y) ▹ i)
+     × <span class="sd">(** 6  vcomp_lunitor *)</span>
+       (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==&gt; g),
+        (identity _ ◃ x) • lunitor g = lunitor f • x)
+     × <span class="sd">(** 7 vcomp_runitor *)</span>
+       (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==&gt; g),
+        (x ▹ identity _) • runitor g = runitor f • x)
+     × <span class="sd">(** 8 lwhisker_lwhisker *)</span>
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : c --&gt; d) (x : h ==&gt; i),
+        f ◃ (g ◃ x) • lassociator _ _ _ = lassociator _ _ _ • (f · g ◃ x))
+     × <span class="sd">(** 9 rwhisker_lwhisker *)</span>
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --&gt; d) (x : g ==&gt; h),
+        (f ◃ (x ▹ i)) • lassociator _ _ _ = lassociator _ _ _ • ((f ◃ x) ▹ i))
+     × <span class="sd">(** 10 rwhisker_rwhisker *)</span>
+       (∏ (a b c d : C) (f g : C⟦a, b⟧) (h : C⟦b, c⟧) (i : c --&gt; d) (x : f ==&gt; g),
+        lassociator _ _ _ • ((x ▹ h) ▹ i) = (x ▹ h · i) • lassociator _ _ _)
+     × <span class="sd">(** 11 vcomp_whisker *)</span>
+       (∏ (a b c : C) (f g : C⟦a, b⟧) (h i : C⟦b, c⟧) (x : f ==&gt; g) (y : h ==&gt; i),
+        (x ▹ h) • (g ◃ y) = (f ◃ y) • (x ▹ i))
+     × <span class="sd">(** 12a lunitor_linvunitor *)</span>
+       (∏ (a b : C) (f : C⟦a, b⟧), lunitor f • linvunitor _ = id2 _)
+     × <span class="sd">(** 12b linvunitor_lunitor *)</span>
+       (∏ (a b : C) (f : C⟦a, b⟧), linvunitor f • lunitor _ = id2 _)
+     × <span class="sd">(** 13a runitor_rinvunitor *)</span>
+       (∏ (a b : C) (f : C⟦a, b⟧), runitor f • rinvunitor _ = id2 _)
+     × <span class="sd">(** 13b rinvunitor_runitor *)</span>
+     (∏ (a b : C) (f : C⟦a, b⟧), rinvunitor f • runitor _ = id2 _)
+     × <span class="sd">(** 14a lassociator_rassociator *)</span>
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --&gt; d),
+        lassociator f g h • rassociator _ _ _ = id2 _)
+     × <span class="sd">(** 14b rassociator_lassociator *)</span>
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --&gt; d),
+        rassociator f g h • lassociator _ _ _ = id2 _)
+     × <span class="sd">(** 15 runitor_rwhisker *)</span>
+       (∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧),
+        lassociator _ _ _ • (runitor f ▹ g) = f ◃ lunitor g)
+     × <span class="sd">(** 16  lassociator_lassociator *)</span>
+       (∏ (a b c d e: C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --&gt; d) (i : C⟦d, e⟧),
+        (f ◃ lassociator g h i) • lassociator _ _ _  • (lassociator _ _ _ ▹ i) =
+        lassociator f g _  • lassociator _ _ _).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_prebicat_laws</span>
+           (<span class="nv">B</span> : prebicat_data)
+           (<span class="nv">H</span> : ∏ (a b : B) (f g : B ⟦ a, b ⟧), isaset (f ==&gt; g))
+  : isaprop (prebicat_laws B).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod)
+  ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>)
+  ; <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">prebicat</span> : UU := ∑ C : prebicat_data, prebicat_laws C.
+
+<span class="kn">Coercion</span> <span class="nf">prebicat_data_from_bicat</span> (C : prebicat) : prebicat_data := pr1 C.
+<span class="kn">Coercion</span> <span class="nf">prebicat_laws_from_bicat</span> (C : prebicat) : prebicat_laws C := pr2 C.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** Laws projections.                                                                  *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">prebicat_law_projections</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : prebicat}.
+
+<span class="sd">(** 1a id2_left *)</span>
+<span class="kn">Definition</span> <span class="nf">id2_left</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">x</span> : f ==&gt; g)
+  : id2 f • x = x
+  := pr1 (pr2 C) _ _ _ _ x.
+
+<span class="sd">(** 1b id2_right *)</span>
+<span class="kn">Definition</span> <span class="nf">id2_right</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">x</span> : f ==&gt; g)
+  : x • id2 g = x
+  := pr1 (pr2 (pr2 C)) _ _ _ _ x.
+
+<span class="sd">(** 2 vassocr *)</span>
+<span class="kn">Definition</span> <span class="nf">vassocr</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">k</span> : C⟦a, b⟧}
+           (<span class="nv">x</span> : f ==&gt; g) (<span class="nv">y</span> : g ==&gt; h) (<span class="nv">z</span> : h ==&gt; k)
+  : x • (y • z) = (x • y) • z
+  := pr1 (pr2 (pr2 (pr2 C))) _ _ _ _ _ _ x y z.
+
+<span class="sd">(** 3a lwhisker_id2 *)</span>
+<span class="kn">Definition</span> <span class="nf">lwhisker_id2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧)
+  : f ◃ id2 g = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 C)))) _ _ _ f g.
+
+<span class="sd">(** 3b id2_rwhisker *)</span>
+<span class="kn">Definition</span> <span class="nf">id2_rwhisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧)
+  : id2 f ▹ g = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 C))))) _ _ _ f g.
+
+<span class="sd">(** 4 lwhisker_vcomp *)</span>
+<span class="kn">Definition</span> <span class="nf">lwhisker_vcomp</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) {<span class="nv">g</span> <span class="nv">h</span> <span class="nv">i</span> : C⟦b, c⟧}
+           (<span class="nv">x</span> : g ==&gt; h) (<span class="nv">y</span> : h ==&gt; i)
+  : (f ◃ x) • (f ◃ y) = f ◃ (x • y)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))) _ _ _ f _ _ _ x y.
+
+<span class="sd">(** 5 rwhisker_vcomp *)</span>
+<span class="kn">Definition</span> <span class="nf">rwhisker_vcomp</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : C⟦a, b⟧}
+           (<span class="nv">i</span> : C⟦b, c⟧) (<span class="nv">x</span> : f ==&gt; g) (<span class="nv">y</span> : g ==&gt; h)
+  : (x ▹ i) • (y ▹ i) = (x • y) ▹ i
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))) _ _ _ _ _ _ i x y.
+
+<span class="sd">(** 6  vcomp_lunitor *)</span>
+<span class="kn">Definition</span> <span class="nf">vcomp_lunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧) (<span class="nv">x</span> : f ==&gt; g)
+  : (identity _ ◃ x) • lunitor g = lunitor f • x
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))) _ _ f g x.
+
+<span class="sd">(** 7 vcomp_runitor *)</span>
+<span class="kn">Definition</span> <span class="nf">vcomp_runitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧) (<span class="nv">x</span> : f ==&gt; g)
+  : (x ▹ identity _) • runitor g = runitor f • x
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))) _ _ f g x.
+
+<span class="sd">(** 8 lwhisker_lwhisker *)</span>
+<span class="kn">Definition</span> <span class="nf">lwhisker_lwhisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧)
+           {<span class="nv">h</span> <span class="nv">i</span> : c --&gt; d} (<span class="nv">x</span> : h ==&gt; i)
+  : f ◃ (g ◃ x) • lassociator _ _ _ = lassociator _ _ _ • (f · g ◃ x)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))) _ _ _ _ f g _ _ x.
+
+<span class="sd">(** 9 rwhisker_lwhisker *)</span>
+<span class="kn">Definition</span> <span class="nf">rwhisker_lwhisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) {<span class="nv">g</span> <span class="nv">h</span> : C⟦b, c⟧}
+           (<span class="nv">i</span> : c --&gt; d) (<span class="nv">x</span> : g ==&gt; h)
+  : (f ◃ (x ▹ i)) • lassociator _ _ _ = lassociator _ _ _ • ((f ◃ x) ▹ i)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 C))))))))))) _ _ _ _ f _ _ i x.
+
+<span class="sd">(** 10 rwhisker_rwhisker *)</span>
+<span class="kn">Definition</span> <span class="nf">rwhisker_rwhisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">h</span> : C⟦b, c⟧)
+           (<span class="nv">i</span> : c --&gt; d) (<span class="nv">x</span> : f ==&gt; g)
+  : lassociator _ _ _ • ((x ▹ h) ▹ i) = (x ▹ h · i) • lassociator _ _ _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))) _ _ _ _ _ _ h i x.
+
+<span class="sd">(** 11 vcomp_whisker *)</span>
+<span class="kn">Definition</span> <span class="nf">vcomp_whisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} {<span class="nv">h</span> <span class="nv">i</span> : C⟦b, c⟧}
+           (<span class="nv">x</span> : f ==&gt; g) (<span class="nv">y</span> : h ==&gt; i)
+  : (x ▹ h) • (g ◃ y) = (f ◃ y) • (x ▹ i)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))) _ _ _ _ _ _ _ x y.
+
+<span class="sd">(** 12a lunitor_linvunitor *)</span>
+<span class="kn">Definition</span> <span class="nf">lunitor_linvunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+  : lunitor f • linvunitor _ = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))) _ _ f.
+
+<span class="sd">(** 12b linvunitor_lunitor *)</span>
+<span class="kn">Definition</span> <span class="nf">linvunitor_lunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+  : linvunitor f • lunitor _ = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))))) _ _ f.
+
+<span class="sd">(** 13a runitor_rinvunitor *)</span>
+<span class="kn">Definition</span> <span class="nf">runitor_rinvunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+  : runitor f • rinvunitor _ = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))) _ _ f.
+
+<span class="sd">(** 13b rinvunitor_runitor *)</span>
+<span class="kn">Definition</span> <span class="nf">rinvunitor_runitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+  : rinvunitor f • runitor _ = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))))))) _ _ f.
+
+<span class="sd">(** 14a lassociator_rassociator *)</span>
+<span class="kn">Definition</span> <span class="nf">lassociator_rassociator</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+           (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧) (<span class="nv">h</span> : c --&gt; d)
+  : lassociator f g h • rassociator _ _ _ = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))) _ _ _ _ f g h.
+
+<span class="sd">(** 14b rassociator_lassociator *)</span>
+<span class="kn">Definition</span> <span class="nf">rassociator_lassociator</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+           (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧) (<span class="nv">h</span> : c --&gt; d)
+  : rassociator f g h • lassociator _ _ _ = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))))))))) _ _ _ _ f g h.
+
+<span class="sd">(** 15 runitor_rwhisker *)</span>
+<span class="kn">Definition</span> <span class="nf">runitor_rwhisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧)
+  : lassociator _ _ _ • (runitor f ▹ g) = f ◃ lunitor g
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+      (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))))) _ _ _ f g .
+
+<span class="sd">(** 16  lassociator_lassociator *)</span>
+<span class="kn">Definition</span> <span class="nf">lassociator_lassociator</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span>: C}
+           (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧) (<span class="nv">h</span> : c --&gt; d) (<span class="nv">i</span> : C⟦d, e⟧)
+  : (f ◃ lassociator g h i) • lassociator _ _ _  • (lassociator _ _ _ ▹ i) =
+    lassociator f g _  • lassociator _ _ _
+  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))))) _ _ _ _ _ f g h i.
+
+<span class="kn">End</span> <span class="nf">prebicat_law_projections</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Bicategories                                                                    *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isaset_cells</span> (<span class="nv">C</span> : prebicat) : UU
+  := ∏ (a b : C) (f g : a --&gt; b), isaset (f ==&gt; g).
+
+<span class="kn">Definition</span> <span class="nf">bicat</span> : UU
+  := ∑ C : prebicat, isaset_cells C.
+
+<span class="kn">Definition</span> <span class="nf">build_bicategory</span>
+           (<span class="nv">C</span> : prebicat_data)
+           (<span class="nv">HC1</span> : prebicat_laws C)
+           (<span class="nv">HC2</span> : isaset_cells (tpair _ C HC1))
+  : bicat
+  := tpair _ (tpair _ C HC1) HC2.
+
+<span class="kn">Definition</span> <span class="nf">build_prebicat_data</span>
+           (<span class="nv">ob</span> : UU)
+           (<span class="nv">mor</span> : ob -&gt; ob -&gt; UU)
+           (<span class="nv">cell</span> : ∏ {X Y : ob}, mor X Y -&gt; mor X Y -&gt; UU)
+           (<span class="nv">id₁</span> : ∏ (X : ob), mor X X)
+           (<span class="nv">comp</span> : ∏ {X Y Z : ob}, mor X Y -&gt; mor Y Z -&gt; mor X Z)
+           (<span class="nv">id₂</span> : ∏ {X Y : ob} (f : mor X Y), cell f f)
+           (<span class="nv">vcomp</span> : ∏ {X Y : ob} {f g h : mor X Y}, cell f g -&gt; cell g h -&gt; cell f h)
+           (<span class="nv">lwhisk</span> : ∏ {X Y Z : ob} (f : mor X Y) {g h : mor Y Z},
+                     cell g h -&gt; cell (comp f g) (comp f h))
+           (<span class="nv">rwhisk</span> : ∏ {X Y Z : ob} {g h : mor X Y} (f : mor Y Z),
+                     cell g h -&gt; cell (comp g f) (comp h f))
+           (<span class="nv">lunitor</span> : ∏ {X Y : ob} (f : mor X Y),
+                      cell (comp (id₁ X) f) f)
+           (<span class="nv">lunitor_inv</span> : ∏ {X Y : ob} (f : mor X Y),
+                          cell f (comp (id₁ X) f))
+           (<span class="nv">runitor</span> : ∏ {X Y : ob} (f : mor X Y),
+                      cell (comp f (id₁ Y)) f)
+           (<span class="nv">runitor_inv</span> : ∏ {X Y : ob} (f : mor X Y),
+                          cell f (comp f (id₁ Y)))
+           (<span class="nv">lassocor</span> : ∏ {W X Y Z : ob} (f : mor W X) (g : mor X Y) (h : mor Y Z),
+                       cell (comp f (comp g h)) (comp (comp f g) h))
+           (<span class="nv">rassocor</span> : ∏ {W X Y Z : ob} (f : mor W X) (g : mor X Y) (h : mor Y Z),
+                       cell (comp (comp f g) h) (comp f (comp g h)))
+  : prebicat_data.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * use tpair.
+        ** <span class="bp">exact</span> ob.
+        ** <span class="bp">exact</span> mor.
+      * use tpair.
+        ** <span class="bp">exact</span> id₁.
+        ** <span class="bp">exact</span> comp.
+    + <span class="bp">exact</span> cell.
+  - use tpair.
+    + <span class="bp">exact</span> id₂.
+    + <span class="kp">repeat</span> (use tpair) ; <span class="nb">simpl</span>.
+      * <span class="bp">exact</span> lunitor.
+      * <span class="bp">exact</span> runitor.
+      * <span class="bp">exact</span> lunitor_inv.
+      * <span class="bp">exact</span> runitor_inv.
+      * <span class="bp">exact</span> rassocor.
+      * <span class="bp">exact</span> lassocor.
+      * <span class="bp">exact</span> vcomp.
+      * <span class="bp">exact</span> lwhisk.
+      * <span class="bp">exact</span> rwhisk.
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">prebicat_of_bicat</span> (C : bicat)
+  : prebicat
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">cellset_property</span> {<span class="nv">C</span> : bicat} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b)
+  : isaset (f ==&gt; g)
+  := pr2 C a b f g.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Invertible 2-cells                                                              *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_invertible_2cell</span> {<span class="nv">C</span> : prebicat_data}
+           {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b} (<span class="nv">η</span> : f ==&gt; g)
+  : UU
+  := ∑ φ : g ==&gt; f, η • φ = id2 f × φ • η = id2 g.
+
+<span class="kn">Definition</span> <span class="nf">make_is_invertible_2cell</span> {<span class="nv">C</span> : prebicat_data}
+           {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           {<span class="nv">η</span> : f ==&gt; g}
+           {<span class="nv">φ</span> : g ==&gt; f}
+           (<span class="nv">ηφ</span> : η • φ = id2 f)
+           (<span class="nv">φη</span> : φ • η = id2 g)
+  : is_invertible_2cell η
+  := φ,, make_dirprod ηφ φη.
+
+<span class="kn">Definition</span> <span class="nf">inv_cell</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b} {<span class="nv">η</span> : f ==&gt; g}
+  : is_invertible_2cell η → g ==&gt; f
+  := pr1.
+
+<span class="c">(* TODO: Reorganize notations. *)</span>
+<span class="kn">Declare Scope</span> bicategory_scope.
+<span class="kn">Notation</span> <span class="s2">"inv_η ^-1"</span> := (inv_cell inv_η) : bicategory_scope.
+<span class="kn">Delimit Scope</span> bicategory_scope <span class="k">with</span> bicategory.
+<span class="kn">Bind Scope</span> bicategory_scope <span class="k">with</span> bicat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+
+<span class="kn">Definition</span> <span class="nf">vcomp_rinv</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           {<span class="nv">η</span> : f ==&gt; g} (<span class="nv">inv_η</span> : is_invertible_2cell η)
+  : η • inv_η^-<span class="mi">1</span> = id2 f
+  := pr1 (pr2 inv_η).
+
+<span class="kn">Definition</span> <span class="nf">vcomp_linv</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           {<span class="nv">η</span> : f ==&gt; g} (<span class="nv">inv_η</span> : is_invertible_2cell η)
+  : inv_η^-<span class="mi">1</span> • η = id2 g
+  := pr2 (pr2 inv_η).
+
+<span class="kn">Definition</span> <span class="nf">is_invertible_2cell_inv</span> {<span class="nv">C</span> : prebicat_data} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           {<span class="nv">η</span> : f ==&gt; g} (<span class="nv">inv_η</span> : is_invertible_2cell η)
+  : is_invertible_2cell inv_η^-<span class="mi">1</span>
+  := make_is_invertible_2cell (vcomp_linv inv_η) (vcomp_rinv inv_η).
+
+<span class="kn">Definition</span> <span class="nf">is_invertible_2cell_id₂</span> {<span class="nv">C</span> : prebicat} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b)
+  : is_invertible_2cell (id2 f)
+  := make_is_invertible_2cell (id2_left (id2 f)) (id2_left (id2 f)).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_invertible_2cell</span> {<span class="nv">C</span> : bicat}
+      {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C ⟦a, b⟧} (<span class="nv">x</span> : f ==&gt; g)
+  : isaprop (is_invertible_2cell x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invproofirrelevance.
+  <span class="nb">intros</span> p q.
+  <span class="nb">apply</span> subtypePath.
+  { <span class="nb">intro</span>. <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> cellset_property. }
+  <span class="nb">set</span> (Hz1 := pr12 q).
+  <span class="nb">set</span> (Hy2 := pr22 p).
+  <span class="nb">set</span> (y := pr1 p).
+  <span class="nb">set</span> (z := pr1 q).
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  intermediate_path (y • (x • z)).
+  - <span class="nb">apply</span> pathsinv0.
+    etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> Hz1. }
+    <span class="nb">apply</span> id2_right.
+  - etrans. { <span class="nb">apply</span> vassocr. }
+    etrans. { <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> Hy2. }
+    <span class="nb">apply</span> id2_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isPredicate_is_invertible_2cell</span> {<span class="nv">C</span> : bicat}
+      {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span>: C⟦a,b⟧}
+  : isPredicate (is_invertible_2cell (f := f) (g := g)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x. <span class="nb">apply</span> isaprop_is_invertible_2cell.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">vcomp_rcancel</span> {<span class="nv">C</span> : prebicat} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧}
+      (<span class="nv">x</span> : f ==&gt; g) (<span class="nv">inv_x</span> : is_invertible_2cell x)
+      {<span class="nv">e</span> : C⟦a, b⟧} {<span class="nv">y</span> <span class="nv">z</span> : e ==&gt; f}
+  : y • x = z • x -&gt; y = z.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> R.
+  <span class="nb">transitivity</span> ((y • x) • inv_x^-<span class="mi">1</span>).
+  - <span class="nb">rewrite</span> &lt;- vassocr, vcomp_rinv. <span class="nb">apply</span> (!id2_right _).
+  - <span class="nb">rewrite</span> R, &lt;- vassocr, vcomp_rinv. <span class="nb">apply</span> id2_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vcomp_lcancel</span>  {<span class="nv">C</span> : prebicat} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧}
+      (<span class="nv">x</span> : f ==&gt; g) (<span class="nv">inv_x</span> : is_invertible_2cell x)
+      {<span class="nv">h</span> : C⟦a, b⟧} {<span class="nv">y</span> <span class="nv">z</span> : g ==&gt; h}
+  : x • y = x • z -&gt; y = z.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> R.
+  <span class="nb">transitivity</span> (inv_x^-<span class="mi">1</span> • (x • y)).
+  - <span class="nb">rewrite</span> vassocr, vcomp_linv. <span class="nb">apply</span> (!id2_left _).
+  - <span class="nb">rewrite</span> R, vassocr, vcomp_linv. <span class="nb">apply</span> id2_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inv_cell_eq</span> {<span class="nv">C</span> : bicat} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C ⟦a, b⟧} (<span class="nv">x</span> <span class="nv">y</span> : f ==&gt; g)
+      (<span class="nv">inv_x</span> : is_invertible_2cell x) (<span class="nv">inv_y</span> : is_invertible_2cell y)
+      (<span class="nv">p</span> : inv_x^-<span class="mi">1</span> = inv_y^-<span class="mi">1</span>)
+  : x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (vcomp_rcancel _ (is_invertible_2cell_inv inv_x)).
+  <span class="nb">rewrite</span> vcomp_rinv, p.
+  <span class="nb">apply</span> (!vcomp_rinv _).
+<span class="kn">Qed</span>.
+
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="c">(* Locally groupoidal                                                        *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="kn">Definition</span> <span class="nf">locally_groupoid</span>
+           (<span class="nv">B</span> : bicat)
+  : UU
+  := ∏ (x y : B)
+       (f g : x --&gt; y)
+       (α : f ==&gt; g),
+     is_invertible_2cell α.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_locally_groupoid</span>
+           (<span class="nv">B</span> : bicat)
+  : isaprop (locally_groupoid B).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_invertible_2cell.
+<span class="kn">Qed</span>.
+
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="c">(* invertible_2cell                                                          *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">invertible_2cell</span> {<span class="nv">C</span> : prebicat_data}
+           {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b) : UU
+  := ∑ η : f ==&gt; g, is_invertible_2cell η.
+
+<span class="kn">Definition</span> <span class="nf">make_invertible_2cell</span> {<span class="nv">C</span> : prebicat_data}
+         {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧}
+         {<span class="nv">η</span> : f ==&gt; g} (<span class="nv">inv_η</span> : is_invertible_2cell η)
+  : invertible_2cell f g
+  := η,, inv_η.
+
+<span class="kn">Coercion</span> <span class="nf">cell_from_invertible_2cell</span> {C : prebicat_data}
+         {a b : C} {f g : a --&gt; b} (η : invertible_2cell f g)
+  : f ==&gt; g
+  := pr1 η.
+
+<span class="kn">Coercion</span> <span class="nf">property_from_invertible_2cell</span> {C : prebicat_data}
+         {a b : C} {f g : a --&gt; b}
+         (η : invertible_2cell f g)
+  : is_invertible_2cell η
+  := pr2 η.
+
+<span class="kn">Definition</span> <span class="nf">id2_invertible_2cell</span> {<span class="nv">C</span> : prebicat} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b)
+  : invertible_2cell f f
+  := make_invertible_2cell (is_invertible_2cell_id₂ f).
+
+<span class="kn">Lemma</span> <span class="nf">cell_from_invertible_2cell_eq</span> {<span class="nv">C</span> : bicat}
+      {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧} {<span class="nv">x</span> <span class="nv">y</span> : invertible_2cell f g}
+      (<span class="nv">p</span> : cell_from_invertible_2cell x = cell_from_invertible_2cell y)
+  : x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> cell_from_invertible_2cell.
+  <span class="nb">apply</span> subtypePath.
+  - <span class="nb">intro</span>. <span class="nb">apply</span> isPredicate_is_invertible_2cell.
+  - <span class="nb">apply</span> p.
+<span class="kn">Defined</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Derived laws                                                                    *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">Derived_laws</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : prebicat}.
+
+<span class="kn">Definition</span> <span class="nf">vassocl</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">k</span> : C⟦a, b⟧}
+           (<span class="nv">x</span> : f ==&gt; g) (<span class="nv">y</span> : g ==&gt; h) (<span class="nv">z</span> : h ==&gt; k)
+  : (x • y) • z = x • (y • z)
+  := !vassocr x y z.
+
+<span class="kn">Lemma</span> <span class="nf">vassoc4</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">i</span> <span class="nv">j</span>: C ⟦a, b⟧}
+      (<span class="nv">w</span> : f ==&gt; g) (<span class="nv">x</span> : g ==&gt; h) (<span class="nv">y</span> : h ==&gt; i) (<span class="nv">z</span> : i ==&gt; j)
+  : w • (x • (y • z)) = w • (x • y) • z.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_rassociator</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      (<span class="nv">f</span> : C⟦a,b⟧) (<span class="nv">g</span> : C⟦b,c⟧) (<span class="nv">h</span> : C⟦c,d⟧)
+  : is_invertible_2cell (rassociator f g h).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">lassociator</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>).
+  <span class="nb">split</span>; [ <span class="nb">apply</span> rassociator_lassociator | <span class="nb">apply</span> lassociator_rassociator ].
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_lassociator</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      (<span class="nv">f</span> : C⟦a,b⟧) (<span class="nv">g</span> : C⟦b,c⟧) (<span class="nv">h</span> : C⟦c,d⟧)
+  : is_invertible_2cell (lassociator f g h).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">rassociator</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>).
+  <span class="nb">split</span>; [ <span class="nb">apply</span> lassociator_rassociator | <span class="nb">apply</span> rassociator_lassociator ].
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lhs_right_invert_cell</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : a --&gt; b}
+      (<span class="nv">x</span> : f ==&gt; g) (<span class="nv">y</span> : g ==&gt; h) (<span class="nv">z</span> : f ==&gt; h) (<span class="nv">inv_y</span> : is_invertible_2cell y)
+  : x = z • inv_y^-<span class="mi">1</span> -&gt; x • y = z.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H1.
+  etrans. { <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> H1. }
+  etrans. { <span class="nb">apply</span> vassocl. }
+  etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> (vcomp_linv inv_y). }
+  <span class="nb">apply</span> id2_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lhs_left_invert_cell</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : a --&gt; b}
+      (<span class="nv">x</span> : f ==&gt; g) (<span class="nv">y</span> : g ==&gt; h) (<span class="nv">z</span> : f ==&gt; h) (<span class="nv">inv_x</span> : is_invertible_2cell x)
+  : y = inv_x^-<span class="mi">1</span> • z -&gt; x • y = z.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H1.
+  etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> H1. }
+  etrans. { <span class="nb">apply</span> vassocr. }
+  etrans. { <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> (vcomp_rinv inv_x). }
+  <span class="nb">apply</span> id2_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rhs_right_inv_cell</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : a --&gt; b}
+      (<span class="nv">x</span> : f ==&gt; g) (<span class="nv">y</span> : g ==&gt; h) (<span class="nv">z</span> : f ==&gt; h) (<span class="nv">inv_y</span> : is_invertible_2cell y)
+  : x • y = z -&gt; x = z • inv_y^-<span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H1.
+  <span class="nb">apply</span> (vcomp_rcancel _ inv_y).
+  etrans. { <span class="nb">apply</span> H1. }
+  etrans. <span class="mi">2</span>: <span class="nb">apply</span> vassocr.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. { <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> vcomp_linv. }
+  <span class="nb">apply</span> id2_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rhs_left_inv_cell</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : a --&gt; b}
+      (<span class="nv">x</span> : g ==&gt; h) (<span class="nv">y</span> : f ==&gt; g) (<span class="nv">z</span> : f ==&gt; h) (<span class="nv">inv_y</span> : is_invertible_2cell y)
+  : y • x = z -&gt; x = inv_y^-<span class="mi">1</span> • z.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H1.
+  <span class="nb">apply</span> (vcomp_lcancel _ inv_y).
+  etrans. { <span class="nb">apply</span> H1. }
+  etrans. <span class="mi">2</span>: <span class="nb">apply</span> vassocl.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. { <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> (vcomp_rinv inv_y). }
+  <span class="nb">apply</span> id2_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rassociator_to_lassociator_post</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      {<span class="nv">f</span> : C ⟦ a, b ⟧} {<span class="nv">g</span> : C ⟦ b, c ⟧} {<span class="nv">h</span> : C ⟦ c, d ⟧} {<span class="nv">k</span> : C ⟦ a, d ⟧}
+      (<span class="nv">x</span> : k ==&gt; (f · g) · h)
+      (<span class="nv">y</span> : k ==&gt; f · (g · h))
+      (<span class="nv">p</span> : x • rassociator f g h = y)
+  : x = y • lassociator f g h.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  use lhs_right_invert_cell.
+  - <span class="nb">apply</span> is_invertible_2cell_lassociator.
+  - <span class="nb">cbn</span>. <span class="bp">exact</span> (!p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lassociator_to_rassociator_post</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      {<span class="nv">f</span> : C ⟦ a, b ⟧} {<span class="nv">g</span> : C ⟦ b, c ⟧} {<span class="nv">h</span> : C ⟦ c, d ⟧} {<span class="nv">k</span> : C ⟦ a, d ⟧}
+      (<span class="nv">x</span> : k ==&gt; (f · g) · h)
+      (<span class="nv">y</span> : k ==&gt; f · (g · h))
+      (<span class="nv">p</span> : x = y • lassociator f g h)
+  : x • rassociator f g h = y.
+<span class="kn">Proof</span>.
+  use lhs_right_invert_cell.
+  - <span class="nb">apply</span> is_invertible_2cell_rassociator.
+  - <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lassociator_to_rassociator_pre</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      {<span class="nv">f</span> : C ⟦ a, b ⟧} {<span class="nv">g</span> : C ⟦ b, c ⟧} {<span class="nv">h</span> : C ⟦ c, d ⟧} {<span class="nv">k</span> : C ⟦ a, d ⟧}
+      (<span class="nv">x</span> : f · (g · h) ==&gt; k)
+      (<span class="nv">y</span> : (f · g) · h ==&gt; k)
+      (<span class="nv">p</span> : x = lassociator f g h • y)
+  : rassociator f g h • x = y.
+<span class="kn">Proof</span>.
+  use lhs_left_invert_cell.
+  - <span class="nb">apply</span> is_invertible_2cell_rassociator.
+  - <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rassociator_to_lassociator_pre</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      {<span class="nv">f</span> : C ⟦ a, b ⟧} {<span class="nv">g</span> : C ⟦ b, c ⟧} {<span class="nv">h</span> : C ⟦ c, d ⟧} {<span class="nv">k</span> : C ⟦ a, d ⟧}
+      (<span class="nv">x</span> : f · (g · h) ==&gt; k)
+      (<span class="nv">y</span> : (f · g) · h ==&gt; k)
+      (<span class="nv">p</span> : rassociator f g h • x = y)
+  : x = lassociator f g h • y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  use lhs_left_invert_cell.
+  - <span class="nb">apply</span> is_invertible_2cell_lassociator.
+  - <span class="bp">exact</span> (!p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lunitor_lwhisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧)
+  : rassociator _ _ _ • (f ◃ lunitor g) = runitor f ▹ g.
+<span class="kn">Proof</span>.
+  use lhs_left_invert_cell.
+  { <span class="nb">apply</span> is_invertible_2cell_rassociator. }
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> runitor_rwhisker.
+<span class="kn">Qed</span>.
+
+<span class="kn">Corollary</span> <span class="nf">unit_triangle</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧)
+  : rassociator f (identity b) g • id2 f ⋆ lunitor g = runitor f ⋆ id2 g.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hcomp.
+  <span class="nb">rewrite</span> id2_rwhisker.
+  <span class="nb">rewrite</span> lwhisker_id2.
+  <span class="nb">rewrite</span> id2_right.
+  <span class="nb">rewrite</span> id2_left.
+  <span class="nb">apply</span> lunitor_lwhisker.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hcomp_hcomp'</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f1</span> <span class="nv">f2</span> : C⟦a, b⟧} {<span class="nv">g1</span> <span class="nv">g2</span> : C⟦b, c⟧}
+      (<span class="nv">η</span> : f1 ==&gt; f2) (<span class="nv">φ</span> : g1 ==&gt; g2)
+  : hcomp η φ = hcomp' η φ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> vcomp_whisker.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hcomp_lassoc</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      {<span class="nv">f1</span> <span class="nv">g1</span> : C ⟦ a, b ⟧} {<span class="nv">f2</span> <span class="nv">g2</span> : C ⟦ b, c ⟧} {<span class="nv">f3</span> <span class="nv">g3</span> : C ⟦ c, d ⟧}
+      (<span class="nv">x1</span> : f1 ==&gt; g1) (<span class="nv">x2</span> : f2 ==&gt; g2) (<span class="nv">x3</span> : f3 ==&gt; g3)
+  : x1 ⋆ (x2 ⋆ x3) • lassociator g1 g2 g3 =
+    lassociator f1 f2 f3 • (x1 ⋆ x2) ⋆ x3.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hcomp.
+  <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- vassocr.
+  <span class="nb">rewrite</span> lwhisker_lwhisker.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> &lt;- vassocr.
+  <span class="nb">rewrite</span> rwhisker_lwhisker.
+  <span class="nb">rewrite</span> vassocr.
+  <span class="nb">rewrite</span> &lt;- rwhisker_rwhisker.
+  <span class="nb">rewrite</span> &lt;- vassocr.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> rwhisker_vcomp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_lunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C ⟦ a, b ⟧)
+  : is_invertible_2cell (lunitor f).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">linvunitor</span> <span class="nv">f</span>).
+  <span class="kp">abstract</span> (<span class="nb">apply</span> (lunitor_linvunitor _ ,, linvunitor_lunitor _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_linvunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C ⟦ a, b ⟧)
+  : is_invertible_2cell (linvunitor f).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">lunitor</span> <span class="nv">f</span>).
+  <span class="kp">abstract</span> (<span class="nb">apply</span> (linvunitor_lunitor _ ,, lunitor_linvunitor _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_runitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C ⟦ a, b ⟧)
+  : is_invertible_2cell (runitor f).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">rinvunitor</span> <span class="nv">f</span>).
+  <span class="kp">abstract</span> (<span class="nb">apply</span> (runitor_rinvunitor _ ,, rinvunitor_runitor _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_rinvunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C ⟦ a, b ⟧)
+  : is_invertible_2cell (rinvunitor f).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">runitor</span> <span class="nv">f</span>).
+  <span class="kp">abstract</span> (<span class="nb">apply</span> (rinvunitor_runitor _ ,, runitor_rinvunitor _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hcomp_rassoc</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      (<span class="nv">f1</span> <span class="nv">g1</span> : C ⟦ a, b ⟧) (<span class="nv">f2</span> <span class="nv">g2</span> : C ⟦ b, c ⟧) (<span class="nv">f3</span> <span class="nv">g3</span> : C ⟦ c, d ⟧)
+      (<span class="nv">x1</span> : f1 ==&gt; g1) (<span class="nv">x2</span> : f2 ==&gt; g2) (<span class="nv">x3</span> : f3 ==&gt; g3)
+  : (x1 ⋆ x2) ⋆ x3 • rassociator g1 g2 g3 =
+    rassociator f1 f2 f3 • x1 ⋆ (x2 ⋆ x3).
+<span class="kn">Proof</span>.
+  use lhs_right_invert_cell.
+  { <span class="nb">apply</span> is_invertible_2cell_rassociator. }
+  etrans; [ | <span class="nb">apply</span> vassocr ].
+  <span class="nb">apply</span> pathsinv0.
+  use lhs_left_invert_cell.
+  { <span class="nb">apply</span> is_invertible_2cell_rassociator. }
+  <span class="nb">apply</span> hcomp_lassoc.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">hcomp_identity_left</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C ⟦ a, b ⟧)(<span class="nv">g1</span> <span class="nv">g2</span> : C ⟦ b, c ⟧) (<span class="nv">y</span> : g1 ==&gt; g2)
+  : id2 f ⋆ y = lwhisker f y.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hcomp.
+  <span class="nb">rewrite</span> id2_rwhisker.
+  <span class="nb">apply</span> id2_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hcomp_identity_right</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f1</span> <span class="nv">f2</span> : C ⟦ a, b ⟧)(<span class="nv">g</span> : C ⟦ b, c ⟧) (<span class="nv">x</span> : f1 ==&gt; f2)
+  : x ⋆ id2 g = rwhisker g x.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hcomp.
+  <span class="nb">rewrite</span> lwhisker_id2.
+  <span class="nb">apply</span> id2_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hcomp_identity</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f1</span> : C ⟦ a, b ⟧) (<span class="nv">f2</span> : C ⟦ b, c ⟧)
+  : id2 f1 ⋆ id2 f2 = id2 (f1 · f2).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> hcomp_identity_left.
+  <span class="nb">apply</span> lwhisker_id2.
+<span class="kn">Qed</span>.
+
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Interchange law                                                                 *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hcomp_vcomp</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+      (<span class="nv">f1</span> <span class="nv">g1</span> <span class="nv">h1</span> : C ⟦ a, b ⟧)
+      (<span class="nv">f2</span> <span class="nv">g2</span> <span class="nv">h2</span> : C ⟦ b, c ⟧)
+      (<span class="nv">x1</span> : f1 ==&gt; g1)
+      (<span class="nv">x2</span> : f2 ==&gt; g2)
+      (<span class="nv">y1</span> : g1 ==&gt; h1)
+      (<span class="nv">y2</span> : g2 ==&gt; h2)
+  : (x1 • y1) ⋆ (x2 • y2) = (x1 ⋆ x2) • (y1 ⋆ y2).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hcomp <span class="nb">at</span> <span class="mi">2</span> <span class="mi">3</span>.
+  <span class="nb">rewrite</span> vassocr.
+  <span class="nb">rewrite</span> vcomp_whisker.
+  <span class="nb">transitivity</span> (((f1 ◃ x2) • ((x1 ▹ g2) • (y1 ▹ g2))) • (h1 ◃ y2)).
+  <span class="mi">2</span>: <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr; <span class="nb">apply</span> idpath.
+  <span class="nb">rewrite</span> rwhisker_vcomp.
+  <span class="nb">rewrite</span> &lt;- vcomp_whisker.
+  <span class="nb">rewrite</span> &lt;- vassocr.
+  <span class="nb">rewrite</span> lwhisker_vcomp.
+  <span class="nb">unfold</span> hcomp.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">rwhisker_lwhisker_rassociator</span>
+      (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> <span class="nv">h</span> : C⟦b, c⟧) (<span class="nv">i</span> : c --&gt; d) (<span class="nv">x</span> : g ==&gt; h)
+  : rassociator _ _ _ • (f ◃ (x ▹ i)) = ((f ◃ x) ▹ i) • rassociator _ _ _ .
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (vcomp_lcancel (lassociator f g i)).
+  { <span class="nb">apply</span>  is_invertible_2cell_lassociator. }
+  etrans.
+  { etrans; [ <span class="nb">apply</span> vassocr |].
+    <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> lassociator_rassociator. }
+  etrans; [ <span class="nb">apply</span> id2_left |].
+  <span class="nb">apply</span> (vcomp_rcancel (lassociator f h i)).
+  { <span class="nb">apply</span>  is_invertible_2cell_lassociator. }
+  <span class="nb">apply</span> pathsinv0.
+  etrans; [ <span class="nb">apply</span> vassocl |].
+  etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> vassocl. }
+  etrans. { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> rassociator_lassociator. }
+  etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> id2_right. }
+  <span class="nb">apply</span> pathsinv0, rwhisker_lwhisker.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Analog to law 8, lwhisker_lwhisker *)</span>
+<span class="kn">Lemma</span> <span class="nf">lwhisker_lwhisker_rassociator</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">f</span> : C⟦a, b⟧)
+      (<span class="nv">g</span> : C⟦b, c⟧) (<span class="nv">h</span> <span class="nv">i</span> : c --&gt; d) (<span class="nv">x</span> : h ==&gt; i)
+  : rassociator f g h  • (f ◃ (g ◃ x)) = (f · g ◃ x) • rassociator _ _ _ .
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (vcomp_lcancel (lassociator f g h)).
+  { <span class="nb">apply</span>  is_invertible_2cell_lassociator. }
+  etrans.
+  { etrans; [ <span class="nb">apply</span> vassocr |].
+    <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> lassociator_rassociator. }
+  etrans; [ <span class="nb">apply</span> id2_left |].
+  <span class="nb">apply</span> (vcomp_rcancel (lassociator f g i)).
+  { <span class="nb">apply</span>  is_invertible_2cell_lassociator. }
+  <span class="nb">apply</span> pathsinv0.
+  etrans; [ <span class="nb">apply</span> vassocl |].
+  etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> vassocl. }
+  etrans. { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> rassociator_lassociator. }
+  etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> id2_right. }
+  <span class="nb">apply</span> pathsinv0, lwhisker_lwhisker.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Analog to [rwhisker_rwhisker]. *)</span>
+<span class="kn">Lemma</span> <span class="nf">rwhisker_rwhisker_alt</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      (<span class="nv">f</span> : C ⟦ b, a ⟧) (<span class="nv">g</span> : C ⟦ c, b ⟧) {<span class="nv">h</span> <span class="nv">i</span> : C ⟦ d, c ⟧} (<span class="nv">x</span> : h ==&gt; i)
+  : ((x ▹ g) ▹ f) • rassociator i g f = rassociator h g f • (x ▹ g · f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (vcomp_lcancel (lassociator h g f)).
+  { <span class="nb">apply</span> is_invertible_2cell_lassociator. }
+  etrans. { <span class="nb">apply</span> vassocr. }
+  etrans. { <span class="nb">apply</span> maponpaths_2, rwhisker_rwhisker. }
+  etrans. { <span class="nb">apply</span> vassocl. }
+  etrans. { <span class="nb">apply</span> maponpaths, lassociator_rassociator. }
+  <span class="nb">apply</span> pathsinv0.
+  etrans. { <span class="nb">apply</span> vassocr. }
+  etrans. { <span class="nb">apply</span> maponpaths_2, lassociator_rassociator. }
+  etrans.
+  - <span class="nb">apply</span> id2_left.
+  - <span class="nb">apply</span> pathsinv0, id2_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rassociator_rassociator</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : C}
+      (<span class="nv">f</span> : C ⟦ a, b ⟧) (<span class="nv">g</span> : C ⟦ b, c ⟧) (<span class="nv">h</span> : C ⟦ c, d ⟧) (<span class="nv">i</span> : C ⟦ d, e ⟧)
+  : ((rassociator f g h ▹ i) • rassociator f (g · h) i) • (f ◃ rassociator g h i) =
+    rassociator (f · g) h i • rassociator f g (h · i).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (vcomp_lcancel (lassociator (f · g) h i)).
+  { <span class="nb">apply</span> is_invertible_2cell_lassociator. }
+  <span class="nb">apply</span> (vcomp_lcancel (lassociator f g (h · i))).
+  { <span class="nb">apply</span> is_invertible_2cell_lassociator. }
+  etrans. { <span class="nb">apply</span> vassocr. }
+  etrans.
+  { <span class="nb">apply</span> maponpaths_2, pathsinv0.
+    <span class="nb">apply</span> lassociator_lassociator. }
+  etrans. { <span class="nb">apply</span> vassocl. }
+  etrans.
+  { <span class="nb">apply</span> maponpaths.
+    etrans.
+    { <span class="nb">apply</span> maponpaths, vassocl. }
+    etrans. { <span class="nb">apply</span> vassocr. }
+    <span class="nb">apply</span> maponpaths_2.
+    etrans. { <span class="nb">apply</span> rwhisker_vcomp. }
+    <span class="nb">apply</span> maponpaths, lassociator_rassociator.
+  }
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  { <span class="nb">apply</span> maponpaths.
+    etrans. { <span class="nb">apply</span> vassocr. }
+    etrans. { <span class="nb">apply</span> maponpaths_2, lassociator_rassociator. }
+    <span class="nb">apply</span> id2_left. }
+  etrans.
+  { <span class="nb">apply</span> lassociator_rassociator. }
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  { <span class="nb">apply</span> maponpaths.
+    etrans.
+    { <span class="nb">apply</span> vassocr. }
+    <span class="nb">apply</span> maponpaths_2.
+    etrans. { <span class="nb">apply</span> maponpaths_2, id2_rwhisker. }
+    <span class="nb">apply</span> id2_left.
+  }
+  etrans.
+  { <span class="nb">apply</span> vassocl. }
+  etrans.
+  { <span class="nb">apply</span> maponpaths.
+    etrans.
+    { <span class="nb">apply</span> vassocr. }
+    etrans.
+    { <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lassociator_rassociator. }
+    <span class="nb">apply</span> id2_left.
+  }
+  etrans.
+  { <span class="nb">apply</span> lwhisker_vcomp. }
+  etrans.
+  { <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> lassociator_rassociator. }
+  <span class="nb">apply</span> lwhisker_id2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Corollary</span> <span class="nf">associativity_pentagon</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : C}
+  (<span class="nv">f</span> : C ⟦ a, b ⟧) (<span class="nv">g</span> : C ⟦ b, c ⟧) (<span class="nv">h</span> : C ⟦ c, d ⟧) (<span class="nv">i</span> : C ⟦ d, e ⟧)
+  : (rassociator f g h ⋆ id2 i • rassociator f (g · h) i) • id2  f ⋆ rassociator g h i =
+    rassociator (f · g) h i • rassociator f g (h · i).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hcomp.
+  <span class="nb">rewrite</span> id2_rwhisker.
+  <span class="nb">rewrite</span> lwhisker_id2.
+  <span class="nb">rewrite</span> id2_right.
+  <span class="nb">rewrite</span> id2_left.
+  <span class="nb">apply</span> rassociator_rassociator.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Derived_laws</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Homs are categories                                                             *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">Hom_Spaces</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : prebicat} (<span class="nv">a</span> <span class="nv">b</span> : C).
+
+<span class="kn">Definition</span> <span class="nf">hom_ob_mor</span>
+  : precategory_ob_mor
+  := make_precategory_ob_mor (C⟦a,b⟧) (<span class="k">λ</span> (<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧), f ==&gt; g).
+
+<span class="kn">Definition</span> <span class="nf">hom_data</span>
+  : precategory_data
+  := make_precategory_data hom_ob_mor id2 (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">x</span> <span class="nv">y</span>, x • y).
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_hom</span> : is_precategory hom_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_precategory_one_assoc_to_two.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">cbn</span>.
+  - <span class="nb">intros</span> f g. <span class="nb">apply</span> id2_left.
+  - <span class="nb">intros</span> f g. <span class="nb">apply</span> id2_right.
+  - <span class="nb">intros</span> f g h i. <span class="nb">apply</span> vassocr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hom_precategory</span>
+  : precategory
+  := make_precategory hom_data is_precategory_hom.
+
+<span class="kn">End</span> <span class="nf">Hom_Spaces</span>.
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_hom_data</span> {<span class="nv">C</span> : bicat} (<span class="nv">a</span> <span class="nv">b</span> : C): has_homsets (hom_data a b).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (@cellset_property C a b).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hom</span> {<span class="nv">C</span> : bicat} (<span class="nv">a</span> <span class="nv">b</span> : C) : category
+  := hom_precategory a b ,, @cellset_property C a b.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Functor structure on horizontal composition.                                    *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">hcomp_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_functor_data</span>
+  : functor_data
+      (category_binproduct (hom a b) (hom b c))
+      (hom a c).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">p</span> : (a--&gt;b) × (b--&gt;c), pr1 p · pr2 p).
+  <span class="nb">unfold</span> hom_ob_mor. <span class="nb">simpl</span>. <span class="nb">intros</span> (f1, f2) (g1, g2).
+  <span class="nb">unfold</span> precategory_binproduct_mor. <span class="nb">simpl</span>.
+  <span class="nb">intros</span> (x, y). <span class="nb">apply</span> hcomp; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_hcomp</span> : is_functor hcomp_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">cbn</span>.
+  - <span class="nb">intros</span> (f1, f2). <span class="nb">cbn</span>. <span class="nb">apply</span> hcomp_identity.
+  - <span class="nb">intros</span> (f1, f2) (g1, g2) (h1, h2).
+    <span class="nb">unfold</span> precategory_binproduct_mor. <span class="nb">cbn</span>.
+    <span class="nb">intros</span> (x1, x2) (y1, y2). <span class="nb">cbn</span>. <span class="nb">apply</span> hcomp_vcomp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_functor</span>
+  : category_binproduct
+      (hom a b) (hom b c)
+    ⟶
+    hom a c
+  := make_functor hcomp_functor_data is_functor_hcomp.
+
+<span class="sd">(** and the two whiskering functors separately so as to avoid [category_binproduct] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">lwhisker_functor_data</span> (<span class="nv">f</span> : C⟦a, b⟧)
+  : functor_data (hom b c) (hom a c).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">fun</span> <span class="nv">g</span> =&gt; f · g).
+  <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">g1</span> <span class="nv">g2</span> <span class="nv">x</span> =&gt; f ◃ x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_lwhisker</span> (<span class="nv">f</span> : C⟦a, b⟧) : is_functor (lwhisker_functor_data f).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">cbn</span>.
+  - <span class="nb">intro</span> g. <span class="nb">apply</span> lwhisker_id2.
+  - <span class="nb">intros</span> g1 g2 g3 x y. <span class="nb">apply</span> pathsinv0, lwhisker_vcomp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lwhisker_functor</span> (<span class="nv">f</span> : C⟦a, b⟧) : functor (hom b c) (hom a c)
+  := make_functor (lwhisker_functor_data f) (is_functor_lwhisker f).
+
+<span class="kn">Definition</span> <span class="nf">rwhisker_functor_data</span> (<span class="nv">g</span> : C⟦b, c⟧)
+  : functor_data (hom a b) (hom a c).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">fun</span> <span class="nv">f</span> =&gt; f · g).
+  <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">f1</span> <span class="nv">f2</span> <span class="nv">x</span> =&gt; x ▹ g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_rwhisker</span> (<span class="nv">g</span> : C⟦b, c⟧) : is_functor (rwhisker_functor_data g).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">cbn</span>.
+  - <span class="nb">intro</span> f. <span class="nb">apply</span> id2_rwhisker.
+  - <span class="nb">intros</span> f1 f2 f3 x y. <span class="nb">apply</span> pathsinv0, rwhisker_vcomp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rwhisker_functor</span> (<span class="nv">g</span> : C⟦b, c⟧) : functor (hom a b) (hom a c)
+  := make_functor (rwhisker_functor_data g) (is_functor_rwhisker g).
+
+
+<span class="kn">End</span> <span class="nf">hcomp_functor</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Chaotic bicat                                                                   *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">chaotic_bicat</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : precategory.
+
+<span class="kn">Definition</span> <span class="nf">chaotic_prebicat_data</span> : prebicat_data.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use tpair.
+    + <span class="bp">exact</span> C.
+    + <span class="nb">cbn</span>. <span class="nb">intros</span> a b f g. <span class="bp">exact</span> unit.
+  - <span class="nb">cbn</span>; <span class="kp">repeat</span> (use tpair); <span class="nb">cbn</span>; <span class="nb">intros</span>; <span class="bp">exact</span> tt.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">chaotic_prebicat_laws</span> : prebicat_laws chaotic_prebicat_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">apply</span> make_dirprod; <span class="nb">intros</span>; <span class="nb">apply</span> isProofIrrelevantUnit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">chaotic_prebicat</span> : prebicat
+  := chaotic_prebicat_data,, chaotic_prebicat_laws.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_chaotic_cells</span> : isaset_cells chaotic_prebicat.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">intros</span>. <span class="bp">exact</span> isasetunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">chaotic_bicat</span> : bicat
+  := chaotic_prebicat,, isaset_chaotic_cells.
+
+<span class="kn">End</span> <span class="nf">chaotic_bicat</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Associators and unitors are isos.                                               *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">Associators_Unitors_Iso</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : prebicat}.
+
+<span class="kn">Lemma</span> <span class="nf">is_z_iso_lassociator</span>
+      {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      (<span class="nv">f</span> : hom_precategory a b)
+      (<span class="nv">g</span> : hom_precategory b c)
+      (<span class="nv">h</span> : hom_precategory c d)
+  : is_z_isomorphism (lassociator f g h : (hom_precategory a d) ⟦ f · (g · h), (f · g) · h ⟧).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">rassociator</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> lassociator_rassociator.
+  - <span class="nb">apply</span> rassociator_lassociator.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_iso_lassociator</span>
+      {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      (<span class="nv">f</span> : hom_precategory a b)
+      (<span class="nv">g</span> : hom_precategory b c)
+      (<span class="nv">h</span> : hom_precategory c d)
+  : is_iso (lassociator f g h : (hom_precategory a d) ⟦ f · (g · h), (f · g) · h ⟧).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_iso_from_is_z_iso.
+  <span class="nb">apply</span> is_z_iso_lassociator.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_z_iso_rassociator</span>
+      {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      (<span class="nv">f</span> : hom_precategory a b)
+      (<span class="nv">g</span> : hom_precategory b c)
+      (<span class="nv">h</span> : hom_precategory c d)
+  : is_z_isomorphism (rassociator f g h : (hom_precategory a d) ⟦ (f · g) · h, f · (g · h) ⟧).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">lassociator</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> rassociator_lassociator.
+  - <span class="nb">apply</span> lassociator_rassociator.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_iso_rassociator</span>
+      {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      (<span class="nv">f</span> : hom_precategory a b)
+      (<span class="nv">g</span> : hom_precategory b c)
+      (<span class="nv">h</span> : hom_precategory c d)
+  : is_iso (rassociator f g h : (hom_precategory a d) ⟦ (f · g) · h, f · (g · h) ⟧).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_iso_from_is_z_iso.
+  <span class="nb">apply</span> is_z_iso_rassociator.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_z_iso_lunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : hom_precategory a b)
+  : is_z_isomorphism (lunitor f : (hom_precategory a b) ⟦ identity a · f, f ⟧).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">linvunitor</span> <span class="nv">f</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> lunitor_linvunitor.
+  - <span class="nb">apply</span> linvunitor_lunitor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_iso_lunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : hom_precategory a b)
+  : is_iso (lunitor f : (hom_precategory a b) ⟦ identity a · f, f ⟧).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_iso_from_is_z_iso.
+  <span class="nb">apply</span> is_z_iso_lunitor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_z_iso_runitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : hom_precategory a b)
+  : is_z_isomorphism (runitor f : (hom_precategory a b) ⟦ f · identity b, f ⟧).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">rinvunitor</span> <span class="nv">f</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> runitor_rinvunitor.
+  - <span class="nb">apply</span> rinvunitor_runitor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_iso_runitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : hom_precategory a b)
+  : is_iso (runitor f : (hom_precategory a b) ⟦ f · identity b, f ⟧).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_iso_from_is_z_iso.
+  <span class="nb">apply</span> is_z_iso_runitor.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Associators_Unitors_Iso</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Functor structure on associators and unitors.                                   *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">Associators_Unitors_Natural</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : prebicat}.
+
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+<span class="sd">(** Left unitor                                                                       *)</span>
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+
+<span class="kn">Lemma</span> <span class="nf">lunitor_natural</span> (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : C ⟦ a, b ⟧) (<span class="nv">x</span> : f ==&gt; g)
+  : id2 (identity a) ⋆ x • lunitor g = lunitor f • x.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hcomp.
+  <span class="nb">rewrite</span> &lt;- vassocr. <span class="nb">rewrite</span> vcomp_lunitor.
+  <span class="nb">rewrite</span> vassocr. <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> id2_rwhisker. <span class="nb">apply</span> id2_left.
+<span class="kn">Qed</span>.
+
+<span class="c">(*</span>
+
+<span class="c">Definition lunitor_transf (a b : C)</span>
+<span class="c">  : bindelta_pair_functor</span>
+<span class="c">      (constant_functor (hom_precategory a b) (hom_precategory a a) (identity a))</span>
+<span class="c">      (functor_identity (hom_precategory a b)) ∙</span>
+<span class="c">    hcomp_functor</span>
+<span class="c">    ⟹</span>
+<span class="c">    functor_identity (hom_precategory a b)</span>
+<span class="c">  := lunitor,, lunitor_natural a b.</span>
+<span class="c"> *)</span>
+
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+<span class="sd">(** Right unitor                                                                      *)</span>
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+
+<span class="kn">Lemma</span> <span class="nf">runitor_natural</span> (<span class="nv">a</span> <span class="nv">b</span> : C)
+      (<span class="nv">f</span> <span class="nv">g</span> : C ⟦ a, b ⟧)
+      (<span class="nv">x</span> : f ==&gt; g)
+  : x ⋆ id2 (identity b) • runitor g = runitor f • x.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> hcomp_hcomp'. <span class="nb">unfold</span> hcomp'.
+  <span class="nb">rewrite</span> &lt;- vassocr.
+  <span class="nb">rewrite</span> vcomp_runitor.
+  <span class="nb">rewrite</span> vassocr. <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> lwhisker_id2. <span class="nb">apply</span> id2_left.
+<span class="kn">Qed</span>.
+
+<span class="c">(*</span>
+<span class="c">Definition runitor_transf (a b : C)</span>
+<span class="c">  : bindelta_pair_functor</span>
+<span class="c">       (functor_identity (hom_precategory a b))</span>
+<span class="c">       (constant_functor (hom_precategory a b) (hom_precategory b b) (identity b)) ∙</span>
+<span class="c">    hcomp_functor</span>
+<span class="c">    ⟹</span>
+<span class="c">    functor_identity (hom_precategory a b).</span>
+<span class="c">Proof.</span>
+<span class="c">  exists runitor. red. apply runitor_natural.</span>
+<span class="c">Defined.</span>
+<span class="c"> *)</span>
+
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+<span class="sd">(** Left associator.                                                                  *)</span>
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+
+<span class="kn">Definition</span> <span class="nf">lassociator_fun</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+           (<span class="nv">x</span> : C⟦a,b⟧ × C⟦b,c⟧ × C⟦c,d⟧)
+  :  pr1 x · (pr12 x · pr22 x) ==&gt; (pr1 x · pr12 x) · pr22 x
+  := lassociator (pr1 x) (pr12 x) (pr22 x).
+
+<span class="c">(*</span>
+<span class="c">Lemma lassociator_fun_natural {a b c d : C}</span>
+<span class="c">  : is_nat_trans</span>
+<span class="c">      (pair_functor (functor_identity (hom_precategory a b)) hcomp_functor ∙ hcomp_functor)</span>
+<span class="c">      (precategory_binproduct_assoc</span>
+<span class="c">         (hom_precategory a b)</span>
+<span class="c">         (hom_precategory b c)</span>
+<span class="c">         (hom_precategory c d) ∙</span>
+<span class="c">       pair_functor hcomp_functor (functor_identity _) ∙</span>
+<span class="c">       hcomp_functor)</span>
+<span class="c">      lassociator_fun.</span>
+<span class="c">Proof.</span>
+<span class="c">  red; cbn. intros (f1, (f2, f3)) (g1, (g2, g3)).</span>
+<span class="c">  unfold precategory_binproduct_mor, hom_ob_mor. cbn.</span>
+<span class="c">  unfold precategory_binproduct_mor, hom_ob_mor. cbn.</span>
+<span class="c">  intros (x1, (x2, x3)). cbn.</span>
+<span class="c">  unfold lassociator_fun. cbn.</span>
+<span class="c">  apply hcomp_lassoc.</span>
+<span class="c">Qed.</span>
+
+<span class="c">Definition lassociator_transf (a b c d : C)</span>
+<span class="c">  : pair_functor (functor_identity (hom_precategory a b)) hcomp_functor ∙ hcomp_functor</span>
+<span class="c">    ⟹</span>
+<span class="c">    precategory_binproduct_assoc</span>
+<span class="c">      (hom_precategory a b)</span>
+<span class="c">      (hom_precategory b c)</span>
+<span class="c">      (hom_precategory c d) ∙</span>
+<span class="c">    pair_functor hcomp_functor (functor_identity _) ∙</span>
+<span class="c">    hcomp_functor</span>
+<span class="c">  := lassociator_fun,, lassociator_fun_natural.</span>
+<span class="c"> *)</span>
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+<span class="sd">(** Right associator.                                                                 *)</span>
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+
+<span class="kn">Definition</span> <span class="nf">rassociator_fun</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+           (<span class="nv">x</span> : C⟦a,b⟧ × C⟦b,c⟧ × C⟦c,d⟧)
+  : (pr1 x · pr12 x) · pr22 x ==&gt; pr1 x · (pr12 x · pr22 x)
+  := rassociator (pr1 x) (pr12 x) (pr22 x).
+
+<span class="c">(*</span>
+<span class="c">Lemma rassociator_fun_natural {a b c d : C}</span>
+<span class="c">  : is_nat_trans</span>
+<span class="c">      (precategory_binproduct_assoc</span>
+<span class="c">         (hom_precategory a b)</span>
+<span class="c">         (hom_precategory b c)</span>
+<span class="c">         (hom_precategory c d) ∙</span>
+<span class="c">       pair_functor hcomp_functor (functor_identity _) ∙</span>
+<span class="c">       hcomp_functor)</span>
+<span class="c">      (pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor)</span>
+<span class="c">      rassociator_fun.</span>
+<span class="c">Proof.</span>
+<span class="c">  red; cbn. intros (f1, (f2, f3)) (g1, (g2, g3)).</span>
+<span class="c">  unfold precategory_binproduct_mor, hom_ob_mor. cbn.</span>
+<span class="c">  unfold precategory_binproduct_mor, hom_ob_mor. cbn.</span>
+<span class="c">  intros (x1, (x2, x3)). cbn.</span>
+<span class="c">  unfold rassociator_fun. cbn.</span>
+<span class="c">  apply hcomp_rassoc.</span>
+<span class="c">Qed.</span>
+
+<span class="c">Definition rassociator_transf (a b c d : C)</span>
+<span class="c">  : precategory_binproduct_assoc</span>
+<span class="c">      (hom_precategory a b)</span>
+<span class="c">      (hom_precategory b c)</span>
+<span class="c">      (hom_precategory c d) ∙</span>
+<span class="c">    pair_functor hcomp_functor (functor_identity _) ∙</span>
+<span class="c">    hcomp_functor</span>
+<span class="c">    ⟹</span>
+<span class="c">    pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor</span>
+<span class="c">  := rassociator_fun,, rassociator_fun_natural.</span>
+<span class="c"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">rassociator_fun'</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+           (<span class="nv">x</span> : (C⟦a,b⟧ × C⟦b,c⟧) × C⟦c,d⟧)
+  : (pr11 x · pr21 x) · pr2 x ==&gt; pr11 x · (pr21 x · pr2 x)
+  := rassociator (pr11 x) (pr21 x) (pr2 x).
+
+<span class="c">(*</span>
+<span class="c">Lemma rassociator_fun'_natural {a b c d : C}</span>
+<span class="c">  : is_nat_trans</span>
+<span class="c">      (pair_functor hcomp_functor (functor_identity _) ∙ hcomp_functor)</span>
+<span class="c">      (precategory_binproduct_unassoc</span>
+<span class="c">         (hom_precategory a b)</span>
+<span class="c">         (hom_precategory b c)</span>
+<span class="c">         (hom_precategory c d) ∙</span>
+<span class="c">       pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor)</span>
+<span class="c">      rassociator_fun'.</span>
+<span class="c">Proof.</span>
+<span class="c">  red; cbn. intros ((f1, f2), f3) ((g1, g2), g3).</span>
+<span class="c">  unfold precategory_binproduct_mor, hom_ob_mor. cbn.</span>
+<span class="c">  unfold precategory_binproduct_mor, hom_ob_mor. cbn.</span>
+<span class="c">  intros ((x1, x2), x3). cbn.</span>
+<span class="c">  unfold rassociator_fun. cbn.</span>
+<span class="c">  apply hcomp_rassoc.</span>
+<span class="c">Qed.</span>
+
+<span class="c">Definition rassociator_transf' (a b c d : C)</span>
+<span class="c">  : pair_functor hcomp_functor (functor_identity _) ∙</span>
+<span class="c">    hcomp_functor</span>
+<span class="c">    ⟹</span>
+<span class="c">    precategory_binproduct_unassoc</span>
+<span class="c">      (hom_precategory a b)</span>
+<span class="c">      (hom_precategory b c)</span>
+<span class="c">      (hom_precategory c d) ∙</span>
+<span class="c">    pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor</span>
+<span class="c">  := rassociator_fun',, rassociator_fun'_natural.</span>
+<span class="c"> *)</span>
+<span class="kn">End</span> <span class="nf">Associators_Unitors_Natural</span>.
+
+<span class="kn">Section</span> <span class="nf">Associators_Unitors_Natural_bicat</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+
+  <span class="kn">Definition</span> <span class="nf">lunitor_transf</span> (<span class="nv">a</span> <span class="nv">b</span> : C)
+  : bindelta_pair_functor
+      (constant_functor (hom a b) (hom a a) (identity a))
+      (functor_identity (hom a b)) ∙
+    hcomp_functor
+    ⟹
+    functor_identity (hom a b)
+  := lunitor,, lunitor_natural a b.
+
+  <span class="kn">Definition</span> <span class="nf">runitor_transf</span> (<span class="nv">a</span> <span class="nv">b</span> : C)
+  : bindelta_pair_functor
+       (functor_identity (hom a b))
+       (constant_functor (hom a b) (hom b b) (identity b)) ∙
+    hcomp_functor
+    ⟹
+    functor_identity (hom a b).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">runitor</span>. <span class="nb">red</span>. <span class="nb">apply</span> runitor_natural.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lassociator_fun_natural</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+  : is_nat_trans
+      (pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor)
+      (precategory_binproduct_assoc
+         (hom a b)
+         (hom b c)
+         (hom c d) ∙
+       pair_functor hcomp_functor (functor_identity _) ∙
+       hcomp_functor)
+      lassociator_fun.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>; <span class="nb">cbn</span>. <span class="nb">intros</span> (f1, (f2, f3)) (g1, (g2, g3)).
+  <span class="nb">unfold</span> precategory_binproduct_mor, hom_ob_mor. <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> precategory_binproduct_mor, hom_ob_mor. <span class="nb">cbn</span>.
+  <span class="nb">intros</span> (x1, (x2, x3)). <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> lassociator_fun. <span class="nb">cbn</span>.
+  <span class="nb">apply</span> hcomp_lassoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lassociator_transf</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C)
+  : pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
+    ⟹
+    precategory_binproduct_assoc
+      (hom a b)
+      (hom b c)
+      (hom c d) ∙
+    pair_functor hcomp_functor (functor_identity _) ∙
+    hcomp_functor
+  := lassociator_fun,, lassociator_fun_natural.
+
+  <span class="kn">Lemma</span> <span class="nf">rassociator_fun_natural</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+  : is_nat_trans
+      (precategory_binproduct_assoc
+         (hom a b)
+         (hom b c)
+         (hom c d) ∙
+       pair_functor hcomp_functor (functor_identity _) ∙
+       hcomp_functor)
+      (pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor)
+      rassociator_fun.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>; <span class="nb">cbn</span>. <span class="nb">intros</span> (f1, (f2, f3)) (g1, (g2, g3)).
+  <span class="nb">unfold</span> precategory_binproduct_mor, hom_ob_mor. <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> precategory_binproduct_mor, hom_ob_mor. <span class="nb">cbn</span>.
+  <span class="nb">intros</span> (x1, (x2, x3)). <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> rassociator_fun. <span class="nb">cbn</span>.
+  <span class="nb">apply</span> hcomp_rassoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rassociator_transf</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C)
+  : precategory_binproduct_assoc
+      (hom a b)
+      (hom b c)
+      (hom c d) ∙
+    pair_functor hcomp_functor (functor_identity _) ∙
+    hcomp_functor
+    ⟹
+    pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor
+  := rassociator_fun,, rassociator_fun_natural.
+
+<span class="kn">Lemma</span> <span class="nf">rassociator_fun'_natural</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+  : is_nat_trans
+      (pair_functor hcomp_functor (functor_identity _) ∙ hcomp_functor)
+      (precategory_binproduct_unassoc
+         (hom a b)
+         (hom b c)
+         (hom c d) ∙
+       pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor)
+      rassociator_fun'.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>; <span class="nb">cbn</span>. <span class="nb">intros</span> ((f1, f2), f3) ((g1, g2), g3).
+  <span class="nb">unfold</span> precategory_binproduct_mor, hom_ob_mor. <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> precategory_binproduct_mor, hom_ob_mor. <span class="nb">cbn</span>.
+  <span class="nb">intros</span> ((x1, x2), x3). <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> rassociator_fun. <span class="nb">cbn</span>.
+  <span class="nb">apply</span> hcomp_rassoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rassociator_transf'</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C)
+  : pair_functor hcomp_functor (functor_identity _) ∙
+    hcomp_functor
+    ⟹
+    precategory_binproduct_unassoc
+      (hom a b)
+      (hom b c)
+      (hom c d) ∙
+    pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor
+  := rassociator_fun',, rassociator_fun'_natural.
+
+<span class="kn">End</span> <span class="nf">Associators_Unitors_Natural_bicat</span>.
+
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+<span class="sd">(** ** Precomposition functor                                                         *)</span>
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+<span class="kn">Definition</span> <span class="nf">pre_comp_data</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">z</span> : B)
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : functor_data (hom b z) (hom a z).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">g</span>, f · g).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">g₁</span> <span class="nv">g₂</span> <span class="nv">α</span>, f ◃ α).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_comp_is_functor</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">z</span> : B)
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : is_functor (pre_comp_data z f).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> lwhisker_id2.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> lwhisker_vcomp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_comp</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">z</span> : B)
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : hom b z ⟶ hom a z.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (pre_comp_data z f).
+  - <span class="bp">exact</span> (pre_comp_is_functor z f).
+<span class="kn">Defined</span>.
+
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+<span class="sd">(** ** Postcomposition functor                                                        *)</span>
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+<span class="kn">Definition</span> <span class="nf">post_comp_data</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">z</span> : B)
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : functor_data (hom z a) (hom z b).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">g</span>, g · f).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">g₁</span> <span class="nv">g₂</span> <span class="nv">α</span>, α ▹ f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">post_comp_is_functor</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">z</span> : B)
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : is_functor (post_comp_data z f).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> id2_rwhisker.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> rwhisker_vcomp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">post_comp</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">z</span> : B)
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : hom z a ⟶ hom z b.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (post_comp_data z f).
+  - <span class="bp">exact</span> (post_comp_is_functor z f).
+<span class="kn">Defined</span>.
+
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+<span class="sd">(** ** Notations.                                                                     *)</span>
+<span class="c">(* -----------------------------------------------------------------------------------*)</span>
+
+<span class="kn">Module</span> <span class="nf">Notations</span>.
+
+<span class="kn">Notation</span> <span class="s2">"f '==&gt;' g"</span> := (prebicat_cells _ f g) (<span class="kn">at level</span> <span class="mi">60</span>).
+<span class="kn">Notation</span> <span class="s2">"f '&lt;==' g"</span> := (prebicat_cells _ g f) (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">only parsing</span>).
+<span class="kn">Notation</span> <span class="s2">"x • y"</span> := (vcomp2 x y) (<span class="kn">at level</span> <span class="mi">60</span>).
+<span class="kn">Notation</span> <span class="s2">"f ◃ x"</span> := (lwhisker f x) (<span class="kn">at level</span> <span class="mi">60</span>). <span class="c">(* \tw *)</span>
+<span class="kn">Notation</span> <span class="s2">"y ▹ g"</span> := (rwhisker g y) (<span class="kn">at level</span> <span class="mi">60</span>). <span class="c">(* \tw nr 2 *)</span>
+<span class="kn">Notation</span> <span class="s2">"f ◅ x"</span> := (rwhisker f x) (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">only parsing</span>). <span class="c">(* \tw nr 5*)</span>
+<span class="kn">Notation</span> <span class="s2">"y ▻ g"</span> := (lwhisker g y) (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">only parsing</span>). <span class="c">(* \tw nr 6 *)</span>
+<span class="kn">Notation</span> <span class="s2">"x ⋆ y"</span> := (hcomp x y) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).
+<span class="kn">Notation</span> <span class="s2">"x 'o' y"</span> := (y • x) (<span class="kn">at level</span> <span class="mi">67</span>, <span class="kn">only parsing</span>, <span class="kn">left associativity</span>).
+<span class="kn">Notation</span> <span class="s2">"'id₁'"</span> := identity.
+<span class="kn">Notation</span> <span class="s2">"'id₂'"</span> := id2.
+<span class="kn">Notation</span> <span class="s2">" b ⋆⋆ a"</span> := (a ⋆ b) (<span class="kn">at level</span> <span class="mi">30</span>).
+<span class="kn">Open Scope</span> bicategory_scope.
+
+<span class="kn">End</span> <span class="nf">Notations</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Core/Bicat.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Tactics/EnsureStructuredProofs.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     February 2018
+  &gt;  ********************************************************************************* *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Tactics.EnsureStructuredProofs.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.All.
+  &gt; Require Import UniMath.MoreFoundations.All.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

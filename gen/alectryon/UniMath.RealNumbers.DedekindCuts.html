@@ -1,0 +1,624 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DedekindCuts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Usual constructive Dedekind cuts *)</span>
+<span class="sd">(** Catherine LELAY. July 2017 *)</span>
+<span class="sd">(** This file formalizes the usual definitions of constructive Dedekind cuts.</span>
+<span class="sd">- The two-sided definition come from the HoTT-book</span>
+<span class="sd">- The one-sided definition come from Robert S Lubarsky and Michael Rathjen. On the constructive</span>
+<span class="sd">Dedekind reals. Logic and Analysis.</span>
+
+<span class="sd">I first prove the equivalence between these two definitions, then I prove the equivalence between</span>
+<span class="sd">the non-negative numbers of the one-sided definition and the set Dcuts *)</span>
+
+<span class="kn">Require Export</span> UniMath.NumberSystems.RationalNumbers.
+<span class="kn">Require Import</span> UniMath.RealNumbers.Prelim.
+<span class="kn">Require Import</span> UniMath.RealNumbers.NonnegativeRationals.
+<span class="kn">Require Import</span> UniMath.RealNumbers.NonnegativeReals.
+
+<span class="kn">Unset</span> Kernel Term Sharing.
+
+<span class="sd">(** ** Usual definitions *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hq_scope.
+
+<span class="kn">Definition</span> <span class="nf">isTwoSided</span> (<span class="nv">L</span> <span class="nv">U</span> : hq → hProp) : UU :=
+  ((∏ q : hq, L q &lt;-&gt; <span class="k">∃</span> <span class="nv">r</span> : hq, L r ∧ hqlth q r)
+     × (∏ q : hq, U q &lt;-&gt; <span class="k">∃</span> <span class="nv">r</span> : hq, U r ∧ hqlth r q))
+    × ((<span class="k">∃</span> <span class="nv">q</span> : hq, L q) × (<span class="k">∃</span> <span class="nv">q</span> : hq, U q))
+    × (∏ q : hq, ¬ (U q ∧ L q))
+    × (∏ q r : hq, hqlth q r → L q ∨ U r).
+
+<span class="kn">Definition</span> <span class="nf">isOneSided</span> (<span class="nv">S</span> : hq → hProp) : UU :=
+  ((<span class="k">∃</span> <span class="nv">r</span> : hq, S r) ∧ (<span class="k">∃</span> <span class="nv">r</span> : hq, ¬ S r))
+    × (∏ r : hq, S r → <span class="k">∃</span> <span class="nv">q</span> : hq, S q ∧ hqlth r q)
+    × (∏ r s : hq, hqlth r s → S r ∨ ¬ S s).
+
+<span class="sd">(** ** Equivalence between these two definitions *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isTwoSided_OneSided</span> :
+  ∏ (L U : hq → hProp), isTwoSided L U → isOneSided L.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> L U H.
+  <span class="nb">split</span> ; <span class="nb">split</span>.
+  - <span class="bp">exact</span> (pr1 (pr1 (pr2 H))).
+  - <span class="nb">generalize</span> (pr1 (pr2 (pr2 H))) (pr2 (pr1 (pr2 H))) ; <span class="nb">intros</span> H0.
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> q.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">q</span>).
+    <span class="nb">intros</span> Lq.
+    <span class="nb">apply</span> (H0 (pr1 q)).
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr2 q).
+    + <span class="bp">exact</span> Lq.
+  - <span class="nb">intros</span> r Lr.
+    <span class="nb">generalize</span> (pr1 (pr1 H)) ; <span class="nb">intros</span> H0.
+    <span class="bp">exact</span> (pr1 (H0 r) Lr).
+  - <span class="nb">intros</span> r s Hrs.
+    <span class="nb">generalize</span> (pr1 (pr2 (pr2 H))) (pr2 (pr2 (pr2 H))) ; <span class="nb">intros</span> H0 H1.
+    <span class="nb">generalize</span> (H1 _ _ Hrs).
+    <span class="nb">apply</span> hinhfun, sumofmaps.
+    + <span class="bp">exact</span> ii1.
+    + <span class="nb">intros</span> Us.
+      <span class="nb">apply</span> ii2.
+      <span class="nb">intros</span> Ls.
+      <span class="nb">apply</span> (H0 s).
+      <span class="nb">split</span>.
+      * <span class="bp">exact</span> Us.
+      * <span class="bp">exact</span> Ls.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isOneSided_TwoSided</span> :
+  ∏ (S : hq → hProp),
+  isOneSided S → isTwoSided S (<span class="k">λ</span> <span class="nv">s</span> : hq, <span class="k">∃</span> <span class="nv">r</span> : hq, hqlth r s × ¬ S r).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> S H.
+  <span class="nb">split</span> ; <span class="nb">split</span> ; [ | | <span class="nb">split</span> | <span class="nb">split</span>].
+  - <span class="nb">intros</span> q ; <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr1 (pr2 H) q).
+    + <span class="nb">apply</span> hinhuniv ; <span class="nb">intros</span> r.
+      <span class="nb">generalize</span> (pr2 (pr2 H) _ _ (pr2 (pr2 r))).
+      <span class="nb">apply</span> hinhuniv, sumofmaps.
+      * <span class="nb">intros</span> Sq ; <span class="nb">apply</span> Sq.
+      * <span class="nb">intros</span> Sr.
+        <span class="nb">apply</span> fromempty.
+        <span class="nb">apply</span> Sr, (pr1 (pr2 r)).
+  - <span class="nb">intros</span> q ; <span class="nb">split</span>.
+    + <span class="nb">apply</span> hinhfun.
+      <span class="nb">intros</span> r.
+      <span class="nb">set</span> (s := Prelim.hqlth_between _ _ (pr1 (pr2 r))).
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">s</span>).
+      <span class="nb">split</span>.
+      * <span class="nb">apply</span> hinhpr.
+        <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">r</span>).
+        { <span class="nb">split</span>.
+          - <span class="bp">exact</span> (pr1 (pr2 s)).
+          - <span class="bp">exact</span> (pr2 (pr2 r)).
+        }
+      * <span class="bp">exact</span> (pr2 (pr2 s)).
+    + <span class="nb">apply</span> hinhuniv.
+      <span class="nb">intros</span> r.
+      <span class="nb">generalize</span> (pr1 (pr2 r)).
+      <span class="nb">apply</span> hinhfun.
+      <span class="nb">intros</span> s.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">s</span>).
+      <span class="nb">split</span>.
+      * <span class="nb">apply</span> istranshqlth <span class="k">with</span> (pr1 r).
+        ** <span class="bp">exact</span> (pr1 (pr2 s)).
+        ** <span class="bp">exact</span> (pr2 (pr2 r)).
+      * <span class="bp">exact</span> (pr2 (pr2 s)).
+  - <span class="bp">exact</span> (pr1 (pr1 H)).
+  - <span class="nb">generalize</span> (pr2 (pr1 H)).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> r.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">r</span>+<span class="mi">1</span>).
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">r</span>).
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (hqlthnsn _).
+    + <span class="bp">exact</span> (pr2 r).
+  - <span class="nb">intros</span> q Hq.
+    <span class="nb">generalize</span> (pr1 Hq).
+    <span class="nb">apply</span> (hinhuniv (P := make_hProp _ isapropempty)).
+    <span class="nb">intros</span> r.
+    <span class="nb">generalize</span> (pr2 (pr2 H) _ _ (pr1 (pr2 r))).
+    <span class="nb">apply</span> hinhuniv, sumofmaps.
+    + <span class="bp">exact</span> (pr2 (pr2 r)).
+    + <span class="nb">intros</span> Sq ; <span class="nb">apply</span> Sq.
+      <span class="bp">exact</span> (pr2 Hq).
+  - <span class="nb">intros</span> q r Hqr.
+    <span class="nb">set</span> (s := Prelim.hqlth_between _ _ Hqr).
+    <span class="nb">generalize</span> (pr2 (pr2 H) _ _ (pr1 (pr2 s))).
+    <span class="nb">apply</span> hinhfun, sumofmaps.
+    + <span class="bp">exact</span> ii1.
+    + <span class="nb">intros</span> Sr.
+      <span class="nb">apply</span> ii2, hinhpr.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">s</span>).
+      <span class="nb">split</span>.
+      * <span class="bp">exact</span> (pr2 (pr2 s)).
+      * <span class="bp">exact</span> Sr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqTwoSidedOneSided</span> :
+  (∑ L U : hq → hProp, isTwoSided L U) ≃ (∑ S : hq → hProp, isOneSided S).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (f := (<span class="k">λ</span> (<span class="nv">LU</span> : ∑ L U : hq → hProp, isTwoSided L U),
+            pr1 LU,, isTwoSided_OneSided (pr1 LU) (pr1 (pr2 LU)) (pr2 (pr2 LU)))
+            : (∑ L U : hq → hProp, isTwoSided L U) → ∑ S, isOneSided S).
+  <span class="nb">set</span> (g := (<span class="k">λ</span> <span class="nv">S</span> : (∑ S : hq → hProp, isOneSided S),
+                   pr1 S ,, (<span class="k">λ</span> <span class="nv">s</span> : hq, <span class="k">∃</span> <span class="nv">r</span> : hq, r &lt; s × ¬ pr1 S r)
+                       ,, isOneSided_TwoSided (pr1 S) (pr2 S))
+            : (∑ S, isOneSided S) → ∑ L U : hq → hProp, isTwoSided L U).
+  <span class="nb">apply</span> (weq_iso f g).
+  - <span class="nb">intros</span> LU.
+    <span class="nb">change</span> (pr1 (g (f LU)),, pr2 (g (f LU)) = pr1 LU,, pr2 LU).
+    <span class="nb">apply</span> pair_path_in2.
+    <span class="nb">simple refine</span> (subtypePath_prop (B := <span class="k">λ</span> <span class="nv">_</span>, make_hProp _ _) _).
+    + <span class="nb">apply</span> isapropdirprod.
+      * <span class="nb">apply</span> isapropdirprod ;
+          <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> q ;
+         <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropimpl, propproperty.
+      * <span class="nb">apply</span> isapropdirprod.
+        ** <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> propproperty.
+        ** <span class="nb">apply</span> isapropdirprod.
+           *** <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> q.
+               <span class="nb">apply</span> isapropneg.
+           *** <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> q.
+               <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> r.
+               <span class="nb">apply</span> isapropimpl, propproperty.
+    + <span class="nb">apply</span> funextfun ; <span class="nb">intros</span> q.
+      <span class="nb">apply</span> hPropUnivalence.
+      * <span class="nb">apply</span> hinhuniv.
+        <span class="nb">intros</span> r.
+        <span class="nb">generalize</span> (pr2 (pr2 (pr2 (pr2 (pr2 LU)))) _ _ (pr1 (pr2 r))).
+        <span class="nb">apply</span> hinhuniv, sumofmaps.
+        { <span class="nb">intro</span> Lr ; <span class="nb">apply</span> fromempty, (pr2 (pr2 r)), Lr. }
+        <span class="nb">intros</span> Uq ; <span class="nb">apply</span> Uq.
+      * <span class="nb">intros</span> Uq.
+        <span class="nb">generalize</span> (pr1 (pr2 (pr1 (pr2 (pr2 LU))) _) Uq).
+        <span class="nb">apply</span> hinhfun.
+        <span class="nb">intros</span> r.
+        <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">r</span>).
+        <span class="nb">split</span>.
+        ** <span class="nb">apply</span> (pr2 (pr2 r)).
+        ** <span class="nb">intros</span> Lr.
+           <span class="nb">apply</span> (pr1 (pr2 (pr2 (pr2 (pr2 LU)))) (pr1 r)).
+           <span class="nb">split</span>.
+           *** <span class="nb">apply</span> (pr1 (pr2 r)).
+           *** <span class="nb">apply</span> Lr.
+  - <span class="nb">intros</span> S.
+    <span class="nb">simple refine</span> (subtypePath_prop (B := <span class="k">λ</span> <span class="nv">_</span>, make_hProp _ _) _).
+    + <span class="nb">apply</span> isapropdirprod.
+      * <span class="nb">apply</span> propproperty.
+      * <span class="nb">apply</span> isapropdirprod.
+        ** <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> r.
+           <span class="nb">apply</span> isapropimpl, propproperty.
+        ** <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> r.
+           <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> s.
+           <span class="nb">apply</span> isapropimpl, propproperty.
+    + <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Equivalence of Dcuts with usual definitions *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isOneSided_Dcuts_bot</span> :
+  ∏ D, isOneSided D → Dcuts_def_bot (<span class="k">λ</span> <span class="nv">r</span>, D (pr1 r)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D H r Dr q Hq.
+  <span class="nb">generalize</span> (le_eqorltNonnegativeRationals _ _ Hq) ; <span class="nb">clear</span> Hq.
+  <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> H0.
+  - <span class="nb">rewrite</span> H0.
+    <span class="bp">exact</span> Dr.
+  - <span class="nb">rewrite</span> ltNonnegativeRationals_correct <span class="k">in</span> H0.
+    <span class="nb">generalize</span> (pr2 (pr2 H) _ _ H0).
+    <span class="nb">apply</span> hinhuniv, sumofmaps ; <span class="nb">intros</span> Dq.
+    + <span class="bp">exact</span> Dq.
+    + <span class="nb">apply</span> fromempty, Dq, Dr.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isOneSided_Dcuts_open</span> :
+  ∏ D, isOneSided D → Dcuts_def_open (<span class="k">λ</span> <span class="nv">r</span>, D (pr1 r)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D H r Dr.
+  <span class="nb">generalize</span> ((pr1 (pr2 H)) (pr1 r) Dr).
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> q.
+  <span class="nb">assert</span> (Hq : <span class="mi">0</span> &lt;= pr1 q).
+  { <span class="nb">apply</span> istranshqleh <span class="k">with</span> (pr1 r).
+    { <span class="bp">exact</span> (pr2 r). }
+    <span class="nb">apply</span> hqlthtoleh, (pr2 (pr2 q)). }
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">q</span>,,<span class="nv">Hq</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">change</span> (D (NonnegativeRationals_to_Rationals
+                 (pr1 q,,Hq))).
+    <span class="bp">exact</span> (pr1 (pr2 q)).
+  - <span class="nb">rewrite</span> ltNonnegativeRationals_correct.
+    <span class="nb">change</span> (pr1 r &lt; (NonnegativeRationals_to_Rationals (pr1 q,,Hq))).
+    <span class="bp">exact</span> (pr2 (pr2 q)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isOneSided_translation</span> :
+  ∏ (D : hq → hProp) (c : hq),
+  isOneSided D → isOneSided (<span class="k">λ</span> <span class="nv">q</span>, D (q + c)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D c Hd.
+  <span class="nb">split</span> ; <span class="nb">split</span>.
+  - <span class="nb">generalize</span> (pr1 (pr1 Hd)).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> r.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">r</span> - c).
+    <span class="nb">unfold</span> hqminus.
+    <span class="nb">rewrite</span> hqplusassoc, hqlminus, hqplusr0.
+    <span class="bp">exact</span> (pr2 r).
+  - <span class="nb">generalize</span> (pr2 (pr1 Hd)).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> r.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">r</span> - c).
+    <span class="nb">unfold</span> hqminus.
+    <span class="nb">rewrite</span> hqplusassoc, hqlminus, hqplusr0.
+    <span class="bp">exact</span> (pr2 r).
+  - <span class="nb">intros</span> r D'r.
+    <span class="nb">generalize</span> (pr1 (pr2 Hd) _ D'r).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> q.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">q</span> - c).
+    <span class="nb">split</span>.
+    + <span class="nb">unfold</span> hqminus.
+      <span class="nb">rewrite</span> hqplusassoc, hqlminus, hqplusr0.
+      <span class="bp">exact</span> (pr1 (pr2 q)).
+    + <span class="nb">apply</span> hqlthandplusrinv <span class="k">with</span> c.
+      <span class="nb">unfold</span> hqminus.
+      <span class="nb">rewrite</span> hqplusassoc, hqlminus, hqplusr0.
+      <span class="bp">exact</span> (pr2 (pr2 q)).
+  - <span class="nb">intros</span> r s Hrs.
+    <span class="nb">apply</span> (pr2 (pr2 Hd)).
+    <span class="nb">apply</span> hqlthandplusr, Hrs.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isOneSided_Dcuts_corr</span> :
+  ∏ D, isOneSided D → Dcuts_def_corr (<span class="k">λ</span> <span class="nv">r</span>, D (pr1 r)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D H c Hc.
+  <span class="nb">rewrite</span> ltNonnegativeRationals_correct <span class="k">in</span> Hc.
+  <span class="nb">generalize</span> (pr2 (pr2 H) _ _ Hc).
+  <span class="nb">apply</span> hinhuniv ; <span class="nb">intros</span> H0.
+  <span class="nb">apply</span> coprodcomm <span class="k">in</span> H0.
+  <span class="nb">revert</span> H0 ; <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> H0.
+  { <span class="nb">apply</span> hinhpr, ii1, H0. }
+  <span class="nb">enough</span> (Hq : <span class="k">∃</span> <span class="nv">q</span> : NonnegativeRationals, D (pr1 q) × ¬ D (pr1 (q + c)%NRat)).
+  { <span class="nb">revert</span> Hq.
+    <span class="nb">apply</span> hinhfun, ii2. }
+
+  <span class="nb">generalize</span> (pr2 (pr1 H)).
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> r.
+  <span class="nb">generalize</span> (isarchhq (hqdiv (pr1 r) (hqdiv (pr1 c) <span class="mi">2</span>%hq))).
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> n.
+  <span class="nb">assert</span> (Hc' : hqdiv (pr1 c) <span class="mi">2</span> &gt; <span class="mi">0</span>).
+  { <span class="nb">apply</span> hqmultgth0gth0.
+    { <span class="bp">exact</span> Hc. }
+    <span class="nb">apply</span> hqgthandmultlinv <span class="k">with</span> <span class="mi">2</span>.
+    { <span class="bp">exact</span> hq2_gt0. }
+    <span class="nb">rewrite</span> hqmultx0, hqisrinvmultinv.
+    { <span class="bp">exact</span> hq1_gt0. }
+    <span class="nb">apply</span> hqgth_hqneq, hq2_gt0. }
+  <span class="nb">assert</span> (H1 : hqlth (pr1 r) (nattoring (pr1 n) * (hqdiv (pr1 c) <span class="mi">2</span>))).
+  { <span class="nb">unfold</span> hqlth <span class="k">in</span> Hc.
+    <span class="nb">apply</span> hqgthandmultrinv <span class="k">with</span> (/ (hqdiv (pr1 c) <span class="mi">2</span>)).
+    - <span class="nb">apply</span> hqgthandmultlinv <span class="k">with</span> (hqdiv (pr1 c) <span class="mi">2</span>).
+      + <span class="bp">exact</span> Hc'.
+      + <span class="nb">rewrite</span> hqmultx0, hqisrinvmultinv.
+        { <span class="bp">exact</span> hq1_gt0. }
+        <span class="nb">apply</span> hqgth_hqneq, Hc'.
+    - <span class="nb">rewrite</span> hqmultassoc, hqisrinvmultinv.
+      + <span class="nb">rewrite</span> hqmultr1.
+        <span class="nb">unfold</span> hqdiv <span class="k">in</span> n.
+        <span class="bp">exact</span> (pr2 n).
+      + <span class="nb">apply</span> hqgth_hqneq, Hc'. }
+  <span class="nb">assert</span> (Hn : ¬ D (nattoring (pr1 n) * hqdiv (pr1 c) <span class="mi">2</span>)).
+  { <span class="nb">generalize</span> (pr2 (pr2 H) _ _ H1).
+    <span class="nb">apply</span> (hinhuniv (P := hneg _)), sumofmaps ; <span class="nb">intro</span> H2.
+    - <span class="nb">apply</span> fromempty, (pr2 r), H2.
+    - <span class="nb">apply</span> H2. }
+  <span class="nb">assert</span> (H2 : ∏ (m : nat),
+               nattoring m * hqdiv (pr1 c) <span class="mi">2</span> + pr1 c = nattoring (m + <span class="mi">2</span>) * hqdiv (pr1 c) <span class="mi">2</span>).
+  { <span class="nb">intros</span> m.
+    <span class="nb">unfold</span> nattoring.
+    <span class="nb">rewrite</span> <span class="mi">2</span>!(@nattorig_natmult hq).
+    <span class="nb">rewrite</span> natmult_plus.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> hqdiv.
+    <span class="nb">rewrite</span> &lt;- hqmult2r, hqmultassoc.
+    <span class="nb">rewrite</span> hqislinvmultinv.
+    - <span class="nb">apply</span> pathsinv0, hqmultr1.
+    - <span class="nb">apply</span> hqgth_hqneq, hq2_gt0. }
+
+  <span class="nb">generalize</span> (pr1 n) Hn.
+  <span class="nb">clear</span> -H H0 Hc Hc' H2 ; <span class="nb">intros</span> n Hn.
+  <span class="nb">assert</span> (Hm : D (nattoring O * hqdiv (pr1 c) <span class="mi">2</span>)).
+  { <span class="nb">rewrite</span> hqmult0x.
+    <span class="bp">exact</span> H0. }
+  <span class="nb">destruct</span> n.
+  { <span class="nb">apply</span> fromempty, Hn, Hm. }
+  <span class="nb">rewrite</span> &lt;- (natplusl0 n), plus_n_Sm <span class="k">in</span> Hn.
+  <span class="nb">revert</span> Hm Hn.
+  <span class="nb">set</span> (m := O).
+  <span class="nb">change</span> (D (nattoring m * hqdiv (pr1 c) <span class="mi">2</span>)
+  → ¬ D (nattoring (m + S n) * hqdiv (pr1 c) <span class="mi">2</span>)
+    → <span class="k">∃</span> <span class="nv">q</span> : NonnegativeRationals, D (pr1 q) × ¬ D (pr1 (q + c)%NRat)).
+  <span class="nb">generalize</span> m ; <span class="nb">clear</span> m H0.
+  <span class="nb">revert</span> D H.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn] ; <span class="nb">intros</span> D H m Hm Hn.
+  - <span class="nb">apply</span> hinhpr.
+    use tpair.
+    + use tpair.
+      * <span class="nb">apply</span> (nattoring m * hqdiv (pr1 c) <span class="mi">2</span>).
+      * <span class="kp">abstract</span> (<span class="nb">apply</span> hq0lehandmult ;
+                  [ <span class="nb">clear</span> ;
+                    <span class="nb">induction</span> m ;
+                    [ <span class="nb">apply</span> isreflhqleh
+                    | <span class="nb">unfold</span> nattoring ;
+                      <span class="nb">rewrite</span> nattorigS ;
+                      <span class="nb">apply</span> hq0lehandplus ;
+                      [ <span class="bp">exact</span> hq1ge0 | <span class="bp">exact</span> IHm ]]
+                  | <span class="nb">apply</span> hqlthtoleh, Hc' ]).
+    + <span class="nb">simpl</span>.
+      <span class="nb">split</span>.
+      * <span class="bp">exact</span> Hm.
+      * <span class="nb">change</span> (¬ D ((nattoring m * hqdiv (pr1 c) <span class="mi">2</span>) + (pr1 c))).
+        <span class="nb">intros</span> H0.
+        <span class="nb">refine</span> (factor_through_squash isapropempty _ _).
+        <span class="mi">2</span>: <span class="nb">apply</span> (pr2 (pr2 H) (nattoring (m + <span class="mi">1</span>) * hqdiv (pr1 c) <span class="mi">2</span>) (nattoring m * hqdiv (pr1 c) <span class="mi">2</span> + pr1 c)).
+        ** <span class="nb">apply</span> sumofmaps.
+           *** <span class="bp">exact</span> Hn.
+           *** <span class="nb">intros</span> H1 ; <span class="nb">apply</span> H1, H0.
+        ** <span class="nb">rewrite</span> H2.
+           <span class="nb">apply</span> hqlthandmultr.
+           *** <span class="bp">exact</span> Hc'.
+           *** <span class="nb">unfold</span> nattoring.
+               <span class="nb">rewrite</span> &lt;- (plus_n_Sm m <span class="mi">1</span>%nat).
+               <span class="nb">rewrite</span> nattorigS, hqpluscomm.
+               <span class="nb">apply</span> hqlthnsn.
+  - <span class="nb">refine</span> (hinhuniv _ _).
+    <span class="mi">2</span>: <span class="nb">apply</span> (pr2 (pr2 H) (nattoring (m + <span class="mi">1</span>) * hqdiv (pr1 c) <span class="mi">2</span>) (nattoring (m + <span class="mi">2</span>) * hqdiv (pr1 c) <span class="mi">2</span>)).
+    + <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hm'.
+      * <span class="nb">apply</span> IHn <span class="k">with</span> (m + <span class="mi">1</span>)%nat.
+        ** <span class="bp">exact</span> H.
+        ** <span class="bp">exact</span> Hm'.
+        ** <span class="nb">rewrite</span> natplusassoc.
+           <span class="bp">exact</span> Hn.
+      * <span class="nb">apply</span> hinhpr.
+        use tpair.
+        ** use tpair.
+           *** <span class="nb">apply</span> (nattoring m * hqdiv (pr1 c) <span class="mi">2</span>).
+           *** <span class="kp">abstract</span> (<span class="nb">apply</span> hq0lehandmult ;
+                         [ <span class="nb">clear</span> ;
+                           <span class="nb">induction</span> m ;
+                           [ <span class="nb">apply</span> isreflhqleh
+                           | <span class="nb">unfold</span> nattoring ;
+                             <span class="nb">rewrite</span> nattorigS ;
+                             <span class="nb">apply</span> hq0lehandplus ;
+                             [ <span class="bp">exact</span> hq1ge0 | <span class="bp">exact</span> IHm ]]
+                         | <span class="nb">apply</span> hqlthtoleh, Hc' ]).
+        ** <span class="nb">simpl</span>.
+           <span class="nb">split</span>.
+           *** <span class="bp">exact</span> Hm.
+           *** <span class="nb">change</span> (¬ D ((nattoring m * hqdiv (pr1 c) <span class="mi">2</span>) + (pr1 c))).
+               <span class="nb">rewrite</span> H2.
+               <span class="bp">exact</span> Hm'.
+    + <span class="nb">apply</span> hqlthandmultr.
+      * <span class="bp">exact</span> Hc'.
+      * <span class="nb">unfold</span> nattoring.
+        <span class="nb">rewrite</span> &lt;- (plus_n_Sm m <span class="mi">1</span>%nat).
+        <span class="nb">rewrite</span> nattorigS, hqpluscomm.
+        <span class="nb">apply</span> hqlthnsn.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isDcuts_OneSided</span> :
+  ∏ (D : NonnegativeRationals → hProp),
+  Dcuts_def_bot D → Dcuts_def_open D → Dcuts_def_corr D
+  → isOneSided (<span class="k">λ</span> <span class="nv">q</span> : hq, sumofmaps (<span class="k">λ</span> <span class="nv">_</span> : <span class="mi">0</span> &gt; q, htrue) (<span class="k">λ</span> <span class="nv">Hq</span> : <span class="mi">0</span> &lt;= q, D (q,, Hq)) (hqgthorleh <span class="mi">0</span> q)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D Hbot Hopen Hcorr.
+  <span class="nb">split</span> ; <span class="nb">split</span>.
+  - <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (-(<span class="mi">1</span>)).
+    <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> (- (<span class="mi">1</span>))) <span class="k">as</span> [H | H].
+    + <span class="bp">exact</span> tt.
+    + <span class="nb">apply</span> fromempty.
+      <span class="nb">refine</span> (hqlehtoneghqgth _ _ _ _).
+      * <span class="nb">apply</span> H.
+      * <span class="nb">apply</span> hqgthandplusrinv <span class="k">with</span> <span class="mi">1</span>.
+        <span class="nb">rewrite</span> hqlminus, hqplusl0.
+        <span class="bp">exact</span> hq1_gt0.
+  - <span class="nb">generalize</span> (Hcorr _ ispositive_oneNonnegativeRationals).
+    <span class="nb">apply</span> hinhfun, sumofmaps ; <span class="nb">intros</span> H.
+    + <span class="k">exists</span> <span class="mi">1</span>.
+      <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> <span class="mi">1</span>) <span class="k">as</span> [H0 | H0].
+      * <span class="nb">apply</span> fromempty.
+        <span class="nb">refine</span> (hqgthtoneghqleh _ _ _ _).
+        ** <span class="bp">exact</span> H0.
+        ** <span class="bp">exact</span> hq1ge0.
+      * <span class="nb">assert</span> (H1 : <span class="mi">1</span>%NRat = (<span class="mi">1</span> ,, H0))
+          <span class="bp">by</span> (<span class="nb">apply</span> subtypePath_prop ; <span class="bp">reflexivity</span>).
+        <span class="nb">rewrite</span> H1 <span class="k">in</span> H.
+        <span class="bp">exact</span> H.
+    + <span class="nb">rename</span> H <span class="nb">into</span> q.
+      <span class="k">exists</span> (<span class="nv">pr1</span> (pr1 q) + <span class="mi">1</span>).
+      <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> (pr1 (pr1 q) + <span class="mi">1</span>)) <span class="k">as</span> [H0 | H0].
+      * <span class="nb">apply</span> fromempty.
+        <span class="nb">refine</span> (hqgthtoneghqleh _ _ _ _).
+        ** <span class="nb">apply</span> H0.
+        ** <span class="nb">apply</span> hq0lehandplus.
+           *** <span class="bp">exact</span> (pr2 (pr1 q)).
+           *** <span class="bp">exact</span> hq1ge0.
+      * <span class="nb">assert</span> (Hq1 : (pr1 q + <span class="mi">1</span>)%NRat = (pr1 (pr1 q) + <span class="mi">1</span> ,, H0))
+          <span class="bp">by</span> (<span class="nb">apply</span> subtypePath_prop ; <span class="bp">reflexivity</span>).
+        <span class="nb">generalize</span> (pr2 (pr2 q)) ; <span class="nb">intro</span> Hq.
+        <span class="nb">rewrite</span> Hq1 <span class="k">in</span> Hq.
+        <span class="bp">exact</span> Hq.
+  - <span class="nb">intros</span> r Dr.
+    <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> r) <span class="k">as</span> [Hr | Hr].
+    + <span class="nb">set</span> (q := hqlth_between _ _ Hr).
+      <span class="nb">apply</span> hinhpr.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">q</span>).
+      <span class="nb">split</span>.
+      * <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> (pr1 q)) <span class="k">as</span> [Hq | Hq].
+        ** <span class="bp">exact</span> tt.
+        ** <span class="nb">apply</span> fromempty.
+           <span class="nb">refine</span> (hqlehtoneghqgth _ _ _ _).
+           *** <span class="bp">exact</span> Hq.
+           *** <span class="nb">unfold</span> hqlth <span class="k">in</span> q.
+               <span class="bp">exact</span> (pr2 (pr2 q)).
+      * <span class="bp">exact</span> (pr1 (pr2 q)).
+    + <span class="nb">generalize</span> (Hopen _ Dr).
+      <span class="nb">apply</span> hinhfun.
+      <span class="nb">intros</span> q.
+      <span class="k">exists</span> (<span class="nv">pr1</span> (pr1 q)).
+      <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> (pr1 (pr1 q))) <span class="k">as</span> [Hq | Hq].
+      * <span class="nb">apply</span> fromempty.
+        <span class="nb">refine</span> (hqgthtoneghqleh _ _ _ _).
+        ** <span class="nb">apply</span> Hq.
+        ** <span class="bp">exact</span> (pr2 (pr1 q)).
+      * <span class="nb">split</span>.
+        ** <span class="nb">assert</span> (Hq1 : pr1 q = (pr1 (pr1 q) ,, Hq))
+             <span class="bp">by</span> (<span class="nb">apply</span> subtypePath_prop ; <span class="bp">reflexivity</span>).
+           <span class="nb">generalize</span> (pr1 (pr2 q)) ; <span class="nb">intro</span> Hq'.
+           <span class="nb">rewrite</span> Hq1 <span class="k">in</span> Hq'.
+           <span class="bp">exact</span> Hq'.
+        ** <span class="nb">generalize</span> (pr2 (pr2 q)) ; <span class="nb">intro</span> Hq'.
+           <span class="nb">rewrite</span> ltNonnegativeRationals_correct <span class="k">in</span> Hq'.
+           <span class="bp">exact</span> Hq'.
+  -<span class="nb">intros</span> r q Hrq.
+    <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> r) <span class="k">as</span> [Hr | Hr].
+    { <span class="nb">apply</span> hinhpr, ii1, tt. }
+    <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> q) <span class="k">as</span> [Hq | Hq].
+    + <span class="nb">apply</span> fromempty.
+      <span class="nb">refine</span> (hqlehtoneghqgth _ _ _ _).
+      * <span class="nb">apply</span> Hr.
+      * <span class="nb">apply</span> istranshqgth <span class="k">with</span> q.
+        ** <span class="bp">exact</span> Hq.
+        ** <span class="nb">unfold</span> hqlth <span class="k">in</span> Hrq.
+           <span class="bp">exact</span> Hrq.
+    + <span class="nb">apply</span> (Dcuts_locatedness (D,,Hbot,,Hopen,,Hcorr)).
+      <span class="nb">rewrite</span> ltNonnegativeRationals_correct.
+      <span class="bp">exact</span> Hrq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqOneSidedDcuts</span> :
+  weq (∑ S : hq → hProp, isOneSided S × ∏ q : hq, q &lt; <span class="mi">0</span> → S q) Dcuts.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (f := (<span class="k">λ</span> (<span class="nv">D</span> : ∑ S : hq → hProp, isOneSided S × (∏ q : hq, q &lt; <span class="mi">0</span> → S q)),
+             make_Dcuts (<span class="k">λ</span> <span class="nv">r</span> : NonnegativeRationals, pr1 D (pr1 r))
+                     (isOneSided_Dcuts_bot (pr1 D) (pr1 (pr2 D)))
+                     (isOneSided_Dcuts_open (pr1 D) (pr1 (pr2 D)))
+                     (isOneSided_Dcuts_corr (pr1 D) (pr1 (pr2 D))))
+            : (∑ S : hq → hProp, isOneSided S × (∏ q : hq, q &lt; <span class="mi">0</span> → S q)) → Dcuts).
+  <span class="nb">assert</span> (Hg : ∏ (D : Dcuts) (q : hq),
+               q &lt; <span class="mi">0</span>
+               → sumofmaps (<span class="k">λ</span> <span class="nv">_</span> : <span class="mi">0</span> &gt; q, htrue) (<span class="k">λ</span> <span class="nv">Hq</span> : <span class="mi">0</span> &lt;= q, pr1 D (q,, Hq)) (hqgthorleh <span class="mi">0</span> q)).
+  { <span class="nb">intros</span> D q Hq.
+    <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> q) <span class="k">as</span> [Hq' | Hq'].
+    { <span class="bp">exact</span> tt. }
+    <span class="nb">apply</span> fromempty.
+    <span class="nb">refine</span> (hqlehtoneghqgth _ _ _ _).
+    - <span class="nb">apply</span> Hq'.
+    - <span class="nb">unfold</span> hqlth <span class="k">in</span> Hq.
+      <span class="bp">exact</span> Hq. }
+<span class="nb">set</span> (g := (<span class="k">λ</span> <span class="nv">D</span> : Dcuts,
+    (<span class="k">λ</span> <span class="nv">q</span> : hq,
+     sumofmaps (<span class="k">λ</span> <span class="nv">_</span> : <span class="mi">0</span> &gt; q, htrue) (<span class="k">λ</span> <span class="nv">Hq</span> : <span class="mi">0</span> &lt;= q, pr1 D (q,, Hq))
+       (hqgthorleh <span class="mi">0</span> q)),,
+    isDcuts_OneSided (pr1 D) (is_Dcuts_bot D) (is_Dcuts_open D)
+    (is_Dcuts_corr D),, Hg D)
+          : Dcuts → ∑ S : hq → hProp, isOneSided S × (∏ q : hq, q &lt; <span class="mi">0</span> → S q)).
+  <span class="nb">apply</span> (weq_iso f g).
+  - <span class="nb">intros</span> D.
+    <span class="nb">simple refine</span> (subtypePath_prop (B := <span class="k">λ</span> <span class="nv">_</span>, make_hProp _ _) _).
+    + <span class="nb">apply</span> isapropdirprod.
+      * <span class="nb">apply</span> isapropdirprod.
+        ** <span class="nb">apply</span> propproperty.
+        ** <span class="nb">apply</span> isapropdirprod.
+           *** <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> r.
+               <span class="nb">apply</span> isapropimpl, propproperty.
+           *** <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> r.
+               <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> s.
+               <span class="nb">apply</span> isapropimpl, propproperty.
+      * <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> q.
+        <span class="nb">apply</span> isapropimpl, propproperty.
+    + <span class="nb">apply</span> funextfun ; <span class="nb">intros</span> q.
+      <span class="nb">apply</span> hPropUnivalence.
+      * <span class="nb">change</span> (sumofmaps (<span class="k">λ</span> <span class="nv">_</span> : <span class="mi">0</span> &gt; q, htrue) (<span class="k">λ</span> <span class="nv">_</span> : ¬ (<span class="mi">0</span> &gt; q), pr1 D q) (hqgthorleh <span class="mi">0</span> q) → pr1 D q).
+        <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> q) <span class="k">as</span> [Hq | Hq].
+        ** <span class="nb">intros</span> _.
+           <span class="nb">apply</span> (pr2 (pr2 D)).
+           <span class="bp">exact</span> Hq.
+        ** <span class="nb">intros</span> H ; <span class="nb">apply</span> H.
+      * <span class="nb">change</span> (pr1 D q → sumofmaps (<span class="k">λ</span> <span class="nv">_</span> : <span class="mi">0</span> &gt; q, htrue) (<span class="k">λ</span> <span class="nv">_</span> : ¬ (<span class="mi">0</span> &gt; q), pr1 D q) (hqgthorleh <span class="mi">0</span> q)).
+        <span class="nb">intros</span> Dq.
+        <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> q) <span class="k">as</span> [Hq | Hq].
+        ** <span class="bp">exact</span> tt.
+        ** <span class="bp">exact</span> Dq.
+  - <span class="nb">intros</span> D.
+    <span class="nb">apply</span> subtypePath_prop.
+    <span class="nb">apply</span> funextfun ; <span class="nb">intros</span> q.
+    <span class="nb">apply</span> hPropUnivalence.
+    + <span class="nb">change</span> (sumofmaps (<span class="k">λ</span> <span class="nv">_</span> : <span class="mi">0</span> &gt; pr1 q, htrue)
+                        (<span class="k">λ</span> <span class="nv">Hq</span> : ¬ (<span class="mi">0</span> &gt; pr1 q), pr1 D (pr1 q,, Hq)) (hqgthorleh <span class="mi">0</span> (pr1 q))
+              → pr1 D q).
+      <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> (pr1 q)) <span class="k">as</span> [Hq | Hq].
+      * <span class="nb">apply</span> fromempty.
+        <span class="nb">refine</span> (hqlehtoneghqgth _ _ _ _).
+        ** <span class="bp">exact</span> (pr2 q).
+        ** <span class="bp">exact</span> Hq.
+      * <span class="nb">intros</span> H.
+        <span class="nb">assert</span> (Hq1 : q = (pr1 q,, Hq))
+          <span class="bp">by</span> (<span class="nb">apply</span> subtypePath_prop ; <span class="bp">reflexivity</span>).
+        <span class="nb">rewrite</span> Hq1 ; <span class="bp">exact</span> H.
+    + <span class="nb">change</span> (pr1 D q
+  → sumofmaps (<span class="k">λ</span> <span class="nv">_</span> : <span class="mi">0</span> &gt; pr1 q, htrue)
+              (<span class="k">λ</span> <span class="nv">Hq</span> : ¬ (<span class="mi">0</span> &gt; pr1 q), pr1 D (pr1 q,, Hq)) (hqgthorleh <span class="mi">0</span> (pr1 q))).
+      <span class="nb">intros</span> Dq.
+      <span class="nb">induction</span> (hqgthorleh <span class="mi">0</span> (pr1 q)) <span class="k">as</span> [Hq | Hq].
+      * <span class="nb">apply</span> fromempty.
+        <span class="nb">refine</span> (hqlehtoneghqgth _ _ _ _).
+        ** <span class="bp">exact</span> (pr2 q).
+        ** <span class="bp">exact</span> Hq.
+      * <span class="nb">assert</span> (Hq1 : q = (pr1 q,, Hq))
+          <span class="bp">by</span> (<span class="nb">apply</span> subtypePath_prop ; <span class="bp">reflexivity</span>).
+        <span class="nb">rewrite</span> Hq1 <span class="k">in</span> Dq ; <span class="bp">exact</span> Dq.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/RealNumbers/DedekindCuts.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/NumberSystems/RationalNumbers.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; I first prove the equivalence between these two definitions, then I prove the equivalence between
+  &gt; the non-negative numbers of the one-sided definition and the set Dcuts *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.NumberSystems.RationalNumbers.&lt;&lt;&lt;
+  &gt; Require Import UniMath.RealNumbers.Prelim.
+  &gt; Require Import UniMath.RealNumbers.NonnegativeRationals.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

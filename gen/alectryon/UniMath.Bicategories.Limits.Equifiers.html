@@ -1,0 +1,695 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Equifiers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(****************************************************************************</span>
+
+<span class="sd"> Equifiers in bicategories</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Cones</span>
+<span class="sd"> 2. The universal mapping property</span>
+<span class="sd"> 3. Alternative formulation of equifier via universal cones</span>
+<span class="sd"> 4. Bicategories with equifiers</span>
+<span class="sd"> 5. Equifiers are fully faithful</span>
+
+<span class="sd"> ****************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Equifiers</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+          {<span class="nv">f</span> <span class="nv">g</span> : b₁ --&gt; b₂}
+          {<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g}.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Cones</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">equifier_cone</span>
+    : UU
+    := ∑ (i : B)
+         (m : i --&gt; b₁),
+       m ◃ α = m ◃ β.
+
+  <span class="kn">Definition</span> <span class="nf">make_equifier_cone</span>
+             (<span class="nv">i</span> : B)
+             (<span class="nv">m</span> : i --&gt; b₁)
+             (<span class="nv">α</span> : m ◃ α = m ◃ β)
+    : equifier_cone
+    := i ,, m ,, α.
+
+  <span class="kn">Coercion</span> <span class="nf">equifier_cone_ob</span>
+           (cone : equifier_cone)
+    : B
+    := pr1 cone.
+
+  <span class="kn">Definition</span> <span class="nf">equifier_cone_pr1</span>
+             (<span class="nv">cone</span> : equifier_cone)
+    : cone --&gt; b₁
+    := pr12 cone.
+
+  <span class="kn">Definition</span> <span class="nf">equifier_cone_eq</span>
+             (<span class="nv">cone</span> : equifier_cone)
+    : equifier_cone_pr1 cone ◃ α = equifier_cone_pr1 cone ◃ β
+    := pr22 cone.
+
+  <span class="kn">Definition</span> <span class="nf">equifier_1cell</span>
+             (<span class="nv">cone₁</span> <span class="nv">cone₂</span> : equifier_cone)
+    : UU
+    := ∑ (k : cone₁ --&gt; cone₂),
+       invertible_2cell
+         (k · equifier_cone_pr1 cone₂)
+         (equifier_cone_pr1 cone₁).
+
+  <span class="kn">Definition</span> <span class="nf">make_equifier_1cell</span>
+             {<span class="nv">cone₁</span> <span class="nv">cone₂</span> : equifier_cone}
+             (<span class="nv">k</span> : cone₁ --&gt; cone₂)
+             (<span class="nv">α</span> : invertible_2cell
+                    (k · equifier_cone_pr1 cone₂)
+                    (equifier_cone_pr1 cone₁))
+    : equifier_1cell cone₁ cone₂
+    := k ,, α.
+
+  <span class="kn">Coercion</span> <span class="nf">equifier_1cell_mor</span>
+           {cone₁ cone₂ : equifier_cone}
+           (u : equifier_1cell cone₁ cone₂)
+    : cone₁ --&gt; cone₂
+    := pr1 u.
+
+  <span class="kn">Definition</span> <span class="nf">equifier_1cell_pr1</span>
+             {<span class="nv">cone₁</span> <span class="nv">cone₂</span> : equifier_cone}
+             (<span class="nv">u</span> : equifier_1cell cone₁ cone₂)
+    : invertible_2cell
+        (u · equifier_cone_pr1 cone₂)
+        (equifier_cone_pr1 cone₁)
+    := pr2 u.
+
+  <span class="kn">Definition</span> <span class="nf">path_equifier_1cell</span>
+             {<span class="nv">cone₁</span> <span class="nv">cone₂</span> : equifier_cone}
+             (<span class="nv">φ</span> <span class="nv">ψ</span> : equifier_1cell cone₁ cone₂)
+             (<span class="nv">p₁</span> : pr1 φ = pr1 ψ)
+             (<span class="nv">p₂</span> : pr12 φ = (idtoiso_2_1 _ _ p₁ ▹ _) • pr12 ψ)
+    : φ = ψ.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> φ <span class="k">as</span> [ φ₁ [ φ₂ φ₃ ]].
+    <span class="nb">induction</span> ψ <span class="k">as</span> [ ψ₁ [ ψ₂ ψ₃ ]].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p₁.
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_invertible_2cell.
+    }
+    <span class="nb">cbn</span> <span class="k">in</span> p₂.
+    <span class="nb">rewrite</span> id2_rwhisker, id2_left <span class="k">in</span> p₂.
+    <span class="bp">exact</span> p₂.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. The universal mapping property</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">UniversalMappingProperty</span>.
+    <span class="kn">Context</span> (<span class="nv">cone</span> : equifier_cone).
+
+    <span class="kn">Definition</span> <span class="nf">has_equifier_ump_1</span>
+      : UU
+      := ∏ (other_cone : equifier_cone),
+         equifier_1cell other_cone cone.
+
+    <span class="kn">Definition</span> <span class="nf">has_equifier_ump_2</span>
+      : UU
+      := ∏ (x : B)
+           (u₁ u₂ : x --&gt; cone)
+           (α : u₁ · equifier_cone_pr1 cone
+                ==&gt;
+                u₂ · equifier_cone_pr1 cone),
+         ∑ (ζ : u₁ ==&gt; u₂),
+         ζ ▹ equifier_cone_pr1 cone = α.
+
+    <span class="kn">Definition</span> <span class="nf">has_equifier_ump_eq</span>
+      : UU
+      := ∏ (x : B)
+           (u₁ u₂ : x --&gt; cone)
+           (α : u₁ · equifier_cone_pr1 cone
+                ==&gt;
+                u₂ · equifier_cone_pr1 cone)
+           (φ₁ φ₂ : u₁ ==&gt; u₂)
+           (q₁ : φ₁ ▹ equifier_cone_pr1 cone = α)
+           (q₂ : φ₂ ▹ equifier_cone_pr1 cone = α),
+         φ₁ = φ₂.
+
+    <span class="kn">Definition</span> <span class="nf">has_equifier_ump</span>
+      : UU
+      := has_equifier_ump_1 × has_equifier_ump_2 × has_equifier_ump_eq.
+  <span class="kn">End</span> <span class="nf">UniversalMappingProperty</span>.
+
+  <span class="kn">Section</span> <span class="nf">Projections</span>.
+    <span class="kn">Context</span> {<span class="nv">cone</span> : equifier_cone}
+            (<span class="nv">H</span> : has_equifier_ump cone).
+
+    <span class="kn">Definition</span> <span class="nf">equifier_ump_mor</span>
+               {<span class="nv">i</span> : B}
+               (<span class="nv">m</span> : i --&gt; b₁)
+               (<span class="nv">p</span> : m ◃ α = m ◃ β)
+      : i --&gt; cone
+      := pr1 H (make_equifier_cone i m p).
+
+    <span class="kn">Definition</span> <span class="nf">equifier_ump_mor_pr1</span>
+               {<span class="nv">i</span> : B}
+               (<span class="nv">m</span> : i --&gt; b₁)
+               (<span class="nv">p</span> : m ◃ α = m ◃ β)
+      : invertible_2cell
+          (equifier_ump_mor m p · equifier_cone_pr1 cone)
+          m
+      := equifier_1cell_pr1 (pr1 H (make_equifier_cone i m p)).
+
+    <span class="kn">Definition</span> <span class="nf">equifier_ump_cell</span>
+               {<span class="nv">x</span> : B}
+               {<span class="nv">u₁</span> <span class="nv">u₂</span> : x --&gt; cone}
+               (<span class="nv">ζ</span> : u₁ · equifier_cone_pr1 cone
+                    ==&gt;
+                    u₂ · equifier_cone_pr1 cone)
+      : u₁ ==&gt; u₂
+      := pr1 (pr12 H x u₁ u₂ ζ).
+
+    <span class="kn">Definition</span> <span class="nf">equifier_ump_cell_pr1</span>
+               {<span class="nv">x</span> : B}
+               {<span class="nv">u₁</span> <span class="nv">u₂</span> : x --&gt; cone}
+               (<span class="nv">ζ</span> : u₁ · equifier_cone_pr1 cone
+                    ==&gt;
+                    u₂ · equifier_cone_pr1 cone)
+      : equifier_ump_cell ζ ▹ equifier_cone_pr1 cone = ζ
+      := pr2 (pr12 H x u₁ u₂ ζ).
+
+    <span class="kn">Definition</span> <span class="nf">equifier_ump_eq</span>
+               {<span class="nv">x</span> : B}
+               {<span class="nv">u₁</span> <span class="nv">u₂</span> : x --&gt; cone}
+               (<span class="nv">ζ</span> : u₁ · equifier_cone_pr1 cone
+                    ==&gt;
+                    u₂ · equifier_cone_pr1 cone)
+               (<span class="nv">φ₁</span> <span class="nv">φ₂</span> : u₁ ==&gt; u₂)
+               (<span class="nv">q₁</span> : φ₁ ▹ equifier_cone_pr1 cone = ζ)
+               (<span class="nv">q₂</span> : φ₂ ▹ equifier_cone_pr1 cone = ζ)
+      : φ₁ = φ₂
+      := pr22 H x u₁ u₂ ζ φ₁ φ₂ q₁ q₂.
+
+    <span class="kn">Definition</span> <span class="nf">equifier_ump_eq_alt</span>
+               {<span class="nv">x</span> : B}
+               {<span class="nv">u₁</span> <span class="nv">u₂</span> : x --&gt; cone}
+               (<span class="nv">ζ</span> : u₁ · equifier_cone_pr1 cone
+                    ==&gt;
+                    u₂ · equifier_cone_pr1 cone)
+               (<span class="nv">φ₁</span> <span class="nv">φ₂</span> : u₁ ==&gt; u₂)
+               (<span class="nv">q</span> : φ₁ ▹ equifier_cone_pr1 cone
+                    =
+                    φ₂ ▹ equifier_cone_pr1 cone)
+      : φ₁ = φ₂.
+    <span class="kn">Proof</span>.
+      use equifier_ump_eq.
+      - <span class="bp">exact</span> (φ₁ ▹ equifier_cone_pr1 cone).
+      - <span class="nb">apply</span> idpath.
+      - <span class="bp">exact</span> (!q).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_invertible_equifier_ump_cell</span>
+               {<span class="nv">x</span> : B}
+               {<span class="nv">u₁</span> <span class="nv">u₂</span> : x --&gt; cone}
+               (<span class="nv">ζ</span> : u₁ · equifier_cone_pr1 cone
+                    ==&gt;
+                    u₂ · equifier_cone_pr1 cone)
+               (<span class="nv">Hζ</span> : is_invertible_2cell ζ)
+      : is_invertible_2cell (equifier_ump_cell ζ).
+    <span class="kn">Proof</span>.
+      use make_is_invertible_2cell.
+      - <span class="bp">exact</span> (equifier_ump_cell Hζ^-<span class="mi">1</span>).
+      - <span class="kp">abstract</span>
+          (use (equifier_ump_eq_alt (id2 _)) ;
+           <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+           <span class="nb">rewrite</span> !equifier_ump_cell_pr1 ;
+           <span class="nb">rewrite</span> vcomp_rinv ;
+           <span class="nb">rewrite</span> id2_rwhisker ;
+           <span class="nb">apply</span> idpath).
+      - <span class="kp">abstract</span>
+          (use (equifier_ump_eq_alt (id2 _)) ;
+           <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+           <span class="nb">rewrite</span> !equifier_ump_cell_pr1 ;
+           <span class="nb">rewrite</span> vcomp_linv ;
+           <span class="nb">rewrite</span> id2_rwhisker ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Projections</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Alternative formulation of equifier via universal cones</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">universal_equifier_cat</span>
+             (<span class="nv">x</span> : B)
+    : category.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (full_sub_category
+              (hom x b₁)
+              (<span class="k">λ</span> <span class="nv">h</span>,
+               make_hProp
+                 (h ◃ α = h ◃ β)
+                 _)).
+    <span class="nb">apply</span> cellset_property.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">univalent_universal_equifier_cat</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">x</span> : B)
+    : univalent_category.
+  <span class="kn">Proof</span>.
+    use make_univalent_category.
+    - <span class="bp">exact</span> (universal_equifier_cat x).
+    - use is_univalent_full_sub_category.
+      use is_univ_hom.
+      <span class="bp">exact</span> HB_2_1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_universal_equifier_cat_data</span>
+             (<span class="nv">cone</span> : equifier_cone)
+             (<span class="nv">x</span> : B)
+    : functor_data
+        (hom x cone)
+        (universal_equifier_cat x).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">h</span>, h · equifier_cone_pr1 cone ,, _) ; <span class="nb">cbn</span>.
+      <span class="kp">abstract</span>
+        (use (vcomp_lcancel (lassociator _ _ _)) ; [ is_iso | ] ;
+         <span class="nb">rewrite</span> &lt;- !lwhisker_lwhisker ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (equifier_cone_eq cone)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">h₁</span> <span class="nv">h₂</span> <span class="nv">ζ</span>, ζ ▹ _ ,, tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_universal_equifier_cat_is_functor</span>
+             (<span class="nv">cone</span> : equifier_cone)
+             (<span class="nv">x</span> : B)
+    : is_functor (to_universal_equifier_cat_data cone x).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> h ; <span class="nb">cbn</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropunit.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id2_rwhisker.
+    - <span class="nb">intros</span> h₁ h₂ h₃ ζ₁ ζ₂ ; <span class="nb">cbn</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropunit.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> rwhisker_vcomp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_universal_equifier_cat</span>
+             (<span class="nv">cone</span> : equifier_cone)
+             (<span class="nv">x</span> : B)
+    : hom x cone ⟶ universal_equifier_cat x.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> (to_universal_equifier_cat_data cone x).
+    - <span class="bp">exact</span> (to_universal_equifier_cat_is_functor cone x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univeral_equifier_cone</span>
+             (<span class="nv">cone</span> : equifier_cone)
+    : UU
+    := ∏ (x : B),
+       adj_equivalence_of_cats
+         (to_universal_equifier_cat cone x).
+
+  <span class="kn">Section</span> <span class="nf">MakeUniversalEquifierCone</span>.
+    <span class="kn">Context</span> (<span class="nv">cone</span> : equifier_cone)
+            (<span class="nv">H</span> : has_equifier_ump cone)
+            (<span class="nv">x</span> : B).
+
+    <span class="kn">Definition</span> <span class="nf">make_is_universal_equifier_cone_full</span>
+      : full (to_universal_equifier_cat cone x).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> u₁ u₂ ζ.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - use (equifier_ump_cell H).
+        <span class="bp">exact</span> (pr1 ζ).
+      - <span class="kp">abstract</span>
+          (use subtypePath ; [ <span class="nb">intro</span>  ; <span class="nb">apply</span> isapropunit | ] ;
+           <span class="nb">apply</span> (equifier_ump_cell_pr1 H)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_is_universal_equifier_cone_faithful</span>
+      : faithful (to_universal_equifier_cat cone x).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> u₁ u₂ ζ₁.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      use (equifier_ump_eq_alt H).
+      - <span class="bp">exact</span> (pr1 ζ₁).
+      - <span class="bp">exact</span> (maponpaths pr1 (pr2 φ₁ @ !(pr2 φ₂))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_is_universal_equifier_cone_essentially_surjective</span>
+      : essentially_surjective (to_universal_equifier_cat cone x).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> h.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - use (equifier_ump_mor H).
+        + <span class="bp">exact</span> (pr1 h).
+        + <span class="bp">exact</span> (pr2 h).
+      - <span class="nb">cbn</span>.
+        use iso_in_sub_from_iso ; <span class="nb">cbn</span>.
+        use inv2cell_to_z_iso.
+        <span class="nb">apply</span> equifier_ump_mor_pr1.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MakeUniversalEquifierCone</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_is_universal_equifier_cone</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">cone</span> : equifier_cone)
+             (<span class="nv">H</span> : has_equifier_ump cone)
+    : is_univeral_equifier_cone cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use rad_equivalence_of_cats.
+    - <span class="nb">apply</span> is_univ_hom.
+      <span class="bp">exact</span> HB_2_1.
+    - use full_and_faithful_implies_fully_faithful.
+      <span class="nb">split</span>.
+      + <span class="nb">apply</span> make_is_universal_equifier_cone_full.
+        <span class="bp">exact</span> H.
+      + <span class="nb">apply</span> make_is_universal_equifier_cone_faithful.
+        <span class="bp">exact</span> H.
+    - <span class="nb">apply</span> make_is_universal_equifier_cone_essentially_surjective.
+      <span class="bp">exact</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">UniversalConeHasUMP</span>.
+    <span class="kn">Context</span> (<span class="nv">cone</span> : equifier_cone)
+            (<span class="nv">H</span> : is_univeral_equifier_cone cone).
+
+    <span class="kn">Section</span> <span class="nf">UMP1</span>.
+      <span class="kn">Context</span> (<span class="nv">q</span> : equifier_cone).
+
+      <span class="kn">Let</span> <span class="nf">q'</span> : universal_equifier_cat q
+        := equifier_cone_pr1 q ,, equifier_cone_eq q.
+
+      <span class="kn">Definition</span> <span class="nf">universal_equifier_cone_has_ump_1_mor</span>
+        : q --&gt; cone
+        := right_adjoint (H q) q'.
+
+      <span class="kn">Definition</span> <span class="nf">universal_equifier_cone_has_ump_1_pr1</span>
+        : invertible_2cell
+            (universal_equifier_cone_has_ump_1_mor · equifier_cone_pr1 cone)
+            (equifier_cone_pr1 q).
+      <span class="kn">Proof</span>.
+        use z_iso_to_inv2cell.
+        <span class="bp">exact</span> (iso_from_iso_in_sub
+                 _ _ _ _
+                 (nat_z_iso_pointwise_z_iso
+                    (counit_nat_z_iso_from_adj_equivalence_of_cats (H q))
+                    q')).
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">UMP1</span>.
+
+    <span class="kn">Definition</span> <span class="nf">universal_equifier_cone_has_ump_1</span>
+      : has_equifier_ump_1 cone.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> q.
+      use make_equifier_1cell.
+      - <span class="bp">exact</span> (universal_equifier_cone_has_ump_1_mor q).
+      - <span class="bp">exact</span> (universal_equifier_cone_has_ump_1_pr1 q).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">UniversalConeHasUMP</span>.
+
+  <span class="kn">Section</span> <span class="nf">UMP2</span>.
+    <span class="kn">Context</span> (<span class="nv">cone</span> : equifier_cone)
+            (<span class="nv">H</span> : is_univeral_equifier_cone cone)
+            {<span class="nv">x</span> : B}
+            {<span class="nv">u₁</span> <span class="nv">u₂</span> : x --&gt; cone}
+            (<span class="nv">ζ</span> : u₁ · equifier_cone_pr1 cone
+                 ==&gt;
+                 u₂ · equifier_cone_pr1 cone).
+
+    <span class="kn">Definition</span> <span class="nf">universal_equifier_cone_has_ump_2_cell</span>
+      : u₁ ==&gt; u₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (invmap (make_weq _ (fully_faithful_from_equivalence _ _ _ (H x) u₁ u₂))).
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> ζ.
+      - <span class="bp">exact</span> tt.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">universal_equifier_cone_has_ump_2_pr1</span>
+      : universal_equifier_cone_has_ump_2_cell ▹ equifier_cone_pr1 cone
+        =
+        ζ.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (maponpaths
+               pr1
+               (homotweqinvweq
+                  (make_weq _ (fully_faithful_from_equivalence _ _ _ (H x) u₁ u₂))
+                  _)).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">UMP2</span>.
+
+  <span class="kn">Definition</span> <span class="nf">universal_equifier_cone_has_ump_2</span>
+             (<span class="nv">cone</span> : equifier_cone)
+             (<span class="nv">H</span> : is_univeral_equifier_cone cone)
+    : has_equifier_ump_2 cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x u₁ u₂ ζ.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (universal_equifier_cone_has_ump_2_cell cone H ζ).
+    - <span class="bp">exact</span> (universal_equifier_cone_has_ump_2_pr1 cone H ζ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">universal_equifier_cone_has_ump_eq</span>
+             (<span class="nv">cone</span> : equifier_cone)
+             (<span class="nv">H</span> : is_univeral_equifier_cone cone)
+    : has_equifier_ump_eq cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x u₁ u₂ ζ φ₁ φ₂ p q.
+    use (invmaponpathsweq
+           (make_weq
+              _
+              (fully_faithful_from_equivalence _ _ _ (H x) u₁ u₂))) ; <span class="nb">cbn</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropunit.
+    }
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (p @ !q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">universal_equifier_cone_has_ump</span>
+             (<span class="nv">cone</span> : equifier_cone)
+             (<span class="nv">H</span> : is_univeral_equifier_cone cone)
+    : has_equifier_ump cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (universal_equifier_cone_has_ump_1 cone H).
+    - <span class="bp">exact</span> (universal_equifier_cone_has_ump_2 cone H).
+    - <span class="bp">exact</span> (universal_equifier_cone_has_ump_eq cone H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_has_equifier_ump</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">cone</span> : equifier_cone)
+    : isaprop (has_equifier_ump cone).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> χ₁ χ₂.
+    use pathsdirprod.
+    - use funextsec.
+      <span class="nb">intro</span> q.
+      use path_equifier_1cell.
+      + <span class="nb">apply</span> (isotoid_2_1 HB_2_1).
+        use make_invertible_2cell.
+        * use (equifier_ump_cell χ₁).
+          <span class="bp">exact</span> (equifier_1cell_pr1 (pr1 χ₁ q) • (equifier_1cell_pr1 (pr1 χ₂ q))^-<span class="mi">1</span>).
+        * use is_invertible_equifier_ump_cell.
+          is_iso.
+          <span class="nb">apply</span> property_from_invertible_2cell.
+      + <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> equifier_ump_cell_pr1.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> vcomp_linv.
+        <span class="nb">rewrite</span> id2_right.
+        <span class="nb">apply</span> idpath.
+    - use pathsdirprod.
+      + use funextsec ; <span class="nb">intro</span> x.
+        use funextsec ; <span class="nb">intro</span> u₁.
+        use funextsec ; <span class="nb">intro</span> u₂.
+        use funextsec ; <span class="nb">intro</span> φ.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> cellset_property.
+        }
+        use (equifier_ump_eq χ₁).
+        * <span class="bp">exact</span> φ.
+        * <span class="bp">exact</span> (pr2 ((pr12 χ₁) x u₁ u₂ φ)).
+        * <span class="bp">exact</span> (pr2 ((pr12 χ₂) x u₁ u₂ φ)).
+      + <span class="kp">do</span> <span class="mi">8</span> (use funextsec ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_universal_equifier_cone</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">cone</span> : equifier_cone)
+    : isaprop (is_univeral_equifier_cone cone).
+  <span class="kn">Proof</span>.
+    use impred.
+    <span class="nb">intro</span> x.
+    use isofhlevelweqf.
+    - <span class="bp">exact</span> (@left_adjoint_equivalence
+               bicat_of_univ_cats
+               (univ_hom HB_2_1 x cone)
+               (univalent_universal_equifier_cat HB_2_1 x)
+               (to_universal_equifier_cat cone x)).
+    - <span class="bp">exact</span> (@adj_equiv_is_equiv_cat
+               (univ_hom HB_2_1 x cone)
+               (univalent_universal_equifier_cat HB_2_1 x)
+               (to_universal_equifier_cat cone x)).
+    - <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+      <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equifier_ump_weq_is_universal</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">cone</span> : equifier_cone)
+    : has_equifier_ump cone ≃ is_univeral_equifier_cone cone.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> (make_is_universal_equifier_cone HB_2_1 cone).
+    - <span class="bp">exact</span> (universal_equifier_cone_has_ump cone).
+    - <span class="bp">exact</span> (isaprop_has_equifier_ump HB_2_1 cone).
+    - <span class="bp">exact</span> (isaprop_is_universal_equifier_cone HB_2_1 cone).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Equifiers</span>.
+
+<span class="kn">Arguments</span> equifier_cone {_ _ _} _ _.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Bicategories with equifiers</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">has_equifiers</span>
+           (<span class="nv">B</span> : bicat)
+  : UU
+  := ∏ (b₁ b₂ : B)
+       (f g : b₁ --&gt; b₂)
+       (α β : f ==&gt; g),
+     ∑ (i : B)
+       (m : i --&gt; b₁)
+       (p : m ◃ α = m ◃ β),
+     has_equifier_ump (make_equifier_cone i m p).
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Equifiers are fully faithful</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">equifier_faithful</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : b₁ --&gt; b₂}
+           {<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g}
+           {<span class="nv">i</span> : B}
+           (<span class="nv">m</span> : i --&gt; b₁)
+           (<span class="nv">p</span> :  m ◃ α = m ◃ β)
+           (<span class="nv">H</span> : has_equifier_ump (make_equifier_cone i m p))
+  : faithful_1cell m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x g₁ g₂ β₁ β₂ q.
+  use (equifier_ump_eq_alt H) ; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> (β₁ ▹ m).
+  - <span class="bp">exact</span> q.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">equifier_fully_faithful</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : b₁ --&gt; b₂}
+           {<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g}
+           {<span class="nv">i</span> : B}
+           (<span class="nv">m</span> : i --&gt; b₁)
+           (<span class="nv">p</span> :  m ◃ α = m ◃ β)
+           (<span class="nv">H</span> : has_equifier_ump (make_equifier_cone i m p))
+  : fully_faithful_1cell m.
+<span class="kn">Proof</span>.
+  use make_fully_faithful.
+  - <span class="bp">exact</span> (equifier_faithful m p H).
+  - <span class="nb">intros</span> z g₁ g₂ βf.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (equifier_ump_cell H βf).
+    + <span class="bp">exact</span> (equifier_ump_cell_pr1 H βf).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Limits/Equifiers.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Equifiers are fully faithful
+  &gt;
+  &gt;  ****************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

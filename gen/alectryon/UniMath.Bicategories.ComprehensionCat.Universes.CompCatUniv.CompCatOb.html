@@ -1,0 +1,1382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CompCatOb.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd"> Comprehension categories with an object</span>
+
+<span class="sd"> Our goal is to define the bicategory of comprehension categories with a universe type. A</span>
+<span class="sd"> universe in a comprehension category `C` consists of a type `u` in the empty context such</span>
+<span class="sd"> that each term `t : tm Γ u` gives rise to a type `el t` in context `Γ`. This operation must</span>
+<span class="sd"> be coherently stable under substitution. This formulation of universes is close to the</span>
+<span class="sd"> syntax of comprehension categories, because universes generally are not defined using a</span>
+<span class="sd"> universal property.</span>
+
+<span class="sd"> We define the bicategory of comprehension categories in two steps.</span>
+<span class="sd"> - First, we define the bicategory of comprehension categories together with a type in the</span>
+<span class="sd">   empty context.</span>
+<span class="sd"> - Second, we add the `el`-map, which we also require to be stable under substitution.</span>
+<span class="sd"> Both of these bicategories are defined using displayed bicategories. In this file, we define</span>
+<span class="sd"> the first of these displayed bicategories, and we prove that it is univalent.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Construction of the displayed bicategory of comprehension categories with an object</span>
+<span class="sd"> 2. Invertible 2-cells in this displayed bicategory</span>
+<span class="sd"> 3. Local univalence</span>
+<span class="sd"> 4. Adjoint equivalences</span>
+<span class="sd"> 5. Global univalence</span>
+<span class="sd"> 6. The total bicategory</span>
+<span class="sd"> 7. Accessors for the total bicategory</span>
+<span class="sd"> 8. Equational lemmas for functors</span>
+<span class="sd"> 9. Equational lemmas for natural transformations</span>
+<span class="sd">                                                                                            *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. Construction of the displayed bicategory of comprehension categories with an object *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_comp_cat_with_ob</span>
+  : disp_cat_ob_mor bicat_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C</span> : comp_cat), ty ([] : C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat)
+             (<span class="nv">u₁</span> : ty ([] : C₁))
+             (<span class="nv">u₂</span> : ty ([] : C₂))
+             (<span class="nv">F</span> : comp_cat_functor C₁ C₂),
+           z_iso_disp
+             (comp_cat_functor_empty_context_z_iso F)
+             (comp_cat_type_functor F _ u₁)
+             u₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_id_comp_cat_with_ob</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">u</span> : ty ([] : C))
+  : z_iso_disp (comp_cat_functor_empty_context_z_iso (id₁ C)) u u.
+<span class="kn">Proof</span>.
+  use make_z_iso_disp.
+  - <span class="nb">refine</span> (transportf
+              (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+              _
+              (id_disp _)).
+    <span class="kp">abstract</span> (<span class="nb">apply</span> TerminalArrowUnique).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="nb">refine</span> (transportf
+                (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                _
+                (id_disp _)).
+      <span class="kp">abstract</span> (<span class="nb">apply</span> TerminalArrowEq).
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> mor_disp_transportf_postwhisker ;
+         <span class="nb">rewrite</span> mor_disp_transportf_prewhisker ;
+         <span class="nb">rewrite</span> id_left_disp ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> !transport_f_f ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> homset_property).
+    + <span class="kp">abstract</span>
+        (<span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> mor_disp_transportf_postwhisker ;
+         <span class="nb">rewrite</span> mor_disp_transportf_prewhisker ;
+         <span class="nb">rewrite</span> id_left_disp ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> !transport_f_f ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> homset_property).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_comp_comp_cat_with_ob</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : comp_cat}
+           {<span class="nv">F</span> : comp_cat_functor C₁ C₂}
+           {<span class="nv">G</span> : comp_cat_functor C₂ C₃}
+           {<span class="nv">u₁</span> : ty ([] : C₁)}
+           {<span class="nv">u₂</span> : ty ([] : C₂)}
+           {<span class="nv">u₃</span> : ty ([] : C₃)}
+           (<span class="nv">f</span> : z_iso_disp
+                  (comp_cat_functor_empty_context_z_iso F)
+                  (comp_cat_type_functor F _ u₁)
+                  u₂)
+           (<span class="nv">g</span> : z_iso_disp
+                  (comp_cat_functor_empty_context_z_iso G)
+                  (comp_cat_type_functor G _ u₂)
+                  u₃)
+  : z_iso_disp
+      (comp_cat_functor_empty_context_z_iso (F · G))
+      (comp_cat_type_functor G _ (comp_cat_type_functor F _ u₁))
+      u₃.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (z_iso_disp_transportf
+            _
+            (z_iso_disp_comp
+               (disp_functor_on_z_iso_disp (comp_cat_type_functor G) f)
+               g)).
+  <span class="kp">abstract</span>
+    (<span class="nb">apply</span> TerminalArrowEq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_id_comp_comp_cat_with_ob</span>
+  : disp_cat_id_comp bicat_comp_cat
+      disp_cat_ob_mor_comp_cat_with_ob.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> C u ; <span class="nb">simpl</span>.
+    <span class="bp">exact</span> (disp_cat_id_comp_cat_with_ob u).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G u₁ u₂ u₃ f g ; <span class="nb">simpl</span>.
+    <span class="bp">exact</span> (disp_cat_comp_comp_cat_with_ob f g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_data_comp_cat_with_ob</span>
+  : disp_cat_data bicat_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_ob_mor_comp_cat_with_ob.
+  - <span class="bp">exact</span> disp_cat_id_comp_comp_cat_with_ob.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_1_id_comp_cells_comp_cat_with_ob</span>
+  : disp_prebicat_1_id_comp_cells bicat_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_data_comp_cat_with_ob.
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat)
+              (<span class="nv">F</span> <span class="nv">G</span> : comp_cat_functor C₁ C₂)
+              (<span class="nv">τ</span> : comp_cat_nat_trans F G)
+              (<span class="nv">u₁</span> : ty ([] : C₁))
+              (<span class="nv">u₂</span> : ty ([] : C₂))
+              (<span class="nv">f</span> : z_iso_disp
+                     (comp_cat_functor_empty_context_z_iso F)
+                     (comp_cat_type_functor F _ u₁)
+                     u₂)
+              (<span class="nv">g</span> : z_iso_disp
+                     (comp_cat_functor_empty_context_z_iso G)
+                     (comp_cat_type_functor G _ u₁)
+                     u₂),
+            transportf
+              (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+              _
+              (comp_cat_type_nat_trans τ _ u₁ ;; g)%mor_disp
+            =
+            f).
+    <span class="kp">abstract</span> (<span class="nb">apply</span> TerminalArrowEq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_comp_cat_with_ob</span>
+  : disp_2cells_isaprop
+      disp_prebicat_1_id_comp_cells_comp_cat_with_ob.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> homsets_disp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_ops_comp_cat_with_ob</span>
+  : disp_prebicat_ops disp_prebicat_1_id_comp_cells_comp_cat_with_ob.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> C₁ C₂ F u₁ u₂ f ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> transportf_set.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> C₁ C₂ F u₁ u₂ f ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">rewrite</span> disp_functor_transportf.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> disp_functor_id.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> C₁ C₂ F u₁ u₂ f ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> id_right_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> C₁ C₂ F u₁ u₂ f ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">rewrite</span> disp_functor_transportf.
+    <span class="nb">rewrite</span> disp_functor_id.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">apply</span> transportf_set.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> C₁ C₂ F u₁ u₂ f ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> id_right_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">apply</span> transportf_set.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> C₁ C₂ C₃ C₄ F G H u₁ u₂ u₃ u₄ f g h ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> disp_functor_transportf.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> disp_functor_comp_var.
+    }
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> C₁ C₂ C₃ C₄ F G H u₁ u₂ u₃ u₄ f g h ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> disp_functor_transportf.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> disp_functor_comp.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> C₁ C₂ F G H τ₁ τ₂ u₁ u₂ f g h ; <span class="nb">simpl</span>.
+    <span class="nb">intros</span> p q.
+    <span class="nb">refine</span> (_ @ p) ; <span class="nb">clear</span> p.
+    <span class="nb">rewrite</span> &lt;- q ; <span class="nb">clear</span> q.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G₁ G₂ τ u₁ u₂ u₃ f g₁ g₂ ; <span class="nb">simpl</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">rewrite</span> &lt;- p.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> !assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> disp_nat_trans_ax_var.
+    }
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> C₁ C₂ C₃ F₁ F₂ G τ u₁ u₂ u₃ f₁ f₂ g ; <span class="nb">simpl</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">rewrite</span> &lt;- p.
+    <span class="nb">rewrite</span> disp_functor_transportf.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> disp_functor_comp.
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_data_comp_cat_with_ob</span>
+  : disp_prebicat_data bicat_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_prebicat_1_id_comp_cells_comp_cat_with_ob.
+  - <span class="bp">exact</span> disp_prebicat_ops_comp_cat_with_ob.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_prebicat_laws_comp_cat_with_ob</span>
+  : disp_prebicat_laws disp_prebicat_data_comp_cat_with_ob.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span> ;
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+    <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_comp_cat_with_ob.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_comp_cat_with_ob</span>
+  : disp_prebicat bicat_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_prebicat_data_comp_cat_with_ob.
+  - <span class="bp">exact</span> disp_prebicat_laws_comp_cat_with_ob.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_comp_cat_with_ob</span>
+  : disp_bicat bicat_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_prebicat_comp_cat_with_ob.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> isasetaprop ;
+       <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_comp_cat_with_ob).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Invertible 2-cells in this displayed bicategory *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_disp_invertible_2cell_disp_bicat_comp_cat_with_ob</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_comp_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : C₁ --&gt; C₂}
+            {<span class="nv">τ</span> : invertible_2cell F G}
+            {<span class="nv">u₁</span> : disp_bicat_comp_cat_with_ob C₁}
+            {<span class="nv">u₂</span> : disp_bicat_comp_cat_with_ob C₂}
+            {<span class="nv">f</span> : u₁ --&gt;[ F ] u₂}
+            {<span class="nv">g</span> : u₁ --&gt;[ G ] u₂}
+            (<span class="nv">p</span> : f ==&gt;[ τ ] g)
+  : is_disp_invertible_2cell τ p.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _) ;
+    [
+    | <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_comp_cat_with_ob
+    | <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_comp_cat_with_ob ].
+  <span class="nb">cbn</span> <span class="k">in</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> &lt;- p.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> assoc_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (from_eq_2cell_comp_cat_disp (vcomp_linv τ)).
+  }
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> id_left_disp.
+  }
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> transportf_set.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_locally_groupoid_disp_bicat_comp_cat_with_ob</span>
+  : disp_locally_groupoid disp_bicat_comp_cat_with_ob.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> is_disp_invertible_2cell_disp_bicat_comp_cat_with_ob.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Local univalence *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_comp_cat_with_ob</span>
+  : disp_univalent_2_1 disp_bicat_comp_cat_with_ob.
+<span class="kn">Proof</span>.
+  use fiberwise_local_univalent_is_univalent_2_1.
+  <span class="nb">intros</span> C₁ C₂ F u₁ u₂ f f'.
+  use isweqimplimpl.
+  - <span class="nb">cbn</span> ; <span class="nb">intro</span> τ.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_z_iso_disp.
+    }
+    <span class="nb">pose</span> (p := pr1 τ).
+    <span class="nb">refine</span> (!p @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> id_left_disp.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> transportf_set.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">apply</span> isaset_z_iso_disp.
+  - use isaproptotal2.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+    + <span class="nb">intros</span>.
+      <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_comp_cat_with_ob.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Adjoint equivalences *)</span>
+<span class="kn">Section</span> <span class="nf">ToDispAdjEquiv</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : comp_cat}
+          {<span class="nv">u₁</span> <span class="nv">u₂</span> : disp_bicat_comp_cat_with_ob C}
+          (<span class="nv">f</span> : u₁ --&gt;[ identity _ ] u₂).
+
+  <span class="kn">Definition</span> <span class="nf">to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_inv</span>
+    : u₂ --&gt;[ identity _ ] u₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (z_iso_disp_transportf _ (z_iso_inv_from_z_iso_disp f)).
+    <span class="kp">abstract</span>
+      (<span class="nb">apply</span> TerminalArrowEq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_unit</span>
+    : id_disp u₁
+      ==&gt;[ linvunitor _ ]
+      f ;; to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (pr22 f).
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_counit</span>
+    : to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_inv ;; f
+      ==&gt;[ lunitor _ ]
+      id_disp u₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (pr22 f).
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id</span>
+    : disp_left_adjoint_equivalence
+        (internal_adjoint_equivalence_identity C)
+        f.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, (_ ,, _)) ;
+      [
+      | <span class="nb">split</span> ; <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_comp_cat_with_ob
+      | <span class="nb">split</span> ; <span class="nb">apply</span> is_disp_invertible_2cell_disp_bicat_comp_cat_with_ob ].
+    <span class="nb">simple refine</span>(_ ,, _ ,, _).
+    - <span class="bp">exact</span> to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_inv.
+    - <span class="bp">exact</span> to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_unit.
+    - <span class="bp">exact</span> to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id_counit.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ToDispAdjEquiv</span>.
+
+<span class="kn">Section</span> <span class="nf">AdjointEquivalences</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : comp_cat}
+          (<span class="nv">u₁</span> <span class="nv">u₂</span> : ty ([] : C)).
+
+  <span class="kn">Definition</span> <span class="nf">disp_bicat_comp_cat_with_ob_to_adjequiv</span>
+             (<span class="nv">f</span> : z_iso_disp (identity_z_iso []) u₁ u₂)
+    : disp_adjoint_equivalence
+        (D := disp_bicat_comp_cat_with_ob)
+        (internal_adjoint_equivalence_identity C)
+        u₁ u₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, (_ ,, (_ ,, _))) ;
+      [
+      |
+      | <span class="nb">split</span> ; <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_comp_cat_with_ob
+      | <span class="nb">split</span> ; <span class="nb">apply</span> is_disp_invertible_2cell_disp_bicat_comp_cat_with_ob ].
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (z_iso_disp_transportf _ f).
+      <span class="kp">abstract</span>
+        (<span class="nb">apply</span> TerminalArrowEq).
+    - <span class="nb">apply</span> to_disp_bicat_comp_cat_with_ob_to_adjequiv_over_id.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_bicat_comp_cat_with_ob_from_adjequiv</span>
+             (<span class="nv">f</span> : disp_adjoint_equivalence
+                    (D := disp_bicat_comp_cat_with_ob)
+                    (internal_adjoint_equivalence_identity C)
+                    u₁ u₂)
+    : z_iso_disp (identity_z_iso []) u₁ u₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (z_iso_disp_transportf _ (pr1 f)).
+    <span class="kp">abstract</span>
+      (<span class="nb">apply</span> TerminalArrowEq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_bicat_comp_cat_with_ob_adjequiv_weq</span>
+    : z_iso_disp (identity_z_iso []) u₁ u₂
+      ≃
+      disp_adjoint_equivalence
+        (D := disp_bicat_comp_cat_with_ob)
+        (internal_adjoint_equivalence_identity C)
+        u₁ u₂.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> disp_bicat_comp_cat_with_ob_to_adjequiv.
+    - <span class="bp">exact</span> disp_bicat_comp_cat_with_ob_from_adjequiv.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> f ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_iso_disp | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">apply</span> transportf_set ;
+         <span class="nb">apply</span> homset_property).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> f ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ;
+           <span class="bp">exact</span> (isaprop_disp_left_adjoint_equivalence
+                    _ _
+                    is_univalent_2_1_bicat_comp_cat
+                    disp_univalent_2_1_disp_bicat_comp_cat_with_ob)
+         | ] ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_iso_disp | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">apply</span> transportf_set ;
+         <span class="nb">apply</span> homset_property).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">AdjointEquivalences</span>.
+
+<span class="sd">(** * 5. Global univalence *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_comp_cat_with_ob</span>
+  : disp_univalent_2_0 disp_bicat_comp_cat_with_ob.
+<span class="kn">Proof</span>.
+  use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">C</span> : comp_cat) (<span class="nv">u₁</span> <span class="nv">u₂</span> : ty ([] : C)), _).
+  use weqhomot.
+  - <span class="bp">exact</span> (disp_bicat_comp_cat_with_ob_adjequiv_weq u₁ u₂
+           ∘ make_weq
+               (idtoiso_disp (idpath _))
+               (disp_univalent_category_is_univalent_disp _ _ _ _ _ _))%weq.
+  - <span class="nb">intro</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">induction</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="bp">exact</span> (isaprop_disp_left_adjoint_equivalence
+               _ _
+               is_univalent_2_1_bicat_comp_cat
+               disp_univalent_2_1_disp_bicat_comp_cat_with_ob).
+    }
+    <span class="nb">cbn</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_z_iso_disp.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_disp_bicat_comp_cat_with_ob</span>
+  : disp_univalent_2 disp_bicat_comp_cat_with_ob.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_comp_cat_with_ob.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_comp_cat_with_ob.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. The total bicategory *)</span>
+<span class="kn">Definition</span> <span class="nf">bicat_comp_cat_with_ob</span>
+  : bicat
+  := total_bicat disp_bicat_comp_cat_with_ob.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_bicat_comp_cat_with_ob</span>
+  : is_univalent_2 bicat_comp_cat_with_ob.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_comp_cat_with_ob.
+  - <span class="bp">exact</span> is_univalent_2_bicat_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_1_bicat_comp_cat_with_ob</span>
+  : is_univalent_2_1 bicat_comp_cat_with_ob.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 is_univalent_2_bicat_comp_cat_with_ob).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_0_bicat_comp_cat_with_ob</span>
+  : is_univalent_2_0 bicat_comp_cat_with_ob.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 is_univalent_2_bicat_comp_cat_with_ob).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. Accessors for the total bicategory *)</span>
+<span class="kn">Definition</span> <span class="nf">comp_cat_with_ob</span>
+  : UU
+  := ob bicat_comp_cat_with_ob.
+
+<span class="kn">Coercion</span> <span class="nf">comp_cat_with_ob_to_comp_cat</span>
+         (C : comp_cat_with_ob)
+  : comp_cat
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">ob_of_comp_cat_ob</span>
+           (<span class="nv">C</span> : comp_cat_with_ob)
+  : ty ([] : C)
+  := pr2 C.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_univ</span>
+           {<span class="nv">C</span> : comp_cat_with_ob}
+           (<span class="nv">Γ</span> : C)
+  : ty Γ
+  := (ob_of_comp_cat_ob C) [[ TerminalArrow _ _ ]].
+
+<span class="kn">Definition</span> <span class="nf">sub_comp_cat_univ_iso</span>
+           {<span class="nv">C</span> : comp_cat_with_ob}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+  : z_iso
+      (C := fiber_category _ _)
+      (comp_cat_univ Δ [[ s ]])
+      (comp_cat_univ Γ).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> comp_cat_univ.
+  <span class="nb">refine</span> (z_iso_comp (comp_subst_ty_iso _ _ _) (eq_subst_ty_iso _ _)).
+  <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sub_comp_cat_univ</span>
+           {<span class="nv">C</span> : comp_cat_with_ob}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+  : comp_cat_univ Δ [[ s ]] &lt;: comp_cat_univ Γ
+  := (sub_comp_cat_univ_iso s : _ --&gt; _).
+
+<span class="kn">Definition</span> <span class="nf">sub_comp_cat_univ_inv</span>
+           {<span class="nv">C</span> : comp_cat_with_ob}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+  : comp_cat_univ Γ &lt;: comp_cat_univ Δ [[ s ]]
+  := inv_from_z_iso (sub_comp_cat_univ_iso s).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_ob</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob)
+  : UU
+  := C₁ --&gt; C₂.
+
+<span class="kn">Coercion</span> <span class="nf">functor_comp_cat_ob_to_functor</span>
+         {C₁ C₂ : comp_cat_with_ob}
+         (F : comp_cat_functor_ob C₁ C₂)
+  : comp_cat_functor C₁ C₂
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">ob_of_functor_comp_cat_ob</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+           (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+  : z_iso_disp
+      (comp_cat_functor_empty_context_z_iso F)
+      (comp_cat_type_functor F _ (ob_of_comp_cat_ob C₁))
+      (ob_of_comp_cat_ob C₂)
+  := pr2 F.
+
+<span class="kn">Lemma</span> <span class="nf">functor_comp_cat_on_univ_z_iso_eq</span>
+      {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+      (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+      (<span class="nv">Γ</span> : C₁)
+  : identity (F Γ) · (identity (F Γ) · identity (F Γ))
+    =
+    identity (F Γ).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> !id_left.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">functor_comp_cat_on_univ_z_iso_terminal_eq</span>
+      {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+      (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+      (<span class="nv">Γ</span> : C₁)
+  : # F (TerminalArrow [] Γ) · comp_cat_functor_empty_context_z_iso F
+    =
+    TerminalArrow [] (F Γ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_comp_cat_on_univ_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+           (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+           (<span class="nv">Γ</span> : C₁)
+  : z_iso
+      (C := fiber_category _ _)
+      (comp_cat_type_functor F _ (comp_cat_univ Γ))
+      (comp_cat_univ (F Γ)).
+<span class="kn">Proof</span>.
+  use z_iso_fiber_from_z_iso_disp.
+  <span class="nb">refine</span> (z_iso_disp_transportf
+            _
+            (z_iso_disp_comp
+               (comp_cat_functor_subst_ty F _ _)
+               (z_iso_disp_comp
+                  (subst_ty_iso
+                     _
+                     _
+                     (ob_of_functor_comp_cat_ob F))
+                  (subst_ty_eq_disp_iso
+                     _
+                     _)))).
+  - <span class="nb">apply</span> functor_comp_cat_on_univ_z_iso_eq.
+  - <span class="nb">apply</span> functor_comp_cat_on_univ_z_iso_terminal_eq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_comp_cat_on_univ</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+           (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+           (<span class="nv">Γ</span> : C₁)
+  : comp_cat_type_functor F Γ (comp_cat_univ Γ) &lt;: comp_cat_univ (F Γ)
+  := functor_comp_cat_on_univ_z_iso F Γ : _ --&gt; _.
+
+<span class="kn">Definition</span> <span class="nf">functor_comp_cat_on_univ_inv</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+           (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+           (<span class="nv">Γ</span> : C₁)
+  : comp_cat_univ (F Γ) &lt;: comp_cat_type_functor F Γ (comp_cat_univ Γ)
+  := inv_from_z_iso (functor_comp_cat_on_univ_z_iso F Γ).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_nat_trans_ob</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+           (<span class="nv">F</span> <span class="nv">G</span> : comp_cat_functor_ob C₁ C₂)
+  : UU
+  := F ==&gt; G.
+
+<span class="kn">Coercion</span> <span class="nf">comp_cat_nat_trans_ob_to_comp_cat_nat_trans</span>
+         {C₁ C₂ : comp_cat_with_ob}
+         {F G : comp_cat_functor_ob C₁ C₂}
+         (τ : comp_cat_nat_trans_ob F G)
+  : comp_cat_nat_trans F G
+  := pr1 τ.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_nat_trans_univ_comm</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            {<span class="nv">F</span> <span class="nv">G</span> : comp_cat_functor_ob C₁ C₂}
+            (<span class="nv">τ</span> : comp_cat_nat_trans_ob F G)
+            (<span class="nv">p</span> : τ [] · comp_cat_functor_empty_context_z_iso G
+                 =
+                 comp_cat_functor_empty_context_z_iso F)
+  : transportf
+      (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+      p
+      (comp_cat_type_nat_trans τ _ _ ;; ob_of_functor_comp_cat_ob G)%mor_disp
+    =
+    ob_of_functor_comp_cat_ob F.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ @ pr2 τ).
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The following makes the upcoming proofs more readable *)</span>
+<span class="kn">Local</span> <span class="kn">Arguments</span> transportf {_ _ _ _ _} _.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_nat_trans_on_univ_comm</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            {<span class="nv">F</span> <span class="nv">G</span> : comp_cat_functor_ob C₁ C₂}
+            (<span class="nv">τ</span> : comp_cat_nat_trans_ob F G)
+            (<span class="nv">Γ</span> : C₁)
+  : functor_comp_cat_on_univ F Γ
+    · sub_comp_cat_univ_inv (τ Γ)
+    =
+    comp_cat_type_fib_nat_trans τ (comp_cat_univ Γ)
+    · coerce_subst_ty (τ Γ) (functor_comp_cat_on_univ G Γ).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span> -[eq_subst_ty_iso].
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">rewrite</span> !assoc_disp_var.
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> cartesian_factorisation_commutes.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> cartesian_factorisation_commutes.
+  }
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> !assoc_disp_var.
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> subst_ty_eq_disp_iso_comm.
+  }
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cartesian_factorisation_commutes.
+  }
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cartesian_factorisation_commutes.
+  }
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> subst_ty_eq_disp_iso_inv_comm.
+  }
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> subst_ty_eq_disp_iso_comm.
+  }
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cartesian_factorisation_commutes.
+  }
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    use (comp_cat_nat_trans_univ_comm τ).
+    <span class="nb">apply</span> TerminalArrowUnique.
+  }
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (disp_nat_trans_ax (comp_cat_type_nat_trans τ)).
+  }
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> assoc_disp_var.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_nat_trans_on_univ_comm_alt</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            {<span class="nv">F</span> <span class="nv">G</span> : comp_cat_functor_ob C₁ C₂}
+            (<span class="nv">τ</span> : comp_cat_nat_trans_ob F G)
+            (<span class="nv">Γ</span> : C₁)
+  : functor_comp_cat_on_univ F Γ
+    =
+    comp_cat_type_fib_nat_trans τ (comp_cat_univ Γ)
+    · coerce_subst_ty (τ Γ) (functor_comp_cat_on_univ G Γ)
+    · sub_comp_cat_univ (τ Γ).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- (comp_cat_nat_trans_on_univ_comm τ Γ).
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> z_iso_after_z_iso_inv.
+  }
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 8. Equational lemmas for functors *)</span>
+<span class="kn">Proposition</span> <span class="nf">id_functor_comp_cat_on_univ</span>
+            {<span class="nv">C</span> : comp_cat_with_ob}
+            (<span class="nv">Γ</span> : C)
+  : functor_comp_cat_on_univ (id₁ C) Γ = id_disp _.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">rewrite</span> id_left_disp.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">rewrite</span> !assoc_disp_var.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> subst_ty_eq_disp_iso_comm.
+  }
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> id_right_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">unfold</span> fiber_functor_natural_inv, comp_cat_subst.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_functor_comp_cat_on_univ</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : comp_cat_with_ob}
+            (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+            (<span class="nv">G</span> : comp_cat_functor_ob C₂ C₃)
+            (<span class="nv">Γ</span> : C₁)
+  : functor_comp_cat_on_univ (F · G) Γ
+    =
+    comp_cat_functor_coerce G (functor_comp_cat_on_univ F Γ)
+    · functor_comp_cat_on_univ G _.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">rewrite</span> !assoc_disp_var.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> disp_functor_transportf.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> subst_ty_eq_disp_iso_comm.
+  }
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">unfold</span> fiber_functor_natural_inv, comp_cat_subst.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> subst_ty_eq_disp_iso_comm.
+  }
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="nb">unfold</span> fiber_functor_natural_inv, comp_cat_subst.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">apply</span> idpath.
+  }
+  etrans.
+  {
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> &lt;- disp_functor_comp_var.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc_disp_var.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> subst_ty_eq_disp_iso_comm.
+      }
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> disp_functor_transportf.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> assoc_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> disp_functor_comp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 9. Equational lemmas for natural transformations *)</span>
+<span class="kn">Proposition</span> <span class="nf">comp_cat_type_fib_nat_trans_on_id2</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_type_fib_nat_trans (id₂ F : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">unfold</span> comp_cat_type_fib_nat_trans, id_subst_ty.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !cartesian_factorisation_commutes.
+  <span class="nb">cbn</span> ; <span class="nb">unfold</span> transportb.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_type_fib_nat_trans_on_lunitor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_type_fib_nat_trans (lunitor F : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">unfold</span> comp_cat_type_fib_nat_trans, id_subst_ty.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !cartesian_factorisation_commutes.
+  <span class="nb">cbn</span> ; <span class="nb">unfold</span> transportb.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_type_fib_nat_trans_on_runitor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_type_fib_nat_trans (runitor F : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">unfold</span> comp_cat_type_fib_nat_trans, id_subst_ty.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !cartesian_factorisation_commutes.
+  <span class="nb">cbn</span> ; <span class="nb">unfold</span> transportb.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_type_fib_nat_trans_on_linvunitor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_type_fib_nat_trans (linvunitor F : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">unfold</span> comp_cat_type_fib_nat_trans, id_subst_ty.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !cartesian_factorisation_commutes.
+  <span class="nb">cbn</span> ; <span class="nb">unfold</span> transportb.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_type_fib_nat_trans_on_rinvunitor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_type_fib_nat_trans (rinvunitor F : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">unfold</span> comp_cat_type_fib_nat_trans, id_subst_ty.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !cartesian_factorisation_commutes.
+  <span class="nb">cbn</span> ; <span class="nb">unfold</span> transportb.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_type_fib_nat_trans_on_lassociator</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : comp_cat_with_ob}
+            (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+            (<span class="nv">G</span> : comp_cat_functor_ob C₂ C₃)
+            (<span class="nv">H</span> : comp_cat_functor_ob C₃ C₄)
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_type_fib_nat_trans (lassociator F G H : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">unfold</span> comp_cat_type_fib_nat_trans, id_subst_ty.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !cartesian_factorisation_commutes.
+  <span class="nb">cbn</span> ; <span class="nb">unfold</span> transportb.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_type_fib_nat_trans_on_rassociator</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : comp_cat_with_ob}
+            (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+            (<span class="nv">G</span> : comp_cat_functor_ob C₂ C₃)
+            (<span class="nv">H</span> : comp_cat_functor_ob C₃ C₄)
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_type_fib_nat_trans (rassociator F G H : comp_cat_nat_trans_ob _ _) A
+    =
+    id_subst_ty _.
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">unfold</span> comp_cat_type_fib_nat_trans, id_subst_ty.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !cartesian_factorisation_commutes.
+  <span class="nb">cbn</span> ; <span class="nb">unfold</span> transportb.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_type_fib_nat_trans_on_vcomp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> : comp_cat_functor_ob C₁ C₂}
+            (<span class="nv">τ</span> : comp_cat_nat_trans_ob F G)
+            (<span class="nv">θ</span> : comp_cat_nat_trans_ob G H)
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_type_fib_nat_trans (τ • θ : comp_cat_nat_trans_ob _ _) A
+    =
+    comp_cat_type_fib_nat_trans τ A
+    · coerce_subst_ty _ (comp_cat_type_fib_nat_trans θ _)
+    · comp_subst_ty _ _ _.
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">unfold</span> comp_cat_type_fib_nat_trans, comp_subst_ty.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> !assoc_disp_var.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">rewrite</span> !cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> assoc_disp_var.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">rewrite</span> assoc_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_type_fib_nat_trans_on_lwhisker</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : comp_cat_with_ob}
+            (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+            {<span class="nv">G₁</span> <span class="nv">G₂</span> : comp_cat_functor_ob C₂ C₃}
+            (<span class="nv">τ</span> : comp_cat_nat_trans_ob G₁ G₂)
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_type_fib_nat_trans (F ◃ τ : comp_cat_nat_trans_ob _ _) A
+    =
+    comp_cat_type_fib_nat_trans τ (comp_cat_type_functor F Γ A).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_type_fib_nat_trans_on_rwhisker</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : comp_cat_with_ob}
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> : comp_cat_functor_ob C₁ C₂}
+            (<span class="nv">G</span> : comp_cat_functor_ob C₂ C₃)
+            {<span class="nv">τ</span> : comp_cat_nat_trans_ob F₁ F₂}
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_type_fib_nat_trans (τ ▹ G : comp_cat_nat_trans_ob _ _) A
+    =
+    comp_cat_functor_coerce G (comp_cat_type_fib_nat_trans τ A)
+    · comp_cat_functor_subst_ty_coe _ _ _.
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">unfold</span> comp_cat_type_fib_nat_trans.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> fiber_functor_natural_inv.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> assoc_disp_var.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">rewrite</span> !cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> &lt;- disp_functor_comp_var.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> disp_functor_transportf.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/CompCatUniv/CompCatOb.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Equational lemmas for functors
+  &gt;  9. Equational lemmas for natural transformations
+  &gt;                                                                                             *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

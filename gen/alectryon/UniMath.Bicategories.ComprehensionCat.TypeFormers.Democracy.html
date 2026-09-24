@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Democracy.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Democratic full comprehension categories</span>
+
+<span class="sd"> In this file, we define democratic comprehension categories. Our notion of democracy is</span>
+<span class="sd"> taken from the work by Clairambault and Dybjer. More specifically, a full comprehension</span>
+<span class="sd"> category is called democratic if for every context `Γ` there is a type `A` in the empty</span>
+<span class="sd"> context `[]` such `Γ` is isomorphic to the context extension `[] &amp; A`. One could also</span>
+<span class="sd"> formulate this requirement using the comprehension functor. More specifically, a full</span>
+<span class="sd"> comprehension category is said to be democratic if the comprehension functor is split</span>
+<span class="sd"> essentially surjective on the fiber of the empty context (compare to Proposition 2.8 in</span>
+<span class="sd"> 'The biequivalence of locally cartesian closed categories and Martin-Löf type theories'</span>
+<span class="sd"> and the corresponding statement [is_democratic_weq_split_essentially_surjective]).</span>
+
+<span class="sd"> Note that we only define democracy for full comprehension categories. The reason to do so,</span>
+<span class="sd"> comes from the fact that for full comprehension categories, there is a unique proof of</span>
+<span class="sd"> democracy. We can understand this from the second and more concise formulation of democracy.</span>
+<span class="sd"> If a functor `F` between univalent categories is fully faithful, then the type that `F`</span>
+<span class="sd"> is split essentially surjective is a proposition. The reason for that is that due to the</span>
+<span class="sd"> fully faithfulness of `F` essential surjectivity is equivalent to split essential</span>
+<span class="sd"> surjectivity.</span>
+
+<span class="sd"> The fact that being democratic is a proposition for full comprehension categories, allows</span>
+<span class="sd"> us to define the bicategory of democratic full comprehension categories as a subbicategory</span>
+<span class="sd"> of the bicategory of comprehension categories. Univalence then follows directly from the</span>
+<span class="sd"> univalence of the subbicategory.</span>
+
+<span class="sd"> Another important thing to notice is what morphisms of democratic comprehension categories</span>
+<span class="sd"> are. In the paper by Clairambault and Dybjer morphisms are required to preserve democracy.</span>
+<span class="sd"> However, this requirement is automatic. If one stares at the diagram of Definition 3.6 in</span>
+<span class="sd"> that paper, then one can see (after some pondering) that all morphisms in that diagram are</span>
+<span class="sd"> isomorphisms. As such, there must be a unique `d_Γ` that makes this diagram commute. Note</span>
+<span class="sd"> that we need to use pseudo morphisms here, because otherwise, context extension is not</span>
+<span class="sd"> necessarily preserved up to isomorphism. Note that in the proof we make use of the fact</span>
+<span class="sd"> that our comprehension category is full. Since fully faithful displayed functors reflect</span>
+<span class="sd"> isomorphisms, we can construct the desired isomorphism (of types) by constructing an</span>
+<span class="sd"> isomorphism in the slice category (where it is fixed by the diagram). The corresponding</span>
+<span class="sd"> statement in the formalization is stated as 'the type that a functor is democratic, is</span>
+<span class="sd"> contractible' ([iscontr_is_democratic_functor]).</span>
+
+<span class="sd"> This allows us to define the bicategory of democratic comprehension categories as a full</span>
+<span class="sd"> subbicategory of the bicategory of full comprehension categories.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - 'The biequivalence of locally cartesian closed categories and Martin-Löf type theories'</span>
+<span class="sd">   by Clairambault and Dybjer.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Democratic full comprehension categories</span>
+<span class="sd"> 2. Functors that preserve democracy</span>
+<span class="sd"> 3. The displayed bicategory of democratic full comprehension categories</span>
+<span class="sd"> 4. The univalence of this displayed bicategory</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.FullyFaithfulDispFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. Democratic full comprehension categories *)</span>
+<span class="kn">Definition</span> <span class="nf">is_democratic</span>
+           (<span class="nv">C</span> : full_comp_cat)
+  : UU
+  := ∏ (Γ : C),
+     ∑ (A : ty []),
+     z_iso Γ ([] &amp; A).
+
+<span class="kn">Definition</span> <span class="nf">is_democratic_ty</span>
+           {<span class="nv">C</span> : full_comp_cat}
+           (<span class="nv">D</span> : is_democratic C)
+           (<span class="nv">Γ</span> : C)
+  : ty []
+  := pr1 (D Γ).
+
+<span class="kn">Definition</span> <span class="nf">is_democratic_iso</span>
+           {<span class="nv">C</span> : full_comp_cat}
+           (<span class="nv">D</span> : is_democratic C)
+           (<span class="nv">Γ</span> : C)
+  : z_iso Γ ([] &amp; is_democratic_ty D Γ)
+  := pr2 (D Γ).
+
+<span class="kn">Definition</span> <span class="nf">is_democratic_mor</span>
+           {<span class="nv">C</span> : full_comp_cat}
+           (<span class="nv">D</span> : is_democratic C)
+           (<span class="nv">Γ</span> : C)
+  : Γ --&gt; [] &amp; is_democratic_ty D Γ
+  := pr1 (is_democratic_iso D Γ).
+
+<span class="kn">Proposition</span> <span class="nf">transportf_dem</span>
+            {<span class="nv">C</span> : full_comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A₁</span> <span class="nv">A₂</span> : ty (empty_context C)}
+            (<span class="nv">p</span> : A₁ = A₂)
+            (<span class="nv">s</span> : Γ --&gt; [] &amp; A₁)
+  : transportf (<span class="k">λ</span> <span class="nv">A</span>, Γ --&gt; [] &amp; A) p s
+    =
+    s · comp_cat_comp_mor (idtoiso_disp (idpath _) p : _ --&gt;[ _ ] _).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> comp_cat_comp_mor.
+  <span class="nb">rewrite</span> comprehension_functor_mor_id.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_is_democratic</span>
+            {<span class="nv">C</span> : full_comp_cat}
+            {<span class="nv">D₁</span> <span class="nv">D₂</span> : is_democratic C}
+            (<span class="nv">p</span> : ∏ (Γ : C), is_democratic_ty D₁ Γ = is_democratic_ty D₂ Γ)
+            (<span class="nv">q</span> : ∏ (Γ : C),
+                 is_democratic_iso D₁ Γ
+                 · comp_cat_comp_mor (idtoiso_disp (idpath _) (p Γ)  : _ --&gt;[ _ ] _)
+                 =
+                 is_democratic_iso D₂ Γ)
+  : D₁ = D₂.
+<span class="kn">Proof</span>.
+  use funextsec ; <span class="nb">intro</span> Γ.
+  use total2_paths_f.
+  - <span class="bp">exact</span> (p Γ).
+  - use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_z_isomorphism.
+    }
+    <span class="nb">unfold</span> z_iso.
+    <span class="nb">rewrite</span> pr1_transportf.
+    <span class="nb">rewrite</span> transportf_dem.
+    <span class="bp">exact</span> (q Γ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_is_democratic</span>
+           (<span class="nv">C</span> : full_comp_cat)
+  : isaprop (is_democratic C).
+<span class="kn">Proof</span>.
+  use invproofirrelevance.
+  <span class="nb">intros</span> D₁ D₂.
+  use eq_is_democratic.
+  - <span class="nb">intro</span> Γ.
+    use (isotoid_disp
+           (disp_univalent_category_is_univalent_disp _)
+           (idpath _)
+           _).
+    use (disp_functor_ff_reflect_disp_iso
+           _
+           (full_comp_cat_comprehension_fully_faithful C)).
+    use z_iso_disp_codomain.
+    + <span class="bp">exact</span> (z_iso_comp
+               (z_iso_inv (is_democratic_iso D₁ Γ))
+               (is_democratic_iso D₂ Γ)).
+    + use TerminalArrowEq.
+  - <span class="nb">intro</span> Γ.
+    <span class="nb">cbn</span> -[idtoiso_disp].
+    <span class="nb">rewrite</span> idtoiso_isotoid_disp.
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (maponpaths
+               pr1
+               (FF_disp_functor_ff_inv
+                  (full_comp_cat_comprehension_fully_faithful C)
+                  _)).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_democratic_weq_split_essentially_surjective</span>
+           (<span class="nv">C</span> : full_comp_cat)
+  : is_democratic C
+    ≃
+    split_essentially_surjective (fiber_functor (comp_cat_comprehension C) []).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">intros</span> D Γ.
+    <span class="nb">refine</span> (is_democratic_ty D (pr1 Γ) ,, _).
+    use make_z_iso.
+    + <span class="nb">refine</span> (inv_from_z_iso (is_democratic_iso D (pr1 Γ)) ,, _).
+      <span class="nb">apply</span> TerminalArrowEq.
+    + <span class="nb">refine</span> (pr1 (is_democratic_iso D (pr1 Γ)) ,, _).
+      <span class="nb">apply</span> TerminalArrowEq.
+    + <span class="nb">split</span>.
+      * use eq_cod_mor ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> transportf_cod_disp ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+      * use eq_cod_mor ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> transportf_cod_disp ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> z_iso_inv_after_z_iso.
+  - <span class="nb">intros</span> H Γ.
+    <span class="nb">pose</span> ((Γ ,, TerminalArrow _ Γ) : (disp_codomain C)[{functor_identity C []}])
+      <span class="k">as</span> Γ'.
+    <span class="nb">pose</span> (A := pr1 (H Γ')).
+    <span class="nb">pose</span> (i := pr2 (H Γ')).
+    <span class="nb">refine</span> (A ,, _).
+    use make_z_iso.
+    + <span class="bp">exact</span> (pr1 (inv_from_z_iso i)).
+    + <span class="bp">exact</span> (pr11 i).
+    + <span class="nb">split</span>.
+      * <span class="nb">refine</span> (_ @ maponpaths pr1 (z_iso_after_z_iso_inv i)).
+        <span class="nb">cbn</span>.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0.
+             <span class="nb">apply</span> (transportf_cod_disp(x:=[])(y:=[])(xx:=Γ')(yy:=Γ') C). }
+        <span class="nb">apply</span> idpath.
+      * <span class="nb">refine</span> (_ @ maponpaths pr1 (z_iso_inv_after_z_iso i)).
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> transportf_cod_disp.
+        <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> isaprop_is_democratic.
+  - use isaprop_split_essentially_surjective.
+    + use is_univalent_fiber.
+      use disp_univalent_category_is_univalent_disp.
+    + use fiber_functor_ff.
+      <span class="nb">apply</span> full_comp_cat_comprehension_fully_faithful.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Functors that preserve democracy *)</span>
+<span class="kn">Definition</span> <span class="nf">democratic_functor_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">D₁</span> : is_democratic C₁)
+           (<span class="nv">D₂</span> : is_democratic C₂)
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+  : UU
+  := ∏ (Γ : C₁),
+     z_iso_disp
+       (identity_z_iso _)
+       (comp_cat_type_functor F [] (is_democratic_ty D₁ Γ))
+       ((is_democratic_ty D₂ (F Γ)) [[ TerminalArrow _ _ ]]).
+
+<span class="kn">Definition</span> <span class="nf">democratic_functor_laws_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           {<span class="nv">D₁</span> : is_democratic C₁}
+           {<span class="nv">D₂</span> : is_democratic C₂}
+           {<span class="nv">F</span> : full_comp_cat_functor C₁ C₂}
+           (<span class="nv">d</span> : democratic_functor_data D₁ D₂ F)
+           (<span class="nv">Γ</span> : C₁)
+  : z_iso (F Γ) ([] &amp; is_democratic_ty D₂ (F Γ))
+  := z_iso_comp
+       (functor_on_z_iso F (is_democratic_iso D₁ Γ))
+       (z_iso_comp
+          (comp_cat_functor_extension F [] (is_democratic_ty D₁ Γ))
+          (z_iso_comp
+             (comp_cat_comp_z_iso (d Γ))
+             (comp_cat_extend_over_iso
+                _
+                _
+                (comp_cat_functor_empty_context_is_z_iso _)))).
+
+<span class="kn">Definition</span> <span class="nf">democratic_functor_laws</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           {<span class="nv">D₁</span> : is_democratic C₁}
+           {<span class="nv">D₂</span> : is_democratic C₂}
+           {<span class="nv">F</span> : full_comp_cat_functor C₁ C₂}
+           (<span class="nv">d</span> : democratic_functor_data D₁ D₂ F)
+  : UU
+  := ∏ (Γ : C₁),
+     (is_democratic_iso D₂ (F Γ) : _ --&gt; _)
+     =
+     democratic_functor_laws_mor d Γ.
+
+<span class="kn">Definition</span> <span class="nf">is_democratic_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">D₁</span> : is_democratic C₁)
+           (<span class="nv">D₂</span> : is_democratic C₂)
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+  : UU
+  := ∑ (d : democratic_functor_data D₁ D₂ F),
+     democratic_functor_laws d.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_democratic_functor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+            (<span class="nv">D₁</span> : is_democratic C₁)
+            (<span class="nv">D₂</span> : is_democratic C₂)
+            (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+  : isaprop (is_democratic_functor D₁ D₂ F).
+<span class="kn">Proof</span>.
+  use invproofirrelevance.
+  <span class="nb">intros</span> φ₁ φ₂.
+  use subtypePath.
+  {
+
+    <span class="nb">intro</span>.
+    use impred ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> homset_property.
+  }
+  use funextsec ; <span class="nb">intro</span> Γ.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_z_iso_disp.
+  }
+  use (invmaponpathsweq
+         (disp_functor_ff_weq _ (full_comp_cat_comprehension_fully_faithful C₂) _ _ _)).
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">pose</span> (!(pr2 φ₁ Γ) @ pr2 φ₂ Γ) <span class="k">as</span> p.
+  <span class="nb">unfold</span> democratic_functor_laws_mor <span class="k">in</span> p.
+  use (cancel_z_iso
+         _ _
+         (comp_cat_extend_over_iso
+            (is_democratic_ty D₂ (F Γ))
+            (TerminalArrow [] (F []))
+            (comp_cat_functor_empty_context_is_z_iso F))).
+  use (cancel_z_iso'
+         (comp_cat_functor_extension F [] (is_democratic_ty D₁ Γ))).
+  use (cancel_z_iso'
+         (functor_on_z_iso F (is_democratic_iso D₁ Γ))).
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">AllAreDemocratic</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+          (<span class="nv">D₁</span> : is_democratic C₁)
+          (<span class="nv">D₂</span> : is_democratic C₂)
+          (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂).
+
+  <span class="kn">Section</span> <span class="nf">TheIso</span>.
+    <span class="kn">Context</span> (<span class="nv">Γ</span> : C₁).
+
+    <span class="kn">Definition</span> <span class="nf">all_functor_democratic_iso</span>
+      : z_iso
+          (F [] &amp; comp_cat_type_functor F [] (is_democratic_ty D₁ Γ))
+          (F [] &amp; (is_democratic_ty D₂ (F Γ) [[TerminalArrow [] (F [])]]))
+      := z_iso_comp
+           (z_iso_comp
+              (z_iso_inv
+                 (comp_cat_functor_extension F [] (is_democratic_ty D₁ Γ)))
+              (z_iso_comp
+                 (functor_on_z_iso
+                    F
+                    (z_iso_inv (is_democratic_iso D₁ Γ)))
+                 (is_democratic_iso D₂ (F Γ))))
+           (z_iso_inv
+              (comp_cat_extend_over_iso
+                 _
+                 _
+                 (comp_cat_functor_empty_context_is_z_iso F))).
+
+    <span class="kn">Proposition</span> <span class="nf">all_functor_democratic_data_eq</span>
+      : all_functor_democratic_iso · π _ = π _ · identity _.
+    <span class="kn">Proof</span>.
+      use comp_cat_functor_empty_context_arrow_eq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">all_functor_democratic_data</span>
+      : z_iso_disp
+          (identity_z_iso (F []))
+          (comp_cat_type_functor F [] (is_democratic_ty D₁ Γ))
+          (is_democratic_ty D₂ (F Γ) [[TerminalArrow [] (F [])]]).
+    <span class="kn">Proof</span>.
+      use (disp_functor_ff_reflect_disp_iso
+             _
+             (full_comp_cat_comprehension_fully_faithful C₂)).
+      use z_iso_disp_codomain.
+      - <span class="bp">exact</span> all_functor_democratic_iso.
+      - <span class="bp">exact</span> all_functor_democratic_data_eq.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">TheIso</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">all_functor_democratic_laws</span>
+    : democratic_functor_laws all_functor_democratic_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Γ.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">unfold</span> democratic_functor_laws_mor, all_functor_democratic_data.
+    <span class="nb">cbn</span> -[comp_cat_functor_extension comp_cat_comp_z_iso comp_cat_extend_over_iso].
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (maponpaths
+               pr1
+               (FF_disp_functor_ff_inv (full_comp_cat_comprehension_fully_faithful C₂) _)).
+    }
+    <span class="nb">cbn</span> -[comp_cat_extend_over_iso].
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (z_iso_inv_after_z_iso
+               (comp_cat_functor_extension F [] (is_democratic_ty D₁ Γ))).
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> z_iso_after_z_iso_inv.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">AllAreDemocratic</span>.
+
+<span class="kn">Proposition</span> <span class="nf">all_functors_democratic</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+            (<span class="nv">D₁</span> : is_democratic C₁)
+            (<span class="nv">D₂</span> : is_democratic C₂)
+            (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+  : is_democratic_functor D₁ D₂ F.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (all_functor_democratic_data D₁ D₂ F).
+  - <span class="bp">exact</span> (all_functor_democratic_laws D₁ D₂ F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">iscontr_is_democratic_functor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+            (<span class="nv">D₁</span> : is_democratic C₁)
+            (<span class="nv">D₂</span> : is_democratic C₂)
+            (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+  : iscontr (is_democratic_functor D₁ D₂ F).
+<span class="kn">Proof</span>.
+  use iscontraprop1.
+  - <span class="bp">exact</span> (isaprop_is_democratic_functor D₁ D₂ F).
+  - <span class="bp">exact</span> (all_functors_democratic D₁ D₂ F).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. The displayed bicategory of democratic full comprehension categories *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_of_democracy</span>
+  : disp_bicat bicat_full_comp_cat
+  := disp_fullsubbicat _ (<span class="k">λ</span> (<span class="nv">C</span> : full_comp_cat), is_democratic C).
+
+<span class="sd">(** * 4. The univalence of this displayed bicategory *)</span>
+<span class="kn">Definition</span> <span class="nf">univalent_2_1_disp_bicat_of_democracy</span>
+  : disp_univalent_2_1 disp_bicat_of_democracy.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_fullsubbicat_univalent_2_1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_2_0_disp_bicat_of_democracy</span>
+  : disp_univalent_2_0 disp_bicat_of_democracy.
+<span class="kn">Proof</span>.
+  use disp_univalent_2_0_fullsubbicat.
+  - <span class="bp">exact</span> is_univalent_2_bicat_full_comp_cat.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> isaprop_is_democratic.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_2_disp_bicat_of_democracy</span>
+  : disp_univalent_2 disp_bicat_of_democracy.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> univalent_2_0_disp_bicat_of_democracy.
+  - <span class="bp">exact</span> univalent_2_1_disp_bicat_of_democracy.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_of_democracy</span>
+  : disp_2cells_isaprop disp_bicat_of_democracy.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_2cells_isaprop_fullsubbicat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_disp_bicat_of_democracy</span>
+  : disp_locally_groupoid disp_bicat_of_democracy.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_locally_groupoid_fullsubbicat.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/TypeFormers/Democracy.v</tt>, line 55)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The univalence of this displayed bicategory
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

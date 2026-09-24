@@ -1,0 +1,1134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AbelianMonoids.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  Abelian (Commutative) Monoids</span>
+
+<span class="sd">  For some examples, see [UniMath.NumberSystems.NaturalNumbersAlgebra].</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Basic definitions</span>
+<span class="sd">  2. Subobjects</span>
+<span class="sd">  3. Quotient objects</span>
+<span class="sd">  4. Direct products</span>
+<span class="sd">  5. Monoid of fractions of an abelian monoid</span>
+<span class="sd">  6. Canonical homomorphism to the monoid of fractions</span>
+<span class="sd">  7. Abelian monoid of fractions in the case when elements of the localization submonoid are cancelable</span>
+<span class="sd">  8. Relations on the abelian monoid of fractions</span>
+<span class="sd">  9. Relations and canonical homomorphism to [abmonoidfrac]</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Orders.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Magma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids2.
+
+<span class="kn">Declare Scope</span> addmonoid.
+<span class="kn">Delimit Scope</span> addmonoid <span class="k">with</span> addmonoid.
+<span class="kn">Notation</span> <span class="s2">"x + y"</span> := (op x y) : addmonoid.
+<span class="kn">Notation</span> <span class="s2">"0"</span> := (unel _) : addmonoid.
+
+<span class="sd">(** * 1. Basic definitions *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> addmonoid.
+
+<span class="kn">Definition</span> <span class="nf">abmonoid</span> : UU := abelian_monoid_category.
+
+<span class="kn">Definition</span> <span class="nf">make_abmonoid</span> (<span class="nv">t</span> : setwithbinop) (<span class="nv">H</span> : isabmonoidop (@op t))
+  : abmonoid
+  := t ,, H.
+
+<span class="kn">Definition</span> <span class="nf">abmonoidtomonoid</span> : abmonoid → monoid :=
+  <span class="k">λ</span> <span class="nv">X</span>, make_monoid (pr1 X) (pr1 (pr2 X)).
+<span class="kn">Coercion</span> <span class="nf">abmonoidtomonoid</span> : abmonoid &gt;-&gt; monoid.
+
+<span class="kn">Definition</span> <span class="nf">commax</span> (<span class="nv">X</span> : abmonoid) : iscomm (@op X) := pr2 (pr2 X).
+
+<span class="kn">Definition</span> <span class="nf">abmonoidrer</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : X) :
+  (a + b) + (c + d) = (a + c) + (b + d) := abmonoidoprer (pr2 X) a b c d.
+
+<span class="kn">Definition</span> <span class="nf">abmonoid_of_monoid</span> (<span class="nv">X</span> : monoid) (<span class="nv">H</span> : iscomm (@op X)) : abmonoid :=
+  make_abmonoid X (make_isabmonoidop (pr2 X) H).
+
+<span class="kn">Definition</span> <span class="nf">abelian_monoid_morphism</span>
+  (<span class="nv">X</span> <span class="nv">Y</span> : abmonoid)
+  : UU
+  := abelian_monoid_category⟦X, Y⟧%cat.
+
+<span class="kn">Definition</span> <span class="nf">abelian_monoid_morphism_to_monoidfun</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : abmonoid}
+  (<span class="nv">f</span> : abelian_monoid_morphism X Y)
+  : monoidfun X Y.
+<span class="kn">Proof</span>.
+  use make_monoidfun.
+  - <span class="bp">exact</span> (pr1 f : binopfun _ _).
+  - <span class="nb">apply</span> make_ismonoidfun.
+    + <span class="nb">apply</span> binopfunisbinopfun.
+    + <span class="bp">exact</span> (pr212 f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">abelian_monoid_morphism_to_monoidfun</span> : abelian_monoid_morphism &gt;-&gt; monoidfun.
+
+<span class="kn">Definition</span> <span class="nf">make_abelian_monoid_morphism</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : abmonoid}
+  (<span class="nv">f</span> : X → Y)
+  (<span class="nv">H</span> : ismonoidfun f)
+  : abelian_monoid_morphism X Y
+  := (f ,, pr1 H) ,, ((tt ,, pr2 H) ,, tt).
+
+<span class="kn">Definition</span> <span class="nf">monoidfun_to_abelian_monoid_morphism</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : abmonoid}
+  (<span class="nv">f</span> : monoidfun X Y)
+  : abelian_monoid_morphism X Y
+  := make_abelian_monoid_morphism f (ismonoidfun_monoidfun f).
+
+<span class="kn">Lemma</span> <span class="nf">abelian_monoid_morphism_paths</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : abmonoid}
+  (<span class="nv">f</span> <span class="nv">g</span> : abelian_monoid_morphism X Y)
+  (<span class="nv">H</span> : (f : X → Y) = g)
+  : f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath.
+  {
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">h</span> : magma_morphism _ _), _).
+    <span class="nb">refine</span> (isapropdirprod _ _ _ isapropunit).
+    <span class="nb">refine</span> (isapropdirprod _ _ isapropunit _).
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">apply</span> binopfun_paths.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abelian_monoid_morphism_eq</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : abmonoid}
+  {<span class="nv">f</span> <span class="nv">g</span> : abelian_monoid_morphism X Y}
+  : (f = g) ≃ (∏ x, f x = g x).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">intros</span> e x.
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> (<span class="nv">f</span> : abelian_monoid_morphism _ _), f x) e).
+  - <span class="nb">intro</span> e.
+    <span class="nb">apply</span> abelian_monoid_morphism_paths, funextfun.
+    <span class="bp">exact</span> e.
+  - <span class="kp">abstract</span> <span class="nb">apply</span> homset_property.
+  - <span class="kp">abstract</span> (
+      <span class="nb">apply</span> impred_isaprop;
+      <span class="nb">intro</span>;
+      <span class="nb">apply</span> setproperty
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">identity_abelian_monoid_morphism</span>
+  (<span class="nv">X</span> : abmonoid)
+  : abelian_monoid_morphism X X
+  := identity X.
+
+<span class="kn">Definition</span> <span class="nf">composite_abelian_monoid_morphism</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : abmonoid}
+  (<span class="nv">f</span> : abelian_monoid_morphism X Y)
+  (<span class="nv">g</span> : abelian_monoid_morphism Y Z)
+  : abelian_monoid_morphism X Z
+  := (f · g)%cat.
+
+
+<span class="sd">(** **** Construction of the trivial abmonoid consisting of one element given by unit. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">unitabmonoid_isabmonoid</span> : isabmonoidop (@op unitmonoid).
+<span class="kn">Proof</span>.
+  use make_isabmonoidop.
+  - <span class="bp">exact</span> unitmonoid_ismonoid.
+  - <span class="nb">intros</span> x x'. use isProofIrrelevantUnit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">unitabmonoid</span> : abmonoid := make_abmonoid unitmonoid unitabmonoid_isabmonoid.
+
+<span class="kn">Lemma</span> <span class="nf">unelabmonoidfun_ismonoidfun</span> (<span class="nv">X</span> <span class="nv">Y</span> : abmonoid) : ismonoidfun (Y := Y) (<span class="k">λ</span> <span class="nv">x</span> : X, <span class="mi">0</span>).
+<span class="kn">Proof</span>.
+  use make_ismonoidfun.
+  - use make_isbinopfun. <span class="nb">intros</span> x x'. <span class="bp">exact</span> (!lunax _ _).
+  - use idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">unelabmonoidfun</span> (<span class="nv">X</span> <span class="nv">Y</span> : abmonoid) : monoidfun X Y :=
+  make_monoidfun (unelabmonoidfun_ismonoidfun X Y).
+
+
+<span class="sd">(** **** Abelian monoid structure on homsets</span>
+<span class="sd">    If f g : X → Y are morphisms of abelian monoids, then we define f + g to be the morphism</span>
+<span class="sd">    (f + g)(x) = f(x) + g(x).</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidshombinop_ismonoidfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : abmonoid} (<span class="nv">f</span> <span class="nv">g</span> : monoidfun X Y) :
+  @ismonoidfun X Y (<span class="k">λ</span> <span class="nv">x</span> : X, f x + g x).
+<span class="kn">Proof</span>.
+  use make_ismonoidfun.
+  - use make_isbinopfun.
+    <span class="nb">intros</span> x x'. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (monoidfunmul f).
+    <span class="nb">rewrite</span> (monoidfunmul g).
+    <span class="nb">rewrite</span> (assocax Y). <span class="nb">rewrite</span> (assocax Y). use maponpaths.
+    <span class="nb">rewrite</span> &lt;- (assocax Y). <span class="nb">rewrite</span> &lt;- (assocax Y).
+    use (maponpaths (<span class="k">λ</span> <span class="nv">y</span> : Y, y + g x')).
+    use (commax Y).
+  - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span> : Y, f <span class="mi">0</span> + h) (monoidfununel g) @ _).
+    <span class="nb">rewrite</span> runax. <span class="bp">exact</span> (monoidfununel f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abmonoidshombinop</span> {<span class="nv">X</span> <span class="nv">Y</span> : abmonoid} : binop (monoidfun X Y) :=
+  (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span>, make_monoidfun (abmonoidshombinop_ismonoidfun f g)).
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidsbinop_runax</span> {<span class="nv">X</span> <span class="nv">Y</span> : abmonoid} (<span class="nv">f</span> : monoidfun X Y) :
+  abmonoidshombinop f (unelmonoidfun X Y) = f.
+<span class="kn">Proof</span>.
+  use monoidfun_paths. use funextfun. <span class="nb">intros</span> x. use (runax Y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidsbinop_lunax</span> {<span class="nv">X</span> <span class="nv">Y</span> : abmonoid} (<span class="nv">f</span> : monoidfun X Y) :
+  abmonoidshombinop (unelmonoidfun X Y) f = f.
+<span class="kn">Proof</span>.
+  use monoidfun_paths. use funextfun. <span class="nb">intros</span> x. use (lunax Y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidshombinop_assoc</span> {<span class="nv">X</span> <span class="nv">Y</span> : abmonoid} (<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : monoidfun X Y) :
+  abmonoidshombinop (abmonoidshombinop f g) h = abmonoidshombinop f (abmonoidshombinop g h).
+<span class="kn">Proof</span>.
+  use monoidfun_paths. use funextfun. <span class="nb">intros</span> x. use assocax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidshombinop_comm</span> {<span class="nv">X</span> <span class="nv">Y</span> : abmonoid} (<span class="nv">f</span> <span class="nv">g</span> : monoidfun X Y) :
+  abmonoidshombinop f g = abmonoidshombinop g f.
+<span class="kn">Proof</span>.
+  use monoidfun_paths. use funextfun. <span class="nb">intros</span> x. use (commax Y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidshomabmonoid_ismonoidop</span> (<span class="nv">X</span> <span class="nv">Y</span> : abmonoid) :
+  @ismonoidop (make_hSet (monoidfun X Y) (isasetmonoidfun X Y))
+              (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> : monoidfun X Y, abmonoidshombinop f g).
+<span class="kn">Proof</span>.
+  use make_ismonoidop.
+  - <span class="nb">intros</span> f g h. <span class="bp">exact</span> (abmonoidshombinop_assoc f g h).
+  - use make_isunital.
+    + <span class="bp">exact</span> (unelmonoidfun X Y).
+    + use make_isunit.
+      * <span class="nb">intros</span> f. <span class="bp">exact</span> (abmonoidsbinop_lunax f).
+      * <span class="nb">intros</span> f. <span class="bp">exact</span> (abmonoidsbinop_runax f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidshomabmonoid_isabmonoid</span> (<span class="nv">X</span> <span class="nv">Y</span> : abmonoid) :
+  @isabmonoidop (make_hSet (monoidfun X Y) (isasetmonoidfun X Y))
+                (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> : monoidfun X Y, abmonoidshombinop f g).
+<span class="kn">Proof</span>.
+  use make_isabmonoidop.
+  - <span class="bp">exact</span> (abmonoidshomabmonoid_ismonoidop X Y).
+  - <span class="nb">intros</span> f g. <span class="bp">exact</span> (abmonoidshombinop_comm f g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">abmonoidshomabmonoid</span> (<span class="nv">X</span> <span class="nv">Y</span> : abmonoid) : abmonoid.
+<span class="kn">Proof</span>.
+  use make_abmonoid.
+  - use make_setwithbinop.
+    + use make_hSet.
+      * <span class="bp">exact</span> (monoidfun X Y).
+      * <span class="bp">exact</span> (isasetmonoidfun X Y).
+    + <span class="nb">intros</span> f g. <span class="bp">exact</span> (abmonoidshombinop f g).
+  - <span class="bp">exact</span> (abmonoidshomabmonoid_isabmonoid X Y).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 2. Subobjects *)</span>
+
+<span class="kn">Definition</span> <span class="nf">subabmonoid</span> (<span class="nv">X</span> : abmonoid) := submonoid X.
+<span class="kn">Identity Coercion</span> <span class="nf">id_subabmonoid</span> : subabmonoid &gt;-&gt; submonoid.
+
+<span class="kn">Lemma</span> <span class="nf">iscommcarrier</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">A</span> : submonoid X) : iscomm (@op A).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a a'.
+  <span class="nb">apply</span> (invmaponpathsincl _ (isinclpr1carrier A)).
+  <span class="nb">simpl</span>. <span class="nb">apply</span> commax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isabmonoidcarrier</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">A</span> : submonoid X) :
+  isabmonoidop (@op A) := ismonoidcarrier A ,, iscommcarrier A.
+
+<span class="kn">Definition</span> <span class="nf">carrierofsubabmonoid</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">A</span> : subabmonoid X) : abmonoid.
+<span class="kn">Proof</span>.
+  use make_abmonoid.
+  - <span class="bp">exact</span> A.
+  - <span class="nb">apply</span> isabmonoidcarrier.
+<span class="kn">Defined</span>.
+<span class="kn">Coercion</span> <span class="nf">carrierofsubabmonoid</span> : subabmonoid &gt;-&gt; abmonoid.
+
+<span class="kn">Definition</span> <span class="nf">subabmonoid_incl</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">A</span> : subabmonoid X) : monoidfun A X :=
+submonoid_incl A.
+
+<span class="sd">(** * 3. Quotient objects *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">iscommquot</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">R</span> : binopeqrel X) : iscomm (@op (setwithbinopquot R)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (X0 := setwithbinopquot R).
+  <span class="nb">intros</span> x x'.
+  <span class="nb">apply</span> (setquotuniv2prop R (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">x'</span> : X0, make_hProp _ (setproperty X0 (x + x') (x' + x)))).
+  <span class="nb">intros</span> x0 x0'.
+  <span class="nb">apply</span> (maponpaths (setquotpr R) ((commax X) x0 x0')).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isabmonoidquot</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">R</span> : binopeqrel X) :
+  isabmonoidop (@op (setwithbinopquot R)) := ismonoidquot R ,, iscommquot R.
+
+<span class="kn">Definition</span> <span class="nf">abmonoidquot</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">R</span> : binopeqrel X) : abmonoid.
+<span class="kn">Proof</span>. <span class="k">exists</span> (<span class="nv">setwithbinopquot</span> <span class="nv">R</span>). <span class="nb">apply</span> isabmonoidquot. <span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 4. Direct products *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">iscommdirprod</span> (<span class="nv">X</span> <span class="nv">Y</span> : abmonoid) : iscomm (@op (setwithbinopdirprod X Y)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> xy xy'.
+  <span class="nb">induction</span> xy <span class="k">as</span> [ x y ]. <span class="nb">induction</span> xy' <span class="k">as</span> [ x' y' ]. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> pathsdirprod.
+  - <span class="nb">apply</span> (commax X).
+  - <span class="nb">apply</span> (commax Y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isabmonoiddirprod</span> (<span class="nv">X</span> <span class="nv">Y</span> : abmonoid) : isabmonoidop (@op (setwithbinopdirprod X Y)) :=
+  ismonoiddirprod X Y ,, iscommdirprod X Y.
+
+<span class="kn">Definition</span> <span class="nf">abmonoiddirprod</span> (<span class="nv">X</span> <span class="nv">Y</span> : abmonoid) : abmonoid.
+<span class="kn">Proof</span>. <span class="k">exists</span> (<span class="nv">setwithbinopdirprod</span> <span class="nv">X</span> <span class="nv">Y</span>). <span class="nb">apply</span> isabmonoiddirprod. <span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 5. Monoid of fractions of an abelian monoid</span>
+
+<span class="sd">Note : the following construction uses onbly associativity and commutativity</span>
+<span class="sd">of the [abmonoid] operations but does not use the unit element. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abmonoidfracopint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) :
+  binop (X × A) := @op (setwithbinopdirprod X A).
+
+<span class="kn">Definition</span> <span class="nf">hrelabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) : hrel (setwithbinopdirprod X A) :=
+  <span class="k">λ</span> <span class="nv">xa</span> <span class="nv">yb</span>, <span class="k">∃</span> (<span class="nv">a0</span> : A), (pr1 xa + pr1 (pr2 yb)) + pr1 a0 = (pr1 yb + pr1 (pr2 xa) + pr1 a0).
+
+<span class="kn">Lemma</span> <span class="nf">iseqrelabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) : iseqrel (hrelabmonoidfrac X A).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (assoc := assocax X). <span class="nb">set</span> (comm := commax X).
+  <span class="nb">set</span> (R := hrelabmonoidfrac X A).
+  <span class="nb">apply</span> iseqrelconstr.
+  - <span class="nb">unfold</span> istrans. <span class="nb">intros</span> ab cd ef. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun2.
+    <span class="nb">induction</span> ab <span class="k">as</span> [ a b ]. <span class="nb">induction</span> cd <span class="k">as</span> [ c d ]. <span class="nb">induction</span> ef <span class="k">as</span> [ e f ].
+    <span class="nb">induction</span> b <span class="k">as</span> [ b isb ]. <span class="nb">induction</span> d <span class="k">as</span> [ d isd ].  <span class="nb">induction</span> f <span class="k">as</span> [ f isf ].
+    <span class="nb">intros</span> eq1 eq2. <span class="nb">induction</span> eq1 <span class="k">as</span> [ x1 eq1 ]. <span class="nb">induction</span> eq2 <span class="k">as</span> [ x2 eq2 ].
+    <span class="nb">simpl</span> <span class="k">in</span> *. <span class="k">exists</span> (@op A (d ,, isd) (@op A x1 x2)).
+    <span class="nb">induction</span> x1 <span class="k">as</span> [ x1 isx1 ]. <span class="nb">induction</span> x2 <span class="k">as</span> [ x2 isx2 ].
+    <span class="nb">induction</span> A <span class="k">as</span> [ A ax ].
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> (assoc a f (d + (x1 + x2))). <span class="nb">rewrite</span> (comm f (d + (x1 + x2))).
+    <span class="nb">induction</span> (assoc a (d + (x1 + x2)) f). <span class="nb">induction</span> (assoc a d (x1 + x2)).
+    <span class="nb">induction</span> (assoc (a + d) x1 x2).
+    <span class="nb">rewrite</span> eq1. <span class="nb">rewrite</span> (comm x1 x2). <span class="nb">rewrite</span> (assoc e b (d + (x2 + x1))).
+    <span class="nb">rewrite</span> (comm b (d + (x2 + x1))).
+    <span class="nb">induction</span> (assoc e (d + (x2 + x1)) b). <span class="nb">induction</span> (assoc e d (x2 + x1)).
+    <span class="nb">induction</span> (assoc (e + d) x2 x1). <span class="nb">induction</span> eq2. <span class="nb">rewrite</span> (assoc (c + b) x1 x2).
+    <span class="nb">rewrite</span> (assoc (c + f) x2 x1). <span class="nb">rewrite</span> (comm x1 x2).
+    <span class="nb">rewrite</span> (assoc (c + b) (x2 + x1) f). <span class="nb">rewrite</span> (assoc (c + f) (x2 + x1) b).
+    <span class="nb">rewrite</span> (comm (x2 + x1) f). <span class="nb">rewrite</span> (comm (x2 + x1) b).
+    <span class="nb">induction</span> (assoc (c + b) f (x2 + x1)). <span class="nb">induction</span> (assoc (c + f) b (x2 + x1)).
+    <span class="nb">rewrite</span> (assoc c b f). <span class="nb">rewrite</span> (assoc c f b). <span class="nb">rewrite</span> (comm b f).
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> xa. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">xa</span>). <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> xa yb. <span class="nb">unfold</span> R. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> eq1.
+    <span class="nb">induction</span> eq1 <span class="k">as</span> [ x1 eq1 ]. <span class="k">exists</span> <span class="nv">x1</span>. <span class="nb">induction</span> x1 <span class="k">as</span> [ x1 isx1 ].
+    <span class="nb">simpl</span>. <span class="nb">apply</span> (!eq1).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">eqrelabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) : eqrel (setwithbinopdirprod X A) :=
+  make_eqrel (hrelabmonoidfrac X A) (iseqrelabmonoidfrac X A).
+
+<span class="kn">Lemma</span> <span class="nf">isbinophrelabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) :
+  @isbinophrel (setwithbinopdirprod X A) (eqrelabmonoidfrac X A).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (isbinopreflrel (eqrelabmonoidfrac X A) (eqrelrefl (eqrelabmonoidfrac X A))).
+  <span class="nb">set</span> (rer := abmonoidoprer (pr2 X)). <span class="nb">intros</span> a b c d. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> hinhfun2.
+  <span class="nb">induction</span> a <span class="k">as</span> [ a a' ]. <span class="nb">induction</span> a' <span class="k">as</span> [ a' isa' ].
+  <span class="nb">induction</span> b <span class="k">as</span> [ b b' ]. <span class="nb">induction</span> b' <span class="k">as</span> [ b' isb' ].
+  <span class="nb">induction</span> c <span class="k">as</span> [ c c' ]. <span class="nb">induction</span> c' <span class="k">as</span> [ c' isc' ].
+  <span class="nb">induction</span> d <span class="k">as</span> [ d d' ]. <span class="nb">induction</span> d' <span class="k">as</span> [ d' isd' ].
+  <span class="nb">intros</span> ax ay.
+  <span class="nb">induction</span> ax <span class="k">as</span> [ a1 eq1 ]. <span class="nb">induction</span> ay <span class="k">as</span> [ a2 eq2 ].
+  <span class="k">exists</span> (@op A  a1 a2).
+  <span class="nb">induction</span> a1 <span class="k">as</span> [ a1 aa1 ]. <span class="nb">induction</span> a2 <span class="k">as</span> [ a2 aa2 ].
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x + _) (rer a c b' d') @ !_).
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x + _) (rer b d a' c') @ !_).
+  <span class="nb">refine</span> (rer (a + b') (c + d') a1 a2 @ !_).
+  <span class="nb">refine</span> (rer (b + a') (d + c') a1 a2 @ !_).
+  <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x + _) eq1 @ maponpaths _ eq2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abmonoidfracop</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) :
+  binop (setquot (hrelabmonoidfrac X A)) :=
+  setquotfun2 (hrelabmonoidfrac X A) (eqrelabmonoidfrac X A) (abmonoidfracopint X A)
+              ((iscompbinoptransrel _ (eqreltrans _) (isbinophrelabmonoidfrac X A))).
+
+<span class="kn">Definition</span> <span class="nf">binopeqrelabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) :
+  binopeqrel (abmonoiddirprod X A) :=
+  @make_binopeqrel (setwithbinopdirprod X A) (eqrelabmonoidfrac X A) (isbinophrelabmonoidfrac X A).
+
+<span class="kn">Definition</span> <span class="nf">abmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) : abmonoid :=
+  abmonoidquot (binopeqrelabmonoidfrac X A).
+
+<span class="kn">Definition</span> <span class="nf">prabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) : X → A → abmonoidfrac X A :=
+  <span class="k">λ</span> (<span class="nv">x</span> : X) (<span class="nv">a</span> : A), setquotpr (eqrelabmonoidfrac X A) (x ,, a).
+
+<span class="c">(* ??? could the use of [issubabmonoid] in [binopeqrelabmonoidfrac] and</span>
+<span class="c"> [submonoid] in [abmonoidfrac] lead to complications for the unification</span>
+<span class="c"> machinery? See also [abmonoidfracisbinoprelint] below. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">invertibilityinabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) :
+  ∏ a a' : A, isinvertible (@op (abmonoidfrac X A)) (prabmonoidfrac X A (pr1 a) a').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a a'.
+  <span class="nb">set</span> (R := eqrelabmonoidfrac X A). <span class="nb">unfold</span> isinvertible.
+  <span class="nb">assert</span> (isl : islinvertible (@op (abmonoidfrac X A))
+                              (prabmonoidfrac X A (pr1 a) a')).
+  {
+    <span class="nb">unfold</span> islinvertible.
+    <span class="nb">set</span> (f := <span class="k">λ</span> <span class="nv">x0</span> : abmonoidfrac X A, prabmonoidfrac X A (pr1 a) a' + x0).
+    <span class="nb">set</span> (g := <span class="k">λ</span> <span class="nv">x0</span> : abmonoidfrac X A, prabmonoidfrac X A (pr1 a') a + x0).
+    <span class="nb">assert</span> (egf : ∏ x0, g (f x0) = x0).
+    {
+      <span class="nb">apply</span> (setquotunivprop R (<span class="k">λ</span> <span class="nv">x</span>, _ = _)%logic).
+      <span class="nb">intro</span> xb. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> (iscompsetquotpr
+               R (pr1 a' + (pr1 a + pr1 xb) ,, (@op A) a ((@op A) a' (pr2 xb)))).
+      <span class="nb">simpl</span>. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">A</span>). <span class="nb">unfold</span> pr1carrier. <span class="nb">simpl</span>.
+      <span class="nb">set</span> (e := assocax X (pr1 a) (pr1 a') (pr1 (pr2 xb))).
+      <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">induction</span> e.
+      <span class="nb">set</span> (e := assocax X (pr1 xb) (pr1 a + pr1 a') (pr1 (pr2 xb))).
+      <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">induction</span> e.
+      <span class="nb">set</span> (e := assocax X (pr1 a') (pr1 a) (pr1 xb)).
+      <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">induction</span> e.
+      <span class="nb">set</span> (e := commax X (pr1 a) (pr1 a')).
+      <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">induction</span> e.
+      <span class="nb">set</span> (e := commax X (pr1 a + pr1 a') (pr1 xb)).
+      <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">induction</span> e.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (efg : ∏ x0, f (g x0) = x0).
+    {
+      <span class="nb">apply</span> (setquotunivprop R (<span class="k">λ</span> <span class="nv">x0</span>, _ = _)%logic).
+      <span class="nb">intro</span> xb. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> (iscompsetquotpr
+               R (pr1 a + (pr1 a' + pr1 xb) ,, (@op A) a' ((@op A) a (pr2 xb)))).
+      <span class="nb">simpl</span>. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">A</span>). <span class="nb">unfold</span> pr1carrier. <span class="nb">simpl</span>.
+      <span class="nb">set</span> (e := assocax X (pr1 a') (pr1 a) (pr1 (pr2 xb))).
+      <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">induction</span> e.
+      <span class="nb">set</span> (e := assocax X (pr1 xb) (pr1 a' + pr1 a) (pr1 (pr2 xb))).
+      <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">induction</span> e.
+      <span class="nb">set</span> (e := assocax X (pr1 a) (pr1 a') (pr1 xb)).
+      <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">induction</span> e.
+      <span class="nb">set</span> (e := commax X (pr1 a') (pr1 a)).
+      <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">induction</span> e.
+      <span class="nb">set</span> (e := commax X (pr1 a' + pr1 a) (pr1 xb)).
+      <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">induction</span> e.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">apply</span> (isweq_iso _ _ egf efg).
+  }
+  <span class="bp">exact</span> (
+    isl ,,
+    weqlinvertiblerinvertible op (commax (abmonoidfrac X A)) (prabmonoidfrac X A (pr1 a) a') isl
+  ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Canonical homomorphism to the monoid of fractions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">toabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) (<span class="nv">x</span> : X) : abmonoidfrac X A :=
+  setquotpr _ (x ,, unel A).
+
+<span class="kn">Lemma</span> <span class="nf">isbinopfuntoabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) : isbinopfun (toabmonoidfrac X A).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> isbinopfun. <span class="nb">intros</span> x1 x2.
+  <span class="nb">change</span> (setquotpr _ (x1 + x2 ,, @unel A)
+          = setquotpr (eqrelabmonoidfrac X A) (x1 + x2 ,, unel A + unel A)).
+  <span class="nb">apply</span> (maponpaths (setquotpr _)).
+  <span class="nb">apply</span> (@pathsdirprod X A).
+  <span class="nb">apply</span> idpath.
+  <span class="bp">exact</span> (!lunax A <span class="mi">0</span>).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isunitalfuntoabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) :
+  toabmonoidfrac X A <span class="mi">0</span> = <span class="mi">0</span>.
+<span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ismonoidfuntoabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) :
+  ismonoidfun (toabmonoidfrac X A) :=
+  isbinopfuntoabmonoidfrac X A ,, isunitalfuntoabmonoidfrac X A.
+
+
+<span class="sd">(** * 7. Abelian monoid of fractions in the case when elements of the localization submonoid are cancelable *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hrel0abmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) : hrel (X × A) :=
+  <span class="k">λ</span> <span class="nv">xa</span> <span class="nv">yb</span> : setdirprod X A, (pr1 xa + pr1 (pr2 yb) = pr1 yb + pr1 (pr2 xa))%logic.
+
+<span class="kn">Lemma</span> <span class="nf">weqhrelhrel0abmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X)
+      (<span class="nv">iscanc</span> : ∏ a : A, isrcancelable (@op X) (pr1carrier _ a))
+      (<span class="nv">xa</span> <span class="nv">xa'</span> : X × A) : (eqrelabmonoidfrac X A xa xa') ≃ (hrel0abmonoidfrac X A xa xa').
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> eqrelabmonoidfrac. <span class="nb">unfold</span> hrelabmonoidfrac. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> weqimplimpl.
+  <span class="nb">apply</span> (@hinhuniv _ (pr1 xa + pr1 (pr2 xa') = pr1 xa' + pr1 (pr2 xa))%logic).
+  <span class="nb">intro</span> ae. <span class="nb">induction</span> ae <span class="k">as</span> [ a eq ].
+  <span class="nb">apply</span> (invmaponpathsincl _ (iscanc a) _ _ eq).
+  <span class="nb">intro</span> eq. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">A</span>). <span class="nb">rewrite</span> (runax X).
+  <span class="nb">rewrite</span> (runax X). <span class="nb">apply</span> eq. <span class="nb">apply</span> (isapropishinh _).
+  <span class="nb">apply</span> (setproperty X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinclprabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X)
+      (<span class="nv">iscanc</span> : ∏ a : A, isrcancelable (@op X) (pr1carrier _ a)) :
+  ∏ a' : A, isincl (<span class="k">λ</span> <span class="nv">x</span>, prabmonoidfrac X A x a').
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> a'. <span class="nb">apply</span> isinclbetweensets.
+  - <span class="nb">apply</span> (setproperty X).
+  - <span class="nb">apply</span> (setproperty (abmonoidfrac X A)).
+  - <span class="nb">intros</span> x x'. <span class="nb">intro</span> e.
+    <span class="nb">set</span> (e' := invweq (weqpathsinsetquot (eqrelabmonoidfrac X A) (x ,, a')
+                                         (x' ,, a')) e).
+    <span class="nb">set</span> (e'' := weqhrelhrel0abmonoidfrac X A iscanc (_ ,, _) (_ ,, _) e').
+    <span class="nb">simpl</span> <span class="k">in</span> e''.
+    <span class="nb">apply</span> (invmaponpathsincl _ (iscanc a')).
+    <span class="nb">apply</span> e''.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isincltoabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X)
+           (<span class="nv">iscanc</span> : ∏ a : A, isrcancelable (@op X) (pr1carrier _ a)) :
+  isincl (toabmonoidfrac X A) := isinclprabmonoidfrac X A iscanc (unel A).
+
+<span class="kn">Lemma</span> <span class="nf">isdeceqabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X)
+      (<span class="nv">iscanc</span> : ∏ a : A, isrcancelable (@op X) (pr1carrier _ a)) (<span class="nv">isc</span> : isdeceq X) :
+  isdeceq (abmonoidfrac X A).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isdeceqsetquot (eqrelabmonoidfrac X A)). <span class="nb">intros</span> xa xa'.
+  <span class="nb">apply</span> (isdecpropweqb (weqhrelhrel0abmonoidfrac X A iscanc xa xa')).
+  <span class="nb">apply</span> isdecpropif. <span class="nb">unfold</span> isaprop. <span class="nb">simpl</span>.
+  <span class="nb">set</span> (int := setproperty X (pr1 xa + pr1 (pr2 xa')) (pr1 xa' + pr1 (pr2 xa))).
+  <span class="nb">simpl</span> <span class="k">in</span> int. <span class="nb">apply</span> int. <span class="nb">unfold</span> hrel0abmonoidfrac.
+  <span class="nb">simpl</span>. <span class="nb">apply</span> (isc _ _).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 8. Relations on the abelian monoid of fractions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) (<span class="nv">L</span> : hrel X) :
+  hrel (setwithbinopdirprod X A) :=
+  <span class="k">λ</span> <span class="nv">xa</span> <span class="nv">yb</span>, <span class="k">∃</span> (<span class="nv">c0</span> : A), L (((pr1 xa) + (pr1 (pr2 yb))) + (pr1 c0))
+                                  (((pr1 yb) + (pr1 (pr2 xa))) + (pr1 c0)).
+
+<span class="kn">Lemma</span> <span class="nf">iscomprelabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) : iscomprelrel (eqrelabmonoidfrac X A) (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (assoc := (assocax X) : isassoc (@op X)).
+  <span class="nb">unfold</span> isassoc <span class="k">in</span> assoc. <span class="nb">set</span> (comm := commax X). <span class="nb">unfold</span> iscomm <span class="k">in</span> comm.
+  <span class="nb">set</span> (rer := abmonoidrer X). <span class="nb">apply</span> iscomprelrelif.
+  <span class="nb">apply</span> (eqrelsymm (eqrelabmonoidfrac X A)).
+  - <span class="nb">intros</span> xa xa' yb. <span class="nb">unfold</span> hrelabmonoidfrac. <span class="nb">simpl</span>. <span class="nb">apply</span> (@hinhfun2).
+    <span class="nb">intros</span> t2e t2l.
+    <span class="nb">induction</span> t2e <span class="k">as</span> [ c1a e ]. <span class="nb">induction</span> t2l <span class="k">as</span> [ c0a l ].
+    <span class="nb">set</span> (x := pr1 xa). <span class="nb">set</span> (a := pr1 (pr2 xa)).
+    <span class="nb">set</span> (x' := pr1 xa'). <span class="nb">set</span> (a' := pr1 (pr2 xa')).
+    <span class="nb">set</span> (y := pr1 yb). <span class="nb">set</span> (b := pr1 (pr2 yb)).
+    <span class="nb">set</span> (c0 := pr1 c0a). <span class="nb">set</span> (c1 := pr1 c1a).
+    <span class="k">exists</span> ((pr2 xa) + c1a + c0a).
+    <span class="nb">change</span> (L ((x' + b) + ((a + c1) + c0)) ((y + a') + ((a + c1) + c0))).
+    <span class="nb">change</span> (x + a' + c1 = x' + a + c1) <span class="k">in</span> e.
+    <span class="nb">rewrite</span> (rer x' _ _ c0).
+    <span class="nb">induction</span> (assoc x' a c1). <span class="nb">induction</span> e.
+    <span class="nb">rewrite</span> (assoc x a' c1). <span class="nb">rewrite</span> (rer x _ _ c0). <span class="nb">rewrite</span> (assoc a c1 c0).
+    <span class="nb">rewrite</span> (rer _ a' a _). <span class="nb">rewrite</span> (assoc a' c1 c0). <span class="nb">rewrite</span> (comm a' _).
+    <span class="nb">rewrite</span> (comm c1 _). <span class="nb">rewrite</span> (assoc  c0 c1 a').
+    <span class="nb">induction</span> (assoc (x + b) c0 (@op X c1 a')).
+    <span class="nb">induction</span> (assoc (y + a) c0 (@op X c1 a')).
+    <span class="nb">apply</span> ((pr2 isc) _ _ _ (pr2 (@op A c1a (pr2 xa'))) l).
+  - <span class="nb">intros</span> xa yb yb'. <span class="nb">unfold</span> hrelabmonoidfrac. <span class="nb">simpl</span>. <span class="nb">apply</span> (@hinhfun2).
+    <span class="nb">intros</span> t2e t2l.
+    <span class="nb">induction</span> t2e <span class="k">as</span> [ c1a e ]. <span class="nb">induction</span> t2l <span class="k">as</span> [ c0a l ].
+    <span class="nb">set</span> (x := pr1 xa). <span class="nb">set</span> (a := pr1 (pr2 xa)).
+    <span class="nb">set</span> (y' := pr1 yb'). <span class="nb">set</span> (b' := pr1 (pr2 yb')).
+    <span class="nb">set</span> (y := pr1 yb). <span class="nb">set</span> (b := pr1 (pr2 yb)).
+    <span class="nb">set</span> (c0 := pr1 c0a). <span class="nb">set</span> (c1 := pr1 c1a).
+    <span class="k">exists</span> ((pr2 yb) + c1a + c0a).
+    <span class="nb">change</span> (L ((x + b') + ((b + c1) + c0)) ((y' + a) + ((b + c1) + c0))).
+    <span class="nb">change</span> (y + b' + c1 = y' + b + c1) <span class="k">in</span> e.
+    <span class="nb">rewrite</span> (rer y' _ _ c0).
+    <span class="nb">induction</span> (assoc y' b c1). <span class="nb">induction</span> e.
+    <span class="nb">rewrite</span> (assoc y b' c1).  <span class="nb">rewrite</span> (rer y _ _ c0).
+    <span class="nb">rewrite</span> (assoc b c1 c0). <span class="nb">rewrite</span> (rer _ b' b _).
+    <span class="nb">rewrite</span> (assoc b' c1 c0). <span class="nb">rewrite</span> (comm b' _).
+    <span class="nb">rewrite</span> (comm c1 _). <span class="nb">rewrite</span> (assoc  c0 c1 b').
+    <span class="nb">induction</span> (assoc (x + b) c0 (@op X c1 b')).
+    <span class="nb">induction</span> (assoc (y + a) c0 (@op X c1 b')).
+    <span class="nb">apply</span> ((pr2 isc) _ _ _ (pr2 (@op A c1a (pr2 yb'))) l).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) {<span class="nv">L</span> : hrel X}
+           (<span class="nv">isc</span> : ispartbinophrel A L) := quotrel (iscomprelabmonoidfracrelint X A isc).
+
+<span class="kn">Lemma</span> <span class="nf">istransabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : istrans L) : istrans (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (assoc := (assocax X) : isassoc (@op X)). <span class="nb">unfold</span> isassoc <span class="k">in</span> assoc.
+  <span class="nb">set</span> (comm := commax X). <span class="nb">unfold</span> iscomm <span class="k">in</span> comm. <span class="nb">set</span> (rer := abmonoidrer X).
+  <span class="nb">intros</span> xa1 xa2 xa3. <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> hinhfun2. <span class="nb">intros</span> t2l1 t2l2.
+  <span class="nb">set</span> (c1a := pr1 t2l1). <span class="nb">set</span> (l1 := pr2 t2l1).
+  <span class="nb">set</span> (c2a := pr1 t2l2). <span class="nb">set</span> (l2 := pr2 t2l2).
+  <span class="nb">set</span> (x1 := pr1 xa1). <span class="nb">set</span> (a1 := pr1 (pr2 xa1)).
+  <span class="nb">set</span> (x2 := pr1 xa2). <span class="nb">set</span> (a2 := pr1 (pr2 xa2)).
+  <span class="nb">set</span> (x3 := pr1 xa3). <span class="nb">set</span> (a3 := pr1 (pr2 xa3)).
+  <span class="nb">set</span> (c1 := pr1 c1a). <span class="nb">set</span> (c2 := pr1 c2a).
+  <span class="k">exists</span> ((pr2 xa2) + (@op A c1a c2a)).
+  <span class="nb">change</span> (L ((x1 + a3) + (a2 + (c1 + c2))) ((x3 + a1) + (a2 + (c1 + c2)))).
+  <span class="nb">assert</span> (ll1 : L ((x1 + a3) + (a2 + (@op X c1 c2)))
+                  (((x2 + a1) + c1) + (c2 + a3))).
+  {
+    <span class="nb">rewrite</span> (rer _ a3 a2 _). <span class="nb">rewrite</span> (comm a3 (@op X c1 c2)).
+    <span class="nb">rewrite</span> (assoc c1 c2 a3).
+    <span class="nb">induction</span> (assoc (x1 + a2) c1 (@op X c2 a3)).
+    <span class="nb">apply</span> ((pr2 isc) _ _ _ (pr2 (@op A c2a (pr2 xa3))) l1).
+  }
+  <span class="nb">assert</span> (ll2 : L (((x2 + a3) + c2) + (@op X a1 c1))
+                  ((x3 + a1) + (a2 + (@op X c1 c2)))).
+  {
+    <span class="nb">rewrite</span> (rer _ a1 a2 _). <span class="nb">induction</span> (assoc a1 c1 c2).
+    <span class="nb">rewrite</span> (comm (a1 + c1) c2).
+    <span class="nb">induction</span> (assoc (x3 + a2) c2 (@op X a1 c1)).
+    <span class="nb">apply</span> ((pr2 isc) _ _ _ (pr2 (@op A (pr2 xa1) c1a)) l2).
+  }
+  <span class="nb">assert</span> (e : x2 + a1 + c1 + (c2 + a3) =
+              x2 + a3 + c2 + (a1 + c1)).
+  {
+    <span class="nb">rewrite</span> (assoc (x2 + a1) c1 _). <span class="nb">rewrite</span> (assoc (x2 + a3) c2 _).
+    <span class="nb">rewrite</span> (assoc x2 a1 _). <span class="nb">rewrite</span> (assoc x2 a3 _).
+    <span class="nb">induction</span> (assoc a1 c1 (c2 + a3)). <span class="nb">induction</span> (assoc a3 c2 (a1 + c1)).
+    <span class="nb">induction</span> (comm (c2 + a3) (a1 + c1)).
+    <span class="nb">rewrite</span> (comm a3 c2). <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">induction</span> e. <span class="nb">apply</span> (isl _ _ _ ll1 ll2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istransabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : istrans L) : istrans (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> istransquotrel. <span class="nb">apply</span> istransabmonoidfracrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">issymmabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : issymm L) : issymm (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> xa1 xa2. <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> hinhfun. <span class="nb">intros</span> t2l1.
+  <span class="nb">set</span> (c1a := pr1 t2l1). <span class="nb">set</span> (l1 := pr2 t2l1).
+  <span class="k">exists</span> (<span class="nv">c1a</span>). <span class="nb">apply</span> (isl _ _ l1).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">issymmabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : issymm L) : issymm (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> issymmquotrel. <span class="nb">apply</span> issymmabmonoidfracrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isreflabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : isrefl L) : isrefl (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> xa. <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">A</span>). <span class="nb">apply</span> (isl _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isreflabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : isrefl L) : isrefl (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isreflquotrel. <span class="nb">apply</span> isreflabmonoidfracrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispoabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : ispreorder L) : ispreorder (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">istransabmonoidfracrelint</span> <span class="nv">X</span> <span class="nv">A</span> <span class="nv">isc</span> (pr1 isl)).
+  <span class="nb">apply</span> (isreflabmonoidfracrelint X A isc (pr2 isl)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispoabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : ispreorder L) : ispreorder (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> ispoquotrel. <span class="nb">apply</span> ispoabmonoidfracrelint.
+  <span class="nb">apply</span> isc. <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iseqrelabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : iseqrel L) : iseqrel (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">ispoabmonoidfracrelint</span> <span class="nv">X</span> <span class="nv">A</span> <span class="nv">isc</span> (pr1 isl)).
+  <span class="nb">apply</span> (issymmabmonoidfracrelint X A isc (pr2 isl)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iseqrelabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : iseqrel L) : iseqrel (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> iseqrelquotrel. <span class="nb">apply</span> iseqrelabmonoidfracrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isirreflabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : isirrefl L) : isirrefl (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> isirrefl. <span class="nb">intro</span> xa. <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> neg. <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ isapropempty)).
+  <span class="nb">intro</span> t2. <span class="nb">apply</span> (isl _ (pr2 t2)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isirreflabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : isirrefl L) : isirrefl (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isirreflquotrel. <span class="nb">apply</span> isirreflabmonoidfracrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isasymmabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : isasymm L) : isasymm (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (assoc := (assocax X) : isassoc (@op X)).
+  <span class="nb">unfold</span> isassoc <span class="k">in</span> assoc. <span class="nb">set</span> (comm := commax X).
+  <span class="nb">unfold</span> iscomm <span class="k">in</span> comm. <span class="nb">unfold</span> isasymm.
+  <span class="nb">intros</span> xa1 xa2. <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (@hinhuniv2 _ _ (make_hProp _ isapropempty)).
+  <span class="nb">intros</span> t2l1 t2l2.
+  <span class="nb">set</span> (c1a := pr1 t2l1). <span class="nb">set</span> (l1 := pr2 t2l1).
+  <span class="nb">set</span> (c2a := pr1 t2l2). <span class="nb">set</span> (l2 := pr2 t2l2).
+  <span class="nb">set</span> (c1 := pr1 c1a). <span class="nb">set</span> (c2 := pr1 c2a).
+  <span class="nb">set</span> (x1 := pr1 xa1). <span class="nb">set</span> (a1 := pr1 (pr2 xa1)).
+  <span class="nb">set</span> (x2 := pr1 xa2). <span class="nb">set</span> (a2 := pr1 (pr2 xa2)).
+  <span class="nb">assert</span> (ll1 : L ((x1 + a2) + (@op X c1 c2)) ((x2 + a1) + (@op X c1 c2))).
+  {
+    <span class="nb">induction</span> (assoc (x1 + a2) c1 c2). <span class="nb">induction</span> (assoc (x2 + a1) c1 c2).
+    <span class="nb">apply</span> ((pr2 isc) _ _ _ (pr2 c2a)). <span class="nb">apply</span> l1.
+  }
+  <span class="nb">assert</span> (ll2 : L ((x2 + a1) + (@op X c1 c2)) ((x1 + a2) + (@op X c1 c2))).
+  {
+    <span class="nb">induction</span> (comm c2 c1). <span class="nb">induction</span> (assoc (x1 + a2) c2 c1).
+    <span class="nb">induction</span> (assoc (x2 + a1) c2 c1).
+    <span class="nb">apply</span> ((pr2 isc) _ _ _ (pr2 c1a)).
+    <span class="nb">apply</span> l2.
+  }
+  <span class="nb">apply</span> (isl _ _ ll1 ll2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isasymmabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : isasymm L) : isasymm (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isasymmquotrel. <span class="nb">apply</span> isasymmabmonoidfracrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscoasymmabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : iscoasymm L) : iscoasymm (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (assoc := (assocax X) : isassoc (@op X)). <span class="nb">unfold</span> isassoc <span class="k">in</span> assoc.
+  <span class="nb">set</span> (comm := commax X). <span class="nb">unfold</span> iscomm <span class="k">in</span> comm. <span class="nb">unfold</span> iscoasymm.
+  <span class="nb">intros</span> xa1 xa2. <span class="nb">intro</span> nl0.
+  <span class="nb">set</span> (nl := neghexisttoforallneg _ nl0 (unel A)).
+  <span class="nb">simpl</span> <span class="k">in</span> nl.
+  <span class="nb">set</span> (l := isl _ _ nl).
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">A</span>).
+  <span class="nb">apply</span> l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscoasymmabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : iscoasymm L) : iscoasymm (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> iscoasymmquotrel. <span class="nb">apply</span> iscoasymmabmonoidfracrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istotalabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : istotal L) : istotal (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> istotal. <span class="nb">intros</span> x1 x2. <span class="nb">unfold</span> abmonoidfracrelint.
+  <span class="nb">set</span> (int := isl (pr1 x1 + pr1 (pr2 x2)) (pr1 x2 + pr1 (pr2 x1))).
+  <span class="nb">generalize</span> int. <span class="nb">clear</span> int. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> hinhfun. <span class="nb">apply</span> coprodf. <span class="nb">intro</span> l.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">A</span>).  <span class="nb">rewrite</span> (runax X _).
+  <span class="nb">rewrite</span> (runax X _). <span class="nb">apply</span> l.  <span class="nb">intro</span> l.
+  <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">A</span>).
+  <span class="nb">rewrite</span> (runax X _). <span class="nb">rewrite</span> (runax X _).
+  <span class="nb">apply</span> l.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istotalabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : istotal L) : istotal (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> istotalquotrel. <span class="nb">apply</span> istotalabmonoidfracrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscotransabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : iscotrans L) : iscotrans (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (assoc := (assocax X) : isassoc (@op X)). <span class="nb">unfold</span> isassoc <span class="k">in</span> assoc.
+  <span class="nb">set</span> (comm := (commax X) : iscomm (@op X)). <span class="nb">unfold</span> iscomm <span class="k">in</span> comm.
+  <span class="nb">set</span> (rer := abmonoidrer X). <span class="nb">unfold</span> iscotrans.
+  <span class="nb">intros</span> xa1 xa2 xa3. <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (@hinhuniv _ (ishinh _)).
+  <span class="nb">intro</span> t2.
+  <span class="nb">set</span> (c0a := pr1 t2). <span class="nb">set</span> (l0 := pr2 t2).
+  <span class="nb">set</span> (x1 := pr1 xa1). <span class="nb">set</span> (a1 := pr1 (pr2 xa1)).
+  <span class="nb">set</span> (x2 := pr1 xa2). <span class="nb">set</span> (a2 := pr1 (pr2 xa2)).
+  <span class="nb">set</span> (x3 := pr1 xa3). <span class="nb">set</span> (a3 := pr1 (pr2 xa3)).
+  <span class="nb">set</span> (c0 := pr1 c0a).
+  <span class="nb">set</span> (z1 := (x1 + a3 + (a2 + c0))).
+  <span class="nb">set</span> (z2 := x2 + a1 + (a3 + c0)).
+  <span class="nb">set</span> (z3 := x3 + a1 + (a2 + c0)).
+  <span class="nb">assert</span> (int : L z1 z3).
+  {
+    <span class="nb">unfold</span> z1. <span class="nb">unfold</span> z3. <span class="nb">rewrite</span> (comm a2 c0).
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ a2).
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ a2).
+    <span class="nb">apply</span> ((pr2 isc) _ _ _ (pr2 (pr2 xa2)) l0).
+  }
+  <span class="nb">set</span> (int' := isl z1 z2 z3 int). <span class="nb">generalize</span> int'. <span class="nb">clear</span> int'.
+  <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> cc.
+  <span class="nb">induction</span> cc <span class="k">as</span> [ l12 | l23 ].
+  - <span class="nb">apply</span> ii1. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> ((pr2 xa3) + c0a).
+    <span class="nb">change</span> (L (x1 + a2 + (a3 + c0)) (x2 + a1 + (a3 + c0))).
+    <span class="nb">rewrite</span> (rer _ a2 a3 _). <span class="nb">apply</span> l12.
+  - <span class="nb">apply</span> ii2. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> ((pr2 xa1) + c0a).
+    <span class="nb">change</span> (L (x2 + a3 + (a1 + c0)) (x3 + a2 + (a1 + c0))).
+    <span class="nb">rewrite</span> (rer _ a3 a1 _). <span class="nb">rewrite</span> (rer _ a2 a1 _).
+    <span class="nb">apply</span> l23.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscotransabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : iscotrans L) : iscotrans (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> iscotransquotrel. <span class="nb">apply</span> iscotransabmonoidfracrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isStrongOrder_abmonoidfrac</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">Y</span> : @submonoid X) (<span class="nv">gt</span> : hrel X)
+      (<span class="nv">Hgt</span> : ispartbinophrel Y gt) :
+  isStrongOrder gt → isStrongOrder (abmonoidfracrel X Y Hgt).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H.
+  <span class="nb">split</span> ; [ | <span class="nb">split</span>].
+  - <span class="nb">apply</span> istransabmonoidfracrel, (istrans_isStrongOrder H).
+  - <span class="nb">apply</span> iscotransabmonoidfracrel, (iscotrans_isStrongOrder H).
+  - <span class="nb">apply</span> isirreflabmonoidfracrel, (isirrefl_isStrongOrder H).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">StrongOrder_abmonoidfrac</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">Y</span> : @submonoid X) (<span class="nv">gt</span> : StrongOrder X)
+           (<span class="nv">Hgt</span> : ispartbinophrel Y gt) : StrongOrder (abmonoidfrac X Y) :=
+  abmonoidfracrel X Y Hgt,, isStrongOrder_abmonoidfrac Y gt Hgt (pr2 gt).
+
+<span class="kn">Lemma</span> <span class="nf">isantisymmnegabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : isantisymmneg L) : isantisymmneg (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (int : ∏ x1 x2, isaprop (neg (abmonoidfracrel X A isc x1 x2) →
+                                  neg (abmonoidfracrel X A isc x2 x1) →
+                                  x1 = x2)).
+  {
+    <span class="nb">intros</span> x1 x2.
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> (isasetsetquot _ x1 x2).
+  }
+  <span class="nb">unfold</span> isantisymmneg.
+  <span class="nb">apply</span> (setquotuniv2prop _ (<span class="k">λ</span> <span class="nv">x1</span> <span class="nv">x2</span>, make_hProp _ (int x1 x2))).
+  <span class="nb">intros</span> xa1 xa2. <span class="nb">intros</span> r r'. <span class="nb">apply</span> (weqpathsinsetquot _).
+  <span class="nb">generalize</span> r r'. <span class="nb">clear</span> r r'.
+  <span class="nb">change</span> (neg (abmonoidfracrelint X A L xa1 xa2) →
+          neg (abmonoidfracrelint X A L xa2 xa1) →
+          (eqrelabmonoidfrac X A xa1 xa2)).
+  <span class="nb">intros</span> nr12 nr21.
+  <span class="nb">set</span> (nr12' := neghexisttoforallneg _ nr12 (unel A)).
+  <span class="nb">set</span> (nr21' := neghexisttoforallneg _ nr21 (unel A)).
+  <span class="nb">set</span> (int' := isl _ _ nr12' nr21').
+  <span class="nb">simpl</span>. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">A</span>). <span class="nb">apply</span> int'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isantisymmabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isl</span> : isantisymm L) : isantisymm (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (assoc := (assocax X) : isassoc (@op X)). <span class="nb">unfold</span> isassoc <span class="k">in</span> assoc.
+  <span class="nb">set</span> (comm := commax X). <span class="nb">unfold</span> iscomm <span class="k">in</span> comm. <span class="nb">unfold</span> isantisymm.
+  <span class="nb">assert</span> (int : ∏ x1 x2, isaprop ((abmonoidfracrel X A isc x1 x2) →
+                                  (abmonoidfracrel X A isc x2 x1) →
+                                  x1 = x2)).
+  {
+    <span class="nb">intros</span> x1 x2.
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> (isasetsetquot _ x1 x2).
+  }
+  <span class="nb">apply</span> (setquotuniv2prop _ (<span class="k">λ</span> <span class="nv">x1</span> <span class="nv">x2</span>, make_hProp _ (int x1 x2))).
+  <span class="nb">intros</span> xa1 xa2. <span class="nb">intros</span> r r'. <span class="nb">apply</span> (weqpathsinsetquot _).
+  <span class="nb">generalize</span> r r'. <span class="nb">clear</span> r r'.
+  <span class="nb">change</span> ((abmonoidfracrelint X A L xa1 xa2) →
+          (abmonoidfracrelint X A L xa2 xa1) →
+          (eqrelabmonoidfrac X A xa1 xa2)).
+  <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">unfold</span> eqrelabmonoidfrac. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> hinhfun2. <span class="nb">intros</span> t2l1 t2l2.
+  <span class="nb">set</span> (c1a := pr1 t2l1). <span class="nb">set</span> (l1 := pr2 t2l1).
+  <span class="nb">set</span> (c2a := pr1 t2l2). <span class="nb">set</span> (l2 := pr2 t2l2).
+  <span class="nb">set</span> (c1 := pr1 c1a). <span class="nb">set</span> (c2 := pr1 c2a).
+  <span class="k">exists</span> (@op A c1a c2a).
+  <span class="nb">set</span> (x1 := pr1 xa1). <span class="nb">set</span> (a1 := pr1 (pr2 xa1)).
+  <span class="nb">set</span> (x2 := pr1 xa2). <span class="nb">set</span> (a2 := pr1 (pr2 xa2)).
+  <span class="nb">change</span> (x1 + a2 + (c1 + c2) = x2 + a1 + (@op X c1 c2)).
+  <span class="nb">assert</span> (ll1 : L ((x1 + a2) + (@op X c1 c2)) ((x2 + a1) + (@op X c1 c2))).
+  {
+    <span class="nb">induction</span> (assoc (x1 + a2) c1 c2).
+    <span class="nb">induction</span> (assoc (x2 + a1) c1 c2).
+    <span class="nb">apply</span> ((pr2 isc) _ _ _ (pr2 c2a)).
+    <span class="nb">apply</span> l1.
+  }
+  <span class="nb">assert</span> (ll2 : L ((x2 + a1) + (@op X c1 c2)) ((x1 + a2) + (@op X c1 c2))).
+  {
+    <span class="nb">induction</span> (comm c2 c1).
+    <span class="nb">induction</span> (assoc (x1 + a2) c2 c1).
+    <span class="nb">induction</span> (assoc (x2 + a1) c2 c1).
+    <span class="nb">apply</span> ((pr2 isc) _ _ _ (pr2 c1a)).
+    <span class="nb">apply</span> l2.
+  }
+  <span class="nb">apply</span> (isl _ _ ll1 ll2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispartbinopabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) :
+  @ispartbinophrel (setwithbinopdirprod X A) (<span class="k">λ</span> <span class="nv">xa</span>, A (pr1 xa)) (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (assoc := (assocax X) : isassoc (@op X)). <span class="nb">unfold</span> isassoc <span class="k">in</span> assoc.
+  <span class="nb">set</span> (comm := commax X). <span class="nb">unfold</span> iscomm <span class="k">in</span> comm.
+  <span class="nb">set</span> (rer := abmonoidrer X).
+  <span class="nb">apply</span> ispartbinophrelif. <span class="nb">apply</span> (commax (abmonoiddirprod X A)).
+  <span class="nb">intros</span> xa yb zc s. <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (@hinhfun). <span class="nb">intro</span> t2l. <span class="nb">induction</span> t2l <span class="k">as</span> [ c0a l ].
+  <span class="nb">set</span> (x := pr1 xa). <span class="nb">set</span> (a := pr1 (pr2 xa)).
+  <span class="nb">set</span> (y := pr1 yb). <span class="nb">set</span> (b := pr1 (pr2 yb)).
+  <span class="nb">set</span> (z := pr1 zc). <span class="nb">set</span> (c := pr1 (pr2 zc)).
+  <span class="nb">set</span> (c0 := pr1 c0a).
+  <span class="k">exists</span> <span class="nv">c0a</span>.
+  <span class="nb">change</span> (L (((z + x) + (c + b)) + c0) (((z + y) + (c + a)) + c0)).
+  <span class="nb">change</span> (pr1 (L ((x + b) + c0) ((y + a) + c0))) <span class="k">in</span> l.
+  <span class="nb">rewrite</span> (rer z _ _ b). <span class="nb">rewrite</span> (assoc (z + c) _ _).
+  <span class="nb">rewrite</span> (rer z _ _ a). <span class="nb">rewrite</span> (assoc (z + c) _ _).
+  <span class="nb">apply</span> ((pr1 isc) _ _ _ (pr2 (@op A (make_carrier A z s) (pr2 zc)))).
+  <span class="nb">apply</span> l.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">ispartlbinopabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">aa</span> <span class="nv">aa'</span> : A) (<span class="nv">z</span> <span class="nv">z'</span> : abmonoidfrac X A)
+      (<span class="nv">l</span> : abmonoidfracrel X A isc z z') :
+  abmonoidfracrel X A isc
+                  ((prabmonoidfrac X A (pr1 aa) aa') + z) ((prabmonoidfrac X A (pr1 aa) aa') + z').
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> z z' l.
+  <span class="nb">set</span> (assoc := (assocax X) : isassoc (@op X)). <span class="nb">unfold</span> isassoc <span class="k">in</span> assoc.
+  <span class="nb">set</span> (comm := commax X). <span class="nb">unfold</span> iscomm <span class="k">in</span> comm.
+  <span class="nb">set</span> (rer := abmonoidrer X).
+  <span class="nb">assert</span> (int : ∏ z z', isaprop (abmonoidfracrel X A isc z z' →
+                                 abmonoidfracrel
+                                   X A isc (prabmonoidfrac X A (pr1 aa) aa' + z)
+                                   (prabmonoidfrac X A (pr1 aa) aa' + z'))).
+  {
+    <span class="nb">intros</span> z z'.
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> (pr2 (abmonoidfracrel _ _ _ _ _)).
+  }
+  <span class="nb">apply</span> (setquotuniv2prop _ (<span class="k">λ</span> <span class="nv">z</span> <span class="nv">z'</span>, make_hProp _ (int z z'))).
+  <span class="nb">intros</span> xa1 xa2.
+  <span class="nb">change</span> (abmonoidfracrelint X A L xa1 xa2 →
+          abmonoidfracrelint X A L
+                             (@op (abmonoiddirprod X A) (pr1 aa ,, aa') xa1)
+                             (@op (abmonoiddirprod X A) (pr1 aa ,, aa') xa2)).
+  <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2l.
+  <span class="nb">set</span> (a := pr1 aa). <span class="nb">set</span> (a' := pr1 aa').
+  <span class="nb">set</span> (c0a := pr1 t2l). <span class="nb">set</span> (l := pr2 t2l).
+  <span class="nb">set</span> (c0 := pr1 c0a). <span class="nb">set</span> (x1 := pr1 xa1).
+  <span class="nb">set</span> (a1 := pr1 (pr2 xa1)). <span class="nb">set</span> (x2 := pr1 xa2).
+  <span class="nb">set</span> (a2 := pr1 (pr2 xa2)). <span class="k">exists</span> <span class="nv">c0a</span>.
+
+  <span class="nb">change</span> (L (a + x1 + (a' + a2) + c0) (a + x2 + (a' + a1) + c0)).
+  <span class="nb">rewrite</span> (rer _ x1 a' _). <span class="nb">rewrite</span> (rer _ x2 a' _).
+  <span class="nb">rewrite</span> (assoc _ (x1 + a2) c0). <span class="nb">rewrite</span> (assoc _ (x2 + a1) c0).
+  <span class="nb">apply</span> ((pr1 isc) _ _ _ (pr2 (@op A aa aa'))). <span class="nb">apply</span> l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispartrbinopabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">aa</span> <span class="nv">aa'</span> : A) (<span class="nv">z</span> <span class="nv">z'</span> : abmonoidfrac X A)
+      (<span class="nv">l</span> : abmonoidfracrel X A isc z z') :
+  abmonoidfracrel X A isc
+                  (z + (prabmonoidfrac X A (pr1 aa) aa')) (z' + (prabmonoidfrac X A (pr1 aa) aa')).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> z z' l.
+  <span class="nb">set</span> (assoc := (assocax X) : isassoc (@op X)). <span class="nb">unfold</span> isassoc <span class="k">in</span> assoc.
+  <span class="nb">set</span> (comm := commax X). <span class="nb">unfold</span> iscomm <span class="k">in</span> comm.
+  <span class="nb">set</span> (rer := abmonoidrer X).
+  <span class="nb">assert</span> (int : ∏ (z z' : abmonoidfrac X A),
+                isaprop (abmonoidfracrel X A isc z z' →
+                         abmonoidfracrel X A isc
+                                         (z + (prabmonoidfrac X A (pr1 aa) aa'))
+                                         (z' + prabmonoidfrac X A (pr1 aa) aa'))).
+  {
+    <span class="nb">intros</span> z z'.
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> (pr2 (abmonoidfracrel _ _ _ _ _)).
+  }
+  <span class="nb">apply</span> (setquotuniv2prop _ (<span class="k">λ</span> <span class="nv">z</span> <span class="nv">z'</span>, make_hProp _ (int z z'))).
+  <span class="nb">intros</span> xa1 xa2.
+  <span class="nb">change</span> (abmonoidfracrelint X A L xa1 xa2 →
+          abmonoidfracrelint X A L
+                             (@op (abmonoiddirprod X A) xa1 (pr1 aa ,, aa'))
+                             (@op (abmonoiddirprod X A) xa2 (pr1 aa ,, aa'))).
+  <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2l.
+  <span class="nb">set</span> (a := pr1 aa). <span class="nb">set</span> (a' := pr1 aa').
+  <span class="nb">set</span> (c0a := pr1 t2l). <span class="nb">set</span> (l := pr2 t2l).
+  <span class="nb">set</span> (c0 := pr1 c0a). <span class="nb">set</span> (x1 := pr1 xa1).
+  <span class="nb">set</span> (a1 := pr1 (pr2 xa1)). <span class="nb">set</span> (x2 := pr1 xa2).
+  <span class="nb">set</span> (a2 := pr1 (pr2 xa2)). <span class="k">exists</span> <span class="nv">c0a</span>.
+
+  <span class="nb">change</span> (L (x1 + a + (a2 + a') + c0) (x2 + a + (a1 + a') + c0)).
+  <span class="nb">rewrite</span> (rer _ a a2 _). <span class="nb">rewrite</span> (rer _ a a1 _).
+  <span class="nb">rewrite</span> (assoc (x1 + a2) _ c0). <span class="nb">rewrite</span> (assoc (x2 + a1) _ c0).
+  <span class="nb">rewrite</span> (comm _ c0).
+  <span class="nb">induction</span> (assoc (x1 + a2) c0 (a + a')).
+  <span class="nb">induction</span> (assoc (x2 + a1) c0 (a + a')).
+  <span class="nb">apply</span> ((pr2 isc) _ _ _ (pr2 (@op A aa aa'))).
+  <span class="nb">apply</span> l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidfracrelimpl</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> <span class="nv">L'</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">is'</span> : ispartbinophrel A L')
+      (<span class="nv">impl</span> : ∏ x x', L x x' → L' x x') (<span class="nv">x</span> <span class="nv">x'</span> : abmonoidfrac X A)
+      (<span class="nv">ql</span> : abmonoidfracrel X A isc x x') : abmonoidfracrel X A is' x x'.
+<span class="kn">Proof</span>.
+  <span class="nb">generalize</span> ql. <span class="nb">apply</span> quotrelimpl. <span class="nb">intros</span> x0 x0'.
+  <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun.
+  <span class="nb">intro</span> t2. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">t2</span>). <span class="nb">apply</span> (impl _ _ (pr2 t2)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidfracrellogeq</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> <span class="nv">L'</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">is'</span> : ispartbinophrel A L')
+      (<span class="nv">lg</span> : ∏ x x', L x x' &lt;-&gt; L' x x') (<span class="nv">x</span> <span class="nv">x'</span> : abmonoidfrac X A) :
+  (abmonoidfracrel X A isc x x') &lt;-&gt; (abmonoidfracrel X A is' x x').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> quotrellogeq. <span class="nb">intros</span> x0 x0'. <span class="nb">split</span>.
+  - <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">t2</span>). <span class="nb">apply</span> (pr1 (lg _ _) (pr2 t2)).
+  - <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">t2</span>). <span class="nb">apply</span> (pr2 (lg _ _) (pr2 t2)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isdecabmonoidfracrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : subabmonoid X) {<span class="nv">L</span> : hrel X}
+           (<span class="nv">isc</span> : ispartinvbinophrel A L) (<span class="nv">isl</span> : isdecrel L) : isdecrel (abmonoidfracrelint X A L).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> xa1 xa2.
+  <span class="nb">set</span> (x1 := pr1 xa1). <span class="nb">set</span> (a1 := pr1 (pr2 xa1)).
+  <span class="nb">set</span> (x2 := pr1 xa2). <span class="nb">set</span> (a2 := pr1 (pr2 xa2)).
+  <span class="nb">assert</span> (int : coprod (L (x1 + a2) (x2 + a1)) (neg (L (x1 + a2) (x2 + a1)))) <span class="bp">by</span> <span class="nb">apply</span> (isl _ _).
+  <span class="nb">induction</span> int <span class="k">as</span> [ l | nl ].
+  - <span class="nb">apply</span> ii1. <span class="nb">unfold</span> abmonoidfracrelint.
+    <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">A</span>).
+    <span class="nb">rewrite</span> (runax X _). <span class="nb">rewrite</span> (runax X _).
+    <span class="nb">apply</span> l.
+  - <span class="nb">apply</span> ii2. <span class="nb">generalize</span> nl. <span class="nb">clear</span> nl. <span class="nb">apply</span> negf.
+    <span class="nb">unfold</span> abmonoidfracrelint. <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ (pr2 (L _ _)))).
+    <span class="nb">intro</span> t2l. <span class="nb">induction</span> t2l <span class="k">as</span> [ c0a l ].
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> ((pr2 isc) _ _ _ (pr2 c0a) l).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isdecabmonoidfracrel</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) {<span class="nv">L</span> : hrel X}
+           (<span class="nv">isc</span> : ispartbinophrel A L) (<span class="nv">isi</span> : ispartinvbinophrel A L)
+           (<span class="nv">isl</span> : isdecrel L) : isdecrel (abmonoidfracrel X A isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isdecquotrel. <span class="nb">apply</span> isdecabmonoidfracrelint.
+  - <span class="nb">apply</span> isi.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 9. Relations and canonical homomorphism to [abmonoidfrac] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">iscomptoabmonoidfrac</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">A</span> : submonoid X) {<span class="nv">L</span> : hrel X}
+      (<span class="nv">isc</span> : ispartbinophrel A L) : iscomprelrelfun L (abmonoidfracrel X A isc) (toabmonoidfrac X A).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> iscomprelrelfun. <span class="nb">intros</span> x x' l.
+  <span class="nb">change</span> (abmonoidfracrelint X A L (x ,, unel A) (x' ,, unel A)).
+  <span class="nb">simpl</span>. <span class="nb">apply</span> (hinhpr). <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">A</span>). <span class="nb">apply</span> ((pr2 isc) _ _ <span class="mi">0</span>).
+  <span class="nb">apply</span> (pr2 (unel A)). <span class="nb">apply</span> ((pr2 isc) _ _ <span class="mi">0</span>). <span class="nb">apply</span> (pr2 (unel A)).
+  <span class="nb">apply</span> l.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/AbelianMonoids.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   9. Relations and canonical homomorphism to [abmonoidfrac]
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Orders.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

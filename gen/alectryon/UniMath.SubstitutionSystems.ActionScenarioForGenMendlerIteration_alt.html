@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ActionScenarioForGenMendlerIteration_alt.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** instantiates the scheme from [GenMendlerIteration_alt] for use in the analysis of recursion schemes involving</span>
+<span class="sd">    actegories (hence, with actions of monoidal categories on categories)</span>
+
+<span class="sd">author: Ralph Matthes, 2023</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Adamek.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Actegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.CoproductsInActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.GenMendlerIteration_alt.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> ActegoryNotations.
+
+<span class="kn">Section</span> <span class="nf">FixAnActegory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V) {<span class="nv">C</span> : category}
+    (<span class="nv">IC</span> : Initial C) (<span class="nv">CC</span> : Colims_of_shape nat_graph C)
+    (<span class="nv">Act</span> : actegory Mon_V C)
+    (<span class="nv">v</span> : V).
+
+<span class="kn">Section</span> <span class="nf">FixAFunctor</span>.
+
+  <span class="kn">Context</span> (<span class="nv">F</span> : functor C C) (<span class="nv">HF</span> : is_omega_cocont F).
+
+  <span class="kn">Let</span> <span class="nf">AF</span> : category := FunctorAlg F.
+  <span class="kn">Let</span> <span class="nf">chnF</span> : chain C := initChain IC F.
+  <span class="kn">Let</span> <span class="nf">μF_Initial</span> : Initial AF := colimAlgInitial IC HF (CC chnF).
+  <span class="kn">Let</span> <span class="nf">μF</span> : C := alg_carrier _ (InitialObject μF_Initial).
+  <span class="kn">Let</span> <span class="nf">α</span> : F μF --&gt; μF := alg_map F (pr1 μF_Initial).
+
+  <span class="kn">Context</span> (<span class="nv">y</span> : C) (<span class="nv">G</span> : functor C C) (<span class="nv">ρ'</span> : G y --&gt; y).
+
+  <span class="kn">Let</span> <span class="nf">L</span> : functor C C := leftwhiskering_functor Act v.
+
+  <span class="kn">Context</span> (<span class="nv">IL</span> : isInitial C (v ⊗_{Act} (InitialObject IC))) (<span class="nv">HL</span> : is_omega_cocont L).
+
+  <span class="kn">Definition</span> <span class="nf">SpecialGenMendlerIterationWithActegory</span> (<span class="nv">θ'</span> : F ∙ L ⟹ L ∙ G) :
+    <span class="k">∃</span>! h : v ⊗_{Act} μF --&gt; y, v ⊗^{Act}_{l} α · h = θ' μF · #G h · ρ'
+    := SpecialGenMendlerIteration IC CC F HF y L IL HL G ρ' θ'.
+
+<span class="kn">End</span> <span class="nf">FixAFunctor</span>.
+
+<span class="kn">Section</span> <span class="nf">Const_H_AsFunctor</span>.
+
+  <span class="kn">Context</span> (<span class="nv">CP</span> : BinCoproducts C).
+
+  <span class="kn">Context</span> (<span class="nv">H</span> : functor C C) (<span class="nv">HH</span> : is_omega_cocont H) (<span class="nv">c0</span> : C).
+
+  <span class="kn">Let</span> <span class="nf">Const_plus_H</span> (<span class="nv">c</span> : C) : functor C C := GeneralizedSubstitutionSystems.Const_plus_H H CP c.
+
+  <span class="kn">Let</span> <span class="nf">AF</span> : category := FunctorAlg (Const_plus_H c0).
+  <span class="kn">Let</span> <span class="nf">chnF</span> : chain C := initChain IC (Const_plus_H c0).
+
+  <span class="kn">Local Lemma</span> <span class="nf">HF</span> : is_omega_cocont (Const_plus_H c0).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_omega_cocont_BinCoproduct_of_functors.
+    - <span class="nb">apply</span> is_omega_cocont_constant_functor.
+    - <span class="bp">exact</span> HH.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Let</span> <span class="nf">μF_Initial</span> : Initial AF := colimAlgInitial IC HF (CC chnF).
+  <span class="kn">Let</span> <span class="nf">μF</span> : C := alg_carrier _ (InitialObject μF_Initial).
+  <span class="kn">Let</span> <span class="nf">α</span> : Const_plus_H c0 μF --&gt; μF := alg_map (Const_plus_H c0) (pr1 μF_Initial).
+
+  <span class="kn">Let</span> <span class="nf">η</span> : constant_functor C C c0 μF --&gt; μF := BinCoproductIn1 (CP _ _) · α.
+  <span class="kn">Let</span> <span class="nf">τ</span> : H μF --&gt; μF := BinCoproductIn2 (CP _ _) · α.
+
+  <span class="kn">Context</span> (<span class="nv">y</span> : C) (<span class="nv">θ</span> : lineator_lax Mon_V Act Act H) (<span class="nv">ρ</span> : H y --&gt; y) (<span class="nv">f</span> : v ⊗_{Act} c0 --&gt; y).
+
+  <span class="kn">Context</span> (<span class="nv">IL</span> : isInitial C (v ⊗_{Act} (InitialObject IC))).
+
+  <span class="kn">Let</span> <span class="nf">L</span> : functor C C := leftwhiskering_functor Act v.
+
+  <span class="kn">Context</span> (<span class="nv">HL</span> : is_omega_cocont L).
+
+
+  <span class="kn">Definition</span> <span class="nf">charprop_SpecialGenMendlerIterationWithActegoryAndStrength</span> (<span class="nv">h</span> : C ⟦v ⊗_{Act} μF, y⟧) : UU :=
+    v ⊗^{Act}_{l} η · h = f × v ⊗^{Act}_{l} τ · h = θ v μF · #H h · ρ.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_charprop_SpecialGenMendlerIterationWithActegoryAndStrength</span> (<span class="nv">h</span> : C ⟦v ⊗_{Act} μF, y⟧) :
+    isaprop (charprop_SpecialGenMendlerIterationWithActegoryAndStrength h).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> C.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">singleeq_SpecialGenMendlerIterationWithActegoryAndStrength</span> (<span class="nv">h</span> : C ⟦v ⊗_{Act} μF, y⟧) : UU :=
+    actegory_bincoprod_antidistributor Mon_V CP Act _ _ _ · v ⊗^{Act}_{l} α · h =
+                                     BinCoproductArrow (CP _ _) f (θ v μF · #H h · ρ).
+
+  <span class="kn">Context</span> (<span class="nv">δ</span> : actegory_bincoprod_distributor Mon_V CP Act).
+
+  <span class="kn">Definition</span> <span class="nf">instance_SpecialGenMendlerIterationWithActegory</span> (<span class="nv">h</span> : C ⟦v ⊗_{Act} μF, y⟧) : UU :=
+    v ⊗^{Act}_{l} α · h = δ v c0 (H μF) · BinCoproductOfArrows _ (CP _ _) (CP _ _) f (θ v μF) ·
+                            #(Const_plus_H y) h · BinCoproductArrow (CP _ _) (identity y) ρ.
+
+  <span class="kn">Local Lemma</span> <span class="nf">charpropequivsingleeq</span> (<span class="nv">h</span> : v ⊗_{Act} μF --&gt; y) :
+    charprop_SpecialGenMendlerIterationWithActegoryAndStrength h &lt;-&gt; singleeq_SpecialGenMendlerIterationWithActegoryAndStrength h.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> [Hchar1 Hchar2].
+      <span class="nb">red</span>.
+      use BinCoproductArrowsEq.
+      + etrans.
+        { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> BinCoproductIn1Commutes. }
+        etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+        etrans.
+        { <span class="bp">exact</span> Hchar1. }
+        <span class="nb">apply</span> pathsinv0, BinCoproductIn1Commutes.
+      + etrans.
+        { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> BinCoproductIn2Commutes. }
+        etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+        etrans.
+        { <span class="bp">exact</span> Hchar2. }
+        <span class="nb">apply</span> pathsinv0, BinCoproductIn2Commutes.
+    - <span class="nb">intro</span> Hsingle.
+      <span class="nb">red</span> <span class="k">in</span> Hsingle.
+      <span class="nb">split</span>.
+      + <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">m</span> =&gt; BinCoproductIn1 (CP _ _) · m)) <span class="k">in</span> Hsingle.
+        <span class="nb">unfold</span> actegory_bincoprod_antidistributor, bifunctor_bincoprod_antidistributor, bincoprod_antidistributor <span class="k">in</span> Hsingle.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> Hsingle.
+        <span class="nb">rewrite</span> BinCoproductIn1Commutes <span class="k">in</span> Hsingle.
+        <span class="nb">assert</span> (aux := functor_comp (leftwhiskering_functor Act v)
+                         (BinCoproductIn1 (CP (constant_functor C C c0 μF) (H μF)))
+                         α).
+        <span class="nb">cbn</span> <span class="k">in</span> aux.
+        <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">m</span> =&gt; m · h)) <span class="k">in</span> aux.
+        <span class="nb">assert</span> (Hsingle' := aux @ Hsingle).
+        <span class="nb">clear</span> Hsingle aux.
+        <span class="nb">rewrite</span> BinCoproductIn1Commutes <span class="k">in</span> Hsingle'.
+        <span class="bp">exact</span> Hsingle'.
+      + <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">m</span> =&gt; BinCoproductIn2 (CP _ _) · m)) <span class="k">in</span> Hsingle.
+        <span class="nb">unfold</span> actegory_bincoprod_antidistributor, bifunctor_bincoprod_antidistributor, bincoprod_antidistributor <span class="k">in</span> Hsingle.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> Hsingle.
+        <span class="nb">rewrite</span> BinCoproductIn2Commutes <span class="k">in</span> Hsingle.
+        <span class="nb">assert</span> (aux := functor_comp (leftwhiskering_functor Act v)
+                         (BinCoproductIn2 (CP (constant_functor C C c0 μF) (H μF)))
+                         α).
+        <span class="nb">cbn</span> <span class="k">in</span> aux.
+        <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">m</span> =&gt; m · h)) <span class="k">in</span> aux.
+        <span class="nb">assert</span> (Hsingle' := aux @ Hsingle).
+        <span class="nb">clear</span> Hsingle aux.
+        <span class="nb">rewrite</span> BinCoproductIn2Commutes <span class="k">in</span> Hsingle'.
+        <span class="bp">exact</span> Hsingle'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">instanceequivsingle</span> (<span class="nv">h</span> : v ⊗_{Act} μF --&gt; y) :
+    instance_SpecialGenMendlerIterationWithActegory h &lt;-&gt; singleeq_SpecialGenMendlerIterationWithActegoryAndStrength h.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> Hinst.
+      <span class="nb">red</span> <span class="k">in</span> Hinst.
+      <span class="nb">red</span>.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (_,,bincoprod_functor_lineator_strongly Mon_V CP Act δ v (_,,_))).
+      etrans.
+      { <span class="bp">exact</span> Hinst. }
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> precompWithBinCoproductArrow. }
+      etrans.
+      { <span class="nb">apply</span> precompWithBinCoproductArrow. }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">intro</span> Hsingle.
+      <span class="nb">red</span> <span class="k">in</span> Hsingle.
+      <span class="nb">red</span>.
+      <span class="nb">rewrite</span> assoc' <span class="k">in</span> Hsingle.
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly Mon_V CP Act δ v (_,,_))) <span class="k">in</span> Hsingle.
+      etrans.
+      { <span class="bp">exact</span> Hsingle. }
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+           <span class="nb">apply</span> pathsinv0, precompWithBinCoproductArrow. }
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, precompWithBinCoproductArrow. }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> pathsinv0, id_right.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Local Definition</span> <span class="nf">θ'_data</span> := <span class="k">fun</span> (<span class="nv">c</span> : C) =&gt; δ v c0 (H c) · BinCoproductOfArrows _ (CP _ _) (CP _ _) f (θ v c).
+
+  <span class="kn">Let</span> <span class="nf">δll</span> : lineator Mon_V (ProductActegory.actegory_binprod Mon_V Act Act) Act
+    (bincoproduct_functor CP) := bincoprod_functor_lineator Mon_V CP Act δ.
+
+  <span class="kn">Local Lemma</span> <span class="nf">θ'_data_is_nat_trans</span> : is_nat_trans ((Const_plus_H c0) ∙ L) (L ∙ (Const_plus_H y)) θ'_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c c' g.
+    <span class="nb">unfold</span> θ'_data. <span class="nb">cbn</span>.
+    etrans.
+    { <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> (lineator_linnatleft _ _ _ _ δll v (_,,_) (_,,_) (_,,_)). }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span>.
+    etrans.
+    { <span class="nb">apply</span> BinCoproductOfArrows_comp. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, BinCoproductOfArrows_comp. }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (lineator_linnatleft _ _ _ _ θ v).
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> (functor_id (leftwhiskering_functor Act v)). }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">θ'</span> : (Const_plus_H c0) ∙ L ⟹ L ∙ (Const_plus_H y) := _,, θ'_data_is_nat_trans.
+
+  <span class="kn">Definition</span> <span class="nf">SpecialGenMendlerIterationWithActegoryAndStrength</span> :
+    <span class="k">∃</span>! h : v ⊗_{Act} μF --&gt; y, charprop_SpecialGenMendlerIterationWithActegoryAndStrength h.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (iscontrretract _ _ _ (SpecialGenMendlerIterationWithActegory
+                                           (Const_plus_H c0) HF y (Const_plus_H y)
+                                           (BinCoproductArrow (CP _ _) (identity y) ρ) IL HL θ')).
+    - <span class="nb">intros</span> [h Hyp].
+      <span class="k">exists</span> <span class="nv">h</span>.
+      <span class="nb">apply</span> charpropequivsingleeq.
+      <span class="nb">apply</span> instanceequivsingle.
+      <span class="bp">exact</span> Hyp.
+    - <span class="nb">intros</span> [h Hyp].
+      <span class="k">exists</span> <span class="nv">h</span>.
+      <span class="nb">apply</span> charpropequivsingleeq <span class="k">in</span> Hyp.
+      <span class="nb">apply</span> instanceequivsingle <span class="k">in</span> Hyp.
+      <span class="bp">exact</span> Hyp.
+    - <span class="nb">intros</span> [h Hyp].
+      use total2_paths_f.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> isaprop_charprop_SpecialGenMendlerIterationWithActegoryAndStrength.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Const_H_AsFunctor</span>.
+
+
+<span class="kn">End</span> <span class="nf">FixAnActegory</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/ActionScenarioForGenMendlerIteration_alt.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; author: Ralph Matthes, 2023
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

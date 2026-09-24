@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ExponentialEval.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Evaluation of functions of partial setoids</span>
+
+<span class="sd"> We defined the function space of partial setoids, and the next step is to define the</span>
+<span class="sd"> evaluation morphism. Suppose that we have partial setoids `X` and `Y`. The evaluation</span>
+<span class="sd"> morphism goes from the product of `X` and the exponential of `X` and `Y` to `Y`, so its</span>
+<span class="sd"> underlying formula takes terms `x : X`, `f : exp_partial_setoid X Y`, and `y : Y`, and</span>
+<span class="sd"> these terms satisfy the relation if `f` is defined and `(x , y) ∈ f`. In essence, this</span>
+<span class="sd"> means that `x` is sent to `y` by `f`, and thus this formula describes evaluation.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The formula of the evaluation morphism</span>
+<span class="sd"> 2. The laws of the evaluation morphism</span>
+<span class="sd"> 3. The evaluation morphism</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Tripos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.GenericPredicate.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialPER.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="kn">Section</span> <span class="nf">PEREvaluation</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : tripos}
+          (<span class="nv">X</span> <span class="nv">Y</span> : partial_setoid H).
+
+  <span class="sd">(** * 1. The formula of the evaluation morphism *)</span>
+  <span class="kn">Definition</span> <span class="nf">eval_partial_setoid_form</span>
+    : form (prod_partial_setoid X (exp_partial_setoid X Y) ×h Y)
+    := <span class="k">let</span> <span class="nv">x</span> := π₁ (π₁ (tm_var ((X ×h ℙ (X ×h Y)) ×h Y))) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">f</span> := π₂ (π₁ (tm_var ((X ×h ℙ (X ×h Y)) ×h Y))) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">y</span> := π₂ (tm_var ((X ×h ℙ (X ×h Y)) ×h Y)) <span class="k">in</span>
+       (exp_partial_setoid_is_function [ f ])
+       ∧
+       ⟨ x , y ⟩ ∈ f.
+
+  <span class="kn">Arguments</span> eval_partial_setoid_form /.
+
+  <span class="sd">(** * 2. The laws of the evaluation morphism *)</span>
+  <span class="kn">Proposition</span> <span class="nf">eval_partial_setoid_laws</span>
+    : partial_setoid_morphism_laws eval_partial_setoid_form.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">unfold</span> partial_setoid_mor_dom_defined_law ; <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      hypersimplify.
+      <span class="nb">pose</span> (x := π₁ (π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y))))).
+      <span class="nb">pose</span> (f := π₂ (π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y))))).
+      <span class="nb">pose</span> (y := π₂ (tm_var ((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y))).
+      use eq_in_prod_partial_setoid ; <span class="nb">cbn</span> ; <span class="nb">fold</span> x y f.
+      + use (exp_partial_setoid_dom_defined X Y).
+        * <span class="bp">exact</span> f.
+        * <span class="bp">exact</span> y.
+        * use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use eq_in_exp_partial_setoid.
+        * use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * <span class="nb">apply</span> exp_partial_setoid_eq_refl.
+    - <span class="nb">unfold</span> partial_setoid_mor_cod_defined_law ; <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      hypersimplify.
+      <span class="nb">pose</span> (x := π₁ (π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y))))).
+      <span class="nb">pose</span> (f := π₂ (π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y))))).
+      <span class="nb">pose</span> (y := π₂ (tm_var ((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y))).
+      <span class="nb">fold</span> x y f.
+      use (exp_partial_setoid_cod_defined X Y).
+      + <span class="bp">exact</span> f.
+      + <span class="bp">exact</span> x.
+      + use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">unfold</span> partial_setoid_mor_eq_defined_law ; <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">4</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="kp">do</span> <span class="mi">2</span> use impl_intro.
+      hypersimplify.
+      <span class="nb">pose</span> (Γ := (((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h X ×h ℙ (X ×h Y)) ×h Y) ×h Y).
+      <span class="nb">pose</span> (f := π₂ (π₂ (π₁ (π₁ (π₁ (tm_var Γ)))))).
+      <span class="nb">pose</span> (g := π₂ (π₂ (π₁ (π₁ (tm_var Γ))))).
+      <span class="nb">pose</span> (x₁ := π₁ (π₂ (π₁ (π₁ (π₁ (tm_var Γ)))))).
+      <span class="nb">pose</span> (x₂ := π₁ (π₂ (π₁ (π₁ (tm_var Γ))))).
+      <span class="nb">pose</span> (y₁ := π₂ (π₁ (tm_var Γ))).
+      <span class="nb">pose</span> (y₂ := π₂ (tm_var Γ)).
+      <span class="nb">unfold</span> Γ <span class="k">in</span> * ; <span class="nb">clear</span> Γ.
+      <span class="nb">fold</span> f g x₁ x₂ y₁ y₂.
+      <span class="nb">refine</span> (weaken_cut _ _).
+      {
+        <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+        <span class="bp">exact</span> (from_eq_in_prod_partial_setoid _ _ (hyperdoctrine_hyp _)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">fold</span> x₁ x₂ f g.
+      <span class="kp">do</span> <span class="mi">2</span> use hyp_ltrans.
+      use weaken_right.
+      <span class="kp">repeat</span> use conj_intro.
+      + use exp_partial_setoid_eq_is_function.
+        * <span class="bp">exact</span> f.
+        * use from_eq_in_exp_partial_setoid_function_eq.
+          <span class="kp">do</span> <span class="mi">3</span> use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use weaken_right.
+          <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use exp_partial_setoid_eq_defined.
+        * use from_eq_in_exp_partial_setoid_function_right.
+          {
+            <span class="bp">exact</span> f.
+          }
+          <span class="kp">do</span> <span class="mi">3</span> use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * <span class="bp">exact</span> x₁.
+        * <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+          use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * <span class="bp">exact</span> y₁.
+        * use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use from_exp_partial_setoid_eq.
+          ** <span class="bp">exact</span> f.
+          ** use from_eq_in_exp_partial_setoid_function_eq.
+             <span class="kp">do</span> <span class="mi">3</span> use weaken_right.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+          ** use weaken_right.
+             use weaken_left.
+             use weaken_right.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">unfold</span> partial_setoid_mor_unique_im_law ; <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">3</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use impl_intro.
+      hypersimplify.
+      <span class="nb">pose</span> (x := π₁ (π₂ (π₁ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y) ×h Y)))))).
+      <span class="nb">pose</span> (f := π₂ (π₂ (π₁ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y) ×h Y)))))).
+      <span class="nb">pose</span> (y := π₂ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y) ×h Y)))).
+      <span class="nb">pose</span> (y' := π₂ (tm_var (((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y) ×h Y))).
+      <span class="nb">fold</span> x f y y'.
+      use (exp_partial_setoid_unique_im X Y).
+      + <span class="bp">exact</span> f.
+      + <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="bp">exact</span> x.
+      + use weaken_left.
+        use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">unfold</span> partial_setoid_mor_hom_exists_law.
+      use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">cbn</span>.
+      <span class="nb">pose</span> (x := π₁ (π₂ (tm_var (<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y))))).
+      <span class="nb">pose</span> (f := π₂ (π₂ (tm_var (<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y))))).
+      use (hyperdoctrine_cut
+             (from_eq_in_prod_partial_setoid _ _ (hyperdoctrine_hyp _))).
+      <span class="nb">cbn</span>.
+      <span class="nb">fold</span> x f.
+      <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+      {
+        <span class="nb">refine</span> (conj_intro (weaken_left (hyperdoctrine_hyp _) _) _).
+        use weaken_right.
+        <span class="bp">exact</span> (from_eq_in_exp_partial_setoid X Y (hyperdoctrine_hyp _)).
+      }
+      use (exists_elim (exp_partial_setoid_im_exists X Y _ _)).
+      + <span class="bp">exact</span> f.
+      + use weaken_right.
+        use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="bp">exact</span> x.
+      + use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="nb">unfold</span> x, f ; <span class="nb">clear</span> x f.
+        hypersimplify_form.
+        hypersimplify.
+        <span class="nb">pose</span> (x := π₁ (π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y))))).
+        <span class="nb">pose</span> (f := π₂ (π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y))))).
+        <span class="nb">pose</span> (y := π₂ (tm_var ((<span class="mi">𝟙</span> ×h X ×h ℙ (X ×h Y)) ×h Y))).
+        <span class="nb">fold</span> x f y.
+        use exists_intro.
+        * <span class="bp">exact</span> y.
+        * hypersimplify.
+          <span class="nb">fold</span> x f.
+          <span class="kp">repeat</span> use conj_intro.
+          ** use weaken_left.
+             use weaken_right.
+             use weaken_left.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+          ** use weaken_right.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. The evaluation morphism *)</span>
+  <span class="kn">Definition</span> <span class="nf">eval_partial_setoid</span>
+    : partial_setoid_morphism
+        (prod_partial_setoid X (exp_partial_setoid X Y))
+        Y.
+  <span class="kn">Proof</span>.
+    use make_partial_setoid_morphism.
+    - <span class="bp">exact</span> eval_partial_setoid_form.
+    - <span class="bp">exact</span> eval_partial_setoid_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PEREvaluation</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/PartialEqRels/ExponentialEval.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The evaluation morphism
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

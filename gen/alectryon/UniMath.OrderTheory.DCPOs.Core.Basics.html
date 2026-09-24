@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Basics.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Basic notions in DCPOs</span>
+
+<span class="sd"> In this file, we define the basic notions on DCPOs. We define a</span>
+<span class="sd"> notion of DCPO structure on sets, because such a notion is</span>
+<span class="sd"> necessary when using displayed categories. We also give bundled</span>
+<span class="sd"> definitions, and we provide the necessary lemmas and notations</span>
+<span class="sd"> for them.</span>
+
+<span class="sd"> Note: in the definition of `directed_complete_poset`, there is a</span>
+<span class="sd"> quantification over all `I` of type `UU`. The universe levels are</span>
+<span class="sd"> left implicit in Coq, so implicitly, there is an argument that</span>
+<span class="sd"> indicates the universe level of `I`. This corresponds to how</span>
+<span class="sd"> DCPOs are developed in Tom de Jong's thesis.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Upperbounds</span>
+<span class="sd"> 2. DCPO structures</span>
+<span class="sd"> 3. DCPOs</span>
+<span class="sd"> 4. Accessors for DCPOs</span>
+<span class="sd"> 5. Lemmas for least upperbounds</span>
+<span class="sd"> 6. Pointed DCPOs</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.PointedPosets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Upperbounds</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Upperbounds</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+          (<span class="nv">PX</span> : PartialOrder X)
+          {<span class="nv">I</span> : UU}
+          (<span class="nv">D</span> : I → X).
+
+  <span class="kn">Definition</span> <span class="nf">is_upperbound</span>
+             (<span class="nv">x</span> : X)
+    : hProp
+    := <span class="k">∀</span> (<span class="nv">i</span> : I), PX (D i) x.
+
+  <span class="kn">Definition</span> <span class="nf">is_least_upperbound</span>
+             (<span class="nv">x</span> : X)
+    : hProp
+    := (is_upperbound x ∧ <span class="k">∀</span> (<span class="nv">y</span> : X), is_upperbound y ⇒ PX x y)%logic.
+
+  <span class="kn">Proposition</span> <span class="nf">is_least_upperbound_is_upperbound</span>
+              {<span class="nv">x</span> : X}
+              (<span class="nv">Hx</span> : is_least_upperbound x)
+    : is_upperbound x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 Hx).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_least_upperbound_is_least</span>
+              {<span class="nv">x</span> : X}
+              (<span class="nv">Hx</span> : is_least_upperbound x)
+              {<span class="nv">y</span> : X}
+              (<span class="nv">Hy</span> : is_upperbound y)
+    : PX x y.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 Hx y Hy).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lub</span>
+    : UU
+    := ∑ (x : X), is_least_upperbound x.
+
+  <span class="kn">Definition</span> <span class="nf">make_lub</span>
+             (<span class="nv">x</span> : X)
+             (<span class="nv">Hx</span> : is_least_upperbound x)
+    : lub
+    := x ,, Hx.
+
+  <span class="kn">Coercion</span> <span class="nf">lub_to_el</span>
+           (x : lub)
+    : X
+    := pr1 x.
+
+  <span class="kn">Proposition</span> <span class="nf">lub_is_upperbound</span>
+              (<span class="nv">x</span> : lub)
+    : is_upperbound x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_least_upperbound_is_upperbound (pr2 x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lub_is_least</span>
+              (<span class="nv">x</span> : lub)
+              (<span class="nv">y</span> : X)
+              (<span class="nv">Hy</span> : is_upperbound y)
+    : PX x y.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_least_upperbound_is_least (pr2 x) Hy).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_lub</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">Hx</span> : is_least_upperbound x)
+              (<span class="nv">Hy</span> : is_least_upperbound y)
+    : x = y.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (x' := (x ,, Hx) : lub).
+    <span class="nb">pose</span> (y' := (y ,, Hy) : lub).
+    use (antisymm_PartialOrder PX).
+    - <span class="nb">apply</span> (lub_is_least x' y').
+      <span class="bp">exact</span> (lub_is_upperbound y').
+    - <span class="nb">apply</span> (lub_is_least y' x').
+      <span class="bp">exact</span> (lub_is_upperbound x').
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_lub</span>
+    : isaprop lub.
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> x₁ x₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> propproperty.
+    }
+    use eq_lub.
+    - <span class="bp">exact</span> (pr2 x₁).
+    - <span class="bp">exact</span> (pr2 x₂).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Upperbounds</span>.
+
+<span class="kn">Arguments</span> is_least_upperbound_is_upperbound {X PX I D x} Hx.
+<span class="kn">Arguments</span> is_least_upperbound_is_least {X PX I D x} Hx.
+<span class="kn">Arguments</span> lub_is_upperbound {X PX I D} x.
+<span class="kn">Arguments</span> lub_is_least {X PX I D} x.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. DCPO structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">directed_complete_poset</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : PartialOrder X)
+  : UU
+  := ∏ (I : UU)
+       (f : I → X),
+     is_directed PX f
+     →
+     lub PX f.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_directed_complete_poset</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">PX</span> : PartialOrder X)
+  : isaprop (directed_complete_poset PX).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_lub.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dcpo_struct</span> (<span class="nv">X</span> : hSet)
+  : UU
+  := ∑ (PX : PartialOrder X), directed_complete_poset PX.
+
+<span class="kn">Definition</span> <span class="nf">make_dcpo_struct</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : PartialOrder X)
+           (<span class="nv">HX</span> : directed_complete_poset PX)
+  : dcpo_struct X
+  := PX ,, HX.
+
+<span class="kn">Proposition</span> <span class="nf">isaset_dcpo_struct</span>
+            (<span class="nv">X</span> : hSet)
+  : isaset (dcpo_struct X).
+<span class="kn">Proof</span>.
+  use isaset_total2.
+  - <span class="nb">apply</span> isaset_PartialOrder.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_directed_complete_poset.
+<span class="kn">Qed</span>.
+
+#[reversible] <span class="kn">Coercion</span> <span class="nf">dcpo_struct_to_PartialOrder</span>
+         {X : hSet}
+         (DX : dcpo_struct X)
+  : PartialOrder X
+  := pr1 DX.
+
+<span class="kn">Definition</span> <span class="nf">dcpo_struct_lub</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">DX</span> : dcpo_struct X)
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">f</span> : I → X)
+           (<span class="nv">Hf</span> : is_directed DX f)
+  : lub DX f
+  := pr2 DX I f Hf.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. DCPOs</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">dcpo</span>
+  : UU
+  := ∑ (X : hSet), dcpo_struct X.
+
+<span class="kn">Coercion</span> <span class="nf">dcpo_to_hSet</span> (X : dcpo) : hSet := pr1 X.
+
+<span class="kn">Coercion</span> <span class="nf">dcpo_to_PartialOrder</span> (X : dcpo) : PartialOrder X := pr12 X.
+
+<span class="kn">Definition</span> <span class="nf">dcpo_order</span> {<span class="nv">X</span> : dcpo} (<span class="nv">x</span> <span class="nv">y</span> : X) : hProp := pr12 X x y.
+
+<span class="kn">Notation</span> <span class="s2">"x ⊑ y"</span> := (dcpo_order x y) (<span class="kn">no associativity</span>, <span class="kn">at level</span> <span class="mi">70</span>) : dcpo.
+<span class="c">(* ⊑ - \sqsubseteq  *)</span>
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Accessors for DCPOs</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">refl_dcpo</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">x</span> : X)
+  : x ⊑ x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> refl_PartialOrder.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">eq_to_le_dcpo</span>
+           {<span class="nv">X</span> : dcpo}
+           {<span class="nv">x</span> <span class="nv">y</span> : X}
+           (<span class="nv">p</span> : x = y)
+  : x ⊑ y.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> refl_dcpo.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">trans_dcpo</span>
+            {<span class="nv">X</span> : dcpo}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X}
+            (<span class="nv">p</span> : x ⊑ y)
+            (<span class="nv">q</span> : y ⊑ z)
+  : x ⊑ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (trans_PartialOrder X p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">antisymm_dcpo</span>
+            {<span class="nv">X</span> : dcpo}
+            {<span class="nv">x</span> <span class="nv">y</span> : X}
+            (<span class="nv">p</span> : x ⊑ y)
+            (<span class="nv">q</span> : y ⊑ x)
+  : x = y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (antisymm_PartialOrder X p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dcpo_lub</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">D</span> : directed_set X)
+  : X
+  := pr22 X _ D (directed_set_is_directed D).
+
+<span class="kn">Notation</span> <span class="s2">"⨆ D"</span> := (dcpo_lub D) (<span class="kn">at level</span> <span class="mi">20</span>) : dcpo.
+<span class="c">(* ⊔ - \sqcup *)</span>
+<span class="kn">Notation</span> <span class="s2">"⨆_{ D } f"</span> := (⨆ (f {{ D }})) (<span class="kn">at level</span> <span class="mi">20</span>) : dcpo.
+
+<span class="kn">Definition</span> <span class="nf">make_dcpo_is_least_upperbound</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">D</span> : directed_set X)
+           (<span class="nv">x</span> : X)
+           (<span class="nv">H₁</span> : ∏ (i : D), D i ⊑ x)
+           (<span class="nv">H₂</span> : ∏ (x' : X), (∏ (i : D), D i ⊑ x') → x ⊑ x')
+  : is_least_upperbound X D x.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> H₁.
+  - <span class="bp">exact</span> H₂.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_least_upperbound_dcpo_lub</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">D</span> : directed_set X)
+  : is_least_upperbound X D (⨆ D).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr22 X _ D (directed_set_is_directed D)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">less_than_dcpo_lub</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">D</span> : directed_set X)
+            (<span class="nv">x</span> : X)
+            (<span class="nv">i</span> : D)
+            (<span class="nv">H</span> : x ⊑ D i)
+  : x ⊑ ⨆ D.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (trans_PartialOrder
+           X
+           H
+           (is_least_upperbound_is_upperbound
+              (is_least_upperbound_dcpo_lub D)
+              i)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dcpo_lub_is_least</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">D</span> : directed_set X)
+            (<span class="nv">x</span> : X)
+            (<span class="nv">H</span> : ∏ (i : D), D i ⊑ x)
+  : ⨆ D ⊑ x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (is_least_upperbound_is_least (is_least_upperbound_dcpo_lub D) x H).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Lemmas for least upperbounds</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">const_lub</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">x</span> : X)
+            (<span class="nv">I</span> : UU)
+            (<span class="nv">i</span> : ∥ I ∥)
+  : ⨆ (const_directed_set X x I i) = x.
+<span class="kn">Proof</span>.
+  use antisymm_dcpo.
+  - use dcpo_lub_is_least.
+    <span class="nb">intro</span> j ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> refl_dcpo.
+  - <span class="nb">revert</span> i.
+    use factor_dep_through_squash.
+    {
+      <span class="nb">intro</span> i.
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+    use less_than_dcpo_lub.
+    + <span class="bp">exact</span> i.
+    + <span class="nb">cbn</span>.
+      <span class="nb">apply</span> refl_dcpo.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_least_upperbound_dcpo_comp_lub</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : dcpo}
+            (<span class="nv">f</span> : monotone_function X Y)
+            (<span class="nv">D</span> : directed_set X)
+  : is_least_upperbound Y (f{{D}}) (⨆_{ D } f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_least_upperbound_dcpo_lub.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dcpo_lub_eq_pointwise</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : dcpo}
+            (<span class="nv">f</span> <span class="nv">f'</span> : monotone_function X Y)
+            (<span class="nv">D</span> : directed_set X)
+            (<span class="nv">H</span> : ∏ (x : X), f x = f' x)
+  : ⨆_{D} f = ⨆_{D} f'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> eq_monotone_function.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Pointed DCPOs</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">dcppo_struct</span>
+           (<span class="nv">X</span> : hSet)
+  : UU
+  := ∑ (DX : dcpo_struct X), bottom_element DX.
+
+#[reversible] <span class="kn">Coercion</span> <span class="nf">dcppo_struct_to_dcpo_struct</span>
+         {X : hSet}
+         (DX : dcppo_struct X)
+  : dcpo_struct X
+  := pr1 DX.
+
+<span class="kn">Coercion</span> <span class="nf">dcppo_to_pointed_PartialOrder</span>
+         {X : hSet}
+         (DX : dcppo_struct X)
+  : pointed_PartialOrder X
+  := pr11 DX ,, pr2 DX.
+
+<span class="kn">Proposition</span> <span class="nf">isaset_dcppo_struct</span>
+            (<span class="nv">X</span> : hSet)
+  : isaset (dcppo_struct X).
+<span class="kn">Proof</span>.
+  use isaset_total2.
+  - <span class="bp">exact</span> (isaset_dcpo_struct X).
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_bottom_element.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dcppo</span>
+  : UU
+  := ∑ (X : hSet), dcppo_struct X.
+
+<span class="kn">Coercion</span> <span class="nf">dcppo_to_dcpo</span>
+         (X : dcppo)
+  : dcpo
+  := pr1 X ,, pr12 X.
+
+<span class="kn">Definition</span> <span class="nf">bottom_dcppo</span>
+           (<span class="nv">X</span> : dcppo)
+  : X
+  := pr122 X.
+
+<span class="kn">Notation</span> <span class="s2">"⊥_{ X }"</span> := (bottom_dcppo X) : dcpo.
+<span class="c">(* ⊥ - \bot*)</span>
+
+<span class="kn">Proposition</span> <span class="nf">is_min_bottom_dcppo</span>
+            {<span class="nv">X</span> : dcppo}
+            (<span class="nv">x</span> : X)
+  : ⊥_{ X } ⊑ x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr222 X x).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Core/Basics.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Pointed DCPOs
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+  &gt; Require Import UniMath.OrderTheory.Posets.MonotoneFunctions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LocalProperty.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> The biequivalence for local properties</span>
+
+<span class="sd"> In this file, we extend the biequivalence between univalent categories with finite limits</span>
+<span class="sd"> and DFL full comprehension categories to take a local categorical property into account.</span>
+
+<span class="sd"> Perhaps the most interesting part of the construction might be the simplicity: this is due</span>
+<span class="sd"> to the fact that the definition of local properties has been designed in such a way that this</span>
+<span class="sd"> biequivalence would write itself. By inspecting the proof, we can see why each requirement</span>
+<span class="sd"> of a local property is necessary.</span>
+
+<span class="sd"> To extend this biequivalence, the first thing that we need to do is to extend the</span>
+<span class="sd"> pseudofunctor from univalent categories with finite limits to full DFL comprehension</span>
+<span class="sd"> categories so that the categorical property is taken into account. Here we construct a</span>
+<span class="sd"> biequivalence between two subbicategories, so the coherences become trivial and for all</span>
+<span class="sd"> necessary 2-cells we use the unit type. However, there are some things that we must do.</span>
+<span class="sd"> - If we have a category `C` with finite limits, then we must that the codomain has the</span>
+<span class="sd">   fiberwise property specified by `P`. Since `P` is a local property, we must verify that</span>
+<span class="sd">   each slice category `C/x` of `C` satisfies `P`. This is given by [local_property_slice].</span>
+<span class="sd"> - Satisfying a categorical property fiberwise also requires one to show that the pullback</span>
+<span class="sd">   functors preserve the property. This is the requirement [local_property_pb].</span>
+<span class="sd"> - Finally, we must show that this action is pseudofunctorial. This means that the fiber</span>
+<span class="sd">   functors must preserve the property as well. More concretely, if we have a functor `F` from</span>
+<span class="sd">   `C₁` to `C₂`, then `F` gives rise to a displayed functor `FF` from the displayed codomain</span>
+<span class="sd">   category on `C₁` to the displayed codomain category on `C₂`. The fiber functors of `FF` must</span>
+<span class="sd">   also preserve the property, which is given by [local_property_fiber_functor].</span>
+<span class="sd"> This ingredients give us the first pseudofunctor.</span>
+
+<span class="sd"> For the second pseudofunctor, we must show that the categorical property under consideration</span>
+<span class="sd"> is preserved under adjoint equivalence. This follows directly from univalence. In addition,</span>
+<span class="sd"> the preservation requirement must also be preserved under equivalence, and again, this</span>
+<span class="sd"> follows from univalence. For the unit and counit, it suffices to show that every adjoint</span>
+<span class="sd"> equivalence is a preserving map, and again that follows from univalence.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The extended pseudofunctor from categories to comprehension categories</span>
+<span class="sd"> 2. The extended pseudofunctor from comprehension categories to categories</span>
+<span class="sd"> 3. The unit</span>
+<span class="sd"> 4. The counit</span>
+<span class="sd"> 5. The displayed biequivalence</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBiequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBuilders.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudoNaturalAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.ComprehensionEso.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Unit.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Counit.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Biequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatWithProp.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.CatWithProp.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="kn">Section</span> <span class="nf">LocalPropertyBiequiv</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : local_property).
+
+  <span class="sd">(** * 1. The extended pseudofunctor from categories to comprehension categories *)</span>
+  <span class="kn">Definition</span> <span class="nf">local_property_in_cod</span>
+             (<span class="nv">C</span> : univ_cat_with_finlim)
+             (<span class="nv">H</span> : P C)
+    : fiberwise_cat_property P (finlim_to_dfl_comp_cat C).
+  <span class="kn">Proof</span>.
+    use make_fiberwise_cat_property.
+    - <span class="nb">intro</span> Γ.
+      use (cat_property_ob_adj_equiv_f' P _ _ (local_property_slice P C Γ H)).
+      + <span class="nb">apply</span> functor_identity.
+      + <span class="nb">apply</span> identity_functor_is_adj_equivalence.
+    - <span class="nb">intros</span> Γ₁ Γ₂ s ; <span class="nb">cbn</span>.
+      use (cat_property_functor_nat_z_iso_adj_equiv_f'
+             P
+             _ _
+             _ _
+             _
+             (local_property_pb P H s)).
+      + <span class="nb">apply</span> functor_identity.
+      + <span class="nb">apply</span> functor_identity.
+      + <span class="nb">apply</span> identity_functor_is_adj_equivalence.
+      + <span class="nb">apply</span> identity_functor_is_adj_equivalence.
+      + <span class="bp">exact</span> (nat_z_iso_id (slice_univ_cat_pb_finlim s)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">local_property_in_cod_functor</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+              {<span class="nv">F</span> : functor_finlim C₁ C₂}
+              {<span class="nv">H₁</span> : P C₁}
+              {<span class="nv">H₂</span> : P C₂}
+              (<span class="nv">HF</span> : cat_property_functor P H₁ H₂ F)
+    : fiberwise_cat_property_functor
+        (finlim_to_dfl_comp_cat_functor F)
+        (local_property_in_cod _ H₁)
+        (local_property_in_cod _ H₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Γ.
+    use (cat_property_functor_nat_z_iso_adj_equiv_f'
+           P
+           _ _
+           _ _
+           _
+           (local_property_fiber_functor P _ _ _ HF Γ)).
+    - <span class="nb">apply</span> functor_identity.
+    - <span class="nb">apply</span> functor_identity.
+    - <span class="nb">apply</span> identity_functor_is_adj_equivalence.
+    - <span class="nb">apply</span> identity_functor_is_adj_equivalence.
+    - <span class="bp">exact</span> (nat_z_iso_id (slice_univ_cat_fiber F Γ)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">finlim_biequiv_dfl_comp_cat_disp_psfunctor_local_property</span>
+    : disp_psfunctor
+        (disp_bicat_of_univ_cat_with_cat_property P)
+        (disp_bicat_of_cat_property_dfl_full_comp_cat P)
+        finlim_biequiv_dfl_comp_cat_psfunctor.
+  <span class="kn">Proof</span>.
+    use make_disp_psfunctor_contr.
+    - <span class="nb">apply</span> disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">H</span>, local_property_in_cod C (pr1 H) ,, tt).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">HF</span>, tt ,, local_property_in_cod_functor (pr2 HF)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The extended pseudofunctor from comprehension categories to categories *)</span>
+  <span class="kn">Definition</span> <span class="nf">local_property_in_dfl_comp_cat</span>
+             (<span class="nv">C</span> : dfl_full_comp_cat)
+             (<span class="nv">H</span> : fiberwise_cat_property P C)
+    : P (dfl_full_comp_cat_to_finlim C).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (cat_property_ob_adj_equiv_f' P _ _ (H _)).
+    <span class="nb">apply</span> (dfl_full_comp_cat_adjequiv_base C).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">local_property_in_dfl_comp_cat_functor</span>
+             {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+             {<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂}
+             {<span class="nv">H₁</span> : fiberwise_cat_property P C₁}
+             {<span class="nv">H₂</span> : fiberwise_cat_property P C₂}
+             (<span class="nv">HF</span> : fiberwise_cat_property_functor F H₁ H₂)
+    : cat_property_functor
+        P
+        (local_property_in_dfl_comp_cat C₁ H₁)
+        (local_property_in_dfl_comp_cat C₂ H₂)
+        (dfl_functor_comp_cat_to_finlim_functor F).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (cat_property_functor_nat_z_iso_adj_equiv_f'
+              P
+              _ _
+              _ _
+              _
+              (HF [])).
+    - <span class="nb">refine</span> (comp_adj_equivalence_of_cats _ _).
+      + <span class="nb">apply</span> dfl_full_comp_cat_adjequiv_empty.
+      + <span class="nb">apply</span> cod_fib_terminal.
+    - <span class="nb">pose</span> (T := make_Terminal _ (comp_cat_functor_terminal F [] (pr2 []))).
+      <span class="nb">refine</span> (comp_adj_equivalence_of_cats _ _).
+      + <span class="bp">exact</span> (dfl_full_comp_cat_adjequiv_terminal C₂ T).
+      + <span class="bp">exact</span> (cod_fib_terminal T).
+    - <span class="nb">apply</span> (dfl_functor_nat_z_iso F).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_comp_cat_to_finlim_disp_psfunctor_local_property</span>
+    : disp_psfunctor
+        (disp_bicat_of_cat_property_dfl_full_comp_cat P)
+        (disp_bicat_of_univ_cat_with_cat_property P)
+        dfl_comp_cat_to_finlim_psfunctor.
+  <span class="kn">Proof</span>.
+    use make_disp_psfunctor_contr.
+    - <span class="nb">apply</span> disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">H</span>, local_property_in_dfl_comp_cat C (pr1 H) ,, tt).
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">HF</span>, tt ,, local_property_in_dfl_comp_cat_functor _).
+      <span class="bp">exact</span> (pr2 HF).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. The unit *)</span>
+  <span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_unit_local_property</span>
+    : disp_pstrans
+        (disp_pseudo_comp
+           _ _ _ _ _
+           finlim_biequiv_dfl_comp_cat_disp_psfunctor_local_property
+           dfl_comp_cat_to_finlim_disp_psfunctor_local_property)
+        (disp_pseudo_id _)
+        finlim_dfl_comp_cat_unit.
+  <span class="kn">Proof</span>.
+    use make_disp_pstrans_contr.
+    - <span class="nb">apply</span> disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
+    - <span class="nb">intros</span> C H.
+      <span class="nb">refine</span> (tt ,, _).
+      use cat_property_adj_equivalence_of_cats ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> identity_functor_is_adj_equivalence.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. The counit *)</span>
+  <span class="kn">Proposition</span> <span class="nf">fiberwise_cat_property_functor_counit</span>
+              {<span class="nv">C</span> : dfl_full_comp_cat}
+              (<span class="nv">H</span> : fiberwise_cat_property P C)
+    : fiberwise_cat_property_functor
+        (finlim_dfl_comp_cat_counit C)
+        H
+        (local_property_in_cod
+           (dfl_full_comp_cat_to_finlim C)
+           (local_property_in_dfl_comp_cat C H)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    use (cat_property_adj_equivalence_of_cats P).
+    <span class="bp">exact</span> (fiber_functor_comprehension_adj_equiv C x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_counit_local_property</span>
+    : disp_pstrans
+        (disp_pseudo_id _)
+        (disp_pseudo_comp
+           _ _ _ _ _
+           dfl_comp_cat_to_finlim_disp_psfunctor_local_property
+           finlim_biequiv_dfl_comp_cat_disp_psfunctor_local_property)
+        finlim_dfl_comp_cat_counit.
+  <span class="kn">Proof</span>.
+    use make_disp_pstrans_contr.
+    - <span class="nb">apply</span> disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">H</span>, tt ,, _).
+      <span class="nb">apply</span> fiberwise_cat_property_functor_counit.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. The displayed biequivalence *)</span>
+  <span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_biequivalence_unit_counit_local_property</span>
+    : is_disp_biequivalence_unit_counit
+        _ _
+        finlim_dfl_comp_cat_biequivalence_unit_counit
+        finlim_biequiv_dfl_comp_cat_disp_psfunctor_local_property
+        dfl_comp_cat_to_finlim_disp_psfunctor_local_property.
+  <span class="kn">Proof</span>.
+    use make_disp_biequiv_unit_counit_pointwise_adjequiv_alt.
+    - <span class="bp">exact</span> is_univalent_2_bicat_of_dfl_full_comp_cat.
+    - <span class="bp">exact</span> finlim_dfl_comp_cat_biequivalence_adjoints.
+    - <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_of_cat_property_dfl_full_comp_cat.
+    - <span class="nb">apply</span> disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
+    - <span class="bp">exact</span> finlim_dfl_comp_cat_unit_local_property.
+    - <span class="bp">exact</span> finlim_dfl_comp_cat_counit_local_property.
+    - <span class="nb">intros</span> x xx.
+      use disp_adjoint_equiv_disp_bicat_of_cat_property_dfl_full_comp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">finlim_biequiv_dfl_comp_cat_psfunctor_local_property</span>
+    : disp_is_biequivalence_data
+        _
+        _
+        finlim_dfl_comp_cat_biequivalence_adjoints
+        finlim_dfl_comp_cat_biequivalence_unit_counit_local_property.
+  <span class="kn">Proof</span>.
+    use (make_disp_biequiv_pointwise_adjequiv_alt _ _).
+    - <span class="bp">exact</span> is_univalent_2_bicat_of_univ_cat_with_finlim.
+    - <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_of_univ_cat_with_cat_property.
+    - <span class="nb">apply</span> disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
+    - <span class="nb">intros</span> x xx.
+      use disp_adjoint_equiv_disp_bicat_of_univ_cat_with_cat_property.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LocalPropertyBiequiv</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Biequivalence/LocalProperty.v</tt>, line 44)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. The displayed biequivalence
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

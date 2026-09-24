@@ -1,0 +1,1702 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NonnegativeRationals.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Catherine Lelay. Sep. 2015 *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Unset</span> Kernel Term Sharing.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-txt">
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Orders.
+
+<span class="kn">Require Import</span> UniMath.RealNumbers.Sets.
+<span class="kn">Require Import</span> UniMath.RealNumbers.Fields.
+<span class="kn">Require Export</span> UniMath.Algebra.DivisionRig.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Lattice.
+<span class="kn">Require Import</span> UniMath.RealNumbers.Prelim.
+
+<span class="kn">Opaque</span> hq.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hq_scope.
+
+<span class="sd">(** * Definition of non-negative rational numbers *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hnnq_set</span> := carrier_subset (hqleh <span class="mi">0</span>).
+
+<span class="kn">Local Definition</span> <span class="nf">hnnq_set_to_hq</span> (<span class="nv">r</span> : hnnq_set) : hq := pr1 r.
+
+<span class="kn">Local Definition</span> <span class="nf">hq_to_hnnq_set</span> (<span class="nv">r</span> : hq) (<span class="nv">Hr</span> : hqleh <span class="mi">0</span> r) : hnnq_set :=
+  r ,, Hr.
+
+<span class="kn">Local Definition</span> <span class="nf">hnnq_zero</span>: hnnq_set := hq_to_hnnq_set <span class="mi">0</span> (isreflhqleh <span class="mi">0</span>).
+<span class="kn">Local Definition</span> <span class="nf">hnnq_one</span>: hnnq_set := hq_to_hnnq_set <span class="mi">1</span> (hqlthtoleh <span class="mi">0</span> <span class="mi">1</span> hq1_gt0).
+<span class="kn">Local Definition</span> <span class="nf">hnnq_plus</span>: binop hnnq_set :=
+  <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : hnnq_set, hq_to_hnnq_set (pr1 x + pr1 y) (hq0lehandplus _ _ (pr2 x) (pr2 y)).
+<span class="kn">Local Definition</span> <span class="nf">hnnq_minus</span>: binop hnnq_set.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">induction</span> (hqgthorleh (pr1 x) (pr1 y)) <span class="k">as</span> [H | _].
+  - <span class="bp">exact</span> (hq_to_hnnq_set (pr1 x - pr1 y) (hq0leminus _ _ (hqlthtoleh _ _ H))).
+  - <span class="bp">exact</span> hnnq_zero.
+<span class="kn">Defined</span>.
+<span class="kn">Local Definition</span> <span class="nf">hnnq_mult</span>: binop hnnq_set :=
+  <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : hnnq_set, hq_to_hnnq_set (pr1 x * pr1 y) (hqmultgeh0geh0 (pr2 x) (pr2 y)).
+<span class="kn">Local Definition</span> <span class="nf">hnnq_inv</span>: unop hnnq_set.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">induction</span> (hqlehchoice <span class="mi">0</span> (pr1 x) (pr2 x)) <span class="k">as</span> [Hx0 | _].
+  - <span class="bp">exact</span> (hq_to_hnnq_set (/ pr1 x) (hqlthtoleh <span class="mi">0</span> (/ pr1 x) (hqinv_gt0 (pr1 x) Hx0))).
+  - <span class="bp">exact</span> x.
+<span class="kn">Defined</span>.
+<span class="kn">Local Definition</span> <span class="nf">hnnq_div</span> : binop hnnq_set := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : hnnq_set, hnnq_mult x (hnnq_inv y).
+
+<span class="sd">(** ** Equality and order on non-negative rational numbers *)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">hnnq_le</span> : hrel hnnq_set := resrel hqleh (hqleh <span class="mi">0</span>).
+<span class="kn">Local Lemma</span> <span class="nf">ispreorder_hnnq_le</span> : ispreorder hnnq_le.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y z.
+    <span class="bp">now</span> <span class="nb">apply</span> istranshqleh.
+  - <span class="nb">intros</span> x.
+    <span class="bp">now</span> <span class="nb">apply</span> isreflhqleh.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">hnnq_ge</span> : hrel hnnq_set := resrel hqgeh (hqleh <span class="mi">0</span>).
+<span class="kn">Local Lemma</span> <span class="nf">ispreorder_hnnq_ge</span> : ispreorder hnnq_ge.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (H := ispreorder_hnnq_le).
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y z Hxy Hyz.
+    <span class="bp">now</span> <span class="nb">apply</span> (pr1 H) <span class="k">with</span> y.
+  - <span class="nb">intros</span> x.
+    <span class="bp">now</span> <span class="nb">apply</span> (pr2 H).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">hnnq_lt</span> : hrel hnnq_set := resrel hqlth (hqleh <span class="mi">0</span>).
+<span class="kn">Local Lemma</span> <span class="nf">isStrongOrder_hnnq_lt</span> : isStrongOrder hnnq_lt.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y z.
+    <span class="bp">now</span> <span class="nb">apply</span> istranshqlth.
+  - <span class="nb">intros</span> x y z Hxz.
+    <span class="nb">generalize</span> (hqlthorgeh (pr1 x) (pr1 y)) ; <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hxy.
+    + <span class="nb">apply</span> hinhpr ; <span class="nb">left</span>.
+      <span class="bp">exact</span> Hxy.
+    + <span class="nb">apply</span> hinhpr ; <span class="nb">right</span>.
+      <span class="nb">apply</span> hqlehlthtrans <span class="k">with</span> (pr1 x).
+      * <span class="bp">exact</span> Hxy.
+      * <span class="bp">exact</span> Hxz.
+  - <span class="nb">intros</span> x.
+    <span class="bp">now</span> <span class="nb">apply</span> isirreflhqlth.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">hnnq_gt</span> : hrel hnnq_set := resrel hqgth (hqleh <span class="mi">0</span>).
+<span class="kn">Local Lemma</span> <span class="nf">isStrongOrder_hnnq_gt</span> : isStrongOrder hnnq_gt.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (H := isStrongOrder_reverse _ isStrongOrder_hnnq_lt).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y z.
+    <span class="nb">apply</span> (istrans_isStrongOrder H).
+  - <span class="nb">intros</span> x y z.
+    <span class="nb">apply</span> (iscotrans_isStrongOrder H).
+  - <span class="nb">intros</span> x.
+    <span class="nb">apply</span> (isirrefl_isStrongOrder H).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">isEffectiveOrder_hnnq</span> : isEffectiveOrder hnnq_le hnnq_lt.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; [ <span class="nb">split</span> | <span class="kp">repeat</span> <span class="nb">split</span> ].
+  - <span class="bp">exact</span> ispreorder_hnnq_le.
+  - <span class="bp">exact</span> isStrongOrder_hnnq_lt.
+  - <span class="nb">intros</span>. <span class="bp">assumption</span>.
+  - <span class="nb">intros</span>. <span class="bp">assumption</span>.
+  - <span class="nb">intros</span> x y z.
+    <span class="bp">now</span> <span class="nb">apply</span> hqlthlehtrans.
+  - <span class="nb">intros</span> x y z.
+    <span class="bp">now</span> <span class="nb">apply</span> hqlehlthtrans.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** hnnq is a half field *)</span>
+
+<span class="kn">Local Lemma</span> <span class="nf">iscomm_hnnq_plus</span>:
+  iscomm hnnq_plus.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">now</span> <span class="nb">apply</span> hqpluscomm.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">isassoc_hnnq_plus</span> :
+  isassoc hnnq_plus.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">now</span> <span class="nb">apply</span> hqplusassoc.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">islunit_hnnq_zero_plus</span>:
+  islunit hnnq_plus hnnq_zero.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">now</span> <span class="nb">apply</span> hqplusl0.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">isrunit_hnnq_zero_plus</span>:
+  isrunit hnnq_plus hnnq_zero.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">rewrite</span> iscomm_hnnq_plus.
+  <span class="bp">now</span> <span class="nb">apply</span> islunit_hnnq_zero_plus.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">iscomm_hnnq_mult</span>:
+  iscomm hnnq_mult.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">now</span> <span class="nb">apply</span> hqmultcomm.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">isassoc_hnnq_mult</span>:
+  isassoc hnnq_mult.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">now</span> <span class="nb">apply</span> hqmultassoc.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">islunit_hnnq_one_mult</span>:
+  islunit hnnq_mult hnnq_one.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">now</span> <span class="nb">apply</span> hqmultl1.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">isrunit_hnnq_one_mult</span>:
+  isrunit hnnq_mult hnnq_one.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">rewrite</span> iscomm_hnnq_mult.
+  <span class="bp">now</span> <span class="nb">apply</span> islunit_hnnq_one_mult.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">islinv'_hnnq_inv</span>:
+  islinv' hnnq_one hnnq_mult (hnnq_lt hnnq_zero)
+          (<span class="k">λ</span> <span class="nv">x</span> : carrier_subset (hnnq_lt hnnq_zero), hnnq_inv (pr1 x)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx0.
+  <span class="nb">unfold</span> hnnq_inv.
+  <span class="nb">change</span> (hqlehchoice <span class="mi">0</span> (pr1 (pr1 (x,, Hx0))) (pr2 (pr1 (x,, Hx0)))) <span class="k">with</span> (hqlehchoice <span class="mi">0</span> (pr1 x) (pr2 x)).
+  <span class="nb">generalize</span> (hqlehchoice <span class="mi">0</span> (pr1 x) (pr2 x)).
+  <span class="nb">apply</span> coprod_rect ; <span class="nb">intros</span> Hx0'.
+  - <span class="nb">apply</span> subtypePath_prop.
+    <span class="nb">apply</span> hqislinvmultinv.
+    <span class="bp">now</span> <span class="nb">apply</span> (hqgth_hqneq (pr1 x) <span class="mi">0</span>), Hx0'.
+  - <span class="nb">apply</span> fromempty.
+    <span class="nb">generalize</span> (pathsinv0 Hx0').
+    <span class="nb">apply</span> hqgth_hqneq, Hx0.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">isrinv'_hnnq_inv</span>:
+ isrinv' hnnq_one hnnq_mult (hnnq_lt hnnq_zero)
+         (<span class="k">λ</span> <span class="nv">x</span> : carrier_subset (hnnq_lt hnnq_zero), hnnq_inv (pr1 x)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx.
+  <span class="nb">rewrite</span> iscomm_hnnq_mult.
+  <span class="bp">now</span> <span class="nb">apply</span> islinv'_hnnq_inv.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">isldistr_hnnq_plus_mult</span>:
+  isldistr hnnq_plus hnnq_mult.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">now</span> <span class="nb">apply</span> hqldistr.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">isrdistr_hnnq_plus_mult</span>:
+  isrdistr hnnq_plus hnnq_mult.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="nb">rewrite</span> !(iscomm_hnnq_mult _ z).
+  <span class="bp">now</span> <span class="nb">apply</span> isldistr_hnnq_plus_mult.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">isabmonoidop_hnnq_plus</span>: isabmonoidop hnnq_plus.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">exact</span> isassoc_hnnq_plus.
+  - <span class="k">exists</span> <span class="nv">hnnq_zero</span> ; <span class="nb">split</span>.
+    + <span class="bp">exact</span> islunit_hnnq_zero_plus.
+    + <span class="bp">exact</span> isrunit_hnnq_zero_plus.
+  - <span class="bp">exact</span> iscomm_hnnq_plus.
+<span class="kn">Defined</span>.
+<span class="kn">Local Definition</span> <span class="nf">ismonoidop_hnnq_mult</span> : ismonoidop hnnq_mult.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> isassoc_hnnq_mult.
+  - <span class="k">exists</span> <span class="nv">hnnq_one</span> ; <span class="nb">split</span>.
+    + <span class="bp">exact</span> islunit_hnnq_one_mult.
+    + <span class="bp">exact</span> isrunit_hnnq_one_mult.
+<span class="kn">Defined</span>.
+<span class="kn">Local Definition</span> <span class="nf">commrig_hnnq</span>: commrig.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">hnnq_set</span>,,<span class="nv">hnnq_plus</span>,,<span class="nv">hnnq_mult</span>).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="k">exists</span> (<span class="nv">isabmonoidop_hnnq_plus</span>,,<span class="nv">ismonoidop_hnnq_mult</span>) ; <span class="nb">split</span>.
+    + <span class="nb">intro</span> x.
+      <span class="nb">apply</span> subtypePath_prop.
+      <span class="nb">apply</span> hqmult0x.
+    + <span class="nb">intro</span> x.
+      <span class="nb">apply</span> subtypePath_prop.
+      <span class="nb">apply</span> hqmultx0.
+  - <span class="bp">exact</span> isldistr_hnnq_plus_mult.
+  - <span class="bp">exact</span> isrdistr_hnnq_plus_mult.
+  - <span class="bp">exact</span> iscomm_hnnq_mult.
+<span class="kn">Defined</span>.
+<span class="kn">Local Definition</span> <span class="nf">CommDivRig_hnnq</span>: CommDivRig.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">commrig_hnnq</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> H.
+    <span class="nb">apply</span> base_paths <span class="k">in</span> H.
+    <span class="nb">apply</span> hqgth_hqneq <span class="k">in</span> H.
+    + <span class="bp">exact</span> H.
+    + <span class="bp">exact</span> hq1_gt0.
+  - <span class="nb">intros</span> x Hx.
+    <span class="nb">assert</span> (Hx' : hnnq_lt hnnq_zero x).
+    { <span class="nb">apply</span> neghqlehtogth.
+      <span class="nb">intro</span> Hx0 ; <span class="nb">apply</span> Hx.
+      <span class="nb">apply</span> subtypePath.
+      - <span class="bp">now</span> <span class="nb">intro</span> ;<span class="nb">apply</span> pr2.
+      - <span class="nb">apply</span> isantisymmhqleh.
+        + <span class="nb">apply</span> Hx0.
+        + <span class="nb">apply</span> (pr2 x). }
+    <span class="k">exists</span> (<span class="nv">hnnq_inv</span> <span class="nv">x</span>) ; <span class="nb">split</span>.
+    + <span class="bp">now</span> <span class="nb">apply</span> (islinv'_hnnq_inv x Hx').
+    + <span class="bp">now</span> <span class="nb">apply</span> (isrinv'_hnnq_inv x Hx').
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * Exportable definitions and theorems *)</span>
+
+<span class="kn">Definition</span> <span class="nf">NonnegativeRationals</span> : CommDivRig := CommDivRig_hnnq.
+<span class="kn">Definition</span> <span class="nf">NonnegativeRationals_to_Rationals</span> : NonnegativeRationals → hq :=
+  pr1.
+<span class="kn">Definition</span> <span class="nf">Rationals_to_NonnegativeRationals</span> (<span class="nv">r</span> : hq) (<span class="nv">Hr</span> : hqleh <span class="mi">0</span>%hq r) : NonnegativeRationals :=
+  tpair _ r Hr.
+
+<span class="kn">Declare Scope</span> NRat_scope.
+<span class="kn">Delimit Scope</span> NRat_scope <span class="k">with</span> NRat.
+
+<span class="sd">(** ** Definitions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">NonnegativeRationals_EffectivelyOrderedSet</span> :=
+  @pairEffectivelyOrderedSet NonnegativeRationals (pairEffectiveOrder _ _ isEffectiveOrder_hnnq).
+
+<span class="kn">Definition</span> <span class="nf">leNonnegativeRationals</span> : po NonnegativeRationals :=
+  EOle (X := NonnegativeRationals_EffectivelyOrderedSet).
+<span class="kn">Definition</span> <span class="nf">geNonnegativeRationals</span> : po NonnegativeRationals :=
+  EOge (X := NonnegativeRationals_EffectivelyOrderedSet).
+<span class="kn">Definition</span> <span class="nf">ltNonnegativeRationals</span> : StrongOrder NonnegativeRationals :=
+  EOlt (X := NonnegativeRationals_EffectivelyOrderedSet).
+<span class="kn">Definition</span> <span class="nf">gtNonnegativeRationals</span> : StrongOrder NonnegativeRationals :=
+  EOgt (X := NonnegativeRationals_EffectivelyOrderedSet).
+
+<span class="kn">Notation</span> <span class="s2">"x &lt;= y"</span> := (EOle_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : NRat_scope.
+<span class="kn">Notation</span> <span class="s2">"x &gt;= y"</span> := (EOge_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : NRat_scope.
+<span class="kn">Notation</span> <span class="s2">"x &lt; y"</span> := (EOlt_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : NRat_scope.
+<span class="kn">Notation</span> <span class="s2">"x &gt; y"</span> := (EOgt_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : NRat_scope.
+
+<span class="kn">Definition</span> <span class="nf">zeroNonnegativeRationals</span> : NonnegativeRationals := hnnq_zero.
+<span class="kn">Definition</span> <span class="nf">oneNonnegativeRationals</span> : NonnegativeRationals := hnnq_one.
+
+<span class="kn">Definition</span> <span class="nf">plusNonnegativeRationals</span> (<span class="nv">x</span> <span class="nv">y</span> : NonnegativeRationals) : NonnegativeRationals :=
+  hnnq_plus x y.
+<span class="kn">Definition</span> <span class="nf">minusNonnegativeRationals</span> (<span class="nv">x</span> <span class="nv">y</span> : NonnegativeRationals) : NonnegativeRationals :=
+  hnnq_minus x y.
+<span class="kn">Definition</span> <span class="nf">multNonnegativeRationals</span> (<span class="nv">x</span> <span class="nv">y</span> : NonnegativeRationals) : NonnegativeRationals :=
+  hnnq_mult x y.
+<span class="kn">Definition</span> <span class="nf">invNonnegativeRationals</span> (<span class="nv">x</span> : NonnegativeRationals) : NonnegativeRationals :=
+  hnnq_inv x.
+<span class="kn">Definition</span> <span class="nf">divNonnegativeRationals</span> (<span class="nv">x</span> <span class="nv">y</span> : NonnegativeRationals) : NonnegativeRationals :=
+  multNonnegativeRationals x (invNonnegativeRationals y).
+
+<span class="kn">Definition</span> <span class="nf">twoNonnegativeRationals</span> : NonnegativeRationals :=
+  Rationals_to_NonnegativeRationals <span class="mi">2</span> (hqlthtoleh _ _ hq2_gt0).
+
+<span class="kn">Definition</span> <span class="nf">nat_to_NonnegativeRationals</span> (<span class="nv">n</span> : nat) : NonnegativeRationals :=
+  Rationals_to_NonnegativeRationals (hztohq (nattohz n)) (hztohqandleh <span class="mi">0</span>%hz _ (nattohzandleh O n (natleh0n n))).
+
+<span class="kn">Notation</span> <span class="s2">"0"</span> := zeroNonnegativeRationals : NRat_scope.
+<span class="kn">Notation</span> <span class="s2">"1"</span> := oneNonnegativeRationals : NRat_scope.
+<span class="kn">Notation</span> <span class="s2">"2"</span> := twoNonnegativeRationals : NRat_scope.
+
+<span class="kn">Notation</span> <span class="s2">"x + y"</span> := (plusNonnegativeRationals x y) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>) : NRat_scope.
+<span class="kn">Notation</span> <span class="s2">"x - y"</span> := (minusNonnegativeRationals x y) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>) : NRat_scope.
+<span class="kn">Notation</span> <span class="s2">"x * y"</span> := (multNonnegativeRationals x y) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>) : NRat_scope.
+<span class="kn">Notation</span> <span class="s2">"/ x"</span> := (invNonnegativeRationals x) (<span class="kn">at level</span> <span class="mi">35</span>, <span class="kn">right associativity</span>) : NRat_scope.
+<span class="kn">Notation</span> <span class="s2">"x / y"</span> := (divNonnegativeRationals x y) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>) : NRat_scope.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> NRat_scope.
+
+<span class="sd">(** *** Correctness of definitions *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">zeroNonnegativeRationals_correct</span> :
+  <span class="mi">0</span> = Rationals_to_NonnegativeRationals <span class="mi">0</span>%hq (isreflhqleh <span class="mi">0</span>%hq).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">oneNonnegativeRationals_correct</span> :
+  <span class="mi">1</span> = Rationals_to_NonnegativeRationals <span class="mi">1</span>%hq hq1ge0.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">twoNonnegativeRationals_correct</span> :
+  <span class="mi">2</span> = Rationals_to_NonnegativeRationals <span class="mi">2</span>%hq (hqlthtoleh _ _ hq2_gt0).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_correct</span> :
+  ∏ (x y : NonnegativeRationals),
+    x + y = Rationals_to_NonnegativeRationals (pr1 x + pr1 y)%hq (hq0lehandplus _ _ (pr2 x) (pr2 y)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_correct</span> :
+  ∏ (x y : NonnegativeRationals) (Hminus : y &lt;= x),
+    x - y = Rationals_to_NonnegativeRationals (pr1 x - pr1 y)%hq (hq0leminus _ _ Hminus).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y H.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">unfold</span> minusNonnegativeRationals, hnnq_minus.
+  <span class="nb">generalize</span> (hqgthorleh (pr1 x) (pr1 y)).
+  <span class="nb">apply</span> coprod_rect ; [<span class="nb">intros</span> Hgt | <span class="nb">intros</span> Hle].
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">generalize</span> (isantisymmhqleh _ _ Hle H) ; <span class="nb">intros</span> Heq.
+    <span class="nb">rewrite</span> coprod_rect_compute_2.
+    <span class="nb">generalize</span> (hq0leminus (pr1 y) (pr1 x) H).
+    <span class="nb">rewrite</span> Heq, hqrminus.
+    <span class="nb">intros</span> H0.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_correct</span> :
+  ∏ (x y : NonnegativeRationals),
+    x * y = Rationals_to_NonnegativeRationals (pr1 x * pr1 y)%hq ( hq0lehandmult _ _ (pr2 x) (pr2 y)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">invNonnegativeRationals_correct</span> :
+  ∏ (x : NonnegativeRationals) (Hx : <span class="mi">0</span> &lt; x),
+    / x = Rationals_to_NonnegativeRationals (/ pr1 x)%hq (hqlthtoleh _ _ (hqinv_gt0 _ Hx)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx0.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">unfold</span> invNonnegativeRationals, hnnq_inv.
+  <span class="nb">generalize</span> (hqlehchoice <span class="mi">0</span>%hq (pr1 x) (pr2 x)).
+  <span class="nb">apply</span> coprod_rect ; [<span class="nb">intros</span> Hlt | <span class="nb">intros</span> Heq].
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> fromempty ; <span class="nb">generalize</span> Hx0.
+    <span class="nb">change</span> x <span class="k">with</span> (pr1 x,,pr2 x).
+    <span class="nb">generalize</span> (pr2 x).
+    <span class="nb">rewrite</span> &lt;- Heq ; <span class="nb">intro</span>.
+    <span class="bp">exact</span> (isirreflhqlth <span class="mi">0</span>%hq).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">leNonnegativeRationals_correct</span> :
+  ∏ x y : NonnegativeRationals, (x &lt;= y) = (pr1 x &lt;= pr1 y)%hq.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">geNonnegativeRationals_correct</span> :
+  ∏ x y : NonnegativeRationals, (x &gt;= y) = (pr1 x &gt;= pr1 y)%hq.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">ltNonnegativeRationals_correct</span> :
+  ∏ x y : NonnegativeRationals, (x &lt; y) = (pr1 x &lt; pr1 y)%hq.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">gtNonnegativeRationals_correct</span> :
+  ∏ x y : NonnegativeRationals, (x &gt; y) = (pr1 x &gt; pr1 y)%hq.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Theorems about order *)</span>
+
+<span class="sd">(** *** Decidability *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isdeceq_NonnegativeRationals</span> :
+  ∏ x y : NonnegativeRationals, (x = y) ⨿ (x != y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">generalize</span> (isdeceqhq (pr1 x) (pr1 y)) ;
+  <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> H.
+  - <span class="nb">left</span>.
+    <span class="nb">apply</span> subtypePath_prop.
+    <span class="bp">exact</span> H.
+  - <span class="nb">right</span>.
+    <span class="nb">intros</span> H0 ; <span class="nb">apply</span> H.
+    <span class="nb">revert</span> H0.
+    <span class="nb">apply</span> base_paths.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isdecrel_leNonnegativeRationals</span> :
+  ∏ x y : NonnegativeRationals, (x &lt;= y) ⨿ ¬ (x &lt;= y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> isdecrelhqleh.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isdecrel_ltNonnegativeRationals</span> :
+  ∏ x y : NonnegativeRationals, (x &lt; y) ⨿ ¬ (x &lt; y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> isdecrelhqlth.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">le_eqorltNonnegativeRationals</span> :
+  ∏ x y : NonnegativeRationals, x &lt;= y -&gt; (x = y) ⨿ (x &lt; y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hle.
+  <span class="nb">generalize</span> (hqlehchoice (pr1 x) (pr1 y) Hle) ;
+    <span class="nb">apply</span> sumofmaps ; [<span class="nb">intros</span> Hlt | <span class="nb">intros</span> Heq].
+  - <span class="nb">right</span> ; <span class="bp">exact</span> Hlt.
+  - <span class="nb">left</span>.
+    <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop, Heq.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">noteq_ltorgtNonnegativeRationals</span> :
+  ∏ x y : NonnegativeRationals, x != y -&gt; (x &lt; y) ⨿ (x &gt; y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hneq.
+  <span class="nb">generalize</span> (isdecrel_leNonnegativeRationals x y) ;
+    <span class="nb">apply</span> sumofmaps ; [<span class="nb">intros</span> Hle|<span class="nb">intros</span> Hlt].
+  - <span class="nb">left</span>.
+    <span class="nb">apply</span> le_eqorltNonnegativeRationals <span class="k">in</span> Hle.
+    <span class="nb">revert</span> Hle ; <span class="nb">apply</span> sumofmaps ; [<span class="nb">intros</span> Heq | <span class="nb">intros</span> Hlt].
+    + <span class="bp">now</span> <span class="nb">apply</span> fromempty, Hneq, Heq.
+    + <span class="bp">exact</span> Hlt.
+  - <span class="nb">right</span>.
+    <span class="nb">apply</span> neghqgehtolth.
+    <span class="bp">exact</span> Hlt.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">eq0orgt0NonnegativeRationals</span> :
+  ∏ x : NonnegativeRationals, (x = <span class="mi">0</span>) ⨿ (<span class="mi">0</span> &lt; x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">generalize</span> (le_eqorltNonnegativeRationals <span class="mi">0</span> x (pr2 x)) ; <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hx.
+  - <span class="nb">rewrite</span> Hx ; <span class="bp">now</span> <span class="nb">left</span>.
+  - <span class="nb">right</span> ; <span class="bp">exact</span> Hx.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Basic theorems about order *)</span>
+
+<span class="kn">Definition</span> <span class="nf">lt_leNonnegativeRationals</span> :
+  ∏ x y : NonnegativeRationals, x &lt; y -&gt; x &lt;= y
+  := EOlt_le (X := NonnegativeRationals_EffectivelyOrderedSet).
+
+<span class="kn">Definition</span> <span class="nf">isrefl_leNonnegativeRationals</span>:
+  ∏ x : NonnegativeRationals, x &lt;= x :=
+  isrefl_EOle (X := NonnegativeRationals_EffectivelyOrderedSet).
+<span class="kn">Definition</span> <span class="nf">istrans_leNonnegativeRationals</span>:
+  ∏ x y z : NonnegativeRationals, x &lt;= y -&gt; y &lt;= z -&gt; x &lt;= z :=
+  istrans_EOle (X := NonnegativeRationals_EffectivelyOrderedSet).
+<span class="kn">Definition</span> <span class="nf">isirrefl_ltNonnegativeRationals</span>:
+  ∏ x : NonnegativeRationals, ¬ (x &lt; x) :=
+  isirrefl_EOlt (X := NonnegativeRationals_EffectivelyOrderedSet).
+<span class="kn">Definition</span> <span class="nf">istrans_ltNonnegativeRationals</span> :
+  ∏ x y z : NonnegativeRationals, x &lt; y -&gt; y &lt; z -&gt; x &lt; z
+  := istrans_EOlt (X := NonnegativeRationals_EffectivelyOrderedSet).
+<span class="kn">Definition</span> <span class="nf">istrans_lt_le_ltNonnegativeRationals</span>:
+  ∏ x y z : NonnegativeRationals, x &lt; y -&gt; y &lt;= z -&gt; x &lt; z
+  := istrans_EOlt_le (X := NonnegativeRationals_EffectivelyOrderedSet).
+<span class="kn">Definition</span> <span class="nf">istrans_le_lt_ltNonnegativeRationals</span> :
+  ∏ x y z : NonnegativeRationals, x &lt;= y -&gt; y &lt; z -&gt; x &lt; z
+  := istrans_EOle_lt (X := NonnegativeRationals_EffectivelyOrderedSet).
+
+<span class="kn">Lemma</span> <span class="nf">isantisymm_leNonnegativeRationals</span> :
+  ∏ x y : NonnegativeRationals, x &lt;= y -&gt; y &lt;= x -&gt; x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hle Hge.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">now</span> <span class="nb">apply</span> isantisymmhqleh.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ge_leNonnegativeRationals</span>:
+  ∏ x y : NonnegativeRationals, (x &gt;= y) &lt;-&gt; (y &lt;= x)
+  := EOge_le (X := NonnegativeRationals_EffectivelyOrderedSet).
+<span class="kn">Definition</span> <span class="nf">lt_gtNonnegativeRationals</span>:
+  ∏ x y : NonnegativeRationals, (x &gt; y) &lt;-&gt; (y &lt; x)
+  := EOgt_lt (X := NonnegativeRationals_EffectivelyOrderedSet).
+<span class="kn">Definition</span> <span class="nf">notlt_geNonnegativeRationals</span>:
+  ∏ x y : NonnegativeRationals, (¬ (x &lt; y)) &lt;-&gt; (y &lt;= x)
+  := not_EOlt_le (X := NonnegativeRationals_EffectivelyOrderedSet).
+<span class="kn">Lemma</span> <span class="nf">notge_ltNonnegativeRationals</span> :
+  ∏ x y : NonnegativeRationals, (¬ (y &lt;= x)) &lt;-&gt; (x &lt; y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">split</span>.
+  - <span class="bp">now</span> <span class="nb">apply</span> neghqgehtolth.
+  - <span class="bp">now</span> <span class="nb">apply</span> hqlthtoneghqgeh.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ltNonnegativeRationals_noteq</span> :
+  ∏ x y, x &lt; y -&gt; x != y
+  := EOlt_noteq (X := NonnegativeRationals_EffectivelyOrderedSet).
+<span class="kn">Definition</span> <span class="nf">gtNonnegativeRationals_noteq</span> :
+  ∏ x y, x &gt; y -&gt; x != y
+  := EOgt_noteq (X := NonnegativeRationals_EffectivelyOrderedSet).
+
+<span class="kn">Lemma</span> <span class="nf">between_ltNonnegativeRationals</span> :
+  ∏ x y : NonnegativeRationals,
+    x &lt; y -&gt; ∑ t : NonnegativeRationals, x &lt; t × t &lt; y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y H.
+  <span class="nb">set</span> (z := hqlth_between (pr1 x) (pr1 y) H).
+  <span class="nb">assert</span> (Hz : hqleh <span class="mi">0</span>%hq (pr1 z)).
+  { <span class="nb">apply</span> istranshqleh <span class="k">with</span> (pr1 x).
+    { <span class="bp">now</span> <span class="nb">apply</span> (pr2 x). }
+    <span class="nb">apply</span> (hqlthtoleh (pr1 x) (pr1 z)), (pr1 (pr2 z)). }
+  <span class="k">exists</span> (<span class="nv">hq_to_hnnq_set</span> <span class="nv">_</span> <span class="nv">Hz</span>).
+  <span class="bp">exact</span> (pr2 z).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Order and 0 *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isnonnegative_NonnegativeRationals</span> :
+  ∏ x : NonnegativeRationals , <span class="mi">0</span> &lt;= x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> (pr2 x).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isnonnegative_NonnegativeRationals'</span> :
+  ∏ x : NonnegativeRationals , ¬ (x &lt; <span class="mi">0</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> (pr2 x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">NonnegativeRationals_eq0_le0</span> :
+  ∏ r : NonnegativeRationals, (r &lt;= <span class="mi">0</span>) -&gt; (r = <span class="mi">0</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r Hr0.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">apply</span> isantisymmhqleh.
+  - <span class="nb">apply</span> Hr0.
+  - <span class="nb">apply</span> (pr2 r).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">NonnegativeRationals_neq0_gt0</span> :
+  ∏ r : NonnegativeRationals, (r != <span class="mi">0</span>) -&gt; (<span class="mi">0</span> &lt; r).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r Hr0.
+  <span class="nb">apply</span> neghqlehtogth.
+  <span class="nb">intro</span> H ; <span class="nb">apply</span> Hr0.
+  <span class="bp">now</span> <span class="nb">apply</span> NonnegativeRationals_eq0_le0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispositive_oneNonnegativeRationals</span> : <span class="mi">0</span> &lt; <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> hq1_gt0.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">ispositive_twoNonnegativeRationals</span> : <span class="mi">0</span> &lt; <span class="mi">2</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> hq2_gt0.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">one_lt_twoNonnegativeRationals</span> : <span class="mi">1</span> &lt; <span class="mi">2</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (<span class="mi">1</span> &lt; <span class="mi">2</span>)%hq.
+  <span class="nb">rewrite</span> &lt;- (hqplusr0 <span class="mi">1</span>%hq), hq2eq1plus1.
+  <span class="nb">apply</span> hqlthandplusl.
+  <span class="bp">exact</span> hq1_gt0.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Theorems about algebra *)</span>
+<span class="sd">(** *** Addition *)</span>
+<span class="sd">(** Rewritings *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isassoc_plusNonnegativeRationals</span>:
+  ∏ x y z : NonnegativeRationals, x + y + z = x + (y + z) :=
+  CommDivRig_isassoc_plus.
+
+<span class="kn">Definition</span> <span class="nf">islunit_zeroNonnegativeRationals</span>:
+  ∏ r : NonnegativeRationals, <span class="mi">0</span> + r = r :=
+  CommDivRig_islunit_zero.
+
+<span class="kn">Definition</span> <span class="nf">isrunit_zeroNonnegativeRationals</span>:
+  ∏ r : NonnegativeRationals, r + <span class="mi">0</span> = r :=
+  CommDivRig_isrunit_zero.
+
+<span class="kn">Definition</span> <span class="nf">iscomm_plusNonnegativeRationals</span>:
+  ∏ x y : NonnegativeRationals, x + y = y + x :=
+  CommDivRig_iscomm_plus.
+
+<span class="sd">(** Order *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_ltcompat_r</span> :
+  ∏ x y z : NonnegativeRationals, (y &lt; z) &lt;-&gt; (y + x &lt; z + x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="nb">split</span>.
+  - <span class="bp">now</span> <span class="nb">apply</span> hqlthandplusr.
+  - <span class="bp">now</span> <span class="nb">apply</span> hqlthandplusrinv.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_ltcompat_l</span> :
+  ∏ x y z : NonnegativeRationals, (y &lt; z) &lt;-&gt; (x + y &lt; x + z).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="nb">rewrite</span> !(iscomm_plusNonnegativeRationals x).
+  <span class="bp">now</span> <span class="nb">apply</span> plusNonnegativeRationals_ltcompat_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_lecompat_r</span> :
+  ∏ r q n : NonnegativeRationals, (q &lt;= n) &lt;-&gt; (q + r &lt;= n + r).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r q n.
+  <span class="nb">split</span>.
+  - <span class="bp">now</span> <span class="nb">apply</span> hqlehandplusr.
+  - <span class="bp">now</span> <span class="nb">apply</span> hqlehandplusrinv.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_lecompat_l</span> :
+  ∏ r q n : NonnegativeRationals, (q &lt;= n) &lt;-&gt; (r + q &lt;= r + n).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r q n.
+  <span class="nb">rewrite</span> ! (iscomm_plusNonnegativeRationals r).
+  <span class="bp">now</span> <span class="nb">apply</span> plusNonnegativeRationals_lecompat_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_eqcompat_l</span>:
+  ∏ k x y : NonnegativeRationals,
+    (k + x = k + y) -&gt; (x = y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y H.
+  <span class="nb">apply</span> isantisymm_leNonnegativeRationals ;
+    apply_pr2 (plusNonnegativeRationals_lecompat_l k) ;
+    <span class="nb">rewrite</span> H ;
+    <span class="nb">apply</span> isrefl_leNonnegativeRationals.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_eqcompat_r</span>:
+  ∏ k x y : NonnegativeRationals,
+    (x + k = y + k) -&gt; (x = y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y.
+  <span class="nb">rewrite</span> !(iscomm_plusNonnegativeRationals _ k).
+  <span class="bp">now</span> <span class="nb">apply</span> plusNonnegativeRationals_eqcompat_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_ltcompat</span> :
+  ∏ x x' y y' : NonnegativeRationals,
+    x &lt; x' -&gt; y &lt; y' -&gt; x + y &lt; x' + y'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x x' y y' Hx Hy.
+  <span class="nb">apply</span> istrans_ltNonnegativeRationals <span class="k">with</span> (x + y').
+  - <span class="bp">now</span> <span class="nb">apply</span> hqlthandplusl, Hy.
+  - <span class="bp">now</span> <span class="nb">apply</span> hqlthandplusr, Hx.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_le_lt_ltcompat</span> :
+  ∏ x x' y y' : NonnegativeRationals,
+    x &lt;= x' -&gt; y &lt; y' -&gt; x + y &lt; x' + y'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x x' y y' Hx Hy.
+  <span class="nb">apply</span> istrans_lt_le_ltNonnegativeRationals <span class="k">with</span> (x + y').
+  - <span class="bp">now</span> <span class="nb">apply</span> hqlthandplusl, Hy.
+  - <span class="bp">now</span> <span class="nb">apply</span> hqlehandplusr, Hx.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_lt_le_ltcompat</span> :
+  ∏ x x' y y' : NonnegativeRationals,
+    x &lt; x' -&gt; y &lt;= y' -&gt; x + y &lt; x' + y'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x x' y y' Hx Hy.
+  <span class="nb">apply</span> istrans_le_lt_ltNonnegativeRationals <span class="k">with</span> (x + y').
+  - <span class="bp">now</span> <span class="nb">apply</span> hqlehandplusl, Hy.
+  - <span class="bp">now</span> <span class="nb">apply</span> hqlthandplusr, Hx.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_le_r</span> :
+  ∏ r q : NonnegativeRationals, r &lt;= r + q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r q.
+  <span class="nb">pattern</span> r <span class="nb">at</span> <span class="mi">1</span>.
+  <span class="nb">rewrite</span> &lt;- (isrunit_zeroNonnegativeRationals r).
+  <span class="nb">apply</span> hqlehandplusl.
+  <span class="nb">apply</span> (pr2 q).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_le_l</span> :
+  ∏ r q : NonnegativeRationals, r &lt;= q + r.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r q.
+  <span class="nb">rewrite</span> iscomm_plusNonnegativeRationals.
+  <span class="bp">now</span> <span class="nb">apply</span> plusNonnegativeRationals_le_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispositive_plusNonnegativeRationals_l</span> :
+  ∏ x y : NonnegativeRationals, <span class="mi">0</span> &lt; x -&gt; <span class="mi">0</span> &lt; x + y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hx.
+  <span class="nb">apply</span> istrans_lt_le_ltNonnegativeRationals <span class="k">with</span> x.
+  - <span class="bp">exact</span> Hx.
+  - <span class="bp">now</span> <span class="nb">apply</span> plusNonnegativeRationals_le_r.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">ispositive_plusNonnegativeRationals_r</span> :
+  ∏ x y : NonnegativeRationals, <span class="mi">0</span> &lt; y -&gt; <span class="mi">0</span> &lt; x + y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hy.
+  <span class="nb">apply</span> istrans_lt_le_ltNonnegativeRationals <span class="k">with</span> y.
+  - <span class="bp">exact</span> Hy.
+  - <span class="bp">now</span> <span class="nb">apply</span> plusNonnegativeRationals_le_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_lt_r</span> :
+  ∏ r q : NonnegativeRationals, <span class="mi">0</span> &lt; q -&gt; r &lt; r + q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hy0.
+  <span class="nb">pattern</span> x <span class="nb">at</span> <span class="mi">1</span>.
+  <span class="nb">rewrite</span> &lt;- (isrunit_zeroNonnegativeRationals x).
+  <span class="nb">apply</span> plusNonnegativeRationals_ltcompat_l.
+  <span class="bp">exact</span> Hy0.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_lt_l</span> :
+  ∏ r q : NonnegativeRationals, <span class="mi">0</span> &lt; r -&gt; q &lt; r + q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">rewrite</span> iscomm_plusNonnegativeRationals.
+  <span class="bp">now</span> <span class="nb">apply</span> plusNonnegativeRationals_lt_r.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Substraction *)</span>
+<span class="sd">(** Rewriting *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_eq_zero</span>:
+  ∏ x y : NonnegativeRationals, x &lt;= y -&gt; x - y = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hle.
+  <span class="nb">unfold</span> minusNonnegativeRationals, hnnq_minus.
+  <span class="nb">generalize</span> (hqgthorleh (pr1 x) (pr1 y)).
+  <span class="nb">apply</span> coprod_rect ; <span class="nb">intros</span> H.
+  - <span class="nb">apply</span> fromempty.
+    <span class="bp">exact</span> (Hle H).
+  - <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_plus_r</span> :
+  ∏ r q : NonnegativeRationals,
+    r &lt;= q -&gt; (q - r) + r = q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r q H.
+  <span class="nb">unfold</span> minusNonnegativeRationals, hnnq_minus.
+  <span class="nb">generalize</span> (hqgthorleh (pr1 q) (pr1 r)).
+  <span class="nb">apply</span> coprod_rect ; <span class="nb">intros</span> H'.
+  - <span class="nb">rewrite</span> coprod_rect_compute_1.
+    <span class="nb">apply</span> subtypePath_prop.
+    <span class="nb">unfold</span> hqminus.
+    <span class="nb">pattern</span> r <span class="nb">at</span> <span class="mi">4</span>.
+    <span class="nb">simpl</span>.
+    <span class="nb">generalize</span> (pr1 r) (pr1 q) (pr2 r) (hq0leminus (pr1 r) (pr1 q) (hqlthtoleh (pr1 r) (pr1 q) H')) ; <span class="nb">intros</span> r' q' Hr Hrq.
+    <span class="bp">now</span> <span class="nb">rewrite</span> hqplusassoc, hqlminus, hqplusr0.
+  - <span class="nb">rewrite</span> coprod_rect_compute_2.
+    <span class="nb">apply</span> subtypePath_prop.
+    <span class="nb">generalize</span> (isantisymmhqleh _ _ H H').
+    <span class="nb">simpl</span>.
+    <span class="nb">generalize</span> (pr1 r) (pr2 r) (pr1 q) ; <span class="nb">intros</span> r' Hr' q' Heq.
+    <span class="bp">now</span> <span class="nb">rewrite</span> hqplusl0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_minus_r</span> :
+  ∏ q r : NonnegativeRationals, (r + q) - q = r.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> q r.
+  <span class="nb">change</span> r <span class="k">with</span> (pr1 r,,pr2 r).
+  <span class="nb">generalize</span> (pr1 r) (pr2 r) (pr1 q) (pr2 q) ; <span class="nb">intros</span> r' Hr q' Hq.
+  <span class="nb">rewrite</span> (minusNonnegativeRationals_correct _ _ (plusNonnegativeRationals_le_l _ _)).
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">simpl</span> pr1.
+  <span class="nb">unfold</span> hqminus.
+  <span class="nb">rewrite</span> hqplusassoc.
+  <span class="nb">rewrite</span> (hqpluscomm (pr1 q)).
+  <span class="nb">rewrite</span> hqlminus.
+  <span class="nb">rewrite</span> hqplusr0.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">plusNonnegativeRationals_minus_l</span> :
+  ∏ q r : NonnegativeRationals, (q + r) - q = r.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> q r.
+  <span class="nb">rewrite</span> iscomm_plusNonnegativeRationals.
+  <span class="bp">now</span> <span class="nb">apply</span> plusNonnegativeRationals_minus_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_correct_l</span> :
+  ∏ x y z : NonnegativeRationals, x = y + z -&gt; z = x - y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z -&gt;.
+  <span class="bp">now</span> <span class="nb">rewrite</span> plusNonnegativeRationals_minus_l.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_correct_r</span> :
+  ∏ x y z : NonnegativeRationals, x = y + z -&gt; y = x - z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z -&gt;.
+  <span class="bp">now</span> <span class="nb">rewrite</span> plusNonnegativeRationals_minus_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_zero_l</span> :
+  ∏ x : NonnegativeRationals, <span class="mi">0</span> - x = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> minusNonnegativeRationals_eq_zero.
+  <span class="bp">now</span> <span class="nb">apply</span> isnonnegative_NonnegativeRationals.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_zero_r</span> :
+  ∏ x : NonnegativeRationals, x - <span class="mi">0</span> = x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">rewrite</span> &lt;- (isrunit_zeroNonnegativeRationals (x - <span class="mi">0</span>)).
+  <span class="nb">apply</span> minusNonnegativeRationals_plus_r.
+  <span class="bp">now</span> <span class="nb">apply</span> isnonnegative_NonnegativeRationals.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_plus_exchange</span> :
+  ∏ x y z : NonnegativeRationals, y &lt;= x -&gt; x - y + z = (x + z) - y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hxy.
+  <span class="nb">assert</span> (Hxzy : y &lt;= x + z).
+  { <span class="nb">apply</span> istrans_leNonnegativeRationals <span class="k">with</span> x.
+    { <span class="bp">exact</span> Hxy. }
+    <span class="nb">apply</span> plusNonnegativeRationals_le_r. }
+  <span class="nb">rewrite</span> (minusNonnegativeRationals_correct _ _ Hxy), (minusNonnegativeRationals_correct _ _ Hxzy).
+  <span class="nb">revert</span> Hxy Hxzy.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">change</span> (pr1 x - pr1 y + pr1 z = (pr1 x + pr1 z) - pr1 y)%hq.
+  <span class="bp">now</span> <span class="nb">unfold</span> hqminus ; <span class="nb">rewrite</span> !hqplusassoc, (hqpluscomm (pr1 z)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Order *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">ispositive_minusNonnegativeRationals</span> :
+  ∏ x y : NonnegativeRationals, (x &lt; y) &lt;-&gt; (<span class="mi">0</span> &lt; y - x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">split</span> ; <span class="nb">intro</span> Hlt.
+  - apply_pr2 (plusNonnegativeRationals_ltcompat_r x).
+    <span class="nb">rewrite</span> islunit_zeroNonnegativeRationals, minusNonnegativeRationals_plus_r.
+    + <span class="bp">exact</span> Hlt.
+    + <span class="bp">now</span> <span class="nb">apply</span> lt_leNonnegativeRationals, Hlt.
+  - <span class="nb">revert</span> Hlt.
+    <span class="nb">unfold</span> minusNonnegativeRationals, hnnq_minus.
+    <span class="nb">generalize</span> (hqgthorleh (pr1 y) (pr1 x)).
+    <span class="nb">apply</span> (coprod_rect (<span class="k">λ</span> <span class="nv">_</span>, _ → _)) ; <span class="nb">intros</span> H0 ; <span class="nb">intro</span> Hlt.
+    + <span class="bp">exact</span> H0.
+    + <span class="bp">now</span> <span class="nb">apply</span> isirrefl_ltNonnegativeRationals <span class="k">in</span> Hlt.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_le</span> :
+  ∏ x y : NonnegativeRationals, x - y &lt;= x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  apply_pr2 (plusNonnegativeRationals_lecompat_r y).
+  <span class="nb">generalize</span> (isdecrel_leNonnegativeRationals y x) ;
+    <span class="nb">apply</span> sumofmaps ; [<span class="nb">intros</span> Hle | <span class="nb">intros</span> Hlt].
+  - <span class="nb">rewrite</span> minusNonnegativeRationals_plus_r.
+    + <span class="bp">now</span> <span class="nb">apply</span> plusNonnegativeRationals_le_r.
+    + <span class="bp">exact</span> Hle.
+  - <span class="nb">rewrite</span> minusNonnegativeRationals_eq_zero.
+    + <span class="nb">rewrite</span> islunit_zeroNonnegativeRationals.
+      <span class="nb">apply</span> plusNonnegativeRationals_le_l.
+    + <span class="nb">apply</span> lt_leNonnegativeRationals.
+      <span class="bp">now</span> <span class="nb">apply</span> notge_ltNonnegativeRationals.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_lecompat_l</span> :
+  ∏ k x y : NonnegativeRationals, x &lt;= y -&gt; x - k &lt;= y - k.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y Hxy.
+  <span class="nb">generalize</span> (isdecrel_leNonnegativeRationals k x) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hkx.
+  - apply_pr2 (plusNonnegativeRationals_lecompat_r k).
+    <span class="nb">rewrite</span> !minusNonnegativeRationals_plus_r.
+    + <span class="bp">exact</span> Hxy.
+    + <span class="bp">now</span> <span class="nb">apply</span> istrans_leNonnegativeRationals <span class="k">with</span> (<span class="mi">2</span> := Hxy).
+    + <span class="bp">exact</span> Hkx.
+  - <span class="nb">rewrite</span> minusNonnegativeRationals_eq_zero.
+    + <span class="bp">now</span> <span class="nb">apply</span> isnonnegative_NonnegativeRationals.
+    + <span class="bp">now</span> <span class="nb">apply</span> lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_lecompat_l'</span> :
+  ∏ k x y : NonnegativeRationals, k &lt;= y -&gt; x - k &lt;= y - k -&gt; x &lt;= y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y Hky H.
+  <span class="nb">generalize</span> (isdecrel_leNonnegativeRationals k x) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hkx.
+  - <span class="nb">rewrite</span> &lt;- (minusNonnegativeRationals_plus_r _ _ Hkx), &lt;- (minusNonnegativeRationals_plus_r _ _ Hky).
+    <span class="nb">apply</span> plusNonnegativeRationals_lecompat_r.
+    <span class="bp">exact</span> H.
+  - <span class="nb">apply</span> istrans_leNonnegativeRationals <span class="k">with</span> k.
+    + <span class="nb">apply</span> lt_leNonnegativeRationals.
+      <span class="bp">now</span> <span class="nb">apply</span> notge_ltNonnegativeRationals.
+    + <span class="bp">exact</span> Hky.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_lecompat_r</span> :
+  ∏ k x y : NonnegativeRationals, x &lt;= y -&gt; k - y &lt;= k - x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y Hxy.
+  <span class="nb">generalize</span> (isdecrel_leNonnegativeRationals y k) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hky.
+  - apply_pr2 (plusNonnegativeRationals_lecompat_r y).
+    <span class="nb">rewrite</span> minusNonnegativeRationals_plus_r, minusNonnegativeRationals_plus_exchange, iscomm_plusNonnegativeRationals, &lt;- minusNonnegativeRationals_plus_exchange.
+    + <span class="nb">apply</span> plusNonnegativeRationals_le_l.
+    + <span class="bp">exact</span> Hxy.
+    + <span class="nb">apply</span> istrans_leNonnegativeRationals <span class="k">with</span> y.
+      * <span class="bp">exact</span> Hxy.
+      * <span class="bp">exact</span> Hky.
+    + <span class="bp">exact</span> Hky.
+  - <span class="nb">rewrite</span> minusNonnegativeRationals_eq_zero.
+    + <span class="bp">now</span> <span class="nb">apply</span> isnonnegative_NonnegativeRationals.
+    + <span class="bp">now</span> <span class="nb">apply</span> lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_lecompat_r'</span> :
+  ∏ k x y : NonnegativeRationals, x &lt;= k -&gt; k - y &lt;= k - x -&gt; x &lt;= y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y Hkx H.
+  <span class="nb">generalize</span> (isdecrel_leNonnegativeRationals y k) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hky.
+  - <span class="nb">apply</span> (plusNonnegativeRationals_lecompat_r y) <span class="k">in</span> H.
+    <span class="nb">rewrite</span> minusNonnegativeRationals_plus_r, iscomm_plusNonnegativeRationals <span class="k">in</span> H.
+    + <span class="nb">apply</span> (plusNonnegativeRationals_lecompat_r x) <span class="k">in</span> H ; <span class="nb">rewrite</span> isassoc_plusNonnegativeRationals, minusNonnegativeRationals_plus_r, iscomm_plusNonnegativeRationals <span class="k">in</span> H.
+      * <span class="bp">now</span> apply_pr2 (plusNonnegativeRationals_lecompat_r k).
+      * <span class="bp">exact</span> Hkx.
+    + <span class="bp">exact</span> Hky.
+  - <span class="nb">apply</span> istrans_leNonnegativeRationals <span class="k">with</span> k.
+    + <span class="bp">exact</span> Hkx.
+    + <span class="nb">apply</span> lt_leNonnegativeRationals.
+      <span class="bp">now</span> <span class="nb">apply</span> notge_ltNonnegativeRationals.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_ltcompat_l</span>:
+  ∏ x y z : NonnegativeRationals, x &lt; y -&gt; z &lt; y -&gt; x - z &lt; y - z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hxy Hyz.
+  <span class="nb">generalize</span> (isdecrel_leNonnegativeRationals x z) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hxz.
+  - <span class="nb">rewrite</span> minusNonnegativeRationals_eq_zero.
+    + <span class="nb">apply</span> ispositive_minusNonnegativeRationals.
+      <span class="bp">exact</span> Hyz.
+    + <span class="bp">exact</span> Hxz.
+  - <span class="nb">apply</span> (notge_ltNonnegativeRationals z x) <span class="k">in</span> Hxz.
+    apply_pr2 (plusNonnegativeRationals_ltcompat_r z) ; <span class="nb">rewrite</span> !minusNonnegativeRationals_plus_r.
+    + <span class="bp">exact</span> Hxy.
+    + <span class="bp">now</span> <span class="nb">apply</span> lt_leNonnegativeRationals, Hyz.
+    + <span class="bp">now</span> <span class="nb">apply</span> lt_leNonnegativeRationals, Hxz.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_ltcompat_l'</span> :
+  ∏ x y z : NonnegativeRationals, x - z &lt; y - z -&gt; x &lt; y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hlt.
+  <span class="nb">assert</span> (Hyz : (z &lt; y)%NRat).
+  { apply_pr2 ispositive_minusNonnegativeRationals.
+    <span class="nb">apply</span> istrans_le_lt_ltNonnegativeRationals <span class="k">with</span> (x - z).
+    { <span class="bp">now</span> <span class="nb">apply</span> isnonnegative_NonnegativeRationals. }
+    <span class="bp">exact</span> Hlt. }
+  <span class="nb">generalize</span> (isdecrel_leNonnegativeRationals x z) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intro</span> Hxz.
+  - <span class="nb">apply</span> istrans_le_lt_ltNonnegativeRationals <span class="k">with</span> (<span class="mi">1</span> := Hxz).
+    <span class="bp">exact</span> Hyz.
+  - <span class="nb">apply</span> notge_ltNonnegativeRationals <span class="k">in</span> Hxz ;
+    <span class="nb">apply</span> lt_leNonnegativeRationals <span class="k">in</span> Hxz.
+    <span class="nb">apply</span> lt_leNonnegativeRationals <span class="k">in</span> Hyz.
+    <span class="nb">rewrite</span> &lt;- (minusNonnegativeRationals_plus_r _ _ Hxz), &lt;- (minusNonnegativeRationals_plus_r _ _ Hyz).
+    <span class="nb">apply</span> plusNonnegativeRationals_ltcompat_r.
+    <span class="bp">exact</span> Hlt.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_ltcompat_r</span>:
+  ∏ x y z : NonnegativeRationals, x &lt; y -&gt; x &lt; z -&gt; z - y &lt; z - x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hxy Hxz.
+  <span class="nb">generalize</span> (isdecrel_leNonnegativeRationals y z) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hky.
+  - apply_pr2 (plusNonnegativeRationals_ltcompat_r y).
+    <span class="nb">rewrite</span> minusNonnegativeRationals_plus_r, minusNonnegativeRationals_plus_exchange, iscomm_plusNonnegativeRationals, &lt;- minusNonnegativeRationals_plus_exchange.
+    + <span class="nb">pattern</span> z <span class="nb">at</span> <span class="mi">1</span> ; <span class="nb">rewrite</span> &lt;- (islunit_zeroNonnegativeRationals z).
+      <span class="nb">apply</span> plusNonnegativeRationals_ltcompat_r.
+      <span class="bp">now</span> <span class="nb">apply</span> (pr1 (ispositive_minusNonnegativeRationals _ _)), Hxy.
+    + <span class="bp">now</span> <span class="nb">apply</span> lt_leNonnegativeRationals, Hxy.
+    + <span class="bp">now</span> <span class="nb">apply</span> lt_leNonnegativeRationals, Hxz.
+    + <span class="bp">exact</span> Hky.
+  - <span class="nb">rewrite</span> minusNonnegativeRationals_eq_zero.
+    + <span class="bp">now</span> <span class="nb">apply</span> (pr1 (ispositive_minusNonnegativeRationals _ _)), Hxz.
+    + <span class="bp">now</span> <span class="nb">apply</span> lt_leNonnegativeRationals, notge_ltNonnegativeRationals, Hky.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">minusNonnegativeRationals_ltcompat_r'</span>:
+  ∏ x y z : NonnegativeRationals, z - y &lt; z - x -&gt; x &lt; y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z H.
+  <span class="nb">apply</span> notge_ltNonnegativeRationals.
+  <span class="nb">intro</span> H0 ; <span class="nb">revert</span> H.
+  <span class="nb">change</span> (neg (z - y &lt; z - x)).
+  <span class="nb">apply</span> notlt_geNonnegativeRationals.
+  <span class="bp">now</span> <span class="nb">apply</span> minusNonnegativeRationals_lecompat_r, H0.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Multiplication *)</span>
+<span class="sd">(** Rewritings *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isassoc_multNonnegativeRationals</span>:
+  ∏ x y z : NonnegativeRationals, x * y * z = x * (y * z) :=
+  CommDivRig_isassoc_mult.
+<span class="kn">Definition</span> <span class="nf">islunit_oneNonnegativeRationals</span>:
+  ∏ x : NonnegativeRationals, <span class="mi">1</span> * x = x :=
+  CommDivRig_islunit_one.
+<span class="kn">Definition</span> <span class="nf">isrunit_oneNonnegativeRationals</span>:
+  ∏ x : NonnegativeRationals, x * <span class="mi">1</span> = x :=
+  CommDivRig_isrunit_one.
+<span class="kn">Definition</span> <span class="nf">iscomm_multNonnegativeRationals</span>:
+  ∏ x y : NonnegativeRationals, x * y = y * x :=
+  CommDivRig_iscomm_mult.
+<span class="kn">Definition</span> <span class="nf">isldistr_mult_plusNonnegativeRationals</span>:
+  ∏ x y z : NonnegativeRationals, z * (x + y) = z * x + z * y :=
+  CommDivRig_isldistr.
+<span class="kn">Definition</span> <span class="nf">isrdistr_mult_plusNonnegativeRationals</span>:
+  ∏ x y z : NonnegativeRationals, (x + y) * z = x * z + y * z :=
+  CommDivRig_isrdistr.
+<span class="kn">Definition</span> <span class="nf">islabsorb_zero_multNonnegativeRationals</span>:
+  ∏ x : NonnegativeRationals, <span class="mi">0</span> * x = <span class="mi">0</span> :=
+  rigmult0x _.
+<span class="kn">Definition</span> <span class="nf">israbsorb_zero_multNonnegativeRationals</span>:
+  ∏ x : NonnegativeRationals, x * <span class="mi">0</span> = <span class="mi">0</span> :=
+  rigmultx0 _.
+
+<span class="sd">(** Order *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_ltcompat_l</span> :
+  ∏ k x y : NonnegativeRationals, <span class="mi">0</span> &lt; k -&gt; (x &lt; y) &lt;-&gt;  (k * x &lt; k * y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y Hk.
+  <span class="nb">split</span> ; <span class="nb">intro</span> H.
+  - <span class="nb">apply</span> (hqlthandmultl (pr1 x) (pr1 y) (pr1 k)).
+    + <span class="bp">exact</span> Hk.
+    + <span class="bp">exact</span> H.
+  - <span class="nb">apply</span> (hqlthandmultlinv (pr1 x) (pr1 y) (pr1 k)).
+    + <span class="bp">exact</span> Hk.
+    + <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_ltcompat_r</span> :
+  ∏ k x y : NonnegativeRationals, <span class="mi">0</span> &lt; k -&gt; (x &lt; y) &lt;-&gt; (x * k &lt; y * k).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y Hk.
+  <span class="nb">rewrite</span> !(iscomm_multNonnegativeRationals _ k).
+  <span class="bp">now</span> <span class="nb">apply</span> multNonnegativeRationals_ltcompat_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_lecompat_l</span> :
+  ∏ k x y : NonnegativeRationals, x &lt;= y -&gt; k * x &lt;= k * y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y Hle.
+  <span class="nb">generalize</span> (eq0orgt0NonnegativeRationals k) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hk0.
+  - <span class="nb">rewrite</span> Hk0.
+    <span class="nb">rewrite</span> !islabsorb_zero_multNonnegativeRationals.
+    <span class="bp">now</span> <span class="nb">apply</span> isrefl_leNonnegativeRationals.
+  - <span class="nb">apply</span> hqlehandmultl, Hle.
+    <span class="bp">exact</span> Hk0.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_lecompat_l'</span> :
+  ∏ k x y : NonnegativeRationals, <span class="mi">0</span> &lt; k -&gt; k * x &lt;= k * y -&gt; x &lt;= y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y Hk0.
+  <span class="nb">apply</span> (hqlehandmultlinv (pr1 x) (pr1 y) (pr1 k)).
+  <span class="bp">exact</span> Hk0.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_lecompat_r</span> :
+  ∏ k x y : NonnegativeRationals, x &lt;= y -&gt; x * k &lt;= y * k.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y Hk.
+  <span class="nb">rewrite</span> !(iscomm_multNonnegativeRationals _ k).
+  <span class="bp">now</span> <span class="nb">apply</span> multNonnegativeRationals_lecompat_l.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_lecompat_r'</span> :
+  ∏ k x y : NonnegativeRationals, <span class="mi">0</span> &lt; k -&gt; x * k &lt;= y * k -&gt; x &lt;= y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y Hk.
+  <span class="nb">rewrite</span> !(iscomm_multNonnegativeRationals _ k).
+  <span class="bp">exact</span> (multNonnegativeRationals_lecompat_l' k x y Hk).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_eqcompat_l</span>:
+  ∏ k x y : NonnegativeRationals,
+    <span class="mi">0</span> &lt; k -&gt; k * x = k * y -&gt; x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y Hk0 H.
+  <span class="nb">rewrite</span> &lt;- (islunit_oneNonnegativeRationals x).
+  <span class="nb">change</span> <span class="mi">1</span> <span class="k">with</span> (<span class="mi">1</span>%dr : NonnegativeRationals).
+  <span class="nb">assert</span> (Hk : k != <span class="mi">0</span>).
+  { <span class="nb">apply</span> gtNonnegativeRationals_noteq, Hk0. }
+  <span class="nb">rewrite</span> &lt;- (CommDivRig_islinv k Hk).
+  <span class="nb">rewrite</span> isassoc_multNonnegativeRationals.
+  <span class="nb">rewrite</span> H.
+  <span class="nb">rewrite</span> &lt;- isassoc_multNonnegativeRationals.
+  <span class="nb">change</span> ((/ (k,, Hk))%dr * k) <span class="k">with</span> (/ (k,, Hk) * k)%dr.
+  <span class="nb">rewrite</span> (CommDivRig_islinv k Hk).
+  <span class="bp">now</span> <span class="nb">apply</span> islunit_oneNonnegativeRationals.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_eqcompat_r</span>:
+  ∏ k x y : NonnegativeRationals,
+    <span class="mi">0</span> &lt; k -&gt; x * k = y * k -&gt; x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y.
+  <span class="nb">rewrite</span> !(iscomm_multNonnegativeRationals _ k).
+  <span class="bp">now</span> <span class="nb">apply</span> multNonnegativeRationals_eqcompat_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispositive_multNonnegativeRationals</span>:
+  ∏ x y : NonnegativeRationals,
+    <span class="mi">0</span> &lt; x -&gt; <span class="mi">0</span> &lt; y -&gt; <span class="mi">0</span> &lt; x * y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hx Hy.
+  <span class="nb">rewrite</span> &lt;- (israbsorb_zero_multNonnegativeRationals x).
+  <span class="nb">apply</span> multNonnegativeRationals_ltcompat_l.
+  + <span class="bp">exact</span> Hx.
+  + <span class="bp">exact</span> Hy.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_ltcompat</span>:
+  ∏ x x' y y' : NonnegativeRationals,
+    x &lt; x' -&gt; y &lt; y' -&gt; x * y &lt; x' * y'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x x' y y' Hx Hy.
+  <span class="nb">generalize</span> (eq0orgt0NonnegativeRationals x) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hx0.
+  - <span class="nb">rewrite</span> Hx0, islabsorb_zero_multNonnegativeRationals.
+    <span class="nb">apply</span> ispositive_multNonnegativeRationals.
+    + <span class="nb">rewrite</span> &lt;- Hx0 ; <span class="bp">exact</span> Hx.
+    + <span class="nb">apply</span> istrans_le_lt_ltNonnegativeRationals <span class="k">with</span> y.
+      * <span class="bp">now</span> <span class="nb">apply</span> isnonnegative_NonnegativeRationals.
+      * <span class="bp">exact</span> Hy.
+  - <span class="nb">apply</span> istrans_lt_le_ltNonnegativeRationals <span class="k">with</span> (x * y').
+    + <span class="nb">apply</span> multNonnegativeRationals_ltcompat_l.
+      * <span class="bp">exact</span> Hx0.
+      * <span class="bp">exact</span> Hy.
+    + <span class="nb">apply</span> multNonnegativeRationals_lecompat_r.
+      <span class="bp">now</span> <span class="nb">apply</span> lt_leNonnegativeRationals.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_le_lt</span>:
+  ∏ x x' y y' : NonnegativeRationals,
+    <span class="mi">0</span> &lt; x -&gt; x &lt;= x' -&gt; y &lt; y' -&gt; x * y &lt; x' * y'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x x' y y' Hx0 Hx Hy.
+  <span class="nb">apply</span> istrans_lt_le_ltNonnegativeRationals <span class="k">with</span> (x* y').
+  - <span class="nb">apply</span> multNonnegativeRationals_ltcompat_l.
+    + <span class="bp">exact</span> Hx0.
+    + <span class="bp">exact</span> Hy.
+  - <span class="bp">now</span> <span class="nb">apply</span> multNonnegativeRationals_lecompat_r, Hx.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_lt_le</span>:
+  ∏ x x' y y' : NonnegativeRationals,
+    <span class="mi">0</span> &lt; y -&gt; x &lt; x' -&gt; y &lt;= y' -&gt; x * y &lt; x' * y'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x x' y y' Hy0 Hx Hy.
+  <span class="nb">apply</span> istrans_lt_le_ltNonnegativeRationals <span class="k">with</span> (x' * y).
+  - <span class="nb">apply</span> multNonnegativeRationals_ltcompat_r.
+    + <span class="bp">exact</span> Hy0.
+    + <span class="bp">exact</span> Hx.
+  - <span class="bp">now</span> <span class="nb">apply</span> multNonnegativeRationals_lecompat_l, Hy.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_le1_r</span> :
+  ∏ q r : NonnegativeRationals, q &lt;= <span class="mi">1</span> -&gt; r * q &lt;= r.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> q r Hq.
+  <span class="nb">pattern</span> r <span class="nb">at</span> <span class="mi">2</span> ; <span class="nb">rewrite</span> &lt;- isrunit_oneNonnegativeRationals.
+  <span class="bp">now</span> <span class="nb">apply</span> multNonnegativeRationals_lecompat_l.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">multNonnegativeRationals_le1_l</span> :
+  ∏ q r : NonnegativeRationals, q &lt;= <span class="mi">1</span> -&gt; q * r &lt;= r.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> q r Hq.
+  <span class="nb">pattern</span> r <span class="nb">at</span> <span class="mi">2</span> ; <span class="nb">rewrite</span> &lt;- islunit_oneNonnegativeRationals.
+  <span class="bp">now</span> <span class="nb">apply</span> multNonnegativeRationals_lecompat_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isldistr_mult_minusNonnegativeRationals</span>:
+  ∏ x y z : NonnegativeRationals, z * (x - y) = z * x - z * y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="nb">generalize</span> (isdecrel_leNonnegativeRationals x y) ;
+    <span class="nb">apply</span> sumofmaps ; [ <span class="nb">intros</span> Hle | <span class="nb">intros</span> Hlt].
+  - <span class="nb">rewrite</span> !minusNonnegativeRationals_eq_zero.
+    + <span class="bp">now</span> <span class="nb">apply</span> israbsorb_zero_multNonnegativeRationals.
+    + <span class="bp">now</span> <span class="nb">apply</span> multNonnegativeRationals_lecompat_l, Hle.
+    + <span class="bp">exact</span> Hle.
+  - <span class="nb">apply</span> notge_ltNonnegativeRationals <span class="k">in</span> Hlt ;
+    <span class="nb">apply</span> lt_leNonnegativeRationals <span class="k">in</span> Hlt.
+    <span class="nb">apply</span> plusNonnegativeRationals_eqcompat_r <span class="k">with</span> (z * y).
+    <span class="nb">rewrite</span> &lt;- isldistr_mult_plusNonnegativeRationals.
+    <span class="nb">rewrite</span> !minusNonnegativeRationals_plus_r.
+    + <span class="bp">reflexivity</span>.
+    + <span class="bp">now</span> <span class="nb">apply</span> multNonnegativeRationals_lecompat_l, Hlt.
+    + <span class="bp">exact</span> Hlt.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrdistr_mult_minusNonnegativeRationals</span>:
+  ∏ x y z : NonnegativeRationals, (x - y) * z = x * z - y * z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="nb">rewrite</span> !(iscomm_multNonnegativeRationals _ z).
+  <span class="bp">now</span> <span class="nb">apply</span> isldistr_mult_minusNonnegativeRationals.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Multiplicative Inverse *)</span>
+<span class="sd">(** Rewritings *)</span>
+
+<span class="kn">Definition</span> <span class="nf">islinv_NonnegativeRationals</span>:
+  ∏ x : NonnegativeRationals, <span class="mi">0</span> &lt; x -&gt; / x * x = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx0.
+  <span class="nb">assert</span> (Hx : x != <span class="mi">0</span>).
+  { <span class="nb">apply</span> gtNonnegativeRationals_noteq, Hx0. }
+  <span class="nb">clear</span> Hx0.
+  <span class="nb">revert</span> x Hx.
+  <span class="nb">apply</span> @CommDivRig_islinv.
+<span class="kn">Qed</span>.
+<span class="kn">Definition</span> <span class="nf">isrinv_NonnegativeRationals</span>:
+  ∏ x : NonnegativeRationals, <span class="mi">0</span> &lt; x -&gt; x * / x = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">rewrite</span> iscomm_multNonnegativeRationals.
+  <span class="bp">now</span> <span class="nb">apply</span> islinv_NonnegativeRationals.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">inv_zeroNonnegativeRationals</span> :
+  / <span class="mi">0</span> = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> zeroNonnegativeRationals, invNonnegativeRationals, hnnq_zero, hnnq_inv ; <span class="nb">simpl</span> pr1 ; <span class="nb">simpl</span> pr2.
+  <span class="nb">generalize</span> (hqlehchoice <span class="mi">0</span>%hq <span class="mi">0</span>%hq (isreflhqleh <span class="mi">0</span>%hq)) ;
+    <span class="nb">apply</span> coprod_rect ; <span class="nb">intro</span> H0.
+  - <span class="bp">now</span> <span class="nb">apply</span> fromempty ; <span class="nb">apply</span> isirreflhqlth <span class="k">in</span> H0.
+  - <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispositive_invNonnegativeRationals</span> :
+  ∏ x, (<span class="mi">0</span> &lt; x) &lt;-&gt; (<span class="mi">0</span> &lt; / x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">split</span> ; <span class="nb">intro</span> Hx.
+  - apply_pr2 (multNonnegativeRationals_ltcompat_l x).
+    + <span class="bp">exact</span> Hx.
+    + <span class="nb">rewrite</span> israbsorb_zero_multNonnegativeRationals,
+        isrinv_NonnegativeRationals.
+    * <span class="bp">exact</span> ispositive_oneNonnegativeRationals.
+    * <span class="nb">apply</span> NonnegativeRationals_neq0_gt0 ; <span class="nb">intros</span> Hx0.
+      <span class="nb">revert</span> Hx ; <span class="nb">rewrite</span> Hx0.
+      <span class="bp">now</span> <span class="nb">apply</span> isirrefl_ltNonnegativeRationals.
+  - apply_pr2 (multNonnegativeRationals_ltcompat_r (/ x)).
+    + <span class="bp">exact</span> Hx.
+    + <span class="nb">rewrite</span> islabsorb_zero_multNonnegativeRationals,
+        isrinv_NonnegativeRationals.
+    * <span class="bp">exact</span> ispositive_oneNonnegativeRationals.
+    * <span class="nb">apply</span> NonnegativeRationals_neq0_gt0 ; <span class="nb">intros</span> Hx0.
+      <span class="nb">revert</span> Hx ; <span class="nb">rewrite</span> Hx0.
+      <span class="nb">unfold</span> invNonnegativeRationals, hnnq_inv.
+      <span class="nb">generalize</span> (hqlehchoice <span class="mi">0</span>%hq (pr1 <span class="mi">0</span>) (pr2 <span class="mi">0</span>)).
+      <span class="nb">apply</span> (coprod_rect (<span class="k">λ</span> <span class="nv">_</span>, _ → _)) ; <span class="nb">intros</span> Hx.
+      ** <span class="nb">apply</span> fromempty ; <span class="nb">revert</span> Hx.
+         <span class="bp">now</span> <span class="nb">apply</span> isirreflhqlth.
+      ** <span class="bp">now</span> <span class="nb">apply</span> isirrefl_ltNonnegativeRationals.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinvolutive_invNonnegativeRationals</span> :
+  ∏ x, / / x = x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">generalize</span> (eq0orgt0NonnegativeRationals x) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intro</span> Hx0.
+  - <span class="bp">now</span> <span class="nb">rewrite</span> Hx0, !inv_zeroNonnegativeRationals.
+  - <span class="nb">apply</span> (multNonnegativeRationals_eqcompat_l (/ x)).
+    + <span class="nb">apply</span> ispositive_invNonnegativeRationals ; <span class="bp">exact</span> Hx0.
+    + <span class="nb">rewrite</span> islinv_NonnegativeRationals, isrinv_NonnegativeRationals.
+      * <span class="bp">reflexivity</span>.
+      * <span class="nb">apply</span> ispositive_invNonnegativeRationals ; <span class="bp">exact</span> Hx0.
+      * <span class="bp">exact</span> Hx0.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Order *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">invNonnegativeRationals_lecompat</span> :
+  ∏ x y : NonnegativeRationals, <span class="mi">0</span> &lt; x -&gt; x &lt;= y -&gt; / y &lt;= / x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hx0 Hxy.
+  <span class="nb">assert</span> (Hy0 : <span class="mi">0</span> &lt; y).
+  { <span class="nb">apply</span> istrans_lt_le_ltNonnegativeRationals <span class="k">with</span> x.
+    { <span class="bp">exact</span> Hx0. }
+    <span class="bp">exact</span> Hxy. }
+  <span class="nb">apply</span> (multNonnegativeRationals_lecompat_l' x).
+  - <span class="bp">exact</span> Hx0.
+  - <span class="nb">rewrite</span> isrinv_NonnegativeRationals.
+    + <span class="nb">apply</span> (multNonnegativeRationals_lecompat_r' y).
+      * <span class="bp">exact</span> Hy0.
+      * <span class="nb">rewrite</span> isassoc_multNonnegativeRationals, islinv_NonnegativeRationals, islunit_oneNonnegativeRationals, isrunit_oneNonnegativeRationals.
+        ** <span class="bp">exact</span> Hxy.
+        ** <span class="bp">exact</span> Hy0.
+    + <span class="bp">exact</span> Hx0.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">invNonnegativeRationals_lecompat'</span> :
+  ∏ x y : NonnegativeRationals, <span class="mi">0</span> &lt; y -&gt; / y &lt;= / x -&gt; x &lt;= y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hy0 Hxy.
+  <span class="nb">rewrite</span> &lt;- (isinvolutive_invNonnegativeRationals x), &lt;- (isinvolutive_invNonnegativeRationals y).
+  <span class="nb">apply</span> invNonnegativeRationals_lecompat.
+  - <span class="bp">now</span> <span class="nb">apply</span> ispositive_invNonnegativeRationals.
+  - <span class="bp">exact</span> Hxy.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">invNonnegativeRationals_ltcompat</span> :
+  ∏ x y : NonnegativeRationals, <span class="mi">0</span> &lt; x -&gt; x &lt; y -&gt; / y &lt; / x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hx0 Hxy.
+  <span class="nb">apply</span> notge_ltNonnegativeRationals.
+  <span class="nb">intros</span> H ; <span class="nb">revert</span> Hxy.
+  <span class="nb">change</span> (neg (x &lt; y)).
+  <span class="nb">apply</span> notlt_geNonnegativeRationals.
+  <span class="nb">apply</span> invNonnegativeRationals_lecompat'.
+  - <span class="bp">exact</span> Hx0.
+  - <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">invNonnegativeRationals_ltcompat'</span> :
+  ∏ x y : NonnegativeRationals, <span class="mi">0</span> &lt; y -&gt; / y &lt; / x -&gt; x &lt; y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hy0 Hxy.
+  <span class="nb">rewrite</span> &lt;- (isinvolutive_invNonnegativeRationals x), &lt;- (isinvolutive_invNonnegativeRationals y).
+  <span class="nb">apply</span> invNonnegativeRationals_ltcompat.
+  - <span class="nb">apply</span> ispositive_invNonnegativeRationals.
+    <span class="bp">exact</span> Hy0.
+  - <span class="bp">exact</span> Hxy.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">issublinear_invNonnegativeRationals</span> :
+  ∏ x y : NonnegativeRationals, / (x + y) &lt;= / x + / y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">generalize</span> (eq0orgt0NonnegativeRationals x) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hx0.
+  - <span class="nb">rewrite</span> Hx0, islunit_zeroNonnegativeRationals ; <span class="nb">clear</span> Hx0 x.
+    <span class="bp">now</span> <span class="nb">apply</span> plusNonnegativeRationals_le_l.
+  - <span class="nb">generalize</span> (eq0orgt0NonnegativeRationals y) ;
+      <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hy0.
+    + <span class="nb">rewrite</span> Hy0, isrunit_zeroNonnegativeRationals ; <span class="nb">clear</span> Hy0 y.
+      <span class="bp">now</span> <span class="nb">apply</span> plusNonnegativeRationals_le_r.
+    + <span class="nb">apply</span> (multNonnegativeRationals_lecompat_l' _ _ _ Hx0).
+      <span class="nb">rewrite</span> isldistr_mult_plusNonnegativeRationals, (isrinv_NonnegativeRationals _ Hx0), !(iscomm_multNonnegativeRationals x).
+      <span class="nb">apply</span> (multNonnegativeRationals_lecompat_l' _ _ _ Hy0).
+      <span class="nb">rewrite</span> isldistr_mult_plusNonnegativeRationals, &lt;- (isassoc_multNonnegativeRationals _ (/ y)%NRat), (isrinv_NonnegativeRationals _ Hy0), islunit_oneNonnegativeRationals, isrunit_oneNonnegativeRationals, (iscomm_multNonnegativeRationals y).
+      <span class="nb">apply</span> (multNonnegativeRationals_lecompat_l' (x + y)).
+      * <span class="bp">now</span> <span class="nb">apply</span> ispositive_plusNonnegativeRationals_l, Hx0.
+      * <span class="nb">rewrite</span> &lt;- ! isassoc_multNonnegativeRationals , isrinv_NonnegativeRationals, islunit_oneNonnegativeRationals, isldistr_mult_plusNonnegativeRationals, !isrdistr_mult_plusNonnegativeRationals, !isassoc_plusNonnegativeRationals.
+        ** <span class="bp">now</span> <span class="nb">apply</span> plusNonnegativeRationals_le_r.
+        ** <span class="bp">now</span> <span class="nb">apply</span> ispositive_plusNonnegativeRationals_l, Hx0.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">issublinear_invNonnegativeRationals_lt</span> :
+  ∏ x y : NonnegativeRationals, (<span class="mi">0</span> &lt; x)%NRat -&gt; (<span class="mi">0</span> &lt; y)%NRat -&gt; (/ (x + y) &lt; / x + / y)%NRat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hx0 Hy0.
+  apply_pr2 (multNonnegativeRationals_ltcompat_l x).
+  - <span class="bp">exact</span> Hx0.
+  - <span class="nb">rewrite</span> isldistr_mult_plusNonnegativeRationals, (isrinv_NonnegativeRationals _ Hx0), !(iscomm_multNonnegativeRationals x).
+    apply_pr2 (multNonnegativeRationals_ltcompat_l y).
+    + <span class="bp">exact</span> Hy0.
+    + <span class="nb">rewrite</span> isldistr_mult_plusNonnegativeRationals, &lt;- (isassoc_multNonnegativeRationals _ (/ y)%NRat), (isrinv_NonnegativeRationals _ Hy0), islunit_oneNonnegativeRationals, isrunit_oneNonnegativeRationals, (iscomm_multNonnegativeRationals y).
+      apply_pr2 (multNonnegativeRationals_ltcompat_l (x + y)).
+      * <span class="nb">apply</span> ispositive_plusNonnegativeRationals_l.
+        <span class="bp">exact</span> Hx0.
+      * <span class="nb">rewrite</span> &lt;- ! isassoc_multNonnegativeRationals , isrinv_NonnegativeRationals, islunit_oneNonnegativeRationals, isldistr_mult_plusNonnegativeRationals, !isrdistr_mult_plusNonnegativeRationals, !isassoc_plusNonnegativeRationals.
+        ** <span class="nb">apply</span> plusNonnegativeRationals_lt_r.
+           <span class="nb">apply</span> ispositive_plusNonnegativeRationals_l.
+           <span class="bp">now</span> <span class="nb">apply</span> ispositive_multNonnegativeRationals ; <span class="nb">apply</span> Hy0.
+        ** <span class="bp">now</span> <span class="nb">apply</span> ispositive_plusNonnegativeRationals_l, Hx0.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Division *)</span>
+<span class="sd">(** Rewritings *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">multdivNonnegativeRationals</span> :
+  ∏ q r : NonnegativeRationals, <span class="mi">0</span> &lt; r -&gt; r * (q / r) = q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> q r Hr0.
+  <span class="nb">unfold</span> divNonnegativeRationals.
+  <span class="nb">rewrite</span> iscomm_multNonnegativeRationals, isassoc_multNonnegativeRationals.
+  <span class="nb">rewrite</span> islinv_NonnegativeRationals.
+  - <span class="bp">now</span> <span class="nb">apply</span> isrunit_oneNonnegativeRationals.
+  - <span class="bp">exact</span> Hr0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minus_divNonnegativeRationals</span> :
+  ∏ x y : NonnegativeRationals, <span class="mi">0</span> &lt; y -&gt; / x - / y = (y - x) / (x * y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hy0.
+  <span class="nb">generalize</span> (eq0orgt0NonnegativeRationals x) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hx0.
+  - <span class="nb">unfold</span> divNonnegativeRationals.
+    <span class="nb">rewrite</span> Hx0, islabsorb_zero_multNonnegativeRationals, inv_zeroNonnegativeRationals, israbsorb_zero_multNonnegativeRationals, minusNonnegativeRationals_zero_l.
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> multNonnegativeRationals_eqcompat_l <span class="k">with</span> (x * y).
+    + <span class="nb">apply</span> ispositive_multNonnegativeRationals, Hy0.
+      <span class="bp">exact</span> Hx0.
+    + <span class="nb">rewrite</span> multdivNonnegativeRationals.
+      <span class="mi">2</span>: <span class="nb">apply</span> ispositive_multNonnegativeRationals, Hy0.
+      * <span class="nb">rewrite</span> isldistr_mult_minusNonnegativeRationals.
+        <span class="nb">rewrite</span> iscomm_multNonnegativeRationals, &lt;- isassoc_multNonnegativeRationals, islinv_NonnegativeRationals, islunit_oneNonnegativeRationals.
+        <span class="mi">2</span>: <span class="bp">exact</span> Hx0.
+        <span class="nb">rewrite</span> isassoc_multNonnegativeRationals, isrinv_NonnegativeRationals, isrunit_oneNonnegativeRationals.
+        <span class="mi">2</span>: <span class="bp">exact</span> Hy0.
+        <span class="bp">reflexivity</span>.
+      * <span class="bp">exact</span> Hx0.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Order *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">ispositive_divNonnegativeRationals</span> :
+  ∏ x y, <span class="mi">0</span> &lt; x -&gt; <span class="mi">0</span> &lt; y -&gt; <span class="mi">0</span> &lt; x / y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hx Hy.
+  <span class="nb">apply</span> ispositive_multNonnegativeRationals.
+  - <span class="bp">exact</span> Hx.
+  - <span class="nb">apply</span> ispositive_invNonnegativeRationals.
+    <span class="bp">exact</span> Hy.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">divNonnegativeRationals_le1</span> :
+  ∏ q r : NonnegativeRationals, q &lt;= r -&gt; q / r &lt;= <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> q r Hrq.
+  <span class="nb">generalize</span> (eq0orgt0NonnegativeRationals r) ;
+    <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hr0.
+  - <span class="nb">unfold</span> divNonnegativeRationals.
+    <span class="nb">rewrite</span> Hr0, inv_zeroNonnegativeRationals.
+    <span class="nb">rewrite</span> israbsorb_zero_multNonnegativeRationals.
+    <span class="bp">now</span> <span class="nb">apply</span> isnonnegative_NonnegativeRationals.
+  - <span class="nb">apply</span> (multNonnegativeRationals_lecompat_r' r).
+    + <span class="bp">exact</span> Hr0.
+    + <span class="nb">unfold</span> divNonnegativeRationals.
+      <span class="nb">rewrite</span> isassoc_multNonnegativeRationals, islinv_NonnegativeRationals.
+      * <span class="nb">rewrite</span> isrunit_oneNonnegativeRationals, islunit_oneNonnegativeRationals.
+        <span class="bp">exact</span> Hrq.
+      * <span class="bp">exact</span> Hr0.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** NQhalf *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">NQhalf_double</span> : ∏ x, x = x / <span class="mi">2</span> + x / <span class="mi">2</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">change</span> x <span class="k">with</span> (pr1 x,,pr2 x).
+  <span class="nb">generalize</span> (pr1 x) (pr2 x) ; <span class="nb">clear</span> x ; <span class="nb">intros</span> x Hx.
+  <span class="nb">unfold</span> divNonnegativeRationals, invNonnegativeRationals, hnnq_inv, twoNonnegativeRationals, Rationals_to_NonnegativeRationals ; <span class="nb">simpl</span> pr1 ; <span class="nb">simpl</span> pr2.
+  <span class="nb">generalize</span> (hqlehchoice <span class="mi">0</span>%hq <span class="mi">2</span>%hq (hqlthtoleh <span class="mi">0</span>%hq <span class="mi">2</span>%hq hq2_gt0)) ;
+  <span class="nb">apply</span> coprod_rect ; <span class="nb">intros</span> H2.
+  - <span class="nb">apply</span> subtypePath_prop ; <span class="nb">simpl</span> pr1.
+    <span class="nb">rewrite</span> !(hqmultcomm x), &lt;- hqldistr, hqmultcomm.
+    <span class="nb">apply</span> hqplusdiv2.
+  - <span class="nb">apply</span> fromempty ; <span class="nb">generalize</span> hq2_gt0.
+    <span class="nb">rewrite</span> H2.
+    <span class="bp">now</span> <span class="nb">apply</span> (isirreflhqlth <span class="mi">2</span>%hq).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispositive_NQhalf</span> : ∏ x, (<span class="mi">0</span> &lt; x) &lt;-&gt; (<span class="mi">0</span> &lt; x / <span class="mi">2</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">split</span> ; <span class="nb">intro</span> Hx.
+  - apply_pr2 (multNonnegativeRationals_ltcompat_r <span class="mi">2</span>).
+    + <span class="bp">now</span> <span class="nb">apply</span> ispositive_twoNonnegativeRationals.
+    + <span class="nb">unfold</span> divNonnegativeRationals ;
+      <span class="nb">rewrite</span> isassoc_multNonnegativeRationals, islabsorb_zero_multNonnegativeRationals.
+      <span class="nb">rewrite</span> islinv_NonnegativeRationals.
+      * <span class="bp">now</span> <span class="nb">rewrite</span> isrunit_oneNonnegativeRationals.
+      * <span class="bp">now</span> <span class="nb">apply</span> ispositive_twoNonnegativeRationals.
+  - apply_pr2 (multNonnegativeRationals_ltcompat_r (/<span class="mi">2</span>)).
+    + <span class="nb">apply</span> (pr1 (ispositive_invNonnegativeRationals _)).
+      <span class="bp">now</span> <span class="nb">apply</span> ispositive_twoNonnegativeRationals.
+    + <span class="nb">rewrite</span> islabsorb_zero_multNonnegativeRationals.
+      <span class="bp">exact</span> Hx.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** NQmax *)</span>
+
+<span class="kn">Definition</span> <span class="nf">NQmax</span> : binop NonnegativeRationals.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">refine</span> (sumofmaps _ _ (isdecrel_leNonnegativeRationals x y)) ; <span class="nb">intros</span> _.
+  - <span class="bp">exact</span> y.
+  - <span class="bp">exact</span> x.
+<span class="kn">Defined</span>.
+<span class="kn">Lemma</span> <span class="nf">NQmax_eq_zero</span> :
+  ∏ x y : NonnegativeRationals, NQmax x y = <span class="mi">0</span> -&gt; (x = <span class="mi">0</span>) × (y = <span class="mi">0</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">unfold</span> NQmax.
+  <span class="nb">generalize</span> (isdecrel_leNonnegativeRationals x y).
+  <span class="nb">apply</span> (coprod_rect (<span class="k">λ</span> <span class="nv">_</span>, _ → _)) ; [ <span class="nb">intros</span> Hle | <span class="nb">intros</span> Hlt] ; <span class="nb">intro</span> H ; <span class="nb">simpl</span> <span class="k">in</span> H ; <span class="nb">split</span>.
+  - <span class="nb">apply</span> NonnegativeRationals_eq0_le0.
+    <span class="nb">apply</span> istrans_leNonnegativeRationals <span class="k">with</span> (<span class="mi">1</span> := Hle).
+    <span class="bp">now</span> <span class="nb">rewrite</span> H ; <span class="nb">apply</span> isrefl_leNonnegativeRationals.
+  - <span class="bp">exact</span> H.
+  - <span class="bp">exact</span> H.
+  - <span class="nb">apply</span> NonnegativeRationals_eq0_le0 ; <span class="nb">rewrite</span> &lt;- H.
+    <span class="bp">now</span> <span class="nb">apply</span> lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">NQmax_case</span> :
+  ∏ (P : NonnegativeRationals -&gt; UU),
+  ∏ x y : NonnegativeRationals, P x -&gt; P y -&gt; P (NQmax x y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P x y Hx Hy.
+  <span class="nb">unfold</span> NQmax.
+  <span class="nb">generalize</span> (isdecrel_leNonnegativeRationals x y).
+  <span class="bp">now</span> <span class="nb">apply</span> coprod_rect.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">NQmax_case_strong</span> :
+  ∏ (P : NonnegativeRationals -&gt; UU),
+  ∏ x y : NonnegativeRationals, (y &lt;= x -&gt; P x) -&gt; (x &lt;= y -&gt; P y) -&gt; P (NQmax x y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P x y Hx Hy.
+  <span class="nb">unfold</span> NQmax.
+  <span class="nb">generalize</span> ( isdecrel_leNonnegativeRationals x y).
+  <span class="nb">apply</span> coprod_rect ; [<span class="nb">intros</span> Hle | <span class="nb">intros</span> Hlt].
+  - <span class="bp">now</span> <span class="nb">apply</span> Hy.
+  - <span class="nb">apply</span> Hx.
+    <span class="bp">now</span> <span class="nb">apply</span> lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">iscomm_NQmax</span> :
+  ∏ x y, NQmax x y = NQmax y x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> NQmax_case_strong ; <span class="nb">intro</span> Hle ;
+  <span class="nb">apply</span> NQmax_case_strong ; <span class="nb">intro</span> Hle'.
+  - <span class="bp">now</span> <span class="nb">apply</span> isantisymm_leNonnegativeRationals.
+  - <span class="bp">reflexivity</span>.
+  - <span class="bp">reflexivity</span>.
+  - <span class="bp">now</span> <span class="nb">apply</span> isantisymm_leNonnegativeRationals.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">NQmax_le_l</span> :
+  ∏ x y : NonnegativeRationals, x &lt;= NQmax x y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> NQmax_case_strong ; <span class="nb">intro</span> Hle.
+  - <span class="nb">apply</span> isrefl_leNonnegativeRationals.
+  - <span class="bp">exact</span> Hle.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">NQmax_le_r</span> :
+  ∏ x y : NonnegativeRationals, y &lt;= NQmax x y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">rewrite</span> iscomm_NQmax.
+  <span class="bp">now</span> <span class="nb">apply</span> NQmax_le_l.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** NQmin *)</span>
+
+<span class="kn">Definition</span> <span class="nf">NQmin</span> : binop NonnegativeRationals.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">refine</span> (sumofmaps _ _ (isdecrel_leNonnegativeRationals x y)) ; <span class="nb">intros</span> _.
+  - <span class="bp">exact</span> x.
+  - <span class="bp">exact</span> y.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** intpart *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">nat_to_NonnegativeRationals_O</span> :
+  nat_to_NonnegativeRationals O = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">nat_to_NonnegativeRationals_Sn</span> :
+  ∏ n : nat, nat_to_NonnegativeRationals (S n) = nat_to_NonnegativeRationals n + <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> n.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> nattohzandS, hztohqandplus.
+  <span class="nb">apply</span> hqpluscomm.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isarchNonnegativeRationals</span> :
+  isarchrig gtNonnegativeRationals.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (H := isarchhq).
+  <span class="nb">apply</span> isarchfld_isarchring <span class="k">in</span> H.
+  - <span class="nb">apply</span> isarchring_isarchrig <span class="k">in</span> H.
+    + <span class="nb">assert</span> (∏ n, pr1 (nattorig (X := pr1 (CommDivRig_DivRig NonnegativeRationals)) n) = nattorig (X := pr1fld hq) n).
+      { <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+        - <span class="bp">reflexivity</span>.
+        - <span class="nb">rewrite</span> !nattorigS, &lt;- IHn.
+          <span class="bp">reflexivity</span>. }
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      * <span class="nb">intros</span> y1 y2 Hy.
+        <span class="nb">generalize</span> (isarchrig_diff _ H (pr1 y1) (pr1 y2) Hy).
+        <span class="nb">apply</span> hinhfun.
+        <span class="nb">intros</span> n.
+        <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+        <span class="nb">generalize</span> (pr2 n) ; <span class="nb">intros</span> Hn.
+        <span class="nb">rewrite</span> &lt;- !X <span class="k">in</span> Hn.
+        <span class="bp">exact</span> Hn.
+      * <span class="nb">intros</span> x.
+        <span class="nb">generalize</span> (isarchrig_gt _ H (pr1 x)).
+        <span class="nb">apply</span> hinhfun.
+        <span class="nb">intros</span> n.
+        <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+        <span class="nb">generalize</span> (pr2 n) ; <span class="nb">intros</span> Hn.
+        <span class="nb">rewrite</span> &lt;- X <span class="k">in</span> Hn.
+        <span class="bp">exact</span> Hn.
+      * <span class="nb">intros</span> x.
+        <span class="nb">generalize</span> (isarchrig_pos _ H (pr1 x)).
+        <span class="nb">apply</span> hinhfun.
+        <span class="nb">intros</span> n.
+        <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+        <span class="nb">generalize</span> (pr2 n) ; <span class="nb">intros</span> Hn.
+        <span class="nb">rewrite</span> &lt;- X <span class="k">in</span> Hn.
+        <span class="bp">exact</span> Hn.
+    + <span class="bp">exact</span> isringaddhzgth.
+  - <span class="bp">exact</span> isringaddhzgth.
+  - <span class="bp">exact</span> isringmulthqgth.
+  - <span class="bp">exact</span> isirreflhqgth.
+<span class="kn">Qed</span>.
+
+<span class="kn">Close Scope</span> NRat_scope.
+
+<span class="sd">(** ** Opacify *)</span>
+
+<span class="kn">Global</span> <span class="kn">Opaque</span> NonnegativeRationals NonnegativeRationals_EffectivelyOrderedSet.
+
+<span class="c">(* End of the file hnnq.v *)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/RealNumbers/NonnegativeRationals.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Tactics.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; Unset Kernel Term Sharing.
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.Tactics.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt; Require Import UniMath.MoreFoundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

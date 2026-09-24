@@ -1,0 +1,1137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PreAdditive.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Definition of preadditive categories. *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition of preadditive categories [PreAdditive]</span>
+<span class="sd">- Zero and unit element coincide</span>
+<span class="sd">- Composition and inverses</span>
+<span class="sd">- KernelIn, CokernelOut, and binary operations</span>
+<span class="sd">- Quotient of PreAdditive</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Kernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cokernels.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> addmonoid.
+
+<span class="sd">(** * Definition of a PreAdditive precategory</span>
+<span class="sd">   A preadditive precategory is a precategory such that the sets of morphisms are abelian groups and</span>
+<span class="sd">   pre- and postcomposing with a morphisms is a monoidfun of the abelian groups. *)</span>
+<span class="kn">Section</span> <span class="nf">def_preadditive</span>.
+
+  <span class="sd">(** In preadditive category precomposition and postcomposition for any</span>
+<span class="sd">      morphism yields a morphism of abelian groups. Classically one says that</span>
+<span class="sd">      composition is bilinear with respect to the abelian groups? *)</span>
+  <span class="kn">Definition</span> <span class="nf">isPreAdditive</span> (<span class="nv">PA</span> : categoryWithAbgrops) : UU :=
+    (∏ (x y z : PA) (f : x --&gt; y), ismonoidfun (to_premor z f))
+      × (∏ (x y z : PA) (f : y --&gt; z), ismonoidfun (to_postmor x f)).
+
+  <span class="kn">Definition</span> <span class="nf">make_isPreAdditive</span> (<span class="nv">PA</span> : categoryWithAbgrops)
+             (<span class="nv">H1</span> : ∏ (x y z : PA) (f : x --&gt; y), ismonoidfun (to_premor z f))
+             (<span class="nv">H2</span> : ∏ (x y z : PA) (f : y --&gt; z), ismonoidfun (to_postmor x f)) :
+    isPreAdditive PA.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (H1,,H2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_isPreAdditive'</span> (<span class="nv">PA</span> : categoryWithAbgrops)
+             (<span class="nv">H1</span> : ∏ (x y z : PA) (f : x --&gt; y) (g h : y --&gt; z),
+                   f · (to_binop _ _ g h) = to_binop _ _ (f · g) (f · h))
+             (<span class="nv">H1'</span> : ∏ (x y z : PA) (f : x --&gt; y), to_premor z f (to_unel y z) = to_unel x z)
+             (<span class="nv">H2</span> : ∏ (x y z : PA) (f : y --&gt; z) (g h : x --&gt; y),
+                   (to_binop _ _ g h) · f = to_binop _ _ (g · f) (h · f))
+             (<span class="nv">H2'</span> : ∏ (x y z : PA) (f : y --&gt; z), to_premor z (to_unel x y) f = to_unel x z):
+    isPreAdditive PA.
+  <span class="kn">Proof</span>.
+    use make_isPreAdditive.
+    - <span class="nb">intros</span> x y z f.
+      use tpair.
+      + <span class="nb">intros</span> g h. <span class="bp">exact</span> (H1 x y z f g h).
+      + <span class="bp">exact</span> (H1' x y z f).
+    - <span class="nb">intros</span> x y z f.
+      use tpair.
+      + <span class="nb">intros</span> g h. <span class="bp">exact</span> (H2 x y z f g h).
+      + <span class="bp">exact</span> (H2' x y z f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_premor_monoid</span> {<span class="nv">PWA</span> : categoryWithAbgrops} (<span class="nv">iPA</span> : isPreAdditive PWA) :
+    ∏ (x y z : PWA) (f : x --&gt; y), ismonoidfun (to_premor z f) := dirprod_pr1 iPA.
+
+  <span class="kn">Definition</span> <span class="nf">to_postmor_monoid</span> {<span class="nv">PWA</span> : categoryWithAbgrops} (<span class="nv">iPA</span> : isPreAdditive PWA) :
+    ∏ (x y z : PWA) (f : y --&gt; z), ismonoidfun (to_postmor x f) := dirprod_pr2 iPA.
+
+  <span class="kn">Definition</span> <span class="nf">to_premor_monoidfun</span> {<span class="nv">PWA</span> : categoryWithAbgrops} (<span class="nv">iPA</span> : isPreAdditive PWA)
+             (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : PWA) (<span class="nv">f</span> : x --&gt; y) : monoidfun (to_abgr y z) (to_abgr x z) :=
+    make_monoidfun (to_premor_monoid iPA x y z f).
+
+  <span class="kn">Definition</span> <span class="nf">to_premor_abelian_group_morphism</span> {<span class="nv">PWA</span> : categoryWithAbgrops} (<span class="nv">iPA</span> : isPreAdditive PWA)
+             (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : PWA) (<span class="nv">f</span> : x --&gt; y) : abelian_group_morphism (to_abgr y z) (to_abgr x z) :=
+    binopfun_to_abelian_group_morphism (to_premor_monoidfun iPA x y z f).
+
+  <span class="kn">Definition</span> <span class="nf">to_postmor_monoidfun</span> {<span class="nv">PWA</span> : categoryWithAbgrops} (<span class="nv">iPA</span> : isPreAdditive PWA)
+             (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : PWA) (<span class="nv">f</span> : y --&gt; z) : monoidfun (to_abgr x y) (to_abgr x z) :=
+    make_monoidfun (to_postmor_monoid iPA x y z f).
+
+  <span class="kn">Definition</span> <span class="nf">to_postmor_abelian_group_morphism</span> {<span class="nv">PWA</span> : categoryWithAbgrops} (<span class="nv">iPA</span> : isPreAdditive PWA)
+             (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : PWA) (<span class="nv">f</span> : y --&gt; z) : abelian_group_morphism (to_abgr x y) (to_abgr x z) :=
+    binopfun_to_abelian_group_morphism (to_postmor_monoidfun iPA x y z f).
+
+  <span class="sd">(** Definition of preadditive categories *)</span>
+  <span class="kn">Definition</span> <span class="nf">PreAdditive</span> : UU := ∑ PA : categoryWithAbgrops, isPreAdditive PA.
+
+  <span class="kn">Definition</span> <span class="nf">PreAdditive_categoryWithAbgrops</span> (<span class="nv">A</span> : PreAdditive) : categoryWithAbgrops := pr1 A.
+  <span class="kn">Coercion</span> <span class="nf">PreAdditive_categoryWithAbgrops</span> : PreAdditive &gt;-&gt; categoryWithAbgrops.
+
+  <span class="kn">Definition</span> <span class="nf">make_PreAdditive</span> (<span class="nv">PA</span> : categoryWithAbgrops) (<span class="nv">H</span> : isPreAdditive PA) : PreAdditive.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (tpair _ PA H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">PreAdditive_isPreAdditive</span> (<span class="nv">A</span> : PreAdditive) : isPreAdditive A := pr2 A.
+  <span class="kn">Coercion</span> <span class="nf">PreAdditive_isPreAdditive</span> : PreAdditive &gt;-&gt; isPreAdditive.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : PreAdditive.
+
+  <span class="sd">(** The following give that premor and postmor are linear. *)</span>
+  <span class="kn">Definition</span> <span class="nf">to_premor_linear</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">z</span> : A) (<span class="nv">f</span> : x --&gt; y) :
+    isbinopfun (to_premor z f) := dirprod_pr1 (to_premor_monoid A x y z f).
+
+  <span class="kn">Definition</span> <span class="nf">to_postmor_linear</span> (<span class="nv">x</span> : A) {<span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : y --&gt; z) :
+    isbinopfun (to_postmor x f) := dirprod_pr1 (to_postmor_monoid A x y z f).
+
+  <span class="sd">(** Following versions are useful when one wants to rewrite equations *)</span>
+  <span class="kn">Lemma</span> <span class="nf">to_premor_linear'</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> <span class="nv">h</span> : y --&gt; z) :
+    f · (to_binop y z g h) = to_binop x z (f · g) (f · h).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> to_premor_linear.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_postmor_linear'</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">g</span> <span class="nv">h</span> : x --&gt; y) (<span class="nv">f</span> : y --&gt; z) :
+    (to_binop x y g h) · f = to_binop x z (g · f) (h · f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> to_postmor_linear.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The following says that composing with zero object yields a zero object. *)</span>
+  <span class="kn">Definition</span> <span class="nf">to_premor_unel</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">z</span> : A) (<span class="nv">f</span> : x --&gt; y) :
+    to_premor z f <span class="mi">1</span>%multmonoid = <span class="mi">1</span>%multmonoid := dirprod_pr2 (to_premor_monoid A x y z f).
+
+  <span class="kn">Definition</span> <span class="nf">to_postmor_unel</span> (<span class="nv">x</span> : A) {<span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : y --&gt; z) :
+    to_postmor x f <span class="mi">1</span>%multmonoid = <span class="mi">1</span>%multmonoid := dirprod_pr2 (to_postmor_monoid A x y z f).
+
+  <span class="sd">(** Following versions are useful when one wants to rewrite equations *)</span>
+  <span class="kn">Lemma</span> <span class="nf">to_premor_unel'</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">z</span> : A) (<span class="nv">f</span> : x --&gt; y) : f · (to_unel y z) = to_unel x z.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> to_premor_unel.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_postmor_unel'</span> (<span class="nv">x</span> : A) {<span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : y --&gt; z) : (to_unel x y) · f = to_unel x z.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> to_postmor_unel.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">def_preadditive</span>.
+<span class="kn">Arguments</span> to_premor_linear [A] [x] [y] _ _ _ _.
+<span class="kn">Arguments</span> to_postmor_linear [A] _ [y] [z] _ _ _.
+<span class="kn">Arguments</span> to_premor_linear' [A] [x] [y] [z] _ _ _.
+<span class="kn">Arguments</span> to_postmor_linear' [A] [x] [y] [z] _ _ _.
+
+
+<span class="sd">(** * Zero and unit</span>
+<span class="sd">   In the following section we prove that if a preadditive category has a zero</span>
+<span class="sd">   object, then in a homset the unit element is given by the zero arrow *)</span>
+<span class="kn">Section</span> <span class="nf">preadditive_with_zero</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : PreAdditive.
+
+  <span class="sd">(** Proof that the zero arrow and the unit element coincide *)</span>
+  <span class="kn">Lemma</span> <span class="nf">PreAdditive_unel_zero</span> (<span class="nv">Z</span> : Zero A) (<span class="nv">x</span> <span class="nv">y</span> : A) : to_unel x y = ZeroArrow Z x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> ZeroArrow.
+    <span class="nb">rewrite</span> &lt;- (id_left (ZeroArrowFrom y)).
+    <span class="nb">assert</span> (X : identity Z = to_unel Z Z).
+    { <span class="nb">apply</span> ZeroEndo_is_identity. }
+    <span class="nb">rewrite</span> -&gt; X. <span class="nb">clear</span> X.
+
+    <span class="nb">set</span> (Y := to_postmor_unel A Z (@ZeroArrowFrom A Z y)).
+    <span class="nb">unfold</span> to_postmor <span class="k">in</span> Y. <span class="nb">unfold</span> to_unel.
+    <span class="nb">rewrite</span> Y. <span class="nb">clear</span> Y.
+
+    <span class="nb">set</span> (Y' := to_premor_unel A y (@ZeroArrowTo A Z x)).
+    <span class="nb">unfold</span> to_premor <span class="k">in</span> Y'.
+    <span class="nb">rewrite</span> Y'. <span class="nb">clear</span> Y'.
+
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_lunax''</span> {<span class="nv">Z</span> : Zero A} (<span class="nv">x</span> <span class="nv">y</span> : A) (<span class="nv">f</span> : x --&gt; y) : to_binop x y (ZeroArrow Z x y) f = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- to_lunax'. <span class="nb">apply</span> maponpaths_2, pathsinv0, PreAdditive_unel_zero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_runax''</span> {<span class="nv">Z</span> : Zero A} (<span class="nv">x</span> <span class="nv">y</span> : A) (<span class="nv">f</span> : x --&gt; y) : to_binop x y f (ZeroArrow Z x y) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- to_runax'. <span class="nb">apply</span> maponpaths, pathsinv0, PreAdditive_unel_zero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_linvax'</span> {<span class="nv">Z</span> : Zero A} {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : A⟦x, y⟧) :
+    to_binop x y (to_inv f) f = ZeroArrow Z x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> linvax. <span class="nb">apply</span> PreAdditive_unel_zero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_rinvax'</span> {<span class="nv">Z</span> : Zero A} {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : A⟦x, y⟧) :
+    to_binop x y f (to_inv f) = ZeroArrow Z x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> rinvax. <span class="nb">apply</span> PreAdditive_unel_zero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_inv_zero</span> {<span class="nv">Z</span> : Zero A} {<span class="nv">x</span> <span class="nv">y</span> : A} : to_inv (ZeroArrow Z x y) = ZeroArrow Z x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_unel_zero.
+    <span class="nb">apply</span> to_inv_unel.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">preadditive_with_zero</span>.
+
+
+<span class="sd">(** * Inverses and composition</span>
+<span class="sd">   Some equations on inverses in PreAdditive categories *)</span>
+<span class="kn">Section</span> <span class="nf">preadditive_inv_comp</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : PreAdditive.
+
+  <span class="kn">Lemma</span> <span class="nf">PreAdditive_invlcomp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : A⟦x, y⟧) (<span class="nv">g</span> : A⟦y, z⟧) :
+    (to_inv (f · g)) = (to_inv f) · g.
+  <span class="kn">Proof</span>.
+    use (grrcan (to_abgr x z) (f · g)).
+    <span class="nb">unfold</span> to_inv <span class="nb">at</span> <span class="mi">1</span>. <span class="nb">rewrite</span> grlinvax.
+    use (pathscomp0 _ (to_postmor_linear' (to_inv f) f g)).
+    <span class="nb">rewrite</span> linvax. <span class="nb">rewrite</span> to_postmor_unel'.
+    <span class="nb">unfold</span> to_unel.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PreAdditive_invrcomp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : A⟦x, y⟧) (<span class="nv">g</span> : A⟦y, z⟧) :
+    (to_inv (f · g)) = f · (to_inv g).
+  <span class="kn">Proof</span>.
+    use (grrcan (to_abgr x z) (f · g)).
+    <span class="nb">unfold</span> to_inv <span class="nb">at</span> <span class="mi">1</span>. <span class="nb">rewrite</span> grlinvax.
+    use (pathscomp0 _ (to_premor_linear' f (to_inv g) g)).
+    <span class="nb">rewrite</span> linvax. <span class="nb">rewrite</span> to_premor_unel'.
+    <span class="nb">unfold</span> to_unel.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PreAdditive_cancel_inv</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> <span class="nv">g</span> : A⟦x, y⟧) (<span class="nv">H</span> : (to_inv f)  = (to_inv g)) : f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (grinvmaponpathsinv (to_abgr x y) H).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">preadditive_inv_comp</span>.
+
+
+<span class="sd">(** * KernelIn, CokernelOut, and Binary Operations *)</span>
+<span class="sd">(** ** Introduction</span>
+<span class="sd">   In this section we show that binop commutes with KernelIn and CokernelOut in a PreAdditive</span>
+<span class="sd">   category. [KernelInOp] proves commutativity for KernelIn and [CokernelOutOp] proves commutativity</span>
+<span class="sd">   for CokernelOut.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">def_additive_kernel_cokernel</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : PreAdditive.
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero A.
+
+  <span class="kn">Local Lemma</span> <span class="nf">KernelInOp_Eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : A⟦x, y⟧) (<span class="nv">g</span> : A⟦y, z⟧)
+        (<span class="nv">H1</span> : f1 · g = ZeroArrow Z _ _) (<span class="nv">H2</span> : f2 · g = ZeroArrow Z _ _) :
+    (to_binop _ _ f1 f2 · g = ZeroArrow Z _ _).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> H1. <span class="nb">rewrite</span> H2.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_unel_zero.
+    <span class="nb">rewrite</span> to_lunax'. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">KernelInOp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : A⟦x, y⟧) (<span class="nv">g</span> : A⟦y, z⟧) (<span class="nv">K</span> : Kernel Z g)
+        (<span class="nv">H1</span> : f1 · g = ZeroArrow Z _ _) (<span class="nv">H2</span> : f2 · g = ZeroArrow Z _ _) :
+    KernelIn Z K _ (to_binop _ _ f1 f2) (KernelInOp_Eq f1 f2 g H1 H2) =
+    to_binop _ _ (KernelIn Z K _ f1 H1) (KernelIn Z K _ f2 H2).
+  <span class="kn">Proof</span>.
+    use KernelInsEq.
+    <span class="nb">rewrite</span> KernelCommutes.
+    <span class="nb">rewrite</span> (to_postmor_linear' (A:=A)).
+    <span class="nb">rewrite</span> KernelCommutes.
+    <span class="nb">rewrite</span> KernelCommutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">CokernelOutOp_Eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : A⟦y, z⟧) (<span class="nv">g</span> : A⟦x, y⟧)
+        (<span class="nv">H1</span> : g · f1 = ZeroArrow Z _ _) (<span class="nv">H2</span> : g · f2 = ZeroArrow Z _ _) :
+    g · (to_binop _ _ f1 f2) = ZeroArrow Z _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> H1. <span class="nb">rewrite</span> H2.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_unel_zero.
+    <span class="nb">rewrite</span> to_lunax'. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">CokernelOutOp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : A⟦y, z⟧) (<span class="nv">g</span> : A⟦x, y⟧) (<span class="nv">CK</span> : Cokernel Z g)
+        (<span class="nv">H1</span> : g · f1 = ZeroArrow Z _ _) (<span class="nv">H2</span> : g · f2 = ZeroArrow Z _ _) :
+    CokernelOut Z CK _ (to_binop _ _ f1 f2) (CokernelOutOp_Eq f1 f2 g H1 H2) =
+    to_binop _ _ (CokernelOut Z CK _ f1 H1) (CokernelOut Z CK _ f2 H2).
+  <span class="kn">Proof</span>.
+    use CokernelOutsEq.
+    <span class="nb">rewrite</span> CokernelCommutes.
+    <span class="nb">rewrite</span> to_premor_linear'.
+    <span class="nb">rewrite</span> CokernelCommutes.
+    <span class="nb">rewrite</span> CokernelCommutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">def_additive_kernel_cokernel</span>.
+
+
+<span class="kn">Section</span> <span class="nf">monics_and_epis_in_preadditive</span>.
+
+  <span class="kn">Variable</span> <span class="nv">PA</span> : PreAdditive.
+
+  <span class="kn">Lemma</span> <span class="nf">to_inv_isMonic</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">isM</span> : isMonic f) : isMonic (to_inv f).
+  <span class="kn">Proof</span>.
+    use make_isMonic.
+    <span class="nb">intros</span> x0 g h X.
+    <span class="nb">rewrite</span> &lt;- (PreAdditive_invrcomp PA) <span class="k">in</span> X. <span class="nb">rewrite</span> &lt;- (PreAdditive_invrcomp PA) <span class="k">in</span> X.
+    <span class="nb">apply</span> cancel_inv <span class="k">in</span> X. use isM. <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_inv_isEpi</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">isE</span> : isEpi f) : isEpi (to_inv f).
+  <span class="kn">Proof</span>.
+    use make_isEpi.
+    <span class="nb">intros</span> x0 g h X.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp <span class="k">in</span> X. <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp <span class="k">in</span> X.
+    <span class="nb">apply</span> cancel_inv <span class="k">in</span> X. use isE. <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">monics_and_epis_in_preadditive</span>.
+
+
+<span class="sd">(** * Quotient of homsets</span>
+<span class="sd">   Suppose you have a subgroup for each set of morphisms such that pre- and postcompositions map</span>
+<span class="sd">   morphisms in a subgroup to another subgroup. Then one can form a new Preadditive category by</span>
+<span class="sd">   taking the same objects and morphisms as elements of the quotient groups. We call this</span>
+<span class="sd">   [PreAdditiveQuot]. An example of this construction is when one wants to form the naive homotopy</span>
+<span class="sd">   category from a category of complexes. *)</span>
+<span class="kn">Section</span> <span class="nf">preadditive_quotient</span>.
+
+  <span class="kn">Variable</span> <span class="nv">PA</span> : PreAdditive.
+
+  <span class="kn">Local</span> <span class="kn">Opaque</span> ishinh.
+
+  <span class="sd">(** For every set morphisms we have a subgroup. *)</span>
+  <span class="kn">Definition</span> <span class="nf">PreAdditiveSubabgrs</span> : UU := ∏ (x y : ob PA), @subabgr (to_abgr x y).
+
+  <span class="kn">Hypothesis</span> <span class="nv">PAS</span> : PreAdditiveSubabgrs.
+
+  <span class="sd">(** Pre- and postcomposing with an element in the subgroups gives an element of a subgroup.</span>
+<span class="sd">      This is important since we want pre- and postcomposition with unit element to be</span>
+<span class="sd">      the unit element in the new precategory. *)</span>
+  <span class="kn">Definition</span> <span class="nf">PreAdditiveComps</span> : UU :=
+    ∏ (x y : ob PA),
+    (∏ (z : ob PA) (f : x --&gt; y)
+       (inf : pr1submonoid (@to_abgr PA x y) (PAS x y) f) (g : y --&gt; z),
+     pr1submonoid (@to_abgr PA x z) (PAS x z) (f · g))
+      × (∏ (z : ob PA) (f : x --&gt; y) (g : y --&gt; z)
+           (ing : pr1submonoid (@to_abgr PA y z) (PAS y z) g),
+         pr1submonoid (@to_abgr PA x z) (PAS x z) (f · g)).
+
+  <span class="kn">Hypothesis</span> <span class="nv">PAC</span> : PreAdditiveComps.
+
+  <span class="sd">(** ** Here are some random results copied from category_abgr.v.</span>
+<span class="sd">     Theses should be deleted, removed, renamed, generalized, or ...*)</span>
+
+  <span class="sd">(** The hProp which tells if two elements of A belong to the same equivalence class in A/B *)</span>
+  <span class="kn">Definition</span> <span class="nf">subgrhrel_hprop</span> {<span class="nv">A</span> : gr} (<span class="nv">B</span> : @subgr A) (<span class="nv">a1</span> <span class="nv">a2</span> : A) : hProp :=
+    hexists (<span class="k">λ</span> <span class="nv">b</span> : B, pr1 b = (a1 * grinv A a2)%multmonoid).
+
+  <span class="sd">(** Construct a relation using the above hProp *)</span>
+  <span class="kn">Definition</span> <span class="nf">subgrhrel</span> {<span class="nv">A</span> : gr} (<span class="nv">B</span> : @subgr A) : @hrel A :=
+    (<span class="k">λ</span> <span class="nv">a1</span> : A, <span class="k">λ</span> <span class="nv">a2</span> : A, (subgrhrel_hprop B a1 a2)).
+
+  <span class="sd">(** Let B be a subgroup of A. Then the canonical map A -&gt; A/B is a monoidfun. *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">abgrquotpr_ismonoidfun</span> {<span class="nv">A</span> : abgr} (<span class="nv">H</span> : @binopeqrel A) :
+    @ismonoidfun A (abgrquot H) (<span class="k">λ</span> <span class="nv">a</span> : A, setquotpr H a).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">split</span>.
+    - <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">funeqpaths</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">f</span> <span class="nv">g</span> : X -&gt; Y} (<span class="nv">e</span> : f = g) : ∏ (x : X), f x = g x.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">intros</span> x. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">abgrquotpr_monoidfun</span> {<span class="nv">A</span> : abgr} (<span class="nv">H</span> : @binopeqrel A) : monoidfun A (abgrquot H) :=
+    make_monoidfun (abgrquotpr_ismonoidfun H).
+
+  <span class="kn">Local Lemma</span> <span class="nf">monoidfun_inv</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr} (<span class="nv">f</span> : monoidfun A B) (<span class="nv">a</span> : A) :
+    f (grinv A a) = grinv B (f a).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (grlcan B (f a)). <span class="nb">rewrite</span> (grrinvax B).
+    <span class="nb">refine</span> ((pathsinv0 ((monoidfunmul f a (grinv A a)))) @ _).
+    <span class="nb">rewrite</span> (grrinvax A). <span class="nb">apply</span> (pr2 (pr2 f)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The relation we defined is an equivalence relation *)</span>
+  <span class="kn">Lemma</span> <span class="nf">iseqrel_subgrhrel</span> (<span class="nv">A</span> : gr) (<span class="nv">B</span> : @subgr A) : iseqrel (subgrhrel B).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> subgrhrel. <span class="nb">unfold</span> subgrhrel_hprop.
+    use iseqrelconstr.
+    <span class="c">(* istrans *)</span>
+    - <span class="nb">intros</span> x1 x2 x3 y1 y2. <span class="nb">unfold</span> ishinh_UU <span class="k">in</span> *.
+      use (squash_to_prop y1 (propproperty _)). <span class="nb">intros</span> Y1. <span class="nb">clear</span> y1.
+      use (squash_to_prop y2 (propproperty _)). <span class="nb">intros</span> Y2. <span class="nb">clear</span> y2.
+      use hinhpr.
+      <span class="nb">induction</span> Y1 <span class="k">as</span> [t p]. <span class="nb">induction</span> Y2 <span class="k">as</span> [t0 p0].
+      use tpair.
+      + use tpair.
+        * <span class="bp">exact</span> (op (pr1 t) (pr1 t0)).
+        * <span class="bp">exact</span> (pr2subsetswithbinop B t t0).
+      + <span class="nb">cbn</span>. <span class="nb">rewrite</span> p. <span class="nb">rewrite</span> p0. <span class="nb">rewrite</span> &lt;- (assocax A).
+        <span class="nb">apply</span> maponpaths_2. <span class="nb">rewrite</span> assocax. <span class="nb">rewrite</span> grlinvax. <span class="nb">rewrite</span> runax.
+        <span class="nb">apply</span> idpath.
+    <span class="c">(* isrefl *)</span>
+    - <span class="nb">intros</span> x.
+      use hinhpr.
+      use tpair.
+      + <span class="bp">exact</span> (unel B).
+      + <span class="nb">cbn</span>. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> (grrinvax A).
+    <span class="c">(* issymm *)</span>
+    - <span class="nb">intros</span> x y. <span class="nb">cbn</span>. <span class="nb">unfold</span> ishinh_UU. <span class="nb">intros</span> H.
+      use (squash_to_prop H (propproperty _)). <span class="nb">intros</span> H'. <span class="nb">clear</span> H.
+      use hinhpr.
+      <span class="nb">induction</span> H' <span class="k">as</span> [t p].
+      use tpair.
+      + <span class="bp">exact</span> (grinv B t).
+      + <span class="nb">cbn</span>. <span class="nb">rewrite</span> p. <span class="nb">clear</span> p. <span class="nb">rewrite</span> grinvop. <span class="nb">rewrite</span> grinvinv. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The relation we defined respects binary operations. Note that we use commax, thus the proof</span>
+<span class="sd">      does not work for nonabelian groups. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isbinopeqrel_subgr_eqrel</span> {<span class="nv">A</span> : abgr} (<span class="nv">B</span> : @subabgr A) :
+    isbinophrel (make_eqrel (subgrhrel B) (iseqrel_subgrhrel A B)).
+  <span class="kn">Proof</span>.
+    use isbinophrelif.
+    - <span class="nb">apply</span> (pr2 (pr2 A)).
+    - <span class="nb">intros</span> a b c X. <span class="nb">unfold</span> ishinh_UU <span class="k">in</span> *.
+      use (squash_to_prop X (propproperty _)). <span class="nb">intros</span> X''.
+      use hinhpr.
+      use tpair.
+      + <span class="bp">exact</span> (pr1 X'').
+      + <span class="nb">cbn</span>.
+        <span class="nb">set</span> (tmp := pr2 X''). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp. <span class="nb">clear</span> X''.
+        <span class="nb">rewrite</span> grinvop. <span class="nb">rewrite</span> (commax A c). <span class="nb">rewrite</span> (assocax A). <span class="nb">rewrite</span> (commax A c).
+        <span class="nb">rewrite</span> (assocax A). <span class="nb">rewrite</span> grlinvax. <span class="nb">rewrite</span> runax. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Thus the relation is a binopeqrel *)</span>
+  <span class="kn">Lemma</span> <span class="nf">binopeqrel_subgr_eqrel</span> {<span class="nv">A</span> : abgr} (<span class="nv">B</span> : @subabgr A) : @binopeqrel A.
+  <span class="kn">Proof</span>.
+    use make_binopeqrel.
+    - <span class="bp">exact</span> (make_eqrel _ (iseqrel_subgrhrel A B)).
+    - <span class="bp">exact</span> (isbinopeqrel_subgr_eqrel B).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** These are the homsets in our new category. *)</span>
+  <span class="kn">Definition</span> <span class="nf">subabgr_quot</span> {<span class="nv">A</span> : abgr} (<span class="nv">B</span> : @subabgr A) : abgr :=
+    abgrquot (binopeqrel_subgr_eqrel B).
+
+  <span class="kn">Definition</span> <span class="nf">Quotcategory_homsets</span> (<span class="nv">c</span> <span class="nv">d</span> : ob PA) : abgr := subabgr_quot (PAS c d).
+
+  <span class="kn">Definition</span> <span class="nf">Quotcategory_ob_mor</span> : precategory_ob_mor :=
+    tpair (<span class="k">λ</span> <span class="nv">ob</span> : UU, ob -&gt; ob -&gt; UU) (ob PA) (<span class="k">λ</span> <span class="nv">A</span> <span class="nv">B</span> : ob PA, Quotcategory_homsets A B).
+
+  <span class="kn">Lemma</span> <span class="nf">Quotcategory_surj</span> {<span class="nv">c</span> <span class="nv">d</span> : Quotcategory_ob_mor} (<span class="nv">f</span> : Quotcategory_ob_mor⟦c, d⟧) :
+    ∥ hfiber (setquotpr (binopeqrel_subgr_eqrel (PAS c d))) f ∥.
+  <span class="kn">Proof</span>.
+    use issurjsetquotpr.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** Composition of morphisms *)</span>
+
+  <span class="sd">(** *** Some lemmas *)</span>
+
+  <span class="sd">(** If images of f1 and f2 are equal, then f * inv f2 is mapped to unit. *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">abgrquotpr_rels_to_unel</span> {<span class="nv">A</span> : abgr} {<span class="nv">f1</span> <span class="nv">f2</span> : A} {<span class="nv">H</span> : @binopeqrel A} {<span class="nv">f</span> : abgrquot H}
+             (<span class="nv">e1</span> : setquotpr H f1 = f) (<span class="nv">e2</span> : setquotpr H f2 = f) :
+    setquotpr H (f1 * grinv A f2)%multmonoid = setquotpr H <span class="mi">1</span>%multmonoid.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- e2 <span class="k">in</span> e1. <span class="nb">clear</span> e2.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, (f * (@grinv (abgrquot H) (setquotpr H f2)))%multmonoid)) <span class="k">in</span> e1.
+    <span class="nb">rewrite</span> grrinvax <span class="k">in</span> e1. <span class="nb">apply</span> e1.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Equality on relation to refl *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">abgrquotpr_rel_to_refl</span> {<span class="nv">A</span> : abgr} {<span class="nv">H</span> : @binopeqrel A} {<span class="nv">f</span> <span class="nv">g</span> : A} (<span class="nv">e</span> : H g g = H f g) :
+    H f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e.
+    <span class="nb">apply</span> eqrelrefl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgrquotpr_rel_paths</span> {<span class="nv">A</span> : abgr} {<span class="nv">H</span> : @binopeqrel A} {<span class="nv">f</span> <span class="nv">g</span> : A}
+        (<span class="nv">e</span> : setquotpr H f = setquotpr H g) : H f g.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (abgrquotpr_rel_to_refl (! (funeqpaths (base_paths _ _ e)) g)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgrquotpr_rel_image</span> {<span class="nv">A</span> : abgr} {<span class="nv">H</span> : @binopeqrel A} {<span class="nv">f</span> <span class="nv">g</span> : A}
+        (<span class="nv">e</span> : H f g) : setquotpr H f = setquotpr H g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> iscompsetquotpr.
+    <span class="bp">exact</span> e.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Morphisms to elements of groups *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">mor_to_elem</span> {<span class="nv">a</span> <span class="nv">b</span> : PA} (<span class="nv">f</span> : PA⟦a, b⟧) (<span class="nv">H</span> : pr1 (PAS a b) f) : carrier (pr1 (PAS a b)).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">to_inv_elem</span> {<span class="nv">a</span> <span class="nv">b</span> : PA} (<span class="nv">f</span> : PA⟦a, b⟧) (<span class="nv">H</span> : pr1 (PAS a b) f) : carrier (pr1 (PAS a b)).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (@grinv (to_abgr a b) f).
+    - <span class="nb">apply</span> (pr2 (pr2 (PAS a b))). <span class="bp">exact</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">to_op_elem</span> {<span class="nv">A</span> <span class="nv">B</span> : PA} (<span class="nv">f</span> <span class="nv">g</span> : PA⟦A, B⟧) (<span class="nv">H1</span> : pr1 (PAS A B) f) (<span class="nv">H2</span> : pr1 (PAS A B) g) :
+    pr1 (PAS A B) (to_binop A B f g).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (tmp := pr1 (pr1 (pr2 (PAS A B)))). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">unfold</span> issubsetwithbinop <span class="k">in</span> tmp.
+    <span class="nb">set</span> (a := mor_to_elem f H1). <span class="nb">set</span> (a' := mor_to_elem g H2).
+    <span class="nb">apply</span> (tmp a a').
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Composition of morphisms in the quotient precategory *)</span>
+
+  <span class="sd">(** **** Structure for composition *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">QuotcategoryComp</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : ob PA} (<span class="nv">f</span> : Quotcategory_ob_mor⟦A, B⟧)
+             (<span class="nv">g</span> : Quotcategory_ob_mor⟦B, C⟧) : UU :=
+    ∑ h : Quotcategory_ob_mor⟦A, C⟧,
+          (∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f)
+             (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g), setquotpr _ (f' · g') = h).
+
+  <span class="kn">Definition</span> <span class="nf">make_QuotcategoryComp</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : ob PA} {<span class="nv">f</span> : Quotcategory_ob_mor⟦A, B⟧}
+             {<span class="nv">g</span> : Quotcategory_ob_mor⟦B, C⟧} (<span class="nv">h</span> : Quotcategory_ob_mor⟦A, C⟧)
+             (<span class="nv">H</span> : ∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f)
+                    (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g), setquotpr _ (f' · g') = h) :
+    QuotcategoryComp f g := tpair _ h H.
+
+  <span class="kn">Definition</span> <span class="nf">QuotcategoryCompMor</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : ob PA} {<span class="nv">f</span> : Quotcategory_ob_mor⟦A, B⟧}
+             {<span class="nv">g</span> : Quotcategory_ob_mor⟦B, C⟧} (<span class="nv">QPC</span> : QuotcategoryComp f g) :
+    Quotcategory_ob_mor⟦A, C⟧ := pr1 QPC.
+
+  <span class="kn">Definition</span> <span class="nf">QuotcategoryCompEq</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : ob PA} {<span class="nv">f</span> : Quotcategory_ob_mor⟦A, B⟧}
+             {<span class="nv">g</span> : Quotcategory_ob_mor⟦B, C⟧} (<span class="nv">QPC</span> : QuotcategoryComp f g) :
+    ∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f) (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g),
+    setquotpr _ (f' · g') = QuotcategoryCompMor QPC := pr2 QPC.
+
+
+  <span class="sd">(** **** Composition for quotient category *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">Quotcategory_comp_iscontr_PAS_eq</span> {<span class="nv">A</span> : abgr} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : A}
+        (<span class="nv">e</span> : a = (b * (grinv A c))%multmonoid) : b = (a * c)%multmonoid.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> e. <span class="nb">rewrite</span> assocax. <span class="nb">rewrite</span> grlinvax. <span class="nb">rewrite</span> runax. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Quotcategory_comp_iscontr_PAS</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : PA} {<span class="nv">t</span> : pr1 (PAS A B)} {<span class="nv">t'</span> : pr1 (PAS B C)}
+        {<span class="nv">f1</span> <span class="nv">f'1</span> : PA⟦A, B⟧} {<span class="nv">g1</span> <span class="nv">g'1</span> : PA⟦B, C⟧}
+        (<span class="nv">p</span> : pr1 t = to_binop A B f'1 (grinv (to_abgr A B) f1))
+        (<span class="nv">p'</span> : pr1 t' = to_binop B C g'1 (grinv (to_abgr B C) g1)) :
+    pr1 (PAS A C) (to_binop A C (f1 · g1) (grinv (to_abgr A C) (f'1 · g'1))).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (e1 := Quotcategory_comp_iscontr_PAS_eq p).
+    <span class="nb">set</span> (e2 := Quotcategory_comp_iscontr_PAS_eq p').
+    <span class="nb">rewrite</span> e1. <span class="nb">rewrite</span> e2. <span class="nb">clear</span> e1 e2 p p'. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> to_postmor_linear'.
+    <span class="nb">set</span> (ac := assocax (to_abgr A C)). <span class="nb">unfold</span> isassoc <span class="k">in</span> ac. <span class="nb">cbn</span> <span class="k">in</span> ac.
+    <span class="nb">set</span> (comm := commax (to_abgr A C)). <span class="nb">unfold</span> iscomm <span class="k">in</span> comm. <span class="nb">cbn</span> <span class="k">in</span> comm.
+    <span class="nb">rewrite</span> (comm _ (f1 · g1)). <span class="nb">rewrite</span> &lt;- (ac _ (f1 · g1) _).
+    <span class="nb">rewrite</span> (comm _ (f1 · g1)). <span class="nb">rewrite</span> ac. <span class="nb">rewrite</span> ac.
+    <span class="nb">set</span> (i := grinvop (to_abgr A C)). <span class="nb">cbn</span> <span class="k">in</span> i. <span class="nb">rewrite</span> i. <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- ac.
+    <span class="nb">rewrite</span> comm. <span class="nb">rewrite</span> &lt;- ac.
+    <span class="nb">set</span> (il := linvax _ (f1 · g1)). <span class="nb">unfold</span> to_inv <span class="k">in</span> il. <span class="nb">rewrite</span> il. <span class="nb">clear</span> il.
+    <span class="nb">set</span> (lu := to_lunax A C). <span class="nb">unfold</span> islunit <span class="k">in</span> lu. <span class="nb">cbn</span> <span class="k">in</span> lu. <span class="nb">unfold</span> to_unel. <span class="nb">rewrite</span> lu.
+    <span class="nb">set</span> (tmp := pr2 (pr2 (PAS A C))). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">apply</span> tmp. <span class="nb">clear</span> tmp.
+    use to_op_elem.
+    - use to_op_elem.
+      + <span class="nb">apply</span> (dirprod_pr1 (PAC A B) C (pr1 t) (pr2 t) (pr1 t')).
+      + <span class="nb">apply</span> (dirprod_pr2 (PAC A B) C f1 (pr1 t') (pr2 t')).
+    - <span class="nb">apply</span> (dirprod_pr1 (PAC A B) C (pr1 t) (pr2 t) g1).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">Quotcategory_comp_iscontr_eq</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : ob PA} (<span class="nv">f</span> : Quotcategory_ob_mor⟦A, B⟧)
+        (<span class="nv">g</span> : Quotcategory_ob_mor⟦B, C⟧)  (<span class="nv">f'1</span> : PA ⟦ A, B ⟧) (<span class="nv">f''1</span> : setquotpr _ f'1 = f)
+        (<span class="nv">g'1</span> : PA ⟦ B, C ⟧) (<span class="nv">g''1</span> : setquotpr _ g'1 = g) :
+    ∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f) (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g),
+    setquotpr _ (f' · g') = setquotpr (binopeqrel_subgr_eqrel (PAS A C)) (f'1 · g'1).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f1 Hf g1 Hg. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (iscompsetquotpr (make_eqrel _ (iseqrel_subgrhrel (to_abgr A C) (PAS A C)))).
+    <span class="nb">set</span> (HH := @abgrquotpr_rels_to_unel
+                 (to_abgr A B) f'1 f1 (binopeqrel_subgr_eqrel (PAS A B)) f f''1 Hf).
+    <span class="nb">set</span> (HH' := @abgrquotpr_rels_to_unel
+                  (to_abgr B C) g'1 g1 (binopeqrel_subgr_eqrel (PAS B C)) g g''1 Hg).
+    <span class="nb">apply</span> abgrquotpr_rel_paths <span class="k">in</span> HH. <span class="nb">apply</span> abgrquotpr_rel_paths <span class="k">in</span> HH'.
+    use (squash_to_prop HH). <span class="nb">apply</span> propproperty. <span class="nb">intros</span> HHH. <span class="nb">clear</span> HH.
+    use (squash_to_prop HH'). <span class="nb">apply</span> propproperty. <span class="nb">intros</span> HHH'. <span class="nb">clear</span> HH'.
+    <span class="nb">cbn</span> <span class="k">in</span> HHH. <span class="nb">cbn</span> <span class="k">in</span> HHH'. <span class="nb">induction</span> HHH <span class="k">as</span> [t p]. <span class="nb">induction</span> HHH' <span class="k">as</span> [t' p'].
+    <span class="nb">rewrite</span> grinvunel <span class="k">in</span> p. <span class="nb">rewrite</span> grinvunel <span class="k">in</span> p'.
+    <span class="nb">set</span> (tmp := to_runax A B). <span class="nb">unfold</span> isrunit <span class="k">in</span> tmp. <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp <span class="k">in</span> p. <span class="nb">clear</span> tmp.
+    <span class="nb">set</span> (tmp := to_runax B C). <span class="nb">unfold</span> isrunit <span class="k">in</span> tmp. <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp <span class="k">in</span> p'. <span class="nb">clear</span> tmp.
+    use hinhpr.
+    use tpair.
+    + use tpair.
+      * <span class="bp">exact</span> (to_binop A C (f1 · g1) (grinv (to_abgr A C) (f'1 · g'1))).
+      * <span class="nb">apply</span> (Quotcategory_comp_iscontr_PAS p p').
+    + <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">QuotPrecatetgory_comp_iscontr_univ</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : ob PA} (<span class="nv">f</span> : Quotcategory_ob_mor⟦A, B⟧)
+             (<span class="nv">g</span> : Quotcategory_ob_mor⟦B, C⟧)
+             (<span class="nv">f'</span> : hfiber (setquotpr (binopeqrel_subgr_eqrel (PAS A B))) f)
+             (<span class="nv">g'</span> : hfiber (setquotpr (binopeqrel_subgr_eqrel (PAS B C))) g) :
+    ∏ t : QuotcategoryComp f g,
+          t = make_QuotcategoryComp
+                (setquotpr (binopeqrel_subgr_eqrel (PAS A C))
+                           (hfiberpr1 _ _ f' · hfiberpr1 _ _ g'))
+                (Quotcategory_comp_iscontr_eq
+                   f g (hfiberpr1 (setquotpr (binopeqrel_subgr_eqrel (PAS A B))) f f')
+                   (hfiberpr2 (setquotpr (binopeqrel_subgr_eqrel (PAS A B))) f f')
+                   (hfiberpr1 (setquotpr (binopeqrel_subgr_eqrel (PAS B C))) g g')
+                   (hfiberpr2 (setquotpr (binopeqrel_subgr_eqrel (PAS B C))) g g')).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> t.
+    use total2_paths_f.
+    - <span class="bp">exact</span> (! (pr2 t (hfiberpr1 _ _ f') (hfiberpr2 _ _ f') (hfiberpr1 _ _ g') (hfiberpr2 _ _ g'))).
+    - <span class="nb">apply</span> proofirrelevance.
+      <span class="nb">apply</span> impred. <span class="nb">intros</span> t'.
+      <span class="nb">apply</span> impred. <span class="nb">intros</span> H.
+      <span class="nb">apply</span> impred. <span class="nb">intros</span> t0.
+      <span class="nb">apply</span> impred. <span class="nb">intros</span> H0.
+      <span class="nb">apply</span> isasetsetquot.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Quotcategory_comp_iscontr</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : ob PA} (<span class="nv">f</span> : Quotcategory_ob_mor⟦A, B⟧)
+             (<span class="nv">g</span> : Quotcategory_ob_mor⟦B, C⟧) : iscontr (QuotcategoryComp f g).
+  <span class="kn">Proof</span>.
+    use (squash_to_prop (Quotcategory_surj f) (isapropiscontr _)). <span class="nb">intros</span> f'.
+    use (squash_to_prop (Quotcategory_surj g) (isapropiscontr _)). <span class="nb">intros</span> g'.
+    use make_iscontr.
+    - use make_QuotcategoryComp.
+      + <span class="bp">exact</span> (setquotpr
+                 (binopeqrel_subgr_eqrel (PAS A C)) ((hfiberpr1 _ _ f') · (hfiberpr1 _ _ g'))).
+      + <span class="bp">exact</span> (Quotcategory_comp_iscontr_eq
+                 f g (hfiberpr1 _ _ f') (hfiberpr2 _ _ f') (hfiberpr1 _ _ g') (hfiberpr2 _ _ g')).
+    - <span class="bp">exact</span> (QuotPrecatetgory_comp_iscontr_univ f g f' g').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Quotcategory_comp</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : ob PA} (<span class="nv">f</span> : Quotcategory_ob_mor⟦A, B⟧)
+             (<span class="nv">g</span> : Quotcategory_ob_mor⟦B, C⟧) : Quotcategory_ob_mor⟦A, C⟧.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (QuotcategoryCompMor (iscontrpr1 (Quotcategory_comp_iscontr f g))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_quot_mor</span> {<span class="nv">x</span> <span class="nv">y</span> : ob PA} (<span class="nv">f</span> : PA⟦x, y⟧) : Quotcategory_ob_mor⟦x, y⟧.
+  <span class="kn">Proof</span>.
+    use setquotpr. <span class="bp">exact</span> f.
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** Some equations on linearity, compositions, and binops *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">Quotcategory_comp_linear</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob PA} (<span class="nv">f</span> : PA⟦x, y⟧) (<span class="nv">g</span> : PA⟦y, z⟧) :
+    Quotcategory_comp (to_quot_mor f) (to_quot_mor g) = to_quot_mor (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> to_quot_mor. <span class="nb">unfold</span> Quotcategory_comp.
+    <span class="nb">apply</span> pathsinv0.
+    use (pr2 (pr1 (Quotcategory_comp_iscontr
+                           (setquotpr (binopeqrel_subgr_eqrel (PAS x y)) f)
+                           (setquotpr (binopeqrel_subgr_eqrel (PAS y z)) g)))).
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Pre- and postcomposition respect binop. *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">Quotcategory_premor</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : PA} (<span class="nv">f</span> : PA⟦x, y⟧) (<span class="nv">g</span> <span class="nv">h</span> : PA⟦y, z⟧) :
+    Quotcategory_comp (to_quot_mor f) ((to_quot_mor g * to_quot_mor h)%multmonoid) =
+    ((Quotcategory_comp (to_quot_mor f) (to_quot_mor g)) *
+     (Quotcategory_comp (to_quot_mor f) (to_quot_mor h)))%multmonoid.
+  <span class="kn">Proof</span>.
+    <span class="kn">Local</span> <span class="kn">Opaque</span> binopeqrel_subgr_eqrel isabgrquot setquotfun2 Quotcategory_comp.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">cbn</span>.
+    <span class="nb">eapply</span> pathscomp0.
+    - <span class="nb">rewrite</span> Quotcategory_comp_linear. <span class="nb">rewrite</span> Quotcategory_comp_linear.
+      use setquotfun2comm.
+    - <span class="nb">apply</span> pathsinv0.
+      <span class="nb">unfold</span> to_quot_mor.
+      <span class="nb">set</span> (tmp := setquotfun2comm (binopeqrel_subgr_eqrel (PAS y z))
+                                  (binopeqrel_subgr_eqrel (PAS y z))
+                                  (to_binop y z)
+                                  (iscompbinoptransrel
+                                     (binopeqrel_subgr_eqrel (PAS y z))
+                                     (eqreltrans (binopeqrel_subgr_eqrel (PAS y z)))
+                                     (pr2 (binopeqrel_subgr_eqrel (PAS y z))))).
+      <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+      <span class="nb">rewrite</span> &lt;- to_premor_linear'.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="kn">Local</span> <span class="kn">Transparent</span> Quotcategory_comp. <span class="nb">unfold</span> Quotcategory_comp.
+      <span class="nb">apply</span> (pr2 (pr1 (Quotcategory_comp_iscontr
+                         (setquotpr (binopeqrel_subgr_eqrel (PAS x y)) f)
+                         (setquotpr (binopeqrel_subgr_eqrel (PAS y z)) (to_binop y z g h))))).
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">Quotcategory_postmor</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : PA} (<span class="nv">f</span> : PA⟦y, z⟧) (<span class="nv">g</span> <span class="nv">h</span> : PA⟦x, y⟧) :
+    Quotcategory_comp (to_quot_mor g * to_quot_mor h)%multmonoid (to_quot_mor f) =
+    ((Quotcategory_comp (to_quot_mor g) (to_quot_mor f)) *
+     (Quotcategory_comp (to_quot_mor h) (to_quot_mor f)))%multmonoid.
+  <span class="kn">Proof</span>.
+    <span class="kn">Local</span> <span class="kn">Opaque</span> Quotcategory_comp.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">cbn</span>.
+    <span class="nb">eapply</span> pathscomp0.
+    - <span class="nb">rewrite</span> Quotcategory_comp_linear. <span class="nb">rewrite</span> Quotcategory_comp_linear.
+      use setquotfun2comm.
+    - <span class="nb">unfold</span> to_quot_mor. <span class="nb">rewrite</span> setquotfun2comm.
+      <span class="kn">Local</span> <span class="kn">Transparent</span> Quotcategory_comp.
+      <span class="nb">unfold</span> Quotcategory_comp.
+      <span class="nb">rewrite</span> &lt;- to_postmor_linear'.
+      <span class="nb">apply</span> (pr2 (pr1 (Quotcategory_comp_iscontr
+                         (setquotpr (binopeqrel_subgr_eqrel (PAS x y)) (to_binop x y g h))
+                         (setquotpr (binopeqrel_subgr_eqrel (PAS y z)) f)))).
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Composing with the unit element gives the unit element. *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">quot_comp_unel_left</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : PA} (<span class="nv">f</span> : PA⟦x, y⟧) :
+    Quotcategory_comp (setquotpr (binopeqrel_subgr_eqrel (PAS x y)) f)
+                         (setquotpr (binopeqrel_subgr_eqrel (PAS y z)) (@to_unel PA y z)) =
+    (setquotpr (binopeqrel_subgr_eqrel (PAS x z)) (@to_unel PA x z)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (to_premor_unel' _ _ f). <span class="nb">apply</span> pathsinv0.
+    <span class="nb">unfold</span> Quotcategory_comp.
+    <span class="nb">apply</span> (pr2 (pr1 (Quotcategory_comp_iscontr
+                       (setquotpr (binopeqrel_subgr_eqrel (PAS x y)) f)
+                       (setquotpr (binopeqrel_subgr_eqrel (PAS y z)) (to_unel y z))))).
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">quot_comp_unel_right</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : PA} (<span class="nv">f</span> : PA⟦y, z⟧) :
+    Quotcategory_comp (setquotpr (binopeqrel_subgr_eqrel (PAS x y)) (to_unel x y))
+                         (setquotpr (binopeqrel_subgr_eqrel (PAS y z)) f) =
+    (setquotpr (binopeqrel_subgr_eqrel (PAS x z)) (to_unel x z)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (to_postmor_unel' _ _ f). <span class="nb">apply</span> pathsinv0.
+    <span class="nb">unfold</span> Quotcategory_comp.
+    <span class="nb">apply</span> (pr2 (pr1 (Quotcategory_comp_iscontr
+                       (setquotpr (binopeqrel_subgr_eqrel (PAS x y)) (to_unel x y))
+                       (setquotpr (binopeqrel_subgr_eqrel (PAS y z)) f)))).
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** ** Construction of the Quotcategory *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Quotcategory_data</span> : precategory_data :=
+    make_precategory_data
+      Quotcategory_ob_mor
+      (<span class="k">λ</span> (<span class="nv">A</span> : ob PA), setquotpr (binopeqrel_subgr_eqrel (PAS A A)) (identity A))
+      (<span class="k">fun</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : ob PA) (<span class="nv">f</span> : Quotcategory_ob_mor⟦A, B⟧)
+         (<span class="nv">g</span> : Quotcategory_ob_mor⟦B, C⟧) =&gt; Quotcategory_comp f g).
+
+  <span class="sd">(** The following two lemmas are used to show associaticity of composition in</span>
+<span class="sd">      Quotcategory. *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">Quot_assoc1</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : Quotcategory_data} (<span class="nv">f</span> : Quotcategory_data ⟦a, b⟧)
+        (<span class="nv">g</span> : Quotcategory_data ⟦b, c⟧) (<span class="nv">h</span> : Quotcategory_data ⟦c, d⟧)
+        (<span class="nv">f1</span> : PA⟦a, b⟧) (<span class="nv">f2</span> : setquotpr (binopeqrel_subgr_eqrel (PAS a b)) f1 = f)
+        (<span class="nv">g1</span> : PA⟦b, c⟧) (<span class="nv">g2</span> : setquotpr (binopeqrel_subgr_eqrel (PAS b c)) g1 = g)
+        (<span class="nv">h1</span> : PA⟦c, d⟧) (<span class="nv">h2</span> : setquotpr (binopeqrel_subgr_eqrel (PAS c d)) h1 = h) :
+    Quotcategory_comp f (Quotcategory_comp g h) =
+    setquotpr (binopeqrel_subgr_eqrel (PAS a d)) (f1 · (g1 · h1)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">set</span> (ic2 := Quotcategory_comp_iscontr g h).
+    <span class="nb">set</span> (ic3 := Quotcategory_comp_iscontr f (pr1 (pr1 ic2))).
+    <span class="nb">set</span> (tmp := pr2 (pr1 ic3)). <span class="nb">cbn</span> beta <span class="k">in</span> tmp. <span class="nb">unfold</span> Quotcategory_comp.
+    <span class="nb">fold</span> ic2. <span class="nb">fold</span> ic3. use tmp.
+    - <span class="bp">exact</span> f2.
+    - use (pr2 (pr1 ic2)).
+      + <span class="bp">exact</span> g2.
+      + <span class="bp">exact</span> h2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">Quot_assoc2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : Quotcategory_data} (<span class="nv">f</span> : Quotcategory_data ⟦a, b⟧)
+        (<span class="nv">g</span> : Quotcategory_data ⟦b, c⟧) (<span class="nv">h</span> : Quotcategory_data ⟦c, d⟧)
+        (<span class="nv">f1</span> : PA⟦a, b⟧) (<span class="nv">f2</span> : setquotpr (binopeqrel_subgr_eqrel (PAS a b)) f1 = f)
+        (<span class="nv">g1</span> : PA⟦b, c⟧) (<span class="nv">g2</span> : setquotpr (binopeqrel_subgr_eqrel (PAS b c)) g1 = g)
+        (<span class="nv">h1</span> : PA⟦c, d⟧) (<span class="nv">h2</span> : setquotpr (binopeqrel_subgr_eqrel (PAS c d)) h1 = h) :
+    setquotpr (binopeqrel_subgr_eqrel (PAS a d)) ((f1 · g1) · h1) =
+    Quotcategory_comp (Quotcategory_comp f g) h.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (ic1 := Quotcategory_comp_iscontr f g).
+    <span class="nb">set</span> (ic4 := Quotcategory_comp_iscontr (pr1 (pr1 ic1)) h).
+    <span class="nb">set</span> (tmp := pr2 (pr1 ic4)). <span class="nb">cbn</span> beta <span class="k">in</span> tmp. <span class="nb">unfold</span> Quotcategory_comp.
+    <span class="nb">fold</span> ic1. <span class="nb">fold</span> ic4. use tmp.
+    - use (pr2 (pr1 ic1)).
+      + <span class="bp">exact</span> f2.
+      + <span class="bp">exact</span> g2.
+    - <span class="bp">exact</span> h2.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Quotcategory is a precategory *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_precategory_Quotcategory_data</span> : is_precategory Quotcategory_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">split</span>.
+      <span class="c">(* id left *)</span>
+      + <span class="nb">intros</span> a b f. <span class="nb">apply</span> pathsinv0. <span class="nb">cbn</span>. <span class="nb">unfold</span> Quotcategory_comp.
+        <span class="nb">set</span> (f'' := @issurjsetquotpr (to_abgr a b) (binopeqrel_subgr_eqrel (PAS a b)) f).
+        use (squash_to_prop f''). <span class="nb">apply</span> isasetsetquot. <span class="nb">intros</span> f'. <span class="nb">clear</span> f''.
+        <span class="nb">induction</span> f' <span class="k">as</span> [f1 f2]. <span class="nb">rewrite</span> &lt;- f2. <span class="nb">cbn</span> <span class="k">in</span> f1, a, b.
+        <span class="nb">eapply</span> pathscomp0.
+        * <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (! (id_left f1)).
+        * <span class="nb">apply</span> (pr2 (pr1 (Quotcategory_comp_iscontr
+                             (setquotpr (binopeqrel_subgr_eqrel (PAS a a)) (@identity PA a))
+                             (setquotpr (binopeqrel_subgr_eqrel (PAS a b)) f1)))).
+          -- <span class="nb">apply</span> idpath.
+          -- <span class="nb">apply</span> idpath.
+      <span class="c">(* id right *)</span>
+      + <span class="nb">intros</span> a b f. <span class="nb">apply</span> pathsinv0. <span class="nb">cbn</span>. <span class="nb">unfold</span> Quotcategory_comp.
+        <span class="nb">set</span> (f'' := @issurjsetquotpr (to_abgr a b) (binopeqrel_subgr_eqrel (PAS a b)) f).
+        use (squash_to_prop f''). <span class="nb">apply</span> isasetsetquot. <span class="nb">intros</span> f'. <span class="nb">clear</span> f''.
+        <span class="nb">induction</span> f' <span class="k">as</span> [f1 f2]. <span class="nb">rewrite</span> &lt;- f2. <span class="nb">cbn</span> <span class="k">in</span> f1, a, b.
+        <span class="nb">eapply</span> pathscomp0.
+        * <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (! (id_right f1)).
+        * <span class="nb">apply</span> (pr2 (pr1 (Quotcategory_comp_iscontr
+                             (setquotpr (binopeqrel_subgr_eqrel (PAS a b)) f1)
+                             (setquotpr (binopeqrel_subgr_eqrel (PAS b b)) (@identity PA b))))).
+          -- <span class="nb">apply</span> idpath.
+          -- <span class="nb">apply</span> idpath.
+    <span class="c">(* assoc *)</span>
+    - <span class="nb">split</span>.
+      + <span class="nb">intros</span> a b c d f g h. <span class="nb">cbn</span>.
+        <span class="nb">set</span> (f'' := @issurjsetquotpr (to_abgr a b) (binopeqrel_subgr_eqrel (PAS a b)) f).
+        use (squash_to_prop f''). <span class="nb">apply</span> isasetsetquot. <span class="nb">intros</span> f'. <span class="nb">clear</span> f''.
+        <span class="nb">set</span> (g'' := @issurjsetquotpr (to_abgr b c) (binopeqrel_subgr_eqrel (PAS b c)) g).
+        use (squash_to_prop g''). <span class="nb">apply</span> isasetsetquot. <span class="nb">intros</span> g'. <span class="nb">clear</span> g''.
+        <span class="nb">set</span> (h'' := @issurjsetquotpr (to_abgr c d) (binopeqrel_subgr_eqrel (PAS c d)) h).
+        use (squash_to_prop h''). <span class="nb">apply</span> isasetsetquot. <span class="nb">intros</span> h'. <span class="nb">clear</span> h''.
+        <span class="nb">induction</span> f' <span class="k">as</span> [f1 f2]. <span class="nb">induction</span> g' <span class="k">as</span> [g1 g2]. <span class="nb">induction</span> h' <span class="k">as</span> [h1 h2].
+        <span class="nb">cbn</span> <span class="k">in</span> f1, g1, h1.
+        <span class="nb">rewrite</span> (Quot_assoc1 f g h f1 f2 g1 g2 h1 h2).
+        <span class="nb">rewrite</span> &lt;- (Quot_assoc2 f g h f1 f2 g1 g2 h1 h2).
+        <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> a b c d f g h. <span class="nb">cbn</span>.
+        <span class="nb">set</span> (f'' := @issurjsetquotpr (to_abgr a b) (binopeqrel_subgr_eqrel (PAS a b)) f).
+        use (squash_to_prop f''). <span class="nb">apply</span> isasetsetquot. <span class="nb">intros</span> f'. <span class="nb">clear</span> f''.
+        <span class="nb">set</span> (g'' := @issurjsetquotpr (to_abgr b c) (binopeqrel_subgr_eqrel (PAS b c)) g).
+        use (squash_to_prop g''). <span class="nb">apply</span> isasetsetquot. <span class="nb">intros</span> g'. <span class="nb">clear</span> g''.
+        <span class="nb">set</span> (h'' := @issurjsetquotpr (to_abgr c d) (binopeqrel_subgr_eqrel (PAS c d)) h).
+        use (squash_to_prop h''). <span class="nb">apply</span> isasetsetquot. <span class="nb">intros</span> h'. <span class="nb">clear</span> h''.
+        <span class="nb">induction</span> f' <span class="k">as</span> [f1 f2]. <span class="nb">induction</span> g' <span class="k">as</span> [g1 g2]. <span class="nb">induction</span> h' <span class="k">as</span> [h1 h2].
+        <span class="nb">cbn</span> <span class="k">in</span> f1, g1, h1.
+        <span class="nb">rewrite</span> (Quot_assoc1 f g h f1 f2 g1 g2 h1 h2).
+        <span class="nb">rewrite</span> &lt;- (Quot_assoc2 f g h f1 f2 g1 g2 h1 h2).
+        <span class="nb">rewrite</span> assoc'. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Quotprecategory</span> : precategory :=
+    tpair _ _ is_precategory_Quotcategory_data.
+
+  <span class="kn">Lemma</span> <span class="nf">has_homsets_Quotcategory</span> : has_homsets Quotprecategory.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b. <span class="nb">apply</span> isasetsetquot.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Quotcategory</span> : category := make_category Quotprecategory has_homsets_Quotcategory.
+
+  <span class="sd">(** ** Quotient precategory of PreAdditive is PreAdditive *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Quotcategory_binops</span> : precategoryWithBinOps.
+  <span class="kn">Proof</span>.
+    use make_precategoryWithBinOps.
+    - <span class="bp">exact</span> Quotcategory.
+    - <span class="nb">intros</span> x y. <span class="bp">exact</span> (@op (subabgr_quot (PAS x y))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Unset</span> Kernel Term Sharing.
+  <span class="kn">Definition</span> <span class="nf">Quotcategory_abgrops</span> : categoryWithAbgrops.
+  <span class="kn">Proof</span>.
+    use make_categoryWithAbgrops.
+    - <span class="bp">exact</span> Quotcategory_binops.
+    - <span class="nb">intros</span> x y. <span class="bp">exact</span> (pr2 (subabgr_quot (PAS x y))).
+  <span class="kn">Defined</span>.
+  <span class="kt">Set</span> Kernel Term Sharing.
+
+  <span class="kn">Local Lemma</span> <span class="nf">quot_unel</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} :
+    setquotpr (binopeqrel_subgr_eqrel (PAS x y)) (@to_unel PA x y) =
+    unel (@to_abgr Quotcategory_abgrops x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local</span> <span class="kn">Opaque</span> to_abgr.
+  <span class="kn">Local Lemma</span> <span class="nf">PreAdditive_pre_linear</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob Quotcategory_abgrops)
+    (<span class="nv">f</span> : Quotcategory_abgrops⟦x, y⟧) (<span class="nv">g</span> <span class="nv">h</span> : Quotcategory_abgrops ⟦y, z⟧):
+    f · to_binop y z g h = to_binop x z (f · g) (f · h).
+  <span class="kn">Proof</span>.
+    use (squash_to_prop (Quotcategory_surj f)). <span class="nb">apply</span> to_has_homsets. <span class="nb">intros</span> f'.
+    use (squash_to_prop (Quotcategory_surj g)). <span class="nb">apply</span> to_has_homsets. <span class="nb">intros</span> g'.
+    use (squash_to_prop (Quotcategory_surj h)). <span class="nb">apply</span> to_has_homsets. <span class="nb">intros</span> h'.
+    <span class="nb">rewrite</span> &lt;- (hfiberpr2 _ _ f'). <span class="nb">rewrite</span> &lt;- (hfiberpr2 _ _ g'). <span class="nb">rewrite</span> &lt;- (hfiberpr2 _ _ h').
+    <span class="bp">exact</span> (Quotcategory_premor (hfiberpr1 _ _ f') (hfiberpr1 _ _ g') (hfiberpr1 _ _ h')).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">PreAdditive_pre_unel</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob Quotcategory_abgrops)
+        (<span class="nv">f</span> : Quotcategory_abgrops⟦x, y⟧) : f · (@to_unel Quotcategory_abgrops y z) =
+                                              @to_unel Quotcategory_abgrops x z.
+  <span class="kn">Proof</span>.
+    use (squash_to_prop (Quotcategory_surj f)). <span class="nb">apply</span> (@to_has_homsets Quotcategory_abgrops).
+    <span class="nb">intros</span> f'. <span class="nb">rewrite</span> &lt;- (hfiberpr2 _ _ f').
+    <span class="bp">exact</span> (@quot_comp_unel_left x y z (hfiberpr1 _ _ f')).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">PreAdditive_post_linear</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob Quotcategory_abgrops)
+    (<span class="nv">f</span> : Quotcategory_abgrops⟦y, z⟧) (<span class="nv">g</span> <span class="nv">h</span> : Quotcategory_abgrops ⟦x, y⟧):
+    to_binop x y g h · f = to_binop x z (g · f) (h · f).
+  <span class="kn">Proof</span>.
+    use (squash_to_prop (Quotcategory_surj f)). <span class="nb">apply</span> to_has_homsets. <span class="nb">intros</span> f'.
+    use (squash_to_prop (Quotcategory_surj g)). <span class="nb">apply</span> to_has_homsets. <span class="nb">intros</span> g'.
+    use (squash_to_prop (Quotcategory_surj h)). <span class="nb">apply</span> to_has_homsets. <span class="nb">intros</span> h'.
+    <span class="nb">rewrite</span> &lt;- (hfiberpr2 _ _ f'). <span class="nb">rewrite</span> &lt;- (hfiberpr2 _ _ g'). <span class="nb">rewrite</span> &lt;- (hfiberpr2 _ _ h').
+    <span class="bp">exact</span> (Quotcategory_postmor (hfiberpr1 _ _ f') (hfiberpr1 _ _ g') (hfiberpr1 _ _ h')).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">PreAdditive_post_unel</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob Quotcategory_abgrops)
+        (<span class="nv">f</span> : Quotcategory_abgrops⟦y, z⟧) : (@to_unel Quotcategory_abgrops x y) · f =
+                                              @to_unel Quotcategory_abgrops x z.
+  <span class="kn">Proof</span>.
+    use (squash_to_prop (Quotcategory_surj f)). <span class="nb">apply</span> (@to_has_homsets Quotcategory_abgrops).
+    <span class="nb">intros</span> f'. <span class="nb">rewrite</span> &lt;- (hfiberpr2 _ _ f').
+    <span class="bp">exact</span> (@quot_comp_unel_right x y z (hfiberpr1 _ _ f')).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Quotcategory_isPreAdditive</span> : isPreAdditive Quotcategory_abgrops.
+  <span class="kn">Proof</span>.
+    use make_isPreAdditive'.
+    - <span class="nb">intros</span> x y z f g h. <span class="bp">exact</span> (PreAdditive_pre_linear x y z f g h).
+    - <span class="nb">intros</span> x y z f. <span class="bp">exact</span> (PreAdditive_pre_unel x y z f).
+    - <span class="nb">intros</span> x y z f g h. <span class="bp">exact</span> (PreAdditive_post_linear x y z f g h).
+    - <span class="nb">intros</span> x y z f. <span class="bp">exact</span> (PreAdditive_post_unel x y z f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Quotcategory_PreAdditive</span> : PreAdditive.
+  <span class="kn">Proof</span>.
+    use make_PreAdditive.
+    - <span class="bp">exact</span> Quotcategory_abgrops.
+    - <span class="bp">exact</span> Quotcategory_isPreAdditive.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">setquotpr_linear</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> <span class="nv">g</span> : PA⟦x, y⟧) :
+    to_quot_mor (@to_binop PA _ _ f g) =
+    @to_binop Quotcategory_PreAdditive _ _ (to_quot_mor f) (to_quot_mor g).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (abgrquotpr_ismonoidfun (binopeqrel_subgr_eqrel (PAS x y))) f g).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comp_eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : PA} (<span class="nv">f</span> : Quotcategory_PreAdditive⟦x, y⟧)
+        (<span class="nv">g</span> : Quotcategory_PreAdditive⟦y, z⟧) : Quotcategory_comp f g = f · g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** ** The canonical functor to Quotcategory *)</span>
+  <span class="sd">(** This functor is identity on objects and sends morphisms to the equivalence class they</span>
+<span class="sd">      represent. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">QuotcategoryFunctor_data</span> : functor_data PA Quotcategory_PreAdditive.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> X. <span class="bp">exact</span> X.
+    - <span class="nb">intros</span> X Y f. <span class="bp">exact</span> (setquotpr (binopeqrel_subgr_eqrel (PAS X Y)) f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">QuotcategoryFunctor_isfunctor</span> : is_functor QuotcategoryFunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> X. <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x Y Z f g. <span class="bp">exact</span> (! (Quotcategory_comp_linear f g)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">QuotcategoryFunctor</span> : functor PA Quotcategory_PreAdditive.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> QuotcategoryFunctor_data.
+    - <span class="bp">exact</span> QuotcategoryFunctor_isfunctor.
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** If PA has a zero object, then so does Quotcategory of PA *)</span>
+
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero PA.
+
+  <span class="kn">Lemma</span> <span class="nf">Quotcategory_isZero</span> : isZero (C:=Quotcategory) Z.
+  <span class="kn">Proof</span>.
+    use make_isZero.
+    - <span class="nb">intros</span> a.
+      use tpair.
+      + <span class="bp">exact</span> (to_quot_mor (@ZeroArrowFrom PA Z a)).
+      + <span class="nb">cbn</span> beta. <span class="nb">intros</span> t.
+        <span class="nb">set</span> (t'1 := @issurjsetquotpr (to_abgr Z a) (binopeqrel_subgr_eqrel (PAS Z a)) t).
+        use (squash_to_prop t'1). <span class="nb">apply</span> has_homsets_Quotcategory. <span class="nb">intros</span> t1. <span class="nb">clear</span> t'1.
+        <span class="nb">induction</span> t1 <span class="k">as</span> [t1 t2]. <span class="nb">rewrite</span> &lt;- t2. <span class="nb">unfold</span> to_quot_mor. <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> ArrowsFromZero.
+    - <span class="nb">intros</span> a.
+      use tpair.
+      + <span class="bp">exact</span> (to_quot_mor (@ZeroArrowTo PA Z a)).
+      + <span class="nb">cbn</span> beta. <span class="nb">intros</span> t.
+        <span class="nb">set</span> (t'1 := @issurjsetquotpr (to_abgr a Z) (binopeqrel_subgr_eqrel (PAS a Z)) t).
+        use (squash_to_prop t'1). <span class="nb">apply</span> has_homsets_Quotcategory. <span class="nb">intros</span> t1. <span class="nb">clear</span> t'1.
+        <span class="nb">induction</span> t1 <span class="k">as</span> [t1 t2]. <span class="nb">rewrite</span> &lt;- t2. <span class="nb">unfold</span> to_quot_mor. <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> ArrowsToZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Quotcategory_Zero</span> : @Zero Quotcategory.
+  <span class="kn">Proof</span>.
+    use make_Zero.
+    - <span class="bp">exact</span> Z.
+    - <span class="bp">exact</span> Quotcategory_isZero.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">preadditive_quotient</span>.
+
+<span class="kn">Definition</span> <span class="nf">oppositePreAdditive</span> (<span class="nv">M</span> : PreAdditive) : PreAdditive.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">oppositeCategoryWithAbgrops</span> <span class="nv">M</span>).
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">f</span>, @to_postmor_monoid (pr1 M) (pr2 M) (rm_opp_ob c) (rm_opp_ob b) (rm_opp_ob a) (rm_opp_mor f)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">f</span>, @to_premor_monoid (pr1 M) (pr2 M) (rm_opp_ob c) (rm_opp_ob b) (rm_opp_ob a) (rm_opp_mor f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">induced_PreAdditive</span> (<span class="nv">M</span> : PreAdditive) {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob M) : PreAdditive.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">induced_categoryWithAbgrops</span> <span class="nv">M</span> <span class="nv">j</span>).
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>, @to_premor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>, @to_postmor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Lemma</span> <span class="nf">induced_opposite_PreAdditive</span> {<span class="nv">M</span>:PreAdditive} {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob M) :
+  oppositePreAdditive (induced_PreAdditive M j) =
+  induced_PreAdditive (oppositePreAdditive M) (<span class="k">λ</span> <span class="nv">a</span>, opp_ob (j a)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">compute</span>.                    <span class="c">(* the following line bogs down without this one *)</span>
+  <span class="nb">apply</span> idpath.                <span class="c">(* but the computation may make this proof fragile *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">RewritingAids</span>.
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> abgrcat.
+  <span class="kn">Lemma</span> <span class="nf">zeroLeft</span> {<span class="nv">M</span>:PreAdditive} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">f</span> : b --&gt; c) : ((<span class="mi">0</span> : a --&gt; b) · f = <span class="mi">0</span>)%abgrcat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> to_postmor_unel'.
+  <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">zeroRight</span> {<span class="nv">M</span>:PreAdditive} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; b) : f · (<span class="mi">0</span> : b --&gt; c) = <span class="mi">0</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> to_premor_unel'.
+  <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">leftCompIsHomo</span> {<span class="nv">M</span>:PreAdditive} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">c</span>:M) : ismonoidfun (to_premor c f)
+    := @to_premor_monoid _ M _ _ _ _.
+  <span class="kn">Definition</span> <span class="nf">rightCompIsHomo</span> {<span class="nv">M</span>:PreAdditive} {<span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">a</span>:M) (<span class="nv">f</span> : b --&gt; c) : ismonoidfun (to_postmor a f)
+    := @to_postmor_monoid _ M _ _ _ _.
+  <span class="kn">Definition</span> <span class="nf">leftCompHomo</span> {<span class="nv">M</span>:PreAdditive} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">c</span>:M) : monoidfun (b--&gt;c) (a--&gt;c)
+    := make_monoidfun (to_premor_monoid M _ _ _ f).
+  <span class="kn">Definition</span> <span class="nf">rightCompHomo</span> {<span class="nv">M</span>:PreAdditive} {<span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">a</span>:M) (<span class="nv">f</span> : b --&gt; c) : monoidfun (a--&gt;b) (a--&gt;c)
+    := make_monoidfun (to_postmor_monoid M _ _ _ f).
+  <span class="kn">Lemma</span> <span class="nf">rightDistribute</span> {<span class="nv">M</span>:PreAdditive} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> <span class="nv">h</span> : b --&gt; c) : f · (g + h) = f · g + f · h.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> leftCompIsHomo.
+  <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">leftDistribute</span> {<span class="nv">M</span>:PreAdditive} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b) (<span class="nv">h</span> : b --&gt; c) : (f + g) · h = f · h + g · h.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> rightCompIsHomo.
+  <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">rightMinus</span> {<span class="nv">M</span>:PreAdditive} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c) : f · (- g) = - (f·g).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (binopfun_preserves_inv (leftCompHomo f c) (binopfunisbinopfun _) g).
+  <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">leftMinus</span> {<span class="nv">M</span>:PreAdditive} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c) : (- f) · g = - (f·g).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (binopfun_preserves_inv (rightCompHomo a g) (binopfunisbinopfun _) f).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">RewritingAids</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/PreAdditive.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Quotient of PreAdditive
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

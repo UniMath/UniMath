@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DecidablePropositions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Decidable Propositions</span>
+
+<span class="sd">  This file contains a grab-bag of material on decidable propositions and classical logic, including:</span>
+
+<span class="sd">  - a few miscellaneous lemmas on decidable propositions and classical logic</span>
+<span class="sd">  - definitions of LEM and other classicality principles, and relationships between them</span>
+<span class="sd">  - a couple of alternative frameworks for working with decidable relations and propositions, besides [decprop], [decrel] already provided upstream in [Foundations]</span>
+<span class="sd"> **************************************************************************************************)</span>
+
+<span class="kn">Require Export</span> UniMath.MoreFoundations.Notations.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Export</span> UniMath.MoreFoundations.Propositions.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Nat.
+
+<span class="sd">(** * Miscellaneous lemmas</span>
+
+<span class="sd">Results on decidable propositions, using the framework provided upstream in [Foundations], needed later in this file *)</span>
+
+<span class="kn">Section</span> <span class="nf">Misc</span>.
+
+<span class="kn">Lemma</span> <span class="nf">retract_dec</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">g</span> : Y -&gt; X) (<span class="nv">h</span> : f ∘ g ~ idfun Y) : isdeceq X -&gt; isdeceq Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i y y'. <span class="nb">induction</span> (i (g y) (g y')) <span class="k">as</span> [eq|ne].
+  - <span class="nb">apply</span> ii1. <span class="bp">exact</span> (! h y @ maponpaths f eq @ h y').
+  - <span class="nb">apply</span> ii2. <span class="nb">intro</span> p. <span class="nb">apply</span> ne. <span class="bp">exact</span> (maponpaths g p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">logeq_dec</span> {<span class="nv">X</span> <span class="nv">Y</span>} : (X &lt;-&gt; Y) -&gt; decidable X -&gt; decidable Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> iff decX. <span class="nb">induction</span> iff <span class="k">as</span> [XtoY YtoX].
+  <span class="nb">induction</span> decX <span class="k">as</span> [x|nx].
+  - <span class="bp">now</span> <span class="nb">apply</span> ii1, XtoY.
+  - <span class="bp">now</span> <span class="nb">apply</span> ii2, (negf YtoX).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">decidable_prop</span> (<span class="nv">X</span>:hProp) := make_hProp (decidable X) (isapropdec X (pr2 X)).
+
+<span class="kn">Definition</span> <span class="nf">dnegelim</span> {<span class="nv">P</span> <span class="nv">Q</span> : UU} : complementary P Q -&gt; ¬¬ P -&gt; P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c nnp. <span class="nb">induction</span> c <span class="k">as</span> [n c].
+  <span class="nb">induction</span> c <span class="k">as</span> [p|q].
+  - <span class="bp">assumption</span>.
+  - contradicts nnp (<span class="k">λ</span> <span class="nv">p</span>, n p q).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Misc</span>.
+
+<span class="sd">(** * The Law of Excluded Middle, and equivalent principles *)</span>
+
+<span class="kn">Section</span> <span class="nf">LEM</span>.
+<span class="c">(* Law of Excluded Middle</span>
+
+<span class="c">   We don't state LEM as an axiom, because we want to force it</span>
+<span class="c">   to be a hypothesis of any corollaries of any theorems that</span>
+<span class="c">   appeal to it. *)</span>
+<span class="kn">Definition</span> <span class="nf">LEM</span> : hProp := <span class="k">∀</span> <span class="nv">P</span> : hProp, decidable_prop P.
+
+<span class="kn">Lemma</span> <span class="nf">LEM_for_sets</span> (<span class="nv">X</span> : UU) : LEM -&gt; isaset X -&gt; isdeceq X.
+<span class="kn">Proof</span>. <span class="nb">intros</span> lem iss x y. <span class="bp">exact</span> (lem (make_hProp (x = y) (iss x y))). <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_LEM</span> : isaprop LEM.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> LEM. <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> P. <span class="nb">apply</span> isapropdec. <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dneg_LEM</span> (<span class="nv">P</span> : hProp) : LEM -&gt; ¬¬ P -&gt; P.
+<span class="kn">Proof</span>. <span class="nb">intros</span> lem. <span class="bp">exact</span> (dnegelim ((<span class="k">λ</span> <span class="nv">p</span> <span class="nv">np</span>, np p),,lem P)). <span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">reversal_LEM</span> (<span class="nv">P</span> <span class="nv">Q</span> : hProp) : LEM -&gt; (¬ P -&gt; Q) -&gt; (¬ Q -&gt; P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> lem f n.
+  <span class="nb">assert</span> (g := negf f); <span class="nb">clear</span> f.
+  <span class="nb">assert</span> (h := g n); <span class="nb">clear</span> g n.
+  <span class="nb">apply</span> (dneg_LEM _ lem).
+  <span class="bp">exact</span> h.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LEM</span>.
+
+<span class="kn">Section</span> <span class="nf">Classicality_Principles</span>.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+
+<span class="kn">Lemma</span> <span class="nf">decidable_proof_by_contradiction</span> {<span class="nv">P</span>:hProp} : decidable P -&gt; ¬ ¬ P -&gt; P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> dec nnp. <span class="nb">induction</span> dec <span class="k">as</span> [p|np].
+  - <span class="bp">exact</span> p.
+  - <span class="nb">apply</span> fromempty. <span class="bp">exact</span> (nnp np).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">proof_by_contradiction</span> {<span class="nv">P</span>:hProp} : LEM -&gt; ¬ ¬ P -&gt; P.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> lem.
+  <span class="bp">exact</span> (decidable_proof_by_contradiction (lem P)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dneg_elim_to_LEM</span> : (∏ P:hProp, ¬ ¬ P -&gt; P) -&gt; LEM.
+<span class="c">(* a converse for Lemma dneg_LEM *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> dne. <span class="nb">intros</span> P. <span class="nb">simple refine</span> (dne (_,,_) _).
+  <span class="nb">simpl</span>. <span class="nb">intros</span> n.
+  <span class="nb">assert</span> (q : ¬ (P ∨ ¬ P)).
+  { <span class="bp">now</span> <span class="nb">apply</span> weqnegtonegishinh. }
+  <span class="nb">assert</span> (r := fromnegcoprod_prop q).
+  <span class="bp">exact</span> (pr2 r (pr1 r)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">negforall_to_existsneg</span> {<span class="nv">X</span>:UU} (<span class="nv">P</span>:X-&gt;hProp) : LEM -&gt; (¬ <span class="k">∀</span> <span class="nv">x</span>, P x) -&gt; (<span class="k">∃</span> <span class="nv">x</span>, ¬ (P x)).
+<span class="c">(* was omitted from the section on "Negation and quantification" in Foundations/Propositions.v *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> lem nf. <span class="nb">apply</span> (proof_by_contradiction lem); <span class="nb">intro</span> c. use nf; <span class="nb">clear</span> nf. <span class="nb">intro</span> x.
+  <span class="nb">assert</span> (q := neghexisttoforallneg _ c x); <span class="nb">clear</span> c; <span class="nb">simpl</span> <span class="k">in</span> q.
+  <span class="bp">exact</span> (proof_by_contradiction lem q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">negimpl_to_conj</span> (<span class="nv">P</span> <span class="nv">Q</span>:hProp) : LEM -&gt; ( ¬ (P ⇒ Q) -&gt; P ∧ ¬ Q ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> lem ni. <span class="nb">assert</span> (r := negforall_to_existsneg _ lem ni); <span class="nb">clear</span> lem ni.
+  <span class="nb">apply</span> (squash_to_hProp r); <span class="nb">clear</span> r; <span class="nb">intros</span> [p nq]. <span class="bp">exact</span> (p,,nq).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Classicality_Principles</span>.
+
+
+<span class="sd">(** * Complementary pairs</span>
+
+<span class="sd">An alternative framework for working with decidable propositions as represented by complementary pairs of propositions. *)</span>
+<span class="kn">Section</span> <span class="nf">ComplementaryPairs</span>.
+
+<span class="kn">Definition</span> <span class="nf">ComplementaryPair</span> : UU := ∑ (P Q : UU), complementary P Q.
+<span class="kn">Definition</span> <span class="nf">Part1</span> (<span class="nv">C</span> : ComplementaryPair) : UU := pr1 C.
+<span class="kn">Definition</span> <span class="nf">Part2</span> (<span class="nv">C</span> : ComplementaryPair) : UU := pr1 (pr2 C).
+<span class="kn">Definition</span> <span class="nf">pair_contradiction</span> (<span class="nv">C</span> : ComplementaryPair) : Part1 C -&gt; Part2 C -&gt; ∅
+  := pr1 (pr2 (pr2 C)).
+<span class="kn">Definition</span> <span class="nf">chooser</span> (<span class="nv">C</span> : ComplementaryPair) : Part1 C ⨿ Part2 C
+  := pr2 (pr2 (pr2 C)).
+
+<span class="kn">Definition</span> <span class="nf">isTrue</span> (<span class="nv">C</span> : ComplementaryPair)
+  := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
+<span class="kn">Definition</span> <span class="nf">isFalse</span> (<span class="nv">C</span> : ComplementaryPair)
+  := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
+
+<span class="kn">Definition</span>  <span class="nf">trueWitness</span> {<span class="nv">C</span> : ComplementaryPair} : isTrue  C -&gt; Part1 C := pr1.
+<span class="kn">Definition</span> <span class="nf">falseWitness</span> {<span class="nv">C</span> : ComplementaryPair} : isFalse C -&gt; Part2 C := pr1.
+
+<span class="kn">Coercion</span>  <span class="nf">trueWitness</span> : isTrue  &gt;-&gt; Part1.
+<span class="kn">Coercion</span> <span class="nf">falseWitness</span> : isFalse &gt;-&gt; Part2.
+
+<span class="kn">Lemma</span> <span class="nf">complementaryDecisions</span> (<span class="nv">C</span> : ComplementaryPair) :
+  iscontr (isTrue C ⨿ isFalse C).
+<span class="kn">Proof</span>.
+  <span class="c">(* the idea of this proof is to show that [isTrue C ⨿ isFalse C] is the same</span>
+<span class="c">     as the decomposition provided by [weqcoprodsplit] *)</span>
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> iscontrifweqtounit. <span class="nb">assert</span> (w := weqcoprodsplit (<span class="k">λ</span> <span class="nv">_</span>:unit, chooser C)).
+  <span class="nb">apply</span> invweq. <span class="nb">apply</span> (weqcomp w). <span class="nb">apply</span> weqcoprodf; <span class="nb">apply</span> weqhfiberunit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_isTrue</span> (<span class="nv">C</span> : ComplementaryPair) : isaprop (isTrue C).
+<span class="c">(* No axioms are used. *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (isapropcomponent1 (isTrue C) (isFalse C)).
+  <span class="nb">apply</span> isapropifcontr.
+  <span class="nb">apply</span> complementaryDecisions.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_isFalse</span> (<span class="nv">C</span> : ComplementaryPair) : isaprop (isFalse C).
+<span class="c">(* No axioms are used. *)</span>
+<span class="c">(* By contrast, to prove [¬P] is a proposition requires the use of functional</span>
+<span class="c">   extensionality. *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (isapropcomponent2 (isTrue C) (isFalse C)).
+  <span class="nb">apply</span> isapropifcontr.
+  <span class="nb">apply</span> complementaryDecisions.
+<span class="kn">Defined</span>.
+
+<span class="kn">Ltac</span> <span class="nf">unpack_pair</span> C P Q con c := <span class="nb">induction</span> C <span class="k">as</span> [P Qc]; <span class="nb">induction</span> Qc <span class="k">as</span> [Q c];
+                                <span class="nb">induction</span> c <span class="k">as</span> [con c]; <span class="nb">simpl</span> <span class="k">in</span> c, P, Q.
+
+<span class="kn">Lemma</span> <span class="nf">pair_truth</span> (<span class="nv">C</span> : ComplementaryPair) : Part1 C -&gt; isTrue C.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p.
+  unpack_pair C P Q con c;
+    <span class="nb">unfold</span> isTrue, hfiber, Part1, Part2, chooser <span class="k">in</span> *; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">induction</span> c <span class="k">as</span> [p'|q].
+  - <span class="bp">now</span> <span class="k">exists</span> <span class="nv">p'</span>.
+  - <span class="nb">apply</span> fromempty. contradicts (con p) q.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pair_falsehood</span> (<span class="nv">C</span> : ComplementaryPair) : Part2 C -&gt; isFalse C.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> q.
+  unpack_pair C P Q con c;
+    <span class="nb">unfold</span> isFalse, hfiber, Part1, Part2, chooser <span class="k">in</span> *; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">induction</span> c <span class="k">as</span> [p|q'].
+  - <span class="nb">apply</span> fromempty. contradicts (con p) q.
+  - <span class="bp">now</span> <span class="k">exists</span> <span class="nv">q'</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">to_ComplementaryPair</span> {<span class="nv">P</span> : UU} (<span class="nv">c</span> : P ⨿ neg P) : ComplementaryPair
+  <span class="c">(* By using [isTrue _] instead, we're effectively replacing P by a</span>
+<span class="c">     propositional subtype of it: *)</span>
+  <span class="c">(* the part connected to the element of [P ⨿ ¬P]. *)</span>
+  <span class="c">(* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P]</span>
+<span class="c">     by a propositional subtype of it.  *)</span>
+  <span class="c">(* Both are proved to be propositions without [funextemptyAxiom] *)</span>
+  := (P,,neg P,,(<span class="k">λ</span> <span class="nv">p</span> <span class="nv">n</span>, n p),,c).
+
+<span class="c">(* Relate isolated points to complementary pairs *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isolation</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x) (<span class="nv">y</span> : X) : UU
+  := isFalse (to_ComplementaryPair (isi y)).
+
+<span class="kn">Definition</span> <span class="nf">isaprop_isolation</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x) (<span class="nv">y</span> : X) :
+  isaprop (isolation x isi y) := isaprop_isFalse _.
+
+<span class="kn">Definition</span> <span class="nf">isolation_to_inequality</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x)
+           (<span class="nv">y</span> : X) :
+  isolation x isi y -&gt; x != y := falseWitness.
+
+<span class="kn">Definition</span> <span class="nf">inequality_to_isolation</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : X) (<span class="nv">i</span> : isisolated X x)
+           (<span class="nv">y</span> : X) :
+  x != y -&gt; isolation x i y := pair_falsehood (to_ComplementaryPair (i y)).
+
+<span class="c">(* operations on complementary pairs *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pairNegation</span> (<span class="nv">C</span> : ComplementaryPair) : ComplementaryPair
+  := Part2 C,, Part1 C ,, (<span class="k">λ</span> <span class="nv">q</span> <span class="nv">p</span>, pair_contradiction C p q),,
+           coprodcomm _ _ (chooser C).
+
+<span class="kn">Definition</span> <span class="nf">pairConjunction</span> (<span class="nv">C</span> <span class="nv">C'</span> : ComplementaryPair) : ComplementaryPair.
+<span class="kn">Proof</span>.
+  unpack_pair C P Q con c; unpack_pair C' P' Q' con' c'; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">unfold</span> ComplementaryPair. <span class="k">exists</span> (<span class="nv">P</span> × P'); <span class="k">exists</span> (<span class="nv">Q</span> ⨿ Q'). <span class="nb">split</span>.
+  - <span class="nb">simpl</span>. <span class="nb">intros</span> a b. <span class="nb">induction</span> a <span class="k">as</span> [p p']. <span class="nb">induction</span> b <span class="k">as</span> [b|b].
+    + <span class="nb">induction</span> c' <span class="k">as</span> [_|q'].
+      * contradicts (con p) b.
+      * contradicts (con p) b.
+    + contradicts (con' p') b.
+  - <span class="nb">simpl</span>. <span class="nb">induction</span> c <span class="k">as</span> [p|q].
+    + <span class="nb">induction</span> c' <span class="k">as</span> [p'|q'].
+      * <span class="nb">apply</span> ii1. <span class="bp">exact</span> (p,,p').
+      * <span class="nb">apply</span> ii2, ii2. <span class="bp">exact</span> q'.
+    + <span class="nb">induction</span> c' <span class="k">as</span> [p'|q'].
+      * <span class="nb">apply</span> ii2, ii1. <span class="bp">exact</span> q.
+      * <span class="nb">apply</span> ii2, ii2. <span class="bp">exact</span> q'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pairDisjunction</span> (<span class="nv">C</span> <span class="nv">C'</span> : ComplementaryPair) : ComplementaryPair.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="bp">exact</span> (pairNegation (pairConjunction (pairNegation C) (pairNegation C'))).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ComplementaryPairs</span>.
+
+<span class="sd">(** * Decidable Propositions</span>
+
+<span class="sd">Another framework for working with decidable propositions, just as propositions together with a proof of decidability.</span>
+
+<span class="sd">Possibly should be replaced by the better approach based on complementary pairs *)</span>
+<span class="kn">Section</span> <span class="nf">DecidablePropositions</span>.
+
+<span class="kn">Definition</span> <span class="nf">DecidableProposition</span> : UU := ∑ X : UU, isdecprop X.
+
+<span class="kn">Definition</span> <span class="nf">isdecprop_to_DecidableProposition</span> {<span class="nv">X</span> : UU} (<span class="nv">i</span> : isdecprop X) :
+  DecidableProposition := X,,i.
+
+<span class="kn">Definition</span> <span class="nf">decidable_to_isdecprop</span> {<span class="nv">X</span> : hProp} : decidable X -&gt; isdecprop X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> dec. <span class="nb">apply</span> isdecpropif.
+  - <span class="nb">apply</span> propproperty.
+  - <span class="bp">exact</span> dec.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">decidable_to_isdecprop_2</span> {<span class="nv">X</span> : UU} :
+  isaprop X -&gt; X ⨿ ¬ X -&gt; isdecprop X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i dec. <span class="nb">apply</span> isdecpropif.
+  - <span class="bp">exact</span> i.
+  - <span class="bp">exact</span> dec.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">decidable_to_DecidableProposition</span> {<span class="nv">X</span> : hProp} :
+  decidable X -&gt; DecidableProposition.
+<span class="kn">Proof</span>. <span class="nb">intros</span> dec. <span class="k">exists</span> <span class="nv">X</span>. <span class="bp">now</span> <span class="nb">apply</span> decidable_to_isdecprop. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">DecidableProposition_to_isdecprop</span> (<span class="nv">X</span> : DecidableProposition) :
+  isdecprop (pr1 X).
+<span class="kn">Proof</span>. <span class="nb">apply</span> pr2. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">DecidableProposition_to_hProp</span> : DecidableProposition -&gt; hProp.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  <span class="bp">exact</span> (pr1 X,, isdecproptoisaprop (pr1 X) (pr2 X)).
+<span class="kn">Defined</span>.
+<span class="kn">Coercion</span> <span class="nf">DecidableProposition_to_hProp</span> : DecidableProposition &gt;-&gt; hProp.
+<span class="kn">Definition</span> <span class="nf">decidabilityProperty</span> (<span class="nv">X</span> : DecidableProposition) :
+  isdecprop X := pr2 X.
+
+<span class="kn">Definition</span> <span class="nf">DecidableSubtype</span> (<span class="nv">X</span> : UU) : UU := X -&gt; DecidableProposition.
+<span class="kn">Definition</span> <span class="nf">DecidableRelation</span> (<span class="nv">X</span> : UU) : UU := X -&gt; X -&gt; DecidableProposition.
+
+<span class="kn">Definition</span> <span class="nf">decrel_to_DecidableRelation</span> {<span class="nv">X</span> : UU} :
+  decrel X -&gt; DecidableRelation X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> R x y. <span class="nb">induction</span> R <span class="k">as</span> [R isd]. <span class="k">exists</span> (<span class="nv">R</span> <span class="nv">x</span> <span class="nv">y</span>).
+  <span class="nb">apply</span> isdecpropif. { <span class="nb">apply</span> propproperty. } <span class="nb">apply</span> isd.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">decidableAnd</span> (<span class="nv">P</span> <span class="nv">Q</span> : DecidableProposition) : DecidableProposition.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">P</span> × Q). <span class="nb">apply</span> isdecpropdirprod; <span class="nb">apply</span> decidabilityProperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">decidableOr</span> (<span class="nv">P</span> <span class="nv">Q</span> : DecidableProposition) : DecidableProposition.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">P</span> ∨ Q). <span class="nb">apply</span> isdecprophdisj; <span class="nb">apply</span> decidabilityProperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">neg_isdecprop</span> {<span class="nv">X</span> : UU} : isdecprop X -&gt; isdecprop (¬ X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i.
+  <span class="nb">set</span> (j := isdecproptoisaprop X i).
+  <span class="nb">apply</span> isdecpropif.
+  - <span class="nb">apply</span> isapropneg.
+  - <span class="nb">unfold</span> isdecprop <span class="k">in</span> i.
+    <span class="nb">set</span> (k := pr1 i).
+    <span class="nb">induction</span> k <span class="k">as</span> [k|k].
+    + <span class="nb">apply</span> ii2. <span class="bp">now</span> <span class="nb">apply</span> todneg.
+    + <span class="bp">now</span> <span class="nb">apply</span> ii1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">decidableNot</span> (<span class="nv">P</span> : DecidableProposition) : DecidableProposition.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (¬ P). <span class="nb">apply</span> neg_isdecprop; <span class="nb">apply</span> decidabilityProperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">DecidablePropositions</span>.
+
+<span class="kn">Declare Scope</span> decidable_logic.
+<span class="kn">Notation</span> <span class="s2">"X ∨ Y"</span> := (decidableOr X Y) (<span class="kn">at level</span> <span class="mi">85</span>, <span class="kn">right associativity</span>) :
+                      decidable_logic.
+<span class="kn">Notation</span> <span class="s2">"A ∧ B"</span> := (decidableAnd A B) (<span class="kn">at level</span> <span class="mi">80</span>, <span class="kn">right associativity</span>) :
+                      decidable_logic.
+<span class="kn">Notation</span> <span class="s2">"'¬' X"</span> := (decidableNot X) (<span class="kn">at level</span> <span class="mi">35</span>, <span class="kn">right associativity</span>) :
+                      decidable_logic.
+<span class="kn">Delimit Scope</span> decidable_logic <span class="k">with</span> declog.
+
+<span class="kn">Ltac</span> <span class="nf">choose</span> P yes no := <span class="nb">induction</span> (pr1 (decidabilityProperty P)) <span class="k">as</span> [yes|no].
+
+<span class="kn">Section</span> <span class="nf">DecidablePropositions</span>.
+
+<span class="kn">Definition</span> <span class="nf">choice</span> {<span class="nv">W</span> : UU} : DecidableProposition -&gt; W -&gt; W -&gt; W.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P yes no.
+  choose P p q.
+  - <span class="bp">exact</span> yes.
+  - <span class="bp">exact</span> no.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dependent_choice</span> {<span class="nv">W</span> : UU} (<span class="nv">P</span> : DecidableProposition) :
+  (P -&gt; W) -&gt; (¬ P -&gt; W) -&gt; W.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> yes no.
+  choose P p q.
+  - <span class="bp">exact</span> (yes p).
+  - <span class="bp">exact</span> (no q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">choice_compute_yes</span> {<span class="nv">W</span> : UU} (<span class="nv">P</span> : DecidableProposition) (<span class="nv">p</span> : P)
+           (<span class="nv">yes</span> <span class="nv">no</span> : W) :
+  choice P yes no = yes.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> choice.
+  choose P a b.
+  - <span class="nb">simpl</span>. <span class="bp">reflexivity</span>.
+  - <span class="nb">simpl</span>. contradicts p b.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">choice_compute_no</span> {<span class="nv">W</span> : UU} (<span class="nv">P</span> : DecidableProposition) (<span class="nv">p</span> : ¬ P)
+           (<span class="nv">yes</span> <span class="nv">no</span> : W) :
+  choice P yes no = no.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> choice.
+  choose P a b.
+  - <span class="nb">simpl</span>. contradicts p a.
+  - <span class="nb">simpl</span>. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">decidableSubtypeCarrier</span> {<span class="nv">X</span> : UU} : DecidableSubtype X -&gt; UU.
+<span class="kn">Proof</span>. <span class="nb">intros</span> S. <span class="bp">exact</span> (∑ x, S x). <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">decidableSubtypeCarrier'</span> {<span class="nv">X</span> : UU} : DecidableSubtype X -&gt; UU.
+<span class="kn">Proof</span>. <span class="nb">intros</span> P.
+       <span class="c">(* for use with isfinitedecsubset *)</span>
+       <span class="bp">exact</span> (hfiber (<span class="k">λ</span> <span class="nv">x</span>, choice (P x) true false) true).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">decidableSubtypeCarrier_weq</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : DecidableSubtype X) :
+  decidableSubtypeCarrier' P ≃ decidableSubtypeCarrier P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> weqfibtototal.
+  <span class="nb">intros</span> x.
+  <span class="nb">unfold</span> choice.
+  <span class="nb">simpl</span>.
+  <span class="nb">change</span> (pr1 (decidabilityProperty (P x)))
+  <span class="k">with</span> (pr1 (decidabilityProperty (P x))).
+  choose (P x) p q.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> weqiff.
+    + <span class="nb">apply</span> logeq_both_true.
+      * <span class="bp">reflexivity</span>.
+      * <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> isasetbool.
+    + <span class="nb">apply</span> (propproperty (DecidableProposition_to_hProp _)).
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> weqiff.
+    + <span class="nb">apply</span> logeq_both_false.
+      * <span class="bp">exact</span> nopathsfalsetotrue.
+      * <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> isasetbool.
+    + <span class="nb">apply</span> (propproperty (DecidableProposition_to_hProp _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">DecidableSubtype_to_hsubtype</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : DecidableSubtype X) :
+  hsubtype X
+  := <span class="k">λ</span> <span class="nv">x</span>, DecidableProposition_to_hProp (P x).
+<span class="kn">Coercion</span> <span class="nf">DecidableSubtype_to_hsubtype</span> : DecidableSubtype &gt;-&gt; hsubtype.
+
+<span class="kn">Definition</span> <span class="nf">DecidableRelation_to_hrel</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : DecidableRelation X) : hrel X
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, DecidableProposition_to_hProp(P x y).
+<span class="kn">Coercion</span> <span class="nf">DecidableRelation_to_hrel</span> : DecidableRelation &gt;-&gt; hrel.
+
+<span class="kn">Definition</span> <span class="nf">natlth_DecidableProposition</span> : DecidableRelation nat :=
+  decrel_to_DecidableRelation natlthdec.
+
+<span class="kn">Definition</span> <span class="nf">natleh_DecidableProposition</span> : DecidableRelation nat :=
+  decrel_to_DecidableRelation natlehdec.
+
+<span class="kn">Definition</span> <span class="nf">natgth_DecidableProposition</span> : DecidableRelation nat :=
+  decrel_to_DecidableRelation natgthdec.
+
+<span class="kn">Definition</span> <span class="nf">natgeh_DecidableProposition</span> : DecidableRelation nat :=
+  decrel_to_DecidableRelation natgehdec.
+
+<span class="kn">Definition</span> <span class="nf">nateq_DecidableProposition</span> : DecidableRelation nat :=
+  decrel_to_DecidableRelation natdeceq.
+
+<span class="kn">Definition</span> <span class="nf">natneq_DecidableProposition</span> : DecidableRelation nat :=
+  decrel_to_DecidableRelation natdecneq.
+
+<span class="kn">End</span> <span class="nf">DecidablePropositions</span>.
+
+<span class="kn">Section</span> <span class="nf">DecidableEquality</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdeceq_subtype</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : hsubtype X) :
+  isdeceq X → isdeceq P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> deceqX predP. <span class="nb">apply</span> isdeceq_total2.
+  + <span class="nb">apply</span> deceqX.
+  + <span class="nb">intros</span> x. <span class="nb">apply</span> isdeceqifisaprop, propproperty.
+<span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">singleton_complement</span> {<span class="nv">X</span> : UU} (<span class="nv">y</span> : X) : hsubtype X := <span class="k">λ</span> <span class="nv">x</span>, make_hProp (x != y) (isapropneg (x = y)).
+
+  <span class="kn">Lemma</span> <span class="nf">weq_singleton_complement_unit</span> {<span class="nv">X</span> : UU} (<span class="nv">y</span> : X) : isdeceq X → carrier (singleton_complement y) ⨿ unit ≃ X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> deceqx.
+    use weq_iso.
+    - <span class="nb">intros</span> [[x neq] | tt]; [<span class="nb">apply</span> x | <span class="nb">apply</span> y].
+    - <span class="nb">intros</span> x. <span class="nb">induction</span> (deceqx x y); [<span class="nb">right</span>; <span class="nb">apply</span> tt | <span class="nb">left</span>].
+      <span class="nb">apply</span> tpair <span class="k">with</span> (pr1 := x), b.
+    - <span class="nb">intros</span> [[x neq] | tt].
+      + <span class="nb">induction</span> (deceqx x y).
+        * <span class="nb">apply</span> fromempty. <span class="nb">induction</span> neq. <span class="bp">assumption</span>.
+        * <span class="nb">cbn</span>. <span class="nb">apply</span> maponpaths, subtypePath_prop, idpath.
+      + <span class="nb">induction</span> (deceqx y y).
+        * <span class="nb">induction</span> tt. <span class="nb">apply</span> idpath.
+        * <span class="nb">apply</span> fromempty, b, idpath.
+    - <span class="nb">intros</span> x; <span class="nb">cbn</span> beta.
+      <span class="nb">induction</span> (deceqx x y); <span class="nb">cbn</span> beta;
+      <span class="kp">try</span> <span class="nb">induction</span> a; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">DecidableEquality</span>.
+
+<span class="kn">Declare Scope</span> decidable_nat.
+<span class="kn">Notation</span> <span class="s2">" x &lt; y "</span> := (natlth_DecidableProposition x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) :
+                        decidable_nat.
+<span class="kn">Notation</span> <span class="s2">" x &lt;= y "</span> := (natleh_DecidableProposition x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) :
+                         decidable_nat.
+<span class="kn">Notation</span> <span class="s2">" x ≤ y "</span> := (natleh_DecidableProposition x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) :
+                        decidable_nat.
+<span class="kn">Notation</span> <span class="s2">" x ≥ y "</span> := (natgeh_DecidableProposition x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) :
+                        decidable_nat.
+<span class="kn">Notation</span> <span class="s2">" x ≥ y "</span> := (natgeh_DecidableProposition x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) :
+                        decidable_nat.
+<span class="kn">Notation</span> <span class="s2">" x &gt; y "</span> := (natgth_DecidableProposition x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) :
+                        decidable_nat.
+<span class="kn">Notation</span> <span class="s2">" x =? y "</span> := (nateq_DecidableProposition x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) :
+                         decidable_nat.
+<span class="kn">Notation</span> <span class="s2">" x ≠ y "</span> := (natneq_DecidableProposition x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) :
+                        decidable_nat.
+
+<span class="kn">Delimit Scope</span> decidable_nat <span class="k">with</span> dnat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> decidable_nat.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/DecidablePropositions.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Notations.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   - a couple of alternative frameworks for working with decidable relations and propositions, besides [decprop], [decrel] already provided upstream in [Foundations]
+  &gt;  **************************************************************************************************)
+  &gt; &gt;&gt;&gt;Require Export UniMath.MoreFoundations.Notations.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+  &gt; Require Export UniMath.MoreFoundations.Propositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

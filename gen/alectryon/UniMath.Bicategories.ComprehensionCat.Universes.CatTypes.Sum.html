@@ -1,0 +1,977 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Sum.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Codes for sum types in a universe of a category</span>
+
+<span class="sd"> A universe is said to be closed under sum types if the binary sum of any two types in that</span>
+<span class="sd"> universe also is in that universe. In this file, we develop the basic theory of universes</span>
+<span class="sd"> that are closed under sum types. Specifically, we define when a universe supports codes</span>
+<span class="sd"> for sum types and we define suitable stability condition. In addition, we define when a</span>
+<span class="sd"> functor preserves such codes, and we show that the identity preserves codes for sum types</span>
+<span class="sd"> and that the composition of functors that preseves codes for sum types, also preserve such</span>
+<span class="sd"> codes. As a result, one can for suitable bicategories of categories with finite limits and</span>
+<span class="sd"> a universe that has codes for binary sum types. Finally, we prove the lemma that is</span>
+<span class="sd"> necessary to show that this bicategory is univalent.</span>
+
+<span class="sd"> In the literature, various axioms are given that express that the universe is closed under</span>
+<span class="sd"> sum types. Our approach follows "A brief introduction to algebraic set theory" by Awodey.</span>
+<span class="sd"> Awodey's work is based on systems of small maps, which, intuitively represent the</span>
+<span class="sd"> inhabitants of the universe. Awodey requires the following closure axiom: if both</span>
+<span class="sd"> `f : A --&gt; Γ` and `g : B --&gt; Γ` are small, then so is `[f , g] : A + B --&gt; Γ`. A different</span>
+<span class="sd"> axiom is given in "Algebraic Set Theory" by Joyal and Moerdijk. While they also work with</span>
+<span class="sd"> systems of small maps, they require a slightly different axiom: if `f : A --&gt; Γ` and</span>
+<span class="sd"> `g : B --&gt; Δ` are small, then so is `f + g : A + B --&gt; Γ + Δ`. The reason why we follow</span>
+<span class="sd"> Awodey's development, is because it corresponds to what is usually required in Martin-Löf</span>
+<span class="sd"> type theory.</span>
+
+<span class="sd"> References:</span>
+<span class="sd"> - "Algebraic Set Theory" by Joyal and Moerdijk</span>
+<span class="sd"> - "A brief introduction to algebraic set theory" by Awodey</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Codes for sum types</span>
+<span class="sd"> 2. Stability</span>
+<span class="sd"> 3. Preservation</span>
+<span class="sd"> 4. Preservation by identity and composition</span>
+<span class="sd"> 5. Univalence condition</span>
+
+<span class="sd">                                                                                           *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">SumsInCatWithUniv</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+          {<span class="nv">BC</span> : BinCoproducts C}.
+
+  <span class="kn">Let</span> <span class="nf">el</span> : cat_stable_el_map_coherent C := univ_cat_cat_stable_el_map C.
+
+  <span class="sd">(** * 1. Codes for sum types *)</span>
+  <span class="kn">Definition</span> <span class="nf">cat_univ_codes_sums</span>
+    : UU
+    := ∏ (Γ : C)
+         (a b : Γ --&gt; univ_cat_universe C),
+       ∑ (s : Γ --&gt; univ_cat_universe C)
+         (f : z_iso
+                (BC (cat_el_map_el el a) (cat_el_map_el el b))
+                (cat_el_map_el el s)),
+       BinCoproductArrow _ (cat_el_map_mor el a) (cat_el_map_mor el b)
+       =
+       f · cat_el_map_mor el s.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_cat_univ_codes_sums</span>
+    : isaset cat_univ_codes_sums.
+  <span class="kn">Proof</span>.
+    use impred_isaset ; <span class="nb">intros</span> Γ.
+    use impred_isaset ; <span class="nb">intros</span> a.
+    use impred_isaset ; <span class="nb">intros</span> b.
+    use isaset_total2.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> s.
+      use isaset_total2.
+      + <span class="nb">apply</span> isaset_z_iso.
+      + <span class="nb">intro</span> f.
+        <span class="nb">apply</span> isasetaprop.
+        <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_cat_univ_codes_sums</span>
+             (<span class="nv">s</span> : ∏ (Γ : C)
+                    (a b : Γ --&gt; univ_cat_universe C),
+                  Γ --&gt; univ_cat_universe C)
+             (<span class="nv">f</span> : ∏ (Γ : C)
+                    (a b : Γ --&gt; univ_cat_universe C),
+                  z_iso
+                    (BC (cat_el_map_el el a) (cat_el_map_el el b))
+                    (cat_el_map_el el (s Γ a b)))
+             (<span class="nv">p</span> : ∏ (Γ : C)
+                    (a b : Γ --&gt; univ_cat_universe C),
+                  BinCoproductArrow _ (cat_el_map_mor el a) (cat_el_map_mor el b)
+                  =
+                  f Γ a b · cat_el_map_mor el (s Γ a b))
+    : cat_univ_codes_sums
+    := <span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">a</span> <span class="nv">b</span>, s Γ a b ,, f Γ a b ,, p Γ a b.
+
+  <span class="kn">Definition</span> <span class="nf">cat_univ_codes_sums_sum</span>
+             (<span class="nv">sum</span> : cat_univ_codes_sums)
+             {<span class="nv">Γ</span> : C}
+             (<span class="nv">a</span> <span class="nv">b</span> : Γ --&gt; univ_cat_universe C)
+    : Γ --&gt; univ_cat_universe C
+    := pr1 (sum Γ a b).
+
+  <span class="kn">Definition</span> <span class="nf">cat_univ_codes_sums_z_iso</span>
+             (<span class="nv">sum</span> : cat_univ_codes_sums)
+             {<span class="nv">Γ</span> : C}
+             (<span class="nv">a</span> <span class="nv">b</span> : Γ --&gt; univ_cat_universe C)
+    : z_iso
+        (BC (cat_el_map_el el a) (cat_el_map_el el b))
+        (cat_el_map_el el (cat_univ_codes_sums_sum sum a b))
+    := pr12 (sum Γ a b).
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_sums_sum_comm</span>
+              (<span class="nv">sum</span> : cat_univ_codes_sums)
+              {<span class="nv">Γ</span> : C}
+              (<span class="nv">a</span> <span class="nv">b</span> : Γ --&gt; univ_cat_universe C)
+    : BinCoproductArrow _ (cat_el_map_mor el a) (cat_el_map_mor el b)
+      =
+      cat_univ_codes_sums_z_iso sum a b
+      · cat_el_map_mor el _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 (sum Γ a b)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_sums_sum_in1</span>
+              (<span class="nv">sum</span> : cat_univ_codes_sums)
+              {<span class="nv">Γ</span> : C}
+              (<span class="nv">a</span> <span class="nv">b</span> : Γ --&gt; univ_cat_universe C)
+    : cat_el_map_mor el a
+      =
+      BinCoproductIn1 _
+      · cat_univ_codes_sums_z_iso sum a b
+      · cat_el_map_mor el _.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> cat_univ_codes_sums_sum_comm.
+    }
+    <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_sums_sum_in2</span>
+              (<span class="nv">sum</span> : cat_univ_codes_sums)
+              {<span class="nv">Γ</span> : C}
+              (<span class="nv">a</span> <span class="nv">b</span> : Γ --&gt; univ_cat_universe C)
+    : cat_el_map_mor el b
+      =
+      BinCoproductIn2 _
+      · cat_univ_codes_sums_z_iso sum a b
+      · cat_el_map_mor el _.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> cat_univ_codes_sums_sum_comm.
+    }
+    <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_sums_eq</span>
+              {<span class="nv">sum₁</span> <span class="nv">sum₂</span> : cat_univ_codes_sums}
+              (<span class="nv">p</span> : ∏ (Γ : C)
+                     (a b : Γ --&gt; univ_cat_universe C),
+                   cat_univ_codes_sums_sum sum₁ a b
+                   =
+                   cat_univ_codes_sums_sum sum₂ a b)
+              (<span class="nv">q</span> : ∏ (Γ : C)
+                     (a b : Γ --&gt; univ_cat_universe C),
+                   cat_univ_codes_sums_z_iso sum₁ a b · cat_el_map_el_eq el (p Γ a b)
+                   =
+                   cat_univ_codes_sums_z_iso sum₂ a b)
+    : sum₁ = sum₂.
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> Γ.
+    use funextsec ; <span class="nb">intro</span> a.
+    use funextsec ; <span class="nb">intro</span> b.
+    use total2_paths_f.
+    - <span class="bp">exact</span> (p Γ a b).
+    - use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">rewrite</span> pr1_transportf.
+      <span class="nb">unfold</span> z_iso.
+      use z_iso_eq.
+      etrans.
+      {
+        <span class="nb">apply</span> (pr1_transportf (P := <span class="k">λ</span> <span class="nv">x</span> (<span class="nv">f</span> : _ --&gt; cat_el_map_el el x), is_z_isomorphism _)).
+      }
+      <span class="nb">rewrite</span> transportf_cat_el_map_el'.
+      <span class="bp">exact</span> (q Γ a b).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_sums_sum_eq</span>
+              (<span class="nv">sum</span> : cat_univ_codes_sums)
+              {<span class="nv">Γ</span> : C}
+              {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">b'</span> : Γ --&gt; univ_cat_universe C}
+              (<span class="nv">p</span> : a = a')
+              (<span class="nv">q</span> : b = b')
+    : cat_univ_codes_sums_sum sum a b
+      =
+      cat_univ_codes_sums_sum sum a' b'.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_sums_z_iso_eq</span>
+              (<span class="nv">sum</span> : cat_univ_codes_sums)
+              {<span class="nv">Γ</span> : C}
+              {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">b'</span> : Γ --&gt; univ_cat_universe C}
+              (<span class="nv">p</span> : a = a')
+              (<span class="nv">q</span> : b = b')
+    : (cat_univ_codes_sums_z_iso sum a b : _ --&gt; _)
+      =
+      BinCoproductOfArrows _ _ _ (cat_el_map_el_eq el p) (cat_el_map_el_eq el q)
+      · cat_univ_codes_sums_z_iso sum a' b'
+      · cat_el_map_el_eq el (!(cat_univ_codes_sums_sum_eq sum p q)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> BinCoproduct_of_identities.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (cat_el_map_el_eq_id (univ_cat_cat_stable_el_map C)).
+    }
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. Stability *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_stable_cat_univ_codes_sums</span>
+             (<span class="nv">sum</span> : cat_univ_codes_sums)
+    : UU
+    := ∏ (Γ Δ : C)
+         (s : Γ --&gt; Δ)
+         (a b : Δ --&gt; univ_cat_universe C),
+       ∑ (p : s · cat_univ_codes_sums_sum sum a b
+              =
+              cat_univ_codes_sums_sum sum (s · a) (s · b)),
+       BinCoproductOfArrows _ _ _ (cat_el_map_pb_mor el s a) (cat_el_map_pb_mor el s b)
+       · cat_univ_codes_sums_z_iso sum a b
+       =
+       cat_univ_codes_sums_z_iso sum (s · a) (s · b)
+       · cat_el_map_el_eq el (!p)
+       · cat_el_map_pb_mor el s (cat_univ_codes_sums_sum sum a b).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_stable_cat_univ_codes_sums</span>
+              (<span class="nv">sum</span> : cat_univ_codes_sums)
+    : isaprop (is_stable_cat_univ_codes_sums sum).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    use isaproptotal2.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cat_univ_stable_codes_sums</span>
+    : UU
+    := ∑ (sum : cat_univ_codes_sums),
+       is_stable_cat_univ_codes_sums sum.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_cat_univ_stable_codes_sums</span>
+    : isaset cat_univ_stable_codes_sums.
+  <span class="kn">Proof</span>.
+    use isaset_total2.
+    - <span class="bp">exact</span> isaset_cat_univ_codes_sums.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isaprop_is_stable_cat_univ_codes_sums.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_cat_univ_stable_codes_sums</span>
+             (<span class="nv">sum</span> : cat_univ_codes_sums)
+             (<span class="nv">H</span> : is_stable_cat_univ_codes_sums sum)
+    : cat_univ_stable_codes_sums
+    := sum ,, H.
+
+  <span class="kn">Coercion</span> <span class="nf">cat_univ_stable_codes_sums_to_codes</span>
+           (sum : cat_univ_stable_codes_sums)
+    : cat_univ_codes_sums
+    := pr1 sum.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_sums_sum_stable</span>
+              (<span class="nv">sum</span> : cat_univ_stable_codes_sums)
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">a</span> <span class="nv">b</span> : Δ --&gt; univ_cat_universe C)
+    : s · cat_univ_codes_sums_sum sum a b
+      =
+      cat_univ_codes_sums_sum sum (s · a) (s · b).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr2 sum Γ Δ s a b)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_sums_z_iso_stable</span>
+              (<span class="nv">sum</span> : cat_univ_stable_codes_sums)
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">a</span> <span class="nv">b</span> : Δ --&gt; univ_cat_universe C)
+    : BinCoproductOfArrows
+        _ _ _
+        (cat_el_map_pb_mor el s a)
+        (cat_el_map_pb_mor el s b)
+      · cat_univ_codes_sums_z_iso sum a b
+      =
+      cat_univ_codes_sums_z_iso sum (s · a) (s · b)
+      · cat_el_map_el_eq el (!(cat_univ_codes_sums_sum_stable sum s a b))
+      · cat_el_map_pb_mor el s (cat_univ_codes_sums_sum sum a b).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (pr2 sum Γ Δ s a b)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_sums_z_iso_stable_in1</span>
+              (<span class="nv">sum</span> : cat_univ_stable_codes_sums)
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">a</span> <span class="nv">b</span> : Δ --&gt; univ_cat_universe C)
+    : cat_el_map_pb_mor el s a
+      · BinCoproductIn1 _
+      · cat_univ_codes_sums_z_iso sum a b
+      =
+      BinCoproductIn1 _
+      · cat_univ_codes_sums_z_iso sum (s · a) (s · b)
+      · cat_el_map_el_eq el (!(cat_univ_codes_sums_sum_stable sum s a b))
+      · cat_el_map_pb_mor el s (cat_univ_codes_sums_sum sum a b).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="bp">exact</span> (!(cat_univ_codes_sums_z_iso_stable sum s a b)).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> BinCoproductOfArrowsIn1.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_sums_z_iso_stable_in2</span>
+              (<span class="nv">sum</span> : cat_univ_stable_codes_sums)
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">a</span> <span class="nv">b</span> : Δ --&gt; univ_cat_universe C)
+    : cat_el_map_pb_mor el s b
+      · BinCoproductIn2 _
+      · cat_univ_codes_sums_z_iso sum a b
+      =
+      BinCoproductIn2 _
+      · cat_univ_codes_sums_z_iso sum (s · a) (s · b)
+      · cat_el_map_el_eq el (!(cat_univ_codes_sums_sum_stable sum s a b))
+      · cat_el_map_pb_mor el s (cat_univ_codes_sums_sum sum a b).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="bp">exact</span> (!(cat_univ_codes_sums_z_iso_stable sum s a b)).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> BinCoproductOfArrowsIn2.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_stable_codes_sums_eq</span>
+              {<span class="nv">sum₁</span> <span class="nv">sum₂</span> : cat_univ_stable_codes_sums}
+              (<span class="nv">p</span> : ∏ (Γ : C)
+                     (a b : Γ --&gt; univ_cat_universe C),
+                   cat_univ_codes_sums_sum sum₁ a b
+                   =
+                   cat_univ_codes_sums_sum sum₂ a b)
+              (<span class="nv">q</span> : ∏ (Γ : C)
+                     (a b : Γ --&gt; univ_cat_universe C),
+                   cat_univ_codes_sums_z_iso sum₁ a b · cat_el_map_el_eq el (p Γ a b)
+                   =
+                   cat_univ_codes_sums_z_iso sum₂ a b)
+    : sum₁ = sum₂.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_stable_cat_univ_codes_sums.
+    }
+    use cat_univ_codes_sums_eq.
+    - <span class="bp">exact</span> p.
+    - <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">SumsInCatWithUniv</span>.
+
+<span class="kn">Arguments</span> cat_univ_codes_sums {C} BC.
+<span class="kn">Arguments</span> cat_univ_stable_codes_sums {C} BC.
+
+<span class="kn">Section</span> <span class="nf">PreservationSumCodes</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+          {<span class="nv">BC₁</span> : BinCoproducts C₁}
+          {<span class="nv">BC₂</span> : BinCoproducts C₂}
+          (<span class="nv">sum₁</span> : cat_univ_stable_codes_sums BC₁)
+          (<span class="nv">sum₂</span> : cat_univ_stable_codes_sums BC₂)
+          {<span class="nv">F</span> : functor_finlim_universe C₁ C₂}
+          (<span class="nv">HF</span> : preserves_bincoproduct F).
+
+  <span class="kn">Let</span> <span class="nf">el₁</span> : cat_stable_el_map_coherent C₁ := univ_cat_cat_stable_el_map C₁.
+  <span class="kn">Let</span> <span class="nf">el₂</span> : cat_stable_el_map_coherent C₂ := univ_cat_cat_stable_el_map C₂.
+
+  <span class="kn">Let</span> <span class="nf">Fel</span> : functor_preserves_el
+              (univ_cat_cat_stable_el_map C₁)
+              (univ_cat_cat_stable_el_map C₂)
+              F
+    := functor_finlim_universe_preserves_el F.
+
+  <span class="sd">(** * 3. Preservation *)</span>
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_stable_codes_sums_sum</span>
+    : UU
+    := ∏ (Γ : C₁)
+         (a b : Γ --&gt; univ_cat_universe C₁),
+       #F(cat_univ_codes_sums_sum sum₁ a b) · functor_on_universe F
+       =
+       cat_univ_codes_sums_sum
+         sum₂
+         (#F a · functor_on_universe F)
+         (#F b · functor_on_universe F).
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_univ_coprod</span>
+             {<span class="nv">Γ</span> : C₁}
+             (<span class="nv">a</span> <span class="nv">b</span> : Γ --&gt; univ_cat_universe C₁)
+    : F (BC₁ (cat_el_map_el el₁ a) (cat_el_map_el el₁ b))
+      --&gt;
+      BC₂ (cat_el_map_el el₂ (# F a · functor_on_universe F))
+          (cat_el_map_el el₂ (# F b · functor_on_universe F)).
+  <span class="kn">Proof</span>.
+    use (BinCoproductArrow (preserves_bincoproduct_to_bincoproduct F HF _)).
+    - <span class="nb">refine</span> (_ · BinCoproductIn1 _).
+      <span class="nb">apply</span> (functor_el_map_iso Fel).
+    - <span class="nb">refine</span> (_ · BinCoproductIn2 _).
+      <span class="nb">apply</span> (functor_el_map_iso Fel).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_stable_codes_sums_z_iso</span>
+             (<span class="nv">p</span> : functor_preserves_stable_codes_sums_sum)
+    : UU
+    := ∏ (Γ : C₁)
+         (a b : Γ --&gt; univ_cat_universe C₁),
+       #F(cat_univ_codes_sums_z_iso sum₁ a b)
+       · functor_el_map_iso Fel _
+       =
+       functor_preserves_univ_coprod a b
+       · cat_univ_codes_sums_z_iso sum₂ _ _
+       · cat_el_map_el_eq el₂ (!(p Γ a b)).
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_stable_codes_sums</span>
+    : UU
+    := ∑ (p : functor_preserves_stable_codes_sums_sum),
+       functor_preserves_stable_codes_sums_z_iso p.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_functor_preserves_stable_codes_sums_sum</span>
+    : isaprop functor_preserves_stable_codes_sums.
+  <span class="kn">Proof</span>.
+    use isaproptotal2.
+    - <span class="nb">intro</span>.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span>.
+      <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_functor_preserves_stable_codes_sums</span>
+             (<span class="nv">p</span> : functor_preserves_stable_codes_sums_sum)
+             (<span class="nv">q</span> : functor_preserves_stable_codes_sums_z_iso p)
+    : functor_preserves_stable_codes_sums
+    := p ,, q.
+
+  <span class="kn">Proposition</span> <span class="nf">functor_preserves_stable_codes_sums_on_code</span>
+              (<span class="nv">p</span> : functor_preserves_stable_codes_sums)
+              {<span class="nv">Γ</span> : C₁}
+              (<span class="nv">a</span> <span class="nv">b</span> : Γ --&gt; univ_cat_universe C₁)
+    : #F(cat_univ_codes_sums_sum sum₁ a b) · functor_on_universe F
+      =
+      cat_univ_codes_sums_sum
+        sum₂
+        (#F a · functor_on_universe F)
+        (#F b · functor_on_universe F).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 p Γ a b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">functor_preserves_stable_codes_sums_on_z_iso</span>
+              (<span class="nv">p</span> : functor_preserves_stable_codes_sums)
+              {<span class="nv">Γ</span> : C₁}
+              (<span class="nv">a</span> <span class="nv">b</span> : Γ --&gt; univ_cat_universe C₁)
+    : #F(cat_univ_codes_sums_z_iso sum₁ a b)
+      · functor_el_map_iso Fel _
+      =
+      functor_preserves_univ_coprod a b
+      · cat_univ_codes_sums_z_iso sum₂ _ _
+      · cat_el_map_el_eq el₂ (!(functor_preserves_stable_codes_sums_on_code p a b)).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 p Γ a b).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PreservationSumCodes</span>.
+
+<span class="kn">Arguments</span> functor_preserves_stable_codes_sums
+  {C₁ C₂ BC₁ BC₂} sum₁ sum₂ F HF.
+<span class="kn">Arguments</span> functor_preserves_stable_codes_sums_sum
+  {C₁ C₂ BC₁ BC₂} sum₁ sum₂ F.
+<span class="kn">Arguments</span> functor_preserves_stable_codes_sums_z_iso
+  {C₁ C₂ BC₁ BC₂} {sum₁ sum₂} F HF p.
+<span class="kn">Arguments</span> functor_preserves_stable_codes_sums_on_code
+  {C₁ C₂ BC₁ BC₂ sum₁ sum₂ F HF} p {Γ} a b.
+<span class="kn">Arguments</span> functor_preserves_stable_codes_sums_on_z_iso
+  {C₁ C₂ BC₁ BC₂ sum₁ sum₂ F HF} p {Γ} a b.
+
+<span class="sd">(** * 4. Preservation by identity and composition *)</span>
+<span class="kn">Proposition</span> <span class="nf">identity_preserves_stable_codes_sums_sum</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            (<span class="nv">BC</span> : BinCoproducts C)
+            (<span class="nv">sum</span> : cat_univ_stable_codes_sums BC)
+  : functor_preserves_stable_codes_sums_sum sum sum (id₁ C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Γ a b ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_right.
+  use cat_univ_codes_sums_sum_eq.
+  - <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">identity_preserves_stable_codes_sums_z_iso</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            (<span class="nv">BC</span> : BinCoproducts C)
+            (<span class="nv">sum</span> : cat_univ_stable_codes_sums BC)
+  : functor_preserves_stable_codes_sums_z_iso
+      (identity C)
+      (identity_preserves_bincoproduct C)
+      (identity_preserves_stable_codes_sums_sum BC sum).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Γ a b ; <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> (cat_univ_codes_sums_z_iso_eq sum (!(id_right _)) (!(id_right _))).
+  }
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C)).
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> cat_el_map_el_eq_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">identity_preserves_stable_codes_sums</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            (<span class="nv">BC</span> : BinCoproducts C)
+            (<span class="nv">sum</span> : cat_univ_stable_codes_sums BC)
+  : functor_preserves_stable_codes_sums
+      sum
+      sum
+      (identity _)
+      (identity_preserves_bincoproduct _).
+<span class="kn">Proof</span>.
+  use make_functor_preserves_stable_codes_sums.
+  - <span class="bp">exact</span> (identity_preserves_stable_codes_sums_sum BC sum).
+  - <span class="bp">exact</span> (identity_preserves_stable_codes_sums_z_iso BC sum).
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">CompPreservation</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : univ_cat_with_finlim_universe}
+          {<span class="nv">BC₁</span> : BinCoproducts C₁}
+          {<span class="nv">BC₂</span> : BinCoproducts C₂}
+          {<span class="nv">BC₃</span> : BinCoproducts C₃}
+          {<span class="nv">sum₁</span> : cat_univ_stable_codes_sums BC₁}
+          {<span class="nv">sum₂</span> : cat_univ_stable_codes_sums BC₂}
+          {<span class="nv">sum₃</span> : cat_univ_stable_codes_sums BC₃}
+          {<span class="nv">F</span> : functor_finlim_universe C₁ C₂}
+          {<span class="nv">HF</span> : preserves_bincoproduct F}
+          (<span class="nv">Fc</span> : functor_preserves_stable_codes_sums sum₁ sum₂ F HF)
+          {<span class="nv">G</span> : functor_finlim_universe C₂ C₃}
+          {<span class="nv">HG</span> : preserves_bincoproduct G}
+          (<span class="nv">Gc</span> : functor_preserves_stable_codes_sums sum₂ sum₃ G HG).
+
+  <span class="kn">Proposition</span> <span class="nf">comp_preserves_stable_codes_sums_sum</span>
+    : functor_preserves_stable_codes_sums_sum sum₁ sum₃ (F · G).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Γ a b ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (functor_preserves_stable_codes_sums_on_code Fc).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (functor_preserves_stable_codes_sums_on_code Gc).
+    }
+    use cat_univ_codes_sums_sum_eq ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> !functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_preserves_stable_codes_sums_z_iso</span>
+    : functor_preserves_stable_codes_sums_z_iso
+        (F · G)
+        (composition_preserves_bincoproduct HF HG)
+        comp_preserves_stable_codes_sums_sum.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Γ a b.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc _ _ _ @ _).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!(functor_comp G _ _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (functor_preserves_stable_codes_sums_on_z_iso Fc).
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (functor_comp G _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (functor_comp G).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> functor_el_map_iso_eq_alt.
+      }
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (functor_preserves_stable_codes_sums_on_z_iso Gc).
+    }
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">rewrite</span> cat_el_map_el_eq_comp.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">rewrite</span> cat_el_map_el_eq_comp.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">assert</span> (#G(#F a · functor_on_universe F) · functor_on_universe G
+            =
+            #G(#F a) · (#G (functor_on_universe F) · functor_on_universe G))
+      <span class="k">as</span> q₁.
+    {
+      <span class="nb">rewrite</span> !functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (#G(#F b · functor_on_universe F) · functor_on_universe G
+            =
+            #G(#F b) · (#G (functor_on_universe F) · functor_on_universe G))
+      <span class="k">as</span> q₂.
+    {
+      <span class="nb">rewrite</span> !functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (cat_univ_codes_sums_z_iso_eq sum₃ q₁ q₂).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> cat_el_map_el_eq_comp.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (_ @ assoc' _ _ _).
+    use maponpaths_compose.
+    - <span class="nb">apply</span> maponpaths_2.
+      use (BinCoproductArrowsEq
+             _ _ _
+             (preserves_bincoproduct_to_bincoproduct
+                _
+                (composition_preserves_bincoproduct HF HG)
+                (BC₁ (cat_el_map_el _ a) (cat_el_map_el _ b)))).
+      + <span class="nb">refine</span> (assoc _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!(functor_comp G _ _) @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (BinCoproductIn1Commutes
+                   _ _ _
+                   (preserves_bincoproduct_to_bincoproduct
+                      F HF
+                      (BC₁ (cat_el_map_el _ a) (cat_el_map_el _ b)))).
+        }
+        <span class="nb">simpl</span>.
+        etrans.
+        {
+          <span class="nb">simpl</span>.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> functor_comp.
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (BinCoproductIn1Commutes
+                   _ _ _
+                   (preserves_bincoproduct_to_bincoproduct
+                      G HG
+                      (BC₂ (cat_el_map_el _ (# F a · functor_on_universe F))
+                           (cat_el_map_el _ (# F b · functor_on_universe F))))).
+        }
+        <span class="nb">simpl</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          <span class="nb">rewrite</span> BinCoproductOfArrowsIn1.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> BinCoproductIn1Commutes.
+        }
+        <span class="nb">simpl</span>.
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (cat_el_map_el_eq_eq (univ_cat_cat_stable_el_map C₃)).
+      + <span class="nb">refine</span> (assoc _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!(functor_comp G _ _) @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (BinCoproductIn2Commutes
+                   _ _ _
+                   (preserves_bincoproduct_to_bincoproduct
+                      F HF
+                      (BC₁ (cat_el_map_el _ a) (cat_el_map_el _ b)))).
+        }
+        <span class="nb">simpl</span>.
+        etrans.
+        {
+          <span class="nb">simpl</span>.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> functor_comp.
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (BinCoproductIn2Commutes
+                   _ _ _
+                   (preserves_bincoproduct_to_bincoproduct
+                      G HG
+                      (BC₂ (cat_el_map_el _ (# F a · functor_on_universe F))
+                           (cat_el_map_el _ (# F b · functor_on_universe F))))).
+        }
+        <span class="nb">simpl</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          <span class="nb">rewrite</span> BinCoproductOfArrowsIn2.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> BinCoproductIn2Commutes.
+        }
+        <span class="nb">simpl</span>.
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (cat_el_map_el_eq_eq (univ_cat_cat_stable_el_map C₃)).
+    - <span class="nb">apply</span> cat_el_map_el_eq_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_preserves_stable_codes_sums</span>
+    : functor_preserves_stable_codes_sums
+        sum₁
+        sum₃
+        (F · G)
+        (composition_preserves_bincoproduct HF HG).
+  <span class="kn">Proof</span>.
+    use make_functor_preserves_stable_codes_sums.
+    - <span class="bp">exact</span> comp_preserves_stable_codes_sums_sum.
+    - <span class="bp">exact</span> comp_preserves_stable_codes_sums_z_iso.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">CompPreservation</span>.
+
+<span class="sd">(** * 5. Univalence condition *)</span>
+<span class="kn">Proposition</span> <span class="nf">cat_univ_stable_codes_sums_univalence_lemma</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            (<span class="nv">BC</span> : BinCoproducts C)
+            {<span class="nv">sum₁</span> <span class="nv">sum₂</span> : cat_univ_stable_codes_sums BC}
+            (<span class="nv">Fc</span> : functor_preserves_stable_codes_sums
+                     sum₁
+                     sum₂
+                     (identity _)
+                     (identity_preserves_bincoproduct C))
+  : sum₁ = sum₂.
+<span class="kn">Proof</span>.
+  use cat_univ_stable_codes_sums_eq.
+  - <span class="nb">intros</span> Γ a b.
+    <span class="nb">pose</span> (functor_preserves_stable_codes_sums_on_code Fc a b) <span class="k">as</span> p.
+    <span class="nb">simpl</span> <span class="k">in</span> p.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">refine</span> (p @ _).
+    use cat_univ_codes_sums_sum_eq ; <span class="nb">cbn</span>.
+    + <span class="nb">apply</span> id_right.
+    + <span class="nb">apply</span> id_right.
+  - <span class="nb">intros</span> Γ a b.
+    <span class="nb">pose</span> (functor_preserves_stable_codes_sums_on_z_iso Fc a b) <span class="k">as</span> p.
+    <span class="nb">simpl</span> <span class="k">in</span> p.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ maponpaths
+                    (<span class="k">λ</span> <span class="nv">z</span>, z · cat_el_map_el_eq
+                                (univ_cat_cat_stable_el_map C)
+                                (id_right _))
+                    p).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C)).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (cat_el_map_el_eq_id (univ_cat_cat_stable_el_map C)).
+      }
+      <span class="nb">apply</span> id_right.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (cat_univ_codes_sums_z_iso_eq sum₂ (id_right _) (id_right _)).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !cat_el_map_el_eq_comp.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C)).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C)).
+      }
+      <span class="nb">apply</span> (cat_el_map_el_eq_id (univ_cat_cat_stable_el_map C)).
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> id_right.
+    }
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    use BinCoproductArrowsEq.
+    + <span class="nb">refine</span> (_ @ !(id_right _)).
+      <span class="nb">rewrite</span> assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> BinCoproductIn1Commutes.
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> BinCoproductOfArrowsIn1.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C)).
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (cat_el_map_el_eq_id (univ_cat_cat_stable_el_map C)).
+    + <span class="nb">refine</span> (_ @ !(id_right _)).
+      <span class="nb">rewrite</span> assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> BinCoproductIn2Commutes.
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> BinCoproductOfArrowsIn2.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C)).
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (cat_el_map_el_eq_id (univ_cat_cat_stable_el_map C)).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/CatTypes/Sum.v</tt>, line 38)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Univalence condition
+  &gt;
+  &gt;                                                                                            *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

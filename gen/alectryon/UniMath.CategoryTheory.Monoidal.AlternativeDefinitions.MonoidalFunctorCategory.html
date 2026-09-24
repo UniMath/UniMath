@@ -1,0 +1,1111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidalFunctorCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C ⊠ D"</span> := (category_binproduct C D) (<span class="kn">at level</span> <span class="mi">38</span>).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"( c , d )"</span> := (make_catbinprod c d).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"( f #, g )"</span> := (catbinprodmor f g).
+
+<span class="kn">Section</span> <span class="nf">TensorFunctorCategory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          (<span class="nv">TC</span> : functor (C ⊠ C) C)
+          (<span class="nv">TD</span> : functor (D ⊠ D) D).
+
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_C Y"</span> := (TC (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_C g"</span> := (# TC (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_D Y"</span> := (TD (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_D g"</span> := (# TD (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_map_dom</span> (<span class="nv">F</span> : functor C D)
+    : functor (C ⊠ C) D
+    := functor_composite (pair_functor F F) TD.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_map_codom</span> (<span class="nv">F</span> : functor C D)
+    : functor (C ⊠ C) D
+    := functor_composite TC F.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor</span> (<span class="nv">F</span> : functor C D)
+    : UU := nat_trans (functor_tensor_map_dom F) (functor_tensor_map_codom F).
+  <span class="kn">Identity Coercion</span> <span class="nf">functor_tensor_c</span> : functor_tensor &gt;-&gt; nat_trans.
+
+  <span class="kn">Definition</span> <span class="nf">is_nat_trans_tensor</span> {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+             (<span class="nv">FF</span> : functor_tensor F) (<span class="nv">GG</span> : functor_tensor G)
+             (<span class="nv">α</span> : nat_trans F G) : UU
+    := ∏ x y : C, (α x #⊗_D α y) · GG (x, y)
+                  = FF (x, y) · α (x ⊗_C y).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_nat_trans_tensor</span> {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+             (<span class="nv">FF</span> : functor_tensor F) (<span class="nv">GG</span> : functor_tensor G)
+             (<span class="nv">α</span> : nat_trans F G)
+    : isaprop (is_nat_trans_tensor FF GG α).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>) ; <span class="nb">apply</span> D.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_nat_trans_tensor_id</span>
+             {<span class="nv">F</span> : functor C D} (<span class="nv">FF</span> : functor_tensor F)
+    : is_nat_trans_tensor FF FF (nat_trans_id F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> (functor_id TD).
+    <span class="bp">exact</span> (id_left _ @ ! id_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_nat_trans_tensor_comp</span>
+             {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> : functor C D}
+             (<span class="nv">FF</span> : functor_tensor F) (<span class="nv">GG</span> : functor_tensor G) (<span class="nv">HH</span> : functor_tensor H)
+             {<span class="nv">α</span> : nat_trans F G} {<span class="nv">β</span> : nat_trans G H}
+             (<span class="nv">αα</span> : is_nat_trans_tensor FF GG α)
+             (<span class="nv">ββ</span> : is_nat_trans_tensor GG HH β)
+    : is_nat_trans_tensor FF HH (nat_trans_comp _ _ _ α β).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">simpl</span>.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (functor_comp TD (α x #, α y) (β x #, β y)).
+    }
+    <span class="nb">rewrite</span> assoc'.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (ββ x y).
+    }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> αα.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_disp_cat_ob_mor</span>
+    : disp_cat_ob_mor [C,D].
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">F</span>, <span class="nv">functor_tensor</span> <span class="nv">F</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">FF</span> <span class="nv">GG</span> <span class="nv">α</span>, is_nat_trans_tensor FF GG α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_disp_cat_id_comp</span>
+    : disp_cat_id_comp _ functor_tensor_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; [<span class="nb">apply</span> is_nat_trans_tensor_id | use is_nat_trans_tensor_comp ; <span class="bp">assumption</span> ].
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_disp_cat_data</span>
+    : disp_cat_data [C,D]
+    := _ ,, functor_tensor_disp_cat_id_comp.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_disp_cat_axioms</span>
+    : disp_cat_axioms _ functor_tensor_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="kp">try</span> (<span class="nb">apply</span> isaprop_is_nat_trans_tensor).
+    use isasetaprop.
+    <span class="nb">apply</span> isaprop_is_nat_trans_tensor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_disp_cat</span> : disp_cat [C,D]
+    := _ ,, functor_tensor_disp_cat_axioms.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_cat</span> : category
+    := total_category functor_tensor_disp_cat.
+
+<span class="kn">End</span> <span class="nf">TensorFunctorCategory</span>.
+
+<span class="kn">Section</span> <span class="nf">TensorFunctorCategoryUnivalence</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          (<span class="nv">TC</span> : functor (C ⊠ C) C)
+          (<span class="nv">TD</span> : functor (D ⊠ D) D).
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_functor_tensor_disp_cat</span> (<span class="nv">F</span> : functor C D)
+    :  isaset (functor_tensor_disp_cat TC TD F).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_nat_trans.
+    { <span class="nb">apply</span> D. }
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">functor_tensor_disp_cat_is_univalent</span>
+    : is_univalent_disp (functor_tensor_disp_cat TC TD).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_disp_from_fibers.
+    <span class="nb">intros</span> F pt1 pt2.
+    use isweqimplimpl.
+    - <span class="nb">intro</span> i.
+      use total2_paths_f.
+      + <span class="nb">apply</span> funextsec ; <span class="nb">intro</span>.
+        <span class="nb">set</span> (ix := (pr1 i) (pr1 x) (pr2 x)).
+        <span class="nb">cbn</span> <span class="k">in</span> ix.
+        <span class="nb">rewrite</span> binprod_id <span class="k">in</span> ix.
+        <span class="nb">rewrite</span> (functor_id TD) <span class="k">in</span> ix.
+        <span class="nb">rewrite</span> id_right <span class="k">in</span> ix.
+        <span class="nb">rewrite</span> id_left <span class="k">in</span> ix.
+        <span class="bp">exact</span> (! ix).
+      + <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+        <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> D.
+    - <span class="nb">apply</span> isaset_functor_tensor_disp_cat.
+    - <span class="nb">apply</span> isaproptotal2.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> Isos.isaprop_is_z_iso_disp.
+      + <span class="kp">do</span> <span class="mi">4</span> <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_nat_trans_tensor.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">TensorFunctorCategoryUnivalence</span>.
+
+<span class="kn">Section</span> <span class="nf">TensorFunctorProperties</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">functor_tensor_composition_is_nat_trans</span>
+        {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+        {<span class="nv">TC</span> : functor (C ⊠ C) C}
+        {<span class="nv">TD</span> : functor (D ⊠ D) D}
+        {<span class="nv">TE</span> : functor (E ⊠ E) E}
+        {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+        (<span class="nv">FF</span> : functor_tensor TC TD F) (<span class="nv">GG</span> : functor_tensor TD TE G)
+    : is_nat_trans
+        (functor_tensor_map_dom TE (F ∙ G))
+        (functor_tensor_map_codom TC (F ∙ G))
+        (<span class="k">λ</span> <span class="nv">cc</span> : C × C, GG (F (pr1 cc), F (pr2 cc)) · # G (FF cc)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> cc1 cc2 f.
+    etrans. {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (pr2 GG ((pair_functor F F) cc1) (pair_functor F F cc2) (# (pair_functor F F) f)).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> &lt;- (functor_comp G).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pr2 FF cc1 cc2 f).
+    }
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (! functor_comp G _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_composition</span>
+             {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+             {<span class="nv">TC</span> : functor (C ⊠ C) C}
+             {<span class="nv">TD</span> : functor (D ⊠ D) D}
+             {<span class="nv">TE</span> : functor (E ⊠ E) E}
+             {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+             (<span class="nv">FF</span> : functor_tensor TC TD F) (<span class="nv">GG</span> : functor_tensor TD TE G)
+    : functor_tensor TC TE (functor_composite F G).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">cc</span>, <span class="nv">GG</span> (F (pr1 cc) , F (pr2 cc)) · #G (FF cc)).
+    <span class="nb">apply</span> functor_tensor_composition_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* A characterization of the tensor property of monoidal natural transformations</span>
+<span class="c">     in terms of equality/isos of functors/natural transformations. *)</span>
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+          {<span class="nv">TC</span> : functor (C ⊠ C) C}
+          {<span class="nv">TD</span> : functor (D ⊠ D) D}.
+
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_C Y"</span> := (TC (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_C g"</span> := (# TC (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_D Y"</span> := (TD (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_D g"</span> := (# TD (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Context</span> {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+          (<span class="nv">FF</span> : functor_tensor TC TD F) (<span class="nv">GG</span> : functor_tensor TC TD G)
+          (<span class="nv">α</span> : nat_trans F G).
+
+  <span class="kn">Lemma</span> <span class="nf">nat_trans_tensor_ntrans1_is_nat_trans</span>
+    :  is_nat_trans
+         (functor_tensor_map_dom TD F)
+         (functor_tensor_map_codom TC G)
+         (<span class="k">λ</span> <span class="nv">cc</span> : C × C, # TD (α (pr1 cc) #, α (pr2 cc)) · GG cc).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> cc1 cc2 ff.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (functor_comp TD).
+    <span class="nb">rewrite</span> &lt;- binprod_comp.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (pr2 α).
+    <span class="nb">rewrite</span> binprod_comp.
+    <span class="nb">rewrite</span> (functor_comp TD).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (pr2 GG).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_tensor_ntrans1</span>
+    : nat_trans (functor_tensor_map_dom TD F) (functor_tensor_map_codom TC G)
+    := _ ,, nat_trans_tensor_ntrans1_is_nat_trans.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_tensor_ntrans2_is_nat_trans</span>
+    : is_nat_trans
+        (functor_tensor_map_dom TD F)
+        (functor_tensor_map_codom TC G)
+        (<span class="k">λ</span> <span class="nv">cc</span> : C × C, FF cc · α (pr1 cc ⊗_C pr2 cc)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> cc1 cc2 ff.
+    <span class="nb">simpl</span>.
+    <span class="nb">set</span> (t := pr2 FF cc1 cc2).
+    <span class="nb">simpl</span> <span class="k">in</span> t.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> t.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (pr2 α).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_tensor_ntrans2</span>
+    : nat_trans (functor_tensor_map_dom TD F) (functor_tensor_map_codom TC G)
+    := _ ,, nat_trans_tensor_ntrans2_is_nat_trans.
+
+  <span class="kn">Definition</span> <span class="nf">is_nat_trans_tensor'</span> : UU
+    := nat_trans_tensor_ntrans1 = nat_trans_tensor_ntrans2.
+
+  <span class="kn">Lemma</span> <span class="nf">is_nat_trans_tensor_to_characterization</span>
+        (<span class="nv">p</span> : is_nat_trans_tensor')
+    : is_nat_trans_tensor TC TD FF GG α.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="bp">exact</span> (eqtohomot (base_paths _ _ p) (x,y)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_nat_trans_tensor_from_characterization</span>
+        (<span class="nv">p</span> : is_nat_trans_tensor TC TD FF GG α)
+    : is_nat_trans_tensor'.
+  <span class="kn">Proof</span>.
+    use nat_trans_eq.
+    { <span class="nb">apply</span> D. }
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">cc</span>, p (pr1 cc) (pr2 cc)).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">TensorFunctorProperties</span>.
+
+<span class="kn">Section</span> <span class="nf">UnitFunctorCategory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">IC</span> : C) (<span class="nv">ID</span> : D).
+
+  <span class="kn">Definition</span> <span class="nf">functor_unit</span> (<span class="nv">F</span> : functor C D) : UU
+    := D⟦ID, pr1 F IC⟧.
+
+  <span class="kn">Definition</span> <span class="nf">is_nat_trans_unit</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : functor C D} (<span class="nv">FF</span> : functor_unit F) (<span class="nv">GG</span> : functor_unit G)
+             (<span class="nv">α</span> : nat_trans F G) : UU
+    := FF · α IC = GG.
+
+  <span class="kn">Definition</span> <span class="nf">functor_unit_disp_cat_ob_mor</span>
+    : disp_cat_ob_mor [C,D].
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">F</span>, <span class="nv">functor_unit</span> <span class="nv">F</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">FF</span> <span class="nv">GG</span> <span class="nv">α</span>, is_nat_trans_unit FF GG α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_nat_trans_unit_id</span>
+             {<span class="nv">F</span> : functor C D} (<span class="nv">FF</span> : functor_unit F)
+    : is_nat_trans_unit FF FF (nat_trans_id F).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_nat_trans_unit_comp</span>
+             {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> : functor C D}
+             (<span class="nv">FF</span> : functor_unit F) (<span class="nv">GG</span> : functor_unit G) (<span class="nv">HH</span> : functor_unit H)
+             {<span class="nv">α</span> : nat_trans F G} {<span class="nv">β</span> : nat_trans G H}
+             (<span class="nv">αα</span> : is_nat_trans_unit FF GG α)
+             (<span class="nv">ββ</span> : is_nat_trans_unit GG HH β)
+    : is_nat_trans_unit FF HH (nat_trans_comp _ _ _ α β).
+  <span class="kn">Proof</span>.
+    etrans. { <span class="nb">apply</span> assoc. }
+    etrans. { <span class="nb">apply</span> maponpaths_2 ; <span class="bp">exact</span> αα. }
+    <span class="bp">exact</span> ββ.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_unit_disp_cat_id_comp</span>
+    : disp_cat_id_comp _ functor_unit_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; [<span class="nb">apply</span> is_nat_trans_unit_id | use is_nat_trans_unit_comp ; <span class="bp">assumption</span> ].
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_unit_disp_cat_data</span>
+    : disp_cat_data [C,D]
+    := _ ,, functor_unit_disp_cat_id_comp.
+
+  <span class="kn">Definition</span> <span class="nf">functor_unit_disp_cat_axioms</span>
+    : disp_cat_axioms _ functor_unit_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="kp">try</span> (<span class="nb">apply</span> D).
+    use isasetaprop.
+    <span class="nb">apply</span> D.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_unit_disp_cat</span> : disp_cat [C,D]
+    := _ ,, functor_unit_disp_cat_axioms.
+
+  <span class="kn">Definition</span> <span class="nf">functor_unit_cat</span> : category
+    := total_category functor_unit_disp_cat.
+
+<span class="kn">End</span> <span class="nf">UnitFunctorCategory</span>.
+
+<span class="kn">Section</span> <span class="nf">UnitFunctorCategoryUnivalence</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">IC</span> : C) (<span class="nv">ID</span> : D).
+
+  <span class="kn">Lemma</span> <span class="nf">functor_unit_disp_cat_is_univalent</span>
+    : is_univalent_disp (functor_unit_disp_cat IC ID).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_disp_from_fibers.
+    <span class="nb">intros</span> F pt1 pt2.
+    use isweqimplimpl.
+    - <span class="nb">intro</span> i.
+      <span class="nb">refine</span> (_ @ pr1 i).
+      <span class="nb">apply</span> (! id_right _).
+    - <span class="nb">apply</span> D.
+    - <span class="nb">apply</span> isaproptotal2.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> Isos.isaprop_is_z_iso_disp.
+      + <span class="kp">do</span> <span class="mi">4</span> <span class="nb">intro</span> ; <span class="nb">apply</span> D.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">UnitFunctorCategoryUnivalence</span>.
+
+<span class="kn">Section</span> <span class="nf">UnitFunctorProperties</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_unit_composition</span>
+             {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+             {<span class="nv">IC</span> : C} {<span class="nv">ID</span> : D} {<span class="nv">IE</span> : E}
+             {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+             (<span class="nv">FF</span> : functor_unit IC ID F) (<span class="nv">GG</span> : functor_unit ID IE G)
+    : functor_unit IC IE (functor_composite F G)
+    := GG · #G FF.
+
+<span class="kn">End</span> <span class="nf">UnitFunctorProperties</span>.
+
+
+<span class="kn">Section</span> <span class="nf">FunctorTensorUnit</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          (<span class="nv">TC</span> : functor (C ⊠ C) C) (<span class="nv">TD</span> : functor (D ⊠ D) D)
+          (<span class="nv">IC</span> : C) (<span class="nv">ID</span> : D).
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensorunit_disp_cat</span>
+    : disp_cat [C,D]
+    := dirprod_disp_cat (functor_tensor_disp_cat TC TD) (functor_unit_disp_cat IC ID).
+
+  <span class="kn">Lemma</span> <span class="nf">functor_tensorunit_disp_cat_is_univalent</span>
+    : is_univalent_disp functor_tensorunit_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> dirprod_disp_cat_is_univalent.
+    - <span class="nb">apply</span> functor_tensor_disp_cat_is_univalent.
+    - <span class="nb">apply</span> functor_unit_disp_cat_is_univalent.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensorunit_cat</span>
+    : category := total_category functor_tensorunit_disp_cat.
+
+<span class="kn">End</span> <span class="nf">FunctorTensorUnit</span>.
+
+<span class="kn">Section</span> <span class="nf">TensorUnitFunctorProperties</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+          {<span class="nv">TC</span> : functor (C ⊠ C) C} {<span class="nv">TD</span> : functor (D ⊠ D) D}
+          {<span class="nv">TE</span> : functor (E ⊠ E) E}
+          {<span class="nv">IC</span> : C} {<span class="nv">ID</span> : D} {<span class="nv">IE</span> : E}.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensorunit_composition</span>
+             {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+             (<span class="nv">FF</span> : functor_tensorunit_disp_cat TC TD IC ID F)
+             (<span class="nv">GG</span> : functor_tensorunit_disp_cat TD TE ID IE G)
+    : functor_tensorunit_disp_cat TC TE IC IE (functor_composite F G).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">functor_tensor_composition</span> (pr1 FF) (pr1 GG)).
+    <span class="bp">exact</span> (functor_unit_composition (pr2 FF) (pr2 GG)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">TensorUnitFunctorProperties</span>.
+
+<span class="kn">Section</span> <span class="nf">MonoidalFunctorCategory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          {<span class="nv">TC</span> : functor (C ⊠ C) C} {<span class="nv">TD</span> : functor (D ⊠ D) D}
+          {<span class="nv">IC</span> : C} {<span class="nv">ID</span> : D}
+          (<span class="nv">luC</span> : left_unitor TC IC) (<span class="nv">luD</span> : left_unitor TD ID)
+          (<span class="nv">ruC</span> : right_unitor TC IC) (<span class="nv">ruD</span> : right_unitor TD ID)
+          (<span class="nv">αC</span> : associator TC) (<span class="nv">αD</span> : associator TD).
+
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_C Y"</span> := (TC (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_C g"</span> := (# TC (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_D Y"</span> := (TD (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_D g"</span> := (# TD (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Definition</span> <span class="nf">functor_lu_disp_cat</span> : disp_cat (functor_tensorunit_cat TC TD IC ID).
+  <span class="kn">Proof</span>.
+    use disp_full_sub.
+    <span class="nb">intros</span> [F [FT FU]].
+    <span class="bp">exact</span> (∏ x : C, luD (pr1 F x) = FU #⊗_D (id (pr1 F x)) · (pr1 FT) (IC, x) · #(pr1 F) (luC x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_ru_disp_cat</span> : disp_cat (functor_tensorunit_cat TC TD IC ID).
+  <span class="kn">Proof</span>.
+    use disp_full_sub.
+    <span class="nb">intros</span> [F [FT FU]].
+    <span class="bp">exact</span> (∏ x : C, ruD (pr1 F x) =  (id (pr1 F x)) #⊗_D FU · (pr1 FT) (x, IC) · #(pr1 F) (ruC x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_ass_disp_cat</span> : disp_cat (functor_tensorunit_cat TC TD IC ID).
+  <span class="kn">Proof</span>.
+    use disp_full_sub.
+    <span class="nb">intros</span> [F [FT FU]].
+
+    <span class="bp">exact</span> (∏ (x y z : C),
+            pr1 FT (x, y) #⊗_D id (pr1 F(z)) · pr1 FT (x ⊗_C y, z) · #(pr1 F) (αC ((x, y), z))
+            =
+              αD ((pr1 F x, pr1 F y), pr1 F z) · id (pr1 F x) #⊗_D pr1 FT (y, z) · pr1 FT (x, y ⊗_C z)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">functor_lu_disp_cat_is_univalent</span>
+    : is_univalent_disp functor_lu_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_full_sub_univalent.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> ; <span class="nb">apply</span> D.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">functor_ru_disp_cat_is_univalent</span>
+    : is_univalent_disp functor_ru_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_full_sub_univalent.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> ; <span class="nb">apply</span> D.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">functor_ass_disp_cat_is_univalent</span>
+    : is_univalent_disp functor_ass_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_full_sub_univalent.
+    <span class="nb">intro</span>.
+    <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>) ; <span class="nb">apply</span> D.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_monoidal_disp_cat</span>
+    : disp_cat (functor_tensorunit_cat TC TD IC ID)
+    := dirprod_disp_cat
+         (dirprod_disp_cat functor_lu_disp_cat functor_ru_disp_cat)
+         functor_ass_disp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">functor_monoidal_cat</span>
+    : category
+    := total_category functor_monoidal_disp_cat.
+
+<span class="kn">End</span> <span class="nf">MonoidalFunctorCategory</span>.
+
+<span class="kn">Section</span> <span class="nf">StrongMonoidalFunctorCategory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          {<span class="nv">TC</span> : functor (C ⊠ C) C} {<span class="nv">TD</span> : functor (D ⊠ D) D}
+          {<span class="nv">IC</span> : C} {<span class="nv">ID</span> : D}
+          (<span class="nv">luC</span> : left_unitor TC IC) (<span class="nv">luD</span> : left_unitor TD ID)
+          (<span class="nv">ruC</span> : right_unitor TC IC) (<span class="nv">ruD</span> : right_unitor TD ID)
+          (<span class="nv">αC</span> : associator TC) (<span class="nv">αD</span> : associator TD).
+
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_C Y"</span> := (TC (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_C g"</span> := (# TC (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_D Y"</span> := (TD (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_D g"</span> := (# TD (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Definition</span> <span class="nf">functor_strong_monoidal_disp_cat</span>
+    : disp_cat (functor_monoidal_cat luC luD ruC ruD αC αD)
+    := disp_full_sub (functor_monoidal_cat luC luD ruC ruD αC αD)
+                     (<span class="k">λ</span> <span class="nv">F</span>,
+                       is_nat_z_iso (pr121 F : nat_trans _ _)
+                                    × is_z_isomorphism (pr221 F)).
+
+  <span class="kn">Definition</span> <span class="nf">strong_functor_monoidal_cat</span>
+    : category
+    := total_category functor_strong_monoidal_disp_cat.
+
+<span class="kn">End</span> <span class="nf">StrongMonoidalFunctorCategory</span>.
+
+<span class="kn">Definition</span> <span class="nf">LaxMonoidalFunctorCat</span>
+           (<span class="nv">M</span> <span class="nv">N</span> : monoidal_cat)
+  : category
+  := functor_monoidal_cat
+       (monoidal_cat_left_unitor M)
+       (monoidal_cat_left_unitor N)
+       (monoidal_cat_right_unitor M)
+       (monoidal_cat_right_unitor N)
+       (monoidal_cat_associator M)
+       (monoidal_cat_associator N).
+
+<span class="kn">Definition</span> <span class="nf">StrongMonoidalFunctorCat</span>
+           (<span class="nv">M</span> <span class="nv">N</span> : monoidal_cat)
+  : category
+  := strong_functor_monoidal_cat
+       (monoidal_cat_left_unitor M)
+       (monoidal_cat_left_unitor N)
+       (monoidal_cat_right_unitor M)
+       (monoidal_cat_right_unitor N)
+       (monoidal_cat_associator M)
+       (monoidal_cat_associator N).
+
+<span class="kn">Section</span> <span class="nf">FunctorMonoidalProperties</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+          {<span class="nv">TC</span> : functor (C ⊠ C) C} {<span class="nv">TD</span> : functor (D ⊠ D) D}
+          {<span class="nv">TE</span> : functor (E ⊠ E) E}
+          {<span class="nv">IC</span> : C} {<span class="nv">ID</span> : D} {<span class="nv">IE</span> : E}.
+
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_C Y"</span> := (TC (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_C g"</span> := (# TC (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_D Y"</span> := (TD (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_D g"</span> := (# TD (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_E Y"</span> := (TE (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_E g"</span> := (# TE (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Definition</span> <span class="nf">functor_lu_composition</span>
+             {<span class="nv">luC</span> : left_unitor TC IC} {<span class="nv">luD</span> : left_unitor TD ID} {<span class="nv">luE</span> : left_unitor TE IE}
+             {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+             {<span class="nv">FF</span> : functor_tensorunit_disp_cat TC TD IC ID F}
+             {<span class="nv">GG</span> : functor_tensorunit_disp_cat TD TE ID IE G}
+             (<span class="nv">FFF</span> : functor_lu_disp_cat luC luD (_,,FF))
+             (<span class="nv">GGG</span> : functor_lu_disp_cat luD luE (_,,GG))
+    : functor_lu_disp_cat luC luE (_,, functor_tensorunit_composition FF GG).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">refine</span> (GGG (F x) @ _).
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> functor_unit_composition.
+    <span class="nb">assert</span> (aux : (pr2 GG · # G (pr2 FF) #, id G (F x)) =
+                    (pr2 GG #, id pr1 G (F x)) ·  (# G (pr2 FF) #, id pr1 G (F x))).
+    { <span class="nb">cbn</span>. <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath. }
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+         etrans.
+         <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (! aux). }
+         <span class="nb">apply</span> pathsinv0, functor_comp.
+    }
+    <span class="nb">clear</span> aux.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'. <span class="nb">apply</span> maponpaths.
+    <span class="nb">assert</span> (aux1 := nat_trans_ax (pr1 GG) (ID,, F x) (F IC,, F x) (pr2 FF,, id (F x))).
+    <span class="nb">cbn</span> <span class="k">in</span> aux1.
+    <span class="nb">rewrite</span> functor_id <span class="k">in</span> aux1.
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+         <span class="bp">exact</span> (! aux1). }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'. <span class="nb">apply</span> maponpaths.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> (FFF x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_ru_composition</span>
+             {<span class="nv">ruC</span> : right_unitor TC IC} {<span class="nv">ruD</span> : right_unitor TD ID} {<span class="nv">ruE</span> : right_unitor TE IE}
+             {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+             {<span class="nv">FF</span> : functor_tensorunit_disp_cat TC TD IC ID F}
+             {<span class="nv">GG</span> : functor_tensorunit_disp_cat TD TE ID IE G}
+             (<span class="nv">FFF</span> : functor_ru_disp_cat ruC ruD (_,,FF))
+             (<span class="nv">GGG</span> : functor_ru_disp_cat ruD ruE (_,,GG))
+    : functor_ru_disp_cat ruC ruE (_,, functor_tensorunit_composition FF GG).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">refine</span> (GGG (F x) @ _).
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> functor_unit_composition.
+    <span class="nb">assert</span> (aux : (id G (F x) #, pr2 GG · # G (pr2 FF)) = (id G (F x) #, pr2 GG) · (id G (F x) #, # G (pr2 FF))).
+    { <span class="nb">cbn</span>. <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath. }
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+         etrans.
+         <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (! aux). }
+         <span class="nb">apply</span> pathsinv0, functor_comp.
+    }
+    <span class="nb">clear</span> aux.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'. <span class="nb">apply</span> maponpaths.
+    <span class="nb">assert</span> (aux1 := nat_trans_ax (pr1 GG) (F x,, ID) (F x,, F IC) (id (F x),, pr2 FF)).
+    <span class="nb">cbn</span> <span class="k">in</span> aux1.
+    <span class="nb">rewrite</span> functor_id <span class="k">in</span> aux1.
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+         <span class="bp">exact</span> (! aux1). }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'. <span class="nb">apply</span> maponpaths.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> (FFF x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_ass_composition</span>
+             {<span class="nv">αC</span> : associator TC} {<span class="nv">αD</span> : associator TD} {<span class="nv">αE</span> : associator TE}
+             {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+             {<span class="nv">FF</span> : functor_tensorunit_disp_cat TC TD IC ID F}
+             {<span class="nv">GG</span> : functor_tensorunit_disp_cat TD TE ID IE G}
+             (<span class="nv">FFF</span> : functor_ass_disp_cat αC αD (_,,FF))
+             (<span class="nv">GGG</span> : functor_ass_disp_cat αD αE (_,,GG))
+    : functor_ass_disp_cat αC αE (_,, functor_tensorunit_composition FF GG).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z. <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (aux : (id G (F x) #, pr11 GG (F y, F z) · # G (pr11 FF (y, z))) =
+                    (id G (F x) #, pr11 GG (F y, F z)) ·  (id G (F x) #, # G (pr11 FF (y, z)))).
+    { <span class="nb">cbn</span>. <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> maponpaths.
+         etrans.
+         <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+              <span class="bp">exact</span> (! aux). }
+         <span class="nb">apply</span> pathsinv0, functor_comp.
+    }
+    <span class="nb">clear</span> aux.
+    <span class="nb">assert</span> (auxnat := nat_trans_ax (pr1 GG) (F x,, _) (F x,, F (y ⊗_C z)) (id (F x),, (pr11 FF) (y, z))).
+    <span class="nb">cbn</span> <span class="k">in</span> auxnat.
+    <span class="nb">rewrite</span> functor_id <span class="k">in</span> auxnat.
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+         <span class="nb">apply</span> pathsinv0, auxnat. }
+    <span class="nb">clear</span> auxnat.
+    <span class="nb">assert</span> (GGGinst := GGG (F x) (F y) (F z)).
+    <span class="nb">cbn</span> <span class="k">in</span> GGGinst.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+         <span class="nb">apply</span> cancel_postcomposition.
+         <span class="bp">exact</span> GGGinst.
+    }
+    <span class="nb">clear</span> GGGinst.
+    <span class="nb">assert</span> (aux' : (pr11 GG (F x, F y) · # G (pr11 FF (x, y)) #, id G (F z)) =
+                     (pr11 GG (F x, F y) #, id G (F z)) · (# G (pr11 FF (x, y)) #, id G (F z))).
+    { <span class="nb">cbn</span>. <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath. }
+    etrans.
+    { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> aux'. }
+      <span class="nb">apply</span> functor_comp.
+    }
+    <span class="nb">clear</span> aux'.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'. <span class="nb">apply</span> maponpaths.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- functor_comp.
+         <span class="nb">apply</span> maponpaths.
+         <span class="nb">rewrite</span> assoc.
+         <span class="nb">apply</span> (FFF x y z).
+    }
+    <span class="nb">assert</span> (auxnat' := nat_trans_ax (pr1 GG) (F x ⊗_D F y,, F z) (F (x ⊗_C y),, F z) ((pr11 FF) (x, y),, id (F z))).
+    <span class="nb">cbn</span> <span class="k">in</span> auxnat'.
+    <span class="nb">rewrite</span> functor_id <span class="k">in</span> auxnat'.
+    etrans.
+    { <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+      <span class="bp">exact</span> auxnat'. }
+    <span class="nb">clear</span> auxnat'.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_monoidal_composition</span>
+             {<span class="nv">luC</span> : left_unitor TC IC} {<span class="nv">luD</span> : left_unitor TD ID} {<span class="nv">luE</span> : left_unitor TE IE}
+             {<span class="nv">ruC</span> : right_unitor TC IC} {<span class="nv">ruD</span> : right_unitor TD ID} {<span class="nv">ruE</span> : right_unitor TE IE}
+             {<span class="nv">αC</span> : associator TC} {<span class="nv">αD</span> : associator TD} {<span class="nv">αE</span> : associator TE}
+             {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+             {<span class="nv">FF</span> : functor_tensorunit_disp_cat TC TD IC ID F}
+             {<span class="nv">GG</span> : functor_tensorunit_disp_cat TD TE ID IE G}
+             (<span class="nv">FFF</span> : functor_monoidal_disp_cat luC luD ruC ruD αC αD (_,,FF))
+             (<span class="nv">GGG</span> : functor_monoidal_disp_cat luD luE ruD ruE αD αE (_,,GG))
+    : functor_monoidal_disp_cat luC luE ruC ruE αC αE (_,, functor_tensorunit_composition FF GG).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - use functor_lu_composition.
+      <span class="bp">exact</span> luD.
+      <span class="bp">exact</span> (pr11 FFF).
+      <span class="bp">exact</span> (pr11 GGG).
+    - use functor_ru_composition.
+      <span class="bp">exact</span> ruD.
+      <span class="bp">exact</span> (pr21 FFF).
+      <span class="bp">exact</span> (pr21 GGG).
+    - use functor_ass_composition.
+      <span class="bp">exact</span> αD.
+      <span class="bp">exact</span> (pr2 FFF).
+      <span class="bp">exact</span> (pr2 GGG).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">FunctorMonoidalProperties</span>.
+
+<span class="kn">Section</span> <span class="nf">AssociatorMonoidalProperty</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_nat_trans</span>
+             {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">D1</span> <span class="nv">D2</span> : category}
+             {<span class="nv">F1</span> <span class="nv">G1</span> : functor C1 D1}
+             {<span class="nv">F2</span> <span class="nv">G2</span> : functor C2 D2}
+             (<span class="nv">α</span> : nat_trans F1 G1)
+             (<span class="nv">β</span> : nat_trans F2 G2)
+    : nat_trans (pair_functor F1 F2) (pair_functor G1 G2).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span> x.
+      use catbinprodmor.
+      + <span class="bp">exact</span> (α (pr1 x)).
+      + <span class="bp">exact</span> (β (pr2 x)).
+    - <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use total2_paths_f ;
+                   [ <span class="nb">apply</span> (pr2 α) | <span class="nb">rewrite</span> transportf_const ; <span class="nb">apply</span> (pr2 β) ]
+               ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_nat_z_iso</span>
+             {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">D1</span> <span class="nv">D2</span> : category}
+             {<span class="nv">F1</span> <span class="nv">G1</span> : functor C1 D1}
+             {<span class="nv">F2</span> <span class="nv">G2</span> : functor C2 D2}
+             (<span class="nv">α</span> : nat_z_iso F1 G1)
+             (<span class="nv">β</span> : nat_z_iso F2 G2)
+    : nat_z_iso (pair_functor F1 F2) (pair_functor G1 G2).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    { <span class="bp">exact</span> (pair_nat_trans α β). }
+    <span class="nb">intro</span> x.
+    use tpair.
+    - use catbinprodmor.
+      + <span class="bp">exact</span> (pr1 (pr2 α (pr1 x))).
+      + <span class="bp">exact</span> (pr1 (pr2 β (pr2 x))).
+    - <span class="kp">abstract</span> (
+          <span class="nb">split</span> ; (use total2_paths_f ;
+                   [ <span class="nb">apply</span> (pr2 α) | <span class="nb">rewrite</span> transportf_const ; <span class="nb">apply</span> (pr2 β) ]
+                  )
+        ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">unassoc_commutes</span>
+        {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+    : nat_z_iso ((pair_functor (pair_functor F F) F) ∙ (precategory_binproduct_unassoc D D D))
+                ((precategory_binproduct_unassoc C C C) ∙ (pair_functor F (pair_functor F F))).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - use make_nat_trans.
+      + <span class="nb">intro</span> ; use catbinprodmor ; <span class="nb">apply</span> identity.
+      + <span class="nb">intro</span> ; <span class="nb">intros</span>.
+        use total2_paths_f.
+        * <span class="bp">exact</span> (id_right _ @ ! id_left _).
+        * <span class="kp">abstract</span> (<span class="nb">rewrite</span> transportf_const ; <span class="bp">exact</span> (id_right _ @ ! id_left _)).
+    - <span class="nb">intro</span>.
+      use tpair.
+      * use catbinprodmor ; <span class="nb">apply</span> identity.
+      * <span class="kp">abstract</span> (<span class="nb">split</span> ; (use total2_paths_f ; [ <span class="nb">apply</span> id_right | <span class="nb">rewrite</span> transportf_const ; <span class="nb">apply</span> id_right ])).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">assoc_right_commutes_with_triple_pairing</span>
+        {<span class="nv">C</span> <span class="nv">D</span> : category}
+        (<span class="nv">F</span> : functor C D)
+        {<span class="nv">TC</span> : functor (C ⊠ C) C}
+        {<span class="nv">TD</span> : functor (D ⊠ D) D}
+        {<span class="nv">FF</span> : functor_tensor TC TD F}
+        (<span class="nv">FF_iso</span> : is_nat_z_iso FF)
+    : nat_z_iso
+        (pair_functor (pair_functor F F) F ∙ assoc_right TD) (assoc_right TC ∙ F).
+  <span class="kn">Proof</span>.
+    <span class="c">(* This commuting diagram can be split in 3 commuting diagrams stacked together *)</span>
+    <span class="c">(* Step 1: The top commuting diagram is unassoc_commutes *)</span>
+    use nat_z_iso_comp.
+    <span class="mi">2</span>: <span class="nb">apply</span> nat_z_iso_functor_comp_assoc.
+    use nat_z_iso_comp.
+    <span class="mi">2</span>: {
+      use post_whisker_nat_z_iso.
+      <span class="mi">2</span>: <span class="nb">apply</span> unassoc_commutes.
+    }
+    use nat_z_iso_comp.
+    <span class="mi">2</span>: <span class="nb">apply</span> (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _)).
+    use nat_z_iso_comp.
+    <span class="mi">3</span>: <span class="nb">apply</span> nat_z_iso_functor_comp_assoc.
+    <span class="nb">apply</span> pre_whisker_nat_z_iso.
+
+    <span class="c">(* Step 2: The lowest commuting diagram is the tensor preserving commuting one *)</span>
+    use nat_z_iso_comp.
+    <span class="mi">3</span>: <span class="nb">apply</span> nat_z_iso_functor_comp_assoc.
+    use nat_z_iso_comp.
+    <span class="mi">3</span>: {
+      <span class="nb">apply</span> pre_whisker_nat_z_iso.
+      <span class="nb">apply</span> (FF ,, FF_iso).
+    }
+
+    use nat_z_iso_comp.
+    <span class="mi">3</span>: <span class="nb">apply</span> (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _)).
+    use nat_z_iso_comp.
+    <span class="mi">2</span>: <span class="nb">apply</span> nat_z_iso_functor_comp_assoc.
+    <span class="nb">apply</span> post_whisker_nat_z_iso.
+
+    <span class="c">(* Step 3: The middle commuting square is the tensor preserving commuting one</span>
+<span class="c">               but tensored with the identity functor on the left *)</span>
+
+    use product_of_commuting_squares.
+    { <span class="nb">apply</span> (make_nat_z_iso _ _ _ (is_nat_z_iso_nat_trans_id F)). }
+    <span class="nb">apply</span> (FF ,, FF_iso).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pair_functor_composite</span>
+        {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> <span class="nv">D1</span> <span class="nv">D2</span> <span class="nv">D3</span> : category}
+        (<span class="nv">F1</span> : functor C1 C2)
+        (<span class="nv">G1</span> : functor D1 D2)
+        (<span class="nv">F2</span> : functor C2 C3)
+        (<span class="nv">G2</span> : functor D2 D3)
+    : nat_z_iso
+        (functor_composite (pair_functor F1 G1) (pair_functor F2 G2))
+        (pair_functor (functor_composite F1 F2) (functor_composite G1 G2)).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    { <span class="nb">apply</span> nat_trans_id. }
+    <span class="nb">intro</span>.
+    use tpair.
+    - use catbinprodmor ; <span class="nb">apply</span> identity.
+    - <span class="nb">split</span> ; <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">assoc_left_commutes_with_triple_pairing</span>
+        {<span class="nv">C</span> <span class="nv">D</span> : category}
+        (<span class="nv">F</span> : functor C D)
+        {<span class="nv">TC</span> : functor (C ⊠ C) C}
+        {<span class="nv">TD</span> : functor (D ⊠ D) D}
+        {<span class="nv">FF</span> : functor_tensor TC TD F}
+        (<span class="nv">FF_iso</span> : is_nat_z_iso FF)
+    :  nat_z_iso ((pair_functor (pair_functor F F) F) ∙ assoc_left TD) (assoc_left TC ∙ F).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> assoc_left.
+    use nat_z_iso_comp.
+    <span class="mi">2</span>: <span class="nb">apply</span> nat_z_iso_functor_comp_assoc.
+    use nat_z_iso_comp.
+    <span class="mi">2</span>: {
+      use post_whisker_nat_z_iso.
+      <span class="mi">2</span>: <span class="nb">apply</span> pair_functor_composite.
+    }
+    use nat_z_iso_comp.
+    <span class="mi">2</span>: {
+      use post_whisker_nat_z_iso.
+      <span class="mi">2</span>: {
+        use pair_nat_z_iso.
+        <span class="mi">3</span>: {
+          <span class="k">exists</span> <span class="nv">FF</span>.
+          <span class="nb">apply</span> FF_iso.
+        }
+        <span class="mi">2</span>: {
+          <span class="k">exists</span> (<span class="nv">nat_trans_id</span> <span class="nv">_</span>).
+          <span class="nb">apply</span> is_nat_z_iso_nat_trans_id.
+        }
+      }
+    }
+    <span class="nb">unfold</span> functor_tensor_map_codom.
+    use nat_z_iso_comp.
+    <span class="mi">2</span>: {
+      use post_whisker_nat_z_iso.
+      <span class="mi">2</span>: {
+        use pair_nat_z_iso.
+        <span class="mi">3</span>: {
+          <span class="k">exists</span> (<span class="nv">nat_trans_id</span> <span class="nv">_</span>).
+          <span class="nb">apply</span> is_nat_z_iso_nat_trans_id.
+        }
+        <span class="mi">2</span>: <span class="nb">apply</span> functor_commutes_with_id.
+      }
+    }
+
+    use nat_z_iso_comp.
+    <span class="mi">2</span>: {
+      use post_whisker_nat_z_iso.
+      <span class="mi">2</span>: <span class="nb">apply</span> (nat_z_iso_inv (pair_functor_composite _ _ _ _)).
+    }
+    use nat_z_iso_comp.
+    <span class="mi">2</span>: <span class="nb">apply</span> (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _)).
+    use nat_z_iso_comp.
+    <span class="mi">2</span>: {
+      use pre_whisker_nat_z_iso.
+      <span class="mi">2</span>: {
+        <span class="k">exists</span> <span class="nv">FF</span>.
+        <span class="nb">apply</span> FF_iso.
+      }
+    }
+    <span class="nb">apply</span> nat_z_iso_functor_comp_assoc.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          {<span class="nv">TC</span> : functor (C ⊠ C) C} {<span class="nv">TD</span> : functor (D ⊠ D) D}
+          {<span class="nv">IC</span> : C} {<span class="nv">ID</span> : D}.
+
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_C Y"</span> := (TC (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_C g"</span> := (# TC (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_D Y"</span> := (TD (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_D g"</span> := (# TD (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+
+  <span class="kn">Definition</span> <span class="nf">functor_ass_ntrans1</span>
+             (<span class="nv">αC</span> : associator TC) (<span class="nv">αD</span> : associator TD)
+             {<span class="nv">F</span> : functor C D}
+             {<span class="nv">FF</span> : functor_tensorunit_disp_cat TC TD IC ID F}
+             (<span class="nv">FF_iso</span> : is_nat_z_iso (pr11 FF))
+    : nat_trans
+        (functor_composite
+           (pair_functor (pair_functor F F) F)
+           (functor_composite (pair_functor TD (functor_identity _)) TD)
+        )
+        (functor_composite (assoc_right TC) F).
+  <span class="kn">Proof</span>.
+
+    <span class="nb">set</span> (pF := pair_functor F F).
+    <span class="nb">set</span> (pFF := pair_functor pF F).
+
+    use nat_trans_comp.
+    <span class="mi">2</span>: { <span class="bp">exact</span> (pre_whisker pFF αD). }
+    use assoc_right_commutes_with_triple_pairing.
+    - <span class="bp">exact</span> (pr1 FF).
+    - <span class="bp">exact</span> FF_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_ass_ntrans2</span>
+             (<span class="nv">αC</span> : associator TC) (<span class="nv">αD</span> : associator TD)
+             {<span class="nv">F</span> : functor C D}
+             {<span class="nv">FF</span> : functor_tensorunit_disp_cat TC TD IC ID F}
+             (<span class="nv">FF_iso</span> : is_nat_z_iso (pr11 FF))
+    : nat_trans
+        (functor_composite
+           (pair_functor (pair_functor F F) F)
+           (functor_composite (pair_functor TD (functor_identity _)) TD)
+        )
+        (functor_composite (assoc_right TC) F).
+  <span class="kn">Proof</span>.
+
+    use nat_trans_comp.
+    <span class="mi">3</span>: <span class="bp">exact</span> (post_whisker αC F).
+    use assoc_left_commutes_with_triple_pairing.
+    - <span class="bp">exact</span> (pr1 FF).
+    - <span class="bp">exact</span> FF_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_nat_trans_preserves</span>
+             (<span class="nv">αC</span> : associator TC) (<span class="nv">αD</span> : associator TD)
+             {<span class="nv">F</span> : functor C D}
+             {<span class="nv">FF</span> : functor_tensorunit_disp_cat TC TD IC ID F}
+             (<span class="nv">FF_iso</span> : is_nat_z_iso (pr11 FF))
+    : UU := functor_ass_ntrans2 αC αD FF_iso = functor_ass_ntrans1 αC αD FF_iso.
+
+  <span class="kn">Lemma</span> <span class="nf">functor_ass_to_nat_trans_ass</span>
+    {<span class="nv">αC</span> : associator TC} {<span class="nv">αD</span> : associator TD}
+    {<span class="nv">F</span> : functor C D}
+    {<span class="nv">FF</span> : functor_tensorunit_disp_cat TC TD IC ID F}
+    (<span class="nv">FF_iso</span> : is_nat_z_iso (pr11 FF))
+    (<span class="nv">FFF</span> : functor_ass_disp_cat αC αD (_,,FF))
+    : functor_nat_trans_preserves αC αD FF_iso.
+  <span class="kn">Proof</span>.
+    use nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intro</span> x.
+    <span class="nb">set</span> (p := FFF (pr11 x) (pr21 x) (pr2 x)).
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> ! (functor_id TD).
+    <span class="nb">rewrite</span> ! id_left.
+    <span class="nb">rewrite</span> ! id_right.
+    <span class="nb">refine</span> (p @ _).
+    <span class="nb">apply</span> assoc'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_ass_from_nat_trans_ass</span>
+             {<span class="nv">αC</span> : associator TC} {<span class="nv">αD</span> : associator TD}
+             {<span class="nv">F</span> : functor C D}
+             {<span class="nv">FF</span> : functor_tensorunit_disp_cat TC TD IC ID F}
+             {<span class="nv">FF_iso</span> : is_nat_z_iso (pr11 FF)}
+             (<span class="nv">FFF</span> : functor_nat_trans_preserves αC αD FF_iso)
+    : functor_ass_disp_cat αC αD (_,,FF).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z.
+    <span class="nb">simpl</span>.
+    <span class="nb">set</span> (t := eqtohomot (base_paths _ _ FFF) ((x,y),z)).
+    <span class="nb">simpl</span> <span class="k">in</span> t.
+    <span class="nb">rewrite</span> ! (functor_id TD) <span class="k">in</span> t.
+    <span class="nb">rewrite</span> ! id_left <span class="k">in</span> t.
+    <span class="nb">rewrite</span> ! id_right <span class="k">in</span> t.
+    <span class="nb">refine</span> (t @ _).
+    <span class="nb">apply</span> assoc.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">AssociatorMonoidalProperty</span>.
+
+<span class="kn">Section</span> <span class="nf">StrongMonoidalProperty</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+          {<span class="nv">TC</span> : functor (C ⊠ C) C} {<span class="nv">TD</span> : functor (D ⊠ D) D} {<span class="nv">TE</span> : functor (E ⊠ E) E}
+          {<span class="nv">IC</span> : C} {<span class="nv">ID</span> : D} {<span class="nv">IE</span> : E}
+          {<span class="nv">luC</span> : left_unitor TC IC} {<span class="nv">luD</span> : left_unitor TD ID} {<span class="nv">luE</span> : left_unitor TE IE}
+          {<span class="nv">ruC</span> : right_unitor TC IC} {<span class="nv">ruD</span> : right_unitor TD ID} {<span class="nv">ruE</span> : right_unitor TE IE}
+          {<span class="nv">αC</span> : associator TC} {<span class="nv">αD</span> : associator TD} {<span class="nv">αE</span> : associator TE}.
+
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_C Y"</span> := (TC (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_C g"</span> := (# TC (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_D Y"</span> := (TD (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_D g"</span> := (# TD (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"X ⊗_E Y"</span> := (TE (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f #⊗_E g"</span> := (# TE (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Definition</span> <span class="nf">strong_functor_composition</span>
+             {<span class="nv">F</span> : functor_monoidal_cat luC luD ruC ruD αC αD}
+             {<span class="nv">G</span> : functor_monoidal_cat luD luE ruD ruE αD αE}
+             (<span class="nv">FF</span> : functor_strong_monoidal_disp_cat luC luD ruC ruD αC αD F)
+             (<span class="nv">GG</span> : functor_strong_monoidal_disp_cat luD luE ruD ruE αD αE G)
+    : functor_strong_monoidal_disp_cat
+        luC luE ruC ruE αC αE
+        (_,, functor_monoidal_composition (pr2 F) (pr2 G)).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> cc.
+      use is_z_isomorphism_comp.
+      <span class="mi">2</span>: <span class="nb">apply</span> (pr2 (functor_on_z_iso (pr11 G) (_,, pr1 FF cc))).
+      <span class="bp">exact</span> (pr1 GG  ((pr111 F) (pr1 cc), (pr111 F) (pr2 cc))).
+    - use is_z_isomorphism_comp.
+      + <span class="bp">exact</span> (pr2 GG).
+      + <span class="bp">exact</span> (pr2 (functor_on_z_iso (pr11 G) (make_z_iso' _ (pr2 FF)))).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">StrongMonoidalProperty</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalFunctorCategory.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

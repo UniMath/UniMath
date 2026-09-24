@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EquivalenceQuasicartesianMarkov.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************</span>
+<span class="sd">Quasicartesian versus Markov categories</span>
+
+<span class="sd">In this file, we show that quasicartesian categories and Markov categories</span>
+<span class="sd">are equivalent axiomatizations. </span>
+
+<span class="sd">Showing that every Markov category induces a quasicartesian one follows</span>
+<span class="sd">from our combined previous results on Markov categories, but involves</span>
+<span class="sd">a lot of wrangling of coherence maps.</span>
+
+<span class="sd">Showing that every quasicartesian category carries a Markov structure is</span>
+<span class="sd">comparatively very simple. There is a lot of coherence to be checked, </span>
+<span class="sd">but these proofs can largely be automated by the [qcart_coherence] tactic. </span>
+
+<span class="sd">Table of Contents</span>
+<span class="sd">1. Construction: Markov To Quasicartesian</span>
+<span class="sd">2. Construction: Quasicartesian To Markov</span>
+<span class="sd">3. Round trips (proof of isomorphism)</span>
+<span class="sd">4. Construction of equivalence [markov_category = quasicartesian_category]</span>
+<span class="sd">**********************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.SymmetricDiagonal.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.Determinism.
+
+<span class="kn">Require</span> UniMath.CategoryTheory.MarkovCategories.AlternativeDefinitions.Stratified.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.AlternativeDefinitions.Quasicartesian.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="sd">(** * 1. Construction: Markov To Quasicartesian *)</span>
+
+<span class="kn">Section</span> <span class="nf">MarkovToQuasiCartesian</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : markov_category).
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> markov.
+
+  <span class="kn">Definition</span> <span class="nf">markov_to_quasicartesian_data</span> : quasicartesian_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((C :&gt; category) ,, _ ,, _).
+    - <span class="nb">simple refine</span> (I_{C} ,, _).
+      <span class="nb">intros</span> x.
+      <span class="bp">exact</span> (MarkovCategory.del x).
+    - <span class="nb">simple refine</span> ((<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, x ⊗ y) ,, _). <span class="kp">repeat</span> <span class="nb">split</span>.
+      * <span class="nb">intros</span> x y z f g. <span class="bp">exact</span> (⟨f,g⟩).
+      * <span class="nb">intros</span> x y. <span class="bp">exact</span> (MarkovCategory.proj1).
+      * <span class="nb">intros</span> x y. <span class="bp">exact</span> (MarkovCategory.proj2).
+  <span class="kn">Defined</span>.   
+  
+  <span class="kn">Lemma</span> <span class="nf">det_from_deterministic</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} : 
+    @is_deterministic C x y f -&gt; @det (markov_to_quasicartesian_data) x y f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> df. <span class="nb">apply</span> is_deterministic_eq'. <span class="bp">exact</span> df.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">deterministic_from_det</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} : 
+    @det (markov_to_quasicartesian_data) x y f -&gt; @is_deterministic C x y f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d. <span class="nb">apply</span> make_is_deterministic'. <span class="bp">exact</span> d.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">markov_to_quasicartesian_laws</span> : quasicartesian_laws markov_to_quasicartesian_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> quasicartesian_laws. <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> MarkovCategory.pairing_proj1.
+    - <span class="nb">apply</span> MarkovCategory.pairing_proj2.
+    - <span class="nb">apply</span> markov_category_unit_eq.
+    - <span class="nb">apply</span> det_from_deterministic. <span class="nb">apply</span> is_deterministic_proj1.
+    - <span class="nb">apply</span> det_from_deterministic. <span class="nb">apply</span> is_deterministic_proj2.
+    - <span class="nb">apply</span> det_from_deterministic. <span class="nb">apply</span> is_deterministic_del.
+    - <span class="nb">apply</span> det_from_deterministic. 
+      <span class="nb">apply</span> is_deterministic_pairing; <span class="nb">apply</span> deterministic_from_det; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> pairing_proj_id.
+    - <span class="nb">rewrite</span> &lt;- pairing_proj_tensor. <span class="nb">apply</span> MarkovCategory.pairing_tensor.
+    - <span class="nb">rewrite</span> &lt;- pairing_proj_lassociator. <span class="nb">apply</span> pairing_lassociator.
+    - <span class="nb">rewrite</span> &lt;- pairing_proj_braiding. <span class="nb">apply</span> pairing_sym_mon_braiding.
+  <span class="kn">Defined</span>.
+  
+  <span class="kn">Definition</span> <span class="nf">markov_to_quasicartesian</span> : quasicartesian_category
+    := (markov_to_quasicartesian_data ,, markov_to_quasicartesian_laws).
+
+<span class="kn">End</span> <span class="nf">MarkovToQuasiCartesian</span>.
+
+
+<span class="sd">(** * 2. Construction: Quasicartesian To Markov *)</span>
+
+<span class="kn">Section</span> <span class="nf">QuasiCartesianToMarkov</span>.
+  <span class="kn">Context</span> (<span class="nv">Q</span> : quasicartesian_category).
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> quasicartesian.
+
+  <span class="kn">Definition</span> <span class="nf">quasicartesian_tensor_data</span> : tensor_data Q.
+  <span class="kn">Proof</span>. 
+    use make_bifunctor_data.
+    - <span class="bp">exact</span> tensor.
+    - <span class="nb">intros</span> a b1 b2 g. <span class="bp">exact</span> ⟨proj1, proj2 · g⟩.
+    - <span class="nb">intros</span> b a1 a2 f. <span class="bp">exact</span> ⟨proj1 · f, proj2⟩.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quasicartesian_monoidal_data</span> : monoidal_data Q.
+  <span class="kn">Proof</span>.
+    use make_monoidal_data.
+    - <span class="bp">exact</span> quasicartesian_tensor_data.
+    - <span class="bp">exact</span> Unit.
+    - <span class="nb">intros</span> x. <span class="bp">exact</span> proj2.
+    - <span class="nb">intros</span> x. <span class="bp">exact</span> ⟨del x, identity x⟩.
+    - <span class="nb">intros</span> x. <span class="bp">exact</span> proj1.
+    - <span class="nb">intros</span> x. <span class="bp">exact</span> ⟨identity x, del x⟩.
+    - <span class="nb">intros</span> x y z. <span class="bp">exact</span> ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩.
+    - <span class="nb">intros</span> x y z. <span class="nb">cbn</span>. <span class="bp">exact</span> ⟨⟨ proj1, proj2 · proj1⟩, proj2 · proj2⟩.
+  <span class="kn">Defined</span>.  
+
+  <span class="kn">Proposition</span> <span class="nf">pentagon</span> : pentagon_identity α_{ quasicartesian_monoidal_data}.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z w. <span class="nb">cbn</span>. qcart_coherence.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">left_whisker_natural</span> : associator_nat_leftwhisker α_{ quasicartesian_monoidal_data}.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z w f. <span class="nb">cbn</span>.
+    <span class="nb">symmetry</span>. etrans. {
+      <span class="nb">rewrite</span> proj1_expand.
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="nb">rewrite</span> pairing_assoc.
+    <span class="nb">symmetry</span>. etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- (id_right proj1).
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="nb">rewrite</span> pairing_tensor.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- (id_right proj1).
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="nb">rewrite</span> pairing_tensor, !id_right.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">right_whisker_natural</span> : associator_nat_rightwhisker α_{ quasicartesian_monoidal_data}.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z w f. <span class="nb">cbn</span>.
+    <span class="nb">symmetry</span>. etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- pairing_nat_det; <span class="kp">try</span> <span class="nb">auto with</span> autodet.
+    }
+    <span class="nb">rewrite</span> pairing_assoc, pairing_nat_l, !assoc.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">left_right_whisker_natural</span> : associator_nat_leftrightwhisker α_{ quasicartesian_monoidal_data}.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z z2 w. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- pairing_nat_det <span class="k">with</span> (f:=proj1); <span class="kp">try</span> <span class="nb">auto with</span> autodet.
+    <span class="nb">rewrite</span> pairing_assoc.
+    <span class="nb">rewrite</span> pairing_nat_r, pairing_nat_l, assoc.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>. 
+  
+  <span class="kn">Definition</span> <span class="nf">quasicartesian_monoidal_laws</span> : monoidal_laws quasicartesian_monoidal_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="c">(* left identity*)</span>
+       <span class="nb">intros</span> x y. <span class="nb">cbn</span>. qcart_coherence.
+    - <span class="c">(* right identity *)</span>
+      <span class="nb">intros</span> x y. <span class="nb">cbn</span>. qcart_coherence.
+    - <span class="c">(* bifunctor_leftcompax *)</span>
+      <span class="nb">intros</span> x b1 b2 b3 g1 g2. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> pairing_nat_r, assoc. <span class="bp">reflexivity</span>.
+    - <span class="c">(* bifunctor_rightcompax *)</span>
+      <span class="nb">intros</span> x a1 a2 a3 f1 f2. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> pairing_nat_l, assoc. <span class="bp">reflexivity</span>.
+    - <span class="c">(* functoronmorphisms_are_equal *)</span>
+      <span class="nb">intros</span> a1 a2 b1 b2 f g.  
+      <span class="nb">unfold</span> functoronmorphisms1, functoronmorphisms2; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> pairing_nat_l, pairing_nat_r. <span class="bp">reflexivity</span>.
+    - <span class="c">(* Left unitor natural *)</span> 
+      <span class="nb">intros</span> x y f. <span class="nb">cbn</span>. qcart_coherence.
+    - <span class="c">(* Left unitor iso 1 *)</span>    
+      <span class="nb">cbn</span>. qcart_coherence.
+    - <span class="c">(* Left unitor iso 2 *)</span> 
+      <span class="nb">cbn</span>. qcart_coherence.
+    - <span class="c">(* Right unitor natural *)</span>
+      <span class="nb">intros</span> x y f. <span class="nb">cbn</span>. qcart_coherence.
+    - <span class="c">(* Right unitor iso 1 *)</span> 
+      <span class="nb">cbn</span>. qcart_coherence.
+    - <span class="c">(* Right unitor iso 2 *)</span>
+      <span class="nb">cbn</span>. qcart_coherence.
+    - <span class="c">(* Left whiskering natural *)</span>   
+      <span class="nb">apply</span> left_whisker_natural.
+    - <span class="c">(* Right whiskering natural *)</span>
+      <span class="nb">apply</span> right_whisker_natural.
+    - <span class="c">(* Left right whisker *)</span>
+      <span class="nb">apply</span> left_right_whisker_natural.
+    - <span class="c">(* Associator iso 1 *)</span>
+      <span class="nb">cbn</span>. qcart_coherence.
+    - <span class="c">(* Associator iso 2 *)</span>  
+      <span class="nb">cbn</span>. qcart_coherence.
+    - <span class="c">(* Triangle identity *)</span>   
+      <span class="nb">intros</span> x y. <span class="nb">cbn</span>. qcart_coherence.
+    - <span class="c">(* Pentagon identity *)</span> 
+      <span class="nb">apply</span> pentagon.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quasicartesian_monoidal</span> : monoidal Q
+    := (quasicartesian_monoidal_data ,, quasicartesian_monoidal_laws).
+
+  <span class="kn">Definition</span> <span class="nf">quasicartesian_monoidal_cat</span> : monoidal_cat
+    := ((Q :&gt; category) ,, quasicartesian_monoidal).
+
+  <span class="c">(* Symmetry *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">quasicartesian_swap_laws</span> : sym_mon_cat_laws_tensored
+       quasicartesian_monoidal_cat (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : Q, <span class="nb">swap</span>).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="c">(* involution *)</span>
+      <span class="nb">intros</span> x y. <span class="nb">cbn</span>. <span class="nb">unfold</span> <span class="nb">swap</span>. qcart_coherence.
+    - <span class="c">(* naturality *)</span>
+      <span class="nb">intros</span> x y z w f g. 
+      <span class="nb">unfold</span> <span class="nb">swap</span>, monoidal_cat_tensor_mor, functoronmorphisms1. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !pairing_nat_r, pairing_tensor, pairing_swap. <span class="bp">reflexivity</span>.
+    - <span class="c">(* hexagon *)</span>
+      <span class="nb">intros</span> x y z. <span class="nb">cbn</span>. 
+      <span class="nb">unfold</span> <span class="nb">swap</span>, monoidal_cat_tensor_mor, functoronmorphisms1. <span class="nb">cbn</span>.
+      qcart_coherence.
+  <span class="kn">Defined</span>.      
+
+  <span class="kn">Definition</span> <span class="nf">quasicartesian_symmetric</span> : symmetric quasicartesian_monoidal.
+  <span class="kn">Proof</span>.
+    use (make_symmetric quasicartesian_monoidal_cat _ _).
+    - <span class="bp">exact</span> (@<span class="nb">swap</span> Q).
+    - <span class="bp">exact</span> quasicartesian_swap_laws.
+  <span class="kn">Defined</span>.
+  
+  <span class="kn">Definition</span> <span class="nf">quasicartesian_sym_monoidal_cat</span> : sym_monoidal_cat
+    := (quasicartesian_monoidal_cat ,, quasicartesian_symmetric).
+
+  <span class="c">(* Markov category *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">quasicartesian_to_markov_data</span> : markov_category_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (quasicartesian_sym_monoidal_cat ,, _ ,, _).
+    - <span class="nb">intros</span> x. <span class="nb">simple refine</span> (del x ,, _).
+      <span class="nb">intros</span> f. <span class="nb">apply</span> del_unique.
+    - <span class="nb">intros</span> x. <span class="bp">exact</span> ⟨ identity x , identity x ⟩.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quasicartesian_to_markov_laws</span> : markov_category_laws quasicartesian_to_markov_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">cbn</span>; <span class="nb">unfold</span> <span class="nb">swap</span>, monoidal_cat_tensor_mor, functoronmorphisms1; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span> x. qcart_coherence.
+    - <span class="nb">intros</span> x. qcart_coherence.
+    - <span class="nb">intros</span> x. qcart_coherence.
+    - <span class="nb">intros</span> x. qcart_coherence.
+    - <span class="nb">intros</span> x y. <span class="nb">unfold</span> SymmetricDiagonal.inner_swap. <span class="nb">cbn</span>. <span class="nb">unfold</span> <span class="nb">swap</span>. 
+      qcart_coherence. 
+  <span class="kn">Defined</span>.
+  
+  <span class="kn">Definition</span> <span class="nf">quasicartesian_to_markov</span> : markov_category
+    := (quasicartesian_to_markov_data ,, quasicartesian_to_markov_laws).
+
+<span class="kn">End</span> <span class="nf">QuasiCartesianToMarkov</span>.
+
+<span class="sd">(** * 3. Round trips (proof of isomorphism) *)</span>
+
+<span class="kn">Section</span> <span class="nf">Roundtrips</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> quasicartesian.
+
+  <span class="kn">Proposition</span> <span class="nf">quasicartesian_roundtrip</span> (<span class="nv">Q</span> : quasicartesian_category) :
+    markov_to_quasicartesian (quasicartesian_to_markov Q) = Q.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypePath. { <span class="bp">exact</span> isaprop_quasicartesian_laws. } 
+    
+    <span class="nb">unfold</span> markov_to_quasicartesian_data,
+        quasicartesian_to_markov,
+        quasicartesian_data_to_cat; <span class="nb">cbn</span>.
+
+    <span class="nb">apply</span> total2asstor_path. <span class="nb">unfold</span> total2asstor. <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> total2asstor_path. <span class="nb">unfold</span> total2asstor. <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+
+    use total2_paths_f. { <span class="nb">apply</span> idpath. }
+    <span class="nb">rewrite</span> idpath_transportf. <span class="nb">cbn</span>.
+
+    (<span class="kp">repeat</span> <span class="nb">apply</span> dirprod_paths)
+    ; (<span class="kp">repeat</span> (<span class="nb">apply</span> funextsec2; <span class="nb">intros</span>))
+    ; <span class="nb">cbn</span>.
+    - <span class="nb">assert</span> (aux : pr122 (pr21 Q) x x0 x1 x2 x3 = @pairing (pr1 Q) x x0 x1 x2 x3). { <span class="bp">reflexivity</span>. }
+      <span class="nb">simple refine</span> (_ @ !aux).
+      <span class="nb">unfold</span> MarkovCategory.pairing,
+             copy, 
+             monoidal_cat_tensor_mor,
+             functoronmorphisms1.
+      <span class="nb">apply</span> pairing_lemma.
+    - <span class="nb">unfold</span> MarkovCategory.proj1, 
+            MarkovCategory.proj2,
+            monoidal_cat_tensor_mor,
+            MarkovCategory.del,
+            functoronmorphisms1.
+      <span class="nb">cbn</span>.
+      qcart_simpl.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">unfold</span> MarkovCategory.proj1, 
+            MarkovCategory.proj2,
+            monoidal_cat_tensor_mor,
+            MarkovCategory.del,
+            functoronmorphisms1.
+      <span class="nb">cbn</span>.
+      qcart_simpl.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> markov.
+
+  <span class="kn">Proposition</span> <span class="nf">markov_roundtrip</span> (<span class="nv">C</span> : markov_category) : 
+    quasicartesian_to_markov (markov_to_quasicartesian C) = C.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (invmaponpathsweq Stratified.markov_laws_weq _ _ _).
+    
+    <span class="nb">apply</span> total2asstor_path. <span class="nb">unfold</span> total2asstor. <span class="nb">cbn</span>.
+    
+    <span class="c">(* signatures are equal on the nose *)</span>
+    <span class="nb">apply</span> maponpaths.
+
+    <span class="c">(* laws are mere propositions *)</span>
+    <span class="nb">apply</span> subtypePath. { <span class="nb">intros</span> cc. <span class="nb">apply</span> Stratified.isaprop_markov_laws. }
+
+    <span class="c">(* It remains to show that the structures are equal *)</span>
+    (<span class="kp">repeat</span> <span class="nb">apply</span> dirprod_paths)
+    ; (<span class="kp">repeat</span> (<span class="nb">apply</span> funextsec2; <span class="nb">intros</span>))
+    ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> &lt;- pairing_proj_whisker_l. <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> &lt;- pairing_proj_whisker_r. <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> &lt;- pairing_proj_lunitor. <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> &lt;- pairing_proj_linvunitor. <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> &lt;- pairing_proj_runitor. <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> &lt;- pairing_proj_rinvunitor. <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> &lt;- pairing_proj_lassociator. <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> &lt;- pairing_proj_rassociator. <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> &lt;- pairing_proj_braiding. <span class="bp">reflexivity</span>.
+    - <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> &lt;- MarkovCategory.pairing_id. <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Roundtrips</span>.
+
+<span class="sd">(** * 4. Construction of equivalence [markov_category = quasicartesian_category] *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">markov_quasicartesian_weq</span> :
+  markov_category ≃ quasicartesian_category.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> markov_to_quasicartesian.
+  - <span class="bp">exact</span> quasicartesian_to_markov.
+  - <span class="bp">exact</span> markov_roundtrip.
+  - <span class="bp">exact</span> quasicartesian_roundtrip.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">markov_quasicartesian_eq</span> :
+  markov_category = quasicartesian_category.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (weqtopaths markov_quasicartesian_weq).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/MarkovCategories/AlternativeDefinitions/EquivalenceQuasicartesianMarkov.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; 4. Construction of equivalence [markov_category = quasicartesian_category]
+  &gt; **********************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

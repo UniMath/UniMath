@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidalSections.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************</span>
+
+<span class="sd"> Monoidal sections</span>
+
+<span class="sd"> A section on a displayed monoidal category is data and properties such that we</span>
+<span class="sd"> can construct a lax/strong monoidal functor from the base to the total category.</span>
+
+<span class="sd">Note: after refactoring on March 10, 2023, the prior Git history of this development is found via</span>
+<span class="sd">git log -- UniMath/CategoryTheory/Monoidal/MonoidalSectionsWhiskered.v</span>
+
+<span class="sd"> *********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Section</span> <span class="nf">MonoidalSections</span>.
+
+  <span class="kn">Import</span> BifunctorNotations.
+  <span class="kn">Import</span> MonoidalNotations.
+  <span class="kn">Import</span> DisplayedBifunctorNotations.
+  <span class="kn">Import</span> DisplayedMonoidalNotations.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">D</span> : disp_cat C}.
+  <span class="kn">Let</span> <span class="nf">TD</span> : category := total_category D.
+  <span class="kn">Context</span> (<span class="nv">M</span> : monoidal C) (<span class="nv">DM</span> : disp_monoidal D M).
+  <span class="kn">Let</span> <span class="nf">TM</span> : monoidal TD := total_monoidal DM.
+
+  <span class="kn">Definition</span> <span class="nf">section_preserves_tensor_data</span> (<span class="nv">sd</span> : section_disp D) : UU
+    := ∏ (x y : C),  sd x ⊗⊗_{DM} sd y --&gt;[identity (x ⊗_{M} y)] sd (x ⊗_{M} y).
+
+  <span class="kn">Lemma</span> <span class="nf">sectionfunctor_preserves_tensordata</span>
+        {<span class="nv">sd</span> : section_disp D}
+        (<span class="nv">spt</span> : section_preserves_tensor_data sd)
+    : preserves_tensordata M TM (section_functor sd).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use tpair.
+    - <span class="nb">apply</span> identity.
+    - <span class="nb">apply</span> spt.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_preserves_unit</span> (<span class="nv">sd</span> : section_disp D) : UU
+    :=  dI_{DM} --&gt;[identity I_{M}] sd I_{M}.
+
+  <span class="kn">Lemma</span> <span class="nf">sectionfunctor_preserves_unit</span>
+        {<span class="nv">sd</span> : section_disp D}
+        (<span class="nv">spu</span> : section_preserves_unit sd)
+    : preserves_unit M TM (section_functor sd).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> identity.
+    - <span class="nb">apply</span> spu.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_data</span> (<span class="nv">sd</span> : section_disp D) : UU
+    := (section_preserves_tensor_data sd) × (section_preserves_unit sd).
+  <span class="kn">Definition</span> <span class="nf">smonoidal_preserves_tensor</span> {<span class="nv">sd</span> : section_disp D} (<span class="nv">ms</span> : smonoidal_data sd)
+    : section_preserves_tensor_data sd := pr1 ms.
+  <span class="kn">Definition</span> <span class="nf">smonoidal_preserves_unit</span> {<span class="nv">sd</span> : section_disp D} (<span class="nv">ms</span> : smonoidal_data sd)
+    : section_preserves_unit sd := pr2 ms.
+
+  <span class="kn">Definition</span> <span class="nf">sectionfunctor_fmonoidal_data</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">spt</span> : section_preserves_tensor_data sd)
+             (<span class="nv">spu</span> : section_preserves_unit sd)
+    : fmonoidal_data M TM (section_functor sd)
+    := (sectionfunctor_preserves_tensordata spt,,sectionfunctor_preserves_unit spu).
+
+  <span class="c">(* This notation comes from Constructions.v, but there is no Notation module, this has to be added *)</span>
+  <span class="kn">Notation</span> <span class="s2">"# F"</span> := (section_disp_on_morphisms F) (<span class="kn">at level</span> <span class="mi">3</span>) : mor_disp_scope.
+
+  <span class="kn">Definition</span> <span class="nf">section_preserves_tensor_nat_left</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">spt</span> : section_preserves_tensor_data sd)
+    : UU
+    := ∏ (x y1 y2 : C) (g : C⟦y1,y2⟧),
+       (sd x ⊗⊗^{DM}_{l} #sd g) ;; spt x y2
+       =
+       transportb
+         _
+         (id_right (x ⊗^{M}_{l} g) @ pathsinv0 (id_left (x ⊗^{M}_{l} g)))
+         (spt x y1 ;; #sd (x ⊗^{M}_{l} g)).
+
+  <span class="kn">Lemma</span> <span class="nf">sectionfunctor_preserves_tensor_nat_left</span>
+        {<span class="nv">sd</span> : section_disp D}
+        {<span class="nv">spt</span> : section_preserves_tensor_data sd}
+        (<span class="nv">sptnl</span> : section_preserves_tensor_nat_left spt)
+    : preserves_tensor_nat_left (sectionfunctor_preserves_tensordata spt).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y1 y2 g.
+    use total2_paths_b.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> sptnl.
+      <span class="nb">apply</span> transportb_transpose_left.
+      <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> transportf_set.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_preserves_tensor_nat_right</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">spt</span> : section_preserves_tensor_data sd)
+    : UU
+    := ∏ (x1 x2 y : C) (f : C⟦x1,x2⟧),
+       (#sd f ⊗⊗^{DM}_{r} sd y) ;; spt x2 y
+       =
+       transportb
+         _
+         (id_right (f ⊗^{M}_{r} y) @ pathsinv0 (id_left (f ⊗^{M}_{r} y)))
+         (spt x1 y ;; #sd (f ⊗^{M}_{r} y)).
+
+  <span class="kn">Lemma</span> <span class="nf">sectionfunctor_preserves_tensor_nat_right</span>
+        {<span class="nv">sd</span> : section_disp D}
+        {<span class="nv">spt</span> : section_preserves_tensor_data sd}
+        (<span class="nv">sptnl</span> : section_preserves_tensor_nat_right spt)
+    : preserves_tensor_nat_right (sectionfunctor_preserves_tensordata spt).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 x2 y f.
+    use total2_paths_b.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> sptnl.
+      <span class="nb">apply</span> transportb_transpose_left.
+      <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> transportf_set.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* This equality I should have somewhere, have to check in different files *)</span>
+  <span class="kn">Definition</span> <span class="nf">equality_for_leftunitality</span>
+             (<span class="nv">x</span> : C)
+    : identity I_{M} ⊗^{M}_{r} x · identity (I_{M} ⊗_{M} x) · lu^{M}_{x}
+      =
+      lu^{M}_{x}.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> (bifunctor_rightid M).
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_preserves_leftunitality</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">spt</span> : section_preserves_tensor_data sd)
+             (<span class="nv">spu</span> : section_preserves_unit sd)
+    : UU
+    := ∏ (x : C),
+       spu ⊗⊗^{DM}_{r} sd x ;; spt I_{M} x ;; # sd lu^{M}_{x}
+       =
+       transportb
+         _
+         (equality_for_leftunitality x)
+         (dlu^{DM}_{sd x}).
+
+  <span class="kn">Definition</span> <span class="nf">sectionfunctor_preserves_leftunitality</span>
+             {<span class="nv">sd</span> : section_disp D}
+             {<span class="nv">spt</span> : section_preserves_tensor_data sd}
+             {<span class="nv">spu</span> : section_preserves_unit sd}
+             (<span class="nv">splu</span> : section_preserves_leftunitality spt spu)
+    : preserves_leftunitality
+        (sectionfunctor_preserves_tensordata spt)
+        (sectionfunctor_preserves_unit spu).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use total2_paths_b.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> (bifunctor_rightid M).
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> splu.
+      <span class="nb">apply</span> transportb_transpose_left.
+      <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> transportf_set.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* This equality I should have somewhere, have to check in different files *)</span>
+  <span class="kn">Definition</span> <span class="nf">equality_for_rightunitality</span> (<span class="nv">x</span> : C)
+    : x ⊗^{M}_{l} identity I_{M} · identity (x ⊗_{M} I_{M}) · ru^{M}_{x}
+      =
+      ru^{M}_{x}.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> (bifunctor_leftid M).
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_preserves_rightunitality</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">spt</span> : section_preserves_tensor_data sd)
+             (<span class="nv">spu</span> : section_preserves_unit sd)
+    : UU
+    := ∏ (x : C),
+       sd x ⊗⊗^{DM}_{l} spu ;; spt x I_{M} ;; # sd ru^{M}_{x}
+       =
+       transportb
+         _
+         (equality_for_rightunitality x)
+         (dru^{DM}_{sd x}).
+
+  <span class="kn">Definition</span> <span class="nf">sectionfunctor_preserves_rightunitality</span>
+             {<span class="nv">sd</span> : section_disp D}
+             {<span class="nv">spt</span> : section_preserves_tensor_data sd}
+             {<span class="nv">spu</span> : section_preserves_unit sd}
+             (<span class="nv">spru</span> : section_preserves_rightunitality spt spu)
+    : preserves_rightunitality
+        (sectionfunctor_preserves_tensordata spt)
+        (sectionfunctor_preserves_unit spu).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use total2_paths_b.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> (bifunctor_leftid M).
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> spru.
+      <span class="nb">apply</span> transportb_transpose_left.
+      <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> transportf_set.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* This equality I should have somewhere, have to check in different files *)</span>
+  <span class="kn">Definition</span> <span class="nf">equality_for_associativity</span>
+             (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C)
+    : identity (x ⊗_{M} y) ⊗^{M}_{r} z · identity ((x ⊗_{M} y) ⊗_{M} z) · α^{M}_{ x, y, z}
+      =
+      α^{M}_{ x, y, z} · x ⊗^{M}_{l} identity (y ⊗_{M} z) · identity (x ⊗_{M} (y ⊗_{M} z)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> (bifunctor_leftid M).
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> (bifunctor_rightid M).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_preserves_associativity</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">spt</span> : section_preserves_tensor_data sd)
+    : UU
+    := ∏ (x y z : C),
+       spt x y ⊗⊗^{DM}_{r} sd z ;; spt (x ⊗_{M} y) z ;; # sd α^{M}_{ x, y, z}
+       =
+       transportb
+         _
+         (equality_for_associativity x y z)
+         (dα^{DM}_{ sd x, sd y, sd z} ;; sd x ⊗⊗^{DM}_{l} spt y z ;; spt x (y ⊗_{M} z)).
+
+  <span class="kn">Definition</span> <span class="nf">sectionfunctor_preserves_associativity</span>
+             {<span class="nv">sd</span> : section_disp D}
+             {<span class="nv">spt</span> : section_preserves_tensor_data sd}
+             (<span class="nv">spa</span> : section_preserves_associativity spt)
+    : preserves_associativity (sectionfunctor_preserves_tensordata spt).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z.
+    use total2_paths_b.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> (bifunctor_leftid M).
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> (bifunctor_rightid M).
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> spa.
+      <span class="nb">apply</span> transportb_transpose_left.
+      <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> transportf_set.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_laxlaws</span> {<span class="nv">sd</span> : section_disp D} (<span class="nv">ms</span> : smonoidal_data sd) : UU
+    := (section_preserves_tensor_nat_left
+          (smonoidal_preserves_tensor ms))
+       × (section_preserves_tensor_nat_right
+            (smonoidal_preserves_tensor ms))
+       × (section_preserves_associativity
+            (smonoidal_preserves_tensor ms))
+       × (section_preserves_leftunitality
+            (smonoidal_preserves_tensor ms)
+            (smonoidal_preserves_unit ms))
+       × (section_preserves_rightunitality
+            (smonoidal_preserves_tensor ms)
+            (smonoidal_preserves_unit ms)).
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_preserves_tensornatleft</span>
+             {<span class="nv">sd</span> : section_disp D}
+             {<span class="nv">ms</span> : smonoidal_data sd}
+             (<span class="nv">msl</span> : smonoidal_laxlaws ms)
+    : section_preserves_tensor_nat_left (smonoidal_preserves_tensor ms)
+    := pr1 msl.
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_preserves_tensornatright</span>
+             {<span class="nv">sd</span> : section_disp D}
+             {<span class="nv">ms</span> : smonoidal_data sd}
+             (<span class="nv">msl</span> : smonoidal_laxlaws ms)
+    : section_preserves_tensor_nat_right (smonoidal_preserves_tensor ms)
+    := pr1 (pr2 msl).
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_preserves_associativity</span>
+             {<span class="nv">sd</span> : section_disp D}
+             {<span class="nv">ms</span> : smonoidal_data sd}
+             (<span class="nv">msl</span> : smonoidal_laxlaws ms)
+    : section_preserves_associativity (smonoidal_preserves_tensor ms)
+    := pr1 (pr2 (pr2 msl)).
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_preserves_leftunitality</span>
+             {<span class="nv">sd</span> : section_disp D}
+             {<span class="nv">ms</span> : smonoidal_data sd}
+             (<span class="nv">msl</span> : smonoidal_laxlaws ms)
+    : section_preserves_leftunitality
+        (smonoidal_preserves_tensor ms)
+        (smonoidal_preserves_unit ms)
+    := pr1 (pr2 (pr2 (pr2 msl))).
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_preserves_rightunitality</span>
+             {<span class="nv">sd</span> : section_disp D}
+             {<span class="nv">ms</span> : smonoidal_data sd}
+             (<span class="nv">msl</span> : smonoidal_laxlaws ms)
+    : section_preserves_rightunitality
+        (smonoidal_preserves_tensor ms)
+        (smonoidal_preserves_unit ms)
+    := pr2 (pr2 (pr2 (pr2 msl))).
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_lax</span> (<span class="nv">sd</span> : section_disp D) : UU
+    := ∑ (ms : smonoidal_data sd), smonoidal_laxlaws ms.
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_sdata</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">sm</span> : smonoidal_lax sd)
+    : smonoidal_data sd := pr1 sm.
+
+  <span class="kn">Coercion</span> <span class="nf">smonoidal_sdata</span> : smonoidal_lax &gt;-&gt; smonoidal_data.
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_slaxlaws</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">sm</span> : smonoidal_lax sd)
+    : smonoidal_laxlaws sm
+    := pr2 sm.
+
+  <span class="kn">Definition</span> <span class="nf">sectionfunctor_fmonoidal_laxlaws</span>
+             {<span class="nv">sd</span> : section_disp D}
+             {<span class="nv">ms</span> : smonoidal_data sd}
+             (<span class="nv">ml</span> : smonoidal_laxlaws ms)
+    : fmonoidal_laxlaws
+        (sectionfunctor_fmonoidal_data
+           (smonoidal_preserves_tensor ms)
+           (smonoidal_preserves_unit ms))
+    := (sectionfunctor_preserves_tensor_nat_left (smonoidal_preserves_tensornatleft ml),,
+        sectionfunctor_preserves_tensor_nat_right (smonoidal_preserves_tensornatright ml),,
+        sectionfunctor_preserves_associativity (smonoidal_preserves_associativity ml),,
+        sectionfunctor_preserves_leftunitality (smonoidal_preserves_leftunitality ml),,
+        sectionfunctor_preserves_rightunitality (smonoidal_preserves_rightunitality ml)).
+
+  <span class="kn">Definition</span> <span class="nf">sectionfunctor_fmonoidal_lax</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">ms</span> : smonoidal_lax sd)
+    : fmonoidal_lax M TM (section_functor sd)
+    := (sectionfunctor_fmonoidal_data
+          (smonoidal_preserves_tensor ms)
+          (smonoidal_preserves_unit ms)
+        ,,
+        sectionfunctor_fmonoidal_laxlaws (smonoidal_slaxlaws ms)).
+
+  <span class="c">(* We now define a strong monoidal section and show that each such section induces a strong monoidal functor *)</span>
+  <span class="kn">Definition</span> <span class="nf">smonoidal_strongtensor</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">spt</span> : section_preserves_tensor_data sd)
+    : UU
+    := ∏ (x y : C),
+       is_z_iso_disp
+         (identity_z_iso (x⊗_{M} y))
+         (spt x y).
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_strongunit</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">spu</span> : section_preserves_unit sd)
+    : UU
+    := is_z_iso_disp
+         (identity_z_iso (I_{M}))
+         spu.
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_stronglaws</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">ms</span> : smonoidal_data sd)
+    : UU
+    := smonoidal_strongtensor (smonoidal_preserves_tensor ms)
+       ×
+       smonoidal_strongunit (smonoidal_preserves_unit ms).
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal</span> (<span class="nv">sd</span> : section_disp D) : UU
+    := ∑ (ms : smonoidal_lax sd), smonoidal_stronglaws ms.
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_smonoidallax</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">sm</span> : smonoidal sd)
+    : smonoidal_lax sd
+    := pr1 sm.
+  <span class="kn">Coercion</span> <span class="nf">smonoidal_smonoidallax</span> : smonoidal &gt;-&gt; smonoidal_lax.
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_smonoidalstronglaws</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">sm</span> : smonoidal sd)
+    : smonoidal_stronglaws sm
+    := pr2 sm.
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_smonoidalstrongtensor</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">sm</span> : smonoidal sd)
+    : smonoidal_strongtensor (smonoidal_preserves_tensor sm)
+    := pr1 (smonoidal_smonoidalstronglaws sm).
+
+  <span class="kn">Definition</span> <span class="nf">smonoidal_smonoidalstrongunit</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">sm</span> : smonoidal sd)
+    : smonoidal_strongunit (smonoidal_preserves_unit sm)
+    := pr2 (smonoidal_smonoidalstronglaws sm).
+
+  <span class="kn">Definition</span> <span class="nf">sectionfunctor_preservestensorstrongly</span>
+             {<span class="nv">sd</span> : section_disp D}
+             {<span class="nv">ms</span> : smonoidal sd}
+             (<span class="nv">pfstrong</span> : smonoidal_strongtensor (smonoidal_preserves_tensor ms))
+    : preserves_tensor_strongly
+        (sectionfunctor_preserves_tensordata
+           (smonoidal_preserves_tensor ms)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use tpair.
+    - use tpair.
+      + <span class="nb">apply</span> identity.
+      + <span class="bp">exact</span> (pr1 (pfstrong x y)).
+    - use tpair.
+      + use total2_paths_b.
+        * <span class="nb">apply</span> id_left.
+        * <span class="nb">apply</span> (pr2 (pr2 (pfstrong x y))).
+      + use total2_paths_b.
+        * <span class="nb">apply</span> id_left.
+        * <span class="nb">apply</span> (pr1 (pr2 (pfstrong x y))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sectionfunctor_preservesunitstrongly</span>
+             {<span class="nv">sd</span> : section_disp D}
+             {<span class="nv">ms</span> : smonoidal sd}
+             (<span class="nv">pfstrong</span> : smonoidal_strongunit (smonoidal_preserves_unit ms))
+    : preserves_unit_strongly
+        (sectionfunctor_preserves_unit (smonoidal_preserves_unit ms)).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use tpair.
+      + <span class="nb">apply</span> identity.
+      + <span class="bp">exact</span> (pr1 pfstrong).
+    - use tpair.
+      + use total2_paths_b.
+        * <span class="nb">apply</span> id_left.
+        * <span class="nb">apply</span> (pr22 pfstrong).
+      + use total2_paths_b.
+        * <span class="nb">apply</span> id_left.
+        * <span class="nb">apply</span> (pr1 (pr2 pfstrong)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sectionfunctor_fmonoidal</span>
+             {<span class="nv">sd</span> : section_disp D}
+             (<span class="nv">ms</span> : smonoidal sd)
+    : fmonoidal M TM (section_functor sd)
+    := (sectionfunctor_fmonoidal_lax ms ,,
+        sectionfunctor_preservestensorstrongly (smonoidal_smonoidalstrongtensor ms) ,,
+        sectionfunctor_preservesunitstrongly (smonoidal_smonoidalstrongunit ms)).
+<span class="kn">End</span> <span class="nf">MonoidalSections</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Displayed/MonoidalSections.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; git log -- UniMath/CategoryTheory/Monoidal/MonoidalSectionsWhiskered.v
+  &gt;
+  &gt;  *********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

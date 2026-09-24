@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CartesianPseudoFunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************</span>
+
+<span class="sd"> Cleavings of bicategories</span>
+
+<span class="sd"> In this file, we define cleaving of bicategories</span>
+
+<span class="sd"> 1. Cartesian pseudofunctors</span>
+<span class="sd"> 2. Cartesian pseudofunctors from global cleavings</span>
+
+<span class="sd"> *********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Opposite.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.TransportLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.StrictPseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.StrictPseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.StrictToPseudo.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Projection.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Cartesians.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.EquivalenceBetweenCartesians.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="sd">(** 1. Cartesian pseudofunctors *)</span>
+<span class="kn">Definition</span> <span class="nf">global_cartesian_disp_psfunctor</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">D₁</span> : disp_bicat B₁}
+           {<span class="nv">D₂</span> : disp_bicat B₂}
+           (<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F)
+  : UU
+  := ∏ (b₁ b₂ : B₁)
+       (f : b₁ --&gt; b₂)
+       (bb₁ : D₁ b₁)
+       (bb₂ : D₁ b₂)
+       (ff : bb₁ --&gt;[ f ] bb₂)
+       (Hff : cartesian_1cell D₁ ff),
+     cartesian_1cell D₂ (disp_psfunctor_mor _ _ _ FF ff).
+
+<span class="kn">Definition</span> <span class="nf">local_cartesian_disp_psfunctor</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">D₁</span> : disp_bicat B₁}
+           {<span class="nv">D₂</span> : disp_bicat B₂}
+           (<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F)
+  : UU
+  := ∏ (b₁ b₂ : B₁)
+       (f g : b₁ --&gt; b₂)
+       (α : f ==&gt; g)
+       (bb₁ : D₁ b₁)
+       (bb₂ : D₁ b₂)
+       (ff : bb₁ --&gt;[ f ] bb₂)
+       (gg : bb₁ --&gt;[ g ] bb₂)
+       (αα : ff ==&gt;[ α ] gg)
+       (Hαα : is_cartesian_2cell D₁ αα),
+     is_cartesian_2cell D₂ (disp_psfunctor_cell _ _ _ FF αα).
+
+<span class="kn">Definition</span> <span class="nf">local_opcartesian_disp_psfunctor</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">D₁</span> : disp_bicat B₁}
+           {<span class="nv">D₂</span> : disp_bicat B₂}
+           (<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F)
+  : UU
+  := ∏ (b₁ b₂ : B₁)
+       (f g : b₁ --&gt; b₂)
+       (α : f ==&gt; g)
+       (bb₁ : D₁ b₁)
+       (bb₂ : D₁ b₂)
+       (ff : bb₁ --&gt;[ f ] bb₂)
+       (gg : bb₁ --&gt;[ g ] bb₂)
+       (αα : ff ==&gt;[ α ] gg)
+       (Hαα : is_opcartesian_2cell D₁ αα),
+     is_opcartesian_2cell D₂ (disp_psfunctor_cell _ _ _ FF αα).
+
+<span class="kn">Definition</span> <span class="nf">cartesian_disp_psfunctor</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">D₁</span> : disp_bicat B₁}
+           {<span class="nv">D₂</span> : disp_bicat B₂}
+           (<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F)
+  : UU
+  := global_cartesian_disp_psfunctor FF × local_cartesian_disp_psfunctor FF.
+
+<span class="sd">(** Lmmas on cartesian pseudofunctors *)</span>
+<span class="kn">Definition</span> <span class="nf">global_cartesian_id_psfunctor</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : global_cartesian_disp_psfunctor (disp_pseudo_id D).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ? ? ? ? H.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">global_cartesian_comp_psfunctor</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₃}
+           {<span class="nv">D₁</span> : disp_bicat B₁}
+           {<span class="nv">D₂</span> : disp_bicat B₂}
+           {<span class="nv">D₃</span> : disp_bicat B₃}
+           {<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F}
+           {<span class="nv">GG</span> : disp_psfunctor D₂ D₃ G}
+           (<span class="nv">HFF</span> : global_cartesian_disp_psfunctor FF)
+           (<span class="nv">HGG</span> : global_cartesian_disp_psfunctor GG)
+  : global_cartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ? ? ? ? H.
+  <span class="nb">apply</span> HGG.
+  <span class="nb">apply</span> HFF.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_cartesian_id_psfunctor</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : local_cartesian_disp_psfunctor (disp_pseudo_id D).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ? ? ? ? ? ? ? ? H.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_cartesian_comp_psfunctor</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₃}
+           {<span class="nv">D₁</span> : disp_bicat B₁}
+           {<span class="nv">D₂</span> : disp_bicat B₂}
+           {<span class="nv">D₃</span> : disp_bicat B₃}
+           {<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F}
+           {<span class="nv">GG</span> : disp_psfunctor D₂ D₃ G}
+           (<span class="nv">HFF</span> : local_cartesian_disp_psfunctor FF)
+           (<span class="nv">HGG</span> : local_cartesian_disp_psfunctor GG)
+  : local_cartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ? ? ? ? ? ? ? ? H.
+  <span class="nb">apply</span> HGG.
+  <span class="nb">apply</span> HFF.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_opcartesian_id_psfunctor</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : local_opcartesian_disp_psfunctor (disp_pseudo_id D).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ? ? ? ? ? ? ? ? H.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_opcartesian_comp_psfunctor</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₃}
+           {<span class="nv">D₁</span> : disp_bicat B₁}
+           {<span class="nv">D₂</span> : disp_bicat B₂}
+           {<span class="nv">D₃</span> : disp_bicat B₃}
+           {<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F}
+           {<span class="nv">GG</span> : disp_psfunctor D₂ D₃ G}
+           (<span class="nv">HFF</span> : local_opcartesian_disp_psfunctor FF)
+           (<span class="nv">HGG</span> : local_opcartesian_disp_psfunctor GG)
+  : local_opcartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ? ? ? ? ? ? ? ? H.
+  <span class="nb">apply</span> HGG.
+  <span class="nb">apply</span> HFF.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_id_psfunctor</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : cartesian_disp_psfunctor (disp_pseudo_id D).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> global_cartesian_id_psfunctor.
+  - <span class="nb">apply</span> local_cartesian_id_psfunctor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_comp_psfunctor</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₃}
+           {<span class="nv">D₁</span> : disp_bicat B₁}
+           {<span class="nv">D₂</span> : disp_bicat B₂}
+           {<span class="nv">D₃</span> : disp_bicat B₃}
+           {<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F}
+           {<span class="nv">GG</span> : disp_psfunctor D₂ D₃ G}
+           (<span class="nv">HFF</span> : cartesian_disp_psfunctor FF)
+           (<span class="nv">HGG</span> : cartesian_disp_psfunctor GG)
+  : cartesian_disp_psfunctor (disp_pseudo_comp _ _ _ _ _ FF GG).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> global_cartesian_comp_psfunctor.
+    + <span class="bp">exact</span> (pr1 HFF).
+    + <span class="bp">exact</span> (pr1 HGG).
+  - <span class="nb">apply</span> local_cartesian_comp_psfunctor.
+    + <span class="bp">exact</span> (pr2 HFF).
+    + <span class="bp">exact</span> (pr2 HGG).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Cartesian pseudofunctors from global cleavings</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_global_lifts</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">D₁</span> : disp_bicat B₁}
+           {<span class="nv">D₂</span> : disp_bicat B₂}
+           (<span class="nv">HD₁</span> : global_cleaving D₁)
+           (<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F)
+  : UU
+  := ∏ (b₁ b₂ : B₁)
+       (f : b₁ --&gt; b₂)
+       (bb₂ : D₁ b₂),
+     cartesian_1cell
+       D₂
+       (disp_psfunctor_mor _ _ _ FF (pr12 (HD₁ b₁ b₂ bb₂ f))).
+
+<span class="kn">Definition</span> <span class="nf">preserves_global_lifts_to_cartesian</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D₁</span> : disp_bicat B}
+           {<span class="nv">D₂</span> : disp_bicat B}
+           (<span class="nv">HB</span> : is_univalent_2 B)
+           (<span class="nv">HD₂</span> : disp_univalent_2 D₂)
+           (<span class="nv">HD₁</span> : global_cleaving D₁)
+           {<span class="nv">FF</span> : disp_psfunctor D₁ D₂ (id_psfunctor _)}
+           (<span class="nv">HFF</span> : preserves_global_lifts HD₁ FF)
+  : global_cartesian_disp_psfunctor FF.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> b₁ b₂ f bb₁ bb₂ ff Hff.
+  <span class="nb">refine</span> (invertible_2cell_from_cartesian
+            HB (pr2 HD₂)
+            _
+            (pr2 (disp_psfunctor_invertible_2cell
+                    FF
+                    (map_between_cartesian_1cell_commute
+                       (pr2 HB)
+                       ff
+                       (pr22 (HD₁ b₁ b₂ bb₂ f)))))).
+  use (invertible_2cell_from_cartesian
+         HB (pr2 HD₂)
+         _
+         (pr2 (disp_psfunctor_comp _ _ _ _ _ _))).
+  use (comp_cartesian_1cell HB).
+  - <span class="bp">exact</span> (cartesian_1cell_disp_adj_equiv
+             HB
+             (pr1 HD₂)
+             (@disp_psfunctor_id_on_disp_adjequiv
+                _ _ _ FF
+                _ _
+                (_ ,, pr1 (disp_adj_equiv_between_cartesian_1cell
+                             (pr2 HB)
+                             Hff
+                             (pr22 (HD₁ b₁ b₂ bb₂ f))))
+                _ _ _
+                (pr2 (disp_adj_equiv_between_cartesian_1cell
+                        (pr2 HB)
+                        Hff
+                        (pr22 (HD₁ b₁ b₂ bb₂ f)))))).
+  - <span class="nb">apply</span> HFF.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/CartesianPseudoFunctor.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Cartesian pseudofunctors from global cleavings
+  &gt;
+  &gt;  *********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

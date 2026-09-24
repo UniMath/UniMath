@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LeastFixpoint.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Fixpoints in DCPO</span>
+
+<span class="sd"> In this file, we prove the classical fixpoint theorem for DCPOs</span>
+<span class="sd"> that says that every Scott continuous map has a least fixpoint.</span>
+<span class="sd"> We also show that we have a continuous function that assigns to</span>
+<span class="sd"> every Scott continuous function the least fixpoint. The</span>
+<span class="sd"> construction of this map is based on the proof of Theorem</span>
+<span class="sd"> 1.2.17 of 'The Lambda Calculus, its Syntax and Semantics' by</span>
+<span class="sd"> Barendregt.</span>
+
+<span class="sd"> The idea is as follows: we already defined numerous combinators</span>
+<span class="sd"> for Scott continuous maps (lambda, application), and we reuse</span>
+<span class="sd"> those to reproduce the construction of the least fixpoint. The</span>
+<span class="sd"> following steps are key:</span>
+<span class="sd"> - [iterate_scott_continuous_map]: this function assigns to every</span>
+<span class="sd">   `f` and `n` the map `f ∘ ... ∘ f` (`n` times). For this</span>
+<span class="sd">   definition, we use the lambda combinator of Scott continuous</span>
+<span class="sd">   maps.</span>
+<span class="sd"> - [least_fixpoint_scott_continuous_map_on_N]: this function</span>
+<span class="sd">   assigns to every `f` and `n` the point `f(...f(⊥_{X})...)`. We</span>
+<span class="sd">   use the evaluation, pairing, and the function defined in the</span>
+<span class="sd">   previous point for it.</span>
+<span class="sd"> - [least_fixpoint_scott_continuous_map]: this function takes the</span>
+<span class="sd">   least upperbound for every `n` of all the functions defined in</span>
+<span class="sd">   the previous point.</span>
+<span class="sd"> This is the same construction as used in the Knaster-Tarski</span>
+<span class="sd"> fixpoint theorem, and we prove that in</span>
+<span class="sd"> [least_fixpoint_scott_continuous_map_is_least_fixpoint].</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The least fixpoint</span>
+<span class="sd"> 2. Pointed DCPPO of fixpoints</span>
+<span class="sd"> 3. Continuous map that assigns to a function its least fixpoint</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.PointedPosets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottContinuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Examples.Fixpoints.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Examples.Exponentials.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Examples.BinaryProducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="kn">Section</span> <span class="nf">FixpointTheorem</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcppo}
+          (<span class="nv">f</span> : scott_continuous_map X X).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. The least fixpoint</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">bot_iteration_map</span>
+             (<span class="nv">n</span> : ℕ)
+    : X.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+    - <span class="bp">exact</span> (⊥_{X}).
+    - <span class="bp">exact</span> (f IHn).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_monotone_bot_iteration_map_S</span>
+        (<span class="nv">n</span> : ℕ)
+    : bot_iteration_map n ⊑ f (bot_iteration_map n).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+    - <span class="nb">apply</span> is_min_bottom_dcppo.
+    - <span class="bp">exact</span> (is_monotone_scott_continuous_map f IHn).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bot_iteration_directed_set</span>
+    : directed_set X.
+  <span class="kn">Proof</span>.
+    use nat_directed_set.
+    - <span class="bp">exact</span> bot_iteration_map.
+    - <span class="nb">apply</span> is_monotone_bot_iteration_map_S.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">least_fixpoint</span>
+    : X
+    := ⨆ bot_iteration_directed_set.
+
+  <span class="kn">Proposition</span> <span class="nf">is_fixpoint_least_fixpoint</span>
+    : f least_fixpoint = least_fixpoint.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> least_fixpoint.
+    <span class="nb">rewrite</span> scott_continuous_map_on_lub.
+    use antisymm_dcpo.
+    - use dcpo_lub_is_least.
+      <span class="nb">cbn</span> ; <span class="nb">intro</span> i.
+      use less_than_dcpo_lub.
+      + <span class="bp">exact</span> (S i).
+      + <span class="nb">apply</span> refl_dcpo.
+    - use dcpo_lub_is_least.
+      <span class="nb">cbn</span> ; <span class="nb">intro</span> i.
+      use less_than_dcpo_lub.
+      + <span class="bp">exact</span> i.
+      + <span class="nb">apply</span> is_monotone_bot_iteration_map_S.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">is_least_fixpoint_least_fixpoint</span>
+          (<span class="nv">x</span> : X)
+          (<span class="nv">p</span> : f x = x)
+    : least_fixpoint ⊑ x.
+  <span class="kn">Proof</span>.
+    use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+    <span class="nb">intro</span> n.
+    <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+    - <span class="nb">apply</span> is_min_bottom_dcppo.
+    - <span class="nb">rewrite</span> &lt;- p.
+      <span class="bp">exact</span> (is_monotone_scott_continuous_map f IHn).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bottom_element_fixpoint_dcpo</span>
+    : bottom_element (fixpoint_dcpo f).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((least_fixpoint ,, _) ,, _).
+    - <span class="nb">apply</span> is_fixpoint_least_fixpoint.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, is_least_fixpoint_least_fixpoint _ (pr2 x)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Pointed DCPPO of fixpoints</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">fixpoint_dcppo</span>
+    : dcppo
+    := _ ,, pr2 (fixpoint_dcpo f) ,, bottom_element_fixpoint_dcpo.
+<span class="kn">End</span> <span class="nf">FixpointTheorem</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Continuous map that assigns to a function its least fixpoint</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">iterate_on_pt_scott_continuous_map</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">n</span> : ℕ)
+  : scott_continuous_map (X × dcpo_funspace X X) X.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="bp">exact</span> π₁.
+  - <span class="bp">exact</span> (comp_scott_continuous_map
+             ⟨ eval_scott_continuous_map X X , π₂ ⟩
+             IHn).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">iterate_on_pt_scott_continuous_map_fun_pt</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">n</span> : ℕ)
+            (<span class="nv">f</span> : scott_continuous_map X X)
+            (<span class="nv">x</span> : X)
+  : iterate_on_pt_scott_continuous_map n (f x ,, f)
+    =
+    f (iterate_on_pt_scott_continuous_map n (x ,, f)).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> x.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intro</span> ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> x.
+    <span class="nb">simpl</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> IHn.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">iterate_scott_continuous_map</span>
+           {<span class="nv">X</span> : dcppo}
+           (<span class="nv">n</span> : ℕ)
+  : scott_continuous_map (dcpo_funspace X X) (dcpo_funspace X X)
+  := lam_scott_continuous_map (iterate_on_pt_scott_continuous_map n).
+
+<span class="kn">Definition</span> <span class="nf">iterate_scott_continuous_map_S</span>
+           {<span class="nv">X</span> : dcppo}
+           (<span class="nv">n</span> : ℕ)
+           (<span class="nv">f</span> : scott_continuous_map X X)
+           (<span class="nv">x</span> : X)
+  : pr1 (iterate_scott_continuous_map (S n) f) x
+    =
+    f (pr1 (iterate_scott_continuous_map n f) x).
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">simpl</span>.
+  <span class="bp">exact</span> (iterate_on_pt_scott_continuous_map_fun_pt n f x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">least_fixpoint_scott_continuous_map_on_N</span>
+           {<span class="nv">X</span> : dcppo}
+           (<span class="nv">n</span> : ℕ)
+  : dcpo_funspace (dcpo_funspace X X) X
+  := comp_scott_continuous_map
+       ⟨ constant_scott_continuous_map _ ⊥_{X} , iterate_scott_continuous_map n ⟩
+       (eval_scott_continuous_map _ _).
+
+<span class="kn">Definition</span> <span class="nf">least_fixpoint_scott_continuous_map_directed_set</span>
+           (<span class="nv">X</span> : dcppo)
+  : directed_set (dcpo_funspace (dcpo_funspace X X) X).
+<span class="kn">Proof</span>.
+  use nat_directed_set.
+  - <span class="bp">exact</span> least_fixpoint_scott_continuous_map_on_N.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> i f ;
+       <span class="nb">simpl</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">simpl</span> ;
+       use is_monotone_scott_continuous_map ;
+       <span class="nb">split</span> ; [ <span class="nb">apply</span> is_min_bottom_dcppo | ] ;
+       <span class="nb">intro</span> ;
+       <span class="nb">apply</span> refl_dcpo).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">least_fixpoint_scott_continuous_map</span>
+           (<span class="nv">X</span> : dcppo)
+  : dcpo_funspace (dcpo_funspace X X) X
+  := ⨆ least_fixpoint_scott_continuous_map_directed_set X.
+
+<span class="kn">Proposition</span> <span class="nf">least_fixpoint_scott_continuous_map_is_least_fixpoint_on_N</span>
+            {<span class="nv">X</span> : dcppo}
+            (<span class="nv">f</span> : scott_continuous_map X X)
+            (<span class="nv">n</span> : ℕ)
+  : pr1 (least_fixpoint_scott_continuous_map_on_N n) f
+    =
+    bot_iteration_directed_set f n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">refine</span> (_ @ maponpaths _ IHn).
+    <span class="nb">simpl</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (iterate_on_pt_scott_continuous_map_fun_pt n f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">least_fixpoint_scott_continuous_map_is_least_fixpoint</span>
+            {<span class="nv">X</span> : dcppo}
+            (<span class="nv">f</span> : scott_continuous_map X X)
+  : pr1 (least_fixpoint_scott_continuous_map X) f
+    =
+    least_fixpoint f.
+<span class="kn">Proof</span>.
+  use antisymm_dcpo.
+  - use dcpo_lub_is_least.
+    <span class="nb">intro</span> i ; <span class="nb">cbn</span> <span class="k">in</span> i.
+    use less_than_dcpo_lub.
+    + <span class="bp">exact</span> i.
+    + <span class="nb">rewrite</span> &lt;- least_fixpoint_scott_continuous_map_is_least_fixpoint_on_N.
+      <span class="nb">apply</span> refl_dcpo.
+  - use dcpo_lub_is_least.
+    <span class="nb">intro</span> i ; <span class="nb">cbn</span> <span class="k">in</span> i.
+    use less_than_dcpo_lub.
+    + <span class="bp">exact</span> i.
+    + <span class="nb">rewrite</span> &lt;- least_fixpoint_scott_continuous_map_is_least_fixpoint_on_N.
+      <span class="nb">apply</span> refl_dcpo.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/FixpointTheorems/LeastFixpoint.v</tt>, line 38)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Continuous map that assigns to a function its least fixpoint
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

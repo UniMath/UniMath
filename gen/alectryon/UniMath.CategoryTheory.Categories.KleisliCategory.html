@@ -1,0 +1,766 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>KleisliCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************</span>
+
+<span class="sd"> The Kleisli category</span>
+
+<span class="sd"> The usual definition of the Kleisli category (given in the file</span>
+<span class="sd"> `Monads.KleisliCategory.v` does not give rise to a univalent</span>
+<span class="sd"> category. In this file, we give an alternative definition of the</span>
+<span class="sd"> Kleisli category in such a way that we do get a univalent category.</span>
+<span class="sd"> This definition can be found here:</span>
+
+<span class="sd"> https://ncatlab.org/nlab/show/Kleisli+category#in_terms_of_free_algebras</span>
+
+<span class="sd"> We also prove its universal property.</span>
+
+<span class="sd"> Note: to prove its universal property, we use that the usual</span>
+<span class="sd"> definition of the Kleisli category (which is not necessarily</span>
+<span class="sd"> univalent), satisfies the universal property. We also use that we</span>
+<span class="sd"> have a weak equivalence between these two categories.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The free algebra functor</span>
+<span class="sd"> 2. The univalent Kleisli category</span>
+<span class="sd"> 3. The weak equivalence</span>
+<span class="sd"> 4. The universal property</span>
+
+<span class="sd"> ********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.EilenbergMoore.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.KleisliCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecompEquivalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. The free algebra functor</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">FreeAlgebraFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">m</span> : Monad C).
+
+  <span class="kn">Definition</span> <span class="nf">free_alg_em_data</span>
+    : functor_data C (eilenberg_moore_cat m).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, make_ob_eilenberg_moore m (m x) (μ m x) _ _).
+      + <span class="nb">apply</span> Monad_law1.
+      + <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> Monad_law3.
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, make_mor_eilenberg_moore _ _ _).
+      + <span class="bp">exact</span> (#m f).
+      + <span class="bp">exact</span> (!(nat_trans_ax (μ m) _ _ f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">free_alg_em_is_functor</span>
+    : is_functor free_alg_em_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      use eq_mor_eilenberg_moore ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> functor_id.
+    - <span class="nb">intros</span> x y z f g.
+      use eq_mor_eilenberg_moore ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> functor_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">free_alg_em</span>
+    : C ⟶ eilenberg_moore_cat m.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> free_alg_em_data.
+    - <span class="bp">exact</span> free_alg_em_is_functor.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FreeAlgebraFunctor</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. The univalent Kleisli category</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">kleisli_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+  : category
+  := full_img_sub_precategory (free_alg_em m).
+
+<span class="kn">Definition</span> <span class="nf">univalent_kleisli_cat</span>
+           {<span class="nv">C</span> : univalent_category}
+           (<span class="nv">m</span> : Monad C)
+  : univalent_category
+  := @univalent_image
+       C
+       (eilenberg_moore_univalent_cat C m)
+       (free_alg_em m).
+
+<span class="kn">Definition</span> <span class="nf">is_z_iso_kleisli_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : kleisli_cat m}
+           {<span class="nv">f</span> : x₁ --&gt; x₂}
+           (<span class="nv">Hf</span> : is_z_isomorphism (pr111 f))
+  : is_z_isomorphism f.
+<span class="kn">Proof</span>.
+  use is_iso_full_sub.
+  use is_z_iso_eilenberg_moore.
+  <span class="bp">exact</span> Hf.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_kleisli_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : kleisli_cat m}
+           (<span class="nv">f</span> : z_iso (pr1 x₁) (pr1 x₂))
+  : z_iso x₁ x₂.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (pr1 f ,, tt).
+  - use is_iso_full_sub.
+    <span class="bp">exact</span> (pr2 f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">from_z_iso_kleisli_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : kleisli_cat m}
+           (<span class="nv">f</span> : z_iso x₁ x₂)
+  : z_iso (pr111 x₁) (pr111 x₂).
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - <span class="bp">exact</span> (pr1 (pr111 f)).
+  - <span class="bp">exact</span> (pr111 (inv_from_z_iso f)).
+  - <span class="nb">split</span>.
+    + <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr111 z) (z_iso_inv_after_z_iso f)).
+    + <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr111 z) (z_iso_after_z_iso_inv f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">eq_mor_kleisli_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : kleisli_cat m}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : x₁ --&gt; x₂}
+           (<span class="nv">p</span> : pr111 f₁ = pr111 f₂)
+  : f₁ = f₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropunit.
+  }
+  use eq_mor_eilenberg_moore.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">kleisli_incl</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+  : C ⟶ kleisli_cat m
+  := functor_full_img _.
+
+<span class="kn">Definition</span> <span class="nf">kleisli_nat_trans</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+  : m ∙ kleisli_incl m ⟹ kleisli_incl m.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="nb">intro</span> x.
+    <span class="nb">simple refine</span> (_ ,, tt).
+    use make_mor_eilenberg_moore ; <span class="nb">cbn</span>.
+    + <span class="bp">exact</span> (μ m x).
+    + <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (!_) ;
+         <span class="nb">apply</span> Monad_law3).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ;
+       use eq_mor_kleisli_cat ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> (nat_trans_ax (μ m))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. The weak equivalence</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_to_kleisli_cat_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+  : functor_data (Kleisli_cat_monad m) (kleisli_cat m).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, free_alg_em m x ,, hinhpr (x ,, _)).
+    <span class="nb">apply</span> identity_z_iso.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, _ ,, tt).
+    use make_mor_eilenberg_moore.
+    + <span class="bp">exact</span> (# m f · μ m y).
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (!(nat_trans_ax (μ m) _ _ f)) @ _) ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !functor_comp ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">apply</span> Monad_law3).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_to_kleisli_cat_is_functor</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+  : is_functor (functor_to_kleisli_cat_data m).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> x.
+    use eq_mor_kleisli_cat.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> Monad_law2.
+  - <span class="nb">intros</span> x y z f g.
+    use eq_mor_kleisli_cat.
+    <span class="nb">cbn</span> ; <span class="nb">unfold</span> bind.
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax (μ m)).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> Monad_law3.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_to_kleisli_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+  : Kleisli_cat_monad m ⟶ kleisli_cat m.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (functor_to_kleisli_cat_data m).
+  - <span class="bp">exact</span> (functor_to_kleisli_cat_is_functor m).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_to_kleisli_cat_incl_nat_trans</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+  : kleisli_incl m
+    ⟹
+    Left_Kleisli_functor m ∙ functor_to_kleisli_cat m.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, make_mor_eilenberg_moore _ (identity _) _ ,, tt).
+    <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> functor_id, id_left, id_right ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ;
+       use eq_mor_kleisli_cat ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> id_left, id_right ;
+       <span class="nb">rewrite</span> functor_comp ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">refine</span> (!_) ;
+       <span class="nb">refine</span> (_ @ id_right _) ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> Monad_law2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_to_kleisli_cat_incl_nat_z_iso</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+  : nat_z_iso
+      (kleisli_incl m)
+      (Left_Kleisli_functor m ∙ functor_to_kleisli_cat m).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> (functor_to_kleisli_cat_incl_nat_trans m).
+  - <span class="nb">intro</span>.
+    use is_z_iso_kleisli_cat.
+    <span class="nb">apply</span> is_z_isomorphism_identity.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_functor_to_kleisli_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+  : full (functor_to_kleisli_cat m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f.
+  <span class="nb">apply</span> hinhpr.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (η m x · pr111 f).
+  - use eq_mor_kleisli_cat.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!(pr211 f)).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> Monad_law2.
+    }
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">faithful_functor_to_kleisli_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+  : faithful (functor_to_kleisli_cat m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f.
+  use invproofirrelevance.
+  <span class="nb">intros</span> ψ₁ ψ₂.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">pose</span> (pr2 ψ₁ @ !(pr2 ψ₂)) <span class="k">as</span> p.
+  <span class="nb">cbn</span> <span class="k">in</span> p.
+  <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, η m _ · pr111 z) p) <span class="k">as</span> q.
+  <span class="nb">cbn</span> <span class="k">in</span> q.
+  <span class="nb">rewrite</span> !assoc <span class="k">in</span> q.
+  <span class="nb">refine</span> (_ @ q @ _).
+  - <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (!(nat_trans_ax (η m) _ _ (pr1 ψ₁))).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> Monad_law1.
+    }
+    <span class="nb">apply</span> id_right.
+  - etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (!(nat_trans_ax (η m) _ _ (pr1 ψ₂))).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> Monad_law1.
+    }
+    <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fully_faithful_functor_to_kleisli_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+  : fully_faithful (functor_to_kleisli_cat m).
+<span class="kn">Proof</span>.
+  use full_and_faithful_implies_fully_faithful.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (full_functor_to_kleisli_cat m).
+  - <span class="bp">exact</span> (faithful_functor_to_kleisli_cat m).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">essentially_surjective_functor_to_kleisli_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">m</span> : Monad C)
+  : essentially_surjective (functor_to_kleisli_cat m).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">induction</span> x <span class="k">as</span> [ x Hx ].
+  <span class="nb">revert</span> Hx.
+  use factor_dep_through_squash.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropishinh.
+  - <span class="nb">intros</span> Hx.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">refine</span> (pr1 Hx ,, _).
+    use z_iso_kleisli_cat.
+    <span class="bp">exact</span> (pr2 Hx).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. The universal property</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">KleisliUMP1</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+          (<span class="nv">m</span> : Monad C₁)
+          (<span class="nv">F</span> : C₁ ⟶ C₂)
+          (<span class="nv">γ</span> : m ∙ F ⟹ F)
+          (<span class="nv">p₁</span> : ∏ (x : C₁), #F (η m x) · γ x = identity _)
+          (<span class="nv">p₂</span> : ∏ (x : C₁), γ _ · γ x = #F (μ m x) · γ x).
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_univalent_kleisli_cat</span>
+    : kleisli_cat m ⟶ C₂
+    := lift_functor_along
+         C₂
+         (functor_to_kleisli_cat m)
+         (essentially_surjective_functor_to_kleisli_cat m)
+         (fully_faithful_functor_to_kleisli_cat m)
+         (functor_from_kleisli_cat_monad m F γ p₁ p₂).
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_univalent_kleisli_cat_nat_trans</span>
+    : kleisli_incl m ∙ functor_from_univalent_kleisli_cat ⟹ F
+    := nat_trans_comp
+         _ _ _
+         (nat_trans_comp
+            _ _ _
+            (post_whisker
+               (functor_to_kleisli_cat_incl_nat_z_iso m)
+               functor_from_univalent_kleisli_cat)
+            (pre_whisker
+               _
+               (lift_functor_along_comm
+                  C₂
+                  (functor_to_kleisli_cat m)
+                  (essentially_surjective_functor_to_kleisli_cat m)
+                  (fully_faithful_functor_to_kleisli_cat m)
+                  (functor_from_kleisli_cat_monad m F γ p₁ p₂))))
+         (functor_from_kleisli_cat_monad_nat_trans m F γ p₁ p₂).
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_univalent_kleisli_cat_nat_trans_is_z_iso</span>
+    : is_nat_z_iso functor_from_univalent_kleisli_cat_nat_trans.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> functor_from_univalent_kleisli_cat_nat_trans.
+    use (@is_nat_z_iso_comp
+             _ _ _ _ _
+             _
+             (functor_from_kleisli_cat_monad_nat_trans m F γ p₁ p₂)).
+    - use (@is_nat_z_iso_comp
+             _ _
+             _
+             (Left_Kleisli_functor m
+              ∙ functor_to_kleisli_cat m
+              ∙ functor_from_univalent_kleisli_cat)).
+      + use post_whisker_z_iso_is_z_iso.
+        <span class="nb">apply</span> (functor_to_kleisli_cat_incl_nat_z_iso m).
+      + use (pre_whisker_on_nat_z_iso
+               (Left_Kleisli_functor m)
+               (lift_functor_along_comm C₂ (functor_to_kleisli_cat m)
+                  (essentially_surjective_functor_to_kleisli_cat m)
+                  (fully_faithful_functor_to_kleisli_cat m)
+                  (functor_from_kleisli_cat_monad m F γ p₁ p₂))).
+        <span class="nb">apply</span> (lift_functor_along_comm
+                 C₂
+                 (functor_to_kleisli_cat m)
+                 (essentially_surjective_functor_to_kleisli_cat m)
+                 (fully_faithful_functor_to_kleisli_cat m)
+                 (functor_from_kleisli_cat_monad m F γ p₁ p₂)).
+    - <span class="nb">apply</span> functor_from_kleisli_cat_monad_nat_trans_is_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_univalent_kleisli_cat_eq</span>
+             (<span class="nv">x</span> : C₁)
+    : functor_from_univalent_kleisli_cat_nat_trans (m x) · γ x
+      =
+      # functor_from_univalent_kleisli_cat (kleisli_nat_trans m x)
+      · functor_from_univalent_kleisli_cat_nat_trans x.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> -[lift_functor_along_comm functor_from_univalent_kleisli_cat].
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> id_right.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ functor_id _ _).
+      <span class="nb">apply</span> maponpaths.
+      use eq_mor_kleisli_cat.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (id_right _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (_ @ functor_id _ _).
+        <span class="nb">apply</span> maponpaths.
+        use eq_mor_kleisli_cat.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">pose</span> (nat_trans_ax
+             (lift_functor_along_comm
+                C₂ (functor_to_kleisli_cat m)
+                (essentially_surjective_functor_to_kleisli_cat m)
+                (fully_faithful_functor_to_kleisli_cat m)
+                (functor_from_kleisli_cat_monad m F γ p₁ p₂))
+             (m x) x
+             (kleisli_monad_nat_trans m x))
+      <span class="k">as</span> p.
+    <span class="nb">refine</span> (_ @ p @ _).
+    - <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, # _ z) _).
+      use eq_mor_kleisli_cat.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> functor_id, id_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> functor_id, id_left.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">KleisliUMP1</span>.
+
+<span class="kn">Section</span> <span class="nf">KleisliUMP2</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+          (<span class="nv">m</span> : Monad C₁)
+          {<span class="nv">G₁</span> <span class="nv">G₂</span> : kleisli_cat m ⟶ C₂}
+          (<span class="nv">α</span> : kleisli_incl m ∙ G₁ ⟹ kleisli_incl m ∙ G₂)
+          (<span class="nv">p</span> : ∏ (x : C₁),
+               #G₁ (kleisli_nat_trans m x) · α x
+               =
+               α (m x) · # G₂ (kleisli_nat_trans m x)).
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_from_univalent_kleisli_cat_help</span>
+    : Left_Kleisli_functor m ∙ (functor_to_kleisli_cat m ∙ G₁)
+      ⟹
+      Left_Kleisli_functor m ∙ (functor_to_kleisli_cat m ∙ G₂)
+    := nat_trans_comp
+         _ _ _
+         (nat_trans_comp
+            _ _ _
+            (post_whisker
+               (nat_z_iso_inv (functor_to_kleisli_cat_incl_nat_z_iso m))
+               _)
+            α)
+         (post_whisker
+            (functor_to_kleisli_cat_incl_nat_z_iso m)
+            _).
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_from_univalent_kleisli_cat_help_eq</span>
+             (<span class="nv">x</span> : C₁)
+    : # (functor_to_kleisli_cat m ∙ G₁) (kleisli_monad_nat_trans m x)
+      · nat_trans_from_univalent_kleisli_cat_help x
+      =
+      nat_trans_from_univalent_kleisli_cat_help (m x)
+      · # (functor_to_kleisli_cat m ∙ G₂) (kleisli_monad_nat_trans m x).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ p x @ _).
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- (functor_comp G₁).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_  @ functor_id G₂ _).
+        <span class="nb">apply</span> maponpaths.
+        use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit | ].
+        use eq_mor_eilenberg_moore.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      use eq_mor_kleisli_cat.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (_  @ functor_id G₁ _).
+        <span class="nb">apply</span> maponpaths.
+        use eq_mor_kleisli_cat.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> &lt;- (functor_comp G₂).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      use eq_mor_kleisli_cat.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> !id_left.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_from_univalent_kleisli_cat</span>
+    : G₁ ⟹ G₂
+    := lift_nat_trans_along
+         C₂
+         (functor_to_kleisli_cat m)
+         (essentially_surjective_functor_to_kleisli_cat m)
+         (fully_faithful_functor_to_kleisli_cat m)
+         (nat_trans_from_kleisli_cat_monad
+            m
+            nat_trans_from_univalent_kleisli_cat_help
+            nat_trans_from_univalent_kleisli_cat_help_eq).
+
+  <span class="kn">Definition</span> <span class="nf">pre_whisker_nat_trans_from_univalent_kleisli_cat</span>
+    : pre_whisker _ nat_trans_from_univalent_kleisli_cat = α.
+  <span class="kn">Proof</span>.
+    use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">intro</span> x.
+    <span class="nb">pose</span> (nat_trans_eq_pointwise
+            (lift_nat_trans_along_comm
+               C₂
+               (functor_to_kleisli_cat m)
+               (essentially_surjective_functor_to_kleisli_cat m)
+               (fully_faithful_functor_to_kleisli_cat m)
+               (nat_trans_from_kleisli_cat_monad
+                  m
+                  nat_trans_from_univalent_kleisli_cat_help
+                  nat_trans_from_univalent_kleisli_cat_help_eq))
+            x)
+      <span class="k">as</span> q.
+    <span class="nb">refine</span> (q @ _).
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_  @ functor_id G₂ _).
+      <span class="nb">apply</span> maponpaths.
+      use eq_mor_kleisli_cat.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (id_right _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_  @ functor_id G₁ _).
+      <span class="nb">apply</span> maponpaths.
+      use eq_mor_kleisli_cat.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_from_univalent_kleisli_cat_unique</span>
+             {<span class="nv">β₁</span> <span class="nv">β₂</span> : G₁ ⟹ G₂}
+             (<span class="nv">q₁</span> : pre_whisker _ β₁ = α)
+             (<span class="nv">q₂</span> : pre_whisker _ β₂ = α)
+    : β₁ = β₂.
+  <span class="kn">Proof</span>.
+    use (lift_nat_trans_eq_along
+             C₂
+             (functor_to_kleisli_cat m)
+             (essentially_surjective_functor_to_kleisli_cat m)
+             (fully_faithful_functor_to_kleisli_cat m)).
+    use (@nat_trans_from_kleisli_cat_monad_unique
+             _ _
+             m
+             (functor_to_kleisli_cat m ∙ G₁)
+             (functor_to_kleisli_cat m ∙ G₂)).
+    - <span class="bp">exact</span> nat_trans_from_univalent_kleisli_cat_help.
+    - use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (nat_trans_eq_pointwise q₁ _ @ _).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_  @ functor_id G₂ _).
+        <span class="nb">apply</span> maponpaths.
+        use eq_mor_kleisli_cat.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (id_right _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (_  @ functor_id G₁ _).
+        <span class="nb">apply</span> maponpaths.
+        use eq_mor_kleisli_cat.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">apply</span> id_left.
+    - use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (nat_trans_eq_pointwise q₂ _ @ _).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_  @ functor_id G₂ _).
+        <span class="nb">apply</span> maponpaths.
+        use eq_mor_kleisli_cat.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (id_right _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (_  @ functor_id G₁ _).
+        <span class="nb">apply</span> maponpaths.
+        use eq_mor_kleisli_cat.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">KleisliUMP2</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/KleisliCategory.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The universal property
+  &gt;
+  &gt;  ********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FunctorAlgebras_legacy.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ****************************************************************</span>
+
+<span class="sd">Benedikt Ahrens</span>
+<span class="sd">started March 2015</span>
+
+<span class="sd">Extended by: Anders Mörtberg. October 2015</span>
+
+<span class="sd">*******************************************************************)</span>
+
+<span class="sd">(** ***************************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- Category of algebras of an endofunctor</span>
+
+<span class="sd">- This category is saturated if base precategory is</span>
+
+<span class="sd">- Lambek's lemma: if (A,a) is an inital F-algebra then a is an iso</span>
+
+<span class="sd">- The natural numbers are initial for X ↦ 1 + X</span>
+
+<span class="sd">******************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+
+<span class="c">(* The following are used for examples *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.NNO.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Category of algebras of an endofunctor *)</span>
+
+<span class="kn">Section</span> <span class="nf">Algebra_Definition</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : precategory} (<span class="nv">F</span> : functor C C).
+
+<span class="kn">Definition</span> <span class="nf">algebra_ob</span> : UU := ∑ X : C, F X --&gt; X.
+
+<span class="c">(* this coercion causes confusion, and it is not inserted when parsing most of the time</span>
+<span class="c">   thus removing coercion globally</span>
+<span class="c">*)</span>
+<span class="kn">Definition</span> <span class="nf">alg_carrier</span> (<span class="nv">X</span> : algebra_ob) : C := pr1 X.
+<span class="kn">Local Coercion</span> <span class="nf">alg_carrier</span> : algebra_ob &gt;-&gt; ob.
+
+<span class="kn">Definition</span> <span class="nf">alg_map</span> (<span class="nv">X</span> : algebra_ob) : F X --&gt; X := pr2 X.
+
+<span class="sd">(** A morphism of an F-algebras (F X, g : F X --&gt; X) and (F Y, h : F Y --&gt; Y)</span>
+<span class="sd">    is a morphism f : X --&gt; Y such that the following diagram commutes:</span>
+
+<span class="sd">    &lt;&lt;</span>
+<span class="sd">         F f</span>
+<span class="sd">    F x ----&gt; F y</span>
+<span class="sd">    |         |</span>
+<span class="sd">    | g       | h</span>
+<span class="sd">    V         V</span>
+<span class="sd">    x ------&gt; y</span>
+<span class="sd">         f</span>
+<span class="sd">    &gt;&gt;</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_algebra_mor</span> (<span class="nv">X</span> <span class="nv">Y</span> : algebra_ob) (<span class="nv">f</span> : alg_carrier X --&gt; alg_carrier Y) : UU
+  := alg_map X · f = #F f · alg_map Y.
+
+<span class="kn">Definition</span> <span class="nf">algebra_mor</span> (<span class="nv">X</span> <span class="nv">Y</span> : algebra_ob) : UU :=
+  ∑ f : X --&gt; Y, is_algebra_mor X Y f.
+
+<span class="kn">Coercion</span> <span class="nf">mor_from_algebra_mor</span> (X Y : algebra_ob) (f : algebra_mor X Y) : X --&gt; Y := pr1 f.
+
+
+<span class="kn">Lemma</span> <span class="nf">algebra_mor_commutes</span> (<span class="nv">X</span> <span class="nv">Y</span> : algebra_ob) (<span class="nv">f</span> : algebra_mor X Y)
+  : alg_map X · f = #F f · alg_map Y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">algebra_mor_id</span> (<span class="nv">X</span> : algebra_ob) : algebra_mor X X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span> ).
+  <span class="kp">abstract</span> (<span class="nb">unfold</span> is_algebra_mor;
+            <span class="nb">rewrite</span> id_right ;
+            <span class="nb">rewrite</span> functor_id;
+            <span class="nb">rewrite</span> id_left;
+            <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">algebra_mor_comp</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : algebra_ob) (<span class="nv">f</span> : algebra_mor X Y) (<span class="nv">g</span> : algebra_mor Y Z)
+  : algebra_mor X Z.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">f</span> · g).
+  <span class="kp">abstract</span> (<span class="nb">unfold</span> is_algebra_mor;
+            <span class="nb">rewrite</span> assoc;
+            <span class="nb">rewrite</span> algebra_mor_commutes;
+            <span class="nb">rewrite</span> &lt;- assoc;
+            <span class="nb">rewrite</span> algebra_mor_commutes;
+            <span class="nb">rewrite</span> functor_comp, assoc;
+            <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_alg_ob_mor</span> : precategory_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">algebra_ob</span>.
+  <span class="bp">exact</span> algebra_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_alg_data</span> : precategory_data.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">precategory_alg_ob_mor</span>.
+  <span class="k">exists</span> <span class="nv">algebra_mor_id</span>.
+  <span class="bp">exact</span> algebra_mor_comp.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">Algebra_Definition</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaset_algebra_mor</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functor C C) (<span class="nv">X</span> <span class="nv">Y</span> : algebra_ob F) : isaset (algebra_mor F X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>).
+  - <span class="nb">apply</span> C.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> C.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">algebra_mor_eq</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functor C C) {<span class="nv">X</span> <span class="nv">Y</span> : algebra_ob F} {<span class="nv">f</span> <span class="nv">g</span> : algebra_mor F X Y}
+  : (f : alg_carrier F X --&gt; alg_carrier F Y) = g ≃ f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invweq.
+  <span class="nb">apply</span> subtypeInjectivity.
+  <span class="nb">intro</span> a. <span class="nb">apply</span> C.
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_precategory_alg_data</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functor C C)
+  : is_precategory (precategory_alg_data F).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">simpl</span>.
+  - <span class="nb">apply</span> algebra_mor_eq.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> algebra_mor_eq.
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> algebra_mor_eq.
+    <span class="nb">apply</span> assoc.
+  - <span class="nb">apply</span> algebra_mor_eq.
+    <span class="nb">apply</span> assoc'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_FunctorAlg</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functor C C)
+  : precategory := tpair _ _ (is_precategory_precategory_alg_data F).
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_FunctorAlg</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functor C C)
+  : has_homsets (precategory_FunctorAlg F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g.
+  <span class="nb">apply</span> isaset_algebra_mor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">category_FunctorAlg</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functor C C) : category
+  := make_category  (precategory_FunctorAlg F) (has_homsets_FunctorAlg F).
+
+<span class="kn">Notation</span> <span class="nf">FunctorAlg</span> := category_FunctorAlg.
+
+
+<span class="kn">Section</span> <span class="nf">fixacategory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">F</span> : functor C C).
+
+
+<span class="sd">(** forgetful functor from FunctorAlg to its underlying category *)</span>
+
+<span class="c">(* first step of definition *)</span>
+<span class="kn">Definition</span> <span class="nf">forget_algebras_data</span> : functor_data (FunctorAlg F) C.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (onobs := <span class="k">fun</span> <span class="nv">alg</span> : FunctorAlg F =&gt; alg_carrier F alg).
+  <span class="nb">apply</span> (make_functor_data onobs).
+  <span class="nb">intros</span> alg1 alg2 m.
+  <span class="nb">simpl</span> <span class="k">in</span> m.
+  <span class="bp">exact</span> (mor_from_algebra_mor _ _ _ m).
+<span class="kn">Defined</span>.
+
+<span class="c">(* the forgetful functor *)</span>
+<span class="kn">Definition</span> <span class="nf">forget_algebras</span> : functor (FunctorAlg F) C.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (make_functor forget_algebras_data).
+  <span class="kp">abstract</span> ( <span class="nb">split</span>; [<span class="nb">intro</span> alg; <span class="nb">apply</span> idpath | <span class="nb">intros</span> alg1 alg2 alg3 m n; <span class="nb">apply</span> idpath] ).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">fixacategory</span>.
+
+
+<span class="sd">(** ** This category is saturated if the base category is  *)</span>
+
+<span class="kn">Section</span> <span class="nf">FunctorAlg_saturated</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">H</span> : is_univalent C)
+          (<span class="nv">F</span> : functor C C).
+
+<span class="kn">Definition</span> <span class="nf">algebra_eq_type</span> (<span class="nv">X</span> <span class="nv">Y</span> : FunctorAlg F) : UU
+  := ∑ p : z_iso (pr1 X) (pr1 Y), is_algebra_mor F X Y p.
+
+<span class="kn">Definition</span> <span class="nf">algebra_ob_eq</span> (<span class="nv">X</span> <span class="nv">Y</span> : FunctorAlg F) :
+  (X = Y) ≃ algebra_eq_type X Y.
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> weqcomp.
+  - <span class="nb">apply</span> total2_paths_equiv.
+  - <span class="nb">set</span> (H1 := make_weq _ (H (pr1 X) (pr1 Y))).
+    <span class="nb">apply</span> (weqbandf H1).
+    <span class="nb">simpl</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">destruct</span> X <span class="k">as</span> [X α].
+    <span class="nb">destruct</span> Y <span class="k">as</span> [Y β]; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">destruct</span> p.
+    <span class="nb">rewrite</span> idpath_transportf.
+    <span class="nb">unfold</span> is_algebra_mor; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_z_iso_from_is_algebra_iso</span> (<span class="nv">X</span> <span class="nv">Y</span> : FunctorAlg F) (<span class="nv">f</span> : X --&gt; Y)
+  : is_z_isomorphism f → is_z_isomorphism (pr1 f).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> p.
+  <span class="nb">set</span> (H' := z_iso_inv_after_z_iso (make_z_iso' f p)).
+  <span class="nb">set</span> (H'':= z_iso_after_z_iso_inv (make_z_iso' f p)).
+  <span class="k">exists</span> (<span class="nv">pr1</span> (inv_from_z_iso (make_z_iso' f p))).
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  - <span class="nb">apply</span> (maponpaths pr1 H').
+  - <span class="nb">apply</span> (maponpaths pr1 H'').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">inv_algebra_mor_from_is_z_iso</span> {<span class="nv">X</span> <span class="nv">Y</span> : FunctorAlg F} (<span class="nv">f</span> : X --&gt; Y)
+  : is_z_isomorphism (pr1 f) → (Y --&gt; X).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> T.
+  <span class="nb">set</span> (fiso:=make_z_iso' (pr1 f) T).
+  <span class="nb">set</span> (finv:=inv_from_z_iso fiso).
+  <span class="k">exists</span> <span class="nv">finv</span>.
+  <span class="nb">unfold</span> finv.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> z_iso_inv_on_left.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> functor_on_inv_from_z_iso.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> z_iso_inv_on_right.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (pr2 f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_algebra_iso_from_is_z_iso</span> {<span class="nv">X</span> <span class="nv">Y</span> : FunctorAlg F} (<span class="nv">f</span> : X --&gt; Y)
+  : is_z_isomorphism (pr1 f) → is_z_isomorphism f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> T.
+  <span class="k">exists</span> (<span class="nv">inv_algebra_mor_from_is_z_iso</span> <span class="nv">f</span> <span class="nv">T</span>).
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  - <span class="nb">apply</span> algebra_mor_eq.
+    <span class="nb">apply</span> (z_iso_inv_after_z_iso (make_z_iso' (pr1 f) T)).
+  - <span class="nb">apply</span> algebra_mor_eq.
+    <span class="nb">apply</span> (z_iso_after_z_iso_inv (make_z_iso' (pr1 f) T)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">algebra_iso_first_z_iso</span> {<span class="nv">X</span> <span class="nv">Y</span> : FunctorAlg F}
+  : z_iso X Y ≃ ∑ f : X --&gt; Y, is_z_isomorphism (pr1 f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (weqbandf (idweq _ )).
+  <span class="nb">unfold</span> idweq. <span class="nb">simpl</span>.
+  <span class="nb">intro</span> f.
+  <span class="nb">apply</span> weqimplimpl.
+  - <span class="nb">apply</span> is_z_iso_from_is_algebra_iso.
+  - <span class="nb">apply</span> is_algebra_iso_from_is_z_iso.
+  - <span class="nb">apply</span> (isaprop_is_z_isomorphism(C:=FunctorAlg F) f).
+  - <span class="nb">apply</span> (isaprop_is_z_isomorphism f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">swap</span> (<span class="nv">A</span> <span class="nv">B</span> : UU) : A × B → B × A.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ab.
+  <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">ab</span>).
+  <span class="bp">exact</span> (pr1 ab).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">swapweq</span> (<span class="nv">A</span> <span class="nv">B</span> : UU) : (A × B) ≃ (B × A).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">swap</span> <span class="nv">A</span> <span class="nv">B</span>).
+  <span class="nb">apply</span> (isweq_iso _ (<span class="nb">swap</span> B A)).
+  - <span class="kp">abstract</span> ( <span class="nb">intro</span> ab; <span class="nb">destruct</span> ab; <span class="nb">apply</span> idpath ).
+  - <span class="kp">abstract</span> ( <span class="nb">intro</span> ba; <span class="nb">destruct</span> ba; <span class="nb">apply</span> idpath ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">algebra_z_iso_rearrange</span> {<span class="nv">X</span> <span class="nv">Y</span> : FunctorAlg F}
+  : (∑ f : X --&gt; Y, is_z_isomorphism (pr1 f)) ≃ algebra_eq_type X Y.
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> weqcomp.
+  - <span class="nb">apply</span> weqtotal2asstor.
+  - <span class="nb">simpl</span>. <span class="nb">unfold</span> algebra_eq_type.
+    <span class="nb">apply</span> invweq.
+    <span class="nb">eapply</span> weqcomp.
+    + <span class="nb">apply</span> weqtotal2asstor.
+    + <span class="nb">simpl</span>. <span class="nb">apply</span> (weqbandf (idweq _ )).
+      <span class="nb">unfold</span> idweq. <span class="nb">simpl</span>.
+      <span class="nb">intro</span> f; <span class="nb">apply</span> swapweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">algebra_idtoiso</span> (<span class="nv">X</span> <span class="nv">Y</span> : FunctorAlg F) :
+  (X = Y) ≃ z_iso X Y.
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> weqcomp.
+  - <span class="nb">apply</span> algebra_ob_eq.
+  - <span class="nb">eapply</span> weqcomp.
+    + <span class="nb">apply</span> (invweq (algebra_z_iso_rearrange)).
+    + <span class="nb">apply</span> (invweq algebra_iso_first_z_iso).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isweq_idtoiso_FunctorAlg</span> (<span class="nv">X</span> <span class="nv">Y</span> : FunctorAlg F)
+  : isweq (@idtoiso _ X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweqhomot (algebra_idtoiso X Y)).
+  - <span class="nb">intro</span> p. <span class="nb">induction</span> p.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (z_iso_eq(C:=FunctorAlg F)). <span class="nb">apply</span> algebra_mor_eq.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> (pr2 _ ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_FunctorAlg</span> : is_univalent (FunctorAlg F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y.
+  <span class="nb">apply</span> isweq_idtoiso_FunctorAlg.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">idtomor_FunctorAlg_commutes</span> (<span class="nv">X</span> <span class="nv">Y</span>: FunctorAlg F)(<span class="nv">e</span>: X = Y): mor_from_algebra_mor F _ _ (idtomor _ _ e) = idtomor _ _ (maponpaths (alg_carrier F) e).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Corollary</span> <span class="nf">idtoiso_FunctorAlg_commutes</span> (<span class="nv">X</span> <span class="nv">Y</span>: FunctorAlg F)(<span class="nv">e</span>: X = Y): mor_from_algebra_mor F _ _ (morphism_from_z_iso _ _ (idtoiso e)) = idtoiso (maponpaths (alg_carrier F) e).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> morphism_from_z_iso.
+  <span class="nb">rewrite</span> eq_idtoiso_idtomor.
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, eq_idtoiso_idtomor. }
+  <span class="nb">apply</span> idtomor_FunctorAlg_commutes.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">End</span> <span class="nf">FunctorAlg_saturated</span>.
+
+
+
+
+
+
+<span class="sd">(** ** Lambek's lemma: If (A,a) is an initial F-algebra then a is an iso *)</span>
+
+<span class="kn">Section</span> <span class="nf">Lambeks_lemma</span>.
+
+<span class="kn">Variables</span> (<span class="nv">C</span> : category) (<span class="nv">F</span> : functor C C).
+<span class="kn">Variables</span> (<span class="nv">Aa</span> : algebra_ob F) (<span class="nv">AaIsInitial</span> : isInitial (FunctorAlg F) Aa).
+
+<span class="kn">Local Definition</span> <span class="nf">AaInitial</span> : Initial (FunctorAlg F) :=
+  make_Initial _ AaIsInitial.
+
+<span class="kn">Local Notation</span> <span class="nf">A</span> := (alg_carrier _ Aa).
+<span class="kn">Local Notation</span> <span class="nf">a</span> := (alg_map _ Aa).
+
+<span class="c">(* (FA,Fa) is an F-algebra *)</span>
+<span class="kn">Local Definition</span> <span class="nf">FAa</span> : algebra_ob F := tpair (<span class="k">λ</span> <span class="nv">X</span>, C ⟦F X,X⟧) (F A) (# F a).
+<span class="kn">Local Definition</span> <span class="nf">Fa'</span> := InitialArrow AaInitial FAa.
+<span class="kn">Local Definition</span> <span class="nf">a'</span> : C⟦A,F A⟧ := mor_from_algebra_mor _ _ _ Fa'.
+<span class="kn">Local Definition</span> <span class="nf">Ha'</span> := algebra_mor_commutes _ _ _ Fa'.
+
+<span class="kn">Lemma</span> <span class="nf">initialAlg_is_iso_subproof</span> : is_inverse_in_precat a a'.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (Ha'a : a' · a = identity A).
+  { <span class="nb">assert</span> (algMor_a'a : is_algebra_mor _ _ _ (a' · a)).
+    { <span class="nb">unfold</span> is_algebra_mor, a'; <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">eapply</span> pathscomp0; [|<span class="nb">eapply</span> cancel_postcomposition; <span class="nb">apply</span> Ha'].
+      <span class="nb">apply</span> assoc. }
+    <span class="nb">apply</span> pathsinv0; <span class="nb">set</span> (X := tpair _ _ algMor_a'a).
+    <span class="nb">apply</span> (maponpaths pr1 (!@InitialEndo_is_identity _ AaInitial X)).
+  }
+  <span class="nb">split</span>; <span class="nb">trivial</span>.
+  <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> Ha'|]; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">eapply</span> pathscomp0; [<span class="nb">eapply</span> maponpaths; <span class="nb">apply</span> Ha'a|].
+  <span class="nb">apply</span> functor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">initialAlg_is_z_iso</span> : is_z_isomorphism a.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">a'</span>.
+  <span class="bp">exact</span> initialAlg_is_iso_subproof.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Lambeks_lemma</span>.
+
+
+<span class="sd">(** ** The natural numbers are intial for X ↦ 1 + X *)</span>
+
+<span class="sd">(** This can be used as a definition of a natural numbers object (NNO) in</span>
+<span class="sd">    any category with binary coproducts and a terminal object. We prove</span>
+<span class="sd">    the universal property of NNOs below. *)</span>
+
+<span class="kn">Section</span> <span class="nf">Nats</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+  <span class="kn">Context</span> (<span class="nv">bc</span> :  BinCoproducts C).
+  <span class="kn">Context</span> (<span class="nv">hsC</span> :  has_homsets C).
+  <span class="kn">Context</span> (<span class="nv">T</span> : Terminal C).
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"1"</span> := T.
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f + g"</span> := (BinCoproductOfArrows _ _ _ f g).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[ f , g ]"</span> := (BinCoproductArrow _ _ f g).
+
+  <span class="kn">Let</span> <span class="nf">F</span> : functor C C := BinCoproduct_of_functors _ _ bc
+                                                  (constant_functor _ _ <span class="mi">1</span>)
+                                                  (functor_identity _).
+
+  <span class="sd">(** F on objects: X ↦ 1 + X *)</span>
+  <span class="kn">Definition</span> <span class="nf">F_compute1</span> : ∏ c : C, F c = BinCoproductObject (bc <span class="mi">1</span> c) :=
+    <span class="k">fun</span> <span class="nv">c</span> =&gt; (idpath _).
+
+  <span class="sd">(** F on arrows: f ↦ [identity 1, f] *)</span>
+  <span class="kn">Definition</span> <span class="nf">F_compute2</span> {<span class="nv">x</span> <span class="nv">y</span> : C} : ∏ f : x --&gt; y, # F f = (identity <span class="mi">1</span>) + f :=
+    <span class="k">fun</span> <span class="nv">c</span> =&gt; (idpath _).
+
+  <span class="kn">Definition</span> <span class="nf">nat_ob</span> : UU := Initial (FunctorAlg F).
+
+  <span class="kn">Definition</span> <span class="nf">nat_ob_carrier</span> (<span class="nv">N</span> : nat_ob) : ob C :=
+    alg_carrier _ (InitialObject N).
+  <span class="kn">Local Coercion</span> <span class="nf">nat_ob_carrier</span> : nat_ob &gt;-&gt; ob.
+
+  <span class="sd">(** We have an arrow alg_map : (F N = 1 + N) --&gt; N,</span>
+<span class="sd">      so by the η-rule (UMP) for the coproduct, we can assume that it</span>
+<span class="sd">      arises from a pair of maps [nat_ob_z,nat_ob_s] by composing with</span>
+<span class="sd">      coproduct injections.</span>
+
+<span class="sd">      &lt;&lt;</span>
+<span class="sd">                  in1         in2</span>
+<span class="sd">               1 ----&gt; 1 + N &lt;---- N</span>
+<span class="sd">               |         |         |</span>
+<span class="sd">      nat_ob_z |         | alg_map | nat_ob_s</span>
+<span class="sd">               |         V         |</span>
+<span class="sd">               +-------&gt; N &lt;-------+</span>
+<span class="sd">      &gt;&gt;</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">nat_ob_z</span> (<span class="nv">N</span> : nat_ob) : (<span class="mi">1</span> --&gt; N) :=
+    BinCoproductIn1 (bc <span class="mi">1</span> (alg_carrier F (pr1 N))) · (alg_map _ (pr1 N)).
+
+  <span class="kn">Definition</span> <span class="nf">nat_ob_s</span> (<span class="nv">N</span> : nat_ob) : (N --&gt; N) :=
+    BinCoproductIn2 (bc <span class="mi">1</span> (alg_carrier F (pr1 N))) · (alg_map _ (pr1 N)).
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"0"</span> := (nat_ob_z _).
+
+  <span class="sd">(** Use the universal property of the coproduct to make any object with a</span>
+<span class="sd">      point and an endomorphism into an F-algebra *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_F_alg</span> {<span class="nv">X</span> : ob C} (<span class="nv">f</span> : <span class="mi">1</span> --&gt; X) (<span class="nv">g</span> : X --&gt; X) : ob (FunctorAlg F).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (X,, _).
+    <span class="bp">exact</span> (BinCoproductArrow _ f g).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Using make_F_alg, X will be an F-algebra, and by initiality of N, there will</span>
+<span class="sd">      be a unique morphism of F-algebras N --&gt; X, which can be projected to a</span>
+<span class="sd">      morphism in C. *)</span>
+  <span class="kn">Definition</span> <span class="nf">nat_ob_rec</span> (<span class="nv">N</span> : nat_ob) {<span class="nv">X</span> : ob C} :
+    ∏ (f : <span class="mi">1</span> --&gt; X) (g : X --&gt; X), (N --&gt; X) :=
+    <span class="k">fun</span> <span class="nv">f</span> <span class="nv">g</span> =&gt; mor_from_algebra_mor _ _ _ (InitialArrow N (make_F_alg f g)).
+
+  <span class="sd">(** When calling the recursor on 0, you get the base case.</span>
+<span class="sd">      Specifically,</span>
+
+<span class="sd">        nat_ob_z · nat_ob_rec = f</span>
+<span class="sd">   *)</span>
+  <span class="kn">Lemma</span> <span class="nf">nat_ob_rec_z</span> (<span class="nv">N</span> : nat_ob) {<span class="nv">X</span> : ob C} :
+    ∏ (f : <span class="mi">1</span> --&gt; X) (g : X --&gt; X), nat_ob_z N · nat_ob_rec N f g = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f g.
+
+    <span class="nb">pose</span> (inlN := BinCoproductIn1 (bc <span class="mi">1</span> N)).
+    <span class="nb">pose</span> (succ := nat_ob_s N).
+
+    <span class="sd">(** By initiality of N, there is a unique morphism making the following</span>
+<span class="sd">        diagram commute:</span>
+
+<span class="sd">        &lt;&lt;</span>
+<span class="sd">               inlN         identity 1 + nat_ob_rec</span>
+<span class="sd">            1 -----&gt; 1 + N -------------------------&gt; 1 + X</span>
+<span class="sd">                       |                                |</span>
+<span class="sd">             alg_map N |                                | alg_map X</span>
+<span class="sd">                       V                                V</span>
+<span class="sd">                       N   --------------------------&gt;  X</span>
+<span class="sd">                                   nat_ob_rec</span>
+<span class="sd">        &gt;&gt;</span>
+
+<span class="sd">        This proof uses somewhat idiosyncratic "forward reasoning", transforming</span>
+<span class="sd">        the term "diagram" rather than the goal.</span>
+<span class="sd">     *)</span>
+    <span class="nb">pose</span>
+      (diagram :=
+         maponpaths
+           (<span class="k">fun</span> <span class="nv">x</span> =&gt; inlN · x)
+           (algebra_mor_commutes F (pr1 N) _ (InitialArrow N (make_F_alg f g)))).
+    <span class="nb">rewrite</span> (F_compute2 _) <span class="k">in</span> diagram.
+
+    <span class="sd">(** Using the η-rules for coproducts, we can assume that alg_map X = [f,g]</span>
+<span class="sd">        for f : 1 --&gt; X, g : X --&gt; X. *)</span>
+    <span class="nb">rewrite</span> (BinCoproductArrowEta C <span class="mi">1</span> X (bc _ _) _ _) <span class="k">in</span> diagram.
+
+    <span class="sd">(** Using the β-rules for coproducts, we can simplify some of the terms *)</span>
+    <span class="sd">(** (identity 1 + _) · [f, g] --β--&gt; [identity 1 · f, _ · g] *)</span>
+    <span class="nb">rewrite</span> (precompWithBinCoproductArrow C (bc <span class="mi">1</span> N) (bc <span class="mi">1</span> X)
+                                          (identity <span class="mi">1</span>) _ _ _) <span class="k">in</span> diagram.
+
+    <span class="sd">(** inl · [identity 1 · f, _ · g] --β--&gt; identity 1 · f *)</span>
+    <span class="nb">rewrite</span> (BinCoproductIn1Commutes C <span class="mi">1</span> N (bc <span class="mi">1</span> _) _ _ _) <span class="k">in</span> diagram.
+
+    <span class="sd">(** We can dispense with the identity *)</span>
+    <span class="nb">rewrite</span> (id_left _) <span class="k">in</span> diagram.
+
+    <span class="nb">rewrite</span> assoc <span class="k">in</span> diagram.
+    <span class="nb">rewrite</span> (BinCoproductArrowEta C <span class="mi">1</span> N (bc _ _) _ _) <span class="k">in</span> diagram.
+
+    <span class="nb">refine</span> (_ @ (BinCoproductIn1Commutes C _ _ (bc <span class="mi">1</span> _) _ f g)).
+    <span class="nb">rewrite</span> (!BinCoproductIn1Commutes C _ _ (bc <span class="mi">1</span> _) _ <span class="mi">0</span> succ).
+    <span class="nb">unfold</span> nat_ob_rec <span class="k">in</span> *.
+    <span class="bp">exact</span> diagram.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Opaque</span> nat_ob_rec_z.
+
+  <span class="sd">(** The succesor case:</span>
+
+<span class="sd">        nat_ob_s · nat_ob_rec = nat_ob_rec · g</span>
+
+<span class="sd">      The proof is very similar.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Lemma</span> <span class="nf">nat_ob_rec_s</span> (<span class="nv">N</span> : nat_ob) {<span class="nv">X</span> : ob C} :
+    ∏ (f : <span class="mi">1</span> --&gt; X) (g : X --&gt; X),
+    nat_ob_s N · nat_ob_rec N f g = nat_ob_rec N f g · g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f g.
+
+    <span class="nb">pose</span> (inrN := BinCoproductIn2 (bc <span class="mi">1</span> N)).
+    <span class="nb">pose</span> (succ := nat_ob_s N).
+
+    <span class="sd">(** By initiality of N, there is a unique morphism making the same diagram</span>
+<span class="sd">        commute as above, but with "inrN" in place of "inlN". *)</span>
+    <span class="nb">pose</span>
+      (diagram :=
+         maponpaths
+           (<span class="k">fun</span> <span class="nv">x</span> =&gt; inrN · x)
+           (algebra_mor_commutes F (pr1 N) _ (InitialArrow N (make_F_alg f g)))).
+    <span class="nb">rewrite</span> (F_compute2 _) <span class="k">in</span> diagram.
+
+    <span class="nb">rewrite</span> (BinCoproductArrowEta C <span class="mi">1</span> X (bc _ _) _ _) <span class="k">in</span> diagram.
+
+    <span class="sd">(** Using the β-rules for coproducts, we can simplify some of the terms *)</span>
+    <span class="sd">(** (identity 1 + _) · [f, g] --β--&gt; [identity 1 · f, _ · g] *)</span>
+    <span class="nb">rewrite</span> (precompWithBinCoproductArrow C (bc <span class="mi">1</span> N) (bc <span class="mi">1</span> X)
+                                          (identity <span class="mi">1</span>) _ _ _) <span class="k">in</span> diagram.
+
+    <span class="sd">(** inl · [identity 1 · f, _ · g] --β--&gt; identity 1 · f *)</span>
+    <span class="nb">rewrite</span> (BinCoproductIn2Commutes C <span class="mi">1</span> N (bc <span class="mi">1</span> _) _ _ _) <span class="k">in</span> diagram.
+
+    <span class="nb">rewrite</span> assoc <span class="k">in</span> diagram.
+    <span class="nb">rewrite</span> (BinCoproductArrowEta C <span class="mi">1</span> N (bc _ _) _ _) <span class="k">in</span> diagram.
+
+    <span class="nb">refine</span>
+      (_ @ maponpaths (<span class="k">fun</span> <span class="nv">x</span> =&gt; nat_ob_rec N f g · x)
+         (BinCoproductIn2Commutes C _ _ (bc <span class="mi">1</span> _) _ f g)).
+    <span class="nb">rewrite</span> (!BinCoproductIn2Commutes C _ _ (bc <span class="mi">1</span> _) _ <span class="mi">0</span> (nat_ob_s N)).
+    <span class="nb">unfold</span> nat_ob_rec <span class="k">in</span> *.
+    <span class="bp">exact</span> diagram.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Opaque</span> nat_ob_rec_s.
+
+<span class="kn">End</span> <span class="nf">Nats</span>.
+
+<span class="sd">(** nat_ob implies NNO *)</span>
+<span class="kn">Lemma</span> <span class="nf">nat_ob_NNO</span> {<span class="nv">C</span> : category} (<span class="nv">BC</span> : BinCoproducts C) (<span class="nv">hsC</span> : has_homsets C) (<span class="nv">TC</span> : Terminal C) :
+  nat_ob _ BC TC → NNO TC.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> N.
+use make_NNO.
+- <span class="bp">exact</span> (nat_ob_carrier _ _ _  N).
+- <span class="nb">apply</span> nat_ob_z.
+- <span class="nb">apply</span> nat_ob_s.
+- <span class="nb">intros</span> n z s.
+  use unique_exists.
+  + <span class="nb">apply</span> (nat_ob_rec _ _ _ _ z s).
+  + <span class="nb">split</span>; [ <span class="nb">apply</span> nat_ob_rec_z | <span class="nb">apply</span> nat_ob_rec_s ].
+  + <span class="nb">intros</span> x; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> hsC.
+  + <span class="nb">intros</span> x [H1 H2].
+    transparent <span class="nb">assert</span> (xalg : (FunctorAlg (BinCoproduct_of_functors C C BC
+                                              (constant_functor C C TC)
+                                              (functor_identity C))
+                                              ⟦ InitialObject N, make_F_alg C BC TC z s ⟧)).
+    { <span class="nb">refine</span> (x,,_).
+      <span class="kp">abstract</span> (<span class="nb">apply</span> pathsinv0; etrans; [<span class="nb">apply</span> precompWithBinCoproductArrow |];
+                <span class="nb">rewrite</span> id_left, &lt;- H1;
+                etrans; [<span class="nb">eapply</span> maponpaths, pathsinv0, H2|];
+                <span class="bp">now</span> <span class="nb">apply</span> pathsinv0, BinCoproductArrowUnique; <span class="nb">rewrite</span> assoc;
+                <span class="nb">apply</span> maponpaths).
+    }
+    <span class="bp">exact</span> (maponpaths pr1 (InitialArrowUnique N (make_F_alg C BC TC z s) xalg)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Induction/FunctorAlgebras_legacy.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; ******************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,1244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Exponentials.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Exponential objects</span>
+
+<span class="sd">  The exponential object b^a is defined via a left adjoint to the functor a × _. Since this functor</span>
+<span class="sd">  is not definitionally equal to _ × a, we have to show that having a left adjoint to one of these</span>
+<span class="sd">  functors also gives a left adjoint to the other. Furthermore, we give accessors for all aspects of</span>
+<span class="sd">  both of these adjunctions, define what it means for a functor to preserve exponentials, and show</span>
+<span class="sd">  that exponentials can be transported along an adjoint equivalence.</span>
+
+<span class="sd">  Anders Mörtberg, 2016</span>
+<span class="sd">  Section [ExponentialsCarriedThroughAdjointEquivalence] added by Ralph Matthes in 2023</span>
+
+<span class="sd">  Contents:</span>
+<span class="sd">  1. Definition of exponentials [Exponentials]</span>
+<span class="sd">  2. Accessors [exp] [exp_eval(_alt)] [exp_lam] [exp_app] [exp_beta] [exp_eta]</span>
+<span class="sd">  3. Preservation [preserves_exponentials]</span>
+<span class="sd">  4. Transport along an adjoint equivalence</span>
+<span class="sd">    [is_expDd0_adjunction_laws] [exponentials_through_adj_equivalence_univalent_cats]</span>
+<span class="sd">  5. Exponentials are independent of the choice of the binary products</span>
+<span class="sd">  6. Preservation of is_exponentiable under isomorphisms</span>
+<span class="sd">  7. Exponents</span>
+<span class="sd">  8. Properties Of Exponents</span>
+<span class="sd">  9. Preservation (characterizations)</span>
+<span class="sd">  10. Reflection</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+
+<span class="c">(* for Section [ExponentialsCarriedThroughAdjointEquivalence] *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoryEquality.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="sd">(** * 1. Definition of exponentials *)</span>
+<span class="kn">Section</span> <span class="nf">Exponentials</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">PC</span> : BinProducts C).
+
+  <span class="c">(* The functor "a × _" and "_ × a" *)</span>
+  <span class="kn">Definition</span> <span class="nf">constprod_functor1</span> (<span class="nv">a</span> : C) : functor C C :=
+    BinProduct_of_functors C C PC (constant_functor C C a) (functor_identity C).
+
+  <span class="kn">Definition</span> <span class="nf">constprod_functor2</span> (<span class="nv">a</span> : C) : functor C C :=
+    BinProduct_of_functors C C PC (functor_identity C) (constant_functor C C a).
+
+  <span class="kn">Definition</span> <span class="nf">is_exponentiable</span> (<span class="nv">a</span> : C) : UU := is_left_adjoint (constprod_functor1 a).
+
+  <span class="kn">Definition</span> <span class="nf">Exponentials</span> : UU := ∏ (a : C), is_exponentiable a.
+  <span class="kn">Definition</span> <span class="nf">hasExponentials</span> : UU := ∏ (a : C), ∥ is_exponentiable a ∥.
+
+  <span class="kn">Definition</span> <span class="nf">flip_z_iso</span> <span class="nv">a</span> : @z_iso [C,C] (constprod_functor1 a) (constprod_functor2 a)
+    := z_iso_from_nat_z_iso _
+      (BinProduct_of_functors_commutes C C PC (constant_functor C C a) (functor_identity C)).
+
+  <span class="kn">Definition</span> <span class="nf">is_exponentiable_to_is_exponentiable'</span>
+    (<span class="nv">a</span> : C)
+    (<span class="nv">HF</span> : is_exponentiable a)
+    : is_left_adjoint (constprod_functor2 a)
+    := is_left_adjoint_closed_under_iso _ _ (flip_z_iso a) HF.
+
+  <span class="kn">Definition</span> <span class="nf">is_exponentiable'_to_is_exponentiable</span>
+    (<span class="nv">a</span> : C)
+    (<span class="nv">HF</span> : is_left_adjoint (constprod_functor2 a))
+    : is_exponentiable a
+    := is_left_adjoint_closed_under_iso _ _ (z_iso_inv (flip_z_iso a)) HF.
+
+<span class="kn">End</span> <span class="nf">Exponentials</span>.
+
+<span class="sd">(** * 2. Accessors *)</span>
+<span class="kn">Section</span> <span class="nf">Accessors</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">prodC</span> : BinProducts C}
+          {<span class="nv">x</span> : C}
+          (<span class="nv">exp_x</span> : is_exponentiable prodC x).
+
+  <span class="kn">Let</span> <span class="nf">exp_x_alt</span>
+    : is_left_adjoint (constprod_functor2 _ x)
+    := is_exponentiable_to_is_exponentiable' _ _ exp_x.
+
+  <span class="kn">Definition</span> <span class="nf">exp</span> (<span class="nv">y</span> : C)
+    : C
+    := pr1 exp_x y.
+
+  <span class="kn">Definition</span> <span class="nf">exp_mor</span> {<span class="nv">y</span> <span class="nv">y'</span> : C} (<span class="nv">f</span> : C⟦y, y'⟧)
+    : C⟦exp y, exp y'⟧
+    := #(pr1 exp_x) f.
+
+  <span class="kn">Definition</span> <span class="nf">exp_eval</span> (<span class="nv">y</span> : C)
+    : prodC x (exp y) --&gt; y
+    := counit_from_are_adjoints (pr2 exp_x) y.
+
+  <span class="kn">Definition</span> <span class="nf">exp_eval_alt</span> (<span class="nv">y</span> : C)
+    : prodC (exp y) x --&gt; y
+    := counit_from_are_adjoints (pr2 exp_x_alt) y.
+
+  <span class="kn">Definition</span> <span class="nf">exp_lam</span>
+             {<span class="nv">y</span> <span class="nv">z</span> : C}
+             (<span class="nv">f</span> : prodC x y --&gt; z)
+    : y --&gt; exp z
+    := φ_adj (pr2 exp_x) f.
+
+  <span class="kn">Definition</span> <span class="nf">exp_lam_alt</span>
+             {<span class="nv">y</span> <span class="nv">z</span> : C}
+             (<span class="nv">f</span> : prodC y x --&gt; z)
+    : y --&gt; exp z
+    := φ_adj (pr2 exp_x_alt) f.
+
+  <span class="kn">Definition</span> <span class="nf">exp_app</span>
+             {<span class="nv">y</span> <span class="nv">z</span> : C}
+             (<span class="nv">f</span> : y --&gt; exp z)
+    : prodC x y --&gt; z
+    := φ_adj_inv (pr2 exp_x) f.
+
+  <span class="kn">Definition</span> <span class="nf">exp_app_alt</span>
+             {<span class="nv">y</span> <span class="nv">z</span> : C}
+             (<span class="nv">f</span> : y --&gt; exp z)
+    : prodC y x --&gt; z
+    := φ_adj_inv (pr2 exp_x_alt) f.
+
+  <span class="kn">Definition</span> <span class="nf">exp_lam_app</span>
+             {<span class="nv">y</span> <span class="nv">z</span> : C}
+             (<span class="nv">f</span> : y --&gt; exp z)
+    : exp_lam (exp_app f) = f
+    := φ_adj_after_φ_adj_inv _ _.
+
+  <span class="kn">Definition</span> <span class="nf">exp_lam_app_alt</span>
+             {<span class="nv">y</span> <span class="nv">z</span> : C}
+             (<span class="nv">f</span> : y --&gt; exp z)
+    : exp_lam_alt (exp_app_alt f) = f
+    := φ_adj_after_φ_adj_inv _ _.
+
+  <span class="kn">Definition</span> <span class="nf">exp_app_lam</span>
+             {<span class="nv">y</span> <span class="nv">z</span> : C}
+             (<span class="nv">f</span> : prodC x y --&gt; z)
+    : exp_app (exp_lam f) = f
+    := φ_adj_inv_after_φ_adj (pr2 exp_x) _.
+
+  <span class="kn">Definition</span> <span class="nf">exp_app_lam_alt</span>
+             {<span class="nv">y</span> <span class="nv">z</span> : C}
+             (<span class="nv">f</span> : prodC y x --&gt; z)
+    : exp_app_alt (exp_lam_alt f) = f
+    := φ_adj_inv_after_φ_adj (pr2 exp_x_alt) _.
+
+  <span class="kn">Proposition</span> <span class="nf">exp_beta</span>
+              {<span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : prodC x y --&gt; z)
+    : BinProductOfArrows _ _ _ (identity _) (exp_lam f)
+      · exp_eval z
+      =
+      f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (BinProductOfArrows_idxcomp _ _ _ _) @ _).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (maponpaths _ (nat_trans_ax (counit_from_are_adjoints (pr2 exp_x)) _ _ f) @ _).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (triangle_id_left_ad (pr2 exp_x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">exp_beta_alt</span>
+              {<span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : prodC y x --&gt; z)
+    : BinProductOfArrows _ _ _ (exp_lam_alt f) (identity x)
+      · exp_eval_alt z
+      =
+      f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (BinProductOfArrows_compxid _ _ _ _) @ _).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (maponpaths _ (nat_trans_ax (counit_from_are_adjoints (pr2 exp_x_alt)) _ _ f) @ _).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (triangle_id_left_ad (pr2 exp_x_alt)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">exp_eta</span>
+              {<span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : y --&gt; exp z)
+    : f
+      =
+      exp_lam (BinProductOfArrows C _ _ (identity x) f · exp_eval z).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (functor_comp _ _ _)).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (!_ @ maponpaths_2 _ ((nat_trans_ax (unit_from_are_adjoints (pr2 exp_x)) _ _ f)) _).
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (triangle_id_right_ad (pr2 exp_x) _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">exp_eta_alt</span>
+              {<span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : y --&gt; exp z)
+    : f
+      =
+      exp_lam_alt (BinProductOfArrows C _ _ f (identity x) · exp_eval_alt z).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (functor_comp _ _ _)).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (!_ @ maponpaths_2 _ ((nat_trans_ax (unit_from_are_adjoints (pr2 exp_x_alt)) _ _ f)) _).
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (triangle_id_right_ad (pr2 exp_x_alt) _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">exp_funext</span>
+              {<span class="nv">y</span> <span class="nv">z</span> : C}
+              {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; exp z}
+              (<span class="nv">p</span> : ∏ (a : C)
+                     (h : a --&gt; x),
+                   BinProductOfArrows C _ (prodC a y) h f · exp_eval z
+                   =
+                   BinProductOfArrows C _ (prodC a y) h g · exp_eval z)
+    : f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (exp_eta f @ _ @ !(exp_eta g)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">exp_funext_alt</span>
+              {<span class="nv">y</span> <span class="nv">z</span> : C}
+              {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; exp z}
+              (<span class="nv">p</span> : ∏ (a : C)
+                     (h : a --&gt; x),
+                   BinProductOfArrows C _ (prodC y a) f h · exp_eval_alt z
+                   =
+                   BinProductOfArrows C _ (prodC y a) g h · exp_eval_alt z)
+    : f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (exp_eta_alt f @ _ @ !(exp_eta_alt g)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">exp_lam_natural</span>
+              {<span class="nv">w</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : prodC x y --&gt; z)
+              (<span class="nv">s</span> : w --&gt; y)
+    : s · exp_lam f
+      =
+      exp_lam (BinProductOfArrows _ _ _ (identity _ ) s · f)
+    := !φ_adj_natural_precomp _ _ _ _ _ _.
+
+  <span class="kn">Definition</span> <span class="nf">exp_lam_natural_alt</span>
+              {<span class="nv">w</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : prodC y x --&gt; z)
+              (<span class="nv">s</span> : w --&gt; y)
+    : s · exp_lam_alt f
+      =
+      exp_lam_alt (BinProductOfArrows _ _ _ s (identity _ ) · f)
+    := !φ_adj_natural_precomp _ _ _ _ _ _.
+
+<span class="kn">End</span> <span class="nf">Accessors</span>.
+
+<span class="kn">Section</span> <span class="nf">DoubleConversion</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">prodC</span> : BinProducts C}
+          {<span class="nv">x</span> : C}
+          (<span class="nv">exp_x_alt</span> : is_left_adjoint (constprod_functor2 prodC x)).
+
+  <span class="kn">Let</span> <span class="nf">exp_x_alt_alt</span>
+    : is_exponentiable prodC x
+    := is_exponentiable'_to_is_exponentiable _ _ exp_x_alt.
+
+  <span class="kn">Lemma</span> <span class="nf">is_exponentiable'_to_is_exponentiable'_eval</span>
+    : exp_eval_alt exp_x_alt_alt = counit_from_are_adjoints (pr2 exp_x_alt).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> y.
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso
+      (BinProduct_of_functors_commutes _ _ _ _ _) _)) @ _).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_exponentiable'_to_is_exponentiable'_lam</span>
+    {<span class="nv">y</span> <span class="nv">z</span> : C}
+    (<span class="nv">f</span> : prodC y x --&gt; z)
+    : exp_lam_alt exp_x_alt_alt f = φ_adj (pr2 exp_x_alt) f.
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (φ_adj_under_iso _ _ _ _ _ _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso
+      (BinProduct_of_functors_commutes _ _ _ _ _) _)) @ _).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_exponentiable'_to_is_exponentiable'_app</span>
+    {<span class="nv">y</span> <span class="nv">z</span> : C}
+    (<span class="nv">f</span> : y --&gt; exp exp_x_alt_alt z)
+    : exp_app_alt exp_x_alt_alt f = φ_adj_inv (pr2 exp_x_alt) f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (φ_adj_inv_under_iso _ _ _ (flip_z_iso _ _) _ _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (φ_adj_inv_under_iso _ _ _ _ _ _ _ _) @ _).
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso
+      (BinProduct_of_functors_commutes _ _ _ _ _) _)) @ _).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">DoubleConversion</span>.
+
+<span class="sd">(** * 3. Preservation *)</span>
+<span class="kn">Section</span> <span class="nf">Preservation</span>.
+
+  <span class="sd">(** * Preservation of exponentials by functors *)</span>
+  <span class="kn">Definition</span> <span class="nf">preserves_exponentials_map</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">BC₁</span> : BinProducts C₁}
+            {<span class="nv">BC₂</span> : BinProducts C₂}
+            (<span class="nv">E₁</span> : Exponentials BC₁)
+            (<span class="nv">E₂</span> : Exponentials BC₂)
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            (<span class="nv">HF</span> : preserves_binproduct F)
+            (<span class="nv">x</span> <span class="nv">y</span> : C₁)
+    : F(exp (E₁ x) y) --&gt; exp (E₂ (F x)) (F y).
+  <span class="kn">Proof</span>.
+    use exp_lam.
+    <span class="nb">pose</span> (preserves_binproduct_to_z_iso
+            F HF
+            (BC₁ x (exp (E₁ x) y))
+            (BC₂ (F x) (F (exp (E₁ x) y))))
+      <span class="k">as</span> f.
+    <span class="nb">refine</span> (inv_from_z_iso f · #F _).
+    <span class="nb">apply</span> exp_eval.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_exponentials</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">BC₁</span> : BinProducts C₁}
+            {<span class="nv">BC₂</span> : BinProducts C₂}
+            (<span class="nv">E₁</span> : Exponentials BC₁)
+            (<span class="nv">E₂</span> : Exponentials BC₂)
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            (<span class="nv">HF</span> : preserves_binproduct F)
+    : UU
+    := ∏ (x y : C₁), is_z_isomorphism (preserves_exponentials_map E₁ E₂ HF x y).
+
+<span class="kn">End</span> <span class="nf">Preservation</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_exponentials_map_id</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">BC</span> : BinProducts C}
+            (<span class="nv">E</span> : Exponentials BC)
+            (<span class="nv">x</span> <span class="nv">y</span> : C)
+  : identity _
+    =
+    preserves_exponentials_map E E (identity_preserves_binproduct C) x y.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> preserves_exponentials_map.
+  <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (exp_eta _ _ @ _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">unfold</span> BinProductOfArrows.
+  <span class="nb">rewrite</span> !id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_preserves_exponentials</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">BC</span> : BinProducts C}
+           (<span class="nv">E</span> : Exponentials BC)
+  : preserves_exponentials E E (identity_preserves_binproduct _).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  use is_z_isomorphism_path.
+  - <span class="nb">apply</span> identity.
+  - <span class="nb">apply</span> preserves_exponentials_map_id.
+  - <span class="nb">apply</span> identity_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">CompPreserves</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+          {<span class="nv">BC₁</span> : BinProducts C₁}
+          {<span class="nv">BC₂</span> : BinProducts C₂}
+          {<span class="nv">BC₃</span> : BinProducts C₃}
+          {<span class="nv">E₁</span> : Exponentials BC₁}
+          {<span class="nv">E₂</span> : Exponentials BC₂}
+          {<span class="nv">E₃</span> : Exponentials BC₃}
+          {<span class="nv">F</span> : C₁ ⟶ C₂}
+          {<span class="nv">HF</span> : preserves_binproduct F}
+          (<span class="nv">HFE</span> : preserves_exponentials E₁ E₂ HF)
+          {<span class="nv">G</span> : C₂ ⟶ C₃}
+          {<span class="nv">HG</span> : preserves_binproduct G}
+          (<span class="nv">HGE</span> : preserves_exponentials E₂ E₃ HG).
+
+  <span class="kn">Proposition</span> <span class="nf">comp_preserves_exponentials_eq</span>
+              (<span class="nv">x</span> <span class="nv">y</span> : C₁)
+    : # G (preserves_exponentials_map E₁ E₂ HF x y)
+      · preserves_exponentials_map E₂ E₃ HG (F x) (F y)
+      =
+      preserves_exponentials_map E₁ E₃ (composition_preserves_binproduct HF HG) x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> preserves_exponentials_map ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (exp_eta _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">rewrite</span> &lt;- BinProductOfArrows_idxcomp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> exp_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- (functor_id G).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> preserves_binproduct_of_arrows.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!(functor_comp G _ _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> exp_beta.
+    }
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    use z_iso_inv_on_right.
+    etrans.
+    {
+      <span class="nb">apply</span> (preserves_binproduct_to_preserves_arrow
+               G HG
+               (preserves_binproduct_to_binproduct F HF (BC₁ x (exp (E₁ x) y)))
+               (BC₃ _ _)).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_preserves_exponentials</span>
+    : preserves_exponentials E₁ E₃ (composition_preserves_binproduct HF HG).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use is_z_isomorphism_path.
+    - <span class="bp">exact</span> (#G(preserves_exponentials_map E₁ E₂ HF x y)
+             · preserves_exponentials_map E₂ E₃ HG (F x) (F y)).
+    - <span class="nb">apply</span> comp_preserves_exponentials_eq.
+    - use is_z_isomorphism_comp.
+      + use functor_on_is_z_isomorphism.
+        <span class="nb">apply</span> HFE.
+      + <span class="nb">apply</span> HGE.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CompPreserves</span>.
+
+<span class="sd">(** * 4. Transport along an adjoint equivalence *)</span>
+<span class="kn">Section</span> <span class="nf">ExponentialsCarriedThroughAdjointEquivalence</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">PC</span> : BinProducts C) {<span class="nv">D</span> : category} (<span class="nv">PD</span> : BinProducts D)
+    (<span class="nv">ExpC</span> : Exponentials PC) (<span class="nv">adjeq</span> : adj_equiv C D).
+
+  <span class="kn">Let</span> <span class="nf">F</span> : functor C D := adjeq.
+  <span class="kn">Let</span> <span class="nf">G</span> : functor D C := adj_equivalence_inv adjeq.
+  <span class="kn">Let</span> <span class="nf">η_z_iso</span> : ∏ (c : C), z_iso c (G (F c)) := unit_pointwise_z_iso_from_adj_equivalence adjeq.
+  <span class="kn">Let</span> <span class="nf">ε_z_iso</span> : ∏ (d : D), z_iso (F (G d)) d := counit_pointwise_z_iso_from_adj_equivalence adjeq.
+  <span class="kn">Let</span> <span class="nf">η_nat_z_iso</span> : nat_z_iso (functor_identity C) (functor_composite F G) :=
+        unit_nat_z_iso_from_adj_equivalence_of_cats adjeq.
+  <span class="kn">Let</span> <span class="nf">ε_nat_z_iso</span> : nat_z_iso  (functor_composite G F) (functor_identity D) :=
+        counit_nat_z_iso_from_adj_equivalence_of_cats adjeq.
+
+  <span class="kn">Let</span> <span class="nf">FC</span> (<span class="nv">c</span> : C) : functor C C := constprod_functor1 PC c.
+  <span class="kn">Let</span> <span class="nf">GC</span> (<span class="nv">c</span> : C) : functor C C := right_adjoint (ExpC c).
+  <span class="kn">Let</span> <span class="nf">ηC</span> (<span class="nv">c</span> : C) : functor_identity C ⟹ (FC c) ∙ (GC c) := unit_from_left_adjoint (ExpC c).
+  <span class="kn">Let</span> <span class="nf">εC</span> (<span class="nv">c</span> : C) : functor_composite (GC c) (FC c) ⟹ functor_identity C := counit_from_left_adjoint (ExpC c).
+
+  <span class="kn">Section</span> <span class="nf">FixAnObject</span>.
+
+    <span class="kn">Context</span> (<span class="nv">d0</span> : D).
+
+    <span class="kn">Let</span> <span class="nf">Fd0</span> : functor D D := constprod_functor1 PD d0.
+    <span class="kn">Let</span> <span class="nf">Gd0</span> : functor D D := functor_composite (functor_composite G (GC (G d0))) F.
+
+    <span class="kn">Local Definition</span> <span class="nf">inherited_BP_on_C</span> (<span class="nv">d</span> : D) : BinProduct C (G d0) (G d).
+    <span class="kn">Proof</span>.
+      use tpair.
+      - <span class="k">exists</span> (<span class="nv">G</span> (pr1 (pr1 (PD d0 d)))).
+        <span class="bp">exact</span> (# G (pr1 (pr2 (pr1 (PD d0 d)))),,# G (pr2 (pr2 (pr1 (PD d0 d))))).
+      - <span class="nb">set</span> (Hpres := right_adjoint_preserves_binproduct adjeq adjeq : preserves_binproduct G).
+        <span class="bp">exact</span> (Hpres _ _ _ _ _ (pr2 (PD d0 d))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">μ_nat_trans_data</span> : nat_trans_data (G ∙ FC (G d0)) (Fd0 ∙ G).
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> d.
+      <span class="bp">exact</span> (BinProductOfArrows _ (inherited_BP_on_C d) (PC (G d0) (G d)) (identity _) (identity _)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">μ_nat_trans_law</span> : is_nat_trans _ _ μ_nat_trans_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> d' d f.
+      <span class="nb">apply</span> (BinProductArrowsEq _ _ _ (inherited_BP_on_C d)).
+      - etrans.
+        { <span class="nb">rewrite</span> assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (BinProductOfArrowsPr1 _ (inherited_BP_on_C d) (PC (G d0) (G d))). }
+        <span class="nb">rewrite</span> id_right.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">cbn</span>.
+            <span class="nb">rewrite</span> assoc'.
+            etrans.
+            <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> functor_comp. }
+            <span class="nb">unfold</span> BinProduct_of_functors_mor.
+            <span class="nb">cbn</span>.
+            etrans.
+            <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> pathsinv0, BinProductOfArrowsPr1. }
+            <span class="nb">rewrite</span> id_right.
+            <span class="nb">unfold</span> BinProductPr1.
+            <span class="nb">apply</span> pathsinv0, (BinProductOfArrowsPr1 _ (inherited_BP_on_C d') (PC (G d0) (G d'))).
+        }
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> BinProduct_of_functors_mor, constant_functor, functor_identity.
+        <span class="nb">cbn</span>.
+        etrans.
+        { <span class="nb">apply</span> (BinProductOfArrowsPr1 _ (PC (G d0) (G d)) (PC (G d0) (G d'))). }
+        <span class="nb">apply</span> id_right.
+      - etrans.
+        { <span class="nb">rewrite</span> assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (BinProductOfArrowsPr2 _ (inherited_BP_on_C d) (PC (G d0) (G d))). }
+        <span class="nb">rewrite</span> id_right.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">cbn</span>.
+            <span class="nb">rewrite</span> assoc'.
+            etrans.
+            <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> functor_comp. }
+            <span class="nb">unfold</span> BinProduct_of_functors_mor.
+            <span class="nb">cbn</span>.
+            etrans.
+            <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> pathsinv0, BinProductOfArrowsPr2. }
+            <span class="nb">rewrite</span> functor_comp.
+            <span class="nb">rewrite</span> assoc.
+            <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">unfold</span> BinProductPr2.
+            <span class="nb">apply</span> pathsinv0, (BinProductOfArrowsPr2 _ (inherited_BP_on_C d') (PC (G d0) (G d'))).
+        }
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> BinProduct_of_functors_mor, constant_functor, functor_identity.
+        <span class="nb">cbn</span>.
+        etrans.
+        { <span class="nb">apply</span> (BinProductOfArrowsPr2 _ (PC (G d0) (G d)) (PC (G d0) (G d'))). }
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">μ_nat_trans</span> : nat_trans (G ∙ FC (G d0)) (Fd0 ∙ G) := _,,μ_nat_trans_law.
+
+    <span class="kn">Local Definition</span> <span class="nf">μ_nat_trans_inv_pointwise</span> (<span class="nv">d</span> : D) : C ⟦ (Fd0 ∙ G) d, (G ∙ FC (G d0)) d ⟧.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (BinProductOfArrows _ (PC (G d0) (G d)) (inherited_BP_on_C d) (identity _) (identity _)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">μ_nat_trans_is_inverse</span> (<span class="nv">d</span> : D): is_inverse_in_precat (μ_nat_trans d) (μ_nat_trans_inv_pointwise d).
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>; <span class="nb">cbn</span>.
+      - <span class="nb">apply</span> pathsinv0, BinProduct_endo_is_identity.
+        + <span class="nb">rewrite</span> assoc'.
+          etrans.
+          { <span class="nb">apply</span> maponpaths.
+            <span class="nb">cbn</span>.
+            <span class="nb">apply</span> (BinProductOfArrowsPr1 _ (PC (G d0) (G d)) (inherited_BP_on_C d)). }
+          <span class="nb">rewrite</span> id_right.
+          etrans.
+          { <span class="nb">cbn</span>.
+            <span class="nb">apply</span> (BinProductOfArrowsPr1 _ (inherited_BP_on_C d) (PC (G d0) (G d))). }
+          <span class="nb">apply</span> id_right.
+        + <span class="nb">rewrite</span> assoc'.
+          etrans.
+          { <span class="nb">apply</span> maponpaths.
+            <span class="nb">cbn</span>.
+            <span class="nb">apply</span> (BinProductOfArrowsPr2 _ (PC (G d0) (G d)) (inherited_BP_on_C d)). }
+          <span class="nb">rewrite</span> id_right.
+          etrans.
+          { <span class="nb">cbn</span>.
+            <span class="nb">apply</span> (BinProductOfArrowsPr2 _ (inherited_BP_on_C d) (PC (G d0) (G d))). }
+          <span class="nb">apply</span> id_right.
+      - <span class="nb">unfold</span> BinProduct_of_functors_ob, constant_functor, functor_identity.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> (BinProduct_endo_is_identity _ _ _ (inherited_BP_on_C d)).
+        + <span class="nb">rewrite</span> assoc'.
+          etrans.
+          { <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (BinProductOfArrowsPr1 _ (inherited_BP_on_C d) (PC (G d0) (G d))). }
+          <span class="nb">rewrite</span> id_right.
+          etrans.
+          { <span class="nb">apply</span> (BinProductOfArrowsPr1 _ (PC (G d0) (G d)) (inherited_BP_on_C d)). }
+          <span class="nb">apply</span> id_right.
+        + <span class="nb">rewrite</span> assoc'.
+          etrans.
+          { <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (BinProductOfArrowsPr2 _ (inherited_BP_on_C d) (PC (G d0) (G d))). }
+          <span class="nb">rewrite</span> id_right.
+          etrans.
+          { <span class="nb">apply</span> (BinProductOfArrowsPr2 _ (PC (G d0) (G d)) (inherited_BP_on_C d)). }
+          <span class="nb">apply</span> id_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">μ</span> : nat_z_iso (functor_composite G (FC (G d0))) (functor_composite Fd0 G).
+    <span class="kn">Proof</span>.
+      use make_nat_z_iso.
+      - <span class="bp">exact</span> μ_nat_trans.
+      - <span class="nb">intro</span> d.
+        use tpair.
+        + <span class="bp">exact</span> (μ_nat_trans_inv_pointwise d).
+        + <span class="bp">exact</span> (μ_nat_trans_is_inverse d).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">ηDd0</span> : functor_identity D ⟹ Fd0 ∙ Gd0.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (nat_trans_comp _ _ _ (nat_z_iso_to_trans_inv ε_nat_z_iso) _).
+      <span class="nb">unfold</span> Gd0.
+      <span class="nb">change</span> ((functor_composite G (functor_identity C)) ∙ F ⟹ (Fd0 ∙ (G ∙ GC (G d0))) ∙ F).
+      <span class="nb">apply</span> post_whisker.
+      <span class="nb">refine</span> (nat_trans_comp _ _ _ _ _).
+      - <span class="nb">apply</span> (pre_whisker G (ηC (G d0))).
+      - <span class="nb">change</span> (functor_composite (functor_composite G (FC (G d0))) (GC (G d0)) ⟹
+                  functor_composite (Fd0 ∙ G) (GC (G d0))).
+        <span class="nb">apply</span> post_whisker.
+        <span class="nb">apply</span> μ.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">εDd0</span> : Gd0 ∙ Fd0 ⟹ functor_identity D.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (nat_trans_comp _ _ _ _ ε_nat_z_iso).
+      <span class="nb">change</span> (functor_composite (functor_composite Gd0 Fd0) (functor_identity D) ⟹ G ∙ F).
+      <span class="nb">refine</span> (nat_trans_comp _ _ _ _ _).
+      - <span class="nb">apply</span> (pre_whisker _ (nat_z_iso_to_trans_inv ε_nat_z_iso)).
+      - <span class="nb">change</span> ((functor_composite (Gd0 ∙ Fd0) G) ∙ F ⟹ G ∙ F).
+        <span class="nb">apply</span> post_whisker.
+        <span class="nb">unfold</span> Gd0.
+        <span class="nb">change</span> (((G ∙ GC (G d0)) ∙ F) ∙ (Fd0 ∙ G) ⟹ G).
+        <span class="nb">refine</span> (nat_trans_comp _ _ _ _ _).
+        + <span class="nb">apply</span> (pre_whisker _ (nat_z_iso_to_trans_inv μ)).
+        + <span class="nb">change</span> ((((G ∙ GC (G d0)) ∙ F) ∙ G) ∙ FC (G d0) ⟹ G).
+          <span class="nb">refine</span> (nat_trans_comp _ _ _ _ _).
+          * use (post_whisker _ (FC (G d0))).
+            -- <span class="bp">exact</span> (G ∙ GC (G d0)).
+            -- <span class="nb">change</span> (functor_composite (G ∙ GC (G d0)) (functor_composite F G) ⟹
+                        functor_composite (G ∙ GC (G d0)) (functor_identity C)).
+              <span class="nb">apply</span> (pre_whisker _ (nat_z_iso_to_trans_inv η_nat_z_iso)).
+          * <span class="nb">change</span> (functor_composite G (functor_composite (GC (G d0)) (FC (G d0))) ⟹ G).
+            <span class="nb">apply</span> (pre_whisker _ (εC (G d0))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_expDd0_adjunction_data</span> : adjunction_data D D.
+    <span class="kn">Proof</span>.
+      use make_adjunction_data.
+      - <span class="bp">exact</span> Fd0.
+      - <span class="bp">exact</span> Gd0.
+      - <span class="bp">exact</span> ηDd0.
+      - <span class="bp">exact</span> εDd0.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">is_expDd0_adjunction_laws</span> : form_adjunction' is_expDd0_adjunction_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> d.
+        <span class="nb">change</span> (# Fd0 (ηDd0 d) · εDd0 (Fd0 d) = identity (Fd0 d)).
+        <span class="nb">unfold</span> ηDd0.
+        etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          etrans.
+          { <span class="nb">apply</span> functor_comp. }
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">assert</span> (Hpost := post_whisker_composition _ _ _ F _ _ _ (pre_whisker G (ηC (G d0))) (post_whisker (pr1 μ) (GC (G d0)))).
+          <span class="nb">refine</span> (toforallpaths _ _ _ (maponpaths pr1 Hpost) d).
+        }
+        etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> functor_comp. }
+        <span class="nb">unfold</span> εDd0.
+    <span class="c">(* so it is in principle possible to work with this definition, but every step takes an effort,</span>
+<span class="c">      requiring a perfect proof on paper before</span>
+
+<span class="c">        rewrite functor_comp.</span>
+<span class="c">        use BinProductArrowsEq.</span>
+<span class="c">        + rewrite id_left.</span>
+
+
+<span class="c">          cbn. unfold BinProduct_of_functors_mor.</span>
+<span class="c">          rewrite id_left.</span>
+<span class="c">          unfold BinProduct_of_functors_ob, constant_functor, functor_identity.</span>
+<span class="c">          cbn.</span>
+<span class="c">          etrans.</span>
+<span class="c">          { apply cancel_postcomposition.</span>
+<span class="c">            apply</span>
+<span class="c">          admit.</span>
+<span class="c">        + cbn. unfold BinProduct_of_functors_mor.</span>
+<span class="c">          rewrite id_left.</span>
+<span class="c">          unfold BinProduct_of_functors_ob, constant_functor, functor_identity.</span>
+<span class="c">          cbn.</span>
+<span class="c">          (* is this supposed to be analogous? *)</span>
+<span class="c">          admit.</span>
+<span class="c">      - intro d. show_id_type. (* F-images in source and target of the morphisms *)</span>
+<span class="c">        cbn.</span>
+<span class="c">        admit.</span>
+<span class="c">    *)</span>
+    <span class="kn">Abort</span>.
+
+    <span class="c">(*</span>
+<span class="c">    Definition is_expDd0_adjunction : adjunction D D := _,,is_expDd0_adjunction_laws.</span>
+
+<span class="c">    Local Definition is_expDd0 : is_exponentiable PD d0.</span>
+<span class="c">    Proof.</span>
+<span class="c">      exists Gd0.</span>
+<span class="c">      exact is_expDd0_adjunction.</span>
+<span class="c">    Defined.</span>
+<span class="c">    *)</span>
+
+    <span class="c">(* an experiment towards using univalence for this proof</span>
+<span class="c">    Lemma is_expDd0_adjunction_laws_equal_cats (Heq : C = D) (*(PCeq : transportf _ Heq PC = PD)*) :</span>
+<span class="c">      form_adjunction' is_expDd0_adjunction_data.</span>
+<span class="c">    Proof.</span>
+<span class="c">      induction Heq.</span>
+<span class="c">    *)</span>
+
+  <span class="kn">End</span> <span class="nf">FixAnObject</span>.
+  <span class="c">(*</span>
+<span class="c">  Definition exponentials_through_adj_equivalence : Exponentials PD.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intro d0. exact (is_expDd0 d0).</span>
+<span class="c">  Defined.</span>
+<span class="c">  *)</span>
+
+<span class="kn">End</span> <span class="nf">ExponentialsCarriedThroughAdjointEquivalence</span>.
+
+<span class="kn">Section</span> <span class="nf">AlternativeWithUnivalence</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">PC</span> : BinProducts C) {<span class="nv">D</span> : category} (<span class="nv">PD</span> : BinProducts D)
+    (<span class="nv">ExpC</span> : Exponentials PC) (<span class="nv">adjeq</span> : adj_equiv C D) (<span class="nv">Cuniv</span> : is_univalent C) (<span class="nv">Duniv</span> : is_univalent D).
+
+  <span class="kn">Local Lemma</span> <span class="nf">CDeq</span> : C = D.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (aux : category_to_precategory C = category_to_precategory D).
+    { <span class="nb">apply</span> (invmap (catiso_is_path_precat C D D)).
+      <span class="nb">apply</span> (adj_equivalence_of_cats_to_cat_iso adjeq); <span class="bp">assumption</span>. }
+    <span class="nb">apply</span> subtypePath. <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_has_homsets.
+    <span class="bp">exact</span> aux.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">exponentials_through_adj_equivalence_univalent_cats</span> : Exponentials PD.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> CDeq.
+    <span class="nb">clear</span> adjeq.
+    <span class="nb">assert</span> (aux : PC = PD).
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> &lt;- aux. <span class="bp">exact</span> ExpC. }
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> c1.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> c2.
+    <span class="nb">apply</span> isaprop_BinProduct; <span class="bp">exact</span> Cuniv.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">AlternativeWithUnivalence</span>.
+
+<span class="sd">(** * 5. Exponentials are independent of the choice of the binary products *)</span>
+
+<span class="sd">(**</span>
+<span class="sd"> Note that the proof below can be simplified if we assume that [C] is univalent.</span>
+<span class="sd"> However, we need this statement also for categories that are not univalent.</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ExpIndependent</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">BC₁</span> <span class="nv">BC₂</span> : BinProducts C)
+          (<span class="nv">E</span> : Exponentials BC₁).
+
+  <span class="kn">Lemma</span> <span class="nf">exponentials_independent_eta</span>
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+        (<span class="nv">f</span> : BC₂ x z --&gt; y)
+    : isaprop
+        (∑ (f' : z --&gt; exp (E x) y),
+         f
+         =
+         # (constprod_functor1 BC₂ x) f'
+         · (iso_between_BinProduct (BC₂ x (exp (E x) y)) (BC₁ x (exp (E x) y))
+            · exp_eval (E x) y)).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> g₁ g₂.
+    <span class="nb">pose proof</span> (p := !(pr2 g₁) @ pr2 g₂).
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">unfold</span> BinProduct_of_functors_mor <span class="k">in</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !assoc <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !precompWithBinProductArrow <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !(BinProductOfArrowsPr1 _ (BC₂ x (exp (E x) y)) (BC₂ x z)) <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !(BinProductOfArrowsPr2 _ (BC₂ x (exp (E x) y)) (BC₂ x z)) <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !id_right <span class="k">in</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">refine</span> (exp_eta _ _ @ _ @ !(exp_eta _ _)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> BinProductOfArrows.
+    <span class="nb">rewrite</span> !id_right.
+    <span class="nb">simple refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">h</span>, iso_between_BinProduct _ _ · h) p @ _).
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> precompWithBinProductArrow.
+      <span class="nb">rewrite</span> (BinProductPr1Commutes _ _ _ (BC₂ x z)).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> (BinProductPr2Commutes _ _ _ (BC₂ x z)).
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> precompWithBinProductArrow.
+      <span class="nb">rewrite</span> (BinProductPr1Commutes _ _ _ (BC₂ x z)).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> (BinProductPr2Commutes _ _ _ (BC₂ x z)).
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">exponentials_independent_beta</span>
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+        (<span class="nv">f</span> : BC₂ x z --&gt; y)
+    : f
+      =
+      BinProductOfArrows
+        C
+        (BC₂ x (exp (E x) y))
+        (BC₂ x z)
+        (identity x)
+        (exp_lam
+           (E x)
+           (BinProductArrow C (BC₂ x z) (BinProductPr1 C (BC₁ x z)) (BinProductPr2 C (BC₁ x z))
+            · f))
+      · (BinProductArrow C (BC₁ x (exp (E x) y))
+           (BinProductPr1 C (BC₂ x (exp (E x) y)))
+           (BinProductPr2 C (BC₂ x (exp (E x) y))) · exp_eval (E x) y).
+  <span class="kn">Proof</span>.
+    use (cancel_z_iso' (z_iso_inv (iso_between_BinProduct (BC₂ x z) (BC₁ x z)))).
+    <span class="nb">refine</span> (!(exp_beta (E x) _) @ _).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">unfold</span> BinProductOfArrows.
+    <span class="nb">rewrite</span> !precompWithBinProductArrow.
+    <span class="nb">rewrite</span> !id_right.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> BinProductPr1Commutes.
+      }
+      <span class="nb">apply</span> BinProductPr1Commutes.
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> BinProductPr2Commutes.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> BinProductPr2Commutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">exponentials_independent</span>
+    : Exponentials BC₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    use coreflections_to_is_left_adjoint.
+    <span class="nb">intro</span> y.
+    use make_coreflection'.
+    - <span class="bp">exact</span> (exp (E x) y).
+    - <span class="bp">exact</span> (iso_between_BinProduct (BC₂ x (exp (E x) y)) (BC₁ x (exp (E x) y))
+             · exp_eval (E x) y).
+    - <span class="nb">intros</span> [z f].
+      use iscontraprop1.
+      + <span class="nb">apply</span> exponentials_independent_eta.
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="bp">exact</span> (exp_lam (E x) (z_iso_inv (iso_between_BinProduct (BC₂ x z) (BC₁ x z)) · f)).
+        * <span class="nb">apply</span> exponentials_independent_beta.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ExpIndependent</span>.
+
+<span class="sd">(** * 6. IsExponentiableClosedUnderIso *)</span>
+<span class="kn">Section</span> <span class="nf">IsExponentiableClosedUnderIso</span>.
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_of_BinProduct_of_functors</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : category}
+    (<span class="nv">P_D</span> : BinProducts D)
+    {<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">G</span> <span class="nv">G'</span> : functor C D}
+    (<span class="nv">α</span> : nat_z_iso F F')
+    (<span class="nv">β</span> : nat_z_iso G G')
+    : nat_z_iso (BinProduct_of_functors C _ P_D F G)
+        (BinProduct_of_functors C _ P_D F' G').
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - use binproduct_nat_trans.
+      + use (nat_trans_comp _ _ _ _ α).
+        <span class="nb">apply</span> binproduct_nat_trans_pr1.
+      + use (nat_trans_comp _ _ _ _ β).
+        <span class="nb">apply</span> binproduct_nat_trans_pr2.
+    - <span class="nb">intro</span>.
+      use (pr2 (binproduct_of_z_iso (P_D _ _) (P_D _ _) (_,,_) (_,,_)))
+      ; <span class="nb">apply</span> nat_z_iso_pointwise_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_of_constant_functors</span>
+    {<span class="nv">C</span> : category}
+    {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">i</span> : z_iso x y)
+    : nat_z_iso (constant_functor C C x) (constant_functor C C y).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - use make_nat_trans.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, i).
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, id_left _ @ ! id_right _).
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> z_iso_is_z_isomorphism.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">P</span> : BinProducts C).
+  <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">i</span> : z_iso x y).
+
+  <span class="kn">Definition</span> <span class="nf">constprod_functor1_mod_iso</span>
+    : nat_z_iso (constprod_functor1 P x) (constprod_functor1 P y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> z_iso_of_BinProduct_of_functors.
+    - <span class="nb">apply</span> z_iso_of_constant_functors.
+      <span class="bp">exact</span> i.
+    - <span class="nb">apply</span> nat_z_iso_id.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_exponentiable_closed_under_iso</span>
+    : is_exponentiable P x → is_exponentiable P y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ex.
+    use (is_left_adjoint_closed_under_iso _ _ _ ex).
+    use z_iso_from_nat_z_iso.
+    <span class="bp">exact</span> constprod_functor1_mod_iso.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">IsExponentiableClosedUnderIso</span>.
+
+<span class="sd">(** * 7. Exponents *)</span>
+<span class="kn">Section</span> <span class="nf">Exponents</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">P</span> : BinProducts C).
+
+  <span class="kn">Definition</span> <span class="nf">is_exponent_uvp</span>
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">e</span> : C} (<span class="nv">ev</span> : C⟦P x e, y⟧) : UU
+    := is_coreflection (make_coreflection_data (F := constprod_functor1 P x) e ev).
+
+  <span class="c">(* Evaluation map + universal property *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_Exponent</span>
+    (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">e</span> : C) : UU
+    := ∑ (ev : C⟦P x e, y⟧), is_exponent_uvp ev.
+
+  <span class="c">(* The existence of the exponential [x,y] *)</span>
+  <span class="kn">Definition</span> <span class="nf">Exponent</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : UU
+    := coreflection y (constprod_functor1 P x).
+
+  <span class="kn">Identity Coercion</span> <span class="nf">exponent_to_coreflection</span> : Exponent &gt;-&gt; coreflection.
+
+  <span class="c">(* The existence of exponentials [x, -] *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_exponentiable_alt</span> (<span class="nv">x</span> : C) : UU
+    := ∏ (y : C), Exponent x y.
+
+  <span class="kn">Lemma</span> <span class="nf">is_exponentiable_alt_to_is_exponentiable</span> (<span class="nv">x</span> : C)
+    : is_exponentiable_alt x → is_exponentiable P x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> coreflections_to_is_left_adjoint.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_exponentiable_to_uvp</span> {<span class="nv">x</span> : C} (<span class="nv">e</span>: is_exponentiable P x)
+    : ∏ y : C, is_exponent_uvp (exp_eval e y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, coreflection_is_coreflection (right_adjoint_weq_coreflections _ e y)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_exponentiable_to_is_exponentiable_alt</span> (<span class="nv">x</span> : C)
+    : is_exponentiable P x → is_exponentiable_alt x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e y.
+    <span class="nb">apply</span> (right_adjoint_to_coreflection e).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Exponents</span>.
+
+<span class="sd">(** * 8. Properties of Exponents *)</span>
+<span class="kn">Section</span> <span class="nf">ExponentsProperties</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">P</span> : BinProducts C).
+
+  <span class="kn">Definition</span> <span class="nf">exponentials_unique_up_to_iso</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">e</span> <span class="nv">e'</span> : C}
+    {<span class="nv">ev</span> : C⟦P x e, y⟧} {<span class="nv">ev'</span> : C⟦P x e', y⟧}
+    (<span class="nv">ev_uvp</span> : is_exponent_uvp P ev)
+    (<span class="nv">ev'_uvp</span> : is_exponent_uvp P ev')
+    : z_iso e e'
+    := coreflection_uniqueness_iso (make_coreflection _ ev_uvp) (make_coreflection _ ev'_uvp).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_Exponent</span>
+    (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : is_univalent C → isaprop (Exponent P x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> C_univ.
+    <span class="bp">exact</span> (isaprop_coreflection C_univ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Exponent_transport_along_iso'</span>
+    {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">y</span> <span class="nv">y'</span> : C}
+    (<span class="nv">i</span> : z_iso x x')
+    (<span class="nv">j</span> : z_iso y y')
+    (<span class="nv">e</span> : Exponent P x y)
+    : Exponent P x' y'.
+  <span class="kn">Proof</span>.
+    use (coreflection_transport_along_iso_ob_functor j (F := constprod_functor1 P x) _ e).
+    <span class="nb">apply</span> constprod_functor1_mod_iso.
+    <span class="bp">exact</span> i.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_Exponent_along_iso</span>
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">e'</span> : C} (<span class="nv">e</span> : Exponent P x y) (<span class="nv">i</span> : z_iso e' (coreflection_data_object e))
+    : is_Exponent P x y e'.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">refine</span> (_ · coreflection_data_arrow e).
+      <span class="nb">apply</span> binproduct_of_z_iso.
+      + <span class="nb">apply</span> identity_z_iso.
+      + <span class="bp">exact</span> i.
+    - <span class="bp">exact</span> (is_coreflection_along_iso e i).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ExponentsProperties</span>.
+
+<span class="sd">(** * 9. PreservationCharacterizations *)</span>
+<span class="kn">Section</span> <span class="nf">PreservationCharacterizations</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C₀</span> <span class="nv">C₁</span> : category} (<span class="nv">P₀</span> : BinProducts C₀) (<span class="nv">P₁</span> : BinProducts C₁)
+    {<span class="nv">F</span> : functor C₀ C₁} (<span class="nv">F_pP</span> : preserves_binproduct F).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_exponential_objects</span> : UU
+    := ∏ (x y e : C₀) (ev : C₀⟦P₀ x e, y⟧),
+      is_exponent_uvp P₀ ev
+      → is_exponent_uvp P₁
+          (z_iso_inv (preserves_binproduct_to_z_iso _ F_pP (P₀ _ _) (P₁ _ _)) · #F ev).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_exponential_objects_to_exponent</span>
+    (<span class="nv">F_pE</span> : preserves_exponential_objects)
+    : ∏ x y : C₀, Exponent P₀ x y → Exponent P₁ (F x) (F y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y e.
+    <span class="nb">set</span> (t := F_pE x y (coreflection_data_object e) e (coreflection_is_coreflection e)).
+    <span class="bp">exact</span> (make_coreflection _ t).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_exponential_objects'</span> (<span class="nv">E₀</span> : Exponentials P₀) : UU
+    := ∏ (x y : C₀), is_exponent_uvp P₁
+                       (z_iso_inv (preserves_binproduct_to_z_iso _ F_pP (P₀ _ _) (P₁ _ _))
+                          · #F (exp_eval (E₀ x) y)).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_exponential_objects_to_exponent'</span> {<span class="nv">E₀</span> : Exponentials P₀}
+    (<span class="nv">F_pE</span> : preserves_exponential_objects' E₀)
+    : ∏ x y : C₀, Exponent P₁ (F x) (F y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">set</span> (t := F_pE x y).
+    <span class="bp">exact</span> (make_coreflection _ t).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_exponential_objects_to_iso</span>
+    (<span class="nv">E₀</span> : Exponentials P₀) (<span class="nv">E₁</span> : Exponentials P₁)
+    (<span class="nv">F_pE</span> : preserves_exponential_objects) (<span class="nv">x₀</span> <span class="nv">y₀</span> : C₀)
+    : z_iso (F (exp (E₀ x₀) y₀)) (exp (E₁ (F x₀)) (F y₀)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (exponentials_unique_up_to_iso P₁ _ _).
+    - <span class="nb">apply</span> F_pE.
+      <span class="bp">exact</span> (coreflection_is_coreflection (is_exponentiable_to_is_exponentiable_alt P₀ x₀ (E₀ x₀) y₀)).
+    - <span class="bp">exact</span> (coreflection_is_coreflection (is_exponentiable_to_is_exponentiable_alt P₁ (F x₀) (E₁ (F x₀)) (F y₀))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_exponential_objects_to_iso'</span>
+    (<span class="nv">E₀</span> : Exponentials P₀) (<span class="nv">E₁</span> : Exponentials P₁)
+    (<span class="nv">F_pE</span> : preserves_exponential_objects' E₀) (<span class="nv">x₀</span> <span class="nv">y₀</span> : C₀)
+    : z_iso (F (exp (E₀ x₀) y₀)) (exp (E₁ (F x₀)) (F y₀)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (exponentials_unique_up_to_iso P₁ _ _).
+    - <span class="nb">apply</span> F_pE.
+    - <span class="bp">exact</span> (coreflection_is_coreflection (is_exponentiable_to_is_exponentiable_alt P₁ (F x₀) (E₁ (F x₀)) (F y₀))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">preserves_exponential_objects_to_preserves_exponentials</span>
+    (<span class="nv">E₀</span> : Exponentials P₀) (<span class="nv">E₁</span> : Exponentials P₁)
+    : preserves_exponential_objects' E₀ → preserves_exponentials E₀ E₁ F_pP.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F_pE x₀ y₀.
+    <span class="bp">exact</span> (is_z_isomorphism_path (idpath _)
+             (pr2 (preserves_exponential_objects_to_iso' E₀ E₁ F_pE x₀ y₀))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">preserves_exponentials_to_exponent</span>
+    {<span class="nv">E₀</span> : Exponentials P₀} {<span class="nv">E₁</span> : Exponentials P₁}
+    (<span class="nv">F_pE</span> : preserves_exponentials E₀ E₁ F_pP)
+    : ∏ x y : C₀, is_Exponent P₁ (F x) (F y) (F (exp (E₀ x) y)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">set</span> (i := make_z_iso' _ (F_pE x y)).
+    <span class="nb">apply</span> (is_Exponent_along_iso P₁ (right_adjoint_to_coreflection (E₁ _) _) i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">preserves_exponentials_to_preserves_exponential_objects</span>
+    (<span class="nv">E₀</span> : Exponentials P₀) (<span class="nv">E₁</span> : Exponentials P₁)
+    : preserves_exponentials E₀ E₁ F_pP → preserves_exponential_objects' E₀.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F_pE x y f₁.
+    use (iscontrweqb' (pr2 (preserves_exponentials_to_exponent F_pE x y) f₁)).
+    use weqfibtototal.
+    <span class="nb">intro</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> pf.
+      <span class="nb">refine</span> (pf @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, exp_beta.
+    - <span class="nb">intro</span> pf.
+      <span class="nb">refine</span> (pf @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> exp_beta.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">preserves_exponential_objects'_to_preserves_exponential_objects</span>
+    {<span class="nv">E₀</span> : Exponentials P₀}
+    (<span class="nv">F_pE</span> : preserves_exponential_objects' E₀)
+    : preserves_exponential_objects.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y e ev ev_uvp.
+
+    use is_universal_arrow_from_after_path_induction.
+    - <span class="nb">refine</span> (_ · z_iso_inv
+          (preserves_binproduct_to_z_iso F F_pP (P₀ x (exp (E₀ x) y)) (P₁ (F x) (F (exp (E₀ x) y))))
+          · # F (exp_eval (E₀ x) y)).
+      <span class="nb">apply</span> BinProductOfArrows.
+      { <span class="nb">apply</span> identity. }
+      <span class="nb">apply</span> #F.
+      use (exponentials_unique_up_to_iso P₀ ev_uvp).
+      + <span class="nb">apply</span> exp_eval.
+      + <span class="nb">apply</span> is_exponentiable_to_uvp.
+    - <span class="nb">rewrite</span> &lt;- functor_id.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> (preserves_binproduct_of_arrows F_pP (identity x) (exponentials_unique_up_to_iso P₀ ev_uvp (is_exponentiable_to_uvp P₀ (E₀ x) y))).
+      }
+      <span class="nb">rewrite</span> assoc'.
+      etrans. { <span class="nb">apply</span> maponpaths, pathsinv0, functor_comp. }
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> exp_beta.
+    - <span class="nb">intros</span> f.
+      <span class="nb">set</span> (ee := _ ,, F_pE x y : is_Exponent P₁ _ _ _).
+      <span class="nb">set</span> (ee' := make_coreflection _ (F_pE x y) : Exponent P₁ _ _).
+
+      <span class="nb">set</span> (s := is_Exponent_along_iso _ ee' (functor_on_z_iso F (exponentials_unique_up_to_iso P₀ ev_uvp (is_exponentiable_to_uvp P₀ (E₀ x) y)))).
+      <span class="nb">rewrite</span> assoc'.
+      <span class="bp">exact</span> (pr2 s f).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">PreservationCharacterizations</span>.
+
+<span class="sd">(** * 10. Reflection *)</span>
+<span class="kn">Section</span> <span class="nf">Reflection</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C₀</span> <span class="nv">C₁</span> : category} (<span class="nv">P₀</span> : BinProducts C₀) (<span class="nv">P₁</span> : BinProducts C₁)
+    {<span class="nv">F</span> : functor C₀ C₁} (<span class="nv">F_pP</span> : preserves_binproduct F).
+
+  <span class="kn">Definition</span> <span class="nf">reflects_exponential_objects</span> : UU
+    := ∏ (x y e : C₀) (ev : C₀⟦P₀ x e, y⟧),
+      is_exponent_uvp P₁
+        (z_iso_inv (preserves_binproduct_to_z_iso _ F_pP (P₀ _ _) (P₁ _ _)) · #F ev)
+      → is_exponent_uvp P₀ ev.
+
+<span class="kn">End</span> <span class="nf">Reflection</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Exponentials.v</tt>, line 28)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   10. Reflection
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

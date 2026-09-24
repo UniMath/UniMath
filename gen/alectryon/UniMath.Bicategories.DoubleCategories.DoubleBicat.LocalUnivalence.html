@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LocalUnivalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************************************</span>
+
+<span class="sd"> Local univalence of Verity double bicategories</span>
+
+<span class="sd"> Every Verity bicategory has multiple underlying 1-categories, and for each of these, we</span>
+<span class="sd"> have a univalence condition.</span>
+
+<span class="sd"> The first two underlying categories that we have, are the categories whose objects are</span>
+<span class="sd"> horizontal/vertical 1-cells and whose morphisms are horizontal/vertical 2-cells. From this,</span>
+<span class="sd"> we get two local univalence conditions, and these express that the underlying horizontal</span>
+<span class="sd"> and the underlying vertical bicategory are locally univalent respectively. We also have</span>
+<span class="sd"> the underlying categories whose objects are horizontal/vertical 1-cells and whose morphisms</span>
+<span class="sd"> are "vertical/horizontal squares" (squares with two sides being identities). For these, we also have local univalence conditions.</span>
+
+<span class="sd"> If we assume that 2-cells are the same as squares with identity sides in the corresponding</span>
+<span class="sd"> direction, then these two univalence conditions are equivalent.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Local horizontal univalence</span>
+<span class="sd"> 2. Local horizontal univalence via squares</span>
+<span class="sd"> 3. Equivalence between the different local horizontal univalence conditions</span>
+<span class="sd"> 4. Local vertical univalence</span>
+<span class="sd"> 5. Local vertical univalence via squares</span>
+<span class="sd"> 6. Equivalence between the different local vertical univalence conditions</span>
+<span class="sd"> 7. Locally univalent vertical bicategories</span>
+
+<span class="sd"> *****************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DoubleBicat.DerivedLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DoubleBicat.UnderlyingCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_bicat.
+
+<span class="sd">(** * 1. Local horizontal univalence *)</span>
+<span class="kn">Definition</span> <span class="nf">hor_locally_univalent</span>
+           (<span class="nv">B</span> : verity_double_bicat)
+  : UU
+  := is_univalent_2_1 (hor_bicat_of_verity_double_bicat B).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_hor_locally_univalent</span>
+            (<span class="nv">B</span> : verity_double_bicat)
+  : isaprop (hor_locally_univalent B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaprop_is_univalent_2_1.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Local horizontal univalence via squares *)</span>
+<span class="kn">Definition</span> <span class="nf">hor_sq_locally_univalent</span>
+           (<span class="nv">B</span> : verity_double_bicat)
+  : UU
+  := ∏ (x y : B), is_univalent (hom_h_sq B x y).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_hor_sq_locally_univalent</span>
+            (<span class="nv">B</span> : verity_double_bicat)
+  : isaprop (hor_sq_locally_univalent B).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_univalent.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Equivalence between the different local horizontal univalence conditions *)</span>
+<span class="kn">Section</span> <span class="nf">IsoWeqH</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : verity_double_bicat}
+          (<span class="nv">H</span> : horizontally_saturated B)
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          (<span class="nv">h₁</span> <span class="nv">h₂</span> : x --&gt; y).
+
+  <span class="kn">Definition</span> <span class="nf">hom_h_to_hom_h_sq_z_iso</span>
+             (<span class="nv">τ</span> : z_iso (C := hom_h B x y) h₁ h₂)
+    : z_iso (C := hom_h_sq B x y) h₁ h₂.
+  <span class="kn">Proof</span>.
+    use make_z_iso ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (horizontal_cell_to_square (pr1 τ)).
+    - <span class="bp">exact</span> (horizontal_cell_to_square (inv_from_z_iso τ)).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> -[horizontal_cell_to_square comp_hor_globular_square] ;
+           <span class="nb">rewrite</span> &lt;- horizontal_cell_to_square_comp ;
+           <span class="nb">refine</span> (_ @ horizontal_cell_to_square_id _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">apply</span> (z_iso_inv_after_z_iso τ)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> -[horizontal_cell_to_square comp_hor_globular_square] ;
+           <span class="nb">rewrite</span> &lt;- horizontal_cell_to_square_comp ;
+           <span class="nb">refine</span> (_ @ horizontal_cell_to_square_id _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">apply</span> (z_iso_after_z_iso_inv τ)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hom_h_sq_to_hom_h_z_iso</span>
+             (<span class="nv">τ</span> : z_iso (C := hom_h_sq B x y) h₁ h₂)
+    : z_iso (C := hom_h B x y) h₁ h₂.
+  <span class="kn">Proof</span>.
+    use make_z_iso ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (square_to_horizontal_cell H (pr1 τ)).
+    - <span class="bp">exact</span> (square_to_horizontal_cell H (inv_from_z_iso τ)).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">refine</span> (!(square_to_horizontal_cell_comp _ _ _) @ _) ;
+           <span class="nb">refine</span> (_ @ square_to_horizontal_cell_id H _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (z_iso_inv_after_z_iso τ)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">refine</span> (!(square_to_horizontal_cell_comp _ _ _) @ _) ;
+           <span class="nb">refine</span> (_ @ square_to_horizontal_cell_id H _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (z_iso_after_z_iso_inv τ)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hom_h_hom_h_sq_z_iso_weq</span>
+    : z_iso (C := hom_h B x y) h₁ h₂ ≃ z_iso (C := hom_h_sq B x y) h₁ h₂.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> hom_h_to_hom_h_sq_z_iso.
+    - <span class="bp">exact</span> hom_h_sq_to_hom_h_z_iso.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> f ;
+         use z_iso_eq ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> horizontal_cell_to_square_to_horizontal_cell).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> f ;
+         use z_iso_eq ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> square_to_horizontal_cell_to_square).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">IsoWeqH</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_hom_h_weq_is_univalent_hom_h_sq</span>
+           {<span class="nv">B</span> : verity_double_bicat}
+           (<span class="nv">H</span> : horizontally_saturated B)
+           (<span class="nv">x</span> <span class="nv">y</span> : B)
+  : is_univalent (hom_h B x y) ≃ is_univalent (hom_h_sq B x y).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">intros</span> H' h₁ h₂.
+    use weqhomot.
+    + <span class="bp">exact</span> (hom_h_hom_h_sq_z_iso_weq H h₁ h₂ ∘ make_weq _ (H' h₁ h₂))%weq.
+    + <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p.
+      use z_iso_eq ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> horizontal_cell_to_square_id.
+  - <span class="nb">intros</span> H' h₁ h₂.
+    use weqhomot.
+    + <span class="bp">exact</span> (invweq (hom_h_hom_h_sq_z_iso_weq H h₁ h₂) ∘ make_weq _ (H' h₁ h₂))%weq.
+    + <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p.
+      use z_iso_eq ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> square_to_horizontal_cell_id.
+  - <span class="nb">apply</span> isaprop_is_univalent.
+  - <span class="nb">apply</span> isaprop_is_univalent.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hor_sq_weq_hor_locally_univalent</span>
+           {<span class="nv">B</span> : verity_double_bicat}
+           (<span class="nv">H</span> : horizontally_saturated B)
+  : hor_locally_univalent B
+    ≃
+    hor_sq_locally_univalent B
+  := (weqonsecfibers
+        _ _
+        (<span class="k">λ</span> <span class="nv">x</span>, weqonsecfibers
+                _ _
+                (<span class="k">λ</span> <span class="nv">y</span>, is_univalent_hom_h_weq_is_univalent_hom_h_sq H x y))
+      ∘ is_univalent_2_1_weq_local_univ _)%weq.
+
+<span class="kn">Definition</span> <span class="nf">h_sq_idtoiso_2_1</span>
+           {<span class="nv">B</span> : verity_double_bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">h₁</span> <span class="nv">h₂</span> : x --&gt; y}
+           (<span class="nv">p</span> : h₁ = h₂)
+  : invertible_horizontal_square h₁ h₂
+  := invertible_2cell_to_horizontal_square (idtoiso_2_1 _ _ p).
+
+<span class="kn">Definition</span> <span class="nf">h_sq_isotoid_2_1</span>
+           {<span class="nv">B</span> : verity_double_bicat}
+           (<span class="nv">H</span> : horizontally_saturated B)
+           (<span class="nv">HB_2_1</span> : hor_locally_univalent B)
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">h₁</span> <span class="nv">h₂</span> : x --&gt; y}
+           (<span class="nv">τ</span> : invertible_horizontal_square h₁ h₂)
+  : h₁ = h₂
+  := isotoid_2_1 HB_2_1 (horizontal_square_to_invertible_2cell H τ).
+
+<span class="kn">Proposition</span> <span class="nf">h_sq_idtoiso_isotoid_2_1</span>
+            {<span class="nv">B</span> : verity_double_bicat}
+            (<span class="nv">H</span> : horizontally_saturated B)
+            (<span class="nv">HB_2_1</span> : hor_locally_univalent B)
+            {<span class="nv">x</span> <span class="nv">y</span> : B}
+            {<span class="nv">h₁</span> <span class="nv">h₂</span> : x --&gt; y}
+            (<span class="nv">τ</span> : invertible_horizontal_square h₁ h₂)
+  : h_sq_idtoiso_2_1 (h_sq_isotoid_2_1 H HB_2_1 τ) = τ.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> h_sq_idtoiso_2_1, h_sq_isotoid_2_1.
+  <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1.
+  <span class="bp">exact</span> (homotinvweqweq (horizontal_square_weq_invertible_2cell H h₁ h₂) τ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">h_sq_isotoid_idtoiso_2_1</span>
+            {<span class="nv">B</span> : verity_double_bicat}
+            (<span class="nv">H</span> : horizontally_saturated B)
+            (<span class="nv">HB_2_1</span> : hor_locally_univalent B)
+            {<span class="nv">x</span> <span class="nv">y</span> : B}
+            {<span class="nv">h₁</span> <span class="nv">h₂</span> : x --&gt; y}
+            (<span class="nv">p</span> : h₁ = h₂)
+  : h_sq_isotoid_2_1 H HB_2_1 (h_sq_idtoiso_2_1 p) = p.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> h_sq_idtoiso_2_1, h_sq_isotoid_2_1.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (homotweqinvweq
+             (horizontal_square_weq_invertible_2cell H h₁ h₂)
+             (idtoiso_2_1 h₁ h₂ p)).
+  }
+  <span class="nb">apply</span> isotoid_2_1_idtoiso_2_1.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Local vertical univalence *)</span>
+<span class="kn">Definition</span> <span class="nf">ver_locally_univalent</span>
+           (<span class="nv">B</span> : verity_double_bicat)
+  : UU
+  := is_univalent_2_1 (ver_bicat_of_verity_double_bicat B).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_ver_locally_univalent</span>
+            (<span class="nv">B</span> : verity_double_bicat)
+  : isaprop (ver_locally_univalent B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaprop_is_univalent_2_1.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Local vertical univalence via squares *)</span>
+<span class="kn">Definition</span> <span class="nf">ver_sq_locally_univalent</span>
+           (<span class="nv">B</span> : verity_double_bicat)
+  : UU
+  := ∏ (x y : B), is_univalent (hom_v_sq B x y).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_ver_sq_locally_univalent</span>
+            (<span class="nv">B</span> : verity_double_bicat)
+  : isaprop (ver_sq_locally_univalent B).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_univalent.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Equivalence between the different local vertical univalence conditions *)</span>
+<span class="kn">Section</span> <span class="nf">IsoWeqV</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : verity_double_bicat}
+          (<span class="nv">H</span> : vertically_saturated B)
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          (<span class="nv">v₁</span> <span class="nv">v₂</span> : x -|-&gt; y).
+
+  <span class="kn">Definition</span> <span class="nf">hom_v_to_hom_v_sq_z_iso</span>
+             (<span class="nv">τ</span> : z_iso (C := hom_v B x y) v₁ v₂)
+    : z_iso (C := hom_v_sq B x y) v₁ v₂.
+  <span class="kn">Proof</span>.
+    use make_z_iso ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (vertical_cell_to_square (pr1 τ)).
+    - <span class="bp">exact</span> (vertical_cell_to_square (inv_from_z_iso τ)).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> -[vertical_cell_to_square comp_ver_globular_square] ;
+           <span class="nb">rewrite</span> &lt;- vertical_cell_to_square_comp ;
+           <span class="nb">refine</span> (_ @ vertical_cell_to_square_id _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">apply</span> (z_iso_inv_after_z_iso τ)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> -[vertical_cell_to_square comp_ver_globular_square] ;
+           <span class="nb">rewrite</span> &lt;- vertical_cell_to_square_comp ;
+           <span class="nb">refine</span> (_ @ vertical_cell_to_square_id _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">apply</span> (z_iso_after_z_iso_inv τ)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hom_v_sq_to_hom_v_z_iso</span>
+             (<span class="nv">τ</span> : z_iso (C := hom_v_sq B x y) v₁ v₂)
+    : z_iso (C := hom_v B x y) v₁ v₂.
+  <span class="kn">Proof</span>.
+    use make_z_iso ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (square_to_vertical_cell H (pr1 τ)).
+    - <span class="bp">exact</span> (square_to_vertical_cell H (inv_from_z_iso τ)).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">refine</span> (!(square_to_vertical_cell_comp _ _ _) @ _) ;
+           <span class="nb">refine</span> (_ @ square_to_vertical_cell_id H _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (z_iso_inv_after_z_iso τ)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">refine</span> (!(square_to_vertical_cell_comp _ _ _) @ _) ;
+           <span class="nb">refine</span> (_ @ square_to_vertical_cell_id H _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (z_iso_after_z_iso_inv τ)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hom_v_hom_v_sq_z_iso_weq</span>
+    : z_iso (C := hom_v B x y) v₁ v₂ ≃ z_iso (C := hom_v_sq B x y) v₁ v₂.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> hom_v_to_hom_v_sq_z_iso.
+    - <span class="bp">exact</span> hom_v_sq_to_hom_v_z_iso.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> f ;
+         use z_iso_eq ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> vertical_cell_to_square_to_vertical_cell).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> f ;
+         use z_iso_eq ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> square_to_vertical_cell_to_square).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">IsoWeqV</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_hom_v_weq_is_univalent_hom_v_sq</span>
+           {<span class="nv">B</span> : verity_double_bicat}
+           (<span class="nv">H</span> : vertically_saturated B)
+           (<span class="nv">x</span> <span class="nv">y</span> : B)
+  : is_univalent (hom_v B x y) ≃ is_univalent (hom_v_sq B x y).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">intros</span> H' v₁ v₂.
+    use weqhomot.
+    + <span class="bp">exact</span> (hom_v_hom_v_sq_z_iso_weq H v₁ v₂ ∘ make_weq _ (H' v₁ v₂))%weq.
+    + <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p.
+      use z_iso_eq ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> vertical_cell_to_square_id.
+  - <span class="nb">intros</span> H' v₁ v₂.
+    use weqhomot.
+    + <span class="bp">exact</span> (invweq (hom_v_hom_v_sq_z_iso_weq H v₁ v₂) ∘ make_weq _ (H' v₁ v₂))%weq.
+    + <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p.
+      use z_iso_eq ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> square_to_vertical_cell_id.
+  - <span class="nb">apply</span> isaprop_is_univalent.
+  - <span class="nb">apply</span> isaprop_is_univalent.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ver_sq_weq_ver_locally_univalent</span>
+           {<span class="nv">B</span> : verity_double_bicat}
+           (<span class="nv">H</span> : vertically_saturated B)
+  : ver_locally_univalent B
+    ≃
+    ver_sq_locally_univalent B
+  := (weqonsecfibers
+        _ _
+        (<span class="k">λ</span> <span class="nv">x</span>, weqonsecfibers
+                _ _
+                (<span class="k">λ</span> <span class="nv">y</span>, is_univalent_hom_v_weq_is_univalent_hom_v_sq H x y))
+      ∘ is_univalent_2_1_weq_local_univ (ver_bicat_of_verity_double_bicat B))%weq.
+
+<span class="kn">Definition</span> <span class="nf">v_sq_idtoiso_2_1</span>
+           {<span class="nv">B</span> : verity_double_bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">v₁</span> <span class="nv">v₂</span> : x -|-&gt; y}
+           (<span class="nv">p</span> : v₁ = v₂)
+  : invertible_vertical_square v₁ v₂
+  := invertible_2cell_to_vertical_square (idtoiso_2_1 _ _ p).
+
+<span class="kn">Definition</span> <span class="nf">v_sq_isotoid_2_1</span>
+           {<span class="nv">B</span> : verity_double_bicat}
+           (<span class="nv">H</span> : vertically_saturated B)
+           (<span class="nv">HB_2_1</span> : ver_locally_univalent B)
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">v₁</span> <span class="nv">v₂</span> : x -|-&gt; y}
+           (<span class="nv">τ</span> : invertible_vertical_square v₁ v₂)
+  : v₁ = v₂
+  := isotoid_2_1 HB_2_1 (vertical_square_to_invertible_2cell H τ).
+
+<span class="kn">Proposition</span> <span class="nf">v_sq_idtoiso_isotoid_2_1</span>
+            {<span class="nv">B</span> : verity_double_bicat}
+            (<span class="nv">H</span> : vertically_saturated B)
+            (<span class="nv">HB_2_1</span> : ver_locally_univalent B)
+            {<span class="nv">x</span> <span class="nv">y</span> : B}
+            {<span class="nv">v₁</span> <span class="nv">v₂</span> : x -|-&gt; y}
+            (<span class="nv">τ</span> : invertible_vertical_square v₁ v₂)
+  : v_sq_idtoiso_2_1 (v_sq_isotoid_2_1 H HB_2_1 τ) = τ.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> v_sq_idtoiso_2_1, v_sq_isotoid_2_1.
+  <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1.
+  <span class="bp">exact</span> (homotinvweqweq (vertical_square_weq_invertible_2cell H v₁ v₂) τ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">v_sq_isotoid_idtoiso_2_1</span>
+            {<span class="nv">B</span> : verity_double_bicat}
+            (<span class="nv">H</span> : vertically_saturated B)
+            (<span class="nv">HB_2_1</span> : ver_locally_univalent B)
+            {<span class="nv">x</span> <span class="nv">y</span> : B}
+            {<span class="nv">v₁</span> <span class="nv">v₂</span> : x -|-&gt; y}
+            (<span class="nv">p</span> : v₁ = v₂)
+  : v_sq_isotoid_2_1 H HB_2_1 (v_sq_idtoiso_2_1 p) = p.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> v_sq_idtoiso_2_1, v_sq_isotoid_2_1.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (homotweqinvweq
+             (vertical_square_weq_invertible_2cell H v₁ v₂)
+             (idtoiso_2_1 v₁ v₂ p)).
+  }
+  <span class="nb">apply</span> isotoid_2_1_idtoiso_2_1.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. Locally univalent vertical bicategories *)</span>
+<span class="kn">Definition</span> <span class="nf">locally_univalent_verity_double_bicat</span>
+           (<span class="nv">B</span> : verity_double_bicat)
+  : UU
+  := hor_locally_univalent B
+     ×
+     ver_locally_univalent B.
+
+<span class="kn">Coercion</span> <span class="nf">locally_univalent_verity_double_bicat_hor_locally_univalent</span>
+         {B : verity_double_bicat}
+         (H : locally_univalent_verity_double_bicat B)
+  : hor_locally_univalent B
+  := pr1 H.
+
+<span class="kn">Coercion</span> <span class="nf">locally_univalent_verity_double_bicat_ver_locally_univalent</span>
+         {B : verity_double_bicat}
+         (H : locally_univalent_verity_double_bicat B)
+  : ver_locally_univalent B
+  := pr2 H.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_locally_univalent_verity_double_bicat</span>
+            (<span class="nv">B</span> : verity_double_bicat)
+  : isaprop (locally_univalent_verity_double_bicat B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod.
+  - <span class="bp">exact</span> (isaprop_hor_locally_univalent B).
+  - <span class="bp">exact</span> (isaprop_ver_locally_univalent B).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/DoubleBicat/LocalUnivalence.v</tt>, line 28)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. Locally univalent vertical bicategories
+  &gt;
+  &gt;  *****************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

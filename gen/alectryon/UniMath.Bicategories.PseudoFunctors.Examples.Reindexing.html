@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Reindexing.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.FibSlice.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpFibSlice.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.FibrationCleaving.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.OpFibrationCleaving.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ReindexFib</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+          (<span class="nv">F</span> : C₁ ⟶ C₂).
+
+  <span class="kn">Definition</span> <span class="nf">reindex_fib_psfunctor_data</span>
+    : psfunctor_data
+        (fib_slice_bicat C₂)
+        (fib_slice_bicat C₁).
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D</span>, cleaving_of_cleaving_lift_obj D F).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D₁</span> <span class="nv">D₂</span> <span class="nv">G</span>, reindex_of_cartesian_disp_functor F G (pr2 D₁)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D₁</span> <span class="nv">D₂</span> <span class="nv">G₁</span> <span class="nv">G₂</span> <span class="nv">α</span>, reindex_of_disp_nat_trans F α).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D</span>, reindex_of_disp_functor_identity F (pr1 D)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D₁</span> <span class="nv">D₂</span> <span class="nv">D₃</span> <span class="nv">G₁</span> <span class="nv">G₂</span>, reindex_of_disp_functor_composite F (pr1 G₁) (pr1 G₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_fib_psfunctor_laws</span>
+    : psfunctor_laws reindex_fib_psfunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> D₁ D₂ G.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> D₁ D₂ G₁ G₂ G₃ α β.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> D₁ D₂ G.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (disp_functor_transportf _ (pr1 G)).
+      }
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> disp_functor_id.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> D₁ D₂ G.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> D₁ D₂ D₃ D₄ G₁ G₂ G₃.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> !id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> id_left_disp.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (disp_functor_transportf _ (pr1 G₃)).
+      }
+      <span class="nb">rewrite</span> disp_functor_id.
+      <span class="nb">unfold</span> transportb.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> D₁ D₂ D₃ G H₁ H₂ α.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> id_left_disp, id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> D₁ D₂ D₃ G₁ G₂ H α.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> id_left_disp, id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (disp_functor_transportf _ (pr1 H)).
+      }
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_fib_psfunctor_invertible_cells</span>
+    : invertible_cells reindex_fib_psfunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> D.
+      use is_invertible_2cell_fib_slice.
+      <span class="nb">intros</span> x xx.
+      <span class="nb">apply</span> (@id_is_z_iso_disp _ (reindex_disp_cat F (pr1 D))).
+    - <span class="nb">intros</span> D₁ D₂ D₃ G₁ G₂.
+      use is_invertible_2cell_fib_slice.
+      <span class="nb">intros</span> x xx.
+      <span class="nb">apply</span> (@id_is_z_iso_disp _ (reindex_disp_cat F (pr1 D₃))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_fib_psfunctor</span>
+    : psfunctor
+        (fib_slice_bicat C₂)
+        (fib_slice_bicat C₁).
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> reindex_fib_psfunctor_data.
+    - <span class="bp">exact</span> reindex_fib_psfunctor_laws.
+    - <span class="bp">exact</span> reindex_fib_psfunctor_invertible_cells.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ReindexFib</span>.
+
+<span class="kn">Section</span> <span class="nf">ReindexOpFib</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          (<span class="nv">F</span> : C₁ --&gt; C₂).
+
+  <span class="kn">Definition</span> <span class="nf">reindex_opfib_psfunctor_data</span>
+    : psfunctor_data
+        (opfib_slice_bicat C₂)
+        (opfib_slice_bicat C₁).
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D</span>, cleaving_of_opcleaving_lift_obj D F).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D₁</span> <span class="nv">D₂</span> <span class="nv">G</span>, reindex_of_opcartesian_disp_functor F G (pr2 D₁)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D₁</span> <span class="nv">D₂</span> <span class="nv">G₁</span> <span class="nv">G₂</span> <span class="nv">α</span>, reindex_of_disp_nat_trans F α).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D</span>, reindex_of_disp_functor_identity F (pr1 D)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D₁</span> <span class="nv">D₂</span> <span class="nv">D₃</span> <span class="nv">G₁</span> <span class="nv">G₂</span>, reindex_of_disp_functor_composite F (pr1 G₁) (pr1 G₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_opfib_psfunctor_laws</span>
+    : psfunctor_laws reindex_opfib_psfunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> D₁ D₂ G.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> D₁ D₂ G₁ G₂ G₃ α β.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> D₁ D₂ G.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (disp_functor_transportf _ (pr1 G)).
+      }
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> disp_functor_id.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> D₁ D₂ G.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> D₁ D₂ D₃ D₄ G₁ G₂ G₃.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> !id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> id_left_disp.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (disp_functor_transportf _ (pr1 G₃)).
+      }
+      <span class="nb">rewrite</span> disp_functor_id.
+      <span class="nb">unfold</span> transportb.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> D₁ D₂ D₃ G H₁ H₂ α.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> id_left_disp, id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> D₁ D₂ D₃ G₁ G₂ H α.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> transportf_reindex.
+      }
+      <span class="nb">rewrite</span> id_left_disp, id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (disp_functor_transportf _ (pr1 H)).
+      }
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_opfib_psfunctor_invertible_cells</span>
+    : invertible_cells reindex_opfib_psfunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> D.
+      use is_invertible_2cell_opfib_slice.
+      <span class="nb">intros</span> x xx.
+      <span class="nb">apply</span> (@id_is_z_iso_disp _ (reindex_disp_cat F (pr1 D))).
+    - <span class="nb">intros</span> D₁ D₂ D₃ G₁ G₂.
+      use is_invertible_2cell_opfib_slice.
+      <span class="nb">intros</span> x xx.
+      <span class="nb">apply</span> (@id_is_z_iso_disp _ (reindex_disp_cat F (pr1 D₃))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_opfib_psfunctor</span>
+    : psfunctor
+        (opfib_slice_bicat C₂)
+        (opfib_slice_bicat C₁).
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> reindex_opfib_psfunctor_data.
+    - <span class="bp">exact</span> reindex_opfib_psfunctor_laws.
+    - <span class="bp">exact</span> reindex_opfib_psfunctor_invertible_cells.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ReindexOpFib</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Examples/Reindexing.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

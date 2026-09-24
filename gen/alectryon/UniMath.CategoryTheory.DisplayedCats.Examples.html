@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Examples.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Examples</span>
+
+<span class="sd">A typical use for displayed categories is for constructing categories of structured objects, over a given (specific or general) category. We give a few examples here:</span>
+
+<span class="sd">- category of topological space as total category</span>
+<span class="sd">- arrow precategories</span>
+<span class="sd">- objects with N-actions</span>
+<span class="sd">- elements, over hSet</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.SIP.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+
+<span class="sd">(** * Displayed category of groups *)</span>
+
+<span class="kn">Module</span> <span class="nf">group</span>.
+
+<span class="kn">Definition</span> <span class="nf">grp_structure_data</span> (<span class="nv">X</span> : hSet) : UU
+  := (X -&gt; X -&gt; X) × X × (X -&gt; X).
+<span class="kn">Definition</span> <span class="nf">mult</span> {<span class="nv">X</span> : hSet} (<span class="nv">G</span> : grp_structure_data X)
+           : X -&gt; X -&gt; X := pr1 G.
+<span class="kn">Definition</span> <span class="nf">e</span> {<span class="nv">X</span> : hSet} (<span class="nv">G</span> : grp_structure_data X)
+           : X := pr1 (pr2 G).
+<span class="kn">Definition</span> <span class="nf">inv</span> {<span class="nv">X</span> : hSet} (<span class="nv">G</span> : grp_structure_data X)
+           : X -&gt; X := pr2 (pr2 G).
+
+<span class="kn">Definition</span> <span class="nf">grp_structure_axioms</span> {<span class="nv">X</span> : hSet}
+           (<span class="nv">G</span> : grp_structure_data X) : UU
+  := (∏ x y z : X, mult G x (mult G y z) = mult G (mult G x y) z)
+       ×
+     (∏ x : X, mult G x (e G) = x)
+       ×
+     (∏ x : X, mult G (e G) x = x)
+       ×
+     (∏ x : X, mult G x (inv G x) = e G)
+       ×
+     (∏ x : X, mult G (inv G x) x = e G).
+
+<span class="kn">Definition</span> <span class="nf">grp_assoc</span> {<span class="nv">X</span> : hSet} {<span class="nv">G</span> : grp_structure_data X}
+           (<span class="nv">GH</span> : grp_structure_axioms G)
+  : ∏ x y z : X, mult G x (mult G y z) = mult G (mult G x y) z := pr1 GH.
+<span class="kn">Definition</span> <span class="nf">grp_e_r</span> {<span class="nv">X</span> : hSet} {<span class="nv">G</span> : grp_structure_data X}
+           (<span class="nv">GH</span> : grp_structure_axioms G)
+  : ∏ x : X, mult G x (e G) = x := pr1 (pr2 GH).
+<span class="kn">Definition</span> <span class="nf">grp_e_l</span> {<span class="nv">X</span> : hSet} {<span class="nv">G</span> : grp_structure_data X}
+           (<span class="nv">GH</span> : grp_structure_axioms G)
+  : ∏ x : X, mult G (e G) x = x := pr1 (pr2 (pr2 GH)).
+<span class="kn">Definition</span> <span class="nf">grp_inv_r</span> {<span class="nv">X</span> : hSet} {<span class="nv">G</span> : grp_structure_data X}
+           (<span class="nv">GH</span> : grp_structure_axioms G)
+  : ∏ x : X, mult G x (inv G x) = e G := pr1 (pr2 (pr2 (pr2 GH))).
+<span class="kn">Definition</span> <span class="nf">grp_inv_l</span> {<span class="nv">X</span> : hSet} {<span class="nv">G</span> : grp_structure_data X}
+           (<span class="nv">GH</span> : grp_structure_axioms G)
+  : ∏ x : X, mult G (inv G x) x = e G := pr2 (pr2 (pr2 (pr2 GH))).
+
+<span class="kn">Definition</span> <span class="nf">grp_structure</span> (<span class="nv">X</span> : hSet) : UU
+  := ∑ G : grp_structure_data X, grp_structure_axioms G.
+<span class="kn">Coercion</span> <span class="nf">grp_data</span> {X} (G : grp_structure X) : grp_structure_data X := pr1 G.
+<span class="kn">Coercion</span> <span class="nf">grp_axioms</span> {X} (G : grp_structure X) : grp_structure_axioms _ := pr2 G.
+
+<span class="kn">Definition</span> <span class="nf">is_grp_hom</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">f</span> : X -&gt; Y)
+           (<span class="nv">GX</span> : grp_structure X) (<span class="nv">GY</span> : grp_structure Y) : UU
+           := (∏ x x', f (mult GX x x') = mult GY (f x) (f x'))
+                ×
+              (f (e GX) = e GY).
+<span class="kn">Definition</span> <span class="nf">grp_hom_mult</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} {<span class="nv">f</span> : X -&gt; Y}
+           {<span class="nv">GX</span> : grp_structure X} {<span class="nv">GY</span> : grp_structure Y}
+           (<span class="nv">isc</span> : is_grp_hom f GX GY)
+           : ∏ x x', f (mult GX x x') = mult GY (f x) (f x') := pr1 isc.
+<span class="kn">Definition</span> <span class="nf">grp_hom_e</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} {<span class="nv">f</span> : X -&gt; Y}
+           {<span class="nv">GX</span> : grp_structure X} {<span class="nv">GY</span> : grp_structure Y}
+           (<span class="nv">isc</span> : is_grp_hom f GX GY)
+           : f (e GX) = e GY := pr2 isc.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_is_grp_hom</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">f</span> : X -&gt; Y)
+           (<span class="nv">GX</span> : grp_structure X) (<span class="nv">GY</span> : grp_structure Y)
+  : isaprop (is_grp_hom f GX GY).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">apply</span> (isofhleveldirprod);
+  <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>);
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_grp</span> : disp_cat hset_category.
+<span class="kn">Proof</span>.
+  use disp_struct.
+  - <span class="bp">exact</span> grp_structure.
+  - <span class="nb">intros</span> X Y GX GY f. <span class="bp">exact</span> (is_grp_hom f GX GY).
+  - <span class="nb">intros</span>.  <span class="nb">apply</span> isaprop_is_grp_hom.
+  - <span class="nb">intros</span>. <span class="nb">simpl</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> ? ? ? ? ? ? ? ? Gf Gg  ; <span class="nb">simpl</span> <span class="k">in</span> *;
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">simpl</span>; <span class="nb">cbn</span>.
+    + <span class="nb">rewrite</span> (grp_hom_mult Gf).
+      <span class="nb">apply</span> (grp_hom_mult Gg).
+    + <span class="nb">rewrite</span> (grp_hom_e Gf).
+      <span class="nb">apply</span> (grp_hom_e Gg).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">group</span>.
+
+
+
+<span class="sd">(** ** The displayed arrow category</span>
+
+<span class="sd">A very fertile example: many others can be obtained from it by reindexing. *)</span>
+<span class="kn">Section</span> <span class="nf">Arrow_Disp</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span>:category).
+
+<span class="kn">Definition</span> <span class="nf">arrow_disp_ob_mor</span> : disp_cat_ob_mor (category_binproduct C C).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">xy</span> : (C × C), (pr1 xy) --&gt; (pr2 xy)).
+  <span class="nb">simpl</span>; <span class="nb">intros</span> xx' yy' g h ff'.
+    <span class="bp">exact</span> (pr1 ff' · h = g · pr2 ff').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">arrow_id_comp</span> : disp_cat_id_comp _ arrow_disp_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">simpl</span>; <span class="nb">intros</span>.
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> id_left. <span class="nb">apply</span> pathsinv0, id_right.
+  - <span class="nb">simpl</span>; <span class="nb">intros</span> x y z f g xx yy zz ff gg.
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> @pathsinv0, assoc.
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> maponpaths, gg.
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> assoc.
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> cancel_postcomposition, ff.
+    <span class="nb">apply</span> pathsinv0, assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">arrow_data</span> : disp_cat_data _
+  := (arrow_disp_ob_mor ,, arrow_id_comp).
+
+<span class="kn">Lemma</span> <span class="nf">arrow_axioms</span> : disp_cat_axioms (category_binproduct C C) arrow_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">apply</span> tpair; <span class="nb">intros</span>; <span class="kp">try</span> <span class="nb">apply</span> homset_property.
+  <span class="nb">apply</span> isasetaprop, homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">arrow_disp</span> : disp_cat (category_binproduct C C)
+  := (arrow_data ,, arrow_axioms).
+
+<span class="kn">End</span> <span class="nf">Arrow_Disp</span>.
+
+<span class="sd">(** ** Objects with N-action</span>
+
+<span class="sd">For any category C, “C-objects equipped with an N-action” (or more elementarily, with an endomorphism) form a displayed category over C</span>
+<span class="sd">Section ZAct.</span>
+
+<span class="sd">Once we have pullbacks of displayed precategories, this can be obtained as a pullback of the previous example. *)</span>
+
+<span class="kn">Section</span> <span class="nf">NAction</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span>:category).
+
+<span class="kn">Definition</span> <span class="nf">NAction_disp_ob_mor</span> : disp_cat_ob_mor C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">c</span> --&gt; c).
+  <span class="nb">intros</span> x y xx yy f. <span class="bp">exact</span> (f · yy = xx · f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">NAction_id_comp</span> : disp_cat_id_comp C NAction_disp_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">simpl</span>; <span class="nb">intros</span>.
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> id_left. <span class="nb">apply</span> pathsinv0, id_right.
+  - <span class="nb">simpl</span>; <span class="nb">intros</span> x y z f g xx yy zz ff gg.
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> @pathsinv0, assoc.
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> maponpaths, gg.
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> assoc.
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> cancel_postcomposition, ff.
+    <span class="nb">apply</span> pathsinv0, assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">NAction_data</span> : disp_cat_data C
+  := (NAction_disp_ob_mor ,, NAction_id_comp).
+
+<span class="kn">Lemma</span> <span class="nf">NAction_axioms</span> : disp_cat_axioms C NAction_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">apply</span> tpair; <span class="nb">intros</span>; <span class="kp">try</span> <span class="nb">apply</span> homset_property.
+  <span class="nb">apply</span> isasetaprop, homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">NAction_disp</span> : disp_cat C
+  := (NAction_data ,, NAction_axioms).
+
+<span class="kn">End</span> <span class="nf">NAction</span>.
+
+<span class="sd">(** ** Elements of sets</span>
+
+<span class="sd">A presheaf on a (pre)category can be viewed as a fiberwise discrete displayed (pre)category. In fact, the universal example of this is the case corresponding to the identity functor on [SET].  So, having given the displayed category for this case, one obtains it for arbitrary presheaves by reindexing. *)</span>
+
+<span class="c">(* TODO: move? ponder? *)</span>
+
+
+
+<span class="kn">Section</span> <span class="nf">Elements_Disp</span>.
+
+<span class="kn">Definition</span> <span class="nf">elements_ob_mor</span> : disp_cat_ob_mor HSET.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">simpl</span>. <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, X).
+  - <span class="nb">simpl</span>. <span class="nb">intros</span> X Y x y f. <span class="bp">exact</span> (f x = y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">elements_id_comp</span> : disp_cat_id_comp HSET elements_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> tpair; <span class="nb">simpl</span>.
+  - <span class="nb">intros</span> X x. <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y Z f g x y z e_fx_y e_gy_z. <span class="nb">cbn</span>.
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> maponpaths, e_fx_y. <span class="nb">apply</span> e_gy_z.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">elements_data</span> : disp_cat_data HSET
+  := (_ ,, elements_id_comp).
+
+<span class="kn">Lemma</span> <span class="nf">elements_axioms</span> : disp_cat_axioms HSET elements_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="kp">try</span> <span class="nb">apply</span> setproperty.
+  <span class="nb">apply</span> isasetaprop; <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">elements_universal</span> : disp_cat HSET
+  := (_ ,, elements_axioms).
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_elements</span> {<span class="nv">C</span> : category} (<span class="nv">P</span> : functor C HSET)
+  := reindex_disp_cat P elements_universal.
+
+<span class="kn">Definition</span> <span class="nf">elements_universal_mor_eq</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : HSET}
+           {<span class="nv">f</span> : X --&gt; Y}
+           {<span class="nv">x</span> : elements_universal X}
+           {<span class="nv">y</span> : elements_universal Y}
+           (<span class="nv">ff₁</span> <span class="nv">ff₂</span> : x --&gt;[ f ] y)
+  : ff₁ = ff₂.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> Y.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_z_iso_disp_elements_universal</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : HSET}
+           {<span class="nv">f</span> : X --&gt; Y}
+           (<span class="nv">Hf</span> : is_z_isomorphism f)
+           {<span class="nv">x</span> : elements_universal X}
+           {<span class="nv">y</span> : elements_universal Y}
+           (<span class="nv">ff</span> : x --&gt;[ f ] y)
+  : is_z_iso_disp (make_z_iso' _ Hf) ff.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _).
+  - <span class="nb">pose</span> (eqtohomot (z_iso_inv_after_z_iso (make_z_iso' f Hf)) x) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">refine</span> (_ @ p).
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (!ff).
+  - <span class="nb">apply</span> elements_universal_mor_eq.
+  - <span class="nb">apply</span> elements_universal_mor_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_opcartesian_disp_elements_universal</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : HSET}
+           {<span class="nv">f</span> : X --&gt; Y}
+           {<span class="nv">x</span> : elements_universal X}
+           {<span class="nv">y</span> : elements_universal Y}
+           (<span class="nv">p</span> : x --&gt;[ f ] y)
+  : is_opcartesian p.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Z z g q.
+  use iscontraprop1.
+  - use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> elements_universal.
+    }
+    <span class="nb">apply</span> elements_universal_mor_eq.
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (maponpaths g (!p) @ q).
+    + <span class="nb">apply</span> elements_universal_mor_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">opcleaving_elements_universal</span>
+  : opcleaving elements_universal.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y x f.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (f x).
+  - <span class="nb">refine</span> (idpath _ ,, _) ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> is_opcartesian_disp_elements_universal.
+<span class="kn">Defined</span>.
+
+<span class="c">(* TODO: compare to other definitions of this in the library! *)</span>
+<span class="kn">Definition</span> <span class="nf">precat_of_elements</span> {<span class="nv">C</span> : category} (<span class="nv">P</span> : functor C HSET)
+  := total_category (disp_cat_of_elements P).
+
+<span class="kn">End</span> <span class="nf">Elements_Disp</span>.
+
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+
+
+<span class="kn">Section</span> <span class="nf">functor_algebras</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functor C C).
+
+<span class="kn">Definition</span> <span class="nf">functor_alg_ob</span> : C -&gt; UU := <span class="k">λ</span> <span class="nv">c</span>, F c --&gt; c.
+
+<span class="kn">Definition</span> <span class="nf">functor_alg_mor</span>
+  : ∏ (x y : C), functor_alg_ob x → functor_alg_ob y → C⟦x,y⟧ → UU.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c d a a' r. <span class="bp">exact</span> ( (#F r)%cat · a' = a · r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_functor_alg_mor</span>
+  :  ∏ (x y : C) a a' r,
+     isaprop (functor_alg_mor x y a a' r).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">simpl</span>. <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_alg_id</span>
+: ∏ (x : C) (a : functor_alg_ob x), functor_alg_mor _ _ a a (identity x ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>; <span class="nb">unfold</span> functor_alg_mor.
+  <span class="nb">rewrite</span> functor_id;
+  <span class="nb">rewrite</span> id_left;
+  <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> id_right .
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_alg_comp</span>
+  : ∏ (x y z : C) a b c (f : C⟦x,y⟧) (g : C⟦y,z⟧),
+                 functor_alg_mor _ _  a b f
+                 → functor_alg_mor _ _  b c g
+                 → functor_alg_mor _ _  a c (f · g).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>; <span class="nb">intros</span> ? ? ? ? ? ? ? ? X X0;
+  <span class="nb">unfold</span> functor_alg_mor <span class="k">in</span> *;
+  <span class="nb">rewrite</span> functor_comp;
+  <span class="nb">rewrite</span> &lt;-assoc; <span class="nb">rewrite</span> X0;
+  <span class="nb">rewrite</span> assoc; <span class="nb">rewrite</span> X;
+  <span class="nb">apply</span> (!assoc _ _ _ ) .
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_functor_alg</span> : disp_cat C
+  := disp_struct _ _
+                 functor_alg_mor
+                 isaprop_functor_alg_mor
+                 functor_alg_id
+                 functor_alg_comp.
+
+<span class="kn">Definition</span> <span class="nf">total_functor_alg</span> : category := total_category disp_cat_functor_alg.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_functor_alg_ob</span> : ∏ x : C, isaset (functor_alg_ob x).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_functor_alg</span> : is_univalent_disp disp_cat_functor_alg.
+<span class="kn">Proof</span>.
+  use is_univalent_disp_from_SIP_data.
+  - <span class="nb">apply</span> isaset_functor_alg_ob.
+  - <span class="nb">unfold</span> functor_alg_mor.
+    <span class="nb">intros</span> x a a' H H'.
+    <span class="nb">rewrite</span> functor_id <span class="k">in</span> H'.
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> H'.
+    <span class="nb">rewrite</span> id_right <span class="k">in</span> H'.
+    <span class="nb">apply</span> H'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_cleaving_functor_alg</span> : iso_cleaving disp_cat_functor_alg.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c c' i d.
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  use tpair.
+  - <span class="bp">exact</span> (compose (compose (functor_on_z_iso F i) d) (z_iso_inv_from_z_iso i)).
+  - <span class="nb">cbn</span>. <span class="nb">unfold</span> z_iso_disp. <span class="nb">cbn</span>.
+    use tpair.
+    + <span class="kp">abstract</span> (
+          etrans; [<span class="nb">eapply</span> pathsinv0; <span class="nb">apply</span> id_right |];
+          <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc;
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths;
+          <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> z_iso_after_z_iso_inv
+        ).
+    + use tpair.
+      * <span class="nb">unfold</span> functor_alg_mor.
+        <span class="nb">cbn</span>. <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">unfold</span> functor_alg_mor. <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath.
+      * <span class="nb">split</span>; <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'π'"</span> := (pr1_category disp_cat_functor_alg).
+
+<span class="kn">Definition</span> <span class="nf">creates_limits_functor_alg</span>
+  : creates_limits_unique disp_cat_functor_alg.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> creates_limits_unique.
+  <span class="nb">intros</span> J D L.
+  <span class="nb">induction</span> L <span class="k">as</span> [tmp isL].
+  <span class="nb">induction</span> tmp <span class="k">as</span> [x L].
+  <span class="nb">unfold</span> creates_limit. <span class="nb">cbn</span>.
+  transparent <span class="nb">assert</span> (FC : (cone (mapdiagram π D) (F x))).
+  { use make_cone.
+    - <span class="nb">intro</span> j.
+      <span class="nb">eapply</span> compose.
+      <span class="nb">apply</span> ((#F)%cat (coneOut L j )).
+      <span class="nb">cbn</span>. <span class="bp">exact</span> (pr2 (dob D j)).
+    - <span class="kp">abstract</span> (
+      <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">cbn</span>;
+      <span class="nb">assert</span> (XR := pr2 (dmor D e)); <span class="nb">cbn</span> <span class="k">in</span> XR;
+      etrans; [<span class="nb">eapply</span> pathsinv0; <span class="nb">apply</span> assoc |];
+      etrans; [<span class="nb">apply</span> maponpaths, (!XR) |];
+      etrans; [<span class="nb">apply</span> assoc |];
+      <span class="nb">apply</span> maponpaths_2;
+      <span class="nb">rewrite</span> &lt;- functor_comp;
+      <span class="nb">apply</span> maponpaths;
+      <span class="nb">apply</span> (coneOutCommutes L)
+      ).
+  }
+  transparent <span class="nb">assert</span> (LL : (LimCone (mapdiagram π D))).
+  { use make_LimCone. <span class="nb">apply</span> x. <span class="nb">apply</span> L. <span class="nb">apply</span> isL. }
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * use (limArrow LL). <span class="nb">apply</span> FC.
+      * <span class="kp">abstract</span> (
+          use tpair ;
+          [
+            <span class="nb">intro</span> j; <span class="nb">cbn</span>;
+            <span class="nb">set</span> (XR := limArrowCommutes LL _ FC); <span class="nb">cbn</span> <span class="k">in</span> XR;
+            <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> XR
+          | <span class="nb">cbn</span>; <span class="nb">intros</span> i j e;
+            <span class="nb">apply</span> subtypePath;
+            [ <span class="nb">intro</span>; <span class="nb">apply</span> homset_property |];
+            <span class="nb">cbn</span>; <span class="nb">apply</span> (coneOutCommutes L)
+          ]).
+    + <span class="kp">abstract</span> (
+      <span class="nb">intro</span> t; <span class="nb">cbn</span>;
+      use total2_paths_f;
+      [ <span class="nb">cbn</span>;
+        <span class="nb">apply</span> (limArrowUnique LL);
+        <span class="nb">induction</span> t <span class="k">as</span> [t [H1 H2]]; <span class="nb">cbn</span> <span class="k">in</span> *;
+        <span class="nb">intro</span> j;
+        <span class="nb">apply</span> pathsinv0, H1 |];
+      <span class="nb">apply</span> proofirrelevance;
+      <span class="nb">apply</span> isofhleveltotal2;
+      [ <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property |];
+      <span class="nb">intros</span>; <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+        <span class="nb">apply</span> (homset_property (total_category _ ))
+        ).
+  - <span class="nb">cbn</span>.
+    <span class="nb">intros</span> x' CC.
+    <span class="nb">set</span> (πCC := mapcone π D CC).
+    use unique_exists.
+    + use tpair.
+      * <span class="nb">cbn</span>.
+        use (limArrow LL _ πCC).
+      * <span class="nb">set</span> (XR := limArrowCommutes LL).
+        <span class="nb">cbn</span> <span class="k">in</span> XR.
+        <span class="nb">set</span> (H1:= coneOutCommutes CC). <span class="nb">simpl</span> <span class="k">in</span> H1.
+        <span class="nb">destruct</span> x' <span class="k">as</span> [c a]. <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> disp_cat_functor_alg <span class="k">in</span> a. <span class="nb">cbn</span> <span class="k">in</span> a.
+        <span class="nb">cbn</span> <span class="k">in</span> πCC.
+        transparent <span class="nb">assert</span> (X : (cone (mapdiagram π D) (F c))).
+        { use make_cone.
+          - <span class="nb">intro</span> j.
+            <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">f</span>, a · f). <span class="nb">cbn</span>.
+            <span class="nb">apply</span> (coneOut CC j).
+          - <span class="kp">abstract</span> (
+            <span class="nb">intros</span> u v e; <span class="nb">cbn</span>;
+            <span class="nb">rewrite</span> &lt;- assoc;
+            <span class="nb">apply</span> maponpaths;
+            <span class="nb">apply</span> (maponpaths pr1 (coneOutCommutes CC _ _ _ ))
+                  ).
+        }
+
+        {
+          <span class="nb">unfold</span> functor_alg_mor.
+          intermediate_path (limArrow LL _ X).
+          - <span class="nb">apply</span> (limArrowUnique LL).
+            <span class="nb">intro</span> j. <span class="nb">rewrite</span> &lt;- assoc.
+            <span class="nb">rewrite</span> (limArrowCommutes LL).
+            <span class="nb">cbn</span>.
+            <span class="nb">rewrite</span> assoc.
+            <span class="nb">rewrite</span> &lt;- functor_comp.
+            etrans. <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (limArrowCommutes LL). <span class="nb">cbn</span>.
+            <span class="nb">set</span> (H := pr2 (coneOut CC j)).  <span class="nb">cbn</span> <span class="k">in</span> H. <span class="nb">apply</span> H.
+          - <span class="nb">apply</span> pathsinv0.
+            use (limArrowUnique LL).
+            <span class="nb">intro</span> j.
+            <span class="nb">rewrite</span> &lt;- assoc.
+            <span class="nb">rewrite</span> (limArrowCommutes LL).
+            <span class="nb">cbn</span>.
+            <span class="nb">apply</span> idpath.
+        }
+    + <span class="nb">simpl</span>.
+      <span class="nb">intro</span> j.
+      <span class="nb">apply</span> subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> homset_property. }
+      <span class="nb">cbn</span>. <span class="nb">apply</span> (limArrowCommutes LL).
+    + <span class="nb">intros</span>.
+      <span class="nb">apply</span> impred_isaprop. <span class="nb">intro</span> t. (<span class="nb">apply</span> (homset_property (total_category _ ))).
+    + <span class="nb">simpl</span>.
+      <span class="nb">intros</span>.
+      <span class="nb">apply</span> subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> homset_property. }
+      <span class="nb">apply</span> (limArrowUnique LL).
+      <span class="nb">intro</span> u.
+      <span class="nb">specialize</span> (X u).
+      <span class="nb">apply</span> (maponpaths pr1 X).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">functor_algebras</span>.
+
+
+<span class="kn">Section</span> <span class="nf">monad_algebras</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Monad C).
+
+<span class="kn">Let</span> <span class="nf">T'</span> : C ⟶ C := T.
+<span class="kn">Let</span> <span class="nf">FAlg</span> : category := total_functor_alg T'.
+
+<span class="kn">Definition</span> <span class="nf">isMonadAlg</span> (<span class="nv">Xa</span> : FAlg) : UU
+  := η T (pr1 Xa) · pr2 Xa = identity _
+     ×
+     (#T')%cat (pr2 Xa) · pr2 Xa = μ T _ · pr2 Xa.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_monad_alg_over_functor_alg</span> : disp_cat FAlg
+  := disp_full_sub _ isMonadAlg.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_monad_alg</span> : disp_cat C
+  := sigma_disp_cat disp_cat_monad_alg_over_functor_alg.
+
+<span class="kn">End</span> <span class="nf">monad_algebras</span>.
+
+<span class="c">(* *)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Examples.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

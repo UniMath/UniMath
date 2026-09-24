@@ -1,0 +1,2430 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CompCatNotations.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Notations for comprehension categories</span>
+
+<span class="sd"> We define a bunch of notations and nicer accessors for comprehension categories, their</span>
+<span class="sd"> functors, and natural transformations. We also define terms (i.e., sections of projections),</span>
+<span class="sd"> and we define several operations of terms.</span>
+
+<span class="sd"> In this development we consider the internal language of comprehension categories. We develop</span>
+<span class="sd"> this in the generality of comprehension categories that are not necessarily full. For this</span>
+<span class="sd"> reason, we consider coercions between types. In a comprehension category, there is a notion</span>
+<span class="sd"> of morphism between types, and this notion gives us a (proof relevant) subtyping relation.</span>
+<span class="sd"> For generalized categories with families, this idea was presented by Coraglia and Emmenegger</span>
+<span class="sd"> and for comprehension categories by Najmaei, Van der Weide, Ahrens, and North.</span>
+
+<span class="sd"> Reference</span>
+<span class="sd"> - "Categorical models of subtyping" by Coraglia and Emmenegger</span>
+<span class="sd"> - "A Type Theory for Comprehension Categories with Applications to Subtyping" by Najmaei,</span>
+<span class="sd">   Van der Weide, Ahrens, and North</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Notations and accessors for comprehension categories</span>
+<span class="sd"> 2. Terms in comprehension categories</span>
+<span class="sd"> 3. Coercion of terms</span>
+<span class="sd"> 4. Substitution and coherence</span>
+<span class="sd"> 5. Variable rule</span>
+<span class="sd"> 6. Notations and accessors for functors of comprehension categories</span>
+<span class="sd"> 7. Notations and accessors for natural transformations of comprehension categories</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Declare Scope</span> comp_cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. Notations for comprehension categories *)</span>
+<span class="kn">Notation</span> <span class="s2">"'[]'"</span> := (empty_context _) : comp_cat.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_ty</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">Γ</span> : C)
+  : UU
+  := disp_cat_of_types C Γ.
+
+<span class="kn">Notation</span> <span class="s2">"'ty'"</span> := comp_cat_ty.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_coercion</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> <span class="nv">B</span> : ty Γ)
+  : UU
+  := fiber_category _ _ ⟦ A , B ⟧.
+
+<span class="kn">Notation</span> <span class="s2">"A &lt;: B"</span> := (comp_cat_coercion A B) (<span class="kn">at level</span> <span class="mi">55</span>).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_ext</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">Γ</span> : C)
+           (<span class="nv">A</span> : ty Γ)
+  : C
+  := comprehension_functor_ob (comp_cat_comprehension C) A.
+
+<span class="kn">Notation</span> <span class="s2">"Γ '&amp;' A"</span> := (comp_cat_ext Γ A) (<span class="kn">at level</span> <span class="mi">20</span>) : comp_cat.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_proj</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">Γ</span> : C)
+           (<span class="nv">A</span> : ty Γ)
+  : Γ &amp; A --&gt; Γ
+  := comprehension_functor_cod_mor (comp_cat_comprehension C) A.
+
+<span class="kn">Notation</span> <span class="s2">"'π'"</span> := (comp_cat_proj _) : comp_cat.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_comp_mor</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+           (<span class="nv">s</span> : A --&gt;[ identity _ ] B)
+  : Γ &amp; A --&gt; Γ &amp; B
+  := comprehension_functor_mor (comp_cat_comprehension C) s.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_comp_mor_comm</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+            (<span class="nv">s</span> : A &lt;: B)
+  : comp_cat_comp_mor s · π B = π A.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (comprehension_functor_mor_comm _ s @ _).
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_comp_mor_id</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_comp_mor (id_disp A) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> comprehension_functor_mor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_comp_mor_comp</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A₁</span> <span class="nv">A₂</span> <span class="nv">A₃</span> : ty Γ}
+            (<span class="nv">s₁</span> : A₁ &lt;: A₂)
+            (<span class="nv">s₂</span> : A₂ &lt;: A₃)
+  : comp_cat_comp_mor (s₁ · s₂)
+    =
+    comp_cat_comp_mor s₁ · comp_cat_comp_mor s₂.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ @ comprehension_functor_mor_comp _ s₁ s₂).
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> comp_cat_comp_mor, comprehension_functor_mor.
+  <span class="nb">rewrite</span> disp_functor_transportf, transportf_cod_disp.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_comp_z_iso</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+           (<span class="nv">s</span> : z_iso_disp (identity_z_iso _) A B)
+  : z_iso (Γ &amp; A) (Γ &amp; B)
+  := from_z_iso_disp_codomain
+       (disp_functor_on_z_iso_disp (comp_cat_comprehension C) s).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_comp_fiber_z_iso</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+           (<span class="nv">s</span> : z_iso (C := fiber_category _ _) A B)
+  : z_iso (Γ &amp; A) (Γ &amp; B)
+  := comp_cat_comp_z_iso (z_iso_disp_from_z_iso_fiber _ _ _ _ s).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_comp_fiber_z_iso_fib</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+           (<span class="nv">s</span> : z_iso (C := fiber_category _ _) A B)
+  : z_iso
+      (C := fiber_category _ _)
+      (comp_cat_comprehension C Γ A)
+      (comp_cat_comprehension C Γ B).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (functor_on_z_iso
+           (fiber_functor (comp_cat_comprehension C) Γ)
+           s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dom_mor_comp_cat_comp_fiber_z_iso_fib</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+            (<span class="nv">s</span> : z_iso (C := fiber_category _ _) A B)
+  : dom_mor (comp_cat_comp_fiber_z_iso_fib s)
+    =
+    comp_cat_comp_mor (pr1 s).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">subst_ty</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           (<span class="nv">A</span> : ty Δ)
+  : ty Γ
+  := cleaving_ob (cleaving_of_types C) s A.
+
+<span class="kn">Notation</span> <span class="s2">"A '[[' s ']]'"</span> := (subst_ty s A) (<span class="kn">at level</span> <span class="mi">20</span>) : comp_cat.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_subst</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           (<span class="nv">A</span> : ty Γ₁)
+           (<span class="nv">s</span> : Γ₂ --&gt; Γ₁)
+  : A[[ s ]] --&gt;[ s ] A
+  := mor_disp_of_cartesian_lift _ _ (cleaving_of_types C Γ₁ Γ₂ s A).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_iso_subst</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           (<span class="nv">A</span> : ty Γ₁)
+           (<span class="nv">s</span> : z_iso Γ₂ Γ₁)
+  : z_iso_disp s (A[[ s ]]) A.
+<span class="kn">Proof</span>.
+  use make_z_iso_disp.
+  - <span class="bp">exact</span> (mor_disp_of_cartesian_lift _ _ (cleaving_of_types C Γ₁ Γ₂ s A)).
+  - use is_z_iso_from_is_cartesian.
+    <span class="nb">apply</span> cartesian_lift_is_cartesian.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_extend_over</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           (<span class="nv">A</span> : ty Γ₁)
+           (<span class="nv">s</span> : Γ₂ --&gt; Γ₁)
+  : Γ₂ &amp; (A [[ s ]]) --&gt; Γ₁ &amp; A
+  := comprehension_functor_mor (comp_cat_comprehension C) (comp_cat_subst A s).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_comp_mor_over</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           {<span class="nv">A</span> : ty Γ}
+           {<span class="nv">B</span> : ty Δ}
+           (<span class="nv">f</span> : A &lt;: B [[ s ]])
+  : Γ &amp; A --&gt; Δ &amp; B
+  := dom_mor (♯(comp_cat_comprehension C) f)%mor_disp · comp_cat_extend_over _ _.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_comp_mor_over_sub</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A₁</span> <span class="nv">A₂</span> : ty Γ}
+           {<span class="nv">B₁</span> : ty (Γ &amp; A₁)}
+           {<span class="nv">B₂</span> : ty (Γ &amp; A₂)}
+           (<span class="nv">f</span> : A₁ &lt;: A₂)
+           (<span class="nv">ff</span> : B₁ &lt;: B₂ [[ comp_cat_comp_mor f ]])
+  : Γ &amp; A₁ &amp; B₁ --&gt; Γ &amp; A₂ &amp; B₂
+  := pr1 (♯(comp_cat_comprehension C) ff)%mor_disp · comp_cat_extend_over _ _.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_extend_over_iso</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           (<span class="nv">A</span> : ty Γ₁)
+           (<span class="nv">s</span> : Γ₂ --&gt; Γ₁)
+           (<span class="nv">Hs</span> : is_z_isomorphism s)
+  : z_iso (Γ₂ &amp; (A [[ s ]])) (Γ₁ &amp; A)
+  := from_z_iso_disp_codomain
+       (disp_functor_on_z_iso_disp
+          (comp_cat_comprehension C)
+          (comp_cat_iso_subst A (s ,, Hs))).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_is_pullback</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           (<span class="nv">A</span> : ty Γ₁)
+           (<span class="nv">s</span> : Γ₂ --&gt; Γ₁)
+  : @isPullback
+       C
+       _ _ _ _
+       (π A)
+       s
+       (comprehension_functor_mor
+          (comp_cat_comprehension C)
+          (cleaving_of_types C _ _ s A))
+       (π (A [[ s ]]))
+       (comprehension_functor_mor_comm
+          (comp_cat_comprehension C)
+          (cleaving_of_types C _ _ s A))
+  := cartesian_isPullback_in_cod_disp
+       _
+       (cartesian_disp_functor_on_cartesian
+          (comp_cat_comprehension C)
+          (cleaving_of_types C _ _ s A)).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_pullback</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           (<span class="nv">A</span> : ty Γ₁)
+           (<span class="nv">s</span> : Γ₂ --&gt; Γ₁)
+  : Pullback (π A) s
+  := make_Pullback _ (comp_cat_is_pullback A s).
+
+<span class="kn">Definition</span> <span class="nf">cartesian_to_is_pullback</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           {<span class="nv">s</span> : Γ₁ --&gt; Γ₂}
+           {<span class="nv">A₁</span> : ty Γ₁}
+           {<span class="nv">A₂</span> : ty Γ₂}
+           (<span class="nv">t</span> : A₁ --&gt;[ s ] A₂)
+           (<span class="nv">Ht</span> : is_cartesian t)
+  : isPullback (comprehension_functor_mor_comm (comp_cat_comprehension C) t)
+  := cartesian_isPullback_in_cod_disp
+       _
+       (cartesian_disp_functor_on_cartesian (comp_cat_comprehension C) Ht).
+
+<span class="kn">Definition</span> <span class="nf">cartesian_to_pullback</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           {<span class="nv">s</span> : Γ₁ --&gt; Γ₂}
+           {<span class="nv">A₁</span> : ty Γ₁}
+           {<span class="nv">A₂</span> : ty Γ₂}
+           (<span class="nv">t</span> : A₁ --&gt;[ s ] A₂)
+           (<span class="nv">Ht</span> : is_cartesian t)
+  : Pullback (π A₂) s
+  := make_Pullback _ (cartesian_to_is_pullback t Ht).
+
+<span class="kn">Proposition</span> <span class="nf">comprehension_functor_mor_factorisation_pr1</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C}
+            {<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂}
+            {<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃}
+            {<span class="nv">A₁</span> : ty Γ₁}
+            {<span class="nv">A₂</span> : ty Γ₂}
+            {<span class="nv">A₃</span> : ty Γ₃}
+            (<span class="nv">t</span> : A₂ --&gt;[ s₂ ] A₃)
+            (<span class="nv">Ht</span> : is_cartesian t)
+            (<span class="nv">t'</span> : A₁ --&gt;[ s₁ · s₂ ] A₃)
+  : comprehension_functor_mor
+      (comp_cat_comprehension C)
+      (cartesian_factorisation Ht _ t')
+    · PullbackPr1 (cartesian_to_pullback t Ht)
+    =
+    comprehension_functor_mor (comp_cat_comprehension C) t'.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (!(comprehension_functor_mor_comp _ _ _) @ _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> cartesian_factorisation_commutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comprehension_functor_mor_factorisation_pr2</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C}
+            {<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂}
+            {<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃}
+            {<span class="nv">A₁</span> : ty Γ₁}
+            {<span class="nv">A₂</span> : ty Γ₂}
+            {<span class="nv">A₃</span> : ty Γ₃}
+            (<span class="nv">t</span> : A₂ --&gt;[ s₂ ] A₃)
+            (<span class="nv">Ht</span> : is_cartesian t)
+            (<span class="nv">t'</span> : A₁ --&gt;[ s₁ · s₂ ] A₃)
+  : comprehension_functor_mor
+      (comp_cat_comprehension C)
+      (cartesian_factorisation Ht _ t')
+    · π _
+    =
+    π _ · s₁.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> comprehension_functor_mor_comm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">subst_ty_iso</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> <span class="nv">Δ'</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           {<span class="nv">A</span> : ty Δ}
+           {<span class="nv">B</span> : ty Δ'}
+           (<span class="nv">f</span> : z_iso Δ Δ')
+           (<span class="nv">ff</span> : z_iso_disp f A B)
+  : z_iso_disp
+      (identity_z_iso _)
+      (A [[ s ]])
+      (B [[ s · f ]]).
+<span class="kn">Proof</span>.
+  use make_z_iso_disp.
+  - use (cartesian_factorisation (cleaving_of_types C _ _ (s · f) B)).
+    <span class="bp">exact</span> (transportf
+             (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+             (!(id_left _))
+             (comp_cat_subst A s ;; ff)%mor_disp).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + use (cartesian_factorisation (cleaving_of_types C _ _ s A)).
+      <span class="nb">refine</span> (transportf
+                (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                _
+                (comp_cat_subst B (s · f) ;; inv_mor_disp_from_z_iso ff)%mor_disp).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> z_iso_inv_after_z_iso ;
+         <span class="nb">rewrite</span> id_left, id_right ;
+         <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (use (cartesian_factorisation_unique (cleaving_of_types C _ _ (s · f) B)) ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> mor_disp_transportf_postwhisker ;
+         <span class="nb">rewrite</span> id_left_disp ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">rewrite</span> assoc_disp_var ;
+         <span class="nb">rewrite</span> cartesian_factorisation_commutes ;
+         <span class="nb">rewrite</span> mor_disp_transportf_prewhisker ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">unfold</span> comp_cat_subst ;
+         <span class="nb">rewrite</span> assoc_disp ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">rewrite</span> cartesian_factorisation_commutes ;
+         <span class="nb">rewrite</span> mor_disp_transportf_postwhisker ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">rewrite</span> assoc_disp_var ;
+         <span class="nb">rewrite</span> z_iso_disp_after_inv_mor ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> mor_disp_transportf_prewhisker ;
+         <span class="nb">rewrite</span> !transport_f_f ;
+         <span class="nb">rewrite</span> id_right_disp ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> homset_property).
+    + <span class="kp">abstract</span>
+        (use (cartesian_factorisation_unique (cleaving_of_types C _ _ s A)) ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> mor_disp_transportf_postwhisker ;
+         <span class="nb">rewrite</span> id_left_disp ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">rewrite</span> assoc_disp_var ;
+         <span class="nb">rewrite</span> (cartesian_factorisation_commutes (cleaving_of_types C Δ Γ s A)) ;
+         <span class="nb">rewrite</span> mor_disp_transportf_prewhisker ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">unfold</span> comp_cat_subst ;
+         <span class="nb">rewrite</span> assoc_disp ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">rewrite</span> cartesian_factorisation_commutes ;
+         <span class="nb">rewrite</span> mor_disp_transportf_postwhisker ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">rewrite</span> assoc_disp_var ;
+         <span class="nb">rewrite</span> inv_mor_after_z_iso_disp ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> mor_disp_transportf_prewhisker ;
+         <span class="nb">rewrite</span> !transport_f_f ;
+         <span class="nb">rewrite</span> id_right_disp ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> homset_property).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subst_ty_coe</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> <span class="nv">Δ'</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           {<span class="nv">A</span> : ty Δ}
+           {<span class="nv">B</span> : ty Δ'}
+           (<span class="nv">f</span> : z_iso Δ Δ')
+           (<span class="nv">ff</span> : z_iso_disp f A B)
+  : A [[ s ]] &lt;: B [[ s · f ]].
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (subst_ty_iso s f ff : _ --&gt;[ _ ] _).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Terms in comprehension categories *)</span>
+<span class="kn">Definition</span> <span class="nf">comp_cat_tm</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">Γ</span> : C)
+           (<span class="nv">A</span> : ty Γ)
+  : UU
+  := section_of_mor (π A).
+
+<span class="kn">Notation</span> <span class="s2">"'tm'"</span> := comp_cat_tm : comp_cat.
+
+<span class="kn">Definition</span> <span class="nf">make_comp_cat_tm</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A</span> : ty Γ}
+           (<span class="nv">t</span> : Γ --&gt; Γ &amp; A)
+           (<span class="nv">p</span> : t · π A = identity Γ)
+  : tm Γ A
+  := t ,, p.
+
+<span class="kn">Coercion</span> <span class="nf">comp_cat_tm_to_mor</span>
+         {C : comp_cat}
+         {Γ : C}
+         {A : ty Γ}
+         (t : tm Γ A)
+  : Γ --&gt; Γ &amp; A.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 t).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_tm_eq</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">t</span> : tm Γ A)
+  : t · π A = identity Γ.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 t).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_comp_cat_tm</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A}
+            (<span class="nv">p</span> : comp_cat_tm_to_mor t₁ = comp_cat_tm_to_mor t₂)
+  : t₁ = t₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_comp_cat_tm_subst</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            {<span class="nv">s</span> : Γ --&gt; Δ}
+            {<span class="nv">A</span> : ty Δ}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (A [[ s ]])}
+            (<span class="nv">p</span> : t₁ · PullbackPr1 (comp_cat_pullback A s)
+                 =
+                 t₂ · PullbackPr1 (comp_cat_pullback A s))
+  : t₁ = t₂.
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm.
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback _ _))).
+  - <span class="bp">exact</span> p.
+  - <span class="bp">exact</span> (comp_cat_tm_eq t₁ @ !(comp_cat_tm_eq t₂)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaset_comp_cat_tm</span>
+            {<span class="nv">C</span> : comp_cat}
+            (<span class="nv">Γ</span> : C)
+            (<span class="nv">A</span> : ty Γ)
+  : isaset (tm Γ A).
+<span class="kn">Proof</span>.
+  use isaset_total2.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">sub_to_extension</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           {<span class="nv">A</span> : ty Γ}
+           (<span class="nv">s</span> : Δ --&gt; Γ)
+           (<span class="nv">t</span> : tm Δ (A [[ s ]]))
+  : Δ --&gt; Γ &amp; A
+  := t · PullbackPr1 (comp_cat_pullback A s).
+
+<span class="kn">Proposition</span> <span class="nf">sub_to_extension_pr</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">s</span> : Δ --&gt; Γ)
+            (<span class="nv">t</span> : tm Δ (A [[ s ]]))
+  : s = sub_to_extension s t · π A.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> sub_to_extension.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> comprehension_functor_mor_comm.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> comp_cat_tm_eq.
+  }
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">sub_to_extension_tm</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           {<span class="nv">A</span> : ty Γ}
+           (<span class="nv">s</span> : Δ --&gt; Γ &amp; A)
+  : tm Δ (A [[ s · π _ ]]).
+<span class="kn">Proof</span>.
+  use make_comp_cat_tm.
+  - use (PullbackArrow (comp_cat_pullback _ _)).
+    + <span class="bp">exact</span> s.
+    + <span class="nb">apply</span> identity.
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> id_left ;
+         <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">apply</span> (PullbackArrow_PullbackPr2 (comp_cat_pullback _ _))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sub_to_extension_eta</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           {<span class="nv">A</span> : ty Γ}
+           (<span class="nv">s</span> : Δ --&gt; Γ &amp; A)
+  : s = sub_to_extension (s · π _) (sub_to_extension_tm s).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> sub_to_extension.
+  <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (comp_cat_pullback A (s · π A))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transport_term_sub_eq</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           {<span class="nv">s₁</span> <span class="nv">s₂</span> : Δ --&gt; Γ}
+           (<span class="nv">p</span> : s₁ = s₂)
+           {<span class="nv">A</span> : ty Γ}
+           (<span class="nv">t</span> : tm Δ (A [[ s₁ ]]))
+  : tm Δ (A [[ s₂ ]]).
+<span class="kn">Proof</span>.
+  use make_comp_cat_tm.
+  - use (PullbackArrow (comp_cat_pullback _ _)).
+    + <span class="bp">exact</span> (t · comp_cat_extend_over _ _).
+    + <span class="nb">apply</span> identity.
+    + <span class="kp">abstract</span>
+        (<span class="nb">induction</span> p ;
+         <span class="nb">rewrite</span> id_left ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">unfold</span> comp_cat_extend_over ;
+         <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (comprehension_functor_mor_comm _ _) @ _) ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (comp_cat_tm_eq t) @ _) ;
+         <span class="nb">apply</span> id_left).
+  - <span class="kp">abstract</span>
+      (<span class="nb">apply</span> (PullbackArrow_PullbackPr2 (comp_cat_pullback _ _))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_sub_to_extension</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> : Δ --&gt; Γ &amp; A}
+            (<span class="nv">p</span> : s₁ · π _ = s₂ · π _)
+            (<span class="nv">q</span> : transport_term_sub_eq p (sub_to_extension_tm s₁)
+                 =
+                 sub_to_extension_tm s₂)
+  : s₁ = s₂.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr1 z · PullbackPr1 (comp_cat_pullback _ _)) q) <span class="k">as</span> q'.
+  <span class="nb">simpl</span> <span class="k">in</span> q'.
+  <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1 <span class="k">in</span> q'.
+  <span class="nb">refine</span> (_ @ q').
+  <span class="nb">enough</span> (s₁ = sub_to_extension_tm s₁ · comp_cat_extend_over A (s₁ · π A)) <span class="k">as</span> H.
+  {
+    <span class="bp">exact</span> H.
+  }
+  <span class="nb">clear</span> p q q' s₂.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (comp_cat_pullback A (s₁ · π A))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">subst_comp_cat_tm</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           {<span class="nv">A</span> : ty Γ}
+           (<span class="nv">t</span> : tm Γ A)
+           (<span class="nv">s</span> : Δ --&gt; Γ)
+  : tm Δ (A [[ s ]]).
+<span class="kn">Proof</span>.
+  use make_comp_cat_tm.
+  - use (PullbackArrow (comp_cat_pullback A s)).
+    + <span class="bp">exact</span> (s · t).
+    + <span class="nb">apply</span> identity.
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> id_left ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> comp_cat_tm_eq ;
+         <span class="nb">apply</span> id_right).
+  - <span class="kp">abstract</span>
+      (<span class="nb">apply</span> (PullbackArrow_PullbackPr2 (comp_cat_pullback A s))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"t [[ s ]]tm"</span> := (subst_comp_cat_tm t s) (<span class="kn">at level</span> <span class="mi">20</span>).
+
+<span class="kn">Proposition</span> <span class="nf">subst_comp_cat_tm_pr1</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">t</span> : tm Γ A)
+            (<span class="nv">s</span> : Δ --&gt; Γ)
+  : t [[ s ]]tm · PullbackPr1 (comp_cat_pullback A s) = s · t.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (comp_cat_pullback A s)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">subst_comp_cat_tm_pr2</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">t</span> : comp_cat_tm Γ A)
+            (<span class="nv">s</span> : Δ --&gt; Γ)
+  : t [[ s ]]tm · π _ = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (comp_cat_pullback A s)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Coercion of terms *)</span>
+<span class="kn">Definition</span> <span class="nf">coerce_comp_cat_tm</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+           (<span class="nv">f</span> : A &lt;: B)
+           (<span class="nv">t</span> : tm Γ A)
+  : tm Γ B.
+<span class="kn">Proof</span>.
+  use make_comp_cat_tm.
+  - <span class="bp">exact</span> (t · comp_cat_comp_mor f).
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">rewrite</span> comp_cat_comp_mor_comm ;
+       <span class="nb">rewrite</span> comp_cat_tm_eq ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"t ↑ f"</span> := (coerce_comp_cat_tm f t) (<span class="kn">at level</span> <span class="mi">29</span>, <span class="kn">left associativity</span>).
+
+<span class="kn">Proposition</span> <span class="nf">id_coerce_comp_cat_tm</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">t</span> : tm Γ A)
+  : t ↑ id_disp _ = t.
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> comp_cat_comp_mor_id.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_coerce_comp_cat_tm</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A₁</span> <span class="nv">A₂</span> <span class="nv">A₃</span> : ty Γ}
+            (<span class="nv">f</span> : A₁ &lt;: A₂)
+            (<span class="nv">g</span> : A₂ &lt;: A₃)
+            (<span class="nv">t</span> : tm Γ A₁)
+  : t ↑ f ↑ g
+    =
+    t ↑ (f · g).
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm ; <span class="nb">cbn</span> -[compose].
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> comp_cat_comp_mor_comp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Substitution and coherence *)</span>
+<span class="kn">Definition</span> <span class="nf">id_subst_ty_iso</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+  : z_iso (C := fiber_category _ _) A (A [[ identity _ ]]).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso
+           (nat_z_iso_fiber_functor_from_cleaving_identity (cleaving_of_types C) Γ)
+           A).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_subst_ty</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+  : A &lt;: A [[ identity _ ]]
+  := (id_subst_ty_iso A : _ --&gt; _).
+
+<span class="kn">Definition</span> <span class="nf">id_subst_ty_inv</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+  : A [[ identity _ ]] &lt;: A
+  := inv_from_z_iso (id_subst_ty_iso A).
+
+<span class="kn">Definition</span> <span class="nf">comp_subst_ty_iso</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C}
+           (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+           (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+           (<span class="nv">A</span> : ty Γ₃)
+  : z_iso
+      (C := fiber_category _ _)
+      (A [[ s₂ ]] [[ s₁ ]])
+      (A [[ s₁ · s₂ ]]).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso
+           (fiber_functor_from_cleaving_comp_nat_z_iso (cleaving_of_types C) s₂ s₁)
+           A).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_subst_ty</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C}
+           (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+           (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+           (<span class="nv">A</span> : ty Γ₃)
+  : A [[ s₂ ]] [[ s₁ ]] &lt;: A [[ s₁ · s₂ ]]
+  := (comp_subst_ty_iso s₁ s₂ A : _ --&gt; _).
+
+<span class="kn">Definition</span> <span class="nf">comp_subst_ty_inv</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C}
+           (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+           (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+           (<span class="nv">A</span> : ty Γ₃)
+  : A [[ s₁ · s₂ ]] &lt;: A [[ s₂ ]] [[ s₁ ]]
+  := inv_from_z_iso (comp_subst_ty_iso s₁ s₂ A).
+
+<span class="kn">Definition</span> <span class="nf">eq_subst_ty_iso</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           {<span class="nv">s₁</span> <span class="nv">s₂</span> : Γ₁ --&gt; Γ₂}
+           (<span class="nv">A</span> : ty Γ₂)
+           (<span class="nv">p</span> : s₁ = s₂)
+  : z_iso (C := fiber_category _ _) (A [[ s₁ ]]) (A [[ s₂ ]]).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso
+           (fiber_functor_on_eq_nat_z_iso (cleaving_of_types C) p)
+           A).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">eq_subst_ty</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           {<span class="nv">s₁</span> <span class="nv">s₂</span> : Γ₁ --&gt; Γ₂}
+           (<span class="nv">A</span> : ty Γ₂)
+           (<span class="nv">p</span> : s₁ = s₂)
+  : A [[ s₁ ]] &lt;: A [[ s₂ ]]
+  := (eq_subst_ty_iso A p : _ --&gt; _).
+
+<span class="kn">Definition</span> <span class="nf">subst_ty_eq_disp_iso</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           {<span class="nv">s</span> <span class="nv">s'</span> : Γ --&gt; Δ}
+           (<span class="nv">A</span> : ty Δ)
+           (<span class="nv">p</span> : s = s')
+  : z_iso_disp
+      (identity_z_iso _)
+      (A [[ s ]])
+      (A [[ s' ]]).
+<span class="kn">Proof</span>.
+  use z_iso_disp_from_z_iso_fiber.
+  <span class="bp">exact</span> (eq_subst_ty_iso A p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">subst_ty_eq_disp_iso_comm</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            {<span class="nv">s</span> <span class="nv">s'</span> : Γ --&gt; Δ}
+            (<span class="nv">p</span> : s = s')
+            (<span class="nv">A</span> : ty Δ)
+  : (subst_ty_eq_disp_iso A p ;; cleaving_of_types C Δ Γ s' A)%mor_disp
+    =
+    transportf (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) (p @ !(id_left _)) (cleaving_of_types C Δ Γ s A).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left_disp.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">subst_ty_eq_disp_iso_inv_comm</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            {<span class="nv">s</span> <span class="nv">s'</span> : Γ --&gt; Δ}
+            (<span class="nv">p</span> : s' = s)
+            (<span class="nv">A</span> : ty Δ)
+  : (inv_mor_disp_from_z_iso (subst_ty_eq_disp_iso A p)
+     ;; cleaving_of_types C Δ Γ s' A)%mor_disp
+    =
+    transportf (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) (!p @ !(id_left _)) (cleaving_of_types C Δ Γ s A).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left_disp.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">eq_subst_ty_inv</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           {<span class="nv">s₁</span> <span class="nv">s₂</span> : Γ₁ --&gt; Γ₂}
+           (<span class="nv">A</span> : ty Γ₂)
+           (<span class="nv">p</span> : s₁ = s₂)
+  : A [[ s₂ ]] &lt;: A [[ s₁ ]]
+  := inv_from_z_iso (eq_subst_ty_iso A p).
+
+<span class="kn">Proposition</span> <span class="nf">eq_subst_ty_idpath</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+            {<span class="nv">s</span> : Γ₁ --&gt; Γ₂}
+            (<span class="nv">A</span> : ty Γ₂)
+            (<span class="nv">p</span> : s = s)
+  : eq_subst_ty A p = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (p = idpath _) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_subst_ty_concat</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> <span class="nv">s₃</span> : Γ₁ --&gt; Γ₂}
+            (<span class="nv">A</span> : ty Γ₂)
+            (<span class="nv">p</span> : s₁ = s₂)
+            (<span class="nv">q</span> : s₂ = s₃)
+  : eq_subst_ty A p · eq_subst_ty _ q = eq_subst_ty A (p @ q).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_right_disp.
+  <span class="nb">apply</span> transportfbinv.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_subst_ty_eq</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> : Γ₁ --&gt; Γ₂}
+            (<span class="nv">A</span> : ty Γ₂)
+            (<span class="nv">p</span> <span class="nv">q</span> : s₁ = s₂)
+  : eq_subst_ty A p = eq_subst_ty A q.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (p = q) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">coerce_subst_ty</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+           {<span class="nv">A</span> <span class="nv">B</span> : ty Γ₂}
+           (<span class="nv">f</span> : A &lt;: B)
+  : A [[ s ]] &lt;: B [[ s ]]
+  := #(fiber_functor_from_cleaving _ (cleaving_of_types C) s) f.
+
+<span class="kn">Proposition</span> <span class="nf">id_coerce_subst_ty</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">A</span> : ty Γ₂)
+  : coerce_subst_ty s (identity (A : fiber_category _ _)) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (functor_id (fiber_functor_from_cleaving _ (cleaving_of_types C) s)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_coerce_subst_ty</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            {<span class="nv">A₁</span> <span class="nv">A₂</span> <span class="nv">A₃</span> : ty Γ₂}
+            (<span class="nv">f</span> : A₁ &lt;: A₂)
+            (<span class="nv">g</span> : A₂ &lt;: A₃)
+  : coerce_subst_ty s (f · g)
+    =
+    coerce_subst_ty s f · coerce_subst_ty s g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (functor_comp (fiber_functor_from_cleaving _ (cleaving_of_types C) s)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_right_subst_ty</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">A</span> : ty Γ₂)
+  : coerce_subst_ty s (id_subst_ty A)
+    · comp_subst_ty s (identity _) A
+    · eq_subst_ty A (id_right _)
+    =
+    identity _.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (!(indexed_cat_lunitor (cleaving_to_indexed_cat _ (cleaving_of_types C)) _ _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_left_subst_ty</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">A</span> : ty Γ₂)
+  : id_subst_ty (A [[ s ]])
+    · comp_subst_ty (identity _) s A
+    · eq_subst_ty A (id_left _)
+    =
+    identity _.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (!(indexed_cat_runitor (cleaving_to_indexed_cat _ (cleaving_of_types C)) _ _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">assoc'_subst_ty</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> <span class="nv">Γ₄</span> : C}
+            (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+            (<span class="nv">s₃</span> : Γ₃ --&gt; Γ₄)
+            (<span class="nv">A</span> : ty Γ₄)
+  : comp_subst_ty s₁ s₂ (A [[ s₃ ]])
+    · comp_subst_ty (s₁ · s₂) s₃ A
+    · eq_subst_ty A (assoc' _ _ _)
+    =
+    coerce_subst_ty s₁ (comp_subst_ty s₂ s₃ A)
+    · comp_subst_ty s₁ (s₂ · s₃) A.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (indexed_cat_lassociator (cleaving_to_indexed_cat _ (cleaving_of_types C)) _ _ _ _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">assoc_subst_ty</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> <span class="nv">Γ₄</span> : C}
+            (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+            (<span class="nv">s₃</span> : Γ₃ --&gt; Γ₄)
+            (<span class="nv">A</span> : ty Γ₄)
+  : comp_subst_ty s₁ s₂ (A [[ s₃ ]])
+    · comp_subst_ty (s₁ · s₂) s₃ A
+    =
+    coerce_subst_ty s₁ (comp_subst_ty s₂ s₃ A)
+    · comp_subst_ty s₁ (s₂ · s₃) A
+    · eq_subst_ty A (assoc _ _ _).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- assoc'_subst_ty.
+  <span class="nb">refine</span> (!(id_right _) @ _ @ assoc _ _ _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> eq_subst_ty_concat.
+  <span class="nb">rewrite</span> eq_subst_ty_idpath.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">coerce_comp_subst_ty</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C}
+            (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">s₂</span> <span class="nv">s₂'</span> : Γ₂ --&gt; Γ₃)
+            (<span class="nv">p</span> : s₂' = s₂)
+            (<span class="nv">A</span> : ty Γ₃)
+  : coerce_subst_ty s₁ (eq_subst_ty _ p) · comp_subst_ty _ s₂ A
+    =
+    comp_subst_ty _ _ A · eq_subst_ty _ (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) p).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">refine</span> (_ @ id_left _ @ !(id_right _)).
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> id_coerce_subst_ty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_subst_ty_natural</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+            (<span class="nv">s</span> : A &lt;: B)
+  : id_subst_ty A · coerce_subst_ty _ s
+    =
+    s · id_subst_ty B.
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> assoc_disp_var.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> assoc_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> id_left_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> assoc_disp_var.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> id_right_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_subst_ty_natural</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Γ₃}
+            (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+            (<span class="nv">f</span> : A &lt;: B)
+  : comp_subst_ty s₁ s₂ A
+    · coerce_subst_ty _ f
+    =
+    coerce_subst_ty s₁ (coerce_subst_ty s₂ f)
+    · comp_subst_ty s₁ s₂ B.
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> !assoc_disp_var.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">rewrite</span> !cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  etrans.
+  {
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> assoc_disp_var.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc_disp_var.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_subst_ty_postcomp</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C}
+            (<span class="nv">A</span> : ty Γ₃)
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> : Γ₁ --&gt; Γ₂}
+            (<span class="nv">p</span> : s₁ = s₂)
+            (<span class="nv">s'</span> : Γ₂ --&gt; Γ₃)
+  : comp_subst_ty s₁ s' A · eq_subst_ty A (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · s') p)
+    =
+    eq_subst_ty (A [[ s' ]]) p · comp_subst_ty s₂ s' A.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">rewrite</span> !eq_subst_ty_idpath.
+  <span class="nb">rewrite</span> id_right, id_left.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">eq_subst_ty_precomp</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C}
+           (<span class="nv">A</span> : ty Γ₃)
+           (<span class="nv">s'</span> : Γ₁ --&gt; Γ₂)
+           {<span class="nv">s₁</span> <span class="nv">s₂</span> : Γ₂ --&gt; Γ₃}
+           (<span class="nv">p</span> : s₁ = s₂)
+  : comp_subst_ty s' s₁ A · eq_subst_ty A (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, s' · z) p)
+    =
+    coerce_subst_ty s' (eq_subst_ty A p) · comp_subst_ty s' s₂ A.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">rewrite</span> !eq_subst_ty_idpath.
+  <span class="nb">rewrite</span> id_coerce_subst_ty.
+  <span class="nb">rewrite</span> id_right, id_left.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_extend_over_iso_sub_inv</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           {<span class="nv">A</span> : ty Γ₁}
+           {<span class="nv">B</span> : ty Γ₂}
+           (<span class="nv">s</span> : z_iso Γ₁ Γ₂)
+           (<span class="nv">f</span> : z_iso (C := fiber_category _ _) A (B [[ s ]]))
+  : Γ₂ &amp; B --&gt; Γ₁ &amp; A.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (comp_cat_comp_mor_over (inv_from_z_iso s) _).
+  <span class="nb">refine</span> (_ · coerce_subst_ty (inv_from_z_iso s) (inv_from_z_iso f)).
+  <span class="nb">refine</span> (_ · comp_subst_ty_inv _ _ _).
+  <span class="nb">refine</span> (id_subst_ty _ · _).
+  use eq_subst_ty.
+  <span class="bp">exact</span> (!(z_iso_after_z_iso_inv s)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_extend_over_iso_sub_laws</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+            {<span class="nv">A</span> : ty Γ₁}
+            {<span class="nv">B</span> : ty Γ₂}
+            (<span class="nv">s</span> : z_iso Γ₁ Γ₂)
+            (<span class="nv">f</span> : z_iso (C := fiber_category _ _) A (B [[ s ]]))
+  : is_inverse_in_precat
+      (comp_cat_comp_mor_over s (z_iso_mor f))
+      (comp_cat_extend_over_iso_sub_inv s f).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> comp_cat_extend_over_iso_sub_inv.
+  <span class="nb">split</span>.
+  - <span class="nb">unfold</span> comp_cat_comp_mor_over.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    <span class="nb">cbn</span> -[eq_subst_ty coerce_subst_ty comp_subst_ty_inv id_subst_ty].
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    <span class="nb">rewrite</span> !assoc_disp_var.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">6</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    <span class="nb">refine</span> (comprehension_functor_mor_comp _ _ _ @ _).
+    <span class="nb">refine</span> (_ @ comprehension_functor_mor_id _ _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (z_iso_inv_after_z_iso f).
+    }
+    <span class="nb">refine</span> (comprehension_functor_mor_transportf _ _ _ @ _).
+    <span class="nb">refine</span> (comprehension_functor_mor_comp _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!(id_left _) @ _).
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> !assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    <span class="nb">refine</span> (comprehension_functor_mor_comp _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback _ _))).
+    + <span class="nb">rewrite</span> id_left.
+      <span class="nb">refine</span> (!(comprehension_functor_mor_comp _ _ _) @ _).
+      <span class="nb">rewrite</span> !assoc_disp_var.
+      <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> cartesian_factorisation_commutes.
+      }
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> subst_ty_eq_disp_iso_comm.
+      }
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> cartesian_factorisation_commutes.
+      }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      <span class="nb">rewrite</span> id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      <span class="nb">apply</span> idpath.
+    + etrans.
+      {
+        <span class="nb">apply</span> comprehension_functor_mor_comm.
+      }
+      <span class="nb">rewrite</span> !id_left, !id_right.
+      <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+      <span class="nb">apply</span> id_right.
+  - <span class="nb">unfold</span> comp_cat_comp_mor_over.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    <span class="nb">cbn</span> -[eq_subst_ty coerce_subst_ty comp_subst_ty_inv id_subst_ty].
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    <span class="nb">rewrite</span> !assoc_disp_var.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    <span class="nb">rewrite</span> !assoc_disp_var.
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ maponpaths (transportb _ (id_right _)) (z_iso_after_z_iso_inv f) @ _).
+      {
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> transportbfinv.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> cartesian_factorisation_commutes.
+      }
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> subst_ty_eq_disp_iso_comm.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+    <span class="nb">apply</span> comprehension_functor_mor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_extend_over_iso_sub</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           {<span class="nv">A</span> : ty Γ₁}
+           {<span class="nv">B</span> : ty Γ₂}
+           (<span class="nv">s</span> : z_iso Γ₁ Γ₂)
+           (<span class="nv">f</span> : z_iso (C := fiber_category _ _) A (B [[ s ]]))
+  : z_iso (Γ₁ &amp; A) (Γ₂ &amp; B).
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - <span class="bp">exact</span> (comp_cat_comp_mor_over s (z_iso_mor f)).
+  - <span class="bp">exact</span> (comp_cat_extend_over_iso_sub_inv s f).
+  - <span class="bp">exact</span> (comp_cat_extend_over_iso_sub_laws s f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_sub_comp_cat_tm</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">t</span> : tm Γ A)
+  : t [[ identity _ ]]tm
+    =
+    t ↑ (id_subst_ty A).
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm ; <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (!_).
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
+  - <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> comp_cat_comp_mor.
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">refine</span> (_ @ comprehension_functor_mor_id _ _).
+    <span class="nb">unfold</span> comprehension_functor_mor, transportb.
+    <span class="nb">rewrite</span> disp_functor_transportf, transportf_cod_disp.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> comp_cat_comp_mor_comm.
+    <span class="nb">apply</span> comp_cat_tm_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_sub_comp_cat_tm</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C}
+            (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+            {<span class="nv">A</span> : ty Γ₃}
+            (<span class="nv">t</span> : tm Γ₃ A)
+  : t [[ s₁ · s₂ ]]tm
+    =
+    t [[ s₂ ]]tm [[ s₁ ]]tm ↑ (comp_subst_ty s₁ s₂ A).
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm ; <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (!_).
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback A _))).
+  - <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> comp_cat_comp_mor.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">unfold</span> comprehension_functor_mor, transportb.
+    <span class="nb">rewrite</span> disp_functor_transportf, transportf_cod_disp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (comp_cat_pullback (A [[s₂]]) s₁)).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (comp_cat_pullback A s₂)).
+  - <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> comp_cat_comp_mor_comm.
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (comp_cat_pullback (A [[s₂]]) s₁)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">subst_coerce_comp_cat_tm</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+            {<span class="nv">A₁</span> <span class="nv">A₂</span> : ty Γ₂}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">f</span> : A₁ &lt;: A₂)
+            (<span class="nv">t</span> : comp_cat_tm Γ₂ A₁)
+  : (t ↑ f) [[ s ]]tm
+    =
+    t [[ s ]]tm ↑ coerce_subst_ty s f.
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm.
+  <span class="nb">cbn</span> -[coerce_subst_ty].
+  <span class="nb">refine</span> (!_).
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback A₂ s))).
+  - <span class="nb">unfold</span> comp_cat_comp_mor.
+    <span class="nb">cbn</span> -[coerce_subst_ty].
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (comp_cat_pullback A₁ s)).
+  - <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> comp_cat_comp_mor_comm.
+    }
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (comp_cat_pullback A₁ s)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">subst_comp_cat_tm_eq</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">t</span> : tm Γ A)
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> : Δ --&gt; Γ}
+            (<span class="nv">p</span> : s₁ = s₂)
+  : t [[ s₁ ]]tm = t [[ s₂ ]]tm ↑ (eq_subst_ty _ (!p)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_coerce_comp_cat_tm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">tm_of_sub_to_extension</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">s</span> : Δ --&gt; Γ)
+            (<span class="nv">t</span> : tm Δ (A [[ s ]]))
+  : sub_to_extension_tm (sub_to_extension s t)
+    =
+    t ↑ eq_subst_ty A (sub_to_extension_pr s t).
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm.
+  <span class="nb">cbn</span> -[eq_subst_ty].
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback _ _))).
+  - <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+    <span class="nb">cbn</span> -[eq_subst_ty].
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (comprehension_functor_mor_comp (comp_cat_comprehension C)).
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> subst_ty_eq_disp_iso_comm.
+    }
+    <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+    <span class="nb">unfold</span> sub_to_extension.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> comp_cat_comp_mor_comm.
+    }
+    <span class="nb">apply</span> comp_cat_tm_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">sub_to_extension_comp</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C}
+            {<span class="nv">A</span> : ty Γ₃}
+            (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+            (<span class="nv">t</span> : tm Γ₂ (A [[ s₂ ]]))
+  : s₁ · sub_to_extension s₂ t
+    =
+    sub_to_extension (s₁ · s₂) (t [[ s₁ ]]tm ↑ (comp_subst_ty s₁ s₂ A)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> sub_to_extension.
+  <span class="nb">cbn</span> -[comp_subst_ty].
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (comprehension_functor_mor_comp (comp_cat_comprehension C)).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+    <span class="nb">apply</span> (comprehension_functor_mor_comp (comp_cat_comprehension C)).
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (comp_cat_pullback _ _)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Variable rule *)</span>
+<span class="kn">Definition</span> <span class="nf">comp_cat_tm_var</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">Γ</span> : C)
+           (<span class="nv">A</span> : ty Γ)
+  : tm (Γ &amp; A) (A [[ π _ ]]).
+<span class="kn">Proof</span>.
+  use make_comp_cat_tm.
+  - use (PullbackArrow (comp_cat_pullback _ _)).
+    + <span class="nb">apply</span> identity.
+    + <span class="nb">apply</span> identity.
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !id_left ;
+         <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">apply</span> (PullbackArrow_PullbackPr2 (comp_cat_pullback _ _))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subst_comp_cat_tm_var_coerce</span>
+           {<span class="nv">C</span> : comp_cat}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           {<span class="nv">A</span> : ty Γ}
+           (<span class="nv">s</span> : Δ --&gt; Γ)
+           (<span class="nv">t</span> : tm Δ (A [[ s ]]))
+  : A [[s]] &lt;: (A [[ π A ]]) [[ sub_to_extension s t ]].
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (eq_subst_ty _ _ · comp_subst_ty_inv _ _ _).
+  <span class="nb">apply</span> sub_to_extension_pr.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cleaving_of_types_eq</span>
+      {<span class="nv">C</span> : comp_cat}
+      {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+      {<span class="nv">s</span> <span class="nv">s'</span> : Δ --&gt; Γ}
+      (<span class="nv">p</span> : s = s')
+      (<span class="nv">A</span> : ty Γ)
+  : (pr1 (idtoiso
+            (C := fiber_category _ _)
+            (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr1 (cleaving_of_types _ _ _ z _)) p))
+    ;; cleaving_of_types C Γ Δ s' A
+    =
+    transportf
+      (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+      (p @ !(id_left _))
+      (cleaving_of_types C Γ Δ s A))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left_disp.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">subst_comp_cat_tm_var</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">s</span> : Δ --&gt; Γ)
+            (<span class="nv">t</span> : tm Δ (A [[ s ]]))
+  : comp_cat_tm_var Γ A [[ sub_to_extension s t ]]tm
+    =
+    t ↑ subst_comp_cat_tm_var_coerce s t.
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm.
+  <span class="nb">refine</span> (!_).
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
+  - <span class="nb">cbn</span> -[eq_subst_ty comp_subst_ty compose].
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback A (π A)))).
+    + <span class="nb">cbn</span> -[eq_subst_ty comp_subst_ty compose].
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (comp_cat_pullback A (π A))).
+      }
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">unfold</span> sub_to_extension.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span> -[eq_subst_ty comp_subst_ty compose].
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> comprehension_functor_mor_comp.
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> comprehension_functor_mor_comp.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc_disp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> fiber_functor_from_cleaving_comp_inv.
+        <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> assoc_disp_var.
+          <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+        <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !comprehension_functor_mor_transportf.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> cleaving_of_types_eq.
+      }
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">cbn</span> -[eq_subst_ty comp_subst_ty compose].
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> comprehension_functor_mor_comm.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> comp_cat_comp_mor_comm.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> comp_cat_tm_eq.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (comp_cat_pullback A (π A))).
+      }
+      <span class="nb">apply</span> id_right.
+  - <span class="nb">cbn</span> -[eq_subst_ty comp_subst_ty compose].
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> comp_cat_comp_mor_comm.
+    }
+    <span class="nb">apply</span> comp_cat_tm_eq.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Notations and accessors for functors of comprehension categories *)</span>
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_empty_context_isTerminal</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+  : isTerminal _ (F [])
+  := comp_cat_functor_terminal F _ (pr2 []).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_empty_context</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+  : Terminal C₂.
+<span class="kn">Proof</span>.
+  use make_Terminal.
+  - <span class="bp">exact</span> (F []).
+  - <span class="bp">exact</span> (comp_cat_functor_empty_context_isTerminal F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_empty_context_arrow</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+           (<span class="nv">Γ</span> : C₂)
+  : Γ --&gt; F []
+  := TerminalArrow (comp_cat_functor_empty_context F) Γ.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_functor_empty_context_arrow_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+            (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+            {<span class="nv">Γ</span> : C₂}
+            (<span class="nv">f</span> <span class="nv">g</span> : Γ --&gt; F [])
+  : f = g.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (TerminalArrowEq (T := comp_cat_functor_empty_context F) f g).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_empty_context_is_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+  : is_z_isomorphism (TerminalArrow [] (F [])).
+<span class="kn">Proof</span>.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> (comp_cat_functor_empty_context_arrow F []).
+  - <span class="nb">split</span>.
+    + use comp_cat_functor_empty_context_arrow_eq.
+    + use TerminalArrowEq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_empty_context_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+  : z_iso (F []) []
+  := _ ,, comp_cat_functor_empty_context_is_z_iso F.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_extension</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           (<span class="nv">Γ</span> : C₁)
+           (<span class="nv">A</span> : ty Γ)
+  : z_iso (F(Γ &amp; A)) (F Γ &amp; comp_cat_type_functor F Γ A).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (comprehension_nat_trans_mor (comp_cat_functor_comprehension F) A ,, _).
+  <span class="nb">apply</span> (full_comp_cat_functor_is_z_iso F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_extension_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+           {<span class="nv">Γ</span> : C₁}
+           {<span class="nv">A₁</span> <span class="nv">A₂</span> : ty Γ}
+           (<span class="nv">f</span> : A₁ --&gt;[ identity _ ] A₂)
+  : F Γ &amp; comp_cat_type_functor F Γ A₁ --&gt; F Γ &amp; comp_cat_type_functor F Γ A₂
+  := comprehension_functor_mor
+       (comp_cat_comprehension C₂)
+       ((♯ (comp_cat_type_functor F) f)%mor_disp).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_subst_ty</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           (<span class="nv">A</span> : ty Δ)
+  : z_iso_disp
+      (identity_z_iso _)
+      (comp_cat_type_functor F _ (A [[ s ]]))
+      ((comp_cat_type_functor F _ A) [[ #F s ]]).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (cartesian_disp_functor_disp_z_iso
+           (cartesian_comp_cat_type_functor F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_subst_ty_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           (<span class="nv">A</span> : ty Δ)
+  : z_iso
+      (C := fiber_category _ _)
+      (comp_cat_type_functor F _ (A [[ s ]]))
+      ((comp_cat_type_functor F _ A) [[ #F s ]]).
+<span class="kn">Proof</span>.
+  use z_iso_fiber_from_z_iso_disp.
+  <span class="bp">exact</span> (comp_cat_functor_subst_ty F s A).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_subst_ty_coe</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           (<span class="nv">A</span> : ty Δ)
+  : comp_cat_type_functor F _ (A [[ s ]]) &lt;: (comp_cat_type_functor F _ A) [[ #F s ]]
+  := (comp_cat_functor_subst_ty_z_iso F s A : _ --&gt; _).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_subst_ty_inv_coe</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           (<span class="nv">A</span> : ty Δ)
+  : (comp_cat_type_functor F _ A) [[ #F s ]] &lt;: comp_cat_type_functor F _ (A [[ s ]])
+  := inv_from_z_iso (comp_cat_functor_subst_ty_z_iso F s A).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_tm</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+           {<span class="nv">Γ</span> : C₁}
+           {<span class="nv">A</span> : ty Γ}
+           (<span class="nv">t</span> : tm Γ A)
+  : tm (F Γ) (comp_cat_type_functor F _ A).
+<span class="kn">Proof</span>.
+  use make_comp_cat_tm.
+  - <span class="bp">exact</span> (#F t · comprehension_nat_trans_mor (comp_cat_functor_comprehension F) A).
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> assoc' ;
+       <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (comprehension_nat_trans_mor_comm _ _ _) @ _) ;
+       <span class="nb">rewrite</span> &lt;- functor_comp ;
+       <span class="nb">rewrite</span> &lt;- functor_id ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> comp_cat_tm_eq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_comp_cat_functor_tm</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">t</span> : tm Γ A)
+  : comp_cat_functor_tm (identity C) t = t.
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_comp_cat_functor_tm</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+           (<span class="nv">G</span> : comp_cat_functor C₂ C₃)
+           {<span class="nv">Γ</span> : C₁}
+           {<span class="nv">A</span> : ty Γ}
+           (<span class="nv">t</span> : tm Γ A)
+  : comp_cat_functor_tm (F · G) t
+    =
+    comp_cat_functor_tm G (comp_cat_functor_tm F t).
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> functor_comp.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_coerce</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+           {<span class="nv">Γ</span> : C₁}
+           {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+           (<span class="nv">s</span> : A &lt;: B)
+  : comp_cat_type_functor F Γ A &lt;: comp_cat_type_functor F Γ B
+  := #(fiber_functor (comp_cat_type_functor F) Γ) s.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_functor_coerce_on_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+            (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_functor_coerce F (identity (C := fiber_category _ _) A) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (functor_id (fiber_functor (comp_cat_type_functor F) Γ)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_functor_coerce_on_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+            (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+            {<span class="nv">Γ</span> : C₁}
+            {<span class="nv">A₁</span> <span class="nv">A₂</span> <span class="nv">A₃</span> : ty Γ}
+            (<span class="nv">s₁</span> : A₁ &lt;: A₂)
+            (<span class="nv">s₂</span> : A₂ &lt;: A₃)
+  : comp_cat_functor_coerce F (s₁ · s₂)
+    =
+    comp_cat_functor_coerce F s₁ · comp_cat_functor_coerce F s₂.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (functor_comp (fiber_functor (comp_cat_type_functor F) Γ)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_functor_coerce_tm</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+            (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+            {<span class="nv">Γ</span> : C₁}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+            (<span class="nv">s</span> : A &lt;: B)
+            (<span class="nv">t</span> : tm Γ A)
+  : comp_cat_functor_tm F (t ↑ s)
+    =
+    comp_cat_functor_tm F t ↑ comp_cat_functor_coerce F s.
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> functor_comp.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">unfold</span> comp_cat_comp_mor.
+  <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+  <span class="nb">apply</span> comprehension_nat_trans_comm.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_functor_subst_tm</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+            (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+            {<span class="nv">A</span> : ty Δ}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">t</span> : tm Δ A)
+  : comp_cat_functor_tm F (t [[ s ]]tm) ↑ (comp_cat_functor_subst_ty_coe F s A)
+    =
+    comp_cat_functor_tm F t [[ #F s ]]tm.
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm.
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
+  - <span class="nb">cbn</span> ; <span class="nb">unfold</span> comp_cat_comp_mor.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> comprehension_functor_mor_comp.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> cartesian_factorisation_commutes.
+      }
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> comprehension_nat_trans_comm.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (comp_cat_pullback A s)).
+    }
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span> ; <span class="nb">unfold</span> comp_cat_comp_mor.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> comprehension_functor_mor_comm.
+      }
+      <span class="nb">rewrite</span> id_right.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> comprehension_nat_trans_mor_comm.
+      }
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (comp_cat_pullback A s)).
+    }
+    <span class="nb">apply</span> functor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_functor_subst_tm_alt</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+            (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+            {<span class="nv">A</span> : ty Δ}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">t</span> : tm Δ A)
+  : comp_cat_functor_tm F (t [[ s ]]tm)
+    =
+    comp_cat_functor_tm F t [[ #F s ]]tm ↑ (comp_cat_functor_subst_ty_inv_coe F s A).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- comp_cat_functor_subst_tm.
+  <span class="nb">rewrite</span> comp_coerce_comp_cat_tm.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> z_iso_inv_after_z_iso.
+  }
+  <span class="nb">apply</span> id_coerce_comp_cat_tm.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_comp_cat_functor_coerce</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+            (<span class="nv">s</span> : A &lt;: B)
+  : comp_cat_functor_coerce (identity C) s = s.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_comp_cat_functor_subst_ty_coe</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">A</span> : ty Δ)
+  : comp_cat_functor_subst_ty_coe (identity C) s A = identity _.
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">cbn</span> ; <span class="nb">unfold</span> fiber_functor_natural_inv ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> id_left_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_comp_cat_functor_coerce</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : comp_cat}
+            (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+            (<span class="nv">G</span> : comp_cat_functor C₂ C₃)
+            {<span class="nv">Γ</span> : C₁}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+            (<span class="nv">s</span> : A &lt;: B)
+  : comp_cat_functor_coerce (F · G) s
+    =
+    comp_cat_functor_coerce G (comp_cat_functor_coerce F s).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> disp_functor_transportf.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_comp_cat_functor_subst_ty_coe</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : comp_cat}
+            (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+            (<span class="nv">G</span> : comp_cat_functor C₂ C₃)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">A</span> : ty Δ)
+  : comp_cat_functor_subst_ty_coe (F · G) s A
+    =
+    comp_cat_functor_coerce G (comp_cat_functor_subst_ty_coe F s A)
+    · comp_cat_functor_subst_ty_coe G (#F s) (comp_cat_type_functor F Δ A).
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)) ; <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> fiber_functor_natural_inv.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">rewrite</span> assoc_disp_var.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> &lt;- disp_functor_comp_var.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> disp_functor_transportf.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_functor_subst_ty_natural</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           {<span class="nv">A</span> <span class="nv">B</span> : ty Δ}
+           (<span class="nv">f</span> : A &lt;: B)
+  : comp_cat_functor_coerce F (coerce_subst_ty s f)
+    · comp_cat_functor_subst_ty_coe F s B
+    =
+    comp_cat_functor_subst_ty_coe F s A
+    · coerce_subst_ty (#F s) (comp_cat_functor_coerce F f).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> !assoc_disp_var.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">unfold</span> fiber_functor_natural_inv.
+  <span class="nb">rewrite</span> !cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">rewrite</span> assoc_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> &lt;- !disp_functor_comp_var.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> disp_functor_transportf.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. Notations and accessors for natural transformations of comprehension categories *)</span>
+<span class="kn">Proposition</span> <span class="nf">comp_cat_nat_trans_subst_path</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : comp_cat_functor C₁ C₂}
+            (<span class="nv">τ</span> : comp_cat_nat_trans F G)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+  : identity (F Γ) · # F s · τ Δ = τ Γ · identity (G Γ) · # G s.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> id_left, id_right.
+  <span class="bp">exact</span> (nat_trans_ax τ _ _ s).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_nat_trans_subst</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : comp_cat_functor C₁ C₂}
+            (<span class="nv">τ</span> : comp_cat_nat_trans F G)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">A</span> : ty Δ)
+  : (comp_cat_type_nat_trans τ Γ (A [[ s ]])
+     ;; comp_cat_functor_subst_ty_coe G s A
+     ;; comp_cat_subst _ _)%mor_disp
+    =
+    transportf
+      (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+      (comp_cat_nat_trans_subst_path τ s)
+      (comp_cat_functor_subst_ty_coe F s A
+       ;; comp_cat_subst _ _
+       ;; comp_cat_type_nat_trans τ Δ A)%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> fiber_functor_natural_inv.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> assoc_disp_var.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (disp_nat_trans_ax_var (comp_cat_type_nat_trans τ) (cleaving_of_types _ _ _ _ _)).
+  }
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_nat_trans_subst_alt</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : comp_cat_functor C₁ C₂}
+            (<span class="nv">τ</span> : comp_cat_nat_trans F G)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">A</span> : ty Δ)
+  : (comp_cat_functor_subst_ty_coe F s A
+     ;; comp_cat_subst _ _
+     ;; comp_cat_type_nat_trans τ Δ A)%mor_disp
+    =
+    transportf
+      (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+      (!(comp_cat_nat_trans_subst_path τ s))
+      (comp_cat_type_nat_trans τ Γ (A [[ s ]])
+       ;; comp_cat_functor_subst_ty_coe G s A
+       ;; comp_cat_subst _ _)%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> comp_cat_nat_trans_subst.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> transportf_set.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_type_fib_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : comp_cat_functor C₁ C₂}
+           (<span class="nv">τ</span> : comp_cat_nat_trans F G)
+           {<span class="nv">Γ</span> : C₁}
+           (<span class="nv">A</span> : ty Γ)
+  : comp_cat_type_functor F Γ A &lt;: comp_cat_type_functor G Γ A [[ τ Γ ]].
+<span class="kn">Proof</span>.
+  use (cartesian_factorisation (cleaving_of_types _ _ _ _ _)).
+  <span class="bp">exact</span> (transportf
+           (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+           (!(id_left _))
+           (comp_cat_type_nat_trans τ Γ A)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_type_fib_nat_trans_coerce</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : comp_cat_functor C₁ C₂}
+            (<span class="nv">τ</span> : comp_cat_nat_trans F G)
+            {<span class="nv">Γ</span> : C₁}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+            (<span class="nv">s</span> : A &lt;: B)
+  : comp_cat_type_fib_nat_trans τ A
+    · coerce_subst_ty (τ Γ) (comp_cat_functor_coerce G s)
+    =
+    comp_cat_functor_coerce F s
+    · comp_cat_type_fib_nat_trans τ B.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> !assoc_disp_var.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">unfold</span> comp_cat_type_fib_nat_trans.
+  <span class="nb">rewrite</span> !cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">rewrite</span> assoc_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (disp_nat_trans_ax_var (comp_cat_type_nat_trans τ)).
+  }
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_nat_trans_tm</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : comp_cat_functor C₁ C₂}
+           (<span class="nv">τ</span> : comp_cat_nat_trans F G)
+           {<span class="nv">Γ</span> : C₁}
+           {<span class="nv">A</span> : ty Γ}
+           (<span class="nv">t</span> : tm Γ A)
+  : comp_cat_functor_tm F t ↑ comp_cat_type_fib_nat_trans τ A
+    =
+    comp_cat_functor_tm G t [[τ Γ ]]tm.
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm ; <span class="nb">cbn</span>.
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
+  - <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- (nat_trans_ax τ _ _ t).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+    <span class="bp">exact</span> (comp_cat_nat_trans_comprehension τ A).
+  - <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> comp_cat_comp_mor_comm.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> comprehension_nat_trans_mor_comm.
+    }
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">rewrite</span> &lt;- functor_id.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> comp_cat_tm_eq.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/CompCatNotations.v</tt>, line 31)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. Notations and accessors for natural transformations of comprehension categories
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

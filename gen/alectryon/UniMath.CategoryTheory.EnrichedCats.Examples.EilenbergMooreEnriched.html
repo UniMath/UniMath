@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EilenbergMooreEnriched.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************</span>
+
+<span class="sd"> The enriched Eilenberg-Moore category</span>
+
+<span class="sd"> In this file, we construct an enrichment for the Eilenberg-Moore</span>
+<span class="sd"> category. To do so, we make use of the fact that we already</span>
+<span class="sd"> constructed enrichments for the full subcategory and for the category</span>
+<span class="sd"> of dialgebras. In addition, we construct the relevant functors and</span>
+<span class="sd"> natural transformation to prove the universal property.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The enrichment of the Eilenberg-Moore category</span>
+<span class="sd"> 2. The cone</span>
+<span class="sd"> 3. The universal property</span>
+
+<span class="sd"> **********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Dialgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.EilenbergMoore.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentMonad.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.DialgebraEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">EnrichedEilenbergMoore</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}
+          (<span class="nv">HV</span> : Equalizers V)
+          {<span class="nv">C</span> : category}
+          {<span class="nv">E</span> : enrichment C V}
+          {<span class="nv">M</span> : Monad C}
+          (<span class="nv">EM</span> : monad_enrichment E M).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. The enrichment of the Eilenberg-Moore category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">eilenberg_moore_enrichment</span>
+    : enrichment (eilenberg_moore_cat M) V.
+  <span class="kn">Proof</span>.
+    use fullsub_enrichment.
+    use (dialgebra_enrichment _ HV).
+    - <span class="bp">exact</span> E.
+    - <span class="bp">exact</span> E.
+    - <span class="bp">exact</span> EM.
+    - <span class="bp">exact</span> (functor_id_enrichment E).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eilenberg_moore_enrichment_precomp_arr</span>
+              {<span class="nv">f</span> <span class="nv">g</span> : eilenberg_moore_cat M}
+              (<span class="nv">h</span> : eilenberg_moore_cat M)
+              (<span class="nv">τ</span> : f --&gt; g)
+    : precomp_arr
+        eilenberg_moore_enrichment
+        h
+        τ
+      · dialgebra_enrichment_mor_incl _ _ _ _ _ _
+      =
+      dialgebra_enrichment_mor_incl _ _ _ _ _ _ · precomp_arr _ _ (pr11 τ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> dialgebra_enrichment_precomp_arr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eilenberg_moore_enrichment_postcomp_arr</span>
+              {<span class="nv">f</span> <span class="nv">g</span> : eilenberg_moore_cat M}
+              (<span class="nv">h</span> : eilenberg_moore_cat M)
+              (<span class="nv">τ</span> : f --&gt; g)
+    : postcomp_arr
+        eilenberg_moore_enrichment
+        h
+        τ
+      · dialgebra_enrichment_mor_incl _ _ _ _ _ _
+      =
+      dialgebra_enrichment_mor_incl _ _ _ _ _ _ · postcomp_arr _ _ (pr11 τ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> dialgebra_enrichment_postcomp_arr.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. The cone</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">eilenberg_moore_pr_enrichment</span>
+    : functor_enrichment
+        (eilenberg_moore_pr M)
+        eilenberg_moore_enrichment
+        E.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, dialgebra_pr1_enrichment V HV _ _ (pr1 x) (pr1 y)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> dialgebra_enrichment_id_incl).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y z ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> dialgebra_enrichment_comp_incl).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">apply</span> dialgebra_enrichment_from_arr_incl).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eilenberg_moore_nat_trans_enrichment</span>
+    : nat_trans_enrichment
+        (eilenberg_moore_nat_trans M)
+        (functor_comp_enrichment
+           eilenberg_moore_pr_enrichment
+           EM)
+        (functor_comp_enrichment
+           (functor_id_enrichment _)
+           eilenberg_moore_pr_enrichment).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">pose</span> (dialgebra_nat_trans_enrichment
+            V HV
+            EM (functor_id_enrichment _)
+            (pr1 x) (pr1 y)).
+    <span class="nb">refine</span> (_ @ p).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. The universal property</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">EilenbergMooreUMP1</span>.
+    <span class="kn">Context</span> {<span class="nv">C'</span> : category}
+            {<span class="nv">E'</span> : enrichment C' V}
+            {<span class="nv">F</span> : C' ⟶ C}
+            (<span class="nv">FE</span>  : functor_enrichment F E' E)
+            (<span class="nv">τ</span> : F ∙ M ⟹ functor_identity _ ∙ F)
+            (<span class="nv">Eτ</span> : nat_trans_enrichment
+                    τ
+                    (functor_comp_enrichment FE EM)
+                    (functor_comp_enrichment
+                       (functor_id_enrichment _)
+                       FE))
+            (<span class="nv">τη</span> : ∏ (x : C'), η M (F x) · τ x = identity _)
+            (<span class="nv">τμ</span> : ∏ (x : C'), # M (τ x) · τ x = μ M (F x) · τ x).
+
+    <span class="kn">Definition</span> <span class="nf">functor_to_em_enrichment_mor_eq</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C')
+      : FE x y · dialgebra_enrichment_mor_left V (functor_id_enrichment E) (τ x) (τ y)
+        =
+        FE x y · @dialgebra_enrichment_mor_right
+                    _ _ _ _
+                    (functor_identity C)
+                    _ _
+                    EM
+                    (F x) (F y)
+                    (τ x) (τ y).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> dialgebra_enrichment_mor_left, dialgebra_enrichment_mor_right ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (_ @ nat_trans_enrichment_to_comp Eτ x y) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">functor_to_em_enrichment_mor</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C')
+      : E' ⦃ x , y ⦄ --&gt; dialgebra_enrichment_mor V HV EM (functor_id_enrichment E) (τ x) (τ y).
+    <span class="kn">Proof</span>.
+      use EqualizerIn.
+      - <span class="bp">exact</span> (FE x y).
+      - <span class="bp">exact</span> (functor_to_em_enrichment_mor_eq x y).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">functor_to_em_enrichment_mor_incl</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C')
+      : functor_to_em_enrichment_mor x y
+        · dialgebra_enrichment_mor_incl _ _ _ _ _ _
+        =
+        FE x y.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> EqualizerCommutes.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">functor_to_eilenberg_moore_cat_enrichment</span>
+      : functor_enrichment
+          (functor_to_eilenberg_moore_cat M F τ τη τμ)
+          E'
+          eilenberg_moore_enrichment.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+      - <span class="bp">exact</span> functor_to_em_enrichment_mor.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x ;
+           use (dialgebra_enrichment_mor_eq_of_mor
+                  V
+                  HV
+                  EM (functor_id_enrichment _)) ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> functor_to_em_enrichment_mor_incl ;
+           <span class="nb">refine</span> (_ @ !(dialgebra_enrichment_id_incl _ _ _ _ _)) ;
+           <span class="nb">apply</span> (functor_enrichment_id FE)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y z ;
+           use (dialgebra_enrichment_mor_eq_of_mor
+                  V
+                  HV
+                  EM (functor_id_enrichment _)) ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> functor_to_em_enrichment_mor_incl ;
+           <span class="nb">rewrite</span> dialgebra_enrichment_comp_incl ;
+           <span class="nb">refine</span> (functor_enrichment_comp FE x y z @ _) ;
+           <span class="nb">unfold</span> dialgebra_enrichment_comp_mor ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">refine</span> (_ @ tensor_comp_mor _ _ _ _) ;
+           <span class="nb">rewrite</span> !functor_to_em_enrichment_mor_incl ;
+           <span class="nb">apply</span> idpath).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ;
+           use (dialgebra_enrichment_mor_eq_of_mor
+                  V
+                  HV
+                  EM (functor_id_enrichment _)) ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> functor_to_em_enrichment_mor_incl ;
+           <span class="nb">refine</span> (dialgebra_enrichment_from_arr_incl _ _ _ _ _ _ @ _) ;
+           <span class="nb">apply</span> (functor_enrichment_from_arr FE)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">functor_to_eilenberg_moore_cat_pr_enrichment</span>
+      : nat_trans_enrichment
+          (functor_to_eilenberg_moore_cat_pr M F τ τη τμ)
+          (functor_comp_enrichment
+             functor_to_eilenberg_moore_cat_enrichment
+             eilenberg_moore_pr_enrichment)
+          FE.
+    <span class="kn">Proof</span>.
+      use nat_trans_enrichment_via_comp.
+      <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> precomp_arr_id, postcomp_arr_id.
+      <span class="nb">rewrite</span> !id_right.
+      <span class="nb">rewrite</span> functor_to_em_enrichment_mor_incl.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">EilenbergMooreUMP1</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_to_eilenberg_moore_cat_enrichment</span>
+             {<span class="nv">C'</span> : category}
+             (<span class="nv">E'</span> : enrichment C' V)
+             {<span class="nv">F₁</span> <span class="nv">F₂</span> : C' ⟶ eilenberg_moore_cat M}
+             {<span class="nv">FE₁</span> : functor_enrichment F₁ E' eilenberg_moore_enrichment}
+             {<span class="nv">FE₂</span> : functor_enrichment F₂ E' eilenberg_moore_enrichment}
+             (<span class="nv">τ</span> : F₁ ∙ eilenberg_moore_pr M ⟹ F₂ ∙ eilenberg_moore_pr M)
+             (<span class="nv">Eτ</span> : nat_trans_enrichment
+                     τ
+                     (functor_comp_enrichment FE₁ eilenberg_moore_pr_enrichment)
+                     (functor_comp_enrichment FE₂ eilenberg_moore_pr_enrichment))
+             (<span class="nv">p</span> : ∏ (x : C'),
+                  mor_of_eilenberg_moore_ob (F₁ x) · τ x
+                  =
+                  # M (τ x) · mor_of_eilenberg_moore_ob (F₂ x))
+    : nat_trans_enrichment
+        (nat_trans_to_eilenberg_moore_cat M F₁ F₂ τ p)
+        FE₁
+        FE₂.
+  <span class="kn">Proof</span>.
+    use nat_trans_enrichment_via_comp.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    use (dialgebra_enrichment_mor_eq_of_mor
+           V
+           HV
+           EM (functor_id_enrichment _)).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> eilenberg_moore_enrichment_precomp_arr.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> eilenberg_moore_enrichment_postcomp_arr.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (!_).
+    <span class="bp">exact</span> (nat_trans_enrichment_to_comp Eτ x y).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">EnrichedEilenbergMoore</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Examples/EilenbergMooreEnriched.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The universal property
+  &gt;
+  &gt;  **********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

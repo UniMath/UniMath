@@ -1,0 +1,689 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonadsFromSubstitutionSystems.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Benedikt Ahrens, Ralph Matthes</span>
+
+<span class="sd">SubstitutionSystems</span>
+
+<span class="sd">2015</span>
+
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- Construction of a monad from a substitution system</span>
+<span class="sd">- Proof that morphism of hss gives morphism of monads</span>
+<span class="sd">- Bundling that into a functor</span>
+<span class="sd">- Proof that the functor is faithful</span>
+
+
+<span class="sd">version for simplified notion of HSS by Ralph Matthes (2022, 2023)</span>
+<span class="sd">the file is very close to the homonymous file in the parent directory</span>
+<span class="sd">basically, the changes in SimplifiedHSS.SubstitutionSystems are propagated</span>
+
+<span class="sd">************************************************************)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Unset</span> Kernel Term Sharing.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-txt">
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctorsComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.BicatOfCatsElementary.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.<span class="kn">Notation</span>.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subsys.
+
+<span class="kn">Section</span> <span class="nf">monad_from_hss</span>.
+
+<span class="kn">Notation</span> <span class="s2">"⦃ f ⦄_{ Z }"</span> := (fbracket _ Z f)(<span class="kn">at level</span> <span class="mi">0</span>).
+
+<span class="sd">(** ** Some variables and assumptions *)</span>
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category).
+<span class="kn">Context</span> (<span class="nv">CP</span> : BinCoproducts C).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'EndC'"</span>:= ([C, C]) .
+<span class="kn">Let</span> <span class="nf">CPEndC</span> : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP.
+
+<span class="kn">Context</span> (<span class="nv">H</span> : Signature C C C).
+
+<span class="kn">Let</span> <span class="nf">θ</span> := theta H.
+
+<span class="kn">Let</span> <span class="nf">θ_strength1_int</span> := Sig_strength_law1 H.
+<span class="kn">Let</span> <span class="nf">θ_strength2_int</span> := Sig_strength_law2 H.
+
+<span class="sd">(** The category of pointed endofunctors on [C] *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'Ptd'"</span> := (category_Ptd C).
+<span class="sd">(** The category of endofunctors on [C] *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'EndC'"</span>:= ([C, C]) .
+
+
+<span class="sd">(** ** Derivation of the monad laws from a heterogeneous substitution system for signature with strength [H] *)</span>
+
+<span class="kn">Section</span> <span class="nf">mu_from_fbracket</span>.
+
+<span class="sd">(** We assume given a hss [T] *)</span>
+
+<span class="kn">Context</span> (<span class="nv">T</span> : hss CP H).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'p' T"</span> := (ptd_from_alg T) (<span class="kn">at level</span> <span class="mi">3</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f ⊕ g"</span> := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g).
+
+
+<span class="kn">Definition</span> <span class="nf">μ_0</span> : functor_identity C ⟹ functor_data_from_functor _ _ `T := η T. <span class="c">(*ptd_pt _ (pr1 (pr1 T)).*)</span>
+
+<span class="sd">(** [η T] as pointed morphism *)</span>
+<span class="kn">Definition</span> <span class="nf">μ_0_ptd</span> : id_Ptd C --&gt; p T.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">μ_0</span>.
+  <span class="nb">intro</span> c. <span class="nb">simpl</span>. <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** the bracket of the "degenerate" argument [η T] *)</span>
+<span class="kn">Definition</span> <span class="nf">μ_1</span> : functor_composite (U (id_Ptd C)) (`T) ⟹ functor_data_from_functor _ _ `T
+  := ⦃μ_0⦄_{id_Ptd C}.
+
+<span class="sd">(** using uniqueness of bracket for [η T] *)</span>
+<span class="kn">Lemma</span> <span class="nf">μ_1_identity</span> : μ_1 = identity `T .
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> fbracket_unique.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intros</span>; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c. <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">assert</span> (H':= θ_Strength1_int_implies_θ_Strength1 _ θ_strength1_int).
+    <span class="nb">red</span> <span class="k">in</span> H'. <span class="nb">simpl</span> <span class="k">in</span> H'.
+    <span class="nb">assert</span> (H2 := H' (`T)).
+    <span class="nb">assert</span> (H3 := nat_trans_eq_pointwise H2 c).
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    intermediate_path (identity _ · pr1 (τ T) c).
+    + <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> H3.
+    + <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">μ_1_identity'</span> : ∏ c : C, μ_1 c = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c.
+  <span class="nb">assert</span> (HA:= nat_trans_eq_pointwise μ_1_identity).
+  <span class="nb">apply</span> HA.
+<span class="kn">Qed</span>.
+
+<span class="c">(* The whole secret is that this typechecks</span>
+<span class="c">  Check (μ_1:U T--&gt;U T).</span>
+<span class="c">*)</span>
+
+<span class="c">(* therefore, it is not just the type itself that makes it necessary to introduce μ_1_alt,</span>
+<span class="c">   it is rather the question of the formulation of the first strength law of θ *)</span>
+
+<span class="c">(*</span>
+<span class="c">Lemma μ_1_identity_stronger : μ_1 = identity (U T).</span>
+<span class="c">Proof.</span>
+<span class="c">  set (t':=nat_trans_eq_weq C C hs _ _ μ_1 (identity (U T))).</span>
+<span class="c">  apply invweq in t'.</span>
+<span class="c">  set (t'' := t' μ_1_identity').</span>
+<span class="c">  exact t''.</span>
+<span class="c">Qed.</span>
+<span class="c">*)</span>
+
+<span class="sd">(** This is the multiplication of the monad to be constructed *)</span>
+
+<span class="kn">Definition</span> <span class="nf">μ_2</span> : functor_composite (`T) (`T) ⟹ pr1 (`T)
+  := prejoin_from_hetsubst T.
+
+<span class="kn">Goal</span> μ_2 = ⦃identity `T⦄_{ptd_from_alg T}.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_Monad_data_from_hss</span> : disp_Monad_data `T := μ_2 ,, μ_0.
+
+<span class="sd">(** *** Proof of the first monad law *)</span>
+
+<span class="sd">(** this directly comes from the contained heterogeneous substitution *)</span>
+<span class="kn">Lemma</span> <span class="nf">Monad_law_1_from_hss</span> :
+  ∏ c : C, μ_0 (pr1 (`T) c) · μ_2 c = identity ((pr1 (`T)) c).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  <span class="nb">unfold</span> μ_0.
+  <span class="nb">set</span> (H' := prejoin_from_hetsubst_η T).
+  <span class="nb">set</span> (H2:= nat_trans_eq_weq (homset_property C) _ _ H').
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> H2.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Proof of the second monad law *)</span>
+
+<span class="sd">(** using uniqueness of bracket for [η T] *)</span>
+<span class="kn">Lemma</span> <span class="nf">Monad_law_2_from_hss</span>:
+  ∏ c : C, # (pr1 (`T)) (μ_0 c)· μ_2 c = identity ((pr1 (`T)) c).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  intermediate_path (μ_1 c).
+  - <span class="nb">unfold</span> μ_1.
+    <span class="nb">assert</span> (H' := @fbracket_unique_target_pointwise _ _ _ T).
+    <span class="nb">assert</span> (H1 := H' (id_Ptd C) μ_0).
+    <span class="nb">set</span> (x := post_whisker μ_0 (`T)
+             : EndC ⟦ `T • functor_identity _  , `T • `T ⟧).
+    <span class="nb">set</span> (x' := x · μ_2).
+    <span class="nb">assert</span> (H2 := H1 x').
+    <span class="nb">apply</span> H2; <span class="nb">clear</span> H2.
+    <span class="nb">unfold</span> x'. <span class="nb">clear</span> x'.
+    <span class="nb">unfold</span> x; <span class="nb">clear</span> x.
+    <span class="nb">clear</span> H1. <span class="nb">clear</span> H'. <span class="nb">clear</span> c.
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> c.
+      <span class="nb">assert</span> (H' := nat_trans_ax (η T)).
+      <span class="nb">simpl</span> <span class="k">in</span> H'.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- H'; <span class="nb">clear</span> H'.
+      <span class="nb">assert</span> (H' := prejoin_from_hetsubst_η T).
+      <span class="nb">assert</span> (H2 := nat_trans_eq_weq (homset_property C) _ _ H').
+      <span class="nb">simpl</span> <span class="k">in</span> H2.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> &lt;- H2.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_right.
+    + <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> c.
+      <span class="nb">rewrite</span> &lt;- horcomp_id_postwhisker.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">unfold</span> horcomp_data; <span class="nb">simpl</span>.
+      intermediate_path ( # (pr1 (H ( (` T)))) (μ_0 c) · pr1 (θ ((`T) ⊗ (p T))) c ·
+                  pr1 (# H μ_2) c · pr1 (τ T) c).
+      * <span class="nb">unfold</span> tau_from_alg; <span class="nb">cbn</span>.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">assert</span> (H' := θ_nat_2 _ _ _ H θ).
+        <span class="nb">assert</span> (H2 := H' (`T) _ _ μ_0_ptd); <span class="nb">clear</span> H'.
+        <span class="nb">assert</span> (H3 := nat_trans_eq_weq (homset_property C) _ _ H2 c); <span class="nb">clear</span> H2.
+        <span class="nb">simpl</span> <span class="k">in</span> H3. <span class="nb">unfold</span> horcomp_data <span class="k">in</span> H3; <span class="nb">simpl</span> <span class="k">in</span> H3.
+        <span class="nb">rewrite</span> id_left <span class="k">in</span> H3.
+        <span class="nb">apply</span> (!H3).
+      * <span class="nb">assert</span> (H' := prejoin_from_hetsubst_τ T).
+        <span class="nb">assert</span> (H2 := nat_trans_eq_weq (homset_property C) _ _ H' c); <span class="nb">clear</span> H'.
+        <span class="nb">simpl</span> <span class="k">in</span> *.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc.
+        {
+          intermediate_path (  # (pr1 (H (` T))) (μ_0 c) ·
+                       (pr1 (τ T) (pr1 (`T) c) · pr1 μ_2 c)).
+          - <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> assoc.
+            <span class="nb">apply</span> H2. <span class="c">(* rewrite done *)</span>
+          - <span class="nb">clear</span> H2.
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+            <span class="nb">apply</span> cancel_postcomposition.
+            etrans.
+            { <span class="nb">apply</span> (nat_trans_ax (τ T) ). }
+            <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> pathsinv0.
+            <span class="nb">apply</span> id_right.
+        }
+  - <span class="nb">apply</span> μ_1_identity'.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** [T_squared] is [T∙T, η∙η], that is, the selfcomposition of [T] as a pointed functor *)</span>
+
+<span class="kn">Definition</span> <span class="nf">T_squared</span> : Ptd := ptd_compose _ (p T) (p T).
+
+<span class="sd">(** [μ_2] is not just a natural transformation from [T∙T] to [T], but also compatible with</span>
+<span class="sd">    the pointed structure given by [η] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">μ_2_is_ptd_mor</span> :
+  ∏ c : C, (ptd_pt C T_squared) c · μ_2 c = pr1 (η T) c.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  <span class="nb">unfold</span> μ_2.
+  <span class="nb">unfold</span> T_squared.
+  <span class="nb">unfold</span> ptd_compose. <span class="nb">rewrite</span> functorial_composition_pre_post.
+  <span class="nb">simpl</span>.
+  <span class="nb">assert</span> (H' := Monad_law_2_from_hss c).
+  <span class="nb">simpl</span> <span class="k">in</span> H'.
+  intermediate_path (pr1 (η T) c · identity _ ).
+  - <span class="nb">unfold</span> eta_from_alg; <span class="nb">simpl</span>.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> H'.
+  - <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">μ_2_ptd</span> : T_squared --&gt; p T.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">μ_2</span>.
+  <span class="nb">red</span>.
+  <span class="nb">apply</span> μ_2_is_ptd_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">μ_3</span> : EndC ⟦U T_squared • `T, `T⟧ := ⦃μ_2⦄_{T_squared}.
+
+
+<span class="sd">(** *** Proof of the third monad law via transitivity *)</span>
+<span class="sd">(** We show that both sides are equal to [μ_3 = fbracket μ_2] *)</span>
+
+<span class="sd">(** using uniqueness of bracket for the prejoin *)</span>
+<span class="kn">Lemma</span> <span class="nf">μ_3_T_μ_2_μ_2</span> : μ_3 =
+                      (`T ∘ μ_2 : EndC ⟦`T • _  , `T • `T⟧ ) · μ_2.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (fbracket_unique(Z:=T_squared) T μ_2).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">assert</span> (H2 := nat_trans_ax (η T)); <span class="nb">simpl</span> <span class="k">in</span> H2.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">simpl</span>; <span class="nb">rewrite</span> &lt;- H2 ; <span class="nb">clear</span> H2.
+    intermediate_path (μ_2 c · identity _ ).
+    + <span class="nb">apply</span> pathsinv0, id_right.
+    + etrans; [| <span class="nb">apply</span> assoc ].
+      <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> Monad_law_1_from_hss.
+  - <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">assert</span> (H1 := θ_nat_2 _ _ _ H θ (`T) _ _ μ_2_ptd).
+    <span class="nb">simpl</span> <span class="k">in</span> H1.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="k">match goal with</span> |[H1 : <span class="nl">?g</span> = _ |- _ · _ · <span class="nl">?f</span> · <span class="nl">?h</span> = _ ] =&gt;
+         intermediate_path (g · f · h) <span class="k">end</span>.
+    + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> pathsinv0.
+      etrans; [<span class="nb">apply</span> H1 |].
+      <span class="nb">clear</span> H1.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">assert</span> (H3 := horcomp_id_postwhisker).
+      <span class="nb">assert</span> (H4 := H3 _ _ _ _ _ μ_2 (`T)); <span class="nb">clear</span> H3.
+      <span class="nb">apply</span> H4.
+    + <span class="nb">clear</span> H1.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> c; <span class="nb">simpl</span>. <span class="nb">unfold</span> horcomp_data; <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">assert</span> (H2 := prejoin_from_hetsubst_τ T).
+      <span class="nb">assert</span> (H3 := nat_trans_eq_pointwise H2 c); <span class="nb">clear</span> H2.
+      <span class="nb">simpl</span> <span class="k">in</span> *.
+      <span class="k">match goal with</span> |[H3 : _ = <span class="nl">?f</span> |- <span class="nl">?e</span> · _ · _ · _  = _ ] =&gt;
+         intermediate_path (e · f) <span class="k">end</span>.
+      * etrans; [ <span class="nb">apply</span> assoc' |].
+        etrans; [ <span class="nb">apply</span> assoc' |].
+        <span class="nb">apply</span> maponpaths.
+        etrans; [| <span class="nb">apply</span> H3 ].
+        <span class="nb">apply</span> assoc.
+      * <span class="nb">clear</span> H3.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">assert</span> (H1 := nat_trans_ax (τ T )).
+        etrans; [ | <span class="nb">apply</span> H1]; <span class="nb">clear</span> H1.
+        <span class="nb">apply</span> assoc'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'T•T²'"</span> := (functor_compose (functor_composite (`T) (`T)) (`T) : [C, C]).
+
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'T²∙T'"</span> := (@functor_composite C C C
+                    (@functor_composite C C C (`T)
+                                              (` T))
+                    (` T) : functor C C).
+
+<span class="sd">(** using uniqueness of bracket for the prejoin also here *)</span>
+<span class="kn">Lemma</span> <span class="nf">μ_3_μ_2_T_μ_2</span> :  (
+    @compose (functor_category C C)
+                 <span class="c">(* TtimesTthenT *)</span> T²∙T _ _
+                 <span class="c">(* (@functor_composite C C C ((functor_ptd_forget C hs) T)</span>
+<span class="c">                    ((functor_ptd_forget C hs) T))</span>
+<span class="c">                 ((functor_ptd_forget C hs) T) *)</span>
+          ((μ_2 •• `T) <span class="c">(* :  TtimesTthenT' --&gt; _ *)</span>
+                  <span class="c">(*:@functor_compose C C C hs hs</span>
+<span class="c">                    (@functor_composite C C C ((functor_ptd_forget C hs) T)</span>
+<span class="c">                                              ((functor_ptd_forget C hs) T))</span>
+<span class="c">                    ((functor_ptd_forget C hs) T) --&gt; _*)</span> ) μ_2 :
+            <span class="c">(*TtimesTthenT'*)</span> T•T² --&gt; `T) = μ_3.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (fbracket_unique(Z:=T_squared) <span class="c">(*_pointwise*)</span> T μ_2).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c.
+    <span class="nb">simpl</span>.
+    intermediate_path (identity _ · μ_2 c).
+    + <span class="nb">apply</span> pathsinv0, id_left.
+    + etrans; [ | <span class="nb">apply</span> assoc' ].
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">assert</span> (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
+      <span class="nb">apply</span> (!H1).
+  - <span class="nb">set</span> (B := τ T).
+    <span class="k">match goal with</span> | [|- _ · # <span class="nl">?H</span> (<span class="nl">?f</span> · _ ) · _ = _ ] =&gt; <span class="nb">set</span> (F := f : <span class="c">(*TtimesTthenT'*)</span> T•T² --&gt; _ ) <span class="k">end</span>.
+    <span class="nb">assert</span> (H3 := functor_comp H F μ_2).
+    <span class="nb">unfold</span> functor_compose <span class="k">in</span> H3.
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> H3. }
+    <span class="nb">clear</span> H3.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">simpl</span>.
+    <span class="k">match goal with</span> | [ |- <span class="nl">?a</span> · _ · _ = _ ] =&gt; <span class="nb">set</span> (Ac := a) <span class="k">end</span>.
+    <span class="nb">simpl</span> <span class="k">in</span> Ac.
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> functor_compose <span class="k">in</span> *.
+    <span class="nb">assert</span> (HX := θ_nat_1 _ _ _ H θ _ _ μ_2).  <span class="c">(* it may be tested with the primed version *)</span>
+    <span class="nb">assert</span> (HX1 := HX (ptd_from_alg T)); <span class="nb">clear</span> HX.
+    <span class="nb">simpl</span> <span class="k">in</span> HX1.
+    <span class="nb">assert</span> (HXX := nat_trans_eq_pointwise HX1 c); <span class="nb">clear</span> HX1.
+    <span class="nb">simpl</span> <span class="k">in</span> HXX. <span class="nb">unfold</span> horcomp_data <span class="k">in</span> HXX.
+    <span class="nb">rewrite</span> (functor_id ( H (`T))) <span class="k">in</span> HXX.
+    <span class="nb">rewrite</span> id_right <span class="k">in</span> HXX. <span class="c">(* last two lines needed because of def. of theta on product category *)</span>
+    <span class="k">match goal with</span> |[HXX : <span class="nl">?f</span> · <span class="nl">?h</span> = _ · _ |- _ · (_ · <span class="nl">?x</span> ) · <span class="nl">?y</span> = _ ] =&gt;
+      intermediate_path (pr1 (θ ((`T) ⊗ (ptd_from_alg T))) (pr1 (pr1 (pr1 T)) c)·
+                       f · h · x · y) <span class="k">end</span>.
+    * <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">unfold</span> Ac. <span class="nb">clear</span> Ac.
+      etrans; [| <span class="nb">apply</span> assoc ].
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> (!HXX). }
+      <span class="nb">clear</span> HXX.
+      <span class="nb">assert</span> (Strength_2 :
+                ∏ α : functor_compose (functor_composite (`T) (`T))(`T) --&gt; functor_composite (` T) (`T),
+                     pr1 (θ (`T ⊗ T_squared)) c · pr1 (# H α) c =
+                     pr1 (θ ((`T) ⊗ (ptd_from_alg T))) ((pr1 (pr1 (pr1 T))) c)·
+                     pr1 (θ (( ((`T) • (`T) : [_, _])) ⊗ (ptd_from_alg T))) c·
+                     pr1 (# H (α : functor_compose (`T) (functor_composite (`T) (` T))--&gt; _)) c ).
+      { <span class="nb">intro</span> α;
+          <span class="nb">assert</span> (HA := θ_Strength2_int_implies_θ_Strength2 _ θ_strength2_int);
+          <span class="nb">assert</span> (HA' := HA (`T) (ptd_from_alg T) (ptd_from_alg T) _ α); <span class="nb">clear</span> HA;
+          <span class="nb">assert</span> (HA2 := nat_trans_eq_pointwise HA' c ); <span class="nb">clear</span> HA';
+          <span class="nb">simpl</span> <span class="k">in</span> HA2; <span class="nb">apply</span> HA2.
+      }
+      etrans; [ <span class="nb">apply</span> (Strength_2 F) |].
+      <span class="nb">clear</span> Strength_2.
+      etrans; [ <span class="nb">apply</span> assoc' |].
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="k">match goal with</span> |[ |- _ = <span class="nl">?pr1</span> (# <span class="nl">?G</span> <span class="nl">?g</span>) _ ] =&gt;
+              <span class="nb">assert</span> (X : F = g) <span class="k">end</span>.
+      { <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> homset_property.
+        <span class="nb">intros</span>. <span class="nb">unfold</span> F.
+        <span class="nb">simpl</span>. <span class="nb">unfold</span> horcomp_data; <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">apply</span> pathsinv0, id_right.
+      }
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">T</span>,  pr1 (# H T) c)).
+      <span class="nb">apply</span> X.
+    * <span class="nb">clear</span> HXX. <span class="nb">clear</span> Ac. <span class="nb">clear</span> F. <span class="nb">clear</span> B.
+      <span class="nb">assert</span> (H4 := prejoin_from_hetsubst_τ T).
+      <span class="nb">assert</span> (H5 := nat_trans_eq_pointwise H4 c); <span class="nb">clear</span> H4.
+      <span class="nb">simpl</span> <span class="k">in</span> H5.
+      {
+        <span class="k">match goal with</span> |[ H5 : _ = <span class="nl">?e</span> |- <span class="nl">?a</span> · <span class="nl">?b</span> · _ · _ · _ = _ ] =&gt;
+                         intermediate_path (a · b · e) <span class="k">end</span>.
+        - <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H5. <span class="nb">apply</span> H5.
+        - <span class="nb">clear</span> H5.
+          <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">assert</span> (HT := prejoin_from_hetsubst_τ T).
+          <span class="nb">assert</span> (H6 := nat_trans_eq_pointwise HT); <span class="nb">clear</span> HT.
+          <span class="nb">unfold</span> coproduct_nat_trans_in2_data.
+          <span class="nb">unfold</span> tau_from_alg, tau2_from_alg <span class="k">in</span> H6.
+          <span class="nb">rewrite</span> assoc <span class="k">in</span> H6.
+          <span class="nb">apply</span> H6.
+      }
+<span class="kn">Qed</span>.
+
+<span class="sd">(** proving a variant of the third monad law with assoc iso explicitly inserted *)</span>
+
+<span class="kn">Section</span> <span class="nf">third_monad_law_with_assoc</span>.
+
+<span class="kn">Lemma</span> <span class="nf">third_monad_law_from_hss</span> :
+  (`T ∘ μ_2 : EndC ⟦ functor_composite (functor_composite `T `T) `T , `T • `T ⟧) · μ_2
+  =
+  (rassociator_CAT _ _ _) · (μ_2 •• `T) · μ_2.
+<span class="kn">Proof</span>.
+  intermediate_path μ_3; [<span class="nb">apply</span> pathsinv0, μ_3_T_μ_2_μ_2 | ].
+  <span class="nb">apply</span> pathsinv0.
+  <span class="sd">(** we only aim at a proof alternative to [μ_3_μ_2_T_μ_2] *)</span>
+  <span class="nb">apply</span> (fbracket_unique(Z:=T_squared) <span class="c">(*_pointwise*)</span> T  μ_2).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> assoc.
+    intermediate_path (identity _ · μ_2 c).
+    + <span class="nb">apply</span> pathsinv0, id_left.
+    + <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">assert</span> (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
+      <span class="nb">simpl</span> <span class="k">in</span> H1.
+      <span class="nb">apply</span> (!H1).
+  - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp.
+    <span class="kp">do</span> <span class="mi">4</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">unfold</span> T_squared.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+    <span class="nb">assert</span> (HTT := θ_strength2_int).
+    <span class="nb">assert</span> (HX := HTT (`T) (ptd_from_alg T) (ptd_from_alg T)); <span class="nb">clear</span> HTT.
+    <span class="nb">assert</span> (HX' := nat_trans_eq_pointwise HX c); <span class="nb">clear</span> HX.
+    <span class="nb">simpl</span> <span class="k">in</span> HX'.
+    <span class="k">match goal with</span> | [ H : _  = <span class="nl">?f</span> |- _ · _ · <span class="nl">?g</span> · <span class="nl">?h</span> · <span class="nl">?i</span> = _ ] =&gt;
+                      intermediate_path (f · g · h · i) <span class="k">end</span>.
+    + <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> HX'.
+    + <span class="nb">clear</span> HX'.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">assert</span> (HX :=θ_nat_1 _ _ _ H θ _ _ μ_2).
+      <span class="nb">assert</span> (HX1 := HX (ptd_from_alg T)); <span class="nb">clear</span> HX.
+      <span class="nb">simpl</span> <span class="k">in</span> HX1.
+      <span class="nb">assert</span> (HXX := nat_trans_eq_pointwise HX1 c); <span class="nb">clear</span> HX1.
+      <span class="nb">simpl</span> <span class="k">in</span> HXX. <span class="nb">unfold</span> horcomp_data <span class="k">in</span> HXX; <span class="nb">simpl</span> <span class="k">in</span> HXX.
+      <span class="k">match goal with</span> | [ H : <span class="nl">?x</span> = _ |- <span class="nl">?e</span> · _ · _ · <span class="nl">?f</span> · <span class="nl">?g</span> = _ ] =&gt;
+                 intermediate_path (e · x · f · g) <span class="k">end</span>.
+      * <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> maponpaths.
+        {
+          <span class="k">match goal with</span> | [ H : _ = <span class="nl">?x</span> |- _ ] =&gt; intermediate_path x <span class="k">end</span>.
+          -  <span class="nb">clear</span> HXX.
+             <span class="nb">apply</span> maponpaths.
+             <span class="k">match goal with</span> | [ |- _  <span class="nl">?a</span> <span class="nl">?x</span> = _  <span class="nl">?b</span> <span class="nl">?y</span> ] =&gt; <span class="nb">assert</span> (TTT : a = b) <span class="k">end</span>.
+             {
+               <span class="k">match goal with</span> | [ |- _ <span class="nl">?a</span> = _ <span class="nl">?b</span> ] =&gt; <span class="nb">assert</span> (TTTT : a = b) <span class="k">end</span>.
+               { <span class="nb">apply</span> nat_trans_eq_alt.
+                 <span class="nb">intros</span>. <span class="nb">simpl</span>. <span class="nb">unfold</span> horcomp_data; <span class="nb">simpl</span>. <span class="nb">rewrite</span> functor_id. <span class="nb">apply</span> pathsinv0, id_right.
+               }
+               <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> TTTT.
+             }
+             <span class="nb">apply</span> (nat_trans_eq_pointwise TTT).
+          - <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+            <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> HXX.
+            <span class="nb">apply</span> (!HXX).
+         }
+      * <span class="nb">clear</span> HXX.
+        <span class="nb">assert</span> (H4 := prejoin_from_hetsubst_τ T).
+        <span class="nb">assert</span> (H5 := nat_trans_eq_pointwise H4 c); <span class="nb">clear</span> H4.
+        <span class="nb">unfold</span> μ_2.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">simpl</span> <span class="k">in</span> H5; <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H5.
+        etrans.
+        { <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> H5. }
+        <span class="nb">clear</span> H5.
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">rewrite</span> id_left.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">assert</span> (H4' := prejoin_from_hetsubst_τ T).
+        <span class="nb">assert</span> (H6 := nat_trans_eq_pointwise H4' (pr1 `T c)); <span class="nb">clear</span> H4'.
+        <span class="nb">simpl</span> <span class="k">in</span> H6.
+        <span class="nb">unfold</span> coproduct_nat_trans_in2_data <span class="k">in</span> H6. <span class="nb">simpl</span> <span class="k">in</span> H6.
+        <span class="nb">rewrite</span> assoc <span class="k">in</span> H6.
+        <span class="nb">apply</span> H6.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">third_monad_law_with_assoc</span>.
+
+<span class="c">(*</span>
+<span class="c">Unset Printing All.</span>
+<span class="c">Set Printing Notations.</span>
+<span class="c">Unset Printing Implicit.</span>
+<span class="c"> *)</span>
+
+<span class="sd">(** Finally putting together all the preparatory results to obtain a monad *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">disp_Monad_laws_from_hss</span> : disp_Monad_laws disp_Monad_data_from_hss.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">unfold</span> disp_Monad_data_from_hss; <span class="nb">simpl</span>; <span class="nb">split</span>.
+    + <span class="nb">apply</span> Monad_law_1_from_hss.
+    + <span class="nb">apply</span> Monad_law_2_from_hss.
+  - <span class="nb">unfold</span> disp_Monad_data_from_hss; <span class="nb">simpl</span>.
+    <span class="nb">intro</span> c.
+    intermediate_path (pr1 μ_3 c).
+    + <span class="nb">set</span> (H1 := μ_3_T_μ_2_μ_2).
+      <span class="nb">set</span> (H2 := nat_trans_eq_weq (homset_property C) _ _ H1).
+      <span class="nb">apply</span> pathsinv0, H2.
+    + <span class="nb">set</span> (H1 :=  μ_3_μ_2_T_μ_2).
+      <span class="nb">set</span> (H2 := nat_trans_eq_weq (homset_property C) _ _ H1).
+      <span class="nb">apply</span> pathsinv0, H2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Monad_from_hss</span> : Monad C := _ ,, _ ,, disp_Monad_laws_from_hss.
+
+<span class="kn">End</span> <span class="nf">mu_from_fbracket</span>.
+
+<span class="sd">(** ** A functor from hss to monads *)</span>
+
+<span class="sd">(** Objects are considered above, now morphisms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Monad_Mor_laws_from_hssMor</span> (<span class="nv">T</span> <span class="nv">T'</span> : hss CP H)(<span class="nv">β</span> : hssMor T T')
+  : Monad_Mor_laws (T:=Monad_from_hss T) (T':=Monad_from_hss T') (pr1 (pr1 β)).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">simpl</span>.
+  - <span class="nb">intro</span> c.
+    <span class="nb">unfold</span> μ_2. <span class="nb">simpl</span>.
+    <span class="nb">set</span> (H' := isbracketMor_hssMor _ _ _ β).
+    <span class="nb">unfold</span> isbracketMor <span class="k">in</span> H'.
+    <span class="nb">set</span> (H2 := H' (ptd_from_alg T) (#U (identity _ ))).
+    <span class="nb">set</span> (H3 := nat_trans_eq_weq (homset_property C) _ _ H2).
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> H3.
+    <span class="nb">simpl</span> <span class="k">in</span> H3.
+    <span class="nb">rewrite</span> H3; <span class="nb">clear</span> H3 H2 H'.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">assert</span> (aux := compute_fbracket(Z:=ptd_from_alg T) C CP H T' (ptd_from_alg_mor C CP H (pr1 β))).
+    <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> aux.
+    <span class="nb">apply</span> toforallpaths <span class="k">in</span> aux.
+    etrans.
+    { <span class="nb">apply</span> (aux c). }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">unfold</span> μ_0.
+    <span class="nb">intro</span> c.
+    <span class="nb">set</span> (H' := ptd_mor_commutes _ (ptd_from_alg_mor _ _ _ β)).
+    <span class="nb">apply</span> H'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Monad_Mor_from_hssMor</span> {<span class="nv">T</span> <span class="nv">T'</span> : hss CP H}(<span class="nv">β</span> : hssMor T T')
+  : Monad_Mor (Monad_from_hss T) (Monad_from_hss T')
+  := tpair _ _ (Monad_Mor_laws_from_hssMor T T' β).
+
+
+<span class="kn">Definition</span> <span class="nf">hss_to_monad_functor_data</span> : functor_data (hss_precategory CP H) (category_Monad C).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">Monad_from_hss</span>.
+  <span class="bp">exact</span> @Monad_Mor_from_hssMor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_hss_to_monad</span> : is_functor hss_to_monad_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  - <span class="nb">intro</span> a.
+    <span class="nb">apply</span> (invmap (Monad_Mor_equiv _ _ )).
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> a b c f g.
+    <span class="nb">apply</span> (invmap (Monad_Mor_equiv _ _ )).
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hss_to_monad_functor</span> : functor _ _ := tpair _ _ is_functor_hss_to_monad.
+
+<span class="kn">Definition</span> <span class="nf">hssMor_Monad_Mor_eq</span> {<span class="nv">T</span> <span class="nv">T'</span> : hss CP H} (<span class="nv">β</span> <span class="nv">β'</span> : hssMor T T')
+  : β = β' ≃ Monad_Mor_from_hssMor β = Monad_Mor_from_hssMor β'.
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> weqcomp.
+  - <span class="nb">apply</span> hssMor_eq.
+  - <span class="nb">apply</span> invweq.
+    use Monad_Mor_equiv.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** The functor from hss to monads is faithful, i.e. forgets at most structure *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">faithful_hss_to_monad</span> : faithful hss_to_monad_functor.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> faithful.
+  <span class="nb">intros</span> T T'.
+  <span class="nb">apply</span> isinclbetweensets.
+  - <span class="nb">apply</span> isaset_hssMor.
+  - <span class="nb">apply</span> isaset_Monad_Mor.
+  - <span class="nb">intros</span> β β'.
+    <span class="nb">apply</span> (invmap (hssMor_Monad_Mor_eq _ _ )).
+<span class="kn">Qed</span>.
+
+
+
+<span class="kn">End</span> <span class="nf">monad_from_hss</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/SimplifiedHSS/MonadsFromSubstitutionSystems.v</tt>, line 31)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; Unset Kernel Term Sharing.
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

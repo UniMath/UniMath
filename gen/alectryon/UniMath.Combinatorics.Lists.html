@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Lists.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Lists *)</span>
+
+<span class="sd">(**</span>
+
+<span class="sd">This file contains a formalization of lists define as iterated products ([list]).</span>
+
+<span class="sd">Written by: Anders Mörtberg, 2016 (inspired by a remark of Vladimir Voevodsky), Floris van Doorn, december 2017</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+
+<span class="sd">(** * Lists over an arbitrary type *)</span>
+<span class="kn">Section</span> <span class="nf">lists</span>.
+
+<span class="kn">Context</span> {<span class="nv">A</span> : UU}.
+
+<span class="sd">(** The type of lists *)</span>
+<span class="kn">Definition</span> <span class="nf">list</span> : UU := ∑ n, vec A n.
+
+<span class="sd">(** Length of a list *)</span>
+<span class="kn">Definition</span> <span class="nf">length</span> : list -&gt; nat := pr1.
+
+<span class="sd">(** Coercion to a vector *)</span>
+<span class="kn">Definition</span> <span class="nf">list_to_vec</span>: ∏ l: list, vec A (length l) := pr2.
+<span class="kn">Coercion</span> <span class="nf">list_to_vec</span>: list &gt;-&gt; vec.
+
+<span class="sd">(** The empty list *)</span>
+<span class="kn">Definition</span> <span class="nf">nil</span> : list := (<span class="mi">0</span>,, vnil).
+
+<span class="sd">(** List cons *)</span>
+<span class="kn">Definition</span> <span class="nf">cons</span> (<span class="nv">x</span> : A) (<span class="nv">xs</span> : list) : list :=
+  (S (pr1 xs),, vcons x xs).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[]"</span> := nil (<span class="kn">at level</span> <span class="mi">0</span>, <span class="kn">format</span> <span class="s2">"[]"</span>).
+<span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"::"</span> := cons.
+
+<span class="kn">Lemma</span> <span class="nf">list_ind</span> : ∏ (P : list -&gt; UU),
+     P nil
+  -&gt; (∏ (x : A) (xs : list), P xs -&gt; P (x :: xs))
+  -&gt; ∏ xs, P xs.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> P Hnil Hcons xs.
+<span class="nb">induction</span> xs <span class="k">as</span> [n xs].
+<span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+- <span class="nb">induction</span> xs.
+  <span class="nb">apply</span> Hnil.
+- <span class="nb">simpl</span> <span class="k">in</span> xs.
+  <span class="nb">induction</span> xs <span class="k">as</span> [x xs].
+  <span class="nb">apply</span> (Hcons x (n,,xs) (IHn xs)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">list_ind_compute_2</span>
+      (<span class="nv">P</span> : list -&gt; UU)
+      (<span class="nv">p0</span> : P nil)
+      (<span class="nv">ind</span> : ∏ (x : A) (xs : list), P xs -&gt; P (x :: xs))
+      (<span class="nv">x</span> : A) (<span class="nv">xs</span> : list)
+      (<span class="nv">f</span> := list_ind P p0 ind) :
+  f (x::xs) = ind x xs (f xs).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">foldr</span> {<span class="nv">B</span> : UU} (<span class="nv">f</span> : A -&gt; B -&gt; B) (<span class="nv">b</span> : B) : list -&gt; B :=
+  list_ind (<span class="k">λ</span> <span class="nv">_</span>, B) b (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> <span class="nv">b'</span>, f a b').
+
+<span class="sd">(** Variation of foldr that returns a for the empty list and folds the</span>
+<span class="sd">    rest with the first element as new default value *)</span>
+<span class="kn">Definition</span> <span class="nf">foldr1</span> (<span class="nv">f</span> : A -&gt; A -&gt; A) (<span class="nv">a</span> : A) : list → A.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> list_ind.
+  - <span class="bp">exact</span> a.
+  - <span class="nb">intros</span> a' l fl. <span class="nb">revert</span> l. <span class="nb">apply</span> list_ind.
+    + <span class="bp">exact</span> a'.
+    + <span class="nb">intros</span> _ _ _. <span class="bp">exact</span> (f a' fl).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Variation of foldr1 with embedded mapping, see below for [foldr1_foldr1_map] *)</span>
+<span class="kn">Definition</span> <span class="nf">foldr1_map</span> {<span class="nv">B</span> : UU} (<span class="nv">f</span> : B -&gt; B -&gt; B) (<span class="nv">b</span> : B) (<span class="nv">h</span> : A -&gt; B) : list → B.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> list_ind.
+  - <span class="bp">exact</span> b.
+  - <span class="nb">intros</span> a' l fl. <span class="nb">revert</span> l. <span class="nb">apply</span> list_ind.
+    + <span class="bp">exact</span> (h a').
+    + <span class="nb">intros</span> _ _ _. <span class="bp">exact</span> (f (h a') fl).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The n-th element of a list *)</span>
+
+<span class="kn">Definition</span> <span class="nf">nth</span> <span class="nv">x</span> : stn(length x) -&gt; A := el (pr2 x).
+
+<span class="kn">Definition</span> <span class="nf">functionToList'</span> <span class="nv">n</span> : (stn n -&gt; A) -&gt; vec A n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n I].
+  - <span class="bp">exact</span> tt.
+  - <span class="k">exists</span> (<span class="nv">f</span> (●<span class="mi">0</span>))%stn.
+    <span class="bp">exact</span> (I(f ∘ dni (●<span class="mi">0</span>)))%stn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functionToList</span> <span class="nv">n</span> : (stn n -&gt; A) -&gt; list.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f.
+  <span class="bp">exact</span> (n ,, make_vec f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">Test</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+  <span class="kn">Context</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span>:A}.
+  <span class="kn">Let</span> <span class="nf">x</span> := a::b::c::d::[].
+  <span class="kn">Goal</span> nth x (●<span class="mi">0</span>) = a. <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> nth x (●<span class="mi">1</span>) = b. <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> nth x (●<span class="mi">2</span>) = c. <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> nth x (●<span class="mi">3</span>) = d. <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> functionToList _ (nth x) = x. <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Test</span>.
+
+<span class="kn">End</span> <span class="nf">lists</span>.
+
+<span class="sd">(** Make the type not implicit for list *)</span>
+<span class="kn">Arguments</span> list : <span class="kn">clear implicits</span>.
+
+<span class="kn">Section</span> <span class="nf">more_lists</span>.
+
+<span class="kn">Definition</span> <span class="nf">map</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A -&gt; B) : list A -&gt; list B :=
+  foldr (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">l</span>, cons (f a) l) nil.
+
+<span class="kn">Lemma</span> <span class="nf">mapStep</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A -&gt; B) (<span class="nv">a</span>:A) (<span class="nv">x</span>:list A) : map f (cons a x) = cons (f a) (map f x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Various unfolding lemmas *)</span>
+<span class="kn">Lemma</span> <span class="nf">foldr_nil</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A -&gt; B -&gt; B) (<span class="nv">b</span> : B) : foldr f b nil = b.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr_cons</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A -&gt; B -&gt; B) (<span class="nv">b</span> : B) (<span class="nv">x</span> : A) (<span class="nv">xs</span> : list A) :
+  foldr f b (cons x xs) = f x (foldr f b xs).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">map_nil</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A -&gt; B) : map f nil = nil.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">map_cons</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A -&gt; B) (<span class="nv">x</span> : A) (<span class="nv">xs</span> : list A) :
+  map f (cons x xs) = cons (f x) (map f xs).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">map_compose</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : UU} (<span class="nv">f</span> : A → B) (<span class="nv">g</span> : B → C) (<span class="nv">xs</span> : list A) :
+  map (g ∘ f) xs = map g (map f xs).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> xs. <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x xs IH. <span class="bp">now</span> <span class="nb">rewrite</span> !map_cons, IH.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">map_idfun</span> {<span class="nv">A</span> : UU} (<span class="nv">xs</span> : list A) :
+  map (idfun A) xs = xs.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> xs. <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x xs IH. <span class="bp">now</span> <span class="nb">rewrite</span> !map_cons, IH.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">map_homot</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} {<span class="nv">f</span> <span class="nv">g</span> : A → B} (<span class="nv">h</span> : f ~ g) (<span class="nv">xs</span> : list A) :
+  map f xs = map g xs.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> xs. <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x xs IH. <span class="bp">now</span> <span class="nb">rewrite</span> !map_cons, h, IH.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr1_nil</span> {<span class="nv">A</span>: UU} (<span class="nv">f</span> : A -&gt; A -&gt; A) (<span class="nv">a</span> : A) : foldr1 f a nil = a.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr1_cons_nil</span> {<span class="nv">A</span> : UU} (<span class="nv">f</span> : A -&gt; A -&gt; A) (<span class="nv">a</span> : A) (<span class="nv">x</span> : A) :
+  foldr1 f a (cons x nil) = x.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr1_cons</span> {<span class="nv">A</span> : UU} (<span class="nv">f</span> : A -&gt; A -&gt; A) (<span class="nv">a</span> : A) (<span class="nv">x</span> <span class="nv">y</span> : A) (<span class="nv">xs</span> : list A) :
+  foldr1 f a (cons x (cons y xs)) = f x (foldr1 f a (cons y xs)).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr1_map_nil</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : UU} (<span class="nv">f</span> : B -&gt; B -&gt; B) (<span class="nv">b</span> : B) (<span class="nv">h</span> : A -&gt; B) :
+  foldr1_map f b h nil = b.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr1_map_cons_nil</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : UU} (<span class="nv">f</span> : B -&gt; B -&gt; B) (<span class="nv">b</span> : B) (<span class="nv">h</span> : A -&gt; B)
+  (<span class="nv">x</span> : A) : foldr1_map f b h (cons x nil) = h x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr1_map_cons</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : UU} (<span class="nv">f</span> : B -&gt; B -&gt; B) (<span class="nv">b</span> : B) (<span class="nv">h</span> : A -&gt; B)
+  (<span class="nv">x</span> <span class="nv">y</span> : A) (<span class="nv">xs</span> : list A) :
+  foldr1_map f b h (cons x (cons y xs)) = f (h x) (foldr1_map f b h (cons y xs)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** an induction principle for [foldr1_map]</span>
+
+<span class="sd">    [P] takes the list argument [xs] of [foldr1_map] and the purported value of [foldr1_map f b h xs]</span>
+<span class="sd">    [P0] and [P1] ask that [P] is correct for lists of length &lt;=1</span>
+<span class="sd">    [P2] deals with longer lists and reflects the effect of adding a subsequent element [a2] to the list, where [res] keeps the</span>
+<span class="sd">    result of [foldr1_map f b h (cons a1 xs)] abstract</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">foldr1_map_ind</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : B -&gt; B -&gt; B) (<span class="nv">b</span> : B) (<span class="nv">h</span> : A -&gt; B) (<span class="nv">P</span> : list A -&gt; B -&gt; UU)
+  (<span class="nv">P0</span> : P nil b)
+  (<span class="nv">P1</span> : ∏ a, P (cons a nil) (h a))
+  (<span class="nv">P2</span> : ∏ a1 xs a2 res, P (cons a1 xs) res -&gt; P (cons a2 (cons a1 xs)) (f (h a2) res))
+  (<span class="nv">xs</span> : list A) : P xs (foldr1_map f b h xs).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> xs.
+  <span class="nb">induction</span> xs <span class="k">as</span> [[|n] xs].
+  - <span class="nb">induction</span> xs.
+    <span class="nb">apply</span> P0.
+  - <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+    + <span class="nb">induction</span> xs <span class="k">as</span> [m []].
+      <span class="nb">apply</span> P1.
+    + <span class="nb">induction</span> xs <span class="k">as</span> [m [k xs]].
+      <span class="nb">assert</span> (IHinst := IH (k,,xs)).
+      <span class="bp">exact</span> (P2 k (n,,xs) m (foldr1_map f b h (S n,, k,, xs)) IHinst).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">foldr1_map_ind_nodep</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : B -&gt; B -&gt; B) (<span class="nv">b</span> : B) (<span class="nv">h</span> : A -&gt; B) (<span class="nv">P</span> : B -&gt; UU)
+  (<span class="nv">P0</span> : P b)
+  (<span class="nv">P1</span> : ∏ a, P (h a))
+  (<span class="nv">P2</span> : ∏ a res, P res -&gt; P (f (h a) res))
+  (<span class="nv">xs</span> : list A) : P (foldr1_map f b h xs).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (Pdep := <span class="k">fun</span> (<span class="nv">_</span> : list A) (<span class="nv">res</span> : B) =&gt; P res).
+  <span class="nb">apply</span> (foldr1_map_ind f b h Pdep).
+  - <span class="bp">exact</span> P0.
+  - <span class="bp">exact</span> P1.
+  - <span class="nb">intros</span> a1 xs' a2 res H. <span class="nb">apply</span> P2. <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr1_foldr1_map</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : B -&gt; B -&gt; B) (<span class="nv">b</span> : B) (<span class="nv">h</span> : A -&gt; B) (<span class="nv">xs</span> : list A) :
+  foldr1_map f b h xs = foldr1 f b (map h xs).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (P := <span class="k">fun</span> <span class="nv">xs</span> <span class="nv">res</span> =&gt; res = foldr1 f b (map h xs)).
+  <span class="nb">apply</span> (foldr1_map_ind f b h P).
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> a. <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> a1 xs' a2 res H.
+    <span class="nb">red</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> map_cons.
+    <span class="nb">rewrite</span> foldr1_cons.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">red</span> <span class="k">in</span> H.
+    <span class="nb">rewrite</span> map_cons <span class="k">in</span> H.
+    <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">more_lists</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[]"</span> := nil (<span class="kn">at level</span> <span class="mi">0</span>, <span class="kn">format</span> <span class="s2">"[]"</span>).
+<span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"::"</span> := cons.
+
+<span class="sd">(** concatenate two lists  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">concatenate</span> {<span class="nv">X</span>} : list X -&gt; list X -&gt; list X
+  := <span class="k">λ</span> <span class="nv">r</span> <span class="nv">s</span>, foldr cons s r.
+
+<span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"++"</span> := concatenate.
+
+<span class="kn">Lemma</span> <span class="nf">concatenateStep</span> {<span class="nv">X</span>} (<span class="nv">x</span>:X) (<span class="nv">r</span> <span class="nv">s</span>:list X) :
+  (x::r) ++ s = x :: (r ++ s).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nil_concatenate</span> {<span class="nv">X</span>} (<span class="nv">r</span> : list X) : nil ++ r = r.
+<span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">concatenate_nil</span> {<span class="nv">X</span>} (<span class="nv">r</span> : list X) : r ++ nil = r.
+<span class="kn">Proof</span>. <span class="nb">revert</span> r. <span class="nb">apply</span> list_ind. <span class="nb">apply</span> idpath. <span class="nb">intros</span> x xs p. <span class="bp">exact</span> (maponpaths (cons x) p). <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">assoc_concatenate</span> {<span class="nv">X</span>} (<span class="nv">r</span> <span class="nv">s</span> <span class="nv">t</span> : list X) : (r ++ s) ++ t = r ++ (s ++ t).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> r. <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x xs p. <span class="bp">now</span> <span class="nb">rewrite</span> !concatenateStep, p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">map_concatenate</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span> : X → Y) (<span class="nv">r</span> <span class="nv">s</span> : list X) : map f (r ++ s) = map f r ++ map f s.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> r. <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x xs p. <span class="bp">now</span> <span class="nb">rewrite</span> mapStep, !concatenateStep, mapStep, p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr_concatenate</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X → Y) (<span class="nv">l</span> : list X) :
+  foldr concatenate [] (map (<span class="k">λ</span> <span class="nv">x</span>, f x::[]) l) = map f l.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l. <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x l IH. <span class="bp">now</span> <span class="nb">rewrite</span> !map_cons, foldr_cons, IH.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr1_map_concatenate</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X → Y) (<span class="nv">l</span> : list X) :
+  map f l = foldr1_map concatenate [] (<span class="k">λ</span> <span class="nv">x</span>, f x::[]) l.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (P := <span class="k">fun</span> <span class="nv">xs</span> <span class="nv">res</span> =&gt; map f xs = res).
+  <span class="nb">refine</span> (foldr1_map_ind _ _ _ P _ _ _ l).
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span>; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x' l' x'' res Hyp.
+    <span class="bp">exact</span> (maponpaths (cons (f x'')) Hyp).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr1_concatenate</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X → Y) (<span class="nv">l</span> : list X) :
+  map f l = foldr1 concatenate [] (map (<span class="k">λ</span> <span class="nv">x</span>, f x::[]) l).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (foldr1_map_concatenate _ _ @ _).
+  <span class="nb">apply</span> foldr1_foldr1_map.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Append a single element to a list *)</span>
+
+<span class="kn">Definition</span> <span class="nf">append</span> {<span class="nv">X</span>} (<span class="nv">x</span> : X) (<span class="nv">l</span> : list X) : list X :=
+  l ++ x::[].
+
+<span class="kn">Lemma</span> <span class="nf">appendStep</span> {<span class="nv">X</span>} (<span class="nv">x</span> <span class="nv">y</span> : X) (<span class="nv">l</span> : list X) : append x (y::l) = y::append x l.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">append_concatenate</span> {<span class="nv">X</span>} (<span class="nv">x</span> : X) (<span class="nv">l</span> <span class="nv">s</span> : list X) : append x (l ++ s) = l ++ append x s.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> assoc_concatenate. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">map_append</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span> : X → Y) (<span class="nv">x</span> : X) (<span class="nv">r</span> : list X) : map f (append x r) = append (f x) (map f r).
+  <span class="kn">Proof</span>. <span class="bp">exact</span> (map_concatenate _ _ _). <span class="kn">Defined</span>.
+
+<span class="sd">(** Reverse a list *)</span>
+
+<span class="kn">Definition</span> <span class="nf">reverse</span> {<span class="nv">X</span>} : list X → list X :=
+  foldr append [].
+
+<span class="kn">Lemma</span> <span class="nf">reverse_nil</span> (<span class="nv">X</span> : <span class="kt">Type</span>) : reverse (@nil X) = [].
+<span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">reverseStep</span> {<span class="nv">X</span>} (<span class="nv">x</span> : X) (<span class="nv">r</span> : list X) : reverse (x::r) = append x (reverse r).
+<span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">map_reverse</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span> : X → Y) (<span class="nv">r</span> : list X) : map f (reverse r) = reverse (map f r).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> r. <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x xs p. <span class="bp">now</span> <span class="nb">rewrite</span> mapStep, !reverseStep, map_append, p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">reverse_concatenate</span> {<span class="nv">X</span>} (<span class="nv">l</span> <span class="nv">s</span> : list X) : reverse (l ++ s) = reverse s ++ reverse l.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l. <span class="nb">apply</span> list_ind.
+  - <span class="nb">symmetry</span>. <span class="nb">apply</span> concatenate_nil.
+  - <span class="nb">intros</span> x xs p. <span class="bp">now</span> <span class="nb">rewrite</span> concatenateStep, !reverseStep, p, append_concatenate.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">reverse_append</span> {<span class="nv">X</span>} (<span class="nv">x</span> : X) (<span class="nv">l</span> : list X) : reverse (append x l) = x :: reverse l.
+<span class="kn">Proof</span>. <span class="nb">unfold</span> append. <span class="bp">now</span> <span class="nb">rewrite</span> reverse_concatenate, reverseStep, reverse_nil. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">reverse_reverse</span> {<span class="nv">X</span>} (<span class="nv">r</span> : list X) : reverse (reverse r) = r.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> r. <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x xs p. <span class="bp">now</span> <span class="nb">rewrite</span> !reverseStep, reverse_append, p.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** flatten lists of lists  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">flatten</span> {<span class="nv">X</span>} : list (list X) → list X.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> list_ind.
+  + <span class="bp">exact</span> [].
+  + <span class="nb">intros</span> s _ f. <span class="bp">exact</span> (concatenate s f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">flattenStep</span> {<span class="nv">X</span>} (<span class="nv">x</span>:list X) (<span class="nv">m</span> : list(list X)) : flatten (x::m) = concatenate x (flatten m).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> flatten.
+  <span class="nb">rewrite</span> list_ind_compute_2.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isofhlevellist</span> (<span class="nv">n</span> : nat) {<span class="nv">X</span> : UU} (<span class="nv">is1</span> : isofhlevel (S (S n)) X) : isofhlevel (S (S n)) (list X).
+<span class="kn">Proof</span>.
+  use isofhleveltotal2.
+  - <span class="nb">intros</span> m k. <span class="nb">apply</span> isofhlevelsnprop, isasetnat.
+  - <span class="nb">intro</span> m. <span class="nb">apply</span> isofhlevelvec, is1.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Combinatorics/Lists.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Tactics.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.Tactics.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Combinatorics.StandardFiniteSets.
+  &gt; Require Import UniMath.Combinatorics.Vectors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

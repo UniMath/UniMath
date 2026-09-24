@@ -1,0 +1,604 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Sum.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Sum types in comprehension categories</span>
+
+<span class="sd"> We defined when a comprehension category is equipped with a universe type, and we constructed</span>
+<span class="sd"> a biequivalence between the bicategory of univalent DFL full comprehension categories with a</span>
+<span class="sd"> universe type and the bicategory of univalent categories with finite limits and a universe</span>
+<span class="sd"> type. Our next goal is to extended this biequivalence to cover universes that are closed under</span>
+<span class="sd"> certain type formers as well. We consider various type formers, and these are given in various</span>
+<span class="sd"> files. In this file, we consider codes for sum types. We use the same ideas for each type</span>
+<span class="sd"> former, and these are explained in the file `Constant.v`</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Codes for sum types</span>
+<span class="sd"> 2. Accessors and builders</span>
+<span class="sd"> 3. Stability</span>
+
+<span class="sd">                                                                                           *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.ComprehensionPreservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUnivProps.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatExamples.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="kn">Section</span> <span class="nf">TypesInCompCatUniv</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : dfl_full_comp_cat_with_univ).
+
+  <span class="kn">Let</span> <span class="nf">el</span> : comp_cat_univ_type (dfl_full_comp_cat_ob C)
+    := dfl_full_comp_cat_el C.
+
+  <span class="kn">Section</span> <span class="nf">SumCode</span>.
+    <span class="kn">Context</span> (<span class="nv">HC</span> : fiberwise_cat_property
+                    stable_bincoproducts_local_property
+                    (dfl_full_comp_cat_with_univ_types C)).
+
+    <span class="sd">(** * 1. Codes for sum types *)</span>
+    <span class="kn">Definition</span> <span class="nf">sum_in_comp_cat_univ</span>
+      : UU
+      := ∏ (Γ : C)
+           (a b : tm Γ (dfl_full_comp_cat_univ Γ))
+           (A := comp_cat_univ_el el a)
+           (B := comp_cat_univ_el el b),
+         ∑ (sum : tm Γ (dfl_full_comp_cat_univ Γ))
+           (f : z_iso
+                  (Γ &amp; coprod_local_property_sum HC A B)
+                  (Γ &amp; comp_cat_univ_el el sum)),
+         f · π _ = π _.
+
+    <span class="kn">Proposition</span> <span class="nf">isaset_sum_in_comp_cat_univ</span>
+      : isaset sum_in_comp_cat_univ.
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">3</span> (use impred_isaset ; <span class="nb">intro</span>).
+      use isaset_total2.
+      - <span class="nb">apply</span> isaset_comp_cat_tm.
+      - <span class="nb">intro</span>.
+        use isaset_total2.
+        + <span class="nb">apply</span> isaset_z_iso.
+        + <span class="nb">intro</span>.
+          <span class="nb">apply</span> isasetaprop.
+          <span class="nb">apply</span> homset_property.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** * 2. Accessors and builders *)</span>
+    <span class="kn">Definition</span> <span class="nf">make_sum_in_comp_cat_univ</span>
+               (<span class="nv">sum</span> : ∏ (Γ : C)
+                        (a b : tm Γ (dfl_full_comp_cat_univ Γ)),
+                      tm Γ (dfl_full_comp_cat_univ Γ))
+               (<span class="nv">f</span> : ∏ (Γ : C)
+                      (a b : tm Γ (dfl_full_comp_cat_univ Γ)),
+                    z_iso
+                      (Γ &amp; coprod_local_property_sum
+                             HC
+                             (comp_cat_univ_el el a)
+                             (comp_cat_univ_el el b))
+                      (Γ &amp; comp_cat_univ_el el (sum Γ a b)))
+               (<span class="nv">p</span> : ∏ (Γ : C)
+                      (a b : tm Γ (dfl_full_comp_cat_univ Γ)),
+                    f Γ a b · π _ = π _)
+    : sum_in_comp_cat_univ
+    := <span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">a</span> <span class="nv">b</span>, sum Γ a b ,, f Γ a b ,, p Γ a b.
+
+    <span class="kn">Definition</span> <span class="nf">sum_in_comp_cat_univ_code</span>
+               (<span class="nv">sum</span> : sum_in_comp_cat_univ)
+               {<span class="nv">Γ</span> : C}
+               (<span class="nv">a</span> <span class="nv">b</span> : tm Γ (dfl_full_comp_cat_univ Γ))
+      : tm Γ (dfl_full_comp_cat_univ Γ)
+      := pr1 (sum Γ a b).
+
+    <span class="kn">Definition</span> <span class="nf">sum_in_comp_cat_univ_z_iso</span>
+               (<span class="nv">sum</span> : sum_in_comp_cat_univ)
+               {<span class="nv">Γ</span> : C}
+               (<span class="nv">a</span> <span class="nv">b</span> : tm Γ (dfl_full_comp_cat_univ Γ))
+      : z_iso
+          (Γ &amp; coprod_local_property_sum
+                 HC
+                 (comp_cat_univ_el el a)
+                 (comp_cat_univ_el el b))
+          (Γ &amp; comp_cat_univ_el el (sum_in_comp_cat_univ_code sum a b))
+      := pr12 (sum Γ a b).
+
+    <span class="kn">Proposition</span> <span class="nf">sum_in_comp_cat_univ_comm</span>
+                (<span class="nv">sum</span> : sum_in_comp_cat_univ)
+                {<span class="nv">Γ</span> : C}
+                (<span class="nv">a</span> <span class="nv">b</span> : tm Γ (dfl_full_comp_cat_univ Γ))
+      : sum_in_comp_cat_univ_z_iso sum a b · π _ = π _.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr22 (sum Γ a b)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">sum_in_comp_cat_univ_z_iso_fiber</span>
+               (<span class="nv">sum</span> : sum_in_comp_cat_univ)
+               {<span class="nv">Γ</span> : C}
+               (<span class="nv">a</span> <span class="nv">b</span> : tm Γ (dfl_full_comp_cat_univ Γ))
+      : z_iso
+          (C := fiber_category _ _)
+          (coprod_local_property_sum
+             HC
+             (comp_cat_univ_el el a)
+             (comp_cat_univ_el el b))
+          (comp_cat_univ_el el (sum_in_comp_cat_univ_code sum a b)).
+    <span class="kn">Proof</span>.
+      use cod_iso_to_type_iso.
+      - <span class="bp">exact</span> (sum_in_comp_cat_univ_z_iso sum a b).
+      - <span class="bp">exact</span> (sum_in_comp_cat_univ_comm sum a b).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">sum_in_comp_cat_univ_code_eq</span>
+                (<span class="nv">sum</span> : sum_in_comp_cat_univ)
+                {<span class="nv">Γ</span> : C}
+                {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">b'</span> : tm Γ (dfl_full_comp_cat_univ Γ)}
+                (<span class="nv">p</span> : a = a')
+                (<span class="nv">q</span> : b = b')
+      : sum_in_comp_cat_univ_code sum a b
+        =
+        sum_in_comp_cat_univ_code sum a' b'.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> p, q.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">sum_in_comp_cat_univ_z_iso_eq</span>
+                (<span class="nv">sum</span> : sum_in_comp_cat_univ)
+                {<span class="nv">Γ</span> : C}
+                {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">b'</span> : tm Γ (dfl_full_comp_cat_univ Γ)}
+                (<span class="nv">p</span> : a = a')
+                (<span class="nv">q</span> : b = b')
+      : (sum_in_comp_cat_univ_z_iso sum a b : _ --&gt; _)
+        =
+        comp_cat_comp_mor
+          (BinCoproductOfArrows
+             _
+             (coprod_local_property_bincoproduct
+                HC
+                (comp_cat_univ_el el a)
+                (comp_cat_univ_el el b))
+             _
+             (comp_cat_el_map_on_eq el p)
+             (comp_cat_el_map_on_eq el q))
+        · sum_in_comp_cat_univ_z_iso sum a' b'
+        · comp_cat_comp_mor
+            (comp_cat_el_map_on_eq
+               el
+               (!(sum_in_comp_cat_univ_code_eq sum p q))).
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> p, q ; <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> BinCoproduct_of_identities.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> comp_cat_comp_mor_id.
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ comp_cat_comp_mor_id _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (comp_cat_el_map_on_idpath el _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">sum_in_comp_cat_univ_eq</span>
+                {<span class="nv">sum₁</span> <span class="nv">sum₂</span> : sum_in_comp_cat_univ}
+                (<span class="nv">p</span> : ∏ (Γ : C)
+                       (a b : tm Γ (dfl_full_comp_cat_univ Γ)),
+                     sum_in_comp_cat_univ_code sum₁ a b
+                     =
+                     sum_in_comp_cat_univ_code sum₂ a b)
+                (<span class="nv">q</span> : ∏ (Γ : C)
+                       (a b : tm Γ (dfl_full_comp_cat_univ Γ)),
+                     sum_in_comp_cat_univ_z_iso sum₁ a b
+                     · comp_cat_comp_mor (comp_cat_el_map_on_eq el (p Γ a b))
+                     =
+                     sum_in_comp_cat_univ_z_iso sum₂ a b)
+      : sum₁ = sum₂.
+    <span class="kn">Proof</span>.
+      use funextsec ; <span class="nb">intro</span> Γ.
+      use funextsec ; <span class="nb">intro</span> a.
+      use funextsec ; <span class="nb">intro</span> b.
+      use total2_paths_f.
+      - <span class="bp">exact</span> (p Γ a b).
+      - use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">rewrite</span> pr1_transportf.
+        use z_iso_eq.
+        etrans.
+        {
+          <span class="nb">apply</span> (pr1_transportf
+                   (P := <span class="k">λ</span> (<span class="nv">x</span> : tm Γ (dfl_full_comp_cat_univ Γ))
+                           (<span class="nv">f</span> : Γ &amp; coprod_local_property_sum HC _ _
+                                --&gt;
+                                Γ &amp; comp_cat_univ_el el x),
+                      is_z_isomorphism _)).
+        }
+        etrans.
+        {
+          <span class="bp">exact</span> (transportf_comp_cat_univ_el' el (p Γ a b) _).
+        }
+        <span class="bp">exact</span> (q Γ a b).
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** * 3. Stability *)</span>
+    <span class="kn">Definition</span> <span class="nf">sum_in_comp_cat_univ_is_stable</span>
+               (<span class="nv">sum</span> : sum_in_comp_cat_univ)
+      : UU
+      := ∏ (Γ Δ : C)
+           (s : Γ --&gt; Δ)
+           (a b : tm Δ (dfl_full_comp_cat_univ Δ)),
+         ∑ (p : sum_in_comp_cat_univ_code sum a b [[ s ]]tm ↑ sub_dfl_comp_cat_univ s
+                =
+                sum_in_comp_cat_univ_code sum
+                  (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+                  (b [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)),
+         sum_in_comp_cat_univ_z_iso
+           sum
+           (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+           (b [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+         · comp_cat_comp_mor
+             (comp_cat_el_map_on_eq el (!p)
+              · inv_from_z_iso (comp_cat_univ_el_stable el s _))
+         · comp_cat_extend_over _ s
+         =
+         comp_cat_comp_mor_over
+           _
+           (coprod_local_property_sum_functor
+              HC
+              (inv_from_z_iso (comp_cat_univ_el_stable el s a))
+              (inv_from_z_iso (comp_cat_univ_el_stable el s b))
+            · inv_from_z_iso (coprod_local_property_subst_z_iso HC s _ _))
+         · sum_in_comp_cat_univ_z_iso sum a b.
+
+    <span class="kn">Proposition</span> <span class="nf">isaprop_sum_in_comp_cat_univ_is_stable</span>
+                (<span class="nv">sum</span> : sum_in_comp_cat_univ)
+      : isaprop (sum_in_comp_cat_univ_is_stable sum).
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">5</span> (use impred ; <span class="nb">intro</span>).
+      use isaproptotal2.
+      - <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      - <span class="nb">intros</span>.
+        <span class="nb">apply</span> isaset_comp_cat_tm.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">stable_sum_in_comp_cat_univ</span>
+      : UU
+      := ∑ (sum : sum_in_comp_cat_univ),
+         sum_in_comp_cat_univ_is_stable sum.
+
+    <span class="kn">Definition</span> <span class="nf">make_stable_sum_in_comp_cat_univ</span>
+               (<span class="nv">sum</span> : sum_in_comp_cat_univ)
+               (<span class="nv">H</span> : sum_in_comp_cat_univ_is_stable sum)
+      : stable_sum_in_comp_cat_univ
+      := sum ,, H.
+
+    <span class="kn">Proposition</span> <span class="nf">isaset_stable_sum_in_comp_cat_univ</span>
+      : isaset stable_sum_in_comp_cat_univ.
+    <span class="kn">Proof</span>.
+      use isaset_total2.
+      - <span class="bp">exact</span> isaset_sum_in_comp_cat_univ.
+      - <span class="nb">intro</span> x.
+        <span class="nb">apply</span> isasetaprop.
+        <span class="nb">apply</span> isaprop_sum_in_comp_cat_univ_is_stable.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Coercion</span> <span class="nf">stable_sum_in_comp_cat_univ_to_codes</span>
+             (sum : stable_sum_in_comp_cat_univ)
+      : sum_in_comp_cat_univ
+      := pr1 sum.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_sum_in_comp_cat_univ_code_stable</span>
+                (<span class="nv">sum</span> : stable_sum_in_comp_cat_univ)
+                {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+                (<span class="nv">s</span> : Γ --&gt; Δ)
+                (<span class="nv">a</span> <span class="nv">b</span> : tm Δ (dfl_full_comp_cat_univ Δ))
+      : sum_in_comp_cat_univ_code sum a b [[ s ]]tm ↑ sub_dfl_comp_cat_univ s
+        =
+        sum_in_comp_cat_univ_code sum
+          (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+          (b [[ s ]]tm ↑ sub_dfl_comp_cat_univ s).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr1 (pr2 sum Γ Δ s a b)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_sum_in_comp_cat_univ_code_stable_mor</span>
+                (<span class="nv">sum</span> : stable_sum_in_comp_cat_univ)
+                {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+                (<span class="nv">s</span> : Γ --&gt; Δ)
+                (<span class="nv">a</span> <span class="nv">b</span> : tm Δ (dfl_full_comp_cat_univ Δ))
+      : s
+        · sum_in_comp_cat_univ_code sum a b
+        · comprehension_functor_mor
+            (comp_cat_comprehension C)
+            (cleaving_of_types _ _ _ _ _)
+        =
+        sum_in_comp_cat_univ_code
+          sum
+          (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+          (b [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+        · PullbackPr1 (comp_cat_pullback _ _).
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (maponpaths pr1 (stable_sum_in_comp_cat_univ_code_stable sum s a b)) <span class="k">as</span> p.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (!p).
+      }
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (comp_cat_comp_mor_sub_dfl_comp_cat_univ C s).
+      }
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> subst_comp_cat_tm_pr1.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_sum_in_comp_cat_univ_z_iso_stable</span>
+                (<span class="nv">sum</span> : stable_sum_in_comp_cat_univ)
+                {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+                (<span class="nv">s</span> : Γ --&gt; Δ)
+                (<span class="nv">a</span> <span class="nv">b</span> : tm Δ (dfl_full_comp_cat_univ Δ))
+      : sum_in_comp_cat_univ_z_iso
+           sum
+           (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+           (b [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+        · comp_cat_comp_mor
+            (comp_cat_el_map_on_eq el (!(stable_sum_in_comp_cat_univ_code_stable sum s a b))
+             · inv_from_z_iso (comp_cat_univ_el_stable el s _))
+        · comp_cat_extend_over _ s
+        =
+        comp_cat_comp_mor_over
+          _
+          (coprod_local_property_sum_functor
+             HC
+             (inv_from_z_iso (comp_cat_univ_el_stable el s a))
+             (inv_from_z_iso (comp_cat_univ_el_stable el s b))
+           · inv_from_z_iso (coprod_local_property_subst_z_iso HC s _ _))
+        · sum_in_comp_cat_univ_z_iso sum a b.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr2 (pr2 sum Γ Δ s a b)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_sum_in_comp_cat_univ_z_iso_stable_in1</span>
+                (<span class="nv">sum</span> : stable_sum_in_comp_cat_univ)
+                {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+                (<span class="nv">s</span> : Γ --&gt; Δ)
+                (<span class="nv">a</span> <span class="nv">b</span> : tm Δ (dfl_full_comp_cat_univ Δ))
+      : comp_cat_comp_mor (inv_from_z_iso (comp_cat_univ_el_stable el s a))
+        · comprehension_functor_mor
+            (comp_cat_comprehension
+               (dfl_full_comp_cat_with_univ_types C))
+            (comp_cat_subst (comp_cat_univ_el el a) s
+             ;; BinCoproductIn1
+                  (coprod_local_property_bincoproduct
+                     HC
+                     (comp_cat_univ_el el a)
+                     (comp_cat_univ_el el b)))
+        · sum_in_comp_cat_univ_z_iso sum a b
+        =
+        comp_cat_comp_mor (BinCoproductIn1 (coprod_local_property_bincoproduct HC _ _))
+        · comp_cat_comp_mor_over
+            _
+            (coprod_local_property_sum_functor
+               HC
+               (inv_from_z_iso (comp_cat_univ_el_stable el s a))
+               (inv_from_z_iso (comp_cat_univ_el_stable el s b))
+             · inv_from_z_iso (coprod_local_property_subst_z_iso HC s _ _))
+        · sum_in_comp_cat_univ_z_iso sum a b.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!(comp_cat_comp_mor_comp _ _) @ _).
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">refine</span> (assoc (C := fiber_category _ _) _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> BinCoproductIn1Commutes.
+        }
+        <span class="nb">refine</span> (assoc' (C := fiber_category _ _) _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinCoproductIn1Commutes.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> comp_cat_comp_mor_comp.
+        }
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="bp">exact</span> (!(comprehension_functor_mor_comp _ _ _)).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> cartesian_factorisation_commutes.
+        }
+        <span class="nb">apply</span> comprehension_functor_mor_transportf.
+      }
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_sum_in_comp_cat_univ_z_iso_stable_in2</span>
+                (<span class="nv">sum</span> : stable_sum_in_comp_cat_univ)
+                {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+                (<span class="nv">s</span> : Γ --&gt; Δ)
+                (<span class="nv">a</span> <span class="nv">b</span> : tm Δ (dfl_full_comp_cat_univ Δ))
+      : comp_cat_comp_mor (inv_from_z_iso (comp_cat_univ_el_stable el s b))
+        · comprehension_functor_mor
+            (comp_cat_comprehension
+               (dfl_full_comp_cat_with_univ_types C))
+            (comp_cat_subst (comp_cat_univ_el el b) s
+             ;; BinCoproductIn2
+                  (coprod_local_property_bincoproduct
+                     HC
+                     (comp_cat_univ_el el a)
+                     (comp_cat_univ_el el b)))
+        · sum_in_comp_cat_univ_z_iso sum a b
+        =
+        comp_cat_comp_mor (BinCoproductIn2 (coprod_local_property_bincoproduct HC _ _))
+        · comp_cat_comp_mor_over
+            _
+            (coprod_local_property_sum_functor
+               HC
+               (inv_from_z_iso (comp_cat_univ_el_stable el s a))
+               (inv_from_z_iso (comp_cat_univ_el_stable el s b))
+             · inv_from_z_iso (coprod_local_property_subst_z_iso HC s _ _))
+        · sum_in_comp_cat_univ_z_iso sum a b.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!(comp_cat_comp_mor_comp _ _) @ _).
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">refine</span> (assoc (C := fiber_category _ _) _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> BinCoproductIn2Commutes.
+        }
+        <span class="nb">refine</span> (assoc' (C := fiber_category _ _) _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinCoproductIn2Commutes.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> comp_cat_comp_mor_comp.
+        }
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="bp">exact</span> (!(comprehension_functor_mor_comp _ _ _)).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> cartesian_factorisation_commutes.
+        }
+        <span class="nb">apply</span> comprehension_functor_mor_transportf.
+      }
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_sum_in_comp_cat_univ_eq</span>
+                {<span class="nv">sum₁</span> <span class="nv">sum₂</span> : stable_sum_in_comp_cat_univ}
+                (<span class="nv">p</span> : ∏ (Γ : C)
+                       (a b : tm Γ (dfl_full_comp_cat_univ Γ)),
+                     sum_in_comp_cat_univ_code sum₁ a b
+                     =
+                     sum_in_comp_cat_univ_code sum₂ a b)
+                (<span class="nv">q</span> : ∏ (Γ : C)
+                       (a b : tm Γ (dfl_full_comp_cat_univ Γ)),
+                     sum_in_comp_cat_univ_z_iso sum₁ a b
+                     · comp_cat_comp_mor (comp_cat_el_map_on_eq el (p Γ a b))
+                     =
+                     sum_in_comp_cat_univ_z_iso sum₂ a b)
+      : sum₁ = sum₂.
+    <span class="kn">Proof</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_sum_in_comp_cat_univ_is_stable.
+      }
+      use sum_in_comp_cat_univ_eq.
+      - <span class="bp">exact</span> p.
+      - <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">SumCode</span>.
+<span class="kn">End</span> <span class="nf">TypesInCompCatUniv</span>.
+
+<span class="kn">Arguments</span> sum_in_comp_cat_univ_code {C} HC sum {Γ} a b.
+<span class="kn">Arguments</span> sum_in_comp_cat_univ_z_iso {C} HC sum {Γ} a b.
+<span class="kn">Arguments</span> sum_in_comp_cat_univ_comm {C} HC sum {Γ} a b.
+<span class="kn">Arguments</span> sum_in_comp_cat_univ_z_iso_fiber {C} HC sum {Γ} a b.
+<span class="kn">Arguments</span> stable_sum_in_comp_cat_univ_code_stable {C} HC sum {Γ Δ} s a b.
+<span class="kn">Arguments</span> stable_sum_in_comp_cat_univ_z_iso_stable {C} HC sum {Γ Δ} s a b.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/CompCatTypes/Sum.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Stability
+  &gt;
+  &gt;                                                                                            *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Terminal.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

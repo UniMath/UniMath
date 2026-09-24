@@ -1,0 +1,811 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisjointBinCoproducts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Disjoint and stable binary coproducts</span>
+
+<span class="sd"> In this file, we define several properties that binary coproducts could satisfy. These are</span>
+<span class="sd"> - Disjointness</span>
+<span class="sd"> - Stability under pullback.</span>
+<span class="sd"> These properties are used when defining extensive categories. An extensive category is a</span>
+<span class="sd"> category with finite coproducts such that coproducts are disjoint and stable under pullback,</span>
+<span class="sd"> and such that pullbacks exist of coproduct injections.</span>
+
+<span class="sd"> Disjointness is easy to formulate. The requirements are that the coproduct injections are</span>
+<span class="sd"> monomorphic and that their intersection is given by the initial object.</span>
+
+<span class="sd"> However, more subtleties come up when defining stability under pullback of coproducts. The</span>
+<span class="sd"> main challenge here lies in the requirements that you put on the category. If you require</span>
+<span class="sd"> that all pullbacks exist, then it suffices to require that the pullback functor between</span>
+<span class="sd"> slice categories preserves binary coproducts. In certain cases, however, one does not want</span>
+<span class="sd"> to rely the assumption that the category has all pullbacks. In fact, to define extensiveness,</span>
+<span class="sd"> one usually does not assume all pullbacks (see, e.g., Definition 2.1 in "Introduction to</span>
+<span class="sd"> extensive and distributive categories" by Carboni, Lack, and Walters).</span>
+
+<span class="sd"> For this reason, we define stability of binary coproducts without assuming the existence</span>
+<span class="sd"> of all pullbacks. The full definition is given in ([stable_bincoproducts]), and basically,</span>
+<span class="sd"> it says that whenever we have pullbacks of objects `a` and `b`, then the canonical square</span>
+<span class="sd"> involving the binary coproduct is also a pullback. In diagrams: if we have pullbacks</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd"> ap -----&gt; a</span>
+<span class="sd"> |         |</span>
+<span class="sd"> |         |</span>
+<span class="sd"> V         V</span>
+<span class="sd"> x ------&gt; y</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd"> and</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd"> bp -----&gt; b</span>
+<span class="sd"> |         |</span>
+<span class="sd"> |         |</span>
+<span class="sd"> V         V</span>
+<span class="sd"> x ------&gt; y</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd"> then we also have a pullback</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd"> ap + bp -----&gt; a + b</span>
+<span class="sd">    |             |</span>
+<span class="sd">    |             |</span>
+<span class="sd">    V             V</span>
+<span class="sd">    x ----------&gt; y</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd"> where the involved maps are defined via the universal property.</span>
+
+<span class="sd"> We also show that this definition of stability is equivalent to the pullback functors</span>
+<span class="sd"> preserving binary coprduct if the involved category has pullbacks. This proof is a tedious</span>
+<span class="sd"> verification of facts.</span>
+
+<span class="sd"> Referenes</span>
+<span class="sd"> - "Introduction to extensive and distributive categories" by Carboni, Lack, and Walters</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Disjoint binary coproducts</span>
+<span class="sd"> 2. Stable binary coproducts</span>
+<span class="sd"> 3. Characterization of stable binary coproducts</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Disjoint binary coproducts *)</span>
+<span class="kn">Proposition</span> <span class="nf">bincoproduct_intersection</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">BC</span> : BinCoproducts C)
+            (<span class="nv">I</span> : Initial C)
+            (<span class="nv">x</span> <span class="nv">y</span> : C)
+  : InitialArrow I x · BinCoproductIn1 (BC x y)
+    =
+    InitialArrow I y · BinCoproductIn2 (BC x y).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> InitialArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disjoint_bincoproducts</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">BC</span> : BinCoproducts C)
+           (<span class="nv">I</span> : Initial C)
+  : UU
+  := ∏ (x y : C),
+     isMonic (BinCoproductIn1 (BC x y))
+     ×
+     isMonic (BinCoproductIn2 (BC x y))
+     ×
+     isPullback (bincoproduct_intersection BC I x y).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_disjoint_bincoproducts</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">BC</span> : BinCoproducts C)
+            (<span class="nv">I</span> : Initial C)
+  : isaprop (disjoint_bincoproducts BC I).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+  <span class="kp">repeat</span> (use isapropdirprod).
+  - <span class="nb">apply</span> isapropisMonic.
+  - <span class="nb">apply</span> isapropisMonic.
+  - <span class="nb">apply</span> isaprop_isPullback.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Stable binary coproducts *)</span>
+<span class="kn">Section</span> <span class="nf">StableBinCoproducts</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">BC</span> : BinCoproducts C).
+
+  <span class="kn">Section</span> <span class="nf">Diagram</span>.
+    <span class="kn">Context</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">ap</span> <span class="nv">bp</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">g₁</span> : a --&gt; y)
+            (<span class="nv">g₂</span> : b --&gt; y)
+            (<span class="nv">π₁</span> : ap --&gt; a)
+            (<span class="nv">π₂</span> : ap --&gt; x)
+            (<span class="nv">ρ₁</span> : bp --&gt; b)
+            (<span class="nv">ρ₂</span> : bp --&gt; x).
+
+    <span class="kn">Let</span> <span class="nf">ab</span> : BinCoproduct a b := BC a b.
+
+    <span class="kn">Let</span> <span class="nf">apbp</span> : BinCoproduct ap bp := BC ap bp.
+
+    <span class="kn">Definition</span> <span class="nf">bincoproduct_slice_mor</span>
+      : ab --&gt; y
+      := BinCoproductArrow ab g₁ g₂.
+
+    <span class="kn">Definition</span> <span class="nf">bincoproduct_pb_slice_mor</span>
+      : apbp --&gt; x
+      := BinCoproductArrow apbp π₂ ρ₂.
+
+    <span class="kn">Definition</span> <span class="nf">pb_bincoproduct_mor</span>
+      : apbp --&gt; ab
+      := BinCoproductArrow apbp (π₁ · BinCoproductIn1 ab) (ρ₁ · BinCoproductIn2 ab).
+  <span class="kn">End</span> <span class="nf">Diagram</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">bincoproduct_pb_diag</span>
+              {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">ap</span> <span class="nv">bp</span> : C}
+              {<span class="nv">f</span> : x --&gt; y}
+              {<span class="nv">g₁</span> : a --&gt; y}
+              {<span class="nv">g₂</span> : b --&gt; y}
+              {<span class="nv">π₁</span> : ap --&gt; a}
+              {<span class="nv">π₂</span> : ap --&gt; x}
+              {<span class="nv">ρ₁</span> : bp --&gt; b}
+              {<span class="nv">ρ₂</span> : bp --&gt; x}
+              (<span class="nv">p</span> : π₁ · g₁ = π₂ · f)
+              (<span class="nv">q</span> : ρ₁ · g₂ = ρ₂ · f)
+    : pb_bincoproduct_mor π₁ ρ₁ · bincoproduct_slice_mor g₁ g₂
+      =
+      bincoproduct_pb_slice_mor π₂ ρ₂ · f.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> bincoproduct_slice_mor, bincoproduct_pb_slice_mor, pb_bincoproduct_mor.
+    use BinCoproductArrowsEq ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !BinCoproductIn1Commutes.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+      <span class="nb">rewrite</span> p.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !BinCoproductIn2Commutes.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">stable_bincoproducts</span>
+    : UU
+    := ∏ (a b x y ap bp : C)
+         (f : x --&gt; y)
+         (g₁ : a --&gt; y)
+         (g₂ : b --&gt; y)
+         (π₁ : ap --&gt; a)
+         (π₂ : ap --&gt; x)
+         (ρ₁ : bp --&gt; b)
+         (ρ₂ : bp --&gt; x)
+         (p : π₁ · g₁ = π₂ · f)
+         (q : ρ₁ · g₂ = ρ₂ · f)
+         (H₁ : isPullback p)
+         (H₂ : isPullback q),
+       isPullback (bincoproduct_pb_diag p q).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_stable_bincoproducts</span>
+    : isaprop stable_bincoproducts.
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">17</span> (use impred ; <span class="nb">intro</span>) ; <span class="nb">cbn</span> -[isofhlevel].
+    <span class="nb">apply</span> isaprop_isPullback.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">StableBinCoproducts</span>.
+
+<span class="sd">(** * 3. Characterization of stable binary coproducts *)</span>
+<span class="kn">Section</span> <span class="nf">StableBinCoproductsCharacterization</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">BC</span> : BinCoproducts C)
+          (<span class="nv">PB</span> : Pullbacks C).
+
+  <span class="kn">Section</span> <span class="nf">ToStable</span>.
+    <span class="kn">Context</span> (<span class="nv">H</span> : ∏ (x y : C)
+                   (f : x --&gt; y),
+                 preserves_bincoproduct (cod_pb PB f))
+            {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">ap</span> <span class="nv">bp</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">g₁</span> : a --&gt; y)
+            (<span class="nv">g₂</span> : b --&gt; y)
+            (<span class="nv">π₁</span> : ap --&gt; a)
+            (<span class="nv">π₂</span> : ap --&gt; x)
+            (<span class="nv">ρ₁</span> : bp --&gt; b)
+            (<span class="nv">ρ₂</span> : bp --&gt; x)
+            (<span class="nv">p</span> : π₁ · g₁ = π₂ · f)
+            (<span class="nv">q</span> : ρ₁ · g₂ = ρ₂ · f)
+            (<span class="nv">H₁</span> : isPullback p)
+            (<span class="nv">H₂</span> : isPullback q).
+
+    <span class="kn">Let</span> <span class="nf">ab</span> : BinCoproduct a b := BC a b.
+    <span class="kn">Let</span> <span class="nf">apbp</span> : BinCoproduct ap bp := BC ap bp.
+    <span class="kn">Let</span> <span class="nf">ζ</span> : C/x := make_cod_fib_ob (bincoproduct_pb_slice_mor BC π₂ ρ₂).
+    <span class="kn">Let</span> <span class="nf">Hab</span> : isBinCoproduct _ _ _ _ _ _ := isBinCoproduct_BinCoproduct _ ab.
+    <span class="kn">Let</span> <span class="nf">ag₁</span> : C/y := make_cod_fib_ob g₁.
+    <span class="kn">Let</span> <span class="nf">bg₂</span> : C/y := make_cod_fib_ob g₂.
+    <span class="kn">Let</span> <span class="nf">sum</span> : C/y := make_cod_fib_ob (bincoproduct_slice_mor BC g₁ g₂).
+
+    <span class="kn">Local Definition</span> <span class="nf">stable_from_pb_preserves_bincoproduct_in1</span>
+      : ag₁ --&gt; sum.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_mor.
+      - <span class="nb">apply</span> BinCoproductIn1.
+      - <span class="kp">abstract</span>
+          (<span class="nb">apply</span> BinCoproductIn1Commutes).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">ι₁</span> : ag₁ --&gt; sum := stable_from_pb_preserves_bincoproduct_in1.
+
+    <span class="kn">Local Definition</span> <span class="nf">stable_from_pb_preserves_bincoproduct_in2</span>
+      : bg₂ --&gt; sum.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_mor.
+      - <span class="nb">apply</span> BinCoproductIn2.
+      - <span class="kp">abstract</span>
+          (<span class="nb">apply</span> BinCoproductIn2Commutes).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">ι₂</span> : bg₂ --&gt; sum := stable_from_pb_preserves_bincoproduct_in2.
+
+    <span class="kn">Let</span> <span class="nf">pb</span> : Pullback (bincoproduct_slice_mor BC g₁ g₂) f
+      := PB y (BC a b) x (bincoproduct_slice_mor BC g₁ g₂) f.
+
+    <span class="kn">Let</span> <span class="nf">pb_sum</span> : BinCoproduct (cod_pb PB f ag₁) (cod_pb PB f bg₂)
+      := make_BinCoproduct
+           _ _ _ _ _ _
+           (H x y f
+              _ _ _ _ _
+              (to_bincoproduct_slice ι₁ ι₂ (isBinCoproduct_BinCoproduct _ (BC a b)))).
+
+    <span class="kn">Let</span> <span class="nf">φa</span> : z_iso ap (PB y a x g₁ f)
+      := z_iso_from_Pullback_to_Pullback (make_Pullback _ H₁) (PB y a x g₁ f).
+
+    <span class="kn">Let</span> <span class="nf">φb</span> : z_iso bp (PB y b x g₂ f)
+      := z_iso_from_Pullback_to_Pullback (make_Pullback _ H₂) (PB y b x g₂ f).
+
+    <span class="kn">Definition</span> <span class="nf">stable_from_pb_preserves_bincoproduct_mor_help</span>
+      : pb_sum --&gt; ζ.
+    <span class="kn">Proof</span>.
+      use (BinCoproductArrow pb_sum (c := ζ)).
+      - use make_cod_fib_mor.
+        + <span class="bp">exact</span> (inv_from_z_iso φa · BinCoproductIn1 _).
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">unfold</span> bincoproduct_pb_slice_mor ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> BinCoproductIn1Commutes ;
+             <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (make_Pullback p H₁))).
+      - use make_cod_fib_mor.
+        + <span class="bp">exact</span> (inv_from_z_iso φb · BinCoproductIn2 _).
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">unfold</span> bincoproduct_pb_slice_mor ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> BinCoproductIn2Commutes ;
+             <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (make_Pullback q H₂))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">hp</span> : pb_sum --&gt; ζ
+      := stable_from_pb_preserves_bincoproduct_mor_help.
+
+    <span class="kn">Definition</span> <span class="nf">stable_from_pb_preserves_bincoproduct_mor</span>
+      : pb --&gt; BC ap bp
+      := dom_mor stable_from_pb_preserves_bincoproduct_mor_help.
+
+    <span class="kn">Definition</span> <span class="nf">stable_from_pb_preserves_bincoproduct_inv</span>
+      : BC ap bp --&gt; pb.
+    <span class="kn">Proof</span>.
+      use BinCoproductArrow.
+      - <span class="bp">exact</span> (φa · dom_mor (BinCoproductIn1 pb_sum)).
+      - <span class="bp">exact</span> (φb · dom_mor (BinCoproductIn2 pb_sum)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_from_pb_preserves_bincoproduct_inv_eq</span>
+      : stable_from_pb_preserves_bincoproduct_inv · cod_mor pb_sum = cod_mor ζ.
+    <span class="kn">Proof</span>.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> stable_from_pb_preserves_bincoproduct_inv.
+      <span class="nb">unfold</span> bincoproduct_pb_slice_mor.
+      use BinCoproductArrowsEq.
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> !BinCoproductIn1Commutes.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">assert</span> (dom_mor (BinCoproductIn1 pb_sum) = dom_mor (#(cod_pb PB f) ι₁))
+          <span class="k">as</span> r.
+        {
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> r.
+        <span class="nb">rewrite</span> cod_fiber_functor_on_mor.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">unfold</span> from_Pullback_to_Pullback.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> !BinCoproductIn2Commutes.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">assert</span> (dom_mor (BinCoproductIn2 pb_sum) = dom_mor (#(cod_pb PB f) ι₂))
+          <span class="k">as</span> r.
+        {
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> r.
+        <span class="nb">rewrite</span> cod_fiber_functor_on_mor.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">unfold</span> from_Pullback_to_Pullback.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">stable_from_pb_preserves_bincoproduct_inv_slice</span>
+      : ζ --&gt; pb_sum.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_mor.
+      - <span class="bp">exact</span> stable_from_pb_preserves_bincoproduct_inv.
+      - <span class="bp">exact</span> stable_from_pb_preserves_bincoproduct_inv_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">hp_inv</span> : ζ --&gt; pb_sum
+      := stable_from_pb_preserves_bincoproduct_inv_slice.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_from_pb_preserves_bincoproduct_inverses</span>
+      : is_inverse_in_precat
+          stable_from_pb_preserves_bincoproduct_mor
+          stable_from_pb_preserves_bincoproduct_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> stable_from_pb_preserves_bincoproduct_inv.
+      <span class="nb">split</span>.
+      - <span class="nb">refine</span> (_ @ maponpaths
+                      dom_mor
+                      (BinCoproductArrowsEq
+                         _ _ _
+                         pb_sum _
+                         (hp · hp_inv) (identity _)
+                         _ _)).
+        + <span class="nb">rewrite</span> comp_in_cod_fib.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc.
+          <span class="nb">unfold</span> hp, hp_inv, stable_from_pb_preserves_bincoproduct_mor_help.
+          <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+          use eq_mor_cod_fib.
+          <span class="nb">rewrite</span> comp_in_cod_fib.
+          <span class="nb">simpl</span>.
+          <span class="nb">unfold</span> stable_from_pb_preserves_bincoproduct_inv.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(id_right _)).
+        + <span class="nb">rewrite</span> !assoc.
+          <span class="nb">unfold</span> hp, hp_inv, stable_from_pb_preserves_bincoproduct_mor_help.
+          <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+          use eq_mor_cod_fib.
+          <span class="nb">rewrite</span> comp_in_cod_fib.
+          <span class="nb">simpl</span>.
+          <span class="nb">unfold</span> stable_from_pb_preserves_bincoproduct_inv.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(id_right _)).
+      - use BinCoproductArrowsEq.
+        + <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+          <span class="nb">unfold</span> stable_from_pb_preserves_bincoproduct_mor.
+          <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="bp">exact</span> (comp_in_cod_fib
+                     (BinCoproductIn1 pb_sum)
+                     stable_from_pb_preserves_bincoproduct_mor_help).
+          }
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> BinCoproductIn1Commutes.
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (z_iso_inv_after_z_iso φa).
+          }
+          <span class="nb">apply</span> id_left.
+        + <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+          <span class="nb">unfold</span> stable_from_pb_preserves_bincoproduct_mor.
+          <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="bp">exact</span> (comp_in_cod_fib
+                     (BinCoproductIn2 pb_sum)
+                     stable_from_pb_preserves_bincoproduct_mor_help).
+          }
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> BinCoproductIn2Commutes.
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (z_iso_inv_after_z_iso φb).
+          }
+          <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">stable_from_pb_preserves_bincoproduct_z_iso</span>
+      : z_iso pb (BC ap bp).
+    <span class="kn">Proof</span>.
+      use make_z_iso.
+      - <span class="bp">exact</span> stable_from_pb_preserves_bincoproduct_mor.
+      - <span class="bp">exact</span> stable_from_pb_preserves_bincoproduct_inv.
+      - <span class="bp">exact</span> stable_from_pb_preserves_bincoproduct_inverses.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_from_pb_preserves_bincoproduct_left</span>
+      : stable_from_pb_preserves_bincoproduct_mor
+        · pb_bincoproduct_mor BC π₁ ρ₁
+        =
+        PullbackPr1 pb.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!_).
+      use (z_iso_inv_to_left _ _ _ stable_from_pb_preserves_bincoproduct_z_iso).
+      <span class="nb">cbn</span>.
+      use BinCoproductArrowsEq.
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">unfold</span> stable_from_pb_preserves_bincoproduct_inv.
+        <span class="nb">unfold</span> pb_bincoproduct_mor.
+        <span class="nb">rewrite</span> !BinCoproductIn1Commutes.
+        <span class="nb">assert</span> (dom_mor (BinCoproductIn1 pb_sum) = dom_mor (#(cod_pb PB f) ι₁))
+          <span class="k">as</span> r.
+        {
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> r.
+        <span class="nb">rewrite</span> cod_fiber_functor_on_mor.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">unfold</span> from_Pullback_to_Pullback.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">unfold</span> stable_from_pb_preserves_bincoproduct_inv.
+        <span class="nb">unfold</span> pb_bincoproduct_mor.
+        <span class="nb">rewrite</span> !BinCoproductIn2Commutes.
+        <span class="nb">assert</span> (dom_mor (BinCoproductIn2 pb_sum) = dom_mor (#(cod_pb PB f) ι₂))
+          <span class="k">as</span> r.
+        {
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> r.
+        <span class="nb">rewrite</span> cod_fiber_functor_on_mor.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">unfold</span> from_Pullback_to_Pullback.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_from_pb_preserves_bincoproduct_right</span>
+      : stable_from_pb_preserves_bincoproduct_mor
+        · bincoproduct_pb_slice_mor BC π₂ ρ₂
+        =
+        PullbackPr2 pb.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!_).
+      use (z_iso_inv_to_left _ _ _ stable_from_pb_preserves_bincoproduct_z_iso).
+      <span class="nb">cbn</span>.
+      use BinCoproductArrowsEq.
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">unfold</span> stable_from_pb_preserves_bincoproduct_inv.
+        <span class="nb">unfold</span> bincoproduct_pb_slice_mor.
+        <span class="nb">rewrite</span> !BinCoproductIn1Commutes.
+        <span class="nb">assert</span> (dom_mor (BinCoproductIn1 pb_sum) = dom_mor (#(cod_pb PB f) ι₁))
+          <span class="k">as</span> r.
+        {
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> r.
+        <span class="nb">rewrite</span> cod_fiber_functor_on_mor.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">unfold</span> from_Pullback_to_Pullback.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">unfold</span> stable_from_pb_preserves_bincoproduct_inv.
+        <span class="nb">unfold</span> bincoproduct_pb_slice_mor.
+        <span class="nb">rewrite</span> !BinCoproductIn2Commutes.
+        <span class="nb">assert</span> (dom_mor (BinCoproductIn2 pb_sum) = dom_mor (#(cod_pb PB f) ι₂))
+          <span class="k">as</span> r.
+        {
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> r.
+        <span class="nb">rewrite</span> cod_fiber_functor_on_mor.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">unfold</span> from_Pullback_to_Pullback.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_from_pb_preserves_bincoproduct</span>
+      : isPullback (bincoproduct_pb_diag BC p q).
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (isPullback_z_iso
+                       _ _
+                       (isPullback_Pullback pb)
+                       _ _ _).
+      - <span class="bp">exact</span> stable_from_pb_preserves_bincoproduct_z_iso.
+      - <span class="bp">exact</span> stable_from_pb_preserves_bincoproduct_left.
+      - <span class="bp">exact</span> stable_from_pb_preserves_bincoproduct_right.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ToStable</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">stable_bincoproducts_from_pb_preserves_bincoproduct</span>
+              (<span class="nv">H</span> : ∏ (x y : C)
+                     (f : x --&gt; y),
+                   preserves_bincoproduct (cod_pb PB f))
+    : stable_bincoproducts BC.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b x y ab bp f g₁ g₂ π₁ π₂ ρ₁ ρ₂ p q H₁ H₂.
+    <span class="bp">exact</span> (stable_from_pb_preserves_bincoproduct H _ _ _ _ _ _ _ _ _ H₁ H₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">FromStable</span>.
+    <span class="kn">Context</span> (<span class="nv">H</span> : stable_bincoproducts BC)
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">ag₁</span> <span class="nv">bg₂</span> : C / y).
+
+    <span class="kn">Let</span> <span class="nf">a</span> : C := cod_dom ag₁.
+    <span class="kn">Let</span> <span class="nf">g₁</span> : a --&gt; y := cod_mor ag₁.
+
+    <span class="kn">Let</span> <span class="nf">b</span> : C := cod_dom bg₂.
+    <span class="kn">Let</span> <span class="nf">g₂</span> : b --&gt; y := cod_mor bg₂.
+
+    <span class="kn">Let</span> <span class="nf">ap</span> : Pullback g₁ f := PB _ _ _ g₁ f.
+    <span class="kn">Let</span> <span class="nf">π₁</span> : ap --&gt; a := PullbackPr1 ap.
+    <span class="kn">Let</span> <span class="nf">π₂</span> : ap --&gt; x := PullbackPr2 ap.
+
+    <span class="kn">Let</span> <span class="nf">bp</span> : Pullback g₂ f := PB _ _ _ g₂ f.
+    <span class="kn">Let</span> <span class="nf">ρ₁</span> : bp --&gt; b := PullbackPr1 bp.
+    <span class="kn">Let</span> <span class="nf">ρ₂</span> : bp --&gt; x := PullbackPr2 bp.
+
+    <span class="kn">Let</span> <span class="nf">p</span> : π₁ · g₁ = π₂ · f := PullbackSqrCommutes ap.
+    <span class="kn">Let</span> <span class="nf">q</span> : ρ₁ · g₂ = ρ₂ · f := PullbackSqrCommutes bp.
+
+    <span class="kn">Let</span> <span class="nf">Hap</span> : isPullback p := isPullback_Pullback ap.
+    <span class="kn">Let</span> <span class="nf">Hbp</span> : isPullback q := isPullback_Pullback bp.
+
+    <span class="kn">Let</span> <span class="nf">Hpb</span> : Pullback (bincoproduct_slice_mor BC g₁ g₂) f
+      := make_Pullback _ (H a b x y ap bp f g₁ g₂ π₁ π₂ ρ₁ ρ₂ p q Hap Hbp).
+
+    <span class="kn">Let</span> <span class="nf">ab</span> : BinCoproduct a b := BC a b.
+
+    <span class="kn">Let</span> <span class="nf">apbp</span> : BinCoproduct ap bp := BC ap bp.
+
+    <span class="kn">Definition</span> <span class="nf">from_stable_mor</span>
+      : apbp
+        --&gt;
+        PB y (BC a b) x (cod_fib_coproduct_ob_mor ag₁ bg₂ (BC a b)) f.
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - <span class="bp">exact</span> (PullbackPr1 Hpb).
+      - <span class="bp">exact</span> (PullbackPr2 Hpb).
+      - <span class="kp">abstract</span>
+          (<span class="nb">apply</span> (PullbackSqrCommutes Hpb)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">from_stable_inv</span>
+      : PB y (BC a b) x (cod_fib_coproduct_ob_mor ag₁ bg₂ (BC a b)) f
+        --&gt;
+        apbp.
+    <span class="kn">Proof</span>.
+      use (PullbackArrow Hpb).
+      - <span class="nb">apply</span> PullbackPr1.
+      - <span class="nb">apply</span> PullbackPr2.
+      - <span class="kp">abstract</span>
+          (<span class="nb">apply</span> PullbackSqrCommutes).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">from_stable_inverses</span>
+      : is_inverse_in_precat from_stable_mor from_stable_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> from_stable_mor, from_stable_inv.
+      <span class="nb">split</span>.
+      - use (MorphismsIntoPullbackEqual (isPullback_Pullback Hpb)).
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> (PullbackArrow_PullbackPr1 Hpb).
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> (PullbackArrow_PullbackPr2 Hpb).
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+      - use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> (PullbackArrow_PullbackPr1 Hpb).
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> (PullbackArrow_PullbackPr2 Hpb).
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">from_stable_in1</span>
+      : dom_mor (cod_fiber_functor_pb
+                   PB
+                   f
+                   (BinCoproductIn1 (bincoproducts_cod_fib y BC ag₁ bg₂)))
+        =
+        BinCoproductIn1 apbp · from_stable_mor.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> from_stable_mor ; <span class="nb">cbn</span>.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+        <span class="nb">unfold</span> pb_bincoproduct_mor.
+        <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+        <span class="nb">unfold</span> bincoproduct_pb_slice_mor.
+        <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">from_stable_in2</span>
+      : dom_mor (cod_fiber_functor_pb
+                   PB
+                   f
+                   (BinCoproductIn2 (bincoproducts_cod_fib y BC ag₁ bg₂)))
+        =
+        BinCoproductIn2 apbp · from_stable_mor.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> from_stable_mor ; <span class="nb">cbn</span>.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+        <span class="nb">unfold</span> pb_bincoproduct_mor.
+        <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+        <span class="nb">unfold</span> bincoproduct_pb_slice_mor.
+        <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">from_stable</span>
+      : isBinCoproduct
+          (C/x)
+          (cod_pb PB f ag₁)
+          (cod_pb PB f bg₂)
+          (cod_pb PB f (bincoproducts_cod_fib y BC ag₁ bg₂))
+          (#(cod_pb PB f) (BinCoproductIn1 (bincoproducts_cod_fib y BC ag₁ bg₂)))
+          (#(cod_pb PB f) (BinCoproductIn2 (bincoproducts_cod_fib y BC ag₁ bg₂))).
+    <span class="kn">Proof</span>.
+      use to_bincoproduct_slice.
+      <span class="nb">rewrite</span> !cod_fiber_functor_on_mor.
+      use (isBinCoproduct_z_iso (isBinCoproduct_BinCoproduct _ apbp)).
+      - use make_z_iso.
+        + <span class="bp">exact</span> from_stable_mor.
+        + <span class="bp">exact</span> from_stable_inv.
+        + <span class="bp">exact</span> from_stable_inverses.
+      - <span class="bp">exact</span> from_stable_in1.
+      - <span class="bp">exact</span> from_stable_in2.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FromStable</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pb_preserves_bincoproduct_from_stable_bincoproducts</span>
+              (<span class="nv">H</span> : stable_bincoproducts BC)
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+    : preserves_bincoproduct (cod_pb PB f).
+  <span class="kn">Proof</span>.
+    use preserves_bincoproduct_if_preserves_chosen.
+    {
+      use bincoproducts_cod_fib.
+      <span class="bp">exact</span> BC.
+    }
+    <span class="nb">intros</span> ag₁ bg₂.
+    <span class="nb">apply</span> from_stable.
+    <span class="bp">exact</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pb_preserves_bincoproduct_weq_stable</span>
+    : stable_bincoproducts BC
+      ≃
+      (∏ (x y : C)
+         (f : x --&gt; y),
+       preserves_bincoproduct (cod_pb PB f)).
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> @pb_preserves_bincoproduct_from_stable_bincoproducts.
+    - <span class="bp">exact</span> stable_bincoproducts_from_pb_preserves_bincoproduct.
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> isaprop_stable_bincoproducts).
+    - <span class="kp">abstract</span>
+        (<span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>) ;
+         <span class="nb">apply</span> isaprop_preserves_bincoproduct).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">StableBinCoproductsCharacterization</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/DisjointBinCoproducts.v</tt>, line 71)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Characterization of stable binary coproducts
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

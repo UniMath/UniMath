@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StrictPseudoFunctorBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** This is the third and final layer of the construction of the bicategory of strict pseudofunctors.</span>
+<span class="sd">    Here we add the laws.</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Base.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.StrictIdentitor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.StrictCompositor.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">StrictPseudoFunctorData</span>.
+  <span class="kn">Variable</span> (<span class="nv">C</span> <span class="nv">D</span> : bicat).
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_data_disp</span> : disp_bicat (map1cells C D)
+    := disp_dirprod_bicat
+         (map2cells_disp_cat C D)
+         (disp_dirprod_bicat
+            (strict_identitor_disp_cat C D)
+            (strict_compositor_disp_cat C D)).
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_data_bicat</span> : bicat
+    := total_bicat strict_psfunctor_data_disp.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_data</span> : UU
+    := strict_psfunctor_data_bicat.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_data_is_univalent_2_1</span>
+             (<span class="nv">HD_2_1</span> : is_univalent_2_1 D)
+    : is_univalent_2_1 strict_psfunctor_data_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_2_1_total_dirprod.
+    - <span class="nb">apply</span> map1cells_is_univalent_2_1.
+      <span class="bp">exact</span> HD_2_1.
+    - <span class="nb">apply</span> map2cells_is_disp_univalent_2_1.
+    - <span class="nb">apply</span> is_univalent_2_1_dirprod_bicat.
+      + <span class="nb">apply</span> strict_identitor_is_disp_univalent_2_1.
+      + <span class="nb">apply</span> strict_compositor_is_disp_univalent_2_1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_data_is_univalent_2_0</span>
+             (<span class="nv">HD</span> : is_univalent_2 D)
+    : is_univalent_2_0 strict_psfunctor_data_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (HD_2_1 := pr2 HD).
+    <span class="nb">apply</span> is_univalent_2_0_total_dirprod.
+    - <span class="nb">apply</span> map1cells_is_univalent_2; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> map2cells_is_disp_univalent_2; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> is_univalent_2_dirprod_bicat.
+      + <span class="nb">apply</span> map1cells_is_univalent_2_1; <span class="bp">assumption</span>.
+      + <span class="nb">apply</span> strict_identitor_is_disp_univalent_2; <span class="bp">assumption</span>.
+      + <span class="nb">apply</span> strict_compositor_is_disp_univalent_2; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_data_is_univalent_2</span>
+             (<span class="nv">HD</span> : is_univalent_2 D)
+    : is_univalent_2 strict_psfunctor_data_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> strict_psfunctor_data_is_univalent_2_0; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> strict_psfunctor_data_is_univalent_2_1.
+      <span class="bp">exact</span> (pr2 HD).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">StrictPseudoFunctorData</span>.
+
+<span class="kn">Coercion</span> <span class="nf">functor_data_from_bifunctor_ob_mor_cell</span>
+         {C D : bicat}
+         (F: strict_psfunctor_data C D)
+  : functor_data C D
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">strict_psfunctor_on_cells</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : strict_psfunctor_data C D)
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           (<span class="nv">x</span> : f ==&gt; g)
+  : #F f ==&gt; #F g
+  := pr12 F a b f g x.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'##'"</span> := (strict_psfunctor_on_cells).
+
+<span class="kn">Definition</span> <span class="nf">strict_psfunctor_id</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : strict_psfunctor_data C D)
+           (<span class="nv">a</span> : C)
+  : identity (F a) = #F (identity a)
+  := pr122 F a.
+
+<span class="kn">Definition</span> <span class="nf">strict_psfunctor_comp</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : strict_psfunctor_data C D)
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+           (<span class="nv">f</span> : a --&gt; b)
+           (<span class="nv">g</span> : b --&gt; c)
+  : #F f · #F g = #F (f · g)
+  := pr222 F a b c f g.
+
+<span class="kn">Definition</span> <span class="nf">strict_psfunctor_id_cell</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : strict_psfunctor_data C D)
+           (<span class="nv">a</span> : C)
+  : invertible_2cell (id₁ (F a)) (# F (id₁ a))
+  := idtoiso_2_1 _ _ (strict_psfunctor_id F a).
+
+<span class="kn">Definition</span> <span class="nf">strict_psfunctor_comp_cell</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : strict_psfunctor_data C D)
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+           (<span class="nv">f</span> : a --&gt; b)
+           (<span class="nv">g</span> : b --&gt; c)
+  : invertible_2cell (# F f · # F g) (# F (f · g))
+  := idtoiso_2_1 _ _ (strict_psfunctor_comp F f g).
+
+<span class="kn">Section</span> <span class="nf">FunctorLaws</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : bicat}.
+  <span class="kn">Variable</span> (<span class="nv">F</span> : strict_psfunctor_data C D).
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_id2_law</span>
+    : UU
+    := ∏ (a b : C) (f : a --&gt; b), ##F (id2 f) = id2 _.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_vcomp2_law</span> : UU
+    := ∏ (a b : C) (f g h: C⟦a, b⟧) (η : f ==&gt; g) (φ : g ==&gt; h),
+       ##F (η • φ) = ##F η • ##F φ.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_lunitor_law</span> : UU
+    := ∏ (a b : C) (f : C⟦a, b⟧),
+       lunitor (#F f)
+       =
+       (strict_psfunctor_id_cell F a ▹ #F f)
+         • strict_psfunctor_comp_cell F (identity a) f
+         • ##F (lunitor f).
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_runitor_law</span> : UU
+    := ∏ (a b : C) (f : C⟦a, b⟧),
+       runitor (#F f)
+       =
+       (#F f ◃ strict_psfunctor_id_cell F b)
+         • strict_psfunctor_comp_cell F f (identity b)
+         • ##F (runitor f).
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_lassociator_law</span> : UU
+    := ∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧),
+       (#F f ◃ strict_psfunctor_comp_cell F g h)
+         • strict_psfunctor_comp_cell F f (g · h)
+         • ##F (lassociator f g h)
+       =
+       (lassociator (#F f) (#F g) (#F h))
+         • (strict_psfunctor_comp_cell F f g ▹ #F h)
+         • strict_psfunctor_comp_cell F (f · g) h.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_lwhisker_law</span> : UU
+    := ∏ (a b c : C) (f : C⟦a, b⟧) (g₁ g₂ : C⟦b, c⟧) (η : g₁ ==&gt; g₂),
+       strict_psfunctor_comp_cell F f g₁ • ##F (f ◃ η)
+       =
+       #F f ◃ ##F η • strict_psfunctor_comp_cell F f g₂.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_rwhisker_law</span> : UU
+    := ∏ (a b c : C) (f₁ f₂ : C⟦a, b⟧) (g : C⟦b, c⟧) (η : f₁ ==&gt; f₂),
+       strict_psfunctor_comp_cell F f₁ g • ##F (η ▹ g)
+       =
+       ##F η ▹ #F g • strict_psfunctor_comp_cell F f₂ g.
+
+  <span class="kn">Definition</span> <span class="nf">is_strict_psfunctor</span> : UU
+    := strict_psfunctor_id2_law
+         × strict_psfunctor_vcomp2_law
+         × strict_psfunctor_lunitor_law
+         × strict_psfunctor_runitor_law
+         × strict_psfunctor_lassociator_law
+         × strict_psfunctor_lwhisker_law
+         × strict_psfunctor_rwhisker_law.
+
+  <span class="kn">Definition</span> <span class="nf">is_strict_psfunctor_isaprop</span>
+    : isaprop is_strict_psfunctor.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>)
+    ; <span class="nb">apply</span> D.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">FunctorLaws</span>.
+
+<span class="kn">Section</span> <span class="nf">StrictPseudoFunctorBicat</span>.
+  <span class="kn">Variable</span> (<span class="nv">C</span> <span class="nv">D</span> : bicat).
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_bicat</span>
+    : bicat
+    := fullsubbicat (strict_psfunctor_data_bicat C D) is_strict_psfunctor.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_bicat_is_univalent_2_1</span>
+             (<span class="nv">HD_2_1</span> : is_univalent_2_1 D)
+    : is_univalent_2_1 strict_psfunctor_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_2_1_fullsubbicat.
+    <span class="nb">apply</span> strict_psfunctor_data_is_univalent_2_1.
+    <span class="bp">exact</span> HD_2_1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_bicat_is_univalent_2_0</span>
+             (<span class="nv">HD</span> : is_univalent_2 D)
+    : is_univalent_2_0 strict_psfunctor_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_2_0_fullsubbicat.
+    - <span class="nb">apply</span> strict_psfunctor_data_is_univalent_2; <span class="bp">assumption</span>.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> is_strict_psfunctor_isaprop.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_bicat_is_univalent_2</span>
+             (<span class="nv">HD</span> : is_univalent_2 D)
+    : is_univalent_2 strict_psfunctor_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> strict_psfunctor_bicat_is_univalent_2_0; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> strict_psfunctor_bicat_is_univalent_2_1.
+      <span class="bp">exact</span> (pr2 HD).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">StrictPseudoFunctorBicat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Display/StrictPseudoFunctorBicat.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** This is the third and final layer of the construction of the bicategory of strict pseudofunctors.
+  &gt;     Here we add the laws.
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

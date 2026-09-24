@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>GraphPaths.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Author: Floris van Doorn, december 2017 *)</span>
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Subtypes.
+
+<span class="sd">(** Graphs.</span>
+
+<span class="sd">Contents:</span>
+<span class="sd">- paths in a graph (called gpaths to disambiguate from the identity type)</span>
+<span class="sd">- operations on paths</span>
+<span class="sd">*)</span>
+
+
+<span class="sd">(** In this file we consider graphs with a type of vertices and a type of edges between any pair of</span>
+<span class="sd">   vertices. We could restrict to sets, but there is no reason to do that here. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">issymmetric</span> {<span class="nv">V</span> : UU} (<span class="nv">E</span> : V → V → UU) : UU :=
+  ∏u v, E u v ≃ E v u.
+
+<span class="kn">Definition</span> <span class="nf">gpaths_of_length</span> {<span class="nv">V</span> : UU} (<span class="nv">E</span> : V → V → UU) (<span class="nv">v</span> <span class="nv">w</span> : V) (<span class="nv">n</span> : nat) : UU.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> v. <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  - <span class="nb">intro</span> v. <span class="bp">exact</span> (v = w).
+  - <span class="nb">intro</span> v. <span class="bp">exact</span> (∑u, E v u × IH u).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">gpaths</span> {<span class="nv">V</span> : UU} (<span class="nv">E</span> : V → V → UU) (<span class="nv">v</span> <span class="nv">w</span> : V) : UU :=
+  ∑n, gpaths_of_length E v w n.
+
+<span class="kn">Definition</span> <span class="nf">nil</span> {<span class="nv">V</span> : UU} {<span class="nv">E</span> : V → V → UU} (<span class="nv">v</span> : V) : gpaths E v v :=
+  (<span class="mi">0</span>,, idpath v).
+
+<span class="kn">Definition</span> <span class="nf">cons</span> {<span class="nv">V</span> : UU} {<span class="nv">E</span> : V → V → UU} {<span class="nv">w</span> <span class="nv">u</span> <span class="nv">v</span> : V} (<span class="nv">e</span> : E u v) (<span class="nv">p</span> : gpaths E v w) : gpaths E u w :=
+  (S (pr1 p),, (v,, (e,, pr2 p))).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[]"</span> := (nil _) (<span class="kn">at level</span> <span class="mi">0</span>, <span class="kn">format</span> <span class="s2">"[]"</span>).
+<span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"::"</span> := cons.
+
+<span class="kn">Lemma</span> <span class="nf">gpaths_ind</span> {<span class="nv">V</span> : UU} {<span class="nv">E</span> : V → V → UU} {<span class="nv">w</span> : V} (<span class="nv">P</span> : ∏{u}, gpaths E u w → UU)
+      (<span class="nv">H1</span> : P []) (<span class="nv">H2</span> : ∏{u v} (e : E u v) (p : gpaths E v w), P p → P (e :: p))
+      {<span class="nv">u</span> : V} (<span class="nv">p</span> : gpaths E u w) : P p.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p <span class="k">as</span> [n p]. <span class="nb">revert</span> u p. <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  - <span class="nb">induction</span> p. <span class="bp">exact</span> H1.
+  - <span class="nb">induction</span> p <span class="k">as</span> [v x]. <span class="nb">induction</span> x <span class="k">as</span> [e p]. <span class="nb">apply</span> (H2 _ _ _ (n,, p)).
+    <span class="nb">apply</span> IH.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">foldr</span> {<span class="nv">V</span> : UU} {<span class="nv">E</span> : V → V → UU} {<span class="nv">w</span> : V} {<span class="nv">B</span> : V → UU} (<span class="nv">f</span> : ∏{u v}, E u v → B v → B u)
+           (<span class="nv">b</span> : B w) : ∏{u : V}, gpaths E u w → B u.
+<span class="kn">Proof</span>. <span class="nb">apply</span> gpaths_ind. <span class="bp">exact</span> b. <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">u</span> <span class="nv">v</span> <span class="nv">e</span> <span class="nv">_</span> <span class="nv">b</span>, f u v e b). <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">concat</span> {<span class="nv">V</span> : UU} {<span class="nv">E</span> : V → V → UU} {<span class="nv">u</span> <span class="nv">v</span> <span class="nv">w</span> : V} (<span class="nv">p</span> : gpaths E u v) (<span class="nv">q</span> : gpaths E v w) :
+  gpaths E u w :=
+  foldr (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> , cons) q p.
+
+<span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"++"</span> := concat.
+
+<span class="kn">Definition</span> <span class="nf">append</span> {<span class="nv">V</span> : UU} {<span class="nv">E</span> : V → V → UU} {<span class="nv">u</span> <span class="nv">v</span> <span class="nv">w</span> : V} (<span class="nv">p</span> : gpaths E u v) (<span class="nv">e</span> : E v w) :
+  gpaths E u w :=
+  p ++ e::[].
+
+<span class="kn">Definition</span> <span class="nf">reverse</span> {<span class="nv">V</span> : UU} {<span class="nv">E</span> : V → V → UU} (<span class="nv">H</span> : issymmetric E) {<span class="nv">u</span> <span class="nv">v</span> : V} (<span class="nv">p</span> : gpaths E u v) :
+  gpaths E v u.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> u p. <span class="nb">apply</span> gpaths_ind.
+  - <span class="bp">exact</span> [].
+  - <span class="nb">intros</span> u u' e p q. <span class="bp">exact</span> (append q (invmap (H u' u) e)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">symmetric_closure</span> {<span class="nv">V</span> : UU} (<span class="nv">E</span> : V → V → UU) (<span class="nv">u</span> <span class="nv">v</span> : V) : UU :=
+E u v ⨿ E v u.
+
+<span class="kn">Definition</span> <span class="nf">issymmetric_symmetric_closure</span> {<span class="nv">V</span> : UU} (<span class="nv">E</span> : V → V → UU) :
+  issymmetric (symmetric_closure E) :=
+  <span class="k">λ</span> <span class="nv">u</span> <span class="nv">v</span>, weqcoprodcomm (E u v) (E v u).
+
+<span class="kn">Definition</span> <span class="nf">reverse_in_closure</span> {<span class="nv">V</span> : UU} {<span class="nv">E</span> : V → V → UU} {<span class="nv">u</span> <span class="nv">v</span> : V}
+           (<span class="nv">p</span> : gpaths (symmetric_closure E) u v) : gpaths (symmetric_closure E) v u :=
+  reverse (issymmetric_symmetric_closure E) p.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Combinatorics/GraphPaths.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Combinatorics/Lists.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** Author: Floris van Doorn, december 2017 *)&gt;&gt;&gt;Require Import UniMath.Combinatorics.Lists.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Subtypes.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

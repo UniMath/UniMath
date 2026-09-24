@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Tests.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Several tests for univeral algebra operations. *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.MoreLists.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.TermAlgebras.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.Examples.Nat.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.Examples.Bool.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> sorted.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hvec.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> list.
+
+<span class="kn">Section</span> <span class="nf">SortedTypes</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">A</span> : sUU bool := bool_rec _ nat unit.
+
+  <span class="kn">Goal</span> A⋆ (cons true (cons false (cons true nil))) = (nat × unit × nat × unit).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">SortedTypes</span>.
+
+<span class="kn">Section</span> <span class="nf">NatLowLevel</span>.
+
+  <span class="kn">Goal</span> Terms.opexec nat_succ_op (just [nat_sort]) = just [nat_sort].
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> Terms.opexec nat_succ_op (just []) = nothing.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">zero_one_oplist</span>: Terms.oplist nat_signature := [nat_zero_op ; nat_succ_op ; nat_zero_op].
+
+  <span class="kn">Local Definition</span> <span class="nf">one_oplist</span>: Terms.oplist nat_signature := [nat_succ_op ; nat_zero_op].
+
+  <span class="kn">Local Definition</span> <span class="nf">zero_oplist</span>: Terms.oplist nat_signature := [nat_zero_op].
+
+  <span class="kn">Goal</span> @Terms.oplistexec nat_signature [] = just [].
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> Terms.oplistexec one_oplist = just [nat_sort].
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> Terms.oplistexec zero_one_oplist = just [nat_sort ; nat_sort].
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> Terms.oplistexec [nat_succ_op] = nothing.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> Terms.isaterm nat_sort (nat2term <span class="mi">10</span>).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> Terms.stackconcatenate (just [nat_sort]) (just [nat_sort ; nat_sort])
+    = just [nat_sort ; nat_sort ; nat_sort].
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">one_term</span> : gterm nat_signature nat_sort := make_term(l:=one_oplist) (idpath _).
+
+  <span class="kn">Local Definition</span> <span class="nf">zero_term</span> : gterm nat_signature nat_sort := make_term(l:=zero_oplist) (idpath _).
+
+  <span class="kn">Goal</span> Terms.oplistsplit zero_one_oplist <span class="mi">0</span> = nil ,, zero_one_oplist.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> Terms.oplistsplit zero_one_oplist <span class="mi">1</span> = zero_oplist ,, one_oplist.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> Terms.vecoplist2oplist [( zero_oplist; one_oplist )] = zero_one_oplist.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> h1map_vec (<span class="k">λ</span> <span class="nv">_</span>, term2oplist) (pr1 (Terms.oplist2vecoplist zero_one_oplist (idpath _))) = vcons zero_oplist (vcons one_oplist vnil).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> pr1 (Terms.oplist2vecoplist zero_one_oplist (idpath _)) = vcons zero_term (vcons one_term vnil).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> Terms.oplist_build nat_succ_op [( zero_oplist )] = one_oplist.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">NatLowLevel</span>.
+
+<span class="kn">Section</span> <span class="nf">Nat</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">term_zero</span> := nat_zero.
+
+  <span class="kn">Local Definition</span> <span class="nf">term_one</span> := nat_succ nat_zero.
+
+  <span class="kn">Local Definition</span> <span class="nf">term_two</span> := nat_succ (nat_succ nat_zero).
+
+  <span class="kn">Local Definition</span> <span class="nf">term_four</span> := nat_succ (nat_succ (nat_succ (nat_succ nat_zero))).
+
+  <span class="kn">Goal</span> nat2term <span class="mi">4</span> = term_four.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="c">(* ----- term_decompose ----- *)</span>
+
+  <span class="c">(* works but slow, faster with lazy *)</span>
+  <span class="c">(* Eval compute in Terms.term_decompose term_one. *)</span>
+
+  <span class="kn">Goal</span> princop term_four = nat_succ_op.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> subterms term_one = [( term_zero )].
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> subterms term_two = [( term_one )] .
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> build_gterm (princop term_four) (subterms term_four) = term_four.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> depth term_four = <span class="mi">5</span>.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="c">(* works *)</span>
+  <span class="c">(* Eval lazy in depth term_four. *)</span>
+
+  <span class="c">(* does not terminate: compute is call-by-value, hence it needs to compute</span>
+<span class="c">     all the proofs involved in the recursion *)</span>
+  <span class="c">(* Eval compute in depth term_four. *)</span>
+
+  <span class="kn">Goal</span> geval nat_algebra tt term_zero = <span class="mi">0</span>.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> geval nat_algebra tt term_one = <span class="mi">1</span>.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> geval nat_algebra tt (nat2term <span class="mi">4</span>) = <span class="mi">4</span>.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Nat</span>.
+
+<span class="kn">Section</span> <span class="nf">NatHom</span>.
+
+  <span class="kn">Goal</span> ∏ x: nat, homid nat_algebra tt x = x.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">nat_algebra2</span>
+    := make_algebra_simple_single_sorted nat_signature natset [( <span class="k">λ</span> <span class="nv">_</span>, <span class="mi">1</span> ;  <span class="k">λ</span> <span class="nv">x</span>, S (pr1 x) )].
+
+  <span class="kn">Local Definition</span> <span class="nf">homnats</span>: hom nat_algebra nat_algebra2.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> (s: unit) (x: nat), S x).
+    <span class="nb">unfold</span> ishom.
+    <span class="nb">intros</span>.
+    <span class="nb">induction</span> nm <span class="k">as</span> [n proofn].
+    <span class="nb">induction</span> n.
+    { <span class="nb">cbn</span>. <span class="nb">apply</span> idpath. }
+    <span class="nb">induction</span> n.
+    { <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.     }
+    { <span class="bp">exact</span> (fromempty (nopathsfalsetotrue proofn)).  }
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Goal</span> homnats nat_sort <span class="mi">2</span> = <span class="mi">3</span>.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> homcomp (homid nat_algebra) homnats nat_sort <span class="mi">2</span> = <span class="mi">3</span>.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> unithom nat_algebra nat_sort <span class="mi">2</span> = tt.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">NatHom</span>.
+
+<span class="kn">Section</span> <span class="nf">Bool</span>.
+  <span class="kn">Import</span> UniMath.Algebra.Universal.Examples.Bool.GTerm.
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+  <span class="kn">Local Definition</span> <span class="nf">bot_op</span>  : names bool_signature := ●<span class="mi">0</span>.
+  <span class="kn">Local Definition</span> <span class="nf">top_op</span>  : names bool_signature := ●<span class="mi">1</span>.
+  <span class="kn">Local Definition</span> <span class="nf">neg_op</span>  : names bool_signature := ●<span class="mi">2</span>.
+  <span class="kn">Local Definition</span> <span class="nf">conj_op</span> : names bool_signature := ●<span class="mi">3</span>.
+  <span class="kn">Local Definition</span> <span class="nf">disj_op</span> : names bool_signature := ●<span class="mi">4</span>.
+  <span class="kn">Local Definition</span> <span class="nf">impl_op</span> : names bool_signature := ●<span class="mi">5</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">t1</span> := conj top bot.
+  <span class="kn">Local Definition</span> <span class="nf">t2</span> := neg t1.
+
+  <span class="kn">Goal</span> princop t1 = conj_op.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> term2oplist t2 = [ neg_op ; conj_op ; top_op ; bot_op ].
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> pr1 (Terms.oplistsplit (term2oplist t1) <span class="mi">0</span>) =  [].
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> pr2 (Terms.oplistsplit (term2oplist t1) <span class="mi">0</span>) = (term2oplist t1).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> pr1 (Terms.oplistsplit (term2oplist t1) <span class="mi">1</span>) = (term2oplist t1).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> pr2 (Terms.oplistsplit (term2oplist t1) <span class="mi">1</span>) = [].
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> subterms t2 = [( t1 )].
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> subterms t1 = [( top ; bot )].
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> depth t2 = <span class="mi">3</span>.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">simple_t</span> := neg (conj (disj top bot) (neg bot)).
+
+  <span class="kn">Local Lemma</span> <span class="nf">l1</span>: geval bool_algebra tt top = true.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">l2</span>: geval bool_algebra tt (neg top) = false.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">l3</span>: geval bool_algebra tt (conj top bot) = false.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">l4</span>: geval bool_algebra tt simple_t = false.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Bool</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Universal/Examples/Tests.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Several tests for univeral algebra operations. *)
+  &gt; (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Combinatorics.StandardFiniteSets.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

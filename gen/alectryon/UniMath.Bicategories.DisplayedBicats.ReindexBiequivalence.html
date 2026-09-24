@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ReindexBiequivalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Reindexing a displayed bicategory along a biequivalence</span>
+
+<span class="sd"> Given a pseudofunctor `F` from `B₁` to `B₂`, every displayed bicategory `D` over `B₂`</span>
+<span class="sd"> can be reindexed to obtain a displayed bicategory over `B₁`. If `F` happens to be part</span>
+<span class="sd"> of a biequivalence, then the reindexed displayed bicategory is biequivalent to `D`. In</span>
+<span class="sd"> this file, we construct the displayed biequivalence witnessing that biequivalence.</span>
+
+<span class="sd"> To construct the reindexed displayed bicategory, we made several simplifying assumptions,</span>
+<span class="sd"> namely that all displayed 2-cells with the same source and target are equal. Here we make</span>
+<span class="sd"> further simplifying assumptions, namely that the type of displayed 2-cells from `f` to `g`</span>
+<span class="sd"> is contractible. The reason is purely to simplify the involved computations.</span>
+
+<span class="sd"> There are a couple of interesting aspects in the construction of the desired displayed</span>
+<span class="sd"> biequivalence. To understand them, let us look at the construction. We denote the reindexed</span>
+<span class="sd"> displayed bicategory by `reindex_disp_bicat F D`. Note that we have a displayed pseudofunctor</span>
+<span class="sd"> from `reindex_disp_bicat F D` to `D`, which sends every `xx : (reindex_disp_bicat F D) x`</span>
+<span class="sd"> (which is the same as `xx : D(F x)`) to `xx : D(F x)`. This pseudofunctor can be constructed</span>
+<span class="sd"> without any problem. Now if `G` is the inverse of `F` given by the biequivalence, then we</span>
+<span class="sd"> must also construct a displayed functor from `D` to `reindex_disp_bicat F D` over `G`. Given</span>
+<span class="sd"> an object `xx : D x`, we must construct an object `(reindex_disp_bicat F D) (G x)`, which</span>
+<span class="sd"> entails to construct an object `D(G(F x))`. This is where the first interesting aspect</span>
+<span class="sd"> arises, because, in essence, we must assume that `D` is an isocleaving. Specifically,</span>
+<span class="sd"> we have an adjoint equivalence between `x` and `G(F x)` (because `F` and `G` form a</span>
+<span class="sd"> biequivalence), and we use this lifting operation to lift objects over `x` to objects over</span>
+<span class="sd"> `G(F x)`. In this file, we construct this lifting operation by assuming that the involved</span>
+<span class="sd"> bicategories are univalent.</span>
+
+<span class="sd"> Another interesting aspect arises in the invertible 2-cells that are necessary to construct</span>
+<span class="sd"> the unit of the displayed biequivalence. Writing `η` and `ε` for the unit and counit of</span>
+<span class="sd"> the biequivalence between the base categories `B₁` and `B₂`, we need to construct an</span>
+<span class="sd"> invertible 2-cell between `#F(ε x)` and `η(F x)` in order to construct the unit of the</span>
+<span class="sd"> displayed biequivalence. This invertible 2-cell is an instance of the triangle coherences</span>
+<span class="sd"> of a biequivalence. Since we use the incoherent notion of biequivalence in this file,</span>
+<span class="sd"> we postulate the existence of the desired invertible 2-cell separately.</span>
+
+<span class="sd"> Finally, we apply this construction to incoherent biequivalences. The main idea here is</span>
+<span class="sd"> that every biequivalence can be refined into a coherent biequivalence, which allows us</span>
+<span class="sd"> to apply this construction.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Invertible 2-cells that are necessary</span>
+<span class="sd"> 2. Lifts along adjoint equivalences</span>
+<span class="sd"> 3. The reindexing pseudofunctor</span>
+<span class="sd"> 4. The pseudotransformations</span>
+<span class="sd"> 5. The biequivalence</span>
+<span class="sd"> 6. The construction applied to incoherent biequivalences</span>
+
+<span class="sd">                                                                                      *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Reindex.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudoNaturalAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBiequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBuilders.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispModification.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.BiequivalenceCoherent.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ReindexBiequivalence</span>.
+  <span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          (<span class="nv">univ_2_B₁</span> : is_univalent_2 B₁)
+          (<span class="nv">univ_2_B₂</span> : is_univalent_2 B₂)
+          {<span class="nv">F</span> : psfunctor B₁ B₂}
+          {<span class="nv">G</span> : psfunctor B₂ B₁}
+          {<span class="nv">e</span> : is_biequivalence_unit_counit G F}
+          (<span class="nv">a</span> : is_biequivalence_adjoints e)
+          {<span class="nv">D</span> : disp_bicat B₂}
+          (<span class="nv">HD</span> : local_iso_cleaving D)
+          (<span class="nv">Dcontr</span> : disp_2cells_iscontr D)
+          (<span class="nv">θ</span> : ∏ (x : B₁),
+               invertible_2cell
+                 (identity _)
+                 (unit_of_is_biequivalence e (F x)
+                  · #F (invcounit_of_is_biequivalence a x))).
+
+  <span class="kn">Let</span> <span class="nf">Dprop</span> : disp_2cells_isaprop D
+    := disp_2cells_isaprop_from_disp_2cells_iscontr _ Dcontr.
+
+  <span class="kn">Let</span> <span class="nf">Dgrpd</span> : disp_locally_groupoid D
+    := disp_2cells_isgroupoid_from_disp_2cells_iscontr _ Dcontr.
+
+  <span class="kn">Let</span> <span class="nf">η</span> (<span class="nv">x</span> : B₂) : adjoint_equivalence (F(G x)) x
+    := unit_of_is_biequivalence e x
+       ,,
+       pointwise_adjequiv
+         (unit_of_is_biequivalence e)
+         (is_biequivalence_adjoint_unit a) x.
+
+  <span class="kn">Let</span> <span class="nf">ε</span> (<span class="nv">x</span> : B₁) : adjoint_equivalence (G(F x)) x
+    := counit_of_is_biequivalence e x
+       ,,
+       pointwise_adjequiv
+         (counit_of_is_biequivalence e)
+         (is_biequivalence_adjoint_counit a) x.
+
+  <span class="sd">(** * 1. Invertible 2-cells that are necessary *)</span>
+  <span class="kn">Definition</span> <span class="nf">counit_unit_invertible_2cell</span>
+             (<span class="nv">x</span> : B₁)
+    : invertible_2cell (#F (ε x)) (η (F x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (linvunitor_invertible_2cell _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rwhisker_of_invertible_2cell _ (θ x))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rassociator_invertible_2cell _ _ _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lwhisker_of_invertible_2cell _ (psfunctor_comp F _ _))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lwhisker_of_invertible_2cell
+                 _
+                 (psfunctor_inv2cell F (left_equivalence_counit_iso (ε x))))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lwhisker_of_invertible_2cell
+                 _
+                 (inv_of_invertible_2cell (psfunctor_id F _)))
+              _).
+    <span class="bp">exact</span> (runitor_invertible_2cell _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">counit_unit_invertible_2cell_inv</span>
+             (<span class="nv">x</span> : B₁)
+    : invertible_2cell
+        (#F (left_adjoint_right_adjoint (ε x)))
+        (left_adjoint_right_adjoint (η (F x))).
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (psfunctor_preserve_adj_equiv F _ _ (ε x) = η(F x))
+      <span class="k">as</span> X.
+    {
+      use path_internal_adjoint_equivalence.
+      {
+        <span class="bp">exact</span> (pr2 univ_2_B₂).
+      }
+      use isotoid_2_1.
+      {
+        <span class="bp">exact</span> (pr2 univ_2_B₂).
+      }
+      <span class="bp">exact</span> (counit_unit_invertible_2cell x).
+    }
+    <span class="nb">induction</span> X.
+    <span class="nb">apply</span> id2_invertible_2cell.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_disp_psfunctor_inv_inv2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B₂}
+             (<span class="nv">f</span> : x --&gt; y)
+    : invertible_2cell
+        (#F(#G f))
+        (η x · f · left_adjoint_right_adjoint (η y)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rinvunitor_invertible_2cell _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              _
+              (inv_of_invertible_2cell
+                 (rwhisker_of_invertible_2cell
+                    _
+                    (psnaturality_of (unit_of_is_biequivalence e) f)))).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              _
+              (lassociator_invertible_2cell _ _ _)).
+    <span class="nb">refine</span> (lwhisker_of_invertible_2cell _ _).
+    <span class="bp">exact</span> (left_equivalence_unit_iso (η y)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">reindex_grpd</span> : disp_locally_groupoid (reindex_disp_bicat F D HD Dprop).
+  <span class="kn">Proof</span>.
+    use disp_locally_groupoid_reindex.
+    - <span class="bp">exact</span> Dgrpd.
+    - <span class="bp">exact</span> (pr2 univ_2_B₁).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Lifts along adjoint equivalences *)</span>
+  <span class="kn">Definition</span> <span class="nf">lift_adjequiv_ob_disp_adjequiv</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B₂}
+             (<span class="nv">f</span> : adjoint_equivalence x y)
+             (<span class="nv">yy</span> : D y)
+    : ∑ (xx : D x), disp_adjoint_equivalence f xx yy.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> x y f yy.
+    use J_2_0.
+    {
+      <span class="bp">exact</span> (pr1 univ_2_B₂).
+    }
+    <span class="nb">intros</span> x xx.
+    <span class="nb">refine</span> (xx ,, _).
+    <span class="nb">apply</span> disp_identity_adjoint_equivalence.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lift_adjequiv_ob</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B₂}
+             (<span class="nv">f</span> : adjoint_equivalence x y)
+             (<span class="nv">yy</span> : D y)
+    : D x
+    := pr1 (lift_adjequiv_ob_disp_adjequiv f yy).
+
+  <span class="kn">Definition</span> <span class="nf">lift_adjequiv_disp_adjequiv</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B₂}
+             (<span class="nv">f</span> : adjoint_equivalence x y)
+             (<span class="nv">yy</span> : D y)
+    : disp_adjoint_equivalence f (lift_adjequiv_ob f yy) yy
+    := pr2 (lift_adjequiv_ob_disp_adjequiv f yy).
+
+  <span class="sd">(** * 3. The reindexing pseudofunctor *)</span>
+  <span class="kn">Definition</span> <span class="nf">reindex_disp_psfunctor</span>
+    : disp_psfunctor (reindex_disp_bicat F D HD Dprop) D F.
+  <span class="kn">Proof</span>.
+    use make_disp_psfunctor_contr.
+    - <span class="bp">exact</span> Dcontr.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, xx).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span>, ff).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_disp_psfunctor_inv</span>
+    : disp_psfunctor D (reindex_disp_bicat F D HD Dprop) G.
+  <span class="kn">Proof</span>.
+    use make_disp_psfunctor_contr.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> Dcontr.
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> : B₂) (<span class="nv">xx</span> : D x), lift_adjequiv_ob (η x) xx).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : B₂)
+               (<span class="nv">f</span> : x --&gt; y)
+               (<span class="nv">xx</span> : D x) (<span class="nv">yy</span> : D y)
+               (<span class="nv">ff</span> : xx --&gt;[ f ] yy),
+             local_iso_cleaving_1cell
+               HD
+               (lift_adjequiv_disp_adjequiv (η x) xx
+                ;; ff
+                ;; pr112 (lift_adjequiv_disp_adjequiv (η y) yy))%mor_disp
+               (reindex_disp_psfunctor_inv_inv2cell _)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. The pseudotransformations *)</span>
+  <span class="kn">Definition</span> <span class="nf">reindex_disp_psfunctor_unit</span>
+    : disp_pstrans
+        (disp_pseudo_comp
+           G F
+           D (reindex_disp_bicat F D HD Dprop) D
+           reindex_disp_psfunctor_inv
+           reindex_disp_psfunctor)
+        (disp_pseudo_id D)
+        (unit_of_is_biequivalence e).
+  <span class="kn">Proof</span>.
+    use make_disp_pstrans_contr.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> Dcontr.
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> : B₂) (<span class="nv">xx</span> : D x), lift_adjequiv_disp_adjequiv (η x) xx).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">reindex_disp_psfunctor_unit_adjequiv</span>
+              (<span class="nv">x</span> : B₂)
+              (<span class="nv">xx</span> : D x)
+    : disp_left_adjoint_equivalence
+        (pointwise_adjequiv
+           (unit_of_is_biequivalence e)
+           (is_biequivalence_adjoint_unit a) x)
+        (reindex_disp_psfunctor_unit x xx).
+  <span class="kn">Proof</span>.
+    use make_disp_adjequiv_contr.
+    - <span class="nb">apply</span> Dcontr.
+    - <span class="bp">exact</span> (pr112 (lift_adjequiv_disp_adjequiv (η x) xx)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_disp_psfunctor_counit</span>
+    : disp_pstrans
+        (disp_pseudo_id (reindex_disp_bicat F D HD Dprop))
+        (disp_pseudo_comp
+           F G
+           (reindex_disp_bicat F D HD Dprop) D (reindex_disp_bicat F D HD Dprop)
+           reindex_disp_psfunctor reindex_disp_psfunctor_inv)
+        (invcounit_of_is_biequivalence a).
+  <span class="kn">Proof</span>.
+    use make_disp_pstrans_contr.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> Dcontr.
+    - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">x</span> : B₁) (<span class="nv">xx</span> : D(F x)), _).
+      <span class="nb">refine</span> (local_iso_cleaving_1cell
+                HD
+                (pr112 (lift_adjequiv_disp_adjequiv (η(F x)) xx))
+                _).
+      <span class="nb">apply</span> counit_unit_invertible_2cell_inv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">reindex_disp_psfunctor_counit_adjequiv</span>
+              (<span class="nv">x</span> : B₁)
+              (<span class="nv">xx</span> : D(F x))
+    : disp_left_adjoint_equivalence
+        (pointwise_adjequiv
+           (invcounit_of_is_biequivalence a)
+           (inv_left_adjoint_equivalence (is_biequivalence_adjoint_counit a)) x)
+        (reindex_disp_psfunctor_counit x xx).
+  <span class="kn">Proof</span>.
+    use make_disp_adjequiv_contr.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> Dcontr.
+    - <span class="bp">exact</span> (local_iso_cleaving_1cell
+               HD
+               (pr1 (lift_adjequiv_disp_adjequiv (η(F x)) xx))
+               (counit_unit_invertible_2cell x)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. The biequivalence *)</span>
+  <span class="kn">Definition</span> <span class="nf">reindex_is_disp_biequivalence_unit_counit</span>
+    : is_disp_biequivalence_unit_counit
+        _ _
+        e
+        reindex_disp_psfunctor_inv
+        reindex_disp_psfunctor.
+  <span class="kn">Proof</span>.
+    use make_disp_biequiv_unit_counit_pointwise_adjequiv_alt.
+    - <span class="bp">exact</span> univ_2_B₁.
+    - <span class="bp">exact</span> a.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> Dprop.
+    - <span class="bp">exact</span> reindex_grpd.
+    - <span class="bp">exact</span> reindex_disp_psfunctor_unit.
+    - <span class="bp">exact</span> reindex_disp_psfunctor_counit.
+    - <span class="bp">exact</span> reindex_disp_psfunctor_counit_adjequiv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_disp_is_biequivalence</span>
+    : disp_is_biequivalence_data
+        D (reindex_disp_bicat F D HD Dprop)
+        a
+        reindex_is_disp_biequivalence_unit_counit.
+  <span class="kn">Proof</span>.
+    use (make_disp_biequiv_pointwise_adjequiv_alt _ _).
+    - <span class="bp">exact</span> univ_2_B₂.
+    - <span class="nb">apply</span> Dprop.
+    - <span class="bp">exact</span> Dgrpd.
+    - <span class="bp">exact</span> reindex_disp_psfunctor_unit_adjequiv.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ReindexBiequivalence</span>.
+
+<span class="kn">Arguments</span> reindex_disp_psfunctor {B₁ B₂} F {D} HD Dcontr.
+
+<span class="kn">Definition</span> <span class="nf">reindex_disp_psfunctor_univ</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           (<span class="nv">univ_2_B₂</span> : is_univalent_2 B₂)
+           (<span class="nv">F</span> : psfunctor B₁ B₂)
+           {<span class="nv">D</span> : disp_bicat B₂}
+           (<span class="nv">HD</span> := univalent_2_1_to_local_iso_cleaving (pr2 univ_2_B₂) D)
+           (<span class="nv">Dcontr</span> : disp_2cells_iscontr D)
+  : disp_psfunctor
+      (reindex_disp_bicat
+         F D HD
+         (disp_2cells_isaprop_from_disp_2cells_iscontr D Dcontr))
+      D
+      F
+  := reindex_disp_psfunctor F HD Dcontr.
+
+<span class="kn">Definition</span> <span class="nf">reindex_disp_psfunctor_inv_univ</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           (<span class="nv">univ_2_B₂</span> : is_univalent_2 B₂)
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₁}
+           {<span class="nv">e</span> : is_biequivalence_unit_counit G F}
+           (<span class="nv">a</span> : is_biequivalence_adjoints e)
+           {<span class="nv">D</span> : disp_bicat B₂}
+           (<span class="nv">HD</span> := univalent_2_1_to_local_iso_cleaving (pr2 univ_2_B₂) D)
+           (<span class="nv">Dcontr</span> : disp_2cells_iscontr D)
+  : disp_psfunctor
+      D
+      (reindex_disp_bicat
+         F D HD
+         (disp_2cells_isaprop_from_disp_2cells_iscontr D Dcontr))
+      G
+  := reindex_disp_psfunctor_inv univ_2_B₂ a HD Dcontr.
+
+<span class="kn">Definition</span> <span class="nf">reindex_is_disp_biequivalence_unit_counit_univ</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           (<span class="nv">univ_2_B₁</span> : is_univalent_2 B₁)
+           (<span class="nv">univ_2_B₂</span> : is_univalent_2 B₂)
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₁}
+           {<span class="nv">e</span> : is_biequivalence_unit_counit G F}
+           (<span class="nv">a</span> : is_biequivalence_adjoints e)
+           {<span class="nv">D</span> : disp_bicat B₂}
+           (<span class="nv">HD</span> := univalent_2_1_to_local_iso_cleaving (pr2 univ_2_B₂) D)
+           (<span class="nv">Dcontr</span> : disp_2cells_iscontr D)
+           (<span class="nv">θ</span> : ∏ (x : B₁),
+                invertible_2cell
+                  (identity _)
+                  (unit_of_is_biequivalence e (F x)
+                   · #F (invcounit_of_is_biequivalence a x)))
+  : is_disp_biequivalence_unit_counit
+      _ _
+      e
+      (reindex_disp_psfunctor_inv univ_2_B₂ a HD Dcontr)
+      (reindex_disp_psfunctor_univ univ_2_B₂ F Dcontr).
+<span class="kn">Proof</span>.
+  use reindex_is_disp_biequivalence_unit_counit.
+  - <span class="bp">exact</span> univ_2_B₁.
+  - <span class="bp">exact</span> θ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">reindex_disp_is_biequivalence_univ</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           (<span class="nv">univ_2_B₁</span> : is_univalent_2 B₁)
+           (<span class="nv">univ_2_B₂</span> : is_univalent_2 B₂)
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₁}
+           {<span class="nv">e</span> : is_biequivalence_unit_counit G F}
+           (<span class="nv">a</span> : is_biequivalence_adjoints e)
+           {<span class="nv">D</span> : disp_bicat B₂}
+           (<span class="nv">HD</span> := univalent_2_1_to_local_iso_cleaving (pr2 univ_2_B₂) D)
+           (<span class="nv">Dcontr</span> : disp_2cells_iscontr D)
+           (<span class="nv">θ</span> : ∏ (x : B₁),
+                invertible_2cell
+                  (identity _)
+                  (unit_of_is_biequivalence e (F x)
+                   · #F (invcounit_of_is_biequivalence a x)))
+  : disp_is_biequivalence_data
+      D (reindex_disp_bicat F D HD _)
+      a
+      (reindex_is_disp_biequivalence_unit_counit_univ
+         univ_2_B₁ univ_2_B₂
+         a
+         Dcontr
+         θ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> reindex_disp_is_biequivalence.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">reindex_is_disp_biequivalence_unit_counit_univ_coh</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           (<span class="nv">univ_2_B₁</span> : is_univalent_2 B₁)
+           (<span class="nv">univ_2_B₂</span> : is_univalent_2 B₂)
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₁}
+           {<span class="nv">e</span> : is_biequivalence_unit_counit G F}
+           (<span class="nv">a</span> : is_biequivalence_adjoints e)
+           {<span class="nv">D</span> : disp_bicat B₂}
+           (<span class="nv">HD</span> := univalent_2_1_to_local_iso_cleaving (pr2 univ_2_B₂) D)
+           (<span class="nv">Dcontr</span> : disp_2cells_iscontr D)
+  : is_disp_biequivalence_unit_counit
+      _ _
+      (coherent_is_biequivalence_adjoints univ_2_B₁ a)
+      (reindex_disp_psfunctor_inv univ_2_B₂ a HD Dcontr)
+      (reindex_disp_psfunctor_univ univ_2_B₂ F Dcontr).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (reindex_is_disp_biequivalence_unit_counit
+            univ_2_B₁ univ_2_B₂
+            (coherent_is_biequivalence_adjoints univ_2_B₁ a)
+            HD
+            Dcontr
+            _).
+  <span class="nb">apply</span> coherent_is_biequivalence_adjoints_triangle_2_alt.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">reindex_disp_is_biequivalence_univ_coh</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           (<span class="nv">univ_2_B₁</span> : is_univalent_2 B₁)
+           (<span class="nv">univ_2_B₂</span> : is_univalent_2 B₂)
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₁}
+           {<span class="nv">e</span> : is_biequivalence_unit_counit G F}
+           (<span class="nv">a</span> : is_biequivalence_adjoints e)
+           {<span class="nv">D</span> : disp_bicat B₂}
+           (<span class="nv">HD</span> := univalent_2_1_to_local_iso_cleaving (pr2 univ_2_B₂) D)
+           (<span class="nv">Dcontr</span> : disp_2cells_iscontr D)
+  : disp_is_biequivalence_data
+      D (reindex_disp_bicat F D HD _)
+      (coherent_is_biequivalence_adjoints univ_2_B₁ a)
+      (reindex_is_disp_biequivalence_unit_counit_univ_coh
+         univ_2_B₁ univ_2_B₂
+         a
+         Dcontr).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (reindex_disp_is_biequivalence_univ
+           univ_2_B₁ univ_2_B₂
+           (coherent_is_biequivalence_adjoints univ_2_B₁ a)
+           Dcontr
+           _).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/ReindexBiequivalence.v</tt>, line 51)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. The construction applied to incoherent biequivalences
+  &gt;
+  &gt;                                                                                       *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

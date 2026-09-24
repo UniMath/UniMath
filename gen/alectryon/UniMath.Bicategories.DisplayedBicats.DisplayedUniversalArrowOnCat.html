@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisplayedUniversalArrowOnCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">In this file, we construct displayed universal arrows over the inclusion UnivCat to Cat (with left biadjoint the Rezk completion).</span>
+
+<span class="c">Contents:</span>
+<span class="c">1. LocallyContr:</span>
+<span class="c">   A make constructor for a displayed universal arrow.</span>
+<span class="c">2. LocallyContrWeakEquivalences:</span>
+<span class="c">   A make constructor for a displayed universal arrow in terms of weak equivalences.</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Adjunctions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Equivalences.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.TotalAdjunction.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biadjunction.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.UniversalArrow.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBiadjunction.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Import</span> DispBicat.Notations.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUniv.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">LocallyContr</span>.
+
+  <span class="kn">Let</span> <span class="nf">UnivCat</span> := bicat_of_univ_cats.
+  <span class="kn">Let</span> <span class="nf">Cat</span> := bicat_of_cats.
+  <span class="kn">Let</span> <span class="nf">R</span> := univ_cats_to_cats.
+
+  <span class="kn">Context</span> (<span class="nv">D</span> : disp_bicat Cat)
+    (<span class="nv">HD</span> : disp_2cells_iscontr D)
+    (<span class="nv">LUR</span> : left_universal_arrow R).
+
+  <span class="kn">Let</span> <span class="nf">D'</span> := (disp_bicat_on_cat_to_univ_cat D).
+
+  <span class="kn">Let</span> <span class="nf">RR</span> := (disp_psfunctor_on_cat_to_univ_cat D
+               (disp_2cells_isaprop_from_disp_2cells_iscontr _ HD)).
+
+  <span class="kn">Let</span> <span class="nf">LL0</span> := <span class="k">λ</span> <span class="nv">C</span>,  (pr1 (pr1 LUR C)).
+
+  <span class="kn">Context</span> (<span class="nv">LL</span> : ∏ C : category, D C → D (LL0 C)).
+  <span class="kn">Context</span> (<span class="nv">ηη</span> :  ∏ (C : category) (CC : D C), CC --&gt;[ (pr12 LUR) C] LL C CC).
+  <span class="kn">Context</span> (<span class="nv">extension_preserve_structure</span> :
+            ∏ (C1 : category) (CC1 : pr1 D C1) (C2 : univalent_category) (CC2 : D (pr1 C2))
+              (F : C1 ⟶ pr1 C2),
+              CC1 --&gt;[F] CC2 → LL C1 CC1 --&gt;[ right_adjoint ((pr22 LUR) C1 C2) F] CC2).
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_left_universal_arrow_if_contr_CAT</span>
+    : disp_left_universal_arrow LUR RR.
+  <span class="kn">Proof</span>.
+    use make_disp_univ_arrow_if_contr.
+    - <span class="bp">exact</span> (disp_2cells_iscontr_disp_bicat_on_cat_to_univ_cat _ HD).
+    - <span class="bp">exact</span> HD.
+    - <span class="bp">exact</span> LL.
+    - <span class="bp">exact</span> ηη.
+    - <span class="bp">exact</span> extension_preserve_structure.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LocallyContr</span>.
+
+<span class="kn">Section</span> <span class="nf">LocallyContrWeakEquivalences</span>.
+
+  <span class="kn">Let</span> <span class="nf">UnivCat</span> := bicat_of_univ_cats.
+  <span class="kn">Let</span> <span class="nf">Cat</span> := bicat_of_cats.
+  <span class="kn">Let</span> <span class="nf">R</span> := univ_cats_to_cats.
+
+  <span class="kn">Context</span> (<span class="nv">D</span> : disp_bicat Cat)
+    (<span class="nv">HD</span> : disp_2cells_iscontr D)
+    (<span class="nv">LUR</span> : left_universal_arrow R).
+
+  <span class="kn">Let</span> <span class="nf">D'</span> := (disp_bicat_on_cat_to_univ_cat D).
+
+  <span class="kn">Let</span> <span class="nf">RR</span> := (disp_psfunctor_on_cat_to_univ_cat D (disp_2cells_isaprop_from_disp_2cells_iscontr _ HD)).
+
+  <span class="kn">Let</span> <span class="nf">LL0</span> : bicat_of_cats → category := <span class="k">λ</span> <span class="nv">C</span>,  (pr1 (pr1 LUR C)).
+  <span class="kn">Let</span> <span class="nf">LL0'</span> : bicat_of_cats → univalent_category := <span class="k">λ</span> <span class="nv">C</span>,  pr1 LUR C.
+
+  <span class="kn">Let</span> <span class="nf">η</span> := (pr12 LUR).
+
+  <span class="kn">Context</span> (<span class="nv">η_weak_equiv</span> : ∏ C : category, is_weak_equiv (η C)).
+  <span class="kn">Context</span> (<span class="nv">weak_equiv_preserve_struct</span>
+            : ∏ (C1 C2 : category) (H : is_univalent C2) (F : C1 ⟶ C2),
+              is_weak_equiv F -&gt; D C1 -&gt; D C2).
+  <span class="kn">Context</span> (<span class="nv">η_preserves_structs</span> : ∏ (C : category) (CC : D C),
+              CC --&gt;[η C] weak_equiv_preserve_struct C (LL0 C) (pr2 (pr1 LUR C))
+                (η C) (η_weak_equiv C) CC).
+
+  <span class="kn">Context</span> (<span class="nv">extension_preserves_struct</span>
+            : ∏ (C1 : category) (C2 C3 : univalent_category)
+                (F : C1 ⟶ C3) (G : C1 ⟶ C2) (H : C2 ⟶ C3)
+                (n : nat_z_iso (G ∙ H) F)
+                (CC1 : D C1) (CC2 : D (pr1 C2)) (CC3 : D (pr1 C3)),
+              is_weak_equiv G -&gt; CC1 --&gt;[ F ] CC3 -&gt; CC2 --&gt;[ H ] CC3).
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_left_universal_arrow_if_contr_CAT_from_weak_equiv</span>
+    : disp_left_universal_arrow LUR RR.
+  <span class="kn">Proof</span>.
+    use make_disp_left_universal_arrow_if_contr_CAT.
+    - <span class="nb">intros</span> C CC.
+      use (weak_equiv_preserve_struct _ _ _ (η C)).
+      + <span class="nb">apply</span> (pr1 LUR C).
+      + <span class="nb">apply</span> η_weak_equiv.
+      + <span class="bp">exact</span> CC.
+    - <span class="bp">exact</span> η_preserves_structs.
+    - <span class="nb">intros</span> C1 CC1 C2 CC2 F FF.
+      use (extension_preserves_struct C1 (LL0' C1) C2 F (η C1) _ _ CC1).
+      + <span class="nb">set</span> (t := counit_nat_z_iso_from_adj_equivalence_of_cats (pr22 LUR C1 C2)).
+        <span class="nb">set</span> (tg := nat_z_iso_pointwise_z_iso t F).
+        <span class="bp">exact</span> (nat_z_iso_from_z_iso (homset_property _) tg).
+      + <span class="nb">apply</span> η_weak_equiv.
+      + <span class="bp">exact</span> FF.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LocallyContrWeakEquivalences</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/DisplayedUniversalArrowOnCat.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    A make constructor for a displayed universal arrow in terms of weak equivalences.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

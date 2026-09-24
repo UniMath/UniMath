@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Uniqueness.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ** Uniqueness of W-types</span>
+
+<span class="sd">    W-types are unique up to propositional equality.</span>
+
+<span class="sd">    Author: Langston Barrett (@siddharthist)</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.Induction.FunctorAlgebras_legacy.
+<span class="kn">Require Import</span> UniMath.Induction.PolynomialFunctors.
+<span class="kn">Require Import</span> UniMath.Induction.W.Core.
+
+<span class="kn">Section</span> <span class="nf">Uniqueness</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> functions.
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+  <span class="kn">Context</span> (<span class="nv">A</span> : UU).
+  <span class="kn">Context</span> (<span class="nv">B</span> : A → UU).
+
+  <span class="sd">(** Following the paper, we have [X ⇒ Y] = Hom(X, Y) *)</span>
+  <span class="kn">Local Notation</span> <span class="nf">F</span> := (polynomial_functor A B). <span class="c">(* can be coerced to a function *)</span>
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"F*"</span> := (polynomial_functor_arr A B).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"X ⇒ Y"</span> := (algebra_mor F X Y).
+
+  <span class="sd">(** Since we can't use the standard categorical proof, we must re-prove that</span>
+<span class="sd">      initial algebras are unique up to isomorphism.</span>
+<span class="sd">   *)</span>
+
+  <span class="sd">(** We prove that their carriers (first projections) are isomorphic, and hence</span>
+<span class="sd">      equal (by univalence).</span>
+
+<span class="sd">      This is standard categorical reasoning: each has exactly one arrow to the</span>
+<span class="sd">      other, which, composing, gives an endormorphism. However, each has exactly</span>
+<span class="sd">      one endomorphism, the identity map. Therefore, they are isomorphic. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">W_carriers_iso</span> : ∏ X Y : W B, (alg_carrier F X) ≃
+                                      (alg_carrier F Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y.
+
+    <span class="sd">(** Get the algebra morphisms X → Y and Y → X via initiality *)</span>
+    <span class="nb">pose</span> (X_mor_Y := iscontrpr1 (pr2 X Y)).
+    <span class="nb">pose</span> (Y_mor_X := iscontrpr1 (pr2 Y X)).
+
+    <span class="nb">apply</span> (weq_iso
+             (mor_from_algebra_mor _ _ _ X_mor_Y)
+             (mor_from_algebra_mor _ _ _ Y_mor_X)).
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> (toforallpaths _ (Y_mor_X ∘ X_mor_Y) (idfun _)).
+      <span class="nb">refine</span> (base_paths (algebra_mor_comp _ _ _ _ X_mor_Y Y_mor_X)
+                         (algebra_mor_id F X) _).
+      <span class="nb">apply</span> (proofirrelevancecontr (pr2 X X)).
+    - <span class="nb">intro</span> y.
+      <span class="nb">apply</span> (toforallpaths _ (X_mor_Y ∘ Y_mor_X) (idfun _)).
+      <span class="nb">refine</span> (base_paths (algebra_mor_comp _ _ _ _ Y_mor_X X_mor_Y)
+                         (algebra_mor_id F Y) _).
+      <span class="nb">apply</span> (proofirrelevancecontr (pr2 Y Y)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Note the crucial use of univalence *)</span>
+  <span class="kn">Lemma</span> <span class="nf">W_carriers_eq</span> : ∏ X Y : W B, (alg_carrier _ X) = (alg_carrier _ Y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">X</span> <span class="nv">Y</span> =&gt; weqtopaths (W_carriers_iso X Y)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Now we must prove that the algebra morphisms, when transported along</span>
+<span class="sd">      the path W_carriers_eq, will be equal. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">W_alg_eq</span> : ∏ X Y : W B, W_algebra B X = W_algebra B Y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y.
+    <span class="nb">pose</span> (f := pr1 ((pr2 X) (W_algebra B Y))).
+    <span class="nb">pose</span> (pr1eq := (W_carriers_eq X Y)).
+    <span class="nb">apply</span> (total2_paths_f pr1eq).
+
+    <span class="sd">(** Some shorthands for items we'll use *)</span>
+    <span class="nb">pose</span> (is_final_X := pr2 X).
+    <span class="nb">pose</span> (is_final_Y := pr2 Y).
+    <span class="nb">pose</span> (θ := pr2 (pr1 X)).
+    <span class="nb">pose</span> (ψ := pr2 (pr1 Y)).
+
+    <span class="sd">(** substⁱ-lemma in HoTT/W-types *)</span>
+    <span class="nb">assert</span> (trans_fun : <span class="k">forall</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">F</span> : UU → UU} {<span class="nv">f</span> : F X → X} {<span class="nv">g</span> : F Y → Y}
+                          (<span class="nv">p</span> : X = Y),
+               (<span class="k">forall</span> (<span class="nv">x</span> : F X),
+                   g (transportf F p x) = (transportf (idfun UU) p (f x))) →
+               <span class="c">(* (forall (x : X), *)</span>
+               <span class="c">(*     transportf F p (f x) = g (transportf (idfun UU) p x)) → *)</span>
+               transportf (<span class="k">λ</span> <span class="nv">X</span>, F X → X) p f = g).
+    {
+      <span class="nb">intros</span> ? ? ? ? ? p H.
+      <span class="nb">induction</span> p.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (!H x).
+    }
+
+    <span class="nb">apply</span> trans_fun.
+    <span class="nb">intro</span> x.
+
+    <span class="nb">assert</span> (arr_transport :
+              <span class="k">forall</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">p</span> : X = Y), F* (transportf (idfun _) p) = transportf F p).
+    {
+      <span class="nb">intros</span> ? ? p.
+      <span class="nb">induction</span> p.
+      <span class="bp">reflexivity</span>.
+    }
+
+    <span class="nb">assert</span> (lemma1 : <span class="k">forall</span> <span class="nv">x</span> : pr1 (pr1 X),
+               (pr1 f) x = transportf (idfun UU) pr1eq x ).
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">refine</span> (toforallpaths _ _ _ _ x0).
+      <span class="nb">refine</span> (_ @ !(weqpath_transport (W_carriers_iso X Y))).
+      <span class="bp">reflexivity</span>.
+    }
+
+    <span class="nb">assert</span> (lemma2 : transportf F pr1eq = F* (pr1 f)).
+    {
+      <span class="nb">refine</span> (!(arr_transport _ _ pr1eq) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> pr1eq, W_carriers_eq.
+      <span class="nb">refine</span> ((weqpath_transport (W_carriers_iso X Y)) @ _).
+      <span class="bp">reflexivity</span>.
+    }
+
+    <span class="nb">refine</span> (_ @ lemma1 (θ x)).
+    <span class="nb">refine</span> (maponpaths ψ (toforallpaths _ _ _ lemma2 x) @ _).
+
+    <span class="sd">(** Now our goal is simply the condition that f is a algebra morphism *)</span>
+    <span class="nb">apply</span> (toforallpaths _ (<span class="k">λ</span> <span class="nv">x</span>, ψ (F* (pr1 f) x)) (pr1 f ∘ θ)).
+    <span class="bp">exact</span> (!pr2 f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_W</span> : isaprop (W B).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> X Y.
+    <span class="nb">apply</span> subtypePath.
+    - <span class="bp">exact</span> isaprop_is_initial.
+    - <span class="bp">exact</span> (W_alg_eq X Y).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Uniqueness</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Induction/W/Uniqueness.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     Author: Langston Barrett (&#64;siddharthist)
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Univalence.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

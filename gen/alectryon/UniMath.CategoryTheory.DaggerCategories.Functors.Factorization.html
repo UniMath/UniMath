@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Factorization.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Unitary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Functors.WeakEquivalences.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Examples.Fullsub.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ImageFactorization</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          {<span class="nv">dagC</span> : dagger C}
+          {<span class="nv">dagD</span> : dagger D}
+          {<span class="nv">F</span> : functor C D}
+          (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F).
+
+  <span class="kn">Definition</span> <span class="nf">is_in_dagger_img_functor</span> (<span class="nv">d</span> : D)
+    : hProp
+    := <span class="k">∃</span> <span class="nv">c</span> : C, unitary dagD (F c) d.
+
+  <span class="kn">Let</span> <span class="nf">P</span> := (<span class="k">λ</span> <span class="nv">d</span> : D, is_in_dagger_img_functor d).
+
+  <span class="kn">Definition</span> <span class="nf">full_dagger_img</span>
+    : category
+    := full_sub_category D P.
+
+  <span class="c">(*</span>
+<span class="c">     This definition is currently 'standalone' in this file (or however you say that it doesn't have any impact on the rest of this file.</span>
+<span class="c">     However, this I have already added this for future work when trying to compare multiple (whatever) factorization systems on DAG.</span>
+<span class="c">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">full_dagger_img_to_full_img</span>
+    : functor (full_sub_category D P) (full_sub_category D (<span class="k">λ</span> <span class="nv">d</span> : D, is_in_img_functor F d)).
+  <span class="kn">Proof</span>.
+    use full_sub_category_functor.
+    - <span class="bp">exact</span> (functor_identity D).
+    - <span class="nb">intros</span> d in_dag_im.
+      use (factor_through_squash_hProp _ _ in_dag_im).
+      <span class="nb">clear</span> in_dag_im ; <span class="nb">intro</span> in_dag_im.
+      <span class="nb">apply</span> hinhpr.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">in_dag_im</span>).
+      <span class="bp">exact</span> (make_z_iso _ _ (pr22 in_dag_im)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_img_dagger</span>
+    : dagger full_dagger_img
+    := full_sub_dagger dagD P.
+
+  <span class="kn">Definition</span> <span class="nf">full_dagger_img_functor_obj</span>
+    : ob C -&gt; full_dagger_img.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> c.
+    <span class="k">exists</span> (<span class="nv">F</span> <span class="nv">c</span>).
+    <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> b.
+    <span class="k">exists</span> <span class="nv">c</span>.
+    <span class="nb">apply</span> unitary_id.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_dagger_img_functor_data</span>
+    : functor_data C full_dagger_img.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">full_dagger_img_functor_obj</span>.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span>, #F f ,, tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_functor_full_dagger_img</span>
+    : is_functor full_dagger_img_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> subtypePath.
+      { <span class="nb">intro</span>; <span class="nb">apply</span> isapropunit. }
+      <span class="nb">apply</span> functor_id.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> subtypePath.
+      { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+      <span class="nb">apply</span> functor_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_full_dagger_img</span>
+    : functor C full_dagger_img
+    := _ ,, is_functor_full_dagger_img.
+
+  <span class="kn">Definition</span> <span class="nf">functor_full_img_is_dagger_functor</span>
+    : is_dagger_functor dagC full_img_dagger functor_full_dagger_img.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; use subtypePath ; [<span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit | ].
+    <span class="nb">apply</span> dagF.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">functor_full_img_is_unitarily_eso</span>
+    : is_unitarily_eso functor_full_img_is_dagger_functor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> d.
+    use (factor_through_squash_hProp _ _ (pr2 d)).
+    <span class="nb">intro</span> c.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">c</span>).
+    <span class="k">exists</span> (<span class="nv">pr12</span> <span class="nv">c</span> ,, <span class="nv">tt</span>).
+    <span class="nb">split</span> ; (use subtypePath ; [<span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit |]) ; <span class="nb">apply</span> (pr2 c).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">factorization_full_dagger_inclusion_equal</span>
+    :  functor_full_dagger_img ∙ sub_precategory_inclusion D (full_sub_precategory P) = F.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (functor_eq  _ _ (pr2 D)).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_functor_dagger_img_factorization</span>
+    : ∑ (I : category) (dagI : dagger I)
+        (F0 : functor C I) (F1 : functor I D)
+        (dagF0 : is_dagger_functor dagC dagI F0)
+        (dagF1 : is_dagger_functor dagI dagD F1),
+      is_unitarily_eso dagF0
+                       × fully_faithful F1
+                       × functor_composite F0 F1 = F.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">full_dagger_img</span>.
+    <span class="k">exists</span> <span class="nv">full_img_dagger</span>.
+    <span class="k">exists</span> <span class="nv">functor_full_dagger_img</span>.
+    <span class="k">exists</span> (<span class="nv">sub_precategory_inclusion</span> <span class="nv">D</span> (full_sub_precategory P)).
+    <span class="k">exists</span> <span class="nv">functor_full_img_is_dagger_functor</span>.
+    <span class="k">exists</span> (<span class="nv">inclusion_is_dagger_functor</span> <span class="nv">_</span> <span class="nv">_</span>).
+    <span class="k">exists</span> <span class="nv">functor_full_img_is_unitarily_eso</span>.
+    <span class="k">exists</span> (<span class="nv">fully_faithful_sub_precategory_inclusion</span> <span class="nv">_</span> <span class="nv">_</span>).
+    <span class="nb">apply</span> factorization_full_dagger_inclusion_equal.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ImageFactorization</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DaggerCategories/Functors/Factorization.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

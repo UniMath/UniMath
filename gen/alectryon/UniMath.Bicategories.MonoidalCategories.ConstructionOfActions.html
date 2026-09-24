@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ConstructionOfActions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">  Construction of actions, over monoidal categories:</span>
+<span class="sd">  - the monoidal category acting on itself</span>
+<span class="sd">  - reindexing an action from the target of a strong monoidal functor to its source</span>
+
+<span class="sd">  These modularize the construction of the action induced by a strong monoidal functor U, see [U_action].</span>
+
+<span class="sd">  Author: Ralph Matthes 2021. However, the code is to a good extent copied from the construction of [U_action].</span>
+<span class="sd">**)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.Actions.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+<span class="kn">Context</span> (<span class="nv">Mon_V</span> : monoidal_cat).
+
+<span class="kn">Local Definition</span> <span class="nf">V</span> := monoidal_cat_cat Mon_V.
+<span class="kn">Local Definition</span> <span class="nf">I</span> := monoidal_cat_unit Mon_V.
+<span class="kn">Local Definition</span> <span class="nf">tensor</span> := monoidal_cat_tensor Mon_V.
+<span class="kn">Notation</span> <span class="s2">"X ⊗ Y"</span> := (tensor (X , Y)).
+<span class="kn">Notation</span> <span class="s2">"f #⊗ g"</span> := (#tensor (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+<span class="kn">Local Definition</span> <span class="nf">α'</span> := monoidal_cat_associator Mon_V.
+<span class="kn">Local Definition</span> <span class="nf">λ'</span> := monoidal_cat_left_unitor Mon_V.
+<span class="kn">Local Definition</span> <span class="nf">ρ'</span> := monoidal_cat_right_unitor Mon_V.
+
+<span class="kn">Definition</span> <span class="nf">action_on_itself</span>: action Mon_V V.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">tensor</span>.
+  <span class="k">exists</span> <span class="nv">ρ'</span>.
+  <span class="k">exists</span> <span class="nv">α'</span>.
+  <span class="nb">split</span>; [<span class="nb">apply</span> monoidal_cat_triangle_eq | <span class="nb">apply</span> monoidal_cat_pentagon_eq].
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">Action_Reindexing_Through_Strong_Monoidal_Functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">Mon_A</span> : monoidal_cat}.
+
+<span class="kn">Local Definition</span> <span class="nf">A</span> := monoidal_cat_cat Mon_A.
+<span class="kn">Local Definition</span> <span class="nf">I_A</span> := monoidal_cat_unit Mon_A.
+<span class="kn">Local Definition</span> <span class="nf">tensor_A</span> := monoidal_cat_tensor Mon_A.
+<span class="kn">Notation</span> <span class="s2">"X ⊗_A Y"</span> := (tensor_A (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+<span class="kn">Notation</span> <span class="s2">"f #⊗_A g"</span> := (#tensor_A (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+<span class="kn">Local Definition</span> <span class="nf">α_A</span> := monoidal_cat_associator Mon_A.
+<span class="kn">Local Definition</span> <span class="nf">λ_A</span> := monoidal_cat_left_unitor Mon_A.
+<span class="kn">Local Definition</span> <span class="nf">ρ_A</span> := monoidal_cat_right_unitor Mon_A.
+<span class="kn">Local Definition</span> <span class="nf">triangle_eq_A</span> := monoidal_cat_triangle_eq Mon_A.
+<span class="kn">Local Definition</span> <span class="nf">pentagon_eq_A</span> := monoidal_cat_pentagon_eq Mon_A.
+
+
+<span class="kn">Context</span> (<span class="nv">U</span> : strong_monoidal_functor Mon_V Mon_A).
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">actA</span> : action Mon_A C).
+
+<span class="kn">Local Definition</span> <span class="nf">odotA</span> := act_odot actA.
+
+<span class="kn">Definition</span> <span class="nf">reindexed_odot</span> : C ⊠ V ⟶ C :=
+  functor_composite (pair_functor (functor_identity _) U) odotA.
+
+<span class="kn">Definition</span> <span class="nf">reindexed_action_right_unitor_nat_trans</span>:
+  odot_I_functor Mon_V C reindexed_odot ⟹ functor_identity C.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (nat_trans_comp _ _ _ _  (act_ϱ actA)).
+  <span class="nb">set</span> (aux := nat_trans_from_functor_fix_snd_morphism_arg _ _ _ odotA _ _ (strong_monoidal_functor_ϵ_inv U)).
+  use tpair.
+  - <span class="nb">intro</span> a.
+    <span class="nb">apply</span> (aux a).
+  - <span class="nb">cbn</span>; <span class="nb">red</span>.
+    <span class="nb">intros</span> a a' f.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="bp">exact</span> (pr2 aux a a' f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">reindexed_action_right_unitor</span>: action_right_unitor Mon_V C reindexed_odot.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">reindexed_action_right_unitor_nat_trans</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">cbn</span>.
+  use is_z_isomorphism_comp.
+  <span class="mi">2</span>: { <span class="bp">exact</span> (pr2 (act_ϱ actA) c). }
+  - use is_z_iso_odot_z_iso.
+    + <span class="bp">exact</span> (identity_is_z_iso _ ).
+    + <span class="nb">apply</span> (is_z_iso_inv_from_z_iso (strong_monoidal_functor_ϵ U)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">reindexed_action_convertor_nat_trans</span> :
+  odot_x_odot_y_functor _ C reindexed_odot ⟹ odot_x_otimes_y_functor _ C reindexed_odot.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) (act_χ actA))).
+  <span class="bp">exact</span> (pre_whisker (precategory_binproduct_unassoc _ _ _) (post_whisker_fst_param (lax_monoidal_functor_μ U) odotA)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">reindexed_action_convertor</span> : action_convertor Mon_V C reindexed_odot.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">reindexed_action_convertor_nat_trans</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">pose</span> (k := ob1 (ob1 x)); <span class="nb">pose</span> (k' := ob2 (ob1 x)); <span class="nb">pose</span> (k'' := ob2 x).
+  use is_z_isomorphism_comp.
+  - <span class="bp">exact</span> (pr2 (act_χ actA) ((k, U k'), U k'')).
+  - use is_z_iso_odot_z_iso.
+    + use identity_is_z_iso.
+    + <span class="bp">exact</span> (strong_monoidal_functor_μ_is_nat_z_iso U (k', k'')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">reindexed_action_tlaw</span> : action_triangle_eq Mon_V C
+        reindexed_odot reindexed_action_right_unitor reindexed_action_convertor.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> a x.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> nat_trans_from_functor_fix_snd_morphism_arg_data.
+  <span class="nb">unfold</span> nat_trans_data_post_whisker_fst_param.
+  <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> make_dirprod.
+  <span class="nb">rewrite</span> functor_id.
+  <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  { <span class="nb">rewrite</span> assoc'. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> functor_comp. }
+  <span class="nb">unfold</span> compose <span class="nb">at</span> <span class="mi">2</span>. <span class="nb">simpl</span>. <span class="nb">unfold</span> make_dirprod. <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> &lt;- (id_left (id U x)).
+  <span class="nb">apply</span> pathsinv0.
+  intermediate_path (# odotA ((# odotA (id a #, strong_monoidal_functor_ϵ_inv U)) #, id U x) · # odotA (act_ϱ actA a #, id U x)).
+  { <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">apply</span> idpath. }
+  <span class="nb">pose</span> (f := # odotA (# odotA (id a #, lax_monoidal_functor_ϵ U) #, id U x)).
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj'(f:=f)).
+  { use is_z_iso_odot_z_iso.
+    - use is_z_iso_odot_z_iso.
+      + <span class="bp">exact</span> (identity_is_z_iso _).
+      + <span class="bp">exact</span> (strong_monoidal_functor_ϵ_is_z_iso U).
+    - <span class="bp">exact</span> (identity_is_z_iso _ ).
+  }
+  <span class="nb">rewrite</span> assoc.
+  intermediate_path (# odotA (act_ϱ actA a #, id U x)).
+  { <span class="nb">apply</span> pathsinv0. etrans.
+    - <span class="nb">apply</span> (!(id_left _)).
+    - <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">unfold</span> f.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> functor_id_id.
+      <span class="nb">apply</span> pathsdirprod; <span class="nb">simpl</span>.
+      + etrans.
+        * <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> functor_comp.
+        * <span class="nb">apply</span> functor_id_id.
+          <span class="nb">apply</span> pathsdirprod; <span class="nb">simpl</span>.
+          -- <span class="nb">apply</span> id_left.
+          -- <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> z_iso_inv_on_left.
+             <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> id_left.
+  }
+  <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type.</span>
+<span class="c">     unfold functor_fix_snd_arg_ob in TYPE. *)</span>
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> pathsinv0. etrans.
+  { <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> (nat_trans_ax (act_χ actA) ((a, I_A), U x) ((a, U I), U x) ((id a ,, lax_monoidal_functor_ϵ U) ,, id U x)). }
+  <span class="nb">simpl</span>.
+  etrans.
+  { <span class="nb">rewrite</span> assoc'. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> functor_comp. }
+  <span class="nb">unfold</span> compose <span class="nb">at</span> <span class="mi">2</span>. <span class="nb">simpl</span>. <span class="nb">unfold</span> make_dirprod. <span class="nb">rewrite</span> id_left.
+  <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type.</span>
+<span class="c">     unfold functor_fix_snd_arg_ob in TYPE. *)</span>
+  <span class="nb">rewrite</span> assoc.
+  etrans.
+  - <span class="nb">apply</span> maponpaths.
+    <span class="nb">eapply</span> (maponpaths (<span class="k">fun</span> <span class="nv">u</span>: Mon_A ⟦I_A ⊗_A (U x), U x⟧ =&gt; # odotA (id a #, u))).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (lax_monoidal_functor_unital U x).
+  - <span class="nb">fold</span> <span class="k">λ</span><span class="nv">_A</span>.
+    <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type.</span>
+<span class="c">       unfold functor_fix_snd_arg_ob in TYPE. *)</span>
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (act_triangle actA).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">reindexed_action_plaw</span> : action_pentagon_eq Mon_V C
+                             reindexed_odot reindexed_action_convertor.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> a x y z.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> nat_trans_data_post_whisker_fst_param.
+  <span class="nb">unfold</span> ob1, ob2.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> functor_id.
+  <span class="nb">apply</span> pathsinv0. etrans.
+  { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> functor_comp.
+  }
+  <span class="nb">unfold</span> compose <span class="nb">at</span> <span class="mi">4</span>. <span class="nb">cbn</span>. <span class="nb">unfold</span> make_dirprod.
+  <span class="nb">rewrite</span> id_left.
+  etrans.
+  { <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> &lt;- (id_left (id U z)).
+    intermediate_path (# odotA ((act_χ actA ((a, U x), U y) #, id U z) · (# odotA (id a #, lax_monoidal_functor_μ U (x, y)) #, id U z))).
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> functor_comp.
+  }
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (nat_trans_ax (act_χ actA) ((a, U x ⊗_A U y), U z) ((a, U (x ⊗ y)), U z) ((id a ,, lax_monoidal_functor_μ U (x, y)) ,, id U z)).
+  }
+  etrans.
+  { <span class="nb">unfold</span> assoc_right. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> functor_comp.
+  }
+  <span class="nb">unfold</span> compose <span class="nb">at</span> <span class="mi">3</span>. <span class="nb">cbn</span>. <span class="nb">unfold</span> make_dirprod.
+  <span class="nb">rewrite</span> id_left.
+  etrans.
+  { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc.
+    <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+    <span class="nb">eapply</span> (maponpaths (<span class="k">fun</span> <span class="nv">u</span>: A ⟦(U x ⊗_A U y) ⊗_A U z, U (x ⊗ (y ⊗ z))⟧ =&gt; # odotA (id a #, u))).
+    <span class="nb">apply</span> (lax_monoidal_functor_assoc U).
+  }
+  etrans.
+  { <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> &lt;- (id_left (id a)).
+    intermediate_path (# odotA ((id a #, α_A ((U x, U y), U z)) · (id a #, # tensor_A (id U x #, lax_monoidal_functor_μ U (y, z)) · lax_monoidal_functor_μ U (x, y ⊗ z)))).
+    <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+    <span class="nb">apply</span> idpath.
+  }
+  etrans.
+  { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- (id_left (id a)).
+    intermediate_path (# odotA ((id a #, # tensor_A (id pr1 (pr1 U) x #, lax_monoidal_functor_μ U (y, z))) · (id a #, lax_monoidal_functor_μ U (x, y ⊗ z)))).
+    <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (act_pentagon actA).
+  }
+  <span class="nb">fold</span> odotA.
+  <span class="nb">change</span> (act_χ actA ((odotA (a, U x), U y), U z) · act_χ actA ((a, U x), tensor_A (U y, U z))
+  · # odotA (id a #, # tensor_A (id U x #, lax_monoidal_functor_μ U (y, z))) =
+  act_χ actA ((odotA (a , U x), U y), U z) · # odotA (id (odotA (a , U x)) #, lax_monoidal_functor_μ U (y, z))
+      · act_χ actA ((a, U x), U (y ⊗ z))).
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  { <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (nat_trans_ax (act_χ actA) ((a, U x), U y ⊗_A U z) ((a, U x), U (y ⊗ z)) ((id a ,, id U x) ,, lax_monoidal_functor_μ U (y, z))).
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="c">(* present the identity in the binary product of categories *)</span>
+  <span class="nb">change</span> (# odotA (# odotA (id (a, U x)) #, (lax_monoidal_functor_μ U) (y, z)) = # odotA (id (odotA (a, U x)) #, lax_monoidal_functor_μ U (y, z))).
+  <span class="nb">rewrite</span> functor_id.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">reindexed_action</span>: action Mon_V C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">reindexed_odot</span>.
+  <span class="k">exists</span> <span class="nv">reindexed_action_right_unitor</span>.
+  <span class="k">exists</span> <span class="nv">reindexed_action_convertor</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> reindexed_action_tlaw.
+  - <span class="bp">exact</span> reindexed_action_plaw.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Action_Reindexing_Through_Strong_Monoidal_Functor</span>.
+
+<span class="kn">End</span> <span class="nf">A</span>.
+
+<span class="kn">Section</span> <span class="nf">Strong_Monoidal_Functor_Action_Reloaded</span>.
+
+  <span class="kn">Context</span> {<span class="nv">Mon_V</span> <span class="nv">Mon_A</span> : monoidal_cat}.
+  <span class="kn">Context</span> (<span class="nv">U</span> : strong_monoidal_functor Mon_V Mon_A).
+  <span class="kn">Context</span> (<span class="nv">C</span> : precategory).
+
+  <span class="kn">Definition</span> <span class="nf">U_action_alt</span> : action Mon_V (monoidal_cat_cat Mon_A) := reindexed_action Mon_V U (action_on_itself Mon_A).
+
+<span class="c">(* the two actions would even be convertible - if one would ask for definedness of the proofs of the equations [reindexed_action_tlaw] and [reindexed_action_plaw] and also [U_action_tlaw] and [U_action_plaw]</span>
+<span class="c">  Lemma U_action_alt_ok: U_action_alt = U_action _ U.</span>
+<span class="c">  Proof.</span>
+<span class="c">    apply idpath.</span>
+<span class="c">  Qed.</span>
+<span class="c">*)</span>
+
+<span class="c">(* the following lemmas work even when the equational proofs are opaque *)</span>
+  <span class="kn">Lemma</span> <span class="nf">U_action_alt_ok1</span>: pr1 U_action_alt = pr1(U_action _ U).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">U_action_alt_ok2</span>: pr1(pr2 U_action_alt) = pr1(pr2(U_action _ U)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">U_action_alt_ok3</span>: pr1(pr22 U_action_alt) = pr1(pr22(U_action _ U)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="c">(* this last lemma would again require definedness of the equational laws</span>
+<span class="c">  Lemma U_action_alt_ok4: pr1(pr222 U_action_alt) = pr1(pr222(U_action _ U)).</span>
+<span class="c">  Proof.</span>
+<span class="c">    apply idpath.</span>
+<span class="c">  Qed.</span>
+<span class="c">*)</span>
+
+<span class="kn">End</span> <span class="nf">Strong_Monoidal_Functor_Action_Reloaded</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/ConstructionOfActions.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; **)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

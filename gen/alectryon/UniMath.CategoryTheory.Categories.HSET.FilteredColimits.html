@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FilteredColimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.QuotientSet.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Subtypes.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Filtered.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.StandardDiagrams.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.FiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.KFiniteTypes.
+<span class="kn">Require Import</span> UniMath.Combinatorics.KFiniteSubtypes.
+
+<span class="sd">(** * Filtered Colimits of Sets.</span>
+
+<span class="sd">  1. Filtered colimits as set quotients.</span>
+<span class="sd">  2. The category of K-finite subsets of a set is filtered. [is_filtered_kfinite_subsets].</span>
+<span class="sd">  3. Every set is the filtered colimit of its K-finite subsets. [is_colimit_kfinite_subsets]</span>
+<span class="sd">  4. Compact sets are K-finite. [iskfinite_compact_SET]</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subtype.
+
+<span class="sd">(** Given a filtered category J and a diagram F : J -&gt; SET the colimit of F can be</span>
+<span class="sd">    constructed as a quotient of the disjoint union, ∐ⱼF(j)/~, where (j₁, x) ~ (j₂, y)</span>
+<span class="sd">    if there is some i ∈ J and edges u : j₁ -&gt; i, v : j₂ -&gt; i (in J) such that</span>
+<span class="sd">               F(u) x = F(v) y.</span>
+
+<span class="sd">    See [filtered_cobase_rel].</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">filtered_colimits_in_SET</span>.
+  <span class="sd">(**</span>
+<span class="sd">   1. Filtered colimits as set quotients.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Variable</span> <span class="nv">J</span> : category.
+  <span class="kn">Variable</span> <span class="nv">Jfiltered</span> : is_filtered J.
+  <span class="kn">Variable</span> <span class="nv">F</span> : functor J SET.
+
+  <span class="kn">Let</span> <span class="nf">d</span> := (pr1 F) : diagram J SET.
+
+  <span class="c">(* This follows the same basic structure used in HSET.Colimits *)</span>
+  <span class="kn">Definition</span> <span class="nf">cobase</span> : UU
+    := ∑ (j : vertex J), (dob d j : hSet).
+
+  <span class="kn">Local Definition</span> <span class="nf">cobasepr1</span> : cobase -&gt; vertex J := pr1.
+  <span class="kn">Local Coercion</span> <span class="nf">cobasepr1</span> : cobase &gt;-&gt; vertex.
+
+  <span class="kn">Local Definition</span> <span class="nf">cobasept</span> : ∏ (a : cobase), (dob d a) : hSet := pr2.
+  <span class="kn">Local Coercion</span> <span class="nf">cobasept</span> : cobase &gt;-&gt; pr1hSet.
+
+  <span class="kn">Definition</span> <span class="nf">filtered_cobase_rel</span> : hrel cobase
+    := <span class="k">λ</span> (<span class="nv">a</span> <span class="nv">b</span> : cobase),
+      ∥ ∑ (c : J) (fia : edge a c) (fib : edge b c),
+      (dmor d fia) a = (dmor d fib) b ∥.
+
+  <span class="kn">Definition</span> <span class="nf">filtered_rel</span> : hrel cobase
+    := eqrel_from_hrel filtered_cobase_rel.
+
+  <span class="kn">Definition</span> <span class="nf">filtered_eqrel</span> : eqrel cobase.
+  <span class="kn">Proof</span>.
+    use make_eqrel.
+    - <span class="bp">exact</span>(eqrel_from_hrel filtered_cobase_rel).
+    - <span class="nb">apply</span> iseqrel_eqrel_from_hrel.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* TODO: Redo this but using setquot2 instead. *)</span>
+  <span class="kn">Definition</span> <span class="nf">FilteredColimitSET</span> : SET
+    := make_hSet
+         (setquot filtered_eqrel)
+         (isasetsetquot filtered_eqrel).
+
+  <span class="c">(* Define the injections from the diagram into the colimit. *)</span>
+  <span class="kn">Definition</span> <span class="nf">inject</span> (<span class="nv">j</span> : vertex J) : SET⟦dob d j, FilteredColimitSET⟧
+    := <span class="k">λ</span> (<span class="nv">dj</span> : dob d j : hSet),
+      setquotpr filtered_eqrel (j ,, dj).
+
+  <span class="c">(* They satisfy the cocone property. This is where we use the assumption</span>
+<span class="c">     that J is filtered. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">filtered_forms_cocone</span> : forms_cocone d inject.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> u v e.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> x.
+
+    <span class="nb">apply</span>(weqpathsinsetquot filtered_eqrel).
+    <span class="nb">apply</span> eqrel_impl.
+
+    <span class="c">(* Here ↓ is Jfiltered used. *)</span>
+    use(hinhfun _ (Jfiltered _ (make_interval_diagram u v e) (is_finite_graph_interval))).
+
+    <span class="nb">intros</span> P; <span class="nb">destruct</span> P <span class="k">as</span> [apex cc]; <span class="nb">cbn</span>.
+
+    <span class="k">exists</span> <span class="nv">apex</span>.
+    <span class="k">exists</span> (<span class="nv">coconeIn</span> <span class="nv">cc</span> <span class="nv">false</span>).
+    <span class="k">exists</span> (<span class="nv">coconeIn</span> <span class="nv">cc</span> <span class="nv">true</span>).
+
+    <span class="c">(* This is to convince Coq that we can use eqtohomot. *)</span>
+    <span class="nb">change</span> (dmor d (coconeIn cc false) (dmor d e x))
+      <span class="k">with</span> ((dmor d e · (dmor d (coconeIn cc false))) x).
+    use(eqtohomot _ x).
+    etrans; [<span class="nb">apply</span>(!functor_comp F e (coconeIn cc false)) |]; <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span>(coconeInCommutes cc true false tt).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">filtered_cocone</span> : cocone d FilteredColimitSET.
+  <span class="kn">Proof</span>.
+    use make_cocone.
+    - <span class="bp">exact</span> inject.
+    - <span class="bp">exact</span> filtered_forms_cocone.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_cobase</span> {<span class="nv">Y</span> : SET} (<span class="nv">cc</span> : cocone d Y) : cobase -&gt; Y : hSet
+    := <span class="k">λ</span> (<span class="nv">a</span> : cobase), coconeIn cc a a.
+
+  <span class="kn">Definition</span> <span class="nf">from_cobase_hrel</span> {<span class="nv">Y</span> : SET} (<span class="nv">cc</span> : cocone d Y) : hrel cobase.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    use make_hProp.
+    - <span class="bp">exact</span>(from_cobase cc a = from_cobase cc b).
+    - <span class="nb">apply</span> setproperty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_cobase_eqrel</span> {<span class="nv">Y</span> : SET} (<span class="nv">cc</span> : cocone d Y) : eqrel cobase.
+  <span class="kn">Proof</span>.
+    use make_eqrel.
+    - <span class="bp">exact</span>(from_cobase_hrel cc).
+    - <span class="kp">abstract</span>(<span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span> *; [<span class="nb">apply</span> pathscomp0 | <span class="nb">apply</span> pathsinv0]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">filtered_cobase_rel_impl</span> {<span class="nv">Y</span> : SET}
+    (<span class="nv">cc</span> : cocone d Y)
+    (<span class="nv">a</span> <span class="nv">b</span> : cobase)
+    (<span class="nv">Rab</span> : filtered_cobase_rel a b)
+    : from_cobase_eqrel cc a b.
+  <span class="kn">Proof</span>.
+    use Rab; <span class="nb">intros</span> h.
+    etrans; [<span class="nb">refine</span>(!eqtohomot (coconeInCommutes cc _ _ _) a); <span class="bp">exact</span>(pr12 h) |].
+    etrans; [| <span class="nb">refine</span>(eqtohomot (coconeInCommutes cc _ _ _) b); <span class="bp">exact</span>(pr122 h)].
+    <span class="nb">apply</span>(maponpaths _ (pr222 h)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">filtered_rel_impl</span> {<span class="nv">Y</span> : SET}
+    (<span class="nv">cc</span> : cocone d Y)
+    (<span class="nv">a</span> <span class="nv">b</span> : cobase)
+    (<span class="nv">Rab</span> : filtered_rel a b)
+    : from_cobase_eqrel cc a b.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> <span class="nb">apply</span>(minimal_eqrel_from_hrel filtered_cobase_rel);
+      [<span class="nb">apply</span> filtered_cobase_rel_impl |].
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iscomprelfun_from_cobase</span> {<span class="nv">Y</span> : SET}
+    (<span class="nv">cc</span> : cocone d Y)
+    : iscomprelfun filtered_rel (from_cobase cc).
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span> *.
+    <span class="nb">apply</span> filtered_rel_impl.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">filtered_cocone_morphism</span> {<span class="nv">Y</span> : SET}
+    (<span class="nv">cc</span> : cocone d Y)
+    : SET⟦FilteredColimitSET, Y⟧.
+  <span class="kn">Proof</span>.
+    use setquotuniv.
+    - <span class="bp">exact</span>(from_cobase cc).
+    - <span class="bp">exact</span>(iscomprelfun_from_cobase cc).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_cocone_mor_filtered_cocone_morphism</span> {<span class="nv">Y</span> : SET}
+    (<span class="nv">cc</span> : cocone d Y)
+    : is_cocone_mor (filtered_cocone) cc (filtered_cocone_morphism cc).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_unique_filtered_cocone_morphism</span> {<span class="nv">Y</span> : SET}
+    (<span class="nv">cc</span> : cocone d Y)
+    (<span class="nv">f</span> : SET⟦FilteredColimitSET, Y⟧)
+    (<span class="nv">fmor</span> : is_cocone_mor filtered_cocone cc f)
+    : f = filtered_cocone_morphism cc.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x.
+    <span class="nb">apply</span>(surjectionisepitosets (setquotpr filtered_eqrel)).
+    - <span class="nb">apply</span> issurjsetquotpr.
+    - <span class="nb">apply</span> setproperty.
+    - <span class="nb">intro</span> b. <span class="bp">exact</span>(eqtohomot (fmor b) b).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">FilteredColimCoconeSET</span> : ColimCocone d.
+  <span class="kn">Proof</span>.
+    use make_ColimCocone.
+    - <span class="bp">exact</span> FilteredColimitSET.
+    - <span class="bp">exact</span> filtered_cocone.
+    - <span class="nb">intros</span> Y cc.
+      use unique_exists.
+      + <span class="bp">exact</span>(filtered_cocone_morphism cc).
+      + <span class="bp">exact</span>(is_cocone_mor_filtered_cocone_morphism cc).
+      + <span class="bp">exact</span>(isaprop_is_cocone_mor filtered_cocone cc).
+      + <span class="bp">exact</span>(is_unique_filtered_cocone_morphism cc).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">filtered_colimits_in_SET</span>.
+
+<span class="kn">Section</span> <span class="nf">category_of_kfinite_subsets</span>.
+  <span class="sd">(**</span>
+<span class="sd">   2. The category of K-finite subsets of a set, with subset inclusions as morphisms.</span>
+
+<span class="sd">     - [kfinite_subsets_category]</span>
+<span class="sd">     - [is_filtered_kfinite_subsets]</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">kfinite_subsets_ob_mor</span> (<span class="nv">X</span> : hSet) : precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="c">(* we are actually taking the K-finite sub/types/ as objects</span>
+<span class="c">       and subtype-containment as morphisms between them. But the</span>
+<span class="c">       corresponding carriers really are sets, thanks to isaset_carrier_subset.</span>
+<span class="c">     *)</span>
+    use make_precategory_ob_mor.
+    - <span class="bp">exact</span>(kfinite_subtype X).
+    - <span class="bp">exact</span>(subtype_containedIn). <span class="c">(* ⊆ *)</span>
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">kfinite_subsets_precategory_data</span> (<span class="nv">X</span> : hSet)
+    : precategory_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - <span class="bp">exact</span>(kfinite_subsets_ob_mor X).
+    - <span class="nb">intro</span>; <span class="nb">apply</span> subtype_containment_isrefl.
+    - <span class="nb">intros</span> *; <span class="nb">apply</span> subtype_containment_istrans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">kfinite_subsets_precategory</span> (<span class="nv">X</span> : hSet)
+    : precategory.
+  <span class="kn">Proof</span>.
+    use make_precategory.
+    - <span class="bp">exact</span>(kfinite_subsets_precategory_data X).
+    - <span class="kp">repeat</span> <span class="nb">split</span>. <span class="c">(* Solves everything by applying idpath. *)</span>
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">has_homsets_kfinite_subsets</span> (<span class="nv">X</span> : hSet)
+    : has_homsets (kfinite_subsets_precategory X).
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">kfinite_subsets_category</span> (<span class="nv">X</span> : hSet) : category.
+  <span class="kn">Proof</span>.
+    use make_category.
+    - <span class="bp">exact</span>(kfinite_subsets_precategory X).
+    - <span class="bp">exact</span>(has_homsets_kfinite_subsets X).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_filtered_kfinite_subsets</span> (<span class="nv">X</span> : hSet)
+    : is_filtered (kfinite_subsets_category X).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> g d gfinite.
+    <span class="nb">apply</span> hinhpr.
+
+    <span class="nb">simple refine</span>(_ ,, _).
+    - <span class="bp">exact</span>(kfinite_subtype_union (dob d) (finite_vertexset gfinite)).
+    - use make_cocone.
+      + <span class="nb">apply</span> subtype_union_containedIn.
+      + <span class="kp">abstract</span>(<span class="nb">red</span>; <span class="nb">intros</span>
+                 ; <span class="nb">apply</span> funextsec; <span class="nb">intro</span>
+                 ; <span class="nb">apply</span> funextsec; <span class="nb">intro</span>
+                 ; <span class="nb">apply</span> squash_path).
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Define the functor from kfinite_subsets_category X into SET sending each</span>
+<span class="c">     subtype to its carrier set and each ⊆ to the inclusion between carriers.</span>
+<span class="c">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">kfinite_subsets_functor_data</span> (<span class="nv">X</span> : hSet)
+    : functor_data (kfinite_subsets_category X) SET.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span>(<span class="k">λ</span> (<span class="nv">A</span> : kfinite_subtype X), carrier_subset A).
+    - <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">E</span>, subtype_inc E).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">kfinite_subsets_functor</span> (<span class="nv">X</span> : hSet)
+    : functor (kfinite_subsets_category X) SET.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span>(kfinite_subsets_functor_data X).
+    - <span class="kp">abstract</span>(<span class="nb">split</span>; (<span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> idpath)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">category_of_kfinite_subsets</span>.
+
+<span class="kn">Section</span> <span class="nf">colimit_of_kfinite_subsets</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Proof that every set is the filtered colimit of its K-finite subsets.</span>
+<span class="sd">  *)</span>
+
+  <span class="kn">Variable</span> <span class="nv">X</span> : hSet.
+  <span class="kn">Let</span> <span class="nf">d</span> := kfinite_subsets_functor_data X. <span class="c">(* The diagram of kfinite subsets. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">kfinite_subsets_cocone</span> : cocone d X.
+  <span class="kn">Proof</span>.
+    use make_cocone.
+    - <span class="bp">exact</span>(<span class="k">λ</span> (<span class="nv">A</span> : kfinite_subtype X), pr1).
+    - <span class="kp">abstract</span>(<span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_colimit_kfinite_subsets</span> : isColimCocone d X kfinite_subsets_cocone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Y cc.
+    use unique_exists.
+    - <span class="nb">intro</span> x. <span class="bp">exact</span>(coconeIn cc (kfinite_subtype_singleton x) singleton_point).
+    - <span class="kp">abstract</span>(<span class="nb">intro</span> A; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x;
+               <span class="nb">set</span> (commutes := coconeInCommutes cc
+                                  (kfinite_subtype_singleton (pr1 x))
+                                  A
+                                  (singleton_is_in _ x));
+               <span class="nb">apply</span>(eqtohomot (!commutes))).
+    - <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_is_cocone_mor.
+    - <span class="kp">abstract</span>(<span class="nb">intros</span> f fmor; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x;
+               <span class="bp">exact</span>(eqtohomot (fmor (kfinite_subtype_singleton x))
+                       singleton_point)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">colimit_of_kfinite_subsets</span>.
+
+<span class="kn">Section</span> <span class="nf">compact_sets_are_kfinite</span>.
+  <span class="sd">(**</span>
+<span class="sd">   4. Compact sets are K-finite.</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Variable</span> <span class="nv">X</span> : SET.
+
+  <span class="c">(* We can always map the kfinite_subsets_cocone to a cocone with apex</span>
+<span class="c">     Hom(X, X) over Hom(X, -) applied to the kfinite_subsets-diagram.</span>
+<span class="c">     In general this will not be a colimit, but if X is compact it</span>
+<span class="c">     will be. *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">homD</span> := (mapdiagram (hom X) (kfinite_subsets_functor_data X)).
+
+  <span class="kn">Local Definition</span> <span class="nf">homcocone</span> : cocone homD (hom X X).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> mapcocone.
+    <span class="bp">exact</span>(kfinite_subsets_cocone X).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_colimit_homcocone</span>
+    (<span class="nv">comp</span> : is_compact X)
+    : isColimCocone homD (hom X X) homcocone.
+  <span class="kn">Proof</span>.
+    use comp.
+    - <span class="bp">exact</span>(is_filtered_kfinite_subsets X).
+    - <span class="bp">exact</span>(is_colimit_kfinite_subsets X).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* If X is compact then Hom(X, X) is a colimit. We call it homXX here. *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">homXX</span> (<span class="nv">comp</span> : is_compact X) : ColimCocone homD.
+  <span class="kn">Proof</span>.
+    use make_ColimCocone.
+    - <span class="bp">exact</span>(hom X X).
+    - <span class="bp">exact</span> homcocone.
+    - <span class="bp">exact</span>(is_colimit_homcocone comp).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Define filtCC to be the filtered colimit (defined as a set quotient above) of</span>
+<span class="c">     hom(X, -) applied to the diagram of K-finite subsets. The idea is to use that</span>
+<span class="c">     the canonical cocone morphism</span>
+<span class="c">                           φ : colim filtCC --&gt; (hom X X)</span>
+<span class="c">     is an isomorphism when X is compact, together with the explicit construction</span>
+<span class="c">     of filtered colimits of sets to conclude that there is some K-finite subset</span>
+<span class="c">                          Xᵢ ⊆ X</span>
+<span class="c">     where the inclusion Xᵢ --&gt; X is surjective.</span>
+<span class="c">   *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">filtCC</span> := FilteredColimCoconeSET
+                               (kfinite_subsets_category X)
+                               (is_filtered_kfinite_subsets X)
+                               ((kfinite_subsets_functor X) ∙ (hom X)).
+
+
+  <span class="kn">Local Definition</span> <span class="nf">φ</span> : colim filtCC --&gt; (hom X X).
+  <span class="kn">Proof</span>.
+    use colimArrow.
+    <span class="bp">exact</span> homcocone.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">φiso</span> (<span class="nv">comp</span> : is_compact X) : is_z_isomorphism φ.
+  <span class="kn">Proof</span>.
+    use isColim_is_z_iso.
+    use comp.
+    - <span class="bp">exact</span>(is_filtered_kfinite_subsets X).
+    - <span class="bp">exact</span>(is_colimit_kfinite_subsets X).
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Proof idea: take (identity X) ∈ Hom(X, X). The image φinv(identity X) ∈ filtCC</span>
+<span class="c">     can be deconstructed as an element in the cobase of the diagram of the hom-mapped</span>
+<span class="c">     diagram of K-finite subsets, i.e. it is represented by some function (f : X --&gt; Xᵢ)</span>
+<span class="c">     for some K-finite subset of X.</span>
+
+<span class="c">     Then prove that the inclusion Xᵢ ⊆ X is a surjection by applying f to the fibers</span>
+<span class="c">     and use commutativity of the cocone morphism φ.</span>
+<span class="c">   *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">iskfinite_compact_SET</span> (<span class="nv">comp</span> : is_compact X) : iskfinite (X : hSet).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span>(φinv := is_z_isomorphism_mor (φiso comp)).
+    <span class="nb">set</span>(idX := φinv (identity X)). <span class="c">(* identity X : X --&gt; X *)</span>
+    <span class="nb">set</span>(idxx := pr12 idX).
+    use(hinhuniv _ idxx).
+
+    <span class="nb">intros</span> cob.      <span class="c">(* cob = (xᵢ , f) *)</span>
+    <span class="c">(* xᵢ is a K-finite subset of X such that colimIn filtCC xᵢ f = φinv (identity X) *)</span>
+    <span class="nb">set</span>(xᵢ := pr11 cob : kfinite_subtype (X : hSet)).
+    <span class="nb">set</span>(f := pr21 cob : _ --&gt; _). <span class="c">(* X -&gt; xᵢ *)</span>
+
+    <span class="c">(* (coconeIn (kfinite_subsets_cocone X) xᵢ) ≡ pr1 : carrier_subset xᵢ -&gt; X. *)</span>
+    <span class="nb">apply</span>(iskfinite_from_surjection (coconeIn (kfinite_subsets_cocone X) xᵢ)).
+    - <span class="nb">intro</span> y; <span class="nb">apply</span> hinhpr.
+      use make_hfiber.
+      + <span class="bp">exact</span>(f y).
+      + <span class="nb">enough</span> (Q : colimIn (homXX comp) xᵢ f = identity X)
+          <span class="bp">by</span> <span class="bp">exact</span>(eqtohomot Q y).
+
+        <span class="c">(* To prove Q observe that colimIn (homXX comp) xᵢ commutes with</span>
+<span class="c">           colimIn filtCC xᵢ · φ by the colimArrow property. *)</span>
+        <span class="nb">assert</span> (z : colimIn filtCC xᵢ · φ = colimIn (homXX comp) xᵢ)
+          <span class="bp">by</span> <span class="nb">apply</span> colimArrowCommutes.
+
+        <span class="nb">apply</span>(pathscomp0 (eqtohomot (!z) f)).
+        <span class="nb">change</span> ((colimIn filtCC xᵢ · φ) f) <span class="k">with</span> (φ (colimIn filtCC xᵢ f)).
+
+        <span class="c">(* f is in the same equivalence class in filtCC as idX ≡ φinv (identity X). *)</span>
+        etrans. { <span class="nb">apply</span> maponpaths; <span class="bp">exact</span>(setquotl0 _ idX cob). }
+
+        <span class="c">(* so φ (φinv (identity X)) = identity X. *)</span>
+        <span class="bp">exact</span>(eqtohomot (is_inverse_in_precat2 (φiso comp)) (identity X)).
+    - <span class="bp">exact</span>(kfinite_subtype_property xᵢ).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">compact_sets_are_kfinite</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/HSET/FilteredColimits.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.MoreFoundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

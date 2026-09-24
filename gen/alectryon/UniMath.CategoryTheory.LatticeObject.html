@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LatticeObject.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** *****************************************************************************</span>
+
+<span class="sd">Internal lattice objects in a category</span>
+
+<span class="sd">Contents:</span>
+
+<span class="sd">- Lattice objects ([latticeob])</span>
+<span class="sd">- Bounded lattice objects ([bounded_latticeob])</span>
+<span class="sd">- Proof that a subobject of a (bounded) lattice object is a lattice object</span>
+<span class="sd">  ([sublatticeob], [sub_bounded_latticeob])</span>
+
+<span class="sd">Based on "Sheaves in Geometry and Logic" by Mac Lane and Moerdijk (Section IV.8, page 198)</span>
+
+<span class="sd">Written by: Anders Mörtberg, 2017</span>
+
+<span class="sd">*********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Lattice.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Bounded.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of lattice objects and bounded lattice objects *)</span>
+<span class="kn">Section</span> <span class="nf">LatticeObject_def</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">BPC</span> : BinProducts C}.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"c ⊗ d"</span> := (BinProductObject C (BPC c d)) : cat.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f '××' g"</span> := (BinProductOfArrows _ _ _ f g) (<span class="kn">at level</span> <span class="mi">80</span>) : cat.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"1"</span> := (identity _) : cat.
+
+<span class="kn">Let</span> <span class="nf">π1</span> {<span class="nv">x</span> <span class="nv">y</span>} : C⟦x ⊗ y,x⟧ := BinProductPr1 _ (BPC x y).
+<span class="kn">Let</span> <span class="nf">π2</span> {<span class="nv">x</span> <span class="nv">y</span>} : C⟦x ⊗ y,y⟧ := BinProductPr2 _ (BPC x y).
+
+<span class="kn">Definition</span> <span class="nf">binprod_assoc</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) : C⟦(x ⊗ y) ⊗ z,x ⊗ (y ⊗ z)⟧ :=
+  BinProductArrow _ _ (π1 · π1) (BinProductArrow _ _ (π1 · π2) π2).
+<span class="kn">Let</span> <span class="nf">α</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>} : C⟦(x ⊗ y) ⊗ z,x ⊗ (y ⊗ z)⟧ := binprod_assoc x y z.
+
+<span class="kn">Definition</span> <span class="nf">binprod_delta</span> (<span class="nv">x</span> : C) : C⟦x,x ⊗ x⟧ :=
+  BinProductArrow _ _ (identity x) (identity x).
+<span class="kn">Let</span> <span class="nf">δ</span> {<span class="nv">x</span>} : C⟦x,x ⊗ x⟧ := binprod_delta x.
+
+<span class="kn">Definition</span> <span class="nf">binprod_swap</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : C⟦x ⊗ y,y ⊗ x⟧ :=
+  BinProductArrow _ _ (BinProductPr2 _ _) (BinProductPr1 _ _).
+<span class="kn">Let</span> <span class="nf">τ</span> {<span class="nv">x</span> <span class="nv">y</span>} : C⟦x ⊗ y,y ⊗ x⟧ := binprod_swap x y.
+
+
+<span class="sd">(** Equation witnessing that a morphism representing a binary operation is</span>
+<span class="sd">    associative as illustrated by the diagram:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">               f×1</span>
+<span class="sd"> (L ⊗ L) ⊗ L -------&gt; L ⊗ L</span>
+<span class="sd">     |                  |</span>
+<span class="sd">   α |                  |</span>
+<span class="sd">     V                  |</span>
+<span class="sd"> L ⊗ (L ⊗ L)            | f</span>
+<span class="sd">     |                  |</span>
+<span class="sd"> 1×f |                  |</span>
+<span class="sd">     V                  V</span>
+<span class="sd">   L ⊗ L -----------&gt;   L</span>
+<span class="sd">              f</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">isassoc_cat</span> {<span class="nv">L</span>} (<span class="nv">f</span> : C⟦L ⊗ L,L⟧) : UU := (f ×× <span class="mi">1</span>) · f = α · (<span class="mi">1</span> ×× f) · f.
+
+
+<span class="sd">(** Equation witnessing that a morphism representing a binary operation is</span>
+<span class="sd">    commutative as illustrated by the diagram:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">   L ⊗ L</span>
+<span class="sd">     |   \</span>
+<span class="sd">     |     \</span>
+<span class="sd">   τ |       \ f</span>
+<span class="sd">     |         \</span>
+<span class="sd">     |          V</span>
+<span class="sd">   L ⊗ L -----&gt; L</span>
+<span class="sd">           f</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">iscomm_cat</span> {<span class="nv">L</span>} (<span class="nv">f</span> : C⟦L ⊗ L,L⟧) : UU := f = τ · f.
+
+
+<span class="sd">(** Equation witnessing the absorbtion law as illustrated by the diagram:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">           δ×1                   α</span>
+<span class="sd">   L ⊗ L ------&gt; (L ⊗ L) ⊗ L -------&gt; L ⊗ (L ⊗ L)</span>
+<span class="sd">     |                                    |</span>
+<span class="sd">  π1 |                                    | 1×g</span>
+<span class="sd">     V                                    V</span>
+<span class="sd">     L &lt;------------------------------- L ⊗ L</span>
+<span class="sd">                       f</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd">If f is ∧ and g is ∨ this expresses: x ∧ (x ∨ y) = x</span>
+
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">isabsorb_cat</span> {<span class="nv">L</span>} (<span class="nv">f</span> <span class="nv">g</span> : C⟦L ⊗ L,L⟧) : UU :=
+  (δ ×× <span class="mi">1</span>) · α · (<span class="mi">1</span> ×× g) · f = π1.
+
+<span class="kn">Definition</span> <span class="nf">latticeop_cat</span> {<span class="nv">L</span>} (<span class="nv">meet_mor</span> <span class="nv">join_mor</span> : C⟦L ⊗ L,L⟧) :=
+    (isassoc_cat meet_mor × iscomm_cat meet_mor)
+  × (isassoc_cat join_mor × iscomm_cat join_mor)
+  × (isabsorb_cat meet_mor join_mor × isabsorb_cat join_mor meet_mor).
+
+<span class="sd">(** A lattice object L has operation meet and join satisfying the above laws *)</span>
+<span class="kn">Definition</span> <span class="nf">latticeob</span> (<span class="nv">L</span> : C) : UU :=
+  ∑ (meet_mor join_mor : C⟦L ⊗ L,L⟧), latticeop_cat meet_mor join_mor.
+
+<span class="kn">Definition</span> <span class="nf">make_latticeob</span> {<span class="nv">L</span> : C} {<span class="nv">meet_mor</span> <span class="nv">join_mor</span> : C⟦L ⊗ L,L⟧} :
+  latticeop_cat meet_mor join_mor → latticeob L :=
+    <span class="k">λ</span> (<span class="nv">isL</span> : latticeop_cat meet_mor join_mor), meet_mor,, join_mor ,, isL.
+
+<span class="kn">Definition</span> <span class="nf">meet_mor</span> {<span class="nv">L</span> : C} (<span class="nv">isL</span> : latticeob L) : C⟦L ⊗ L,L⟧ := pr1 isL.
+<span class="kn">Definition</span> <span class="nf">join_mor</span> {<span class="nv">L</span> : C} (<span class="nv">isL</span> : latticeob L) : C⟦L ⊗ L,L⟧ := pr1 (pr2 isL).
+
+<span class="sd">(** Bounded lattice objects *)</span>
+
+<span class="kn">Context</span> {<span class="nv">TC</span> : Terminal C}.
+
+<span class="kn">Let</span> <span class="nf">ι</span> {<span class="nv">x</span> : C} : C⟦x,TC ⊗ x⟧ :=
+  BinProductArrow _ _ (TerminalArrow _ _) (identity x).
+
+<span class="sd">(** Given u : C⟦TC,L⟧ the equation witnessing the left unit law is given</span>
+<span class="sd">    by the diagram:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">          ι</span>
+<span class="sd">     L ------&gt; 1 ⊗ L</span>
+<span class="sd">     |           |</span>
+<span class="sd">   1 |           | u×1</span>
+<span class="sd">     V           V</span>
+<span class="sd">     L &lt;------ L ⊗ L</span>
+<span class="sd">          f</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">islunit_cat</span> {<span class="nv">L</span>} (<span class="nv">f</span> : C⟦L ⊗ L,L⟧) (<span class="nv">u</span> : C⟦TC,L⟧) : UU :=
+  ι · (u ×× <span class="mi">1</span>) · f = <span class="mi">1</span>.
+
+<span class="kn">Definition</span> <span class="nf">bounded_latticeop_cat</span> {<span class="nv">L</span>} (<span class="nv">l</span> : latticeob L) (<span class="nv">bot</span> <span class="nv">top</span> : C⟦TC,L⟧) :=
+  (islunit_cat (join_mor l) bot) × (islunit_cat (meet_mor l) top).
+
+<span class="kn">Definition</span> <span class="nf">bounded_latticeob</span> (<span class="nv">L</span> : C) : UU :=
+  ∑ (l : latticeob L) (bot top : C⟦TC,L⟧), bounded_latticeop_cat l bot top.
+
+<span class="kn">Definition</span> <span class="nf">make_bounded_latticeob</span> {<span class="nv">L</span>} {<span class="nv">l</span> : latticeob L} {<span class="nv">bot</span> <span class="nv">top</span> : C⟦TC,L⟧} :
+  bounded_latticeop_cat l bot top → bounded_latticeob L := <span class="k">λ</span> <span class="nv">bl</span>, l,, bot,, top,, bl.
+
+<span class="kn">Definition</span> <span class="nf">bounded_latticeob_to_latticeob</span> <span class="nv">X</span> : bounded_latticeob X → latticeob X := pr1.
+<span class="kn">Coercion</span> <span class="nf">bounded_latticeob_to_latticeob</span> : bounded_latticeob &gt;-&gt; latticeob.
+
+<span class="kn">Definition</span> <span class="nf">bot_mor</span> {<span class="nv">L</span>} (<span class="nv">isL</span> : bounded_latticeob L) : C⟦TC,L⟧ := pr1 (pr2 isL).
+<span class="kn">Definition</span> <span class="nf">top_mor</span> {<span class="nv">L</span>} (<span class="nv">isL</span> : bounded_latticeob L) : C⟦TC,L⟧ := pr1 (pr2 (pr2 isL)).
+
+<span class="kn">End</span> <span class="nf">LatticeObject_def</span>.
+
+<span class="kn">Arguments</span> latticeob {_} _ _.
+<span class="kn">Arguments</span> bounded_latticeob {_} _ _ _.
+
+<span class="kn">Section</span> <span class="nf">LatticeObject_accessors</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">BPC</span> : BinProducts C) {<span class="nv">L</span> : C} (<span class="nv">isL</span> : latticeob BPC L).
+
+<span class="kn">Definition</span> <span class="nf">isassoc_meet_mor</span> : isassoc_cat (meet_mor isL) :=
+  pr1 (pr1 (pr2 (pr2 isL))).
+<span class="kn">Definition</span> <span class="nf">iscomm_meet_mor</span> : iscomm_cat (meet_mor isL) :=
+  pr2 (pr1 (pr2 (pr2 isL))).
+<span class="kn">Definition</span> <span class="nf">isassoc_join_mor</span> : isassoc_cat (join_mor isL) :=
+  pr1 (pr1 (pr2 (pr2 (pr2 isL)))).
+<span class="kn">Definition</span> <span class="nf">iscomm_join_mor</span> : iscomm_cat (join_mor isL) :=
+  pr2 (pr1 (pr2 (pr2 (pr2 isL)))).
+<span class="kn">Definition</span> <span class="nf">meet_mor_absorb_join_mor</span> : isabsorb_cat (meet_mor isL) (join_mor isL) :=
+  pr1 (pr2 (pr2 (pr2 (pr2 isL)))).
+<span class="kn">Definition</span> <span class="nf">join_mor_absorb_meet_mor</span> : isabsorb_cat (join_mor isL) (meet_mor isL) :=
+  pr2 (pr2 (pr2 (pr2 (pr2 isL)))).
+
+<span class="kn">End</span> <span class="nf">LatticeObject_accessors</span>.
+
+<span class="kn">Section</span> <span class="nf">BoundedLatticeObject_accessors</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">BPC</span> : BinProducts C) (<span class="nv">TC</span> : Terminal C).
+<span class="kn">Context</span> {<span class="nv">L</span> : C} (<span class="nv">l</span> : bounded_latticeob BPC TC L).
+
+<span class="kn">Definition</span> <span class="nf">islunit_join_mor_bot_mor</span> : islunit_cat (join_mor l) (bot_mor l) :=
+  pr1 (pr2 (pr2 (pr2 l))).
+
+<span class="kn">Definition</span> <span class="nf">islunit_meet_mor_top_mor</span> : islunit_cat (meet_mor l) (top_mor l) :=
+  pr2 (pr2 (pr2 (pr2 l))).
+
+<span class="kn">End</span> <span class="nf">BoundedLatticeObject_accessors</span>.
+
+
+<span class="sd">(** * Definition of sublattice objects  *)</span>
+<span class="kn">Section</span> <span class="nf">SublatticeObject</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">BPC</span> : BinProducts C) {<span class="nv">M</span> <span class="nv">L</span> : C}.
+<span class="kn">Context</span> {<span class="nv">i</span> : C⟦M,L⟧} (<span class="nv">Hi</span> : isMonic i) (<span class="nv">l</span> : latticeob BPC L).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"c ⊗ d"</span> := (BinProductObject C (BPC c d)) : cat.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f '××' g"</span> := (BinProductOfArrows _ _ _ f g) (<span class="kn">at level</span> <span class="mi">90</span>) : cat.
+
+<span class="sd">(** This asserts that i is a lattice homomorphism internally *)</span>
+<span class="kn">Context</span> {<span class="nv">meet_mor_M</span> : C⟦M ⊗ M,M⟧} (<span class="nv">Hmeet</span> : meet_mor_M · i = (i ×× i) · meet_mor l).
+<span class="kn">Context</span> {<span class="nv">join_mor_M</span> : C⟦M ⊗ M,M⟧} (<span class="nv">Hjoin</span> : join_mor_M · i = (i ×× i) · join_mor l).
+
+<span class="kn">Local Lemma</span> <span class="nf">identity_comm</span> : identity M · i = i · identity L.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> id_left, id_right. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">binprod_assoc_comm</span> :
+  ((i ×× i) ×× i) · @binprod_assoc _ BPC L L L =
+  @binprod_assoc _ BPC M M M · (i ×× (i ×× i)).
+<span class="kn">Proof</span>.
+<span class="nb">unfold</span> binprod_assoc; <span class="nb">rewrite</span> postcompWithBinProductArrow.
+<span class="nb">apply</span> BinProductArrowUnique.
+- <span class="nb">rewrite</span> &lt;-assoc, BinProductPr1Commutes.
+  <span class="nb">rewrite</span> assoc, BinProductOfArrowsPr1, &lt;- assoc, BinProductOfArrowsPr1, assoc.
+  <span class="bp">reflexivity</span>.
+- <span class="nb">rewrite</span> postcompWithBinProductArrow.
+  <span class="nb">apply</span> BinProductArrowUnique.
+  + etrans; [ <span class="nb">apply</span> cancel_postcomposition; <span class="nb">rewrite</span> &lt;-assoc;
+              <span class="nb">apply</span> maponpaths, BinProductPr2Commutes |].
+    <span class="nb">rewrite</span> &lt;- assoc, BinProductPr1Commutes.
+    <span class="nb">rewrite</span> assoc, BinProductOfArrowsPr1, &lt;- assoc, BinProductOfArrowsPr2, assoc.
+    <span class="bp">reflexivity</span>.
+  + etrans; [ <span class="nb">apply</span> cancel_postcomposition; <span class="nb">rewrite</span> &lt;-assoc;
+              <span class="nb">apply</span> maponpaths, BinProductPr2Commutes |].
+    <span class="nb">rewrite</span> &lt;- assoc, BinProductPr2Commutes, BinProductOfArrowsPr2.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">binprod_delta_comm</span> :
+  i · @binprod_delta _ BPC L = @binprod_delta _ BPC M · (i ×× i).
+<span class="kn">Proof</span>.
+<span class="nb">unfold</span> binprod_delta; <span class="nb">rewrite</span> postcompWithBinProductArrow.
+<span class="nb">apply</span> BinProductArrowUnique.
+- <span class="nb">rewrite</span> &lt;-assoc, BinProductPr1Commutes, identity_comm. <span class="bp">reflexivity</span>.
+- <span class="nb">rewrite</span> &lt;-assoc, BinProductPr2Commutes, identity_comm. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">isassoc_cat_comm</span> {<span class="nv">f</span> : C⟦M ⊗ M,M⟧} {<span class="nv">g</span> : C⟦L ⊗ L,L⟧} (<span class="nv">Hfg</span> : f · i = (i ×× i) · g) :
+  isassoc_cat g → isassoc_cat f.
+<span class="kn">Proof</span>.
+<span class="nb">unfold</span> isassoc_cat; <span class="nb">intros</span> H; <span class="nb">apply</span> Hi.
+<span class="nb">rewrite</span> &lt;-!assoc, !Hfg, !assoc, BinProductOfArrows_comp, Hfg, &lt;- !assoc, identity_comm.
+<span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp, &lt;- assoc, H, !assoc.
+<span class="nb">apply</span> cancel_postcomposition.
+<span class="nb">rewrite</span> &lt;-!assoc, BinProductOfArrows_comp, Hfg, identity_comm.
+<span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp, !assoc, binprod_assoc_comm.
+<span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">iscomm_cat_comm</span> {<span class="nv">f</span> : C⟦M ⊗ M,M⟧} {<span class="nv">g</span> : C⟦L ⊗ L,L⟧} (<span class="nv">Hfg</span> : f · i = (i ×× i) · g) :
+  iscomm_cat g → iscomm_cat f.
+<span class="kn">Proof</span>.
+<span class="nb">unfold</span> iscomm_cat; <span class="nb">intros</span> H; <span class="nb">apply</span> Hi.
+<span class="nb">rewrite</span> &lt;- !assoc, !Hfg.
+etrans; [<span class="nb">eapply</span> maponpaths, H|].
+<span class="nb">rewrite</span> !assoc; <span class="nb">apply</span> cancel_postcomposition.
+<span class="nb">unfold</span> binprod_swap; <span class="nb">rewrite</span> postcompWithBinProductArrow.
+<span class="nb">apply</span> BinProductArrowUnique; <span class="nb">rewrite</span> &lt;- assoc.
+* <span class="bp">now</span> <span class="nb">rewrite</span> BinProductPr1Commutes, BinProductOfArrowsPr2.
+* <span class="bp">now</span> <span class="nb">rewrite</span> BinProductPr2Commutes, BinProductOfArrowsPr1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">isabsorb_cat_comm</span> {<span class="nv">f1</span> <span class="nv">f2</span> : C⟦M ⊗ M,M⟧} {<span class="nv">g1</span> <span class="nv">g2</span> : C⟦L ⊗ L,L⟧}
+  (<span class="nv">Hfg1</span> : f1 · i = (i ×× i) · g1) (<span class="nv">Hfg2</span> : f2 · i = (i ×× i) · g2) :
+  isabsorb_cat g1 g2  → isabsorb_cat f1 f2.
+<span class="kn">Proof</span>.
+<span class="nb">unfold</span> isabsorb_cat; <span class="nb">intros</span> H; <span class="nb">apply</span> Hi.
+<span class="nb">assert</span> (HH : BinProductPr1 C (BPC M M) · i = (i ×× i) · BinProductPr1 C (BPC L L)).
+{ <span class="bp">now</span> <span class="nb">rewrite</span> BinProductOfArrowsPr1. }
+<span class="nb">rewrite</span> HH, &lt;- H, &lt;-!assoc, Hfg1, !assoc.
+<span class="nb">apply</span> cancel_postcomposition.
+<span class="nb">rewrite</span> &lt;-!assoc, BinProductOfArrows_comp, Hfg2, identity_comm, !assoc.
+<span class="nb">rewrite</span> BinProductOfArrows_comp, &lt;-identity_comm, binprod_delta_comm.
+etrans; [| <span class="nb">eapply</span> pathsinv0; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition;
+           <span class="bp">now</span> <span class="nb">rewrite</span> &lt;-BinProductOfArrows_comp].
+<span class="nb">rewrite</span> &lt;-!assoc; <span class="nb">apply</span> maponpaths.
+<span class="nb">rewrite</span> assoc, binprod_assoc_comm, &lt;-assoc; <span class="nb">apply</span> maponpaths.
+<span class="bp">now</span> <span class="nb">rewrite</span> identity_comm, BinProductOfArrows_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">sub_latticeob</span> : latticeob BPC M.
+<span class="kn">Proof</span>.
+use make_latticeob.
+- <span class="nb">apply</span> meet_mor_M.
+- <span class="nb">apply</span> join_mor_M.
+- <span class="kp">repeat</span> <span class="nb">split</span>.
+  + <span class="bp">now</span> <span class="nb">apply</span> (isassoc_cat_comm Hmeet), (isassoc_meet_mor _ l).
+  + <span class="bp">now</span> <span class="nb">apply</span> (iscomm_cat_comm Hmeet), (iscomm_meet_mor _ l).
+  + <span class="bp">now</span> <span class="nb">apply</span> (isassoc_cat_comm Hjoin), (isassoc_join_mor _ l).
+  + <span class="bp">now</span> <span class="nb">apply</span> (iscomm_cat_comm Hjoin), (iscomm_join_mor _ l).
+  + <span class="bp">now</span> <span class="nb">apply</span> (isabsorb_cat_comm Hmeet Hjoin), (meet_mor_absorb_join_mor _ l).
+  + <span class="bp">now</span> <span class="nb">apply</span> (isabsorb_cat_comm Hjoin Hmeet), (join_mor_absorb_meet_mor _ l).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">SublatticeObject</span>.
+
+<span class="kn">Section</span> <span class="nf">SubboundedlatticeObject</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">BPC</span> : BinProducts C) (<span class="nv">TC</span> : Terminal C).
+<span class="kn">Context</span> {<span class="nv">M</span> <span class="nv">L</span> : C} {<span class="nv">i</span> : C⟦M,L⟧} (<span class="nv">Hi</span> : isMonic i) (<span class="nv">l</span> : bounded_latticeob BPC TC L).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"c ⊗ d"</span> := (BinProductObject C (BPC c d)) : cat.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f '××' g"</span> := (BinProductOfArrows _ _ _ f g) (<span class="kn">at level</span> <span class="mi">90</span>) : cat.
+
+<span class="kn">Context</span> {<span class="nv">meet_mor_M</span> : C⟦M ⊗ M,M⟧} (<span class="nv">Hmeet</span> : meet_mor_M · i = (i ×× i) · meet_mor l).
+<span class="kn">Context</span> {<span class="nv">join_mor_M</span> : C⟦M ⊗ M,M⟧} (<span class="nv">Hjoin</span> : join_mor_M · i = (i ×× i) · join_mor l).
+<span class="kn">Context</span> {<span class="nv">bot_mor_M</span> : C⟦TC,M⟧} (<span class="nv">Hbot</span> : bot_mor_M · i = bot_mor l).
+<span class="kn">Context</span> {<span class="nv">top_mor_M</span> : C⟦TC,M⟧} (<span class="nv">Htop</span> : top_mor_M · i = top_mor l).
+
+<span class="kn">Lemma</span> <span class="nf">islunit_cat_comm</span>
+  {<span class="nv">fM</span> : C⟦M ⊗ M,M⟧} {<span class="nv">fL</span> : C⟦L ⊗ L,L⟧} (<span class="nv">Hf</span> : fM · i = (i ×× i) · fL)
+  {<span class="nv">gM</span> : C ⟦TC,M⟧} {<span class="nv">gL</span> : C⟦TC,L⟧} (<span class="nv">Hg</span> : gM · i = gL) :
+  islunit_cat fL gL → islunit_cat fM gM.
+<span class="kn">Proof</span>.
+<span class="nb">unfold</span> islunit_cat; <span class="nb">intros</span> H; <span class="nb">apply</span> Hi.
+<span class="nb">rewrite</span> &lt;-!assoc.
+etrans; [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> Hf |].
+<span class="nb">rewrite</span> identity_comm, &lt;-H, postcompWithBinProductArrow, !assoc.
+<span class="nb">apply</span> cancel_postcomposition.
+<span class="nb">rewrite</span> !postcompWithBinProductArrow, &lt;-assoc, Hg, !id_left.
+<span class="nb">apply</span> pathsinv0, BinProductArrowUnique.
+- <span class="nb">rewrite</span> &lt;- assoc, BinProductPr1Commutes, assoc.
+  <span class="bp">now</span> <span class="nb">apply</span> cancel_postcomposition, TerminalArrowUnique.
+- <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc, BinProductPr2Commutes, id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">sub_bounded_latticeob</span> : bounded_latticeob BPC TC M.
+<span class="kn">Proof</span>.
+use make_bounded_latticeob.
+- <span class="bp">exact</span> (sub_latticeob BPC Hi l Hmeet Hjoin).
+- <span class="bp">exact</span> bot_mor_M.
+- <span class="bp">exact</span> top_mor_M.
+- <span class="nb">split</span>.
+  + <span class="bp">now</span> <span class="nb">apply</span> (islunit_cat_comm Hjoin Hbot), (islunit_join_mor_bot_mor BPC TC l).
+  + <span class="bp">now</span> <span class="nb">apply</span> (islunit_cat_comm Hmeet Htop), (islunit_meet_mor_top_mor BPC TC l).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">SubboundedlatticeObject</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/LatticeObject.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

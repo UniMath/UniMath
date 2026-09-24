@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Structures.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Other structures in [type_precat] *)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">  - Exponentials ([Exponentials_Type])</span>
+<span class="sd">    - The exponential functor y ↦ yˣ ([exp_functor])</span>
+<span class="sd">    - Exponentials ([ExponentialsType])</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="c">(* Basic category theory *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="c">(* Exponentials *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.Limits.
+
+<span class="sd">(** ** Exponentials *)</span>
+
+<span class="sd">(** *** Exponential functor *)</span>
+
+<span class="kn">Section</span> <span class="nf">ExponentialFunctor</span>.
+  <span class="kn">Context</span> (<span class="nv">A</span> : UU). <span class="sd">(** This is the object we're ×-ing and ^-ing with *)</span>
+
+  <span class="sd">(** To show that [type_precat] has exponentials, we need a right adjoint to the</span>
+<span class="sd">      functor Y ↦ X × Y for fixed Y. *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">exp_functor_ob</span> (<span class="nv">X</span> : UU) : UU := A -&gt; X.
+  <span class="kn">Local Definition</span> <span class="nf">exp_functor_arr</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">f</span> : X -&gt; Y) :
+    (A -&gt; X) -&gt; (A -&gt; Y) := <span class="k">λ</span> <span class="nv">g</span>, f ∘ g.
+  <span class="kn">Local Definition</span> <span class="nf">exp_functor_data</span> : functor_data type_precat type_precat :=
+    functor_data_constr _ _ (exp_functor_ob : type_precat → type_precat)
+                            (@exp_functor_arr).
+
+  <span class="kn">Lemma</span> <span class="nf">exp_functor_is_functor</span> : is_functor exp_functor_data.
+  <span class="kn">Proof</span>.
+    use make_dirprod.
+    - <span class="nb">intro</span>; <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> ? ? ? ? ?; <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">exp_functor</span> : functor type_precat type_precat :=
+    make_functor exp_functor_data exp_functor_is_functor.
+<span class="kn">End</span> <span class="nf">ExponentialFunctor</span>.
+
+<span class="c">(*</span>
+<span class="c">Lemma ExponentialsType : Exponentials BinProductsType.</span>
+<span class="c">Proof.</span>
+<span class="c">  intro X.</span>
+<span class="c">  unfold is_exponentiable.</span>
+<span class="c">  unfold is_left_adjoint.</span>
+<span class="c">  refine (exp_functor X,, _).</span>
+<span class="c">  unfold are_adjoints.</span>
+<span class="c">  use tpair.</span>
+<span class="c">  - use make_dirprod.</span>
+<span class="c">    + use make_nat_trans.</span>
+<span class="c">      * intro Y; cbn.</span>
+<span class="c">        unfold exp_functor_ob.</span>
+<span class="c">        exact (flip make_dirprod).</span>
+<span class="c">      * intros ? ? ?; reflexivity.</span>
+<span class="c">    + use make_nat_trans.</span>
+<span class="c">      * intro Y; cbn.</span>
+<span class="c">        unfold exp_functor_ob.</span>
+<span class="c">        exact (λ pair, (pr2 pair) (pr1 pair)).</span>
+<span class="c">      * intros ? ? ?; reflexivity.</span>
+<span class="c">  - use make_form_adjunction; reflexivity.</span>
+<span class="c">Defined.</span>
+<span class="c">*)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/Type/Structures.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

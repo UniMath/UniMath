@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DependentSums.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Dependent sums in fibrations</span>
+
+<span class="sd"> In this file, we define when a fibration supports dependent sums. Concretely, this means</span>
+<span class="sd"> two things.</span>
+<span class="sd"> - For every morphism `f : x --&gt; y`, substitution along `f` has a left adjoint.</span>
+<span class="sd"> - These left adjoints are preserved under substitution. This is formulated using the left</span>
+<span class="sd">   Beck-Chevalley condition.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The natural transformation from the left Beck-Chevalley condition</span>
+<span class="sd"> 2. Fibrations with dependent sums</span>
+<span class="sd"> 3. Accessors for dependent sums</span>
+<span class="sd"> 4. Preservation of dependent sums by functors between fibrations</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Reflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The natural transformation from the left Beck-Chevalley condition *)</span>
+<span class="kn">Definition</span> <span class="nf">left_beck_chevalley_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">G</span> : C₁ ⟶ C₃}
+           {<span class="nv">H</span> : C₃ ⟶ C₄}
+           {<span class="nv">K</span> : C₂ ⟶ C₄}
+           (<span class="nv">HF</span> : is_right_adjoint F)
+           (<span class="nv">FL</span> := left_adjoint HF)
+           (<span class="nv">η₁</span> := unit_from_right_adjoint HF)
+           (<span class="nv">HH</span> : is_right_adjoint H)
+           (<span class="nv">HL</span> := left_adjoint HH)
+           (<span class="nv">ε₂</span> := counit_from_right_adjoint HH)
+           (<span class="nv">τ</span> : nat_z_iso (F ∙ K) (G ∙ H))
+  : K ∙ HL ⟹ FL ∙ G
+  := nat_trans_comp
+       _ _ _
+       (post_whisker η₁ (K ∙ HL))
+       (nat_trans_comp
+          _ _ _
+          (pre_whisker
+             FL
+             (post_whisker
+                τ
+                HL))
+          (pre_whisker (FL ∙ G) ε₂)).
+
+<span class="kn">Proposition</span> <span class="nf">left_beck_chevalley_nat_trans_ob</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">G</span> : C₁ ⟶ C₃}
+            {<span class="nv">H</span> : C₃ ⟶ C₄}
+            {<span class="nv">K</span> : C₂ ⟶ C₄}
+            (<span class="nv">HF</span> : is_right_adjoint F)
+            (<span class="nv">FL</span> := left_adjoint HF)
+            (<span class="nv">η₁</span> := unit_from_right_adjoint HF)
+            (<span class="nv">HH</span> : is_right_adjoint H)
+            (<span class="nv">HL</span> := left_adjoint HH)
+            (<span class="nv">ε₂</span> := counit_from_right_adjoint HH)
+            (<span class="nv">τ</span> : nat_z_iso (F ∙ K) (G ∙ H))
+            (<span class="nv">x</span> : C₂)
+  : left_beck_chevalley_nat_trans HF HH τ x
+    =
+    #HL (#K (η₁ x))
+    · #HL (τ (FL x))
+    · ε₂ (G (FL x)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Fibrations with dependent sums *)</span>
+<span class="kn">Section</span> <span class="nf">DependentSum</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">D</span> : disp_cat C}
+          (<span class="nv">HD</span> : cleaving D).
+
+  <span class="kn">Definition</span> <span class="nf">dependent_sum</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+    : UU
+    := is_right_adjoint
+         (fiber_functor_from_cleaving D HD f).
+
+  <span class="kn">Definition</span> <span class="nf">comm_nat_z_iso</span>
+             {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+             (<span class="nv">f</span> : x --&gt; w)
+             (<span class="nv">g</span> : y --&gt; w)
+             (<span class="nv">h</span> : z --&gt; y)
+             (<span class="nv">k</span> : z --&gt; x)
+             (<span class="nv">p</span> : k · f = h · g)
+             (<span class="nv">F</span> := fiber_functor_from_cleaving D HD f : D[{w}] ⟶ D[{x}])
+             (<span class="nv">G</span> := fiber_functor_from_cleaving D HD g : D[{w}] ⟶ D[{y}])
+             (<span class="nv">H</span> := fiber_functor_from_cleaving D HD h : D[{y}] ⟶ D[{z}])
+             (<span class="nv">K</span> := fiber_functor_from_cleaving D HD k : D[{x}] ⟶ D[{z}])
+    : nat_z_iso (F ∙ K) (G ∙ H)
+    := nat_z_iso_comp
+         (fiber_functor_from_cleaving_comp_nat_z_iso _ _ _)
+         (nat_z_iso_comp
+            (fiber_functor_on_eq_nat_z_iso HD p)
+            (nat_z_iso_inv
+               (fiber_functor_from_cleaving_comp_nat_z_iso _ _ _))).
+
+  <span class="kn">Proposition</span> <span class="nf">comm_nat_z_iso_ob</span>
+              {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : x --&gt; w)
+              (<span class="nv">g</span> : y --&gt; w)
+              (<span class="nv">h</span> : z --&gt; y)
+              (<span class="nv">k</span> : z --&gt; x)
+              (<span class="nv">p</span> : k · f = h · g)
+              (<span class="nv">F</span> := fiber_functor_from_cleaving D HD f : D[{w}] ⟶ D[{x}])
+              (<span class="nv">G</span> := fiber_functor_from_cleaving D HD g : D[{w}] ⟶ D[{y}])
+              (<span class="nv">H</span> := fiber_functor_from_cleaving D HD h : D[{y}] ⟶ D[{z}])
+              (<span class="nv">K</span> := fiber_functor_from_cleaving D HD k : D[{x}] ⟶ D[{z}])
+              (<span class="nv">φ</span> : D[{w}])
+    : comm_nat_z_iso f g h k p φ
+      =
+      fiber_functor_from_cleaving_comp _ _ _ φ
+      · fiber_functor_on_eq HD p φ
+      · fiber_functor_from_cleaving_comp_inv _ _ _ φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_beck_chevalley</span>
+             {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+             (<span class="nv">f</span> : x --&gt; w)
+             (<span class="nv">g</span> : y --&gt; w)
+             (<span class="nv">h</span> : z --&gt; y)
+             (<span class="nv">k</span> : z --&gt; x)
+             (<span class="nv">p</span> : k · f = h · g)
+             (<span class="nv">L₁</span> : dependent_sum f)
+             (<span class="nv">L₂</span> : dependent_sum h)
+    : UU
+    := ∏ (a : D[{x}]),
+       is_z_isomorphism
+         (left_beck_chevalley_nat_trans L₁ L₂ (comm_nat_z_iso f g h k p) a).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_left_beck_chevalley</span>
+              {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : x --&gt; w)
+              (<span class="nv">g</span> : y --&gt; w)
+              (<span class="nv">h</span> : z --&gt; y)
+              (<span class="nv">k</span> : z --&gt; x)
+              (<span class="nv">p</span> : k · f = h · g)
+              (<span class="nv">L₁</span> : dependent_sum f)
+              (<span class="nv">L₂</span> : dependent_sum h)
+    : isaprop (left_beck_chevalley f g h k p L₁ L₂).
+  <span class="kn">Proof</span>.
+    use impred ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_dependent_sums</span>
+    : UU
+    := ∑ (L : ∏ (x y : C) (f : x --&gt; y), dependent_sum f),
+       ∏ (w x y z : C)
+         (f : x --&gt; w)
+         (g : y --&gt; w)
+         (h : z --&gt; y)
+         (k : z --&gt; x)
+         (p : k · f = h · g)
+         (H : isPullback p),
+       left_beck_chevalley f g h k p (L _ _ f) (L _ _ h).
+<span class="kn">End</span> <span class="nf">DependentSum</span>.
+
+<span class="kn">Section</span> <span class="nf">DependentSumPoset</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">D</span> : disp_cat C}
+          (<span class="nv">HD</span> : cleaving D)
+          (<span class="nv">HD'</span> : locally_propositional D)
+          (<span class="nv">ex</span> : ∏ (Γ₁ Γ₂ : C) (s : Γ₁ --&gt; Γ₂), D[{Γ₁}] → D[{Γ₂}])
+          (<span class="nv">ex_i</span> : ∏ (Γ₁ Γ₂ : C)
+                    (s : Γ₁ --&gt; Γ₂)
+                    (φ : D[{Γ₁}]),
+                  φ --&gt;[ identity _ ] pr1 (HD _ _ s (ex _ _ s φ)))
+          (<span class="nv">ex_e</span> : ∏ (Γ₁ Γ₂ : C)
+                    (s : Γ₁ --&gt; Γ₂)
+                    (ψ : D[{Γ₁}])
+                    (χ : D[{Γ₂}])
+                    (p : ψ --&gt;[ identity _ ] pr1 (HD Γ₂ Γ₁ s χ)),
+                  ex Γ₁ Γ₂ s ψ --&gt;[ identity _ ] χ)
+          (<span class="nv">ex_sub</span> : ∏ (Γ₁ Γ₂ Γ₃ Γ₄ : C)
+                       (s₁ : Γ₂ --&gt; Γ₁)
+                       (s₂ : Γ₃ --&gt; Γ₁)
+                       (s₃ : Γ₄ --&gt; Γ₃)
+                       (s₄ : Γ₄ --&gt; Γ₂)
+                       (p : s₄ · s₁ = s₃ · s₂)
+                       (Hp : isPullback p)
+                       (φ : D[{Γ₂}]),
+                    pr1 (HD Γ₁ Γ₃ s₂ (ex Γ₂ Γ₁ s₁ φ))
+                    --&gt;[ identity _ ]
+                    ex Γ₄ Γ₃ s₃ (pr1 (HD Γ₂ Γ₄ s₄ φ))).
+
+  <span class="kn">Definition</span> <span class="nf">make_dependent_sum_of_mor_poset</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+             (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+    : dependent_sum HD s.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> reflections_to_is_right_adjoint.
+    <span class="nb">intro</span> x.
+    use make_reflection'.
+    - <span class="bp">exact</span> (ex _ _ s x).
+    - <span class="bp">exact</span> (ex_i _ _ s x).
+    - <span class="nb">intros</span> p.
+      use make_reflection_arrow.
+      + <span class="nb">apply</span> ex_e.
+        <span class="bp">exact</span> (p : _ --&gt; _).
+      + <span class="kp">abstract</span> <span class="nb">apply</span> HD'.
+      + <span class="nb">intros</span>.
+        <span class="kp">abstract</span> <span class="nb">apply</span> HD'.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_has_dependent_sums_poset</span>
+    : has_dependent_sums HD.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">s</span>, make_dependent_sum_of_mor_poset s).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Γ₁ Γ₂ Γ₃ Γ₄ s₁ s₂ s₃ s₄ p Hp φ ;
+         <span class="nb">simple refine</span> (_ ,, _ ,, _) ; [ | <span class="nb">apply</span> HD' | <span class="nb">apply</span> HD' ] ;
+         <span class="bp">exact</span> (ex_sub _ _ _ _ _ _ _ _ _ Hp φ)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DependentSumPoset</span>.
+
+<span class="sd">(** * 3. Accessors for dependent sums *)</span>
+<span class="kn">Section</span> <span class="nf">DependentSum</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">D</span> : disp_cat C}
+          {<span class="nv">HD</span> : cleaving D}
+          (<span class="nv">S</span> : has_dependent_sums HD)
+          {<span class="nv">x</span> <span class="nv">y</span> : C}
+          (<span class="nv">f</span> : x --&gt; y).
+
+  <span class="kn">Definition</span> <span class="nf">dep_sum</span>
+             (<span class="nv">xx</span> : D[{x}])
+    : D[{y}]
+    := left_adjoint (pr1 S x y f) xx.
+
+  <span class="kn">Definition</span> <span class="nf">dep_sum_mor</span>
+             {<span class="nv">xx₁</span> <span class="nv">xx₂</span> : D[{x}]}
+             (<span class="nv">ff</span> : xx₁ --&gt; xx₂)
+    : dep_sum xx₁ --&gt; dep_sum xx₂
+    := #(left_adjoint (pr1 S x y f)) ff.
+
+  <span class="kn">Definition</span> <span class="nf">dep_sum_unit</span>
+             (<span class="nv">xx</span> : D[{x}])
+    : xx --&gt;[ identity x ] fiber_functor_from_cleaving D HD f (dep_sum xx)
+    := unit_from_right_adjoint (pr1 S x y f) xx.
+
+  <span class="kn">Definition</span> <span class="nf">dep_sum_counit</span>
+             (<span class="nv">yy</span> : D[{y}])
+    : dep_sum (fiber_functor_from_cleaving D HD f yy) --&gt;[ identity y ] yy
+    := counit_from_right_adjoint (pr1 S x y f) yy.
+<span class="kn">End</span> <span class="nf">DependentSum</span>.
+
+<span class="sd">(** * 4. Preservation of dependent sums by functors between fibrations *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_dependent_sums</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : disp_cat C₁}
+           {<span class="nv">HD₁</span> : cleaving D₁}
+           {<span class="nv">D₂</span> : disp_cat C₂}
+           {<span class="nv">HD₂</span> : cleaving D₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">FF</span> : cartesian_disp_functor F D₁ D₂)
+           (<span class="nv">L₁</span> : has_dependent_sums HD₁)
+           (<span class="nv">L₂</span> : has_dependent_sums HD₂)
+  : UU
+  := ∏ (x y : C₁)
+       (f : x --&gt; y)
+       (a : D₁[{x}]),
+     is_z_isomorphism
+       (left_beck_chevalley_nat_trans
+          (pr1 L₁ x y f)
+          (pr1 L₂ (F x) (F y) (#F f))
+          (nat_z_iso_inv
+             (fiber_functor_natural_nat_z_iso HD₁ HD₂ FF f))
+          a).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_preserves_dependent_sums</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : disp_cat C₁}
+            {<span class="nv">HD₁</span> : cleaving D₁}
+            {<span class="nv">D₂</span> : disp_cat C₂}
+            {<span class="nv">HD₂</span> : cleaving D₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            (<span class="nv">FF</span> : cartesian_disp_functor F D₁ D₂)
+            (<span class="nv">L₁</span> : has_dependent_sums HD₁)
+            (<span class="nv">L₂</span> : has_dependent_sums HD₂)
+  : isaprop (preserves_dependent_sums FF L₁ L₂).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">4</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Fiberwise/DependentSums.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Preservation of dependent sums by functors between fibrations
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

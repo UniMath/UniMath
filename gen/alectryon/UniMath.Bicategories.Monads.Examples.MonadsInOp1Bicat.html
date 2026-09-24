@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonadsInOp1Bicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*************************************************************************</span>
+
+<span class="sd"> Monads in the opposite bicategory</span>
+
+<span class="sd"> If we look at monads in the opposite bicategory, then the only thing</span>
+<span class="sd"> that changes, is the 1-cells and the 2-cells. Instead of being the usual</span>
+<span class="sd"> monad functors, the 2-cell goes in the other direction.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Monad opfunctor</span>
+<span class="sd"> 2. Monad optransformation</span>
+<span class="sd"> 3. Monads in the opposite bicat</span>
+<span class="sd"> 4. Monad morphisms in the opposite bicat</span>
+<span class="sd"> 5. Monad cells in the opposite bicat</span>
+<span class="sd"> 6. Constructors for monad opfunctors</span>
+
+<span class="sd"> *************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpMorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Monad opfunctor</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">MonadOpMor</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_opmor_data</span>
+    : UU
+    := ∑ (f : ob_of_mnd m₁ --&gt; ob_of_mnd m₂),
+       endo_of_mnd m₁ · f ==&gt; f · endo_of_mnd m₂.
+
+  <span class="kn">Definition</span> <span class="nf">make_mnd_opmor_data</span>
+             (<span class="nv">f</span> : ob_of_mnd m₁ --&gt; ob_of_mnd m₂)
+             (<span class="nv">α</span> : endo_of_mnd m₁ · f ==&gt; f · endo_of_mnd m₂)
+    : mnd_opmor_data
+    := f ,, α.
+
+  <span class="kn">Coercion</span> <span class="nf">mor_of_mnd_opmor_data</span>
+           (f : mnd_opmor_data)
+    : ob_of_mnd m₁ --&gt; ob_of_mnd m₂
+    := pr1 f.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_opmor_endo</span>
+             (<span class="nv">f</span> : mnd_opmor_data)
+    : endo_of_mnd m₁ · f ==&gt; f · endo_of_mnd m₂
+    := pr2 f.
+
+  <span class="kn">Section</span> <span class="nf">MonadOpmorLaws</span>.
+    <span class="kn">Context</span> (<span class="nv">f</span> : mnd_opmor_data).
+
+    <span class="kn">Definition</span> <span class="nf">mnd_opmor_unit_law</span>
+      : UU
+      := rinvunitor _ • (f ◃ unit_of_mnd m₂)
+         =
+         linvunitor _ • (unit_of_mnd m₁ ▹ _) • mnd_opmor_endo f.
+
+    <span class="kn">Definition</span> <span class="nf">mnd_opmor_mu_law</span>
+      : UU
+      := rassociator _ _ _
+         • (_ ◃ mnd_opmor_endo f)
+         • lassociator _ _ _
+         • (mnd_opmor_endo f ▹ _)
+         • rassociator _ _ _
+         • (_ ◃ mult_of_mnd m₂)
+         =
+         (mult_of_mnd m₁ ▹ _)
+         • mnd_opmor_endo f.
+  <span class="kn">End</span> <span class="nf">MonadOpmorLaws</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_opmor_laws</span>
+             (<span class="nv">f</span> : mnd_opmor_data)
+    : UU
+    := mnd_opmor_unit_law f × mnd_opmor_mu_law f.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_opmor</span>
+    : UU
+    := ∑ (f : mnd_opmor_data), mnd_opmor_laws f.
+
+  <span class="kn">Definition</span> <span class="nf">make_mnd_opmor</span>
+             (<span class="nv">f</span> : mnd_opmor_data)
+             (<span class="nv">Hf</span> : mnd_opmor_laws f)
+    : mnd_opmor
+    := f ,, Hf.
+
+  <span class="kn">Coercion</span> <span class="nf">mnd_opmor_to_mnd_opmor_data</span>
+           (f : mnd_opmor)
+    : mnd_opmor_data
+    := pr1 f.
+
+  <span class="kn">Section</span> <span class="nf">LawProjections</span>.
+    <span class="kn">Context</span> (<span class="nv">f</span> : mnd_opmor).
+
+    <span class="kn">Definition</span> <span class="nf">mnd_opmor_unit</span>
+      : rinvunitor _ • (f ◃ unit_of_mnd m₂)
+        =
+        linvunitor _ • (unit_of_mnd m₁ ▹ _) • mnd_opmor_endo f
+      := pr12 f.
+
+    <span class="kn">Definition</span> <span class="nf">mnd_opmor_mu</span>
+      : rassociator _ _ _
+        • (_ ◃ mnd_opmor_endo f)
+        • lassociator _ _ _
+        • (mnd_opmor_endo f ▹ _)
+        • rassociator _ _ _
+        • (_ ◃ mult_of_mnd m₂)
+        =
+        (mult_of_mnd m₁ ▹ _)
+        • mnd_opmor_endo f
+      := pr22 f.
+  <span class="kn">End</span> <span class="nf">LawProjections</span>.
+<span class="kn">End</span> <span class="nf">MonadOpMor</span>.
+
+<span class="kn">Arguments</span> mnd_opmor_data {_} _ _.
+<span class="kn">Arguments</span> mnd_opmor {_} _ _.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Monad optransformation</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_mnd_opcell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : mnd_opmor m₁ m₂}
+           (<span class="nv">α</span> : f₁ ==&gt; f₂)
+  : UU
+  := mnd_opmor_endo f₁ • (α ▹ endo_of_mnd m₂)
+     =
+     (endo_of_mnd m₁ ◃ α) • mnd_opmor_endo f₂.
+
+<span class="kn">Definition</span> <span class="nf">mnd_opcell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+           (<span class="nv">f₁</span> <span class="nv">f₂</span> : mnd_opmor m₁ m₂)
+  : UU
+  := ∑ (α : f₁ ==&gt; f₂), is_mnd_opcell α.
+
+<span class="kn">Coercion</span> <span class="nf">mnd_opcell_to_cell</span>
+         {B : bicat}
+         {m₁ m₂ : mnd B}
+         {f₁ f₂ : mnd_opmor m₁ m₂}
+         (α : mnd_opcell f₁ f₂)
+  : f₁ ==&gt; f₂
+  := pr1 α.
+
+<span class="kn">Definition</span> <span class="nf">make_mnd_opcell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : mnd_opmor m₁ m₂}
+           (<span class="nv">α</span> : f₁ ==&gt; f₂)
+           (<span class="nv">Hα</span> : is_mnd_opcell α)
+  : mnd_opcell f₁ f₂
+  := α ,, Hα.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Monads in the opposite bicat</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">MonadsInOpBicat</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_op1_to_mnd_data</span>
+             (<span class="nv">m</span> : mnd (op1_bicat B))
+    : mnd_data B.
+  <span class="kn">Proof</span>.
+    use make_mnd_data.
+    - <span class="bp">exact</span> (ob_of_mnd m).
+    - <span class="bp">exact</span> (endo_of_mnd m).
+    - <span class="bp">exact</span> (unit_of_mnd m).
+    - <span class="bp">exact</span> (mult_of_mnd m).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_op1_to_is_mnd</span>
+             (<span class="nv">m</span> : mnd (op1_bicat B))
+    : is_mnd B (mnd_op1_to_mnd_data m).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (mnd_unit_right m).
+    - <span class="bp">exact</span> (mnd_unit_left m).
+    - <span class="bp">exact</span> (!(mnd_mult_assoc' m)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_op1_to_mnd</span>
+             (<span class="nv">m</span> : mnd (op1_bicat B))
+    : mnd B.
+  <span class="kn">Proof</span>.
+    use make_mnd.
+    - <span class="bp">exact</span> (mnd_op1_to_mnd_data m).
+    - <span class="bp">exact</span> (mnd_op1_to_is_mnd m).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MonadsInOpBicat</span>.
+
+<span class="kn">Section</span> <span class="nf">MonadsInOpBicat</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}.
+
+  <span class="kn">Definition</span> <span class="nf">op1_mnd_to_mnd_data</span>
+             (<span class="nv">m</span> : op1_bicat (mnd (op1_bicat B)))
+    : mnd_data B.
+  <span class="kn">Proof</span>.
+    use make_mnd_data.
+    - <span class="bp">exact</span> (ob_of_mnd m).
+    - <span class="bp">exact</span> (endo_of_mnd m).
+    - <span class="bp">exact</span> (unit_of_mnd m).
+    - <span class="bp">exact</span> (mult_of_mnd m).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op1_mnd_to_mnd_is_mnd</span>
+             (<span class="nv">m</span> : op1_bicat (mnd (op1_bicat B)))
+    : is_mnd B (op1_mnd_to_mnd_data m).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (mnd_unit_right m).
+    - <span class="bp">exact</span> (mnd_unit_left m).
+    - <span class="bp">exact</span> (!(mnd_mult_assoc' m)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op1_mnd_to_mnd</span>
+             (<span class="nv">m</span> : op1_bicat (mnd (op1_bicat B)))
+    : mnd B.
+  <span class="kn">Proof</span>.
+    use make_mnd.
+    - <span class="bp">exact</span> (op1_mnd_to_mnd_data m).
+    - <span class="bp">exact</span> (op1_mnd_to_mnd_is_mnd m).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_op1_mnd</span>
+             (<span class="nv">m</span> : mnd B)
+    : op1_bicat (mnd (op1_bicat B)).
+  <span class="kn">Proof</span>.
+    use make_mnd.
+    - use make_mnd_data.
+      + <span class="bp">exact</span> (ob_of_mnd m).
+      + <span class="bp">exact</span> (endo_of_mnd m).
+      + <span class="bp">exact</span> (unit_of_mnd m).
+      + <span class="bp">exact</span> (mult_of_mnd m).
+    - <span class="nb">refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (mnd_unit_right m).
+      + <span class="bp">exact</span> (mnd_unit_left m).
+      + <span class="bp">exact</span> (!(mnd_mult_assoc' m)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op1_mnd_weq_mnd_inv₁</span>
+             (<span class="nv">m</span> : op1_bicat (mnd (op1_bicat B)))
+    : mnd_to_op1_mnd (op1_mnd_to_mnd m) = m.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_mnd.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op1_mnd_weq_mnd_inv₂</span>
+             (<span class="nv">m</span> : mnd B)
+    : op1_mnd_to_mnd (mnd_to_op1_mnd m) = m.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_mnd.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">MonadsInOpBicat</span>.
+
+<span class="kn">Definition</span> <span class="nf">op1_mnd_weq_mnd</span>
+           (<span class="nv">B</span> : bicat)
+  : op1_bicat (mnd (op1_bicat B)) ≃ mnd B.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> op1_mnd_to_mnd.
+  - use isweq_iso.
+    + <span class="bp">exact</span> mnd_to_op1_mnd.
+    + <span class="bp">exact</span> op1_mnd_weq_mnd_inv₁.
+    + <span class="bp">exact</span> op1_mnd_weq_mnd_inv₂.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Monad morphisms in the opposite bicat</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">MonadMorInOpBicat</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">m₁</span> <span class="nv">m₂</span> : op1_bicat (mnd (op1_bicat B))}.
+
+  <span class="kn">Definition</span> <span class="nf">op1_mnd_mor_to_mnd_opmor</span>
+             (<span class="nv">f</span> : m₁ --&gt; m₂)
+    : mnd_opmor (op1_mnd_to_mnd m₁) (op1_mnd_to_mnd m₂).
+  <span class="kn">Proof</span>.
+    use make_mnd_opmor.
+    - use make_mnd_opmor_data.
+      + <span class="bp">exact</span> (mor_of_mnd_mor f).
+      + <span class="bp">exact</span> (mnd_mor_endo f).
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> (mnd_mor_unit f).
+      + <span class="bp">exact</span> (mnd_mor_mu f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_opmor_to_op1_mnd_mor_data</span>
+             (<span class="nv">f</span> : mnd_opmor (op1_mnd_to_mnd m₁) (op1_mnd_to_mnd m₂))
+    : mnd_mor_data m₂ m₁.
+  <span class="kn">Proof</span>.
+    use make_mnd_mor_data.
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span> (mnd_opmor_endo f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_opmor_to_op1_mnd_mor_is_mnd</span>
+             (<span class="nv">f</span> : mnd_opmor (op1_mnd_to_mnd m₁) (op1_mnd_to_mnd m₂))
+    : mnd_mor_laws (mnd_opmor_to_op1_mnd_mor_data f).
+  <span class="kn">Proof</span>.
+    use make_mnd_mor_laws.
+    - <span class="bp">exact</span> (mnd_opmor_unit f).
+    - <span class="bp">exact</span> (mnd_opmor_mu f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_opmor_to_op1_mnd_mor</span>
+             (<span class="nv">f</span> : mnd_opmor (op1_mnd_to_mnd m₁) (op1_mnd_to_mnd m₂))
+    : m₁ --&gt; m₂.
+  <span class="kn">Proof</span>.
+    use make_mnd_mor.
+    - <span class="bp">exact</span> (mnd_opmor_to_op1_mnd_mor_data f).
+    - <span class="bp">exact</span> (mnd_opmor_to_op1_mnd_mor_is_mnd f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op1_mnd_mor_weq_mnd_opmor_inv₁</span>
+             (<span class="nv">f</span> : m₁ --&gt; m₂)
+    : mnd_opmor_to_op1_mnd_mor (op1_mnd_mor_to_mnd_opmor f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropunit.
+    }
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op1_mnd_mor_weq_mnd_opmor_inv₂</span>
+             (<span class="nv">f</span> : mnd_opmor (op1_mnd_to_mnd m₁) (op1_mnd_to_mnd m₂))
+    : op1_mnd_mor_to_mnd_opmor (mnd_opmor_to_op1_mnd_mor f) = f.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">MonadMorInOpBicat</span>.
+
+<span class="kn">Definition</span> <span class="nf">op1_mnd_mor_weq_mnd_opmor</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">m₁</span> <span class="nv">m₂</span> : op1_bicat (mnd (op1_bicat B)))
+  : m₁ --&gt; m₂ ≃ mnd_opmor (op1_mnd_to_mnd m₁) (op1_mnd_to_mnd m₂).
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> op1_mnd_mor_to_mnd_opmor.
+  - use isweq_iso.
+    + <span class="bp">exact</span> mnd_opmor_to_op1_mnd_mor.
+    + <span class="bp">exact</span> op1_mnd_mor_weq_mnd_opmor_inv₁.
+    + <span class="bp">exact</span> op1_mnd_mor_weq_mnd_opmor_inv₂.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Monad cells in the opposite bicat</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">MonadCellInOpBicat</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">m₁</span> <span class="nv">m₂</span> : op1_bicat (mnd (op1_bicat B))}
+          {<span class="nv">f₁</span> <span class="nv">f₂</span> : m₁ --&gt; m₂}.
+
+  <span class="kn">Definition</span> <span class="nf">op1_mnd_cell_to_mnd_opcell</span>
+             (<span class="nv">α</span> : f₁ ==&gt; f₂)
+    : mnd_opcell (op1_mnd_mor_to_mnd_opmor f₁) (op1_mnd_mor_to_mnd_opmor f₂).
+  <span class="kn">Proof</span>.
+    use make_mnd_opcell.
+    - <span class="bp">exact</span> (pr1 α).
+    - <span class="bp">exact</span> (mnd_cell_endo α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_opcell_to_op1_mnd_cell</span>
+             (<span class="nv">α</span> : mnd_opcell
+                    (op1_mnd_mor_to_mnd_opmor f₁)
+                    (op1_mnd_mor_to_mnd_opmor f₂))
+    : f₁ ==&gt; f₂.
+  <span class="kn">Proof</span>.
+    use make_mnd_cell.
+    - <span class="nb">unfold</span> mnd_cell_data.
+      <span class="bp">exact</span> α.
+    - <span class="bp">exact</span> (pr2 α).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MonadCellInOpBicat</span>.
+
+<span class="kn">Definition</span> <span class="nf">op1_mnd_cell_weq_mnd_opcell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> : op1_bicat (mnd (op1_bicat B))}
+           (<span class="nv">f₁</span> <span class="nv">f₂</span> : m₁ --&gt; m₂)
+  : f₁ ==&gt; f₂
+    ≃
+    mnd_opcell (op1_mnd_mor_to_mnd_opmor f₁) (op1_mnd_mor_to_mnd_opmor f₂).
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> op1_mnd_cell_to_mnd_opcell.
+  - use isweq_iso.
+    + <span class="bp">exact</span> mnd_opcell_to_op1_mnd_cell.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> α ;
+         use eq_mnd_cell ;
+         <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> α ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ] ;
+         <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Constructors for monad opfunctors</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">mnd_mor_to_mor_opmor_data</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+           (<span class="nv">f</span> : mnd_to_op1_mnd m₁ --&gt; mnd_to_op1_mnd m₂)
+  : mnd_opmor_data m₁ m₂.
+<span class="kn">Proof</span>.
+  use make_mnd_opmor_data.
+  - <span class="bp">exact</span> (mor_of_mnd_mor f).
+  - <span class="bp">exact</span> (mnd_mor_endo f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">mnd_mor_to_mor_opmor_laws</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+           (<span class="nv">f</span> : mnd_to_op1_mnd m₁ --&gt; mnd_to_op1_mnd m₂)
+  : mnd_opmor_laws (mnd_mor_to_mor_opmor_data f).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (mnd_mor_unit f).
+  - <span class="bp">exact</span> (mnd_mor_mu f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">mnd_mor_to_mor_opmor</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+           (<span class="nv">f</span> : mnd_to_op1_mnd m₁ --&gt; mnd_to_op1_mnd m₂)
+  : mnd_opmor m₁ m₂.
+<span class="kn">Proof</span>.
+  use make_mnd_opmor.
+  - <span class="bp">exact</span> (mnd_mor_to_mor_opmor_data f).
+  - <span class="bp">exact</span> (mnd_mor_to_mor_opmor_laws f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">mor_opmor_to_mnd_mor_data</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+           (<span class="nv">f</span> : mnd_opmor m₁ m₂)
+  : mnd_mor_data (mnd_to_op1_mnd m₂) (mnd_to_op1_mnd m₁).
+<span class="kn">Proof</span>.
+  use make_mnd_mor_data.
+  - <span class="bp">exact</span> f.
+  - <span class="bp">exact</span> (mnd_opmor_endo f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">mor_opmor_to_mnd_mor_laws</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+           (<span class="nv">f</span> : mnd_opmor m₁ m₂)
+  : mnd_mor_laws (mor_opmor_to_mnd_mor_data f).
+<span class="kn">Proof</span>.
+  use make_mnd_mor_laws.
+  - <span class="bp">exact</span> (mnd_opmor_unit f).
+  - <span class="bp">exact</span> (mnd_opmor_mu f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">mor_opmor_to_mnd_mor</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+           (<span class="nv">f</span> : mnd_opmor m₁ m₂)
+  : mnd_to_op1_mnd m₁ --&gt; mnd_to_op1_mnd m₂.
+<span class="kn">Proof</span>.
+  use make_mnd_mor.
+  - <span class="bp">exact</span> (mor_opmor_to_mnd_mor_data f).
+  - <span class="bp">exact</span> (mor_opmor_to_mnd_mor_laws f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">mnd_id_opmor</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">m</span> : mnd B)
+  : mnd_opmor m m
+  := mnd_mor_to_mor_opmor (id₁ _).
+
+<span class="kn">Definition</span> <span class="nf">mnd_opmor_comp</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> <span class="nv">m₃</span> : mnd B}
+           (<span class="nv">f₁</span> : mnd_opmor m₁ m₂)
+           (<span class="nv">f₂</span> : mnd_opmor m₂ m₃)
+  : mnd_opmor m₁ m₃
+  := mnd_mor_to_mor_opmor (mor_opmor_to_mnd_mor f₁ · mor_opmor_to_mnd_mor f₂).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Monads/Examples/MonadsInOp1Bicat.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Constructors for monad opfunctors
+  &gt;
+  &gt;  *************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DispModification.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="sd">(** Displayed modifications.</span>
+<span class="sd">    Contents:</span>
+<span class="sd">      - Definition of displayed pseudofunctors.</span>
+<span class="sd">      - Identity and composition of displayed pseudofunctors.                *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Initial.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Final.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispTransformation.
+
+<span class="kn">Import</span> PseudoFunctor.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Definition of displayed modifications *)</span>
+
+<span class="kn">Section</span> <span class="nf">DispModification</span>.
+
+<span class="kn">Context</span> {<span class="nv">B₁</span> : bicat} {<span class="nv">D₁</span> : disp_bicat B₁}
+        {<span class="nv">B₂</span> : bicat} {<span class="nv">D₂</span> : disp_bicat B₂}
+        {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+        (<span class="nv">α</span> <span class="nv">β</span> : pstrans F₁ F₂)
+        (<span class="nv">FF₁</span> : disp_psfunctor D₁ D₂ F₁)
+        (<span class="nv">FF₂</span> : disp_psfunctor D₁ D₂ F₂)
+        (<span class="nv">αα</span> : disp_pstrans FF₁ FF₂ α)
+        (<span class="nv">ββ</span> : disp_pstrans FF₁ FF₂ β)
+        (<span class="nv">m</span> : modification α β).
+
+<span class="sd">(** *** Data *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">disp_modification_data</span> : UU
+  := ∏ (x : B₁) (xx : D₁ x), (αα x xx) ==&gt;[m x] (ββ x xx).
+
+<span class="kn">Definition</span> <span class="nf">total_modification_data</span> (<span class="nv">mmdata</span> : disp_modification_data)
+  : modification_data (total_pstrans _ _ _ αα) (total_pstrans _ _ _ ββ)
+  := <span class="k">λ</span> (<span class="nv">x</span> : total_bicat D₁), m (pr1 x),, mmdata (pr1 x) (pr2 x).
+
+<span class="kn">Definition</span> <span class="nf">is_disp_modification</span> (<span class="nv">mm</span> : disp_modification_data) : UU
+  := ∏ (x y : B₁) (f : B₁ ⟦ x, y ⟧)
+       (xx : D₁ x) (yy : D₁ y) (ff : xx --&gt;[ f] yy),
+     disp_psnaturality_of FF₁ FF₂ α αα ff
+       •• (disp_psfunctor_mor D₁ D₂ F₁ FF₁ ff ◃◃ mm y yy) =
+     transportb
+       (<span class="k">λ</span> <span class="nv">p</span>, _ ==&gt;[p] _)
+       (modnaturality_of m x y f)
+       ((mm x xx ▹▹ disp_psfunctor_mor D₁ D₂ F₂ FF₂ ff)
+          •• disp_psnaturality_of FF₁ FF₂ β ββ ff).
+
+<span class="kn">Definition</span> <span class="nf">disp_modification</span> : UU
+  := ∑ mm : disp_modification_data, is_disp_modification mm.
+
+<span class="kn">Coercion</span> <span class="nf">disp_modification_to_disp_modification_data</span> (αα : disp_modification)
+  : disp_modification_data
+  := pr1 αα.
+
+<span class="kn">Lemma</span> <span class="nf">is_disp_modification_from_total</span> (<span class="nv">mm</span> : disp_modification_data)
+  : is_modification (total_modification_data mm) → is_disp_modification mm.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hmm.
+  <span class="nb">pose</span> (Em := make_modification _ Hmm).
+  <span class="nb">intros</span> x y f xx yy ff.
+  <span class="nb">pose</span> (P := !fiber_paths (@modnaturality_of _ _ _ _ _ _ Em (x,,xx) (y,,yy) (f,,ff))).
+  <span class="nb">symmetry</span>.
+  etrans. { <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> P. }
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> transportf_set.
+  * <span class="nb">apply</span> idpath.
+  * <span class="nb">apply</span> B₂.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">total_modification_laws</span> (<span class="nv">mm</span> : disp_modification)
+  : is_modification (total_modification_data mm).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f.
+  use total2_paths_b.
+  - <span class="nb">apply</span> (modnaturality_of m (pr1 x) (pr1 y) (pr1 f)).
+  - <span class="nb">apply</span> mm.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_invertible_disp_modification</span> (<span class="nv">mm</span> : disp_modification) : UU
+  := ∑ (m_inv : is_invertible_modification m), ∏ (x : B₁) (xx : D₁ x),
+       <span class="c">(* Each underlying displayed 2-cell is invertible *)</span>
+       is_disp_invertible_2cell (@is_invertible_modcomponent_of _ _ _ _ _ _ m m_inv x) (pr1 mm x xx).
+
+<span class="kn">End</span> <span class="nf">DispModification</span>.
+
+<span class="sd">(** Invertible displayed modifications *)</span>
+
+<span class="kn">Section</span> <span class="nf">DispInvModification</span>.
+
+<span class="kn">Context</span> {<span class="nv">B₁</span> : bicat} {<span class="nv">D₁</span> : disp_bicat B₁}
+        {<span class="nv">B₂</span> : bicat} {<span class="nv">D₂</span> : disp_bicat B₂}
+        {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+        (<span class="nv">α</span> <span class="nv">β</span> : pstrans F₁ F₂)
+        (<span class="nv">FF₁</span> : disp_psfunctor D₁ D₂ F₁)
+        (<span class="nv">FF₂</span> : disp_psfunctor D₁ D₂ F₂)
+        (<span class="nv">αα</span> : disp_pstrans FF₁ FF₂ α)
+        (<span class="nv">ββ</span> : disp_pstrans FF₁ FF₂ β)
+        (<span class="nv">m</span> : invertible_modification α β).
+
+<span class="sd">(** *** Data *)</span>
+
+<span class="kn">Definition</span> <span class="nf">disp_invmodification_data</span> : UU
+  := ∏ (x : B₁) (xx : D₁ x),
+     disp_invertible_2cell (invertible_modcomponent_of m x) (αα x xx) (ββ x xx).
+
+<span class="kn">Definition</span> <span class="nf">total_invmodification_data</span> (<span class="nv">mmdata</span> : disp_invmodification_data)
+  : invertible_modification_data (total_pstrans _ _ _ αα) (total_pstrans _ _ _ ββ)
+  := <span class="k">λ</span> (<span class="nv">x</span> : total_bicat D₁),
+     (iso_in_E_weq (αα (pr1 x) (pr2 x)) (ββ (pr1 x) (pr2 x)))
+       (invertible_modcomponent_of m (pr1 x),, mmdata (pr1 x) (pr2 x)).
+
+<span class="kn">Definition</span> <span class="nf">is_disp_invmodification</span> (<span class="nv">mm</span> : disp_invmodification_data) : UU
+  := ∏ (x y : B₁) (f : B₁ ⟦ x, y ⟧)
+       (xx : D₁ x) (yy : D₁ y) (ff : xx --&gt;[ f] yy),
+     disp_psnaturality_of FF₁ FF₂ α αα ff
+       •• (disp_psfunctor_mor D₁ D₂ F₁ FF₁ ff ◃◃ mm y yy) =
+     transportb
+       (<span class="k">λ</span> <span class="nv">p</span>, _ ==&gt;[p] _)
+       (modnaturality_of (pr1 m) x y f)
+       ((mm x xx ▹▹ disp_psfunctor_mor D₁ D₂ F₂ FF₂ ff)
+          •• disp_psnaturality_of FF₁ FF₂ β ββ ff).
+
+<span class="kn">Definition</span> <span class="nf">disp_invmodification</span> : UU
+  := ∑ mm : disp_invmodification_data, is_disp_invmodification mm.
+
+<span class="kn">Coercion</span> <span class="nf">disp_invmodification_to_disp_invmodification_data</span> (αα : disp_invmodification)
+  : disp_invmodification_data
+  := pr1 αα.
+
+<span class="kn">Definition</span> <span class="nf">disp_modification_of_invmodification</span> (<span class="nv">mm</span> : disp_invmodification) :
+  disp_modification α β FF₁ FF₂ αα ββ (pr1 m).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intros</span> x xx. <span class="bp">exact</span> (pr1 mm x xx).
+  - <span class="nb">simpl</span>. <span class="bp">exact</span> (pr2 mm).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_invertible_disp_invmodification</span> (<span class="nv">mm</span> : disp_invmodification) :
+  is_invertible_disp_modification _ _ _ _ _ _ _ (disp_modification_of_invmodification mm).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (pr2 m).
+  - <span class="nb">simpl</span>. <span class="nb">intros</span> x xx.
+    <span class="bp">exact</span> (pr2 (pr1 mm x xx)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_disp_invmodification_from_total</span> (<span class="nv">mm</span> : disp_invmodification_data)
+  : is_modification (total_invmodification_data mm) → is_disp_invmodification mm.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hmm.
+  <span class="nb">pose</span> (Em := make_modification _ Hmm).
+  <span class="nb">intros</span> x y f xx yy ff.
+  <span class="nb">pose</span> (P := !fiber_paths (@modnaturality_of _ _ _ _ _ _ Em (x,,xx) (y,,yy) (f,,ff))).
+  <span class="nb">symmetry</span>.
+  etrans. { <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> P. }
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> transportf_set.
+  * <span class="nb">apply</span> idpath.
+  * <span class="nb">apply</span> B₂.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">total_invmodification_laws</span> (<span class="nv">mm</span> : disp_invmodification)
+  : is_modification (total_invmodification_data mm).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f.
+  use total2_paths_b.
+  - <span class="nb">apply</span> (modnaturality_of (pr1 m) (pr1 x) (pr1 y) (pr1 f)).
+  - <span class="nb">apply</span> mm.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">total_invmodification</span> (<span class="nv">mm</span> : disp_invmodification)
+  : invertible_modification (total_pstrans _ _ _ αα) (total_pstrans _ _ _ ββ).
+<span class="kn">Proof</span>.
+  use make_invertible_modification.
+  - <span class="bp">exact</span> (total_invmodification_data mm).
+  - <span class="bp">exact</span> (total_invmodification_laws mm).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">DispInvModification</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/DispModification.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;       - Identity and composition of displayed pseudofunctors.                *)
+  &gt; (* ------------------------------------------------------------------------- *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CommaCategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Benedikt Ahrens March 2016, Anthony Bordg May 2017</span>
+<span class="sd">Niels van der Weide February 2022: rebasing of general comma categories on displayed categories</span>
+
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">        - special comma categories (c ↓ K),</span>
+<span class="sd">          called [cComma] (constant Comma)</span>
+<span class="sd">        - forgetful functor [cComma_pr1]</span>
+<span class="sd">        - morphism [f : C ⟦c, c'⟧] induces</span>
+<span class="sd">          [functor_cComma_mor : functor (c' ↓ K) (c ↓ K)]</span>
+<span class="sd">        - general comma categories [comma_category]</span>
+<span class="sd">          - projection functors ([comma_pr1], [comma_pr2])</span>
+
+<span class="sd">        - inserter categories</span>
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">const_comma_category_definition</span>.
+
+<span class="kn">Context</span> (<span class="nv">M</span> <span class="nv">C</span> : category) (<span class="nv">K</span> : functor M C) (<span class="nv">c</span> : C).
+
+<span class="kn">Definition</span> <span class="nf">ccomma_object</span> : UU := ∑ m, C⟦c, K m⟧.
+<span class="kn">Definition</span> <span class="nf">ccomma_morphism</span> (<span class="nv">a</span> <span class="nv">b</span> : ccomma_object) : UU
+  := ∑ f : _ ⟦pr1 a, pr1 b⟧, pr2 a · #K f = pr2 b.
+
+<span class="kn">Definition</span> <span class="nf">isaset_ccomma_morphism</span> <span class="nv">a</span> <span class="nv">b</span> : isaset (ccomma_morphism a b).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>).
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> hlevelntosn.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cComma_mor_eq</span> <span class="nv">a</span> <span class="nv">b</span> (<span class="nv">f</span> <span class="nv">f'</span> : ccomma_morphism a b)
+  : pr1 f = pr1 f' -&gt; f = f'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> subtypePath.
+  <span class="nb">intro</span>. <span class="nb">apply</span> homset_property.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ccomma_id</span> <span class="nv">a</span> : ccomma_morphism a a.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span> ).
+  <span class="kp">abstract</span> (
+  intermediate_path (pr2 a · identity _ );
+   [ <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> functor_id |];
+  <span class="nb">apply</span> id_right
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ccomma_comp</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">d</span> :
+  ccomma_morphism a b -&gt; ccomma_morphism b d -&gt; ccomma_morphism a d.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">f</span> · pr1 g).
+  <span class="kp">abstract</span> (
+  <span class="nb">rewrite</span> functor_comp;
+  <span class="nb">rewrite</span> assoc;
+  <span class="nb">rewrite</span> (pr2 f);
+  <span class="nb">apply</span> (pr2 g)
+   ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ccomma_precategory_ob_mor</span> : precategory_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">ccomma_object</span>.
+  <span class="bp">exact</span> ccomma_morphism.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ccomma_precategory_data</span> : precategory_data.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">ccomma_precategory_ob_mor</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> ccomma_id.
+  - <span class="bp">exact</span> ccomma_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_precategory_ccomma_precategory_data</span>
+  : is_precategory ccomma_precategory_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span>. <span class="nb">apply</span> cComma_mor_eq.
+    <span class="nb">simpl</span>. <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span>. <span class="nb">apply</span> cComma_mor_eq.
+    <span class="nb">simpl</span>. <span class="nb">apply</span> id_right.
+  - <span class="nb">intros</span>. <span class="nb">apply</span> cComma_mor_eq.
+    <span class="nb">simpl</span>. <span class="nb">apply</span> assoc.
+  - <span class="nb">intros</span>. <span class="nb">apply</span> cComma_mor_eq.
+    <span class="nb">simpl</span>. <span class="nb">apply</span> assoc'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cComma_precat</span> : precategory.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">ccomma_precategory_data</span>.
+  <span class="bp">exact</span> is_precategory_ccomma_precategory_data.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_cComma_precat</span>: has_homsets cComma_precat.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> a b.
+  <span class="nb">apply</span> isaset_total2.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> hlevelntosn.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cComma</span> : category := cComma_precat ,, has_homsets_cComma_precat.
+
+
+<span class="kn">Definition</span> <span class="nf">ccomma_pr1_functor_data</span> : functor_data cComma M.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">pr1</span>.
+  <span class="nb">intros</span> a b f. <span class="bp">exact</span> (pr1 f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_ccomma_pr1</span> : is_functor ccomma_pr1_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> a. <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> ? ? ? ? ?. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cComma_pr1</span> : cComma ⟶ M := tpair _ _ is_functor_ccomma_pr1.
+
+
+<span class="kn">End</span> <span class="nf">const_comma_category_definition</span>.
+
+<span class="kn">Section</span> <span class="nf">lemmas_on_const_comma_cats</span>.
+
+
+<span class="kn">Context</span> (<span class="nv">M</span> <span class="nv">C</span> : category).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"c ↓ K"</span> := (cComma _ _ K c) (<span class="kn">at level</span> <span class="mi">3</span>).
+
+<span class="kn">Context</span> (<span class="nv">K</span> : functor M C).
+<span class="kn">Context</span> {<span class="nv">c</span> <span class="nv">c'</span> : C}.
+<span class="kn">Context</span> (<span class="nv">h</span> : C ⟦c, c'⟧).
+
+
+<span class="kn">Definition</span> <span class="nf">cComma_mor_ob</span> : c' ↓ K → c ↓ K.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> af.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">af</span>).
+  <span class="bp">exact</span> (h · pr2 af).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cComma_mor_mor</span> (<span class="nv">af</span> <span class="nv">af'</span> : c' ↓ K) (<span class="nv">g</span> : c' ↓ K ⟦af, af'⟧)
+  : c ↓ K ⟦cComma_mor_ob af, cComma_mor_ob af'⟧.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">g</span>).
+  <span class="kp">abstract</span> (
+    <span class="nb">simpl</span>;
+    <span class="nb">rewrite</span> &lt;- assoc;
+    <span class="nb">rewrite</span> (pr2 g);
+    <span class="nb">apply</span> idpath
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cComma_mor_functor_data</span> : functor_data (c' ↓ K) (c ↓ K).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">cComma_mor_ob</span>.
+  <span class="bp">exact</span> cComma_mor_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_cComma_mor_functor_data</span> : is_functor cComma_mor_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span>. <span class="nb">apply</span> cComma_mor_eq.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> ? ? ? ? ?. <span class="nb">apply</span> cComma_mor_eq.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_cComma_mor</span> : c' ↓ K ⟶ c ↓ K := tpair _ _ is_functor_cComma_mor_functor_data.
+
+<span class="kn">End</span> <span class="nf">lemmas_on_const_comma_cats</span>.
+
+<span class="sd">(** General comma categories *)</span>
+<span class="kn">Section</span> <span class="nf">CommaCategory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+          (<span class="nv">F</span> : C₁ ⟶ C₃)
+          (<span class="nv">G</span> : C₂ ⟶ C₃).
+
+  <span class="sd">(** Definition of comma categories via displayed categories *)</span>
+  <span class="kn">Definition</span> <span class="nf">comma_disp_cat_ob_mor</span>
+    : disp_cat_ob_mor (category_binproduct C₁ C₂).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, F (pr1 x) --&gt; G (pr2 x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">i₁</span> <span class="nv">i₂</span> <span class="nv">f</span>, i₁ · #G (pr2 f) = #F (pr1 f) · i₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comma_disp_cat_id_comp</span>
+    : disp_cat_id_comp _ comma_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> x i; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !functor_id.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>; <span class="nb">intros</span> x y z f g i₁ i₂ i₃ p q.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">rewrite</span> !functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- q.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> p.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comma_disp_cat_data</span>
+    : disp_cat_data (category_binproduct C₁ C₂)
+    := comma_disp_cat_ob_mor,, comma_disp_cat_id_comp.
+
+  <span class="kn">Definition</span> <span class="nf">comma_disp_cat_axioms</span>
+    : disp_cat_axioms _ comma_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="kp">try</span> (<span class="nb">apply</span> homset_property).
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comma_disp_cat</span>
+    : disp_cat (category_binproduct C₁ C₂).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> comma_disp_cat_data.
+    - <span class="bp">exact</span> comma_disp_cat_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comma</span>
+    : category
+    := total_category comma_disp_cat.
+
+  <span class="sd">(** Univalence of the comma category *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_univalent_disp_comma_disp_cat</span>
+             (<span class="nv">HC₃</span> : is_univalent C₃)
+    : is_univalent_disp comma_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y p i₁ i₂.
+    <span class="nb">induction</span> p.
+    use isweqimplimpl.
+    - <span class="nb">intros</span> p.
+      <span class="nb">pose</span> (pr1 p) <span class="k">as</span> m.
+      <span class="nb">cbn</span> <span class="k">in</span> m.
+      <span class="nb">rewrite</span> !functor_id <span class="k">in</span> m.
+      <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> m.
+      <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> homset_property.
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_iso_disp.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_comma</span>
+             (<span class="nv">HC₁</span> : is_univalent C₁)
+             (<span class="nv">HC₂</span> : is_univalent C₂)
+             (<span class="nv">HC₃</span> : is_univalent C₃)
+    : is_univalent comma.
+  <span class="kn">Proof</span>.
+    use is_univalent_total_category.
+    - <span class="nb">apply</span> is_univalent_category_binproduct.
+      + <span class="bp">exact</span> HC₁.
+      + <span class="bp">exact</span> HC₂.
+    - <span class="bp">exact</span> (is_univalent_disp_comma_disp_cat HC₃).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Isos in comma *)</span>
+  <span class="kn">Section</span> <span class="nf">IsIsoComma</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : comma}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">Hf1</span> : is_z_isomorphism (pr11 f))
+            (<span class="nv">Hf2</span> : is_z_isomorphism (pr21 f)).
+
+    <span class="kn">Definition</span> <span class="nf">inv_comma</span>
+      : y --&gt; x.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> ((inv_from_z_iso (make_z_iso' _ Hf1) ,, inv_from_z_iso (make_z_iso' _ Hf2)) ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span>; <span class="nb">apply</span> pathsinv0;
+         <span class="nb">rewrite</span> !functor_on_inv_from_z_iso;
+         use z_iso_inv_on_left;
+         <span class="nb">rewrite</span> assoc';
+         <span class="nb">refine</span> (!_) ;
+         use z_iso_inv_on_right;
+         <span class="nb">cbn</span>;
+         <span class="bp">exact</span> (pr2 f)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">is_iso_comma_left_inv</span>
+      : f · inv_comma = identity x.
+    <span class="kn">Proof</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      use pathsdirprod; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (z_iso_inv_after_z_iso (make_z_iso' _ Hf1)).
+      - <span class="bp">exact</span> (z_iso_inv_after_z_iso (make_z_iso' _ Hf2)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">is_iso_comma_right_inv</span>
+      : inv_comma · f = identity y.
+    <span class="kn">Proof</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      use pathsdirprod; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (z_iso_after_z_iso_inv (make_z_iso' _ Hf1)).
+      - <span class="bp">exact</span> (z_iso_after_z_iso_inv (make_z_iso' _ Hf2)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_z_iso_comma</span>
+      : is_z_isomorphism f.
+    <span class="kn">Proof</span>.
+      <span class="k">exists</span> <span class="nv">inv_comma</span>.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> is_iso_comma_left_inv.
+      - <span class="bp">exact</span> is_iso_comma_right_inv.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">IsIsoComma</span>.
+
+  <span class="sd">(** Projection functors *)</span>
+  <span class="kn">Definition</span> <span class="nf">comma_pr1</span>
+    : comma ⟶ C₁
+    := pr1_category comma_disp_cat ∙ pr1_functor C₁ C₂.
+
+  <span class="kn">Definition</span> <span class="nf">comma_pr2</span>
+    : comma ⟶ C₂
+    := pr1_category comma_disp_cat ∙ pr2_functor C₁ C₂.
+
+  <span class="sd">(** Natural isomorphism witnessing the commutation *)</span>
+  <span class="kn">Definition</span> <span class="nf">comma_commute_nat_trans_data</span>
+    : nat_trans_data (comma_pr1 ∙ F) (comma_pr2 ∙ G).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x; <span class="nb">cbn</span> <span class="k">in</span> x.
+    <span class="bp">exact</span> (pr2 x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comma_commute_is_nat_trans</span>
+    : is_nat_trans _ _ comma_commute_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f; <span class="nb">unfold</span> comma_commute_nat_trans_data; <span class="nb">cbn</span>; <span class="nb">cbn</span> <span class="k">in</span> f.
+    <span class="bp">exact</span> (!(pr2 f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comma_commute</span>
+    : comma_pr1 ∙ F ⟹ comma_pr2 ∙ G.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> comma_commute_nat_trans_data.
+    - <span class="bp">exact</span> comma_commute_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">     Mapping property of comma category</span>
+
+<span class="sd">     We need to check three mapping properties:</span>
+<span class="sd">     - The first one gives the existence of a functor</span>
+<span class="sd">     - The second one gives the existence of a natural transformation</span>
+<span class="sd">     - The third one can be used to show that two natural transformations</span>
+<span class="sd">       are equal</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">UniversalMappingProperty</span>.
+    <span class="kn">Context</span> {<span class="nv">D</span> : category}
+            (<span class="nv">P</span> : D ⟶ C₁)
+            (<span class="nv">Q</span> : D ⟶ C₂)
+            (<span class="nv">η</span> : P ∙ F ⟹ Q ∙ G).
+
+    <span class="sd">(** The functor witnessing the universal property *)</span>
+    <span class="kn">Definition</span> <span class="nf">comma_ump1_data</span>
+      : functor_data D comma.
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">d</span>, (P d ,, Q d) ,, η d).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">d₁</span> <span class="nv">d₂</span> <span class="nv">f</span>, (#P f ,, #Q f) ,, !(nat_trans_ax η _ _ f)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump1_is_functor</span>
+      : is_functor comma_ump1_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> x; <span class="nb">cbn</span>.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>; <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !functor_id.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intros</span> x y z f g; <span class="nb">cbn</span>.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>; <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !functor_comp.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump1</span>
+      : D ⟶ comma.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> comma_ump1_data.
+      - <span class="bp">exact</span> comma_ump1_is_functor.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** The computation rules *)</span>
+    <span class="kn">Definition</span> <span class="nf">comma_ump1_pr1_nat_trans_data</span>
+      : nat_trans_data (comma_ump1 ∙ comma_pr1) P
+      := <span class="k">λ</span> <span class="nv">x</span>, identity _.
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump1_pr1_is_nat_trans</span>
+      : is_nat_trans _ _ comma_ump1_pr1_nat_trans_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f; <span class="nb">cbn</span>; <span class="nb">unfold</span> comma_ump1_pr1_nat_trans_data.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump1_pr1_nat_trans</span>
+      : comma_ump1 ∙ comma_pr1 ⟹ P.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> comma_ump1_pr1_nat_trans_data.
+      - <span class="bp">exact</span> comma_ump1_pr1_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** Computation rule for first projection *)</span>
+    <span class="kn">Definition</span> <span class="nf">comma_ump1_pr1</span>
+      : nat_z_iso (comma_ump1 ∙ comma_pr1) P.
+    <span class="kn">Proof</span>.
+      use make_nat_z_iso.
+      - <span class="bp">exact</span> comma_ump1_pr1_nat_trans.
+      - <span class="nb">intro</span>.
+        <span class="nb">apply</span> identity_is_z_iso.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump1_pr2_nat_trans_data</span>
+      : nat_trans_data (comma_ump1 ∙ comma_pr2) Q
+      := <span class="k">λ</span> <span class="nv">x</span>, identity _.
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump1_pr2_is_nat_trans</span>
+      : is_nat_trans _ _ comma_ump1_pr2_nat_trans_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f; <span class="nb">cbn</span>; <span class="nb">unfold</span> comma_ump1_pr2_nat_trans_data.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump1_pr2_nat_trans</span>
+      : comma_ump1 ∙ comma_pr2 ⟹ Q.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> comma_ump1_pr2_nat_trans_data.
+      - <span class="bp">exact</span> comma_ump1_pr2_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** Computation rule for second projection *)</span>
+    <span class="kn">Definition</span> <span class="nf">comma_ump1_pr2</span>
+      : nat_z_iso (comma_ump1 ∙ comma_pr2) Q.
+    <span class="kn">Proof</span>.
+      use make_nat_z_iso.
+      - <span class="bp">exact</span> comma_ump1_pr2_nat_trans.
+      - <span class="nb">intro</span>.
+        <span class="nb">apply</span> identity_is_z_iso.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** Computation rule for natural iso *)</span>
+    <span class="kn">Definition</span> <span class="nf">comma_ump1_commute</span>
+      : pre_whisker comma_ump1 comma_commute
+        =
+        nat_trans_comp
+          _ _ _
+          (nat_trans_functor_assoc_inv _ _ _)
+          (nat_trans_comp
+             _ _ _
+             (post_whisker comma_ump1_pr1 F)
+             (nat_trans_comp
+                _ _ _
+                η
+                (nat_trans_comp
+                   _ _ _
+                   (post_whisker (nat_z_iso_inv comma_ump1_pr2) G)
+                   (nat_trans_functor_assoc _ _ _)))).
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span>; <span class="nb">cbn</span>; <span class="nb">unfold</span> comma_ump1_pr1_nat_trans_data.
+      <span class="nb">rewrite</span> (functor_id F), (functor_id G).
+      <span class="nb">rewrite</span> !id_left.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** Now we look at the second universal mapping property *)</span>
+    <span class="kn">Context</span> (<span class="nv">Φ₁</span> <span class="nv">Φ₂</span> : D ⟶ comma)
+            (<span class="nv">τ₁</span> : Φ₁ ∙ comma_pr1 ⟹ Φ₂ ∙ comma_pr1)
+            (<span class="nv">τ₂</span> : Φ₁ ∙ comma_pr2 ⟹ Φ₂ ∙ comma_pr2)
+            (<span class="nv">p</span> : ∏ (x : D),
+                 pr2 (Φ₁ x) · #G (τ₂ x)
+                 =
+                 #F (τ₁ x) · pr2 (Φ₂ x)).
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump2_nat_trans_data</span>
+      : nat_trans_data Φ₁ Φ₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> x.
+      <span class="nb">simple refine</span> ((_ ,, _) ,, _) ; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (τ₁ x).
+      - <span class="bp">exact</span> (τ₂ x).
+      - <span class="kp">abstract</span>
+          (<span class="bp">exact</span> (p x)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump2_is_nat_trans</span>
+      : is_nat_trans _ _ comma_ump2_nat_trans_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f.
+      use subtypePath.
+      {
+        <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property.
+      }
+      use pathsdirprod.
+      - <span class="bp">exact</span> (nat_trans_ax τ₁ _ _ f).
+      - <span class="bp">exact</span> (nat_trans_ax τ₂ _ _ f).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump2</span>
+      : Φ₁ ⟹ Φ₂.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> comma_ump2_nat_trans_data.
+      - <span class="bp">exact</span> comma_ump2_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** The computation rules *)</span>
+    <span class="kn">Definition</span> <span class="nf">comma_ump2_pr1</span>
+      : post_whisker comma_ump2 comma_pr1 = τ₁.
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">intro</span>; <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump2_pr2</span>
+      : post_whisker comma_ump2 comma_pr2 = τ₂.
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">intro</span>; <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** The uniqueness *)</span>
+    <span class="kn">Context</span> {<span class="nv">n₁</span> <span class="nv">n₂</span> : Φ₁ ⟹ Φ₂}
+            (<span class="nv">n₁_pr1</span> : post_whisker n₁ comma_pr1 = τ₁)
+            (<span class="nv">n₁_pr2</span> : post_whisker n₁ comma_pr2 = τ₂)
+            (<span class="nv">n₂_pr1</span> : post_whisker n₂ comma_pr1 = τ₁)
+            (<span class="nv">n₂_pr2</span> : post_whisker n₂ comma_pr2 = τ₂).
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump_eq_nat_trans</span>
+      : n₁ = n₂.
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>; <span class="nb">apply</span> homset_property.
+      }
+      use pathsdirprod.
+      - <span class="nb">pose</span> (nat_trans_eq_pointwise n₁_pr1 x) <span class="k">as</span> q₁.
+        <span class="nb">pose</span> (nat_trans_eq_pointwise n₂_pr1 x) <span class="k">as</span> q₂.
+        <span class="nb">cbn</span> <span class="k">in</span> q₁, q₂.
+        <span class="bp">exact</span> (q₁ @ !q₂).
+      - <span class="nb">pose</span> (nat_trans_eq_pointwise n₁_pr2 x) <span class="k">as</span> q₁.
+        <span class="nb">pose</span> (nat_trans_eq_pointwise n₂_pr2 x) <span class="k">as</span> q₂.
+        <span class="nb">cbn</span> <span class="k">in</span> q₁, q₂.
+        <span class="bp">exact</span> (q₁ @ !q₂).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">UniversalMappingProperty</span>.
+
+<span class="kn">End</span> <span class="nf">CommaCategory</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_comma</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : univalent_category}
+           (<span class="nv">F</span> : C₁ ⟶ C₃)
+           (<span class="nv">G</span> : C₂ ⟶ C₃)
+  : univalent_category.
+<span class="kn">Proof</span>.
+  use make_univalent_category.
+  - <span class="bp">exact</span> (comma F G).
+  - <span class="nb">apply</span> is_univalent_comma.
+    + <span class="bp">exact</span> (pr2 C₁).
+    + <span class="bp">exact</span> (pr2 C₂).
+    + <span class="bp">exact</span> (pr2 C₃).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/CommaCategories.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; ************************************************************)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

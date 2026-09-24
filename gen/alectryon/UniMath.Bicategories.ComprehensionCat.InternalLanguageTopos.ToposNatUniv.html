@@ -1,0 +1,1631 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ToposNatUniv.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> The internal language of elementary toposes with a NNO and a universe</span>
+
+<span class="sd"> We have established biequivalences between bicategories of univalent categories with finite</span>
+<span class="sd"> limits and various kinds of structure, and univalent DFL full comprehension categories with</span>
+<span class="sd"> the corresponding structure. We used these biequivalence to give an internal language</span>
+<span class="sd"> theorem for univalent elementary toposes with a natural numbers object. In this file, we</span>
+<span class="sd"> give an internal language theorem for elementary toposes with a NNO and a universe. The</span>
+<span class="sd"> universe is required to satisfy the following closure conditions.</span>
+<span class="sd"> - The natural numbers object must be contained in the universe.</span>
+<span class="sd"> - The subobject classifier must be contained in the universe.</span>
+<span class="sd"> - The universe must contain every proposition. This corresponds to propositional resizing.</span>
+<span class="sd"> - The universe must be closed under ∑-types and ∏-types.</span>
+<span class="sd"> This notion of universe is based on "Universes in toposes" by Streicher, and these closure</span>
+<span class="sd"> conditions have various implications. For instance, since the universe contains every</span>
+<span class="sd"> proposition, we can directly conclude that the unit type and tne empty type are in the</span>
+<span class="sd"> universe. In addition, since the universe contains the subobject classifier, one can show</span>
+<span class="sd"> that the universe also is closed under sums and quotients.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Universes in toposes" by Streicher</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The bicategory of elementary toposes with a NNO and universe</span>
+<span class="sd"> 2. Accessors for elementary toposes with a NNO and universe</span>
+<span class="sd"> 3. The bicategory of elementary topos comprehension categories with a NNO and universe</span>
+<span class="sd"> 4. Accessors for elementary toposes comprehension categories with a NNO and universe</span>
+<span class="sd"> 5. The biequivalence</span>
+<span class="sd"> 6. Type formers in a topos with a universe</span>
+<span class="sd"> 6.1. Parameterized NNO</span>
+<span class="sd"> 6.2. Subobject classifier</span>
+<span class="sd"> 6.3. Propositional resizing</span>
+<span class="sd"> 6.4. ∑-types</span>
+<span class="sd"> 6.5. ∏-types</span>
+<span class="sd"> 6.6. Universes for toposes</span>
+<span class="sd"> 7. Accessors for topos universes</span>
+<span class="sd"> 8. The biequivalence for topos universes</span>
+
+<span class="sd">                                                                                          *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.StrictInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.DisjointBinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LocallyCartesianClosed.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.ExactCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Reindex.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBiequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.ProductDispBiequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.ReindexBiequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.BiequivalenceCoherent.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatWithProp.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.CatWithProp.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatExamples.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Unit.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Counit.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Biequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.PiTypesBiequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.InternalLanguageTopos.Pretopos.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.InternalLanguageTopos.PiPretopos.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.InternalLanguageTopos.ToposNat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatWithUniv.
+<span class="kn">Require Export</span> UniMath.Bicategories.ComprehensionCat.Universes.UniverseBiequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.Constant.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.Resizing.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.Sigma.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.PiTypes.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. The bicategory of elementary toposes with a NNO and universe *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_of_univ_topos_with_NNO_univ</span>
+  : disp_bicat bicat_of_univ_cat_with_finlim
+  := disp_dirprod_bicat
+       disp_bicat_of_univ_topos_with_NNO
+       disp_bicat_finlim_universe.
+
+<span class="kn">Proposition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_of_univ_topos_with_NNO_univ</span>
+  : disp_2cells_isaprop disp_bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  use disp_2cells_isaprop_prod.
+  - <span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_of_univ_topos_with_NNO.
+  - <span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_finlim_universe.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_locally_groupoid_disp_bicat_of_univ_topos_with_NNO_univ</span>
+  : disp_locally_groupoid disp_bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  use disp_locally_groupoid_prod.
+  - <span class="bp">exact</span> disp_locally_groupoid_disp_bicat_of_univ_topos_with_NNO.
+  - <span class="bp">exact</span> disp_locally_groupoid_disp_bicat_finlim_universe.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_disp_bicat_of_univ_topos_with_NNO_univ</span>
+  : disp_univalent_2 disp_bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  use is_univalent_2_dirprod_bicat.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_cat_with_finlim.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_of_univ_topos_with_NNO.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_finlim_universe.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_disp_bicat_of_univ_topos_with_NNO_univ</span>
+  : disp_univalent_2_0 disp_bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_of_univ_topos_with_NNO_univ</span>
+  : disp_univalent_2_1 disp_bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_of_univ_topos_with_NNO_univ</span>
+  : bicat
+  := total_bicat disp_bicat_of_univ_topos_with_NNO_univ.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_bicat_of_univ_topos_with_NNO_univ</span>
+  : is_univalent_2 bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_of_univ_topos_with_NNO_univ.
+  - <span class="bp">exact</span> is_univalent_2_bicat_of_univ_cat_with_finlim.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_0_bicat_of_univ_topos_with_NNO_univ</span>
+  : is_univalent_2_0 bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_2_bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ</span>
+  : is_univalent_2_1 bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_2_bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Accessors for elementary toposes with a NNO and universe *)</span>
+<span class="kn">Definition</span> <span class="nf">univ_topos_with_NNO_univ</span>
+  : UU
+  := bicat_of_univ_topos_with_NNO_univ.
+
+<span class="kn">Coercion</span> <span class="nf">univ_topos_with_NNO_to_univ_pretopos</span>
+         (E : univ_topos_with_NNO_univ)
+  : univ_pretopos.
+<span class="kn">Proof</span>.
+  use make_univ_pretopos.
+  - <span class="bp">exact</span> (pr1 E).
+  - <span class="bp">exact</span> (pr111 (pr111 (pr112 E))).
+  - <span class="bp">exact</span> (pr1 (pr211 (pr111 (pr112 E)))).
+  - <span class="bp">exact</span> (pr2 (pr211 (pr111 (pr112 E)))).
+  - <span class="bp">exact</span> (pr21 (pr111 (pr112 E))).
+  - <span class="bp">exact</span> (pr112 (pr111 (pr112 E))).
+  - <span class="bp">exact</span> (pr212 (pr111 (pr112 E))).
+  - <span class="bp">exact</span> (pr22 (pr111 (pr112 E))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_topos_with_NNO_univ_subobject_classifier</span>
+           (<span class="nv">E</span> : univ_topos_with_NNO_univ)
+  : subobject_classifier (terminal_univ_cat_with_finlim E)
+  := pr211 (pr112 E).
+
+<span class="kn">Definition</span> <span class="nf">univ_topos_with_NNO_univ_NNO</span>
+           (<span class="nv">E</span> : univ_topos_with_NNO_univ)
+  : parameterized_NNO
+      (terminal_univ_cat_with_finlim E)
+      (binproducts_univ_cat_with_finlim E)
+  := pr21 (pr112 E).
+
+<span class="kn">Definition</span> <span class="nf">is_locally_cartesian_closed_univ_topos_with_NNO_univ</span>
+           (<span class="nv">E</span> : univ_topos_with_NNO_univ)
+  : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim E)
+  := pr1 (pr212 E).
+
+<span class="kn">Coercion</span> <span class="nf">cat_with_ob_univ_topos_with_NNO_universe</span>
+           (E : univ_topos_with_NNO_univ)
+  : univ_cat_with_finlim_universe.
+<span class="kn">Proof</span>.
+  use make_univ_cat_with_finlim_universe.
+  - <span class="bp">exact</span> E.
+  - <span class="bp">exact</span> (pr122 E).
+  - <span class="bp">exact</span> (pr222 E).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_univ_topos_with_NNO</span>
+           (<span class="nv">E</span> : univ_pi_pretopos)
+           (<span class="nv">Ω</span> : subobject_classifier (terminal_univ_cat_with_finlim E))
+           (<span class="nv">N</span> : parameterized_NNO
+                  (terminal_univ_cat_with_finlim E)
+                  (binproducts_univ_cat_with_finlim E))
+           (<span class="nv">u</span> : E)
+           (<span class="nv">el</span> : cat_stable_el_map (pretopos_to_finlim E ,, u))
+           (<span class="nv">H</span> : is_coherent_cat_stable_el_map el)
+  : univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, (((((((_ ,, (_ ,, _)) ,, _)
+                   ,, ((_ ,, _) ,, _)) ,, _) ,, _) ,, tt) ,, (_ ,, tt))
+                   ,, (_ ,, _ ,, _)) ; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> (pretopos_to_finlim E).
+  - <span class="bp">exact</span> (strict_initial_univ_pretopos E).
+  - <span class="bp">exact</span> (bincoproducts_univ_pretopos E).
+  - <span class="bp">exact</span> (stable_bincoproducts_univ_pretopos E).
+  - <span class="bp">exact</span> (disjoint_bincoproducts_univ_pretopos E).
+  - <span class="bp">exact</span> (is_regular_category_coeqs_of_kernel_pair
+             (is_regular_category_univ_pretopos E)).
+  - <span class="bp">exact</span> (is_regular_category_regular_epi_pb_stable
+             (is_regular_category_univ_pretopos E)).
+  - <span class="bp">exact</span> (all_internal_eqrel_effective_univ_pretopos E).
+  - <span class="bp">exact</span> Ω.
+  - <span class="bp">exact</span> N.
+  - <span class="bp">exact</span> (univ_pi_pretopos_lccc E).
+  - <span class="bp">exact</span> u.
+  - <span class="bp">exact</span> el.
+  - <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_topos_with_NNO_univ</span>
+           (<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ)
+  : UU
+  := E₁ --&gt; E₂.
+
+<span class="kn">Coercion</span> <span class="nf">functor_topos_with_NNO_univ_to_functor_pretopos</span>
+         {E₁ E₂ : univ_topos_with_NNO_univ}
+         (F : functor_topos_with_NNO_univ E₁ E₂)
+  : functor_pretopos E₁ E₂.
+<span class="kn">Proof</span>.
+  use make_functor_pretopos.
+  - <span class="bp">exact</span> (pr1 F).
+  - <span class="bp">exact</span> (pr11 (pr112 (pr112 F))).
+  - <span class="bp">exact</span> (pr21 (pr112 (pr112 F))).
+  - <span class="bp">exact</span> (pr12 (pr112 (pr112 F))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_subobject_classifier_functor_topos_with_NNO_univ</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ}
+           (<span class="nv">F</span> : functor_topos_with_NNO_univ E₁ E₂)
+  : preserves_subobject_classifier
+      F
+      (terminal_univ_cat_with_finlim E₁)
+      (terminal_univ_cat_with_finlim E₂)
+      (functor_finlim_preserves_terminal F)
+  := pr212 (pr112 F).
+
+<span class="kn">Definition</span> <span class="nf">preserves_NNO_functor_topos_with_NNO_univ</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ}
+           (<span class="nv">F</span> : functor_topos_with_NNO_univ E₁ E₂)
+  : preserves_parameterized_NNO
+      (univ_topos_with_NNO_univ_NNO E₁)
+      (univ_topos_with_NNO_univ_NNO E₂)
+      F
+      (functor_finlim_preserves_terminal F)
+  := pr22 (pr112 F).
+
+<span class="kn">Definition</span> <span class="nf">preserves_locally_cartesian_closed_functor_topos_with_NNO_univ</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ}
+           (<span class="nv">F</span> : functor_topos_with_NNO_univ E₁ E₂)
+  : preserves_locally_cartesian_closed
+      (functor_finlim_preserves_pullback F)
+      (is_locally_cartesian_closed_univ_topos_with_NNO_univ E₁)
+      (is_locally_cartesian_closed_univ_topos_with_NNO_univ E₂)
+  := pr2 (pr212 F).
+
+<span class="kn">Definition</span> <span class="nf">functor_topos_with_NNO_universe</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ}
+           (<span class="nv">F</span> : functor_topos_with_NNO_univ E₁ E₂)
+  : functor_finlim_universe
+      (cat_with_ob_univ_topos_with_NNO_universe E₁)
+      (cat_with_ob_univ_topos_with_NNO_universe E₂).
+<span class="kn">Proof</span>.
+  use make_functor_finlim_universe.
+  - <span class="bp">exact</span> F.
+  - <span class="bp">exact</span> (pr122 F).
+  - <span class="bp">exact</span> (pr222 F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_functor_topos_with_NNO_univ</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ}
+           (<span class="nv">F</span> : functor_pretopos E₁ E₂)
+           (<span class="nv">HF</span> : preserves_subobject_classifier
+                   F
+                   (terminal_univ_cat_with_finlim E₁)
+                   (terminal_univ_cat_with_finlim E₂)
+                   (functor_finlim_preserves_terminal F))
+           (<span class="nv">HF'</span> : preserves_locally_cartesian_closed
+                    (functor_finlim_preserves_pullback F)
+                    (is_locally_cartesian_closed_univ_topos_with_NNO_univ E₁)
+                    (is_locally_cartesian_closed_univ_topos_with_NNO_univ E₂))
+           (<span class="nv">HF''</span> : preserves_parameterized_NNO
+                     (univ_topos_with_NNO_univ_NNO E₁)
+                     (univ_topos_with_NNO_univ_NNO E₂)
+                     F
+                     (functor_finlim_preserves_terminal F))
+           (<span class="nv">Fu</span> : z_iso
+                   (F (univ_cat_universe E₁))
+                   (univ_cat_universe E₂))
+           (<span class="nv">Fel</span> : functor_preserves_el
+                    (univ_cat_cat_stable_el_map E₁)
+                    (univ_cat_cat_stable_el_map E₂)
+                    (pr1 F ,, Fu))
+  : functor_topos_with_NNO_univ E₁ E₂.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, (((tt ,, ((((_ ,, _) ,, (_ ,, tt)) ,, _) ,, _))
+                   ,, (tt ,, _)) ,, (_ ,, _))).
+  - <span class="bp">exact</span> (functor_pretopos_to_functor_finlim F).
+  - <span class="bp">exact</span> (preserves_initial_functor_pretopos F).
+  - <span class="bp">exact</span> (preserves_bincoproduct_functor_pretopos F).
+  - <span class="bp">exact</span> (preserves_regular_epi_functor_pretopos F).
+  - <span class="bp">exact</span> HF.
+  - <span class="bp">exact</span> HF''.
+  - <span class="bp">exact</span> HF'.
+  - <span class="bp">exact</span> Fu.
+  - <span class="bp">exact</span> Fel.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_topos_with_NNO_univ</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ}
+           (<span class="nv">F</span> <span class="nv">G</span> : functor_topos_with_NNO_univ E₁ E₂)
+  : UU
+  := F ==&gt; G.
+
+<span class="kn">Coercion</span> <span class="nf">nat_trans_topos_with_NNO_univ_to_nat_trans_finlim</span>
+         {E₁ E₂ : univ_topos_with_NNO_univ}
+         {F G : functor_topos_with_NNO_univ E₁ E₂}
+         (τ : nat_trans_topos_with_NNO_univ F G)
+  : nat_trans_finlim F G
+  := pr1 τ.
+
+<span class="kn">Coercion</span> <span class="nf">nat_trans_topos_with_NNO_univ_to_nat_trans_finlim_universe</span>
+         {E₁ E₂ : univ_topos_with_NNO_univ}
+         {F G : functor_topos_with_NNO_univ E₁ E₂}
+         (τ : nat_trans_topos_with_NNO_univ F G)
+  : nat_trans_finlim_universe
+      (functor_topos_with_NNO_universe F)
+      (functor_topos_with_NNO_universe G).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (pr1 τ ,, _ ,, _).
+  - <span class="bp">exact</span> (pr122 τ).
+  - <span class="bp">exact</span> (pr222 τ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_nat_trans_topos_with_NNO_univ</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ}
+           {<span class="nv">F</span> <span class="nv">G</span> : functor_topos_with_NNO_univ E₁ E₂}
+           (<span class="nv">τ</span> : F ⟹ G)
+           (<span class="nv">p</span> : τ (univ_cat_universe E₁)
+                · functor_on_universe (functor_topos_with_NNO_universe G)
+                =
+                functor_on_universe (functor_topos_with_NNO_universe F))
+           (<span class="nv">q</span> : nat_trans_preserves_el
+                  (make_nat_trans_finlim τ ,, p
+                    : nat_trans_finlim_ob
+                        (functor_topos_with_NNO_universe F)
+                        (functor_topos_with_NNO_universe G))
+                  (functor_finlim_universe_preserves_el
+                     (functor_topos_with_NNO_universe F))
+                  (functor_finlim_universe_preserves_el
+                     (functor_topos_with_NNO_universe G)))
+  : nat_trans_topos_with_NNO_univ F G
+  := make_nat_trans_finlim τ ,, (((tt ,, tt) ,, (tt ,, tt)) ,, p ,, q).
+
+<span class="kn">Proposition</span> <span class="nf">nat_trans_topos_with_NNO_eq</span>
+            {<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ}
+            {<span class="nv">F</span> <span class="nv">G</span> : functor_topos_with_NNO_univ E₁ E₂}
+            {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : nat_trans_topos_with_NNO_univ F G}
+            (<span class="nv">p</span> : ∏ (x : E₁), τ₁ x = τ₂ x)
+  : τ₁ = τ₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    use isaproptotal2.
+    - <span class="nb">intro</span>.
+      use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_nat_trans_preserves_el.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span>.
+      use pathsdirprod ; use pathsdirprod ; <span class="nb">apply</span> isapropunit.
+  }
+  use nat_trans_finlim_eq.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. The bicategory of elementary topos comprehension categories with a NNO and universe *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_univ_topos_with_NNO_univ_language</span>
+  : disp_bicat bicat_of_dfl_full_comp_cat
+  := disp_dirprod_bicat
+       disp_bicat_univ_topos_with_NNO_language
+       disp_bicat_dfl_full_comp_cat_with_univ.
+
+<span class="kn">Proposition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_univ_topos_with_NNO_univ_language</span>
+  : disp_2cells_isaprop disp_bicat_univ_topos_with_NNO_univ_language.
+<span class="kn">Proof</span>.
+  use disp_2cells_isaprop_prod.
+  - <span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_univ_topos_with_NNO_language.
+  - <span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_dfl_full_comp_cat_with_univ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_locally_groupoid_disp_bicat_univ_topos_with_NNO_univ_language</span>
+  : disp_locally_groupoid disp_bicat_univ_topos_with_NNO_univ_language.
+<span class="kn">Proof</span>.
+  use disp_locally_groupoid_prod.
+  - <span class="bp">exact</span> disp_locally_groupoid_disp_bicat_univ_topos_with_NNO_language.
+  - <span class="bp">exact</span> disp_locally_groupoid_disp_bicat_dfl_full_comp_cat_with_univ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_disp_bicat_univ_topos_with_NNO_univ_language</span>
+  : disp_univalent_2 disp_bicat_univ_topos_with_NNO_univ_language.
+<span class="kn">Proof</span>.
+  use is_univalent_2_dirprod_bicat.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_dfl_full_comp_cat.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_univ_topos_with_NNO_language.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_dfl_full_comp_cat_with_univ.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_disp_bicat_univ_topos_with_NNO_univ_language</span>
+  : disp_univalent_2_0 disp_bicat_univ_topos_with_NNO_univ_language.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_univ_topos_with_NNO_univ_language.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_univ_topos_with_NNO_univ_language</span>
+  : disp_univalent_2_1 disp_bicat_univ_topos_with_NNO_univ_language.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_univ_topos_with_NNO_univ_language.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_topos_with_NNO_univ_language</span>
+  : bicat
+  := total_bicat disp_bicat_univ_topos_with_NNO_univ_language.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_univ_topos_with_NNO_univ_language</span>
+  : is_univalent_2 univ_topos_with_NNO_univ_language.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_univ_topos_with_NNO_univ_language.
+  - <span class="bp">exact</span> is_univalent_2_bicat_of_dfl_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_0_univ_topos_with_NNO_univ_language</span>
+  : is_univalent_2_0 univ_topos_with_NNO_univ_language.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_2_univ_topos_with_NNO_univ_language.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_1_univ_topos_with_NNO_univ_language</span>
+  : is_univalent_2_1 univ_topos_with_NNO_univ_language.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_2_univ_topos_with_NNO_univ_language.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Accessors for elementary toposes comprehension categories with a NNO and universe *)</span>
+<span class="kn">Definition</span> <span class="nf">topos_NNO_univ_comp_cat</span>
+  : UU
+  := univ_topos_with_NNO_univ_language.
+
+<span class="kn">Coercion</span> <span class="nf">topos_NNO_comp_cat_univ_to_dfl_comp_cat</span>
+         (C : topos_NNO_univ_comp_cat)
+  : dfl_full_comp_cat
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_strict_initial_topos_NNO_comp_cat</span>
+           (<span class="nv">C</span> : topos_NNO_univ_comp_cat)
+  : fiberwise_cat_property
+      strict_initial_local_property
+      (topos_NNO_comp_cat_univ_to_dfl_comp_cat C)
+  := local_property_conj_left
+       (local_property_sub_left
+          (local_property_conj_left
+             (local_property_conj_left
+                (local_property_conj_left
+                   (pr1 (pr112 C)))))).
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_bincoproduct_topos_NNO_comp_cat</span>
+           (<span class="nv">C</span> : topos_NNO_univ_comp_cat)
+  : fiberwise_cat_property
+      stable_bincoproducts_local_property
+      (topos_NNO_comp_cat_univ_to_dfl_comp_cat C)
+  := local_property_conj_right
+       (local_property_sub_left
+          (local_property_conj_left
+             (local_property_conj_left
+                (local_property_conj_left
+                   (pr1 (pr112 C)))))).
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_regular_topos_NNO_comp_cat</span>
+           (<span class="nv">C</span> : topos_NNO_univ_comp_cat)
+  : fiberwise_cat_property
+      regular_local_property
+      (topos_NNO_comp_cat_univ_to_dfl_comp_cat C)
+  := local_property_conj_left
+       (local_property_conj_right
+          (local_property_conj_left
+             (local_property_conj_left (pr1 (pr112 C))))).
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_effective_eqrel_topos_NNO_comp_cat</span>
+           (<span class="nv">C</span> : topos_NNO_univ_comp_cat)
+  : fiberwise_cat_property
+      all_eqrel_effective_local_property
+      (topos_NNO_comp_cat_univ_to_dfl_comp_cat C)
+  := local_property_conj_right
+       (local_property_conj_right
+          (local_property_conj_left
+             (local_property_conj_left (pr1 (pr112 C))))).
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_subobject_classifier_topos_NNO_comp_cat</span>
+           (<span class="nv">C</span> : topos_NNO_univ_comp_cat)
+  : fiberwise_cat_property
+      subobject_classifier_local_property
+      (topos_NNO_comp_cat_univ_to_dfl_comp_cat C)
+  := local_property_conj_right
+       (local_property_conj_left (pr1 (pr112 C))).
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_nno_topos_NNO_comp_cat</span>
+           (<span class="nv">C</span> : topos_NNO_univ_comp_cat)
+  : fiberwise_cat_property
+      parameterized_NNO_local_property
+      (topos_NNO_comp_cat_univ_to_dfl_comp_cat C)
+  := local_property_conj_right (pr1 (pr112 C)).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_dependent_prod_topos_NNO_comp_cat</span>
+           (<span class="nv">C</span> : topos_NNO_univ_comp_cat)
+  : comp_cat_dependent_prod C
+  := pr1 (pr212 C).
+
+<span class="kn">Definition</span> <span class="nf">topos_NNO_comp_cat_universe</span>
+           (<span class="nv">C</span> : topos_NNO_univ_comp_cat)
+  : dfl_full_comp_cat_with_univ.
+<span class="kn">Proof</span>.
+  use make_dfl_full_comp_cat_with_univ.
+  - <span class="bp">exact</span> (topos_NNO_comp_cat_univ_to_dfl_comp_cat C).
+  - <span class="bp">exact</span> (pr122 C).
+  - <span class="bp">exact</span> (pr222 C).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">topos_NNO_univ_comp_cat_functor</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : topos_NNO_univ_comp_cat)
+  : UU
+  := C₁ --&gt; C₂.
+
+<span class="kn">Coercion</span> <span class="nf">topos_NNO_univ_comp_cat_functor_to_dfl_comp_cat_functor</span>
+         {C₁ C₂ : topos_NNO_univ_comp_cat}
+         (F : topos_NNO_univ_comp_cat_functor C₁ C₂)
+  : dfl_full_comp_cat_functor
+      (topos_NNO_comp_cat_univ_to_dfl_comp_cat C₁)
+      (topos_NNO_comp_cat_univ_to_dfl_comp_cat C₂)
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_strict_initial_topos_NNO_comp_cat_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : topos_NNO_univ_comp_cat}
+           (<span class="nv">F</span> : topos_NNO_univ_comp_cat_functor C₁ C₂)
+  : fiberwise_cat_property_functor
+      (topos_NNO_univ_comp_cat_functor_to_dfl_comp_cat_functor F)
+      (fiberwise_strict_initial_topos_NNO_comp_cat C₁)
+      (fiberwise_strict_initial_topos_NNO_comp_cat C₂)
+  := local_property_functor_conj_left
+       (local_property_functor_sub_left
+          (local_property_functor_conj_left
+             (local_property_functor_conj_left
+                (local_property_functor_conj_left (pr2 (pr112 F)))))).
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_bincoproduct_topos_NNO_comp_cat_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : topos_NNO_univ_comp_cat}
+           (<span class="nv">F</span> : topos_NNO_univ_comp_cat_functor C₁ C₂)
+  : fiberwise_cat_property_functor
+      (topos_NNO_univ_comp_cat_functor_to_dfl_comp_cat_functor F)
+      (fiberwise_bincoproduct_topos_NNO_comp_cat C₁)
+      (fiberwise_bincoproduct_topos_NNO_comp_cat C₂)
+  := local_property_functor_conj_right
+       (local_property_functor_sub_left
+          (local_property_functor_conj_left
+             (local_property_functor_conj_left
+                (local_property_functor_conj_left (pr2 (pr112 F)))))).
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_regular_topos_NNO_comp_cat_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : topos_NNO_univ_comp_cat}
+           (<span class="nv">F</span> : topos_NNO_univ_comp_cat_functor C₁ C₂)
+  : fiberwise_cat_property_functor
+      (topos_NNO_univ_comp_cat_functor_to_dfl_comp_cat_functor F)
+      (fiberwise_regular_topos_NNO_comp_cat C₁)
+      (fiberwise_regular_topos_NNO_comp_cat C₂)
+  := local_property_functor_conj_left
+       (local_property_functor_conj_right
+          (local_property_functor_conj_left
+             (local_property_functor_conj_left (pr2 (pr112 F))))).
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_subobject_classifier_topos_NNO_comp_cat_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : topos_NNO_univ_comp_cat}
+           (<span class="nv">F</span> : topos_NNO_univ_comp_cat_functor C₁ C₂)
+  : fiberwise_cat_property_functor
+      (topos_NNO_univ_comp_cat_functor_to_dfl_comp_cat_functor F)
+      (fiberwise_subobject_classifier_topos_NNO_comp_cat C₁)
+      (fiberwise_subobject_classifier_topos_NNO_comp_cat C₂)
+  := local_property_functor_conj_right
+       (local_property_functor_conj_left (pr2 (pr112 F))).
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_nno_topos_NNO_comp_cat_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : topos_NNO_univ_comp_cat}
+           (<span class="nv">F</span> : topos_NNO_univ_comp_cat_functor C₁ C₂)
+  : fiberwise_cat_property_functor
+      (topos_NNO_univ_comp_cat_functor_to_dfl_comp_cat_functor F)
+      (fiberwise_nno_topos_NNO_comp_cat C₁)
+      (fiberwise_nno_topos_NNO_comp_cat C₂)
+  := local_property_functor_conj_right (pr2 (pr112 F)).
+
+<span class="kn">Definition</span> <span class="nf">preserves_comp_cat_dependent_prod_topos_NNO_comp_cat_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : topos_NNO_univ_comp_cat}
+           (<span class="nv">F</span> : topos_NNO_univ_comp_cat_functor C₁ C₂)
+  : preserves_comp_cat_dependent_prod
+      (topos_NNO_univ_comp_cat_functor_to_dfl_comp_cat_functor F)
+      (comp_cat_dependent_prod_topos_NNO_comp_cat C₁)
+      (comp_cat_dependent_prod_topos_NNO_comp_cat C₂)
+  := pr2 (pr212 F).
+
+<span class="kn">Definition</span> <span class="nf">topos_NNO_univ_comp_cat_with_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : topos_NNO_univ_comp_cat}
+           (<span class="nv">F</span> : topos_NNO_univ_comp_cat_functor C₁ C₂)
+  : dfl_full_comp_cat_with_univ_functor
+      (topos_NNO_comp_cat_universe C₁)
+      (topos_NNO_comp_cat_universe C₂).
+<span class="kn">Proof</span>.
+  use make_dfl_full_comp_cat_with_univ_functor.
+  - <span class="bp">exact</span> F.
+  - <span class="bp">exact</span> (pr122 F).
+  - <span class="bp">exact</span> (pr222 F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">topos_NNO_univ_comp_cat_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : topos_NNO_univ_comp_cat}
+           (<span class="nv">F</span> <span class="nv">G</span> : topos_NNO_univ_comp_cat_functor C₁ C₂)
+  : UU
+  := F ==&gt; G.
+
+<span class="kn">Coercion</span> <span class="nf">topos_NNO_univ_comp_cat_nat_trans_to_dfl_full_comp_cat_nat_trans</span>
+         {C₁ C₂ : topos_NNO_univ_comp_cat}
+         {F G : topos_NNO_univ_comp_cat_functor C₁ C₂}
+         (τ : topos_NNO_univ_comp_cat_nat_trans F G)
+  : dfl_full_comp_cat_nat_trans
+      (topos_NNO_univ_comp_cat_functor_to_dfl_comp_cat_functor F)
+      (topos_NNO_univ_comp_cat_functor_to_dfl_comp_cat_functor G)
+  := pr1 τ.
+
+<span class="kn">Definition</span> <span class="nf">topos_NNO_univ_dfl_comp_cat_nat_trans_univ</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : topos_NNO_univ_comp_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : topos_NNO_univ_comp_cat_functor C₁ C₂}
+           (<span class="nv">τ</span> : topos_NNO_univ_comp_cat_nat_trans F G)
+  : dfl_full_comp_cat_with_univ_nat_trans
+      (topos_NNO_univ_comp_cat_with_functor F)
+      (topos_NNO_univ_comp_cat_with_functor G).
+<span class="kn">Proof</span>.
+  use make_dfl_full_comp_cat_with_univ_nat_trans.
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (pr111 τ).
+    + <span class="bp">exact</span> (pr122 τ).
+  - <span class="bp">exact</span> (pr222 τ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. The biequivalence *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_psfunctor_lang_univ_topos_with_NNO_univ</span>
+  : disp_psfunctor
+      disp_bicat_of_univ_topos_with_NNO_univ
+      disp_bicat_univ_topos_with_NNO_univ_language
+      finlim_biequiv_dfl_comp_cat_psfunctor.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (prod_disp_psfunctor
+            _ _ _ _
+            disp_psfunctor_lang_univ_topos_with_NNO
+            finlim_to_dfl_comp_cat_disp_psfunctor_universe).
+  - use disp_2cells_isaprop_prod.
+    + <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_of_cat_property_dfl_full_comp_cat.
+    + <span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_of_pi_type_dfl_full_comp_cat.
+  - use disp_locally_groupoid_prod.
+    + <span class="nb">apply</span> disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
+    + <span class="bp">exact</span> disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat.
+  - <span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_dfl_full_comp_cat_with_univ.
+  - <span class="bp">exact</span> disp_locally_groupoid_disp_bicat_dfl_full_comp_cat_with_univ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lang_univ_topos_with_NNO_univ</span>
+  : psfunctor
+      bicat_of_univ_topos_with_NNO_univ
+      univ_topos_with_NNO_univ_language
+  := total_psfunctor
+       _ _ _
+       disp_psfunctor_lang_univ_topos_with_NNO_univ.
+
+<span class="kn">Definition</span> <span class="nf">internal_language_univ_topos_with_NNO_univ</span>
+  : is_biequivalence lang_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (total_is_biequivalence
+            _ _ _
+            (prod_disp_is_biequivalence_data
+               _ _ _ _
+               _ _ _ _
+               _ _ _ _
+               _ _ _ _
+               (prod_disp_is_biequivalence_data
+                  _ _ _ _
+                  _ _ _ _
+                  _ _ _ _
+                  _ _ _ _
+                  (finlim_biequiv_dfl_comp_cat_psfunctor_local_property
+                     topos_with_NNO_local_property)
+                  finlim_biequiv_dfl_comp_cat_psfunctor_pi_types)
+               finlim_biequiv_dfl_comp_cat_psfunctor_universe)).
+  - use disp_2cells_isaprop_prod.
+    + <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_of_univ_cat_with_cat_property.
+    + <span class="bp">exact</span> disp_2cells_isaprop_univ_lccc.
+  - use disp_locally_groupoid_prod.
+    + <span class="nb">apply</span> disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
+    + <span class="bp">exact</span> disp_locally_groupoid_univ_lccc.
+  - <span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_finlim_universe.
+  - <span class="bp">exact</span> disp_locally_groupoid_disp_bicat_finlim_universe.
+  - <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_of_univ_cat_with_cat_property.
+  - <span class="nb">apply</span> disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
+  - <span class="bp">exact</span> disp_2cells_isaprop_univ_lccc.
+  - <span class="bp">exact</span> disp_locally_groupoid_univ_lccc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">mod_univ_topos_with_NNO_univ</span>
+  : psfunctor
+      univ_topos_with_NNO_univ_language
+      bicat_of_univ_topos_with_NNO_univ
+  := inv_psfunctor_of_is_biequivalence
+       internal_language_univ_topos_with_NNO_univ.
+
+<span class="kn">Definition</span> <span class="nf">internal_language_univ_topos_with_NNO_univ_unit</span>
+  : pstrans
+      (comp_psfunctor
+         mod_univ_topos_with_NNO_univ
+         lang_univ_topos_with_NNO_univ)
+      (id_psfunctor _)
+  := unit_of_is_biequivalence internal_language_univ_topos_with_NNO_univ.
+
+<span class="kn">Definition</span> <span class="nf">internal_language_univ_topos_with_NNO_univ_counit</span>
+  : pstrans
+      (id_psfunctor _)
+      (comp_psfunctor
+         lang_univ_topos_with_NNO_univ
+         mod_univ_topos_with_NNO_univ)
+  := invcounit_of_is_biequivalence internal_language_univ_topos_with_NNO_univ.
+
+<span class="kn">Definition</span> <span class="nf">internal_language_univ_topos_with_NNO_univ_counit_pt</span>
+           (<span class="nv">C</span> : topos_NNO_univ_comp_cat)
+  : C --&gt; lang_univ_topos_with_NNO_univ (mod_univ_topos_with_NNO_univ C)
+  := internal_language_univ_topos_with_NNO_univ_counit C.
+
+<span class="sd">(** * 6. Type formers in a topos with a universe *)</span>
+
+<span class="sd">(** ** 6.1. Parameterized NNO *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_topos_with_NNO_univ_nno_type</span>
+  : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">E</span> : univ_topos_with_NNO_univ),
+           pnno_in_cat_univ
+             (C := E)
+             (univ_topos_with_NNO_univ_NNO E)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ)
+             (<span class="nv">c₁</span> : pnno_in_cat_univ
+                     (C := E₁)
+                     (univ_topos_with_NNO_univ_NNO E₁))
+             (<span class="nv">c₂</span> : pnno_in_cat_univ
+                     (C := E₂)
+                     (univ_topos_with_NNO_univ_NNO E₂))
+             (<span class="nv">F</span> : functor_topos_with_NNO_univ E₁ E₂),
+           functor_preserves_pnno_in_cat_univ
+             c₁ c₂
+             (functor_topos_with_NNO_universe F)
+             (preserves_NNO_functor_topos_with_NNO_univ F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_cat_id_comp_topos_with_NNO_univ_nno_type</span>
+  : disp_cat_id_comp
+      bicat_of_univ_topos_with_NNO_univ
+      disp_cat_ob_mor_topos_with_NNO_univ_nno_type.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> E c.
+    <span class="nb">refine</span> (transportf
+              (functor_preserves_pnno_in_cat_univ _ _ _)
+              _
+              (id_functor_preserves_pnno_in_cat_univ c)).
+    <span class="nb">apply</span> isaprop_preserves_parameterized_NNO.
+  - <span class="nb">intros</span> E₁ E₂ E₃ F G c₁ c₂ c₃ Fc Gc.
+    <span class="nb">refine</span> (transportf
+              (functor_preserves_pnno_in_cat_univ _ _ _)
+              _
+              (comp_functor_preserves_pnno_in_cat_univ Fc Gc)).
+    <span class="nb">apply</span> isaprop_preserves_parameterized_NNO.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_data_topos_with_NNO_univ_nno_type</span>
+  : disp_cat_data bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_ob_mor_topos_with_NNO_univ_nno_type.
+  - <span class="bp">exact</span> disp_cat_id_comp_topos_with_NNO_univ_nno_type.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_topos_with_NNO_univ_nno_type</span>
+  : disp_bicat bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat.
+  <span class="bp">exact</span> disp_cat_data_topos_with_NNO_univ_nno_type.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_disp_bicat_topos_with_NNO_univ_nno_type</span>
+  : disp_univalent_2 disp_bicat_topos_with_NNO_univ_nno_type.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat_univalent_2.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_functor_preserves_type_in_cat_univ.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaset_type_in_cat_univ.
+  - <span class="nb">intros</span> E c₁ c₂ F.
+    <span class="nb">apply</span> pnno_in_cat_univ_univalence_lemma.
+    <span class="nb">refine</span> (transportf
+              (functor_preserves_pnno_in_cat_univ _ _ _)
+              _
+              (pr1 F)).
+    <span class="nb">apply</span> isaprop_preserves_parameterized_NNO.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_disp_bicat_topos_with_NNO_univ_nno_type</span>
+  : disp_univalent_2_0 disp_bicat_topos_with_NNO_univ_nno_type.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_nno_type.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_topos_with_NNO_univ_nno_type</span>
+  : disp_univalent_2_1 disp_bicat_topos_with_NNO_univ_nno_type.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_nno_type.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 6.2. Subobject classifier *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_topos_with_NNO_univ_subobj_classifier</span>
+  : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">E</span> : univ_topos_with_NNO_univ),
+           subobject_classifier_in_cat_univ
+             (C := E)
+             (univ_topos_with_NNO_univ_subobject_classifier E)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ)
+             (<span class="nv">c₁</span> : subobject_classifier_in_cat_univ
+                     (C := E₁)
+                     (univ_topos_with_NNO_univ_subobject_classifier E₁))
+             (<span class="nv">c₂</span> : subobject_classifier_in_cat_univ
+                     (C := E₂)
+                     (univ_topos_with_NNO_univ_subobject_classifier E₂))
+             (<span class="nv">F</span> : functor_topos_with_NNO_univ E₁ E₂),
+           functor_preserves_subobject_classifier_in_cat_univ
+             c₁ c₂
+             (functor_topos_with_NNO_universe F)
+             (preserves_subobject_classifier_functor_topos_with_NNO_univ F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_cat_id_comp_topos_with_NNO_univ_subobj_classifier</span>
+  : disp_cat_id_comp
+      bicat_of_univ_topos_with_NNO_univ
+      disp_cat_ob_mor_topos_with_NNO_univ_subobj_classifier.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> E c.
+    <span class="nb">refine</span> (transportf
+              (functor_preserves_subobject_classifier_in_cat_univ _ _ _)
+              _
+              (id_functor_preserves_subobject_classifier_in_cat_univ c)).
+    <span class="nb">apply</span> isaprop_preserves_subobject_classifier.
+  - <span class="nb">intros</span> E₁ E₂ E₃ F G c₁ c₂ c₃ Fc Gc.
+    <span class="nb">refine</span> (transportf
+              (functor_preserves_subobject_classifier_in_cat_univ _ _ _)
+              _
+              (comp_functor_preserves_subobject_classifier_in_cat_univ Fc Gc)).
+    <span class="nb">apply</span> isaprop_preserves_subobject_classifier.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_data_topos_with_NNO_univ_subobj_classifier</span>
+  : disp_cat_data bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_ob_mor_topos_with_NNO_univ_subobj_classifier.
+  - <span class="bp">exact</span> disp_cat_id_comp_topos_with_NNO_univ_subobj_classifier.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_topos_with_NNO_univ_subobj_classifier</span>
+  : disp_bicat bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat.
+  <span class="bp">exact</span> disp_cat_data_topos_with_NNO_univ_subobj_classifier.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_disp_bicat_topos_with_NNO_univ_subobj_classifier</span>
+  : disp_univalent_2 disp_bicat_topos_with_NNO_univ_subobj_classifier.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat_univalent_2.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_functor_preserves_type_in_cat_univ.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaset_type_in_cat_univ.
+  - <span class="nb">intros</span> E c₁ c₂ F.
+    <span class="nb">apply</span> subobject_classifier_in_cat_univ_univalence_lemma.
+    <span class="nb">refine</span> (transportf
+              (functor_preserves_subobject_classifier_in_cat_univ _ _ _)
+              _
+              (pr1 F)).
+    <span class="nb">apply</span> isaprop_preserves_subobject_classifier.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_disp_bicat_topos_with_NNO_univ_subobj_classifier</span>
+  : disp_univalent_2_0 disp_bicat_topos_with_NNO_univ_subobj_classifier.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_subobj_classifier.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_topos_with_NNO_univ_subobj_classifier</span>
+  : disp_univalent_2_1 disp_bicat_topos_with_NNO_univ_subobj_classifier.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_subobj_classifier.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 6.3. Propositional resizing *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_topos_with_NNO_univ_resizing</span>
+  : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">E</span> : univ_topos_with_NNO_univ),
+           cat_univ_stable_codes_resizing E).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ)
+             (<span class="nv">c₁</span> : cat_univ_stable_codes_resizing E₁)
+             (<span class="nv">c₂</span> : cat_univ_stable_codes_resizing E₂)
+             (<span class="nv">F</span> : functor_topos_with_NNO_univ E₁ E₂),
+           functor_preserves_stable_resizing_codes
+             c₁ c₂
+             (functor_topos_with_NNO_universe F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_cat_id_comp_topos_with_NNO_univ_resizing</span>
+  : disp_cat_id_comp
+      bicat_of_univ_topos_with_NNO_univ
+      disp_cat_ob_mor_topos_with_NNO_univ_resizing.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> E c.
+    <span class="bp">exact</span> (identity_preserves_resizing_codes c).
+  - <span class="nb">intros</span> E₁ E₂ E₃ F G c₁ c₂ c₃ Fc Gc.
+    <span class="bp">exact</span> (comp_preserves_resizing_codes Fc Gc).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_data_topos_with_NNO_univ_resizing</span>
+  : disp_cat_data bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_ob_mor_topos_with_NNO_univ_resizing.
+  - <span class="bp">exact</span> disp_cat_id_comp_topos_with_NNO_univ_resizing.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_topos_with_NNO_univ_resizing</span>
+  : disp_bicat bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat.
+  <span class="bp">exact</span> disp_cat_data_topos_with_NNO_univ_resizing.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_disp_bicat_topos_with_NNO_univ_resizing</span>
+  : disp_univalent_2 disp_bicat_topos_with_NNO_univ_resizing.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat_univalent_2.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_functor_preserves_stable_resizing_codes.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaset_cat_univ_stable_codes_resizing.
+  - <span class="nb">intros</span> E c₁ c₂ F.
+    <span class="nb">apply</span> cat_univ_stable_codes_resizing_univalence_lemma.
+    <span class="bp">exact</span> (pr1 F).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_disp_bicat_topos_with_NNO_univ_resizing</span>
+  : disp_univalent_2_0 disp_bicat_topos_with_NNO_univ_resizing.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_resizing.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_topos_with_NNO_univ_resizing</span>
+  : disp_univalent_2_1 disp_bicat_topos_with_NNO_univ_resizing.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_resizing.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 6.4. ∑-types *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_topos_with_NNO_univ_sigma</span>
+  : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">E</span> : univ_topos_with_NNO_univ),
+           cat_univ_stable_codes_sigma E).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ)
+             (<span class="nv">c₁</span> : cat_univ_stable_codes_sigma E₁)
+             (<span class="nv">c₂</span> : cat_univ_stable_codes_sigma E₂)
+             (<span class="nv">F</span> : functor_topos_with_NNO_univ E₁ E₂),
+           functor_preserves_stable_codes_sigma
+             c₁ c₂
+             (functor_topos_with_NNO_universe F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_cat_id_comp_topos_with_NNO_univ_sigma</span>
+  : disp_cat_id_comp
+      bicat_of_univ_topos_with_NNO_univ
+      disp_cat_ob_mor_topos_with_NNO_univ_sigma.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> E c.
+    <span class="bp">exact</span> (identity_preserves_stable_codes_sigma c).
+  - <span class="nb">intros</span> E₁ E₂ E₃ F G c₁ c₂ c₃ Fc Gc.
+    <span class="bp">exact</span> (comp_preserves_stable_codes_sigma Fc Gc).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_data_topos_with_NNO_univ_sigma</span>
+  : disp_cat_data bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_ob_mor_topos_with_NNO_univ_sigma.
+  - <span class="bp">exact</span> disp_cat_id_comp_topos_with_NNO_univ_sigma.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_topos_with_NNO_univ_sigma</span>
+  : disp_bicat bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat.
+  <span class="bp">exact</span> disp_cat_data_topos_with_NNO_univ_sigma.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_disp_bicat_topos_with_NNO_univ_sigma</span>
+  : disp_univalent_2 disp_bicat_topos_with_NNO_univ_sigma.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat_univalent_2.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_functor_preserves_stable_codes_sigma.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaset_cat_univ_stable_codes_sigma.
+  - <span class="nb">intros</span> E c₁ c₂ F.
+    <span class="nb">apply</span> sigma_univ_univalence_lemma.
+    <span class="bp">exact</span> (pr1 F).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_disp_bicat_topos_with_NNO_univ_sigma</span>
+  : disp_univalent_2_0 disp_bicat_topos_with_NNO_univ_sigma.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_sigma.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_topos_with_NNO_univ_sigma</span>
+  : disp_univalent_2_1 disp_bicat_topos_with_NNO_univ_sigma.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_sigma.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 6.5. ∏-types *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_topos_with_NNO_univ_pi</span>
+  : disp_cat_ob_mor bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">E</span> : univ_topos_with_NNO_univ),
+           cat_univ_stable_codes_pi
+             (C := E)
+             (is_locally_cartesian_closed_univ_topos_with_NNO_univ E)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">E₁</span> <span class="nv">E₂</span> : univ_topos_with_NNO_univ)
+             (<span class="nv">c₁</span> : cat_univ_stable_codes_pi
+                     (C := E₁)
+                     (is_locally_cartesian_closed_univ_topos_with_NNO_univ E₁))
+             (<span class="nv">c₂</span> : cat_univ_stable_codes_pi
+                     (C := E₂)
+                     (is_locally_cartesian_closed_univ_topos_with_NNO_univ E₂))
+             (<span class="nv">F</span> : functor_topos_with_NNO_univ E₁ E₂),
+           functor_preserves_stable_codes_pi
+             c₁ c₂
+             (functor_topos_with_NNO_universe F)
+             (preserves_locally_cartesian_closed_functor_topos_with_NNO_univ F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_cat_id_comp_topos_with_NNO_univ_pi</span>
+  : disp_cat_id_comp
+      bicat_of_univ_topos_with_NNO_univ
+      disp_cat_ob_mor_topos_with_NNO_univ_pi.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> E c.
+    <span class="bp">exact</span> (identity_preserves_stable_codes_pi c).
+  - <span class="nb">intros</span> E₁ E₂ E₃ F G c₁ c₂ c₃ Fc Gc.
+    <span class="bp">exact</span> (comp_preserves_stable_codes_pi Fc Gc).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_data_topos_with_NNO_univ_pi</span>
+  : disp_cat_data bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_ob_mor_topos_with_NNO_univ_pi.
+  - <span class="bp">exact</span> disp_cat_id_comp_topos_with_NNO_univ_pi.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_topos_with_NNO_univ_pi</span>
+  : disp_bicat bicat_of_univ_topos_with_NNO_univ.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat.
+  <span class="bp">exact</span> disp_cat_data_topos_with_NNO_univ_pi.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_disp_bicat_topos_with_NNO_univ_pi</span>
+  : disp_univalent_2 disp_bicat_topos_with_NNO_univ_pi.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat_univalent_2.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_functor_preserves_stable_codes_pi.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaset_cat_univ_stable_codes_pi.
+  - <span class="nb">intros</span> E c₁ c₂ F.
+    <span class="nb">apply</span> pi_univ_univalence_lemma.
+    <span class="bp">exact</span> (pr1 F).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_disp_bicat_topos_with_NNO_univ_pi</span>
+  : disp_univalent_2_0 disp_bicat_topos_with_NNO_univ_pi.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_pi.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_topos_with_NNO_univ_pi</span>
+  : disp_univalent_2_1 disp_bicat_topos_with_NNO_univ_pi.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_pi.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 6.6. Universes for toposes *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_topos_with_NNO_univ_topos_univ</span>
+  : disp_bicat bicat_of_univ_topos_with_NNO_univ
+  := disp_dirprod_bicat
+       disp_bicat_topos_with_NNO_univ_nno_type
+       (disp_dirprod_bicat
+          disp_bicat_topos_with_NNO_univ_subobj_classifier
+          (disp_dirprod_bicat
+             disp_bicat_topos_with_NNO_univ_resizing
+             (disp_dirprod_bicat
+                disp_bicat_topos_with_NNO_univ_sigma
+                disp_bicat_topos_with_NNO_univ_pi))).
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_disp_bicat_topos_with_NNO_univ_topos_univ</span>
+  : disp_univalent_2 disp_bicat_topos_with_NNO_univ_topos_univ.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use is_univalent_2_dirprod_bicat).
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_nno_type.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_subobj_classifier.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_resizing.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_sigma.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_pi.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_disp_bicat_topos_with_NNO_univ_topos_univ</span>
+  : disp_univalent_2_0 disp_bicat_topos_with_NNO_univ_topos_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_topos_univ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_topos_with_NNO_univ_topos_univ</span>
+  : disp_univalent_2_1 disp_bicat_topos_with_NNO_univ_topos_univ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_topos_with_NNO_univ_topos_univ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_2cells_iscontr_disp_bicat_topos_with_NNO_univ_topos_univ</span>
+  : disp_2cells_iscontr disp_bicat_topos_with_NNO_univ_topos_univ.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use disp_2cells_of_dirprod_iscontr) ; <span class="nb">apply</span> disp_2cells_iscontr_disp_bicat_cells_unit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_topos_with_NNO_univ_topos_univ</span>
+  : disp_2cells_isaprop disp_bicat_topos_with_NNO_univ_topos_univ.
+<span class="kn">Proof</span>.
+  use disp_2cells_isaprop_from_disp_2cells_iscontr.
+  <span class="bp">exact</span> disp_2cells_iscontr_disp_bicat_topos_with_NNO_univ_topos_univ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_locally_groupoid_disp_bicat_topos_with_NNO_univ_topos_univ</span>
+  : disp_locally_groupoid disp_bicat_topos_with_NNO_univ_topos_univ.
+<span class="kn">Proof</span>.
+  use disp_2cells_isgroupoid_from_disp_2cells_iscontr.
+  <span class="bp">exact</span> disp_2cells_iscontr_disp_bicat_topos_with_NNO_univ_topos_univ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_univ_topos_with_NNO_topos_univ_language</span>
+  : disp_bicat univ_topos_with_NNO_univ_language
+  := reindex_disp_bicat_univ
+       is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ
+       mod_univ_topos_with_NNO_univ
+       disp_bicat_topos_with_NNO_univ_topos_univ
+       disp_2cells_isaprop_disp_bicat_topos_with_NNO_univ_topos_univ.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_disp_bicat_univ_topos_with_NNO_topos_univ_language</span>
+  : disp_univalent_2 disp_bicat_univ_topos_with_NNO_topos_univ_language.
+<span class="kn">Proof</span>.
+  use disp_univalent_2_reindex_disp_bicat.
+  - <span class="bp">exact</span> disp_locally_groupoid_disp_bicat_topos_with_NNO_univ_topos_univ.
+  - <span class="bp">exact</span> is_univalent_2_1_univ_topos_with_NNO_univ_language.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_topos_with_NNO_univ.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_topos_with_NNO_univ_topos_univ.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_topos_with_NNO_univ_topos_univ.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_disp_bicat_univ_topos_with_NNO_topos_univ_language</span>
+  : disp_univalent_2_0 disp_bicat_univ_topos_with_NNO_topos_univ_language.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_univ_topos_with_NNO_topos_univ_language.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_univ_topos_with_NNO_topos_univ_language</span>
+  : disp_univalent_2_1 disp_bicat_univ_topos_with_NNO_topos_univ_language.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_univalent_2_disp_bicat_univ_topos_with_NNO_topos_univ_language.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_2cells_iscontr_disp_bicat_univ_topos_with_NNO_topos_univ_language</span>
+  : disp_2cells_iscontr disp_bicat_univ_topos_with_NNO_topos_univ_language.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (disp_2cells_iscontr_reindex_disp_bicat _ _ _ _ _).
+  <span class="nb">apply</span> disp_2cells_iscontr_disp_bicat_topos_with_NNO_univ_topos_univ.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_univ_topos_with_NNO_topos_univ_language</span>
+  : disp_2cells_isaprop disp_bicat_univ_topos_with_NNO_topos_univ_language.
+<span class="kn">Proof</span>.
+  use disp_2cells_isaprop_from_disp_2cells_iscontr.
+  <span class="bp">exact</span> disp_2cells_iscontr_disp_bicat_univ_topos_with_NNO_topos_univ_language.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_locally_groupoid_disp_bicat_univ_topos_with_NNO_topos_univ_language</span>
+  : disp_locally_groupoid disp_bicat_univ_topos_with_NNO_topos_univ_language.
+<span class="kn">Proof</span>.
+  use disp_2cells_isgroupoid_from_disp_2cells_iscontr.
+  <span class="bp">exact</span> disp_2cells_iscontr_disp_bicat_univ_topos_with_NNO_topos_univ_language.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 7. Accessors for topos universes *)</span>
+<span class="kn">Definition</span> <span class="nf">bicat_topos_with_NNO_univ_topos_univ</span>
+  : bicat
+  := total_bicat disp_bicat_topos_with_NNO_univ_topos_univ.
+
+<span class="kn">Definition</span> <span class="nf">topos_with_NNO_univ_topos_univ</span>
+  : UU
+  := bicat_topos_with_NNO_univ_topos_univ.
+
+<span class="kn">Coercion</span> <span class="nf">to_topos_with_NNO_univ</span>
+         (E : topos_with_NNO_univ_topos_univ)
+  : univ_topos_with_NNO_univ
+  := pr1 E.
+
+<span class="kn">Section</span> <span class="nf">UnivAccessors</span>.
+  <span class="kn">Context</span> (<span class="nv">E</span> : topos_with_NNO_univ_topos_univ).
+
+  <span class="kn">Definition</span> <span class="nf">topos_with_NNO_univ_topos_univ_pnno</span>
+    : pnno_in_cat_univ
+        (C := E)
+        (univ_topos_with_NNO_univ_NNO E)
+    := pr12 E.
+
+  <span class="kn">Definition</span> <span class="nf">topos_with_NNO_univ_topos_univ_subobject_classifier</span>
+    : subobject_classifier_in_cat_univ
+        (C := E)
+        (univ_topos_with_NNO_univ_subobject_classifier E)
+    := pr122 E.
+
+  <span class="kn">Definition</span> <span class="nf">topos_with_NNO_univ_topos_univ_resizing</span>
+    : cat_univ_stable_codes_resizing E
+    := pr1 (pr222 E).
+
+  <span class="kn">Definition</span> <span class="nf">topos_with_NNO_univ_topos_univ_sigma</span>
+    : cat_univ_stable_codes_sigma E
+    := pr12 (pr222 E).
+
+  <span class="kn">Definition</span> <span class="nf">topos_with_NNO_univ_topos_univ_pi</span>
+    : cat_univ_stable_codes_pi
+        (C := E)
+        (is_locally_cartesian_closed_univ_topos_with_NNO_univ E)
+    := pr22 (pr222 E).
+<span class="kn">End</span> <span class="nf">UnivAccessors</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_topos_with_NNO_univ_topos_univ</span>
+           (<span class="nv">E</span> : univ_topos_with_NNO_univ)
+           (<span class="nv">nc</span> : pnno_in_cat_univ
+                   (C := E)
+                   (univ_topos_with_NNO_univ_NNO E))
+           (<span class="nv">Ωc</span> : subobject_classifier_in_cat_univ
+                   (C := E)
+                   (univ_topos_with_NNO_univ_subobject_classifier E))
+           (<span class="nv">rc</span> : cat_univ_stable_codes_resizing E)
+           (<span class="nv">Σc</span> : cat_univ_stable_codes_sigma E)
+           (<span class="nv">Πc</span> : cat_univ_stable_codes_pi
+                   (C := E)
+                   (is_locally_cartesian_closed_univ_topos_with_NNO_univ E))
+  : topos_with_NNO_univ_topos_univ
+  := E ,, nc ,, Ωc ,, rc ,, Σc ,, Πc.
+
+<span class="kn">Definition</span> <span class="nf">functor_topos_with_NNO_univ_topos_univ</span>
+           (<span class="nv">E₁</span> <span class="nv">E₂</span> : topos_with_NNO_univ_topos_univ)
+  : UU
+  := E₁ --&gt; E₂.
+
+<span class="kn">Coercion</span> <span class="nf">functor_topos_with_NNO_univ_topos_univ_to_functor_topos_with_NNO_univ</span>
+         {E₁ E₂ : topos_with_NNO_univ_topos_univ}
+         (F : functor_topos_with_NNO_univ_topos_univ E₁ E₂)
+  : functor_topos_with_NNO_univ E₁ E₂
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">functor_topos_with_NNO_univ_topos_univ_pnno</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : topos_with_NNO_univ_topos_univ}
+           (<span class="nv">F</span> : functor_topos_with_NNO_univ_topos_univ E₁ E₂)
+  : functor_preserves_pnno_in_cat_univ
+      (topos_with_NNO_univ_topos_univ_pnno E₁)
+      (topos_with_NNO_univ_topos_univ_pnno E₂)
+      (functor_topos_with_NNO_universe F)
+      (preserves_NNO_functor_topos_with_NNO_univ F)
+  := pr12 F.
+
+<span class="kn">Definition</span> <span class="nf">functor_topos_with_NNO_univ_topos_univ_subobject_classifier</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : topos_with_NNO_univ_topos_univ}
+           (<span class="nv">F</span> : functor_topos_with_NNO_univ_topos_univ E₁ E₂)
+  : functor_preserves_subobject_classifier_in_cat_univ
+      (topos_with_NNO_univ_topos_univ_subobject_classifier E₁)
+      (topos_with_NNO_univ_topos_univ_subobject_classifier E₂)
+      (functor_topos_with_NNO_universe F)
+      (preserves_subobject_classifier_functor_topos_with_NNO_univ F)
+  := pr122 F.
+
+<span class="kn">Definition</span> <span class="nf">functor_topos_with_NNO_univ_topos_univ_resizing</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : topos_with_NNO_univ_topos_univ}
+           (<span class="nv">F</span> : functor_topos_with_NNO_univ_topos_univ E₁ E₂)
+  : functor_preserves_stable_resizing_codes
+      (topos_with_NNO_univ_topos_univ_resizing E₁)
+      (topos_with_NNO_univ_topos_univ_resizing E₂)
+      (functor_topos_with_NNO_universe F)
+  := pr1 (pr222 F).
+
+<span class="kn">Definition</span> <span class="nf">functor_topos_with_NNO_univ_topos_univ_sigma</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : topos_with_NNO_univ_topos_univ}
+           (<span class="nv">F</span> : functor_topos_with_NNO_univ_topos_univ E₁ E₂)
+  : functor_preserves_stable_codes_sigma
+      (topos_with_NNO_univ_topos_univ_sigma E₁)
+      (topos_with_NNO_univ_topos_univ_sigma E₂)
+      (functor_topos_with_NNO_universe F)
+  := pr12 (pr222 F).
+
+<span class="kn">Definition</span> <span class="nf">functor_topos_with_NNO_univ_topos_univ_pi</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : topos_with_NNO_univ_topos_univ}
+           (<span class="nv">F</span> : functor_topos_with_NNO_univ_topos_univ E₁ E₂)
+  : functor_preserves_stable_codes_pi
+      (topos_with_NNO_univ_topos_univ_pi E₁)
+      (topos_with_NNO_univ_topos_univ_pi E₂)
+      (functor_topos_with_NNO_universe F)
+      (preserves_locally_cartesian_closed_functor_topos_with_NNO_univ F)
+  := pr22 (pr222 F).
+
+<span class="kn">Definition</span> <span class="nf">make_functor_topos_with_NNO_univ_topos_univ</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : topos_with_NNO_univ_topos_univ}
+           (<span class="nv">F</span> : functor_topos_with_NNO_univ E₁ E₂)
+           (<span class="nv">Fn</span> : functor_preserves_pnno_in_cat_univ
+                   (topos_with_NNO_univ_topos_univ_pnno E₁)
+                   (topos_with_NNO_univ_topos_univ_pnno E₂)
+                   (functor_topos_with_NNO_universe F)
+                   (preserves_NNO_functor_topos_with_NNO_univ F))
+           (<span class="nv">FΩ</span> : functor_preserves_subobject_classifier_in_cat_univ
+                   (topos_with_NNO_univ_topos_univ_subobject_classifier E₁)
+                   (topos_with_NNO_univ_topos_univ_subobject_classifier E₂)
+                   (functor_topos_with_NNO_universe F)
+                   (preserves_subobject_classifier_functor_topos_with_NNO_univ F))
+           (<span class="nv">Fr</span> : functor_preserves_stable_resizing_codes
+                   (topos_with_NNO_univ_topos_univ_resizing E₁)
+                   (topos_with_NNO_univ_topos_univ_resizing E₂)
+                   (functor_topos_with_NNO_universe F))
+           (<span class="nv">FΣ</span> : functor_preserves_stable_codes_sigma
+                   (topos_with_NNO_univ_topos_univ_sigma E₁)
+                   (topos_with_NNO_univ_topos_univ_sigma E₂)
+                   (functor_topos_with_NNO_universe F))
+           (<span class="nv">FΠ</span> : functor_preserves_stable_codes_pi
+                   (topos_with_NNO_univ_topos_univ_pi E₁)
+                   (topos_with_NNO_univ_topos_univ_pi E₂)
+                   (functor_topos_with_NNO_universe F)
+                   (preserves_locally_cartesian_closed_functor_topos_with_NNO_univ F))
+  : functor_topos_with_NNO_univ_topos_univ E₁ E₂
+  := F ,, Fn ,, FΩ ,, Fr ,, FΣ ,, FΠ.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_topos_with_NNO_univ_topos_univ</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : topos_with_NNO_univ_topos_univ}
+           (<span class="nv">F</span> <span class="nv">G</span> : functor_topos_with_NNO_univ_topos_univ E₁ E₂)
+  : UU
+  := F ==&gt; G.
+
+<span class="kn">Coercion</span> <span class="nf">nat_trans_topos_with_NNO_univ_topos_univ_to_nat_trans_topos_NNO_univ</span>
+         {E₁ E₂ : topos_with_NNO_univ_topos_univ}
+         {F G : functor_topos_with_NNO_univ_topos_univ E₁ E₂}
+         (τ : nat_trans_topos_with_NNO_univ_topos_univ F G)
+  : nat_trans_topos_with_NNO_univ F G
+  := pr1 τ.
+
+<span class="kn">Definition</span> <span class="nf">make_nat_trans_topos_with_NNO_univ_topos_univ</span>
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : topos_with_NNO_univ_topos_univ}
+           {<span class="nv">F</span> <span class="nv">G</span> : functor_topos_with_NNO_univ_topos_univ E₁ E₂}
+           (<span class="nv">τ</span> : nat_trans_topos_with_NNO_univ F G)
+  : nat_trans_topos_with_NNO_univ_topos_univ F G
+  := τ ,, tt ,, tt ,, tt ,, tt ,, tt.
+
+<span class="kn">Proposition</span> <span class="nf">nat_trans_topos_with_NNO_univ_topos_univ_eq</span>
+            {<span class="nv">E₁</span> <span class="nv">E₂</span> : topos_with_NNO_univ_topos_univ}
+            {<span class="nv">F</span> <span class="nv">G</span> : functor_topos_with_NNO_univ_topos_univ E₁ E₂}
+            {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : nat_trans_topos_with_NNO_univ_topos_univ F G}
+            (<span class="nv">p</span> : (τ₁ : nat_trans_topos_with_NNO_univ F G) = τ₂)
+  : τ₁ = τ₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> disp_2cells_isaprop_disp_bicat_topos_with_NNO_univ_topos_univ.
+  }
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_univ_topos_with_NNO_topos_univ_language</span>
+  : bicat
+  := total_bicat disp_bicat_univ_topos_with_NNO_topos_univ_language.
+
+<span class="kn">Definition</span> <span class="nf">univ_topos_with_NNO_topos_univ_language</span>
+  : UU
+  := bicat_univ_topos_with_NNO_topos_univ_language.
+
+<span class="kn">Definition</span> <span class="nf">univ_topos_with_NNO_topos_univ_language_to_comp_cat</span>
+           (<span class="nv">C</span> : univ_topos_with_NNO_topos_univ_language)
+  : topos_NNO_univ_comp_cat
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">univ_topos_with_NNO_topos_univ_language_functor</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_topos_with_NNO_topos_univ_language)
+  : UU
+  := C₁ --&gt; C₂.
+
+<span class="kn">Definition</span> <span class="nf">univ_topos_with_NNO_topos_univ_language_comp_cat_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_topos_with_NNO_topos_univ_language}
+           (<span class="nv">F</span> : univ_topos_with_NNO_topos_univ_language_functor C₁ C₂)
+  : topos_NNO_univ_comp_cat_functor
+      (univ_topos_with_NNO_topos_univ_language_to_comp_cat C₁)
+      (univ_topos_with_NNO_topos_univ_language_to_comp_cat C₂)
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">univ_topos_with_NNO_topos_univ_language_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_topos_with_NNO_topos_univ_language}
+           (<span class="nv">F</span> <span class="nv">G</span> : univ_topos_with_NNO_topos_univ_language_functor C₁ C₂)
+  : UU
+  := F ==&gt; G.
+
+<span class="kn">Definition</span> <span class="nf">univ_topos_with_NNO_topos_univ_language_nat_comp_cat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_topos_with_NNO_topos_univ_language}
+           {<span class="nv">F</span> <span class="nv">G</span> : univ_topos_with_NNO_topos_univ_language_functor C₁ C₂}
+           (<span class="nv">τ</span> : univ_topos_with_NNO_topos_univ_language_nat_trans F G)
+  : topos_NNO_univ_comp_cat_nat_trans
+      (univ_topos_with_NNO_topos_univ_language_comp_cat_functor F)
+      (univ_topos_with_NNO_topos_univ_language_comp_cat_functor G)
+  := pr1 τ.
+
+<span class="sd">(** * 8. The biequivalence for topos universes *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_psfunctor_lang_univ_topos_with_NNO_topos_univ</span>
+  : disp_psfunctor
+      disp_bicat_topos_with_NNO_univ_topos_univ
+      disp_bicat_univ_topos_with_NNO_topos_univ_language
+      lang_univ_topos_with_NNO_univ
+  := reindex_disp_psfunctor_inv_univ
+       is_univalent_2_bicat_of_univ_topos_with_NNO_univ
+       internal_language_univ_topos_with_NNO_univ
+       disp_2cells_iscontr_disp_bicat_topos_with_NNO_univ_topos_univ.
+
+<span class="kn">Definition</span> <span class="nf">disp_psfunctor_mod_univ_topos_with_NNO_topos_univ</span>
+  : disp_psfunctor
+      disp_bicat_univ_topos_with_NNO_topos_univ_language
+      disp_bicat_topos_with_NNO_univ_topos_univ
+      mod_univ_topos_with_NNO_univ
+  := reindex_disp_psfunctor_univ
+       is_univalent_2_bicat_of_univ_topos_with_NNO_univ
+       mod_univ_topos_with_NNO_univ
+       disp_2cells_iscontr_disp_bicat_topos_with_NNO_univ_topos_univ.
+
+<span class="kn">Definition</span> <span class="nf">lang_univ_topos_with_NNO_topos_univ</span>
+  : psfunctor
+      bicat_topos_with_NNO_univ_topos_univ
+      bicat_univ_topos_with_NNO_topos_univ_language
+  := total_psfunctor
+       _ _ _
+       disp_psfunctor_lang_univ_topos_with_NNO_topos_univ.
+
+<span class="kn">Definition</span> <span class="nf">mod_univ_topos_with_NNO_topos_univ</span>
+  : psfunctor
+      bicat_univ_topos_with_NNO_topos_univ_language
+      bicat_topos_with_NNO_univ_topos_univ
+  := total_psfunctor
+       _ _ _
+       disp_psfunctor_mod_univ_topos_with_NNO_topos_univ.
+
+<span class="kn">Definition</span> <span class="nf">disp_biequivalence_unit_counit_topos_with_NNO_topos_univ</span>
+  : is_disp_biequivalence_unit_counit
+      disp_bicat_topos_with_NNO_univ_topos_univ
+      disp_bicat_univ_topos_with_NNO_topos_univ_language
+      (coherent_is_biequivalence_adjoints
+         is_univalent_2_univ_topos_with_NNO_univ_language
+         internal_language_univ_topos_with_NNO_univ)
+      disp_psfunctor_lang_univ_topos_with_NNO_topos_univ
+      disp_psfunctor_mod_univ_topos_with_NNO_topos_univ
+  := reindex_is_disp_biequivalence_unit_counit_univ_coh
+       is_univalent_2_univ_topos_with_NNO_univ_language
+       is_univalent_2_bicat_of_univ_topos_with_NNO_univ
+       internal_language_univ_topos_with_NNO_univ
+       disp_2cells_iscontr_disp_bicat_topos_with_NNO_univ_topos_univ.
+
+<span class="kn">Definition</span> <span class="nf">disp_biequivalence_data_topos_with_NNO_topos_univ</span>
+  : disp_is_biequivalence_data
+      disp_bicat_topos_with_NNO_univ_topos_univ
+      disp_bicat_univ_topos_with_NNO_topos_univ_language
+      (coherent_is_biequivalence_adjoints
+         is_univalent_2_univ_topos_with_NNO_univ_language
+         internal_language_univ_topos_with_NNO_univ)
+      disp_biequivalence_unit_counit_topos_with_NNO_topos_univ
+  := reindex_disp_is_biequivalence_univ_coh
+       is_univalent_2_univ_topos_with_NNO_univ_language
+       is_univalent_2_bicat_of_univ_topos_with_NNO_univ
+       internal_language_univ_topos_with_NNO_univ
+       disp_2cells_iscontr_disp_bicat_topos_with_NNO_univ_topos_univ.
+
+<span class="kn">Definition</span> <span class="nf">internal_language_univ_topos_with_NNO_topos_univ</span>
+  : is_biequivalence lang_univ_topos_with_NNO_topos_univ
+  := total_is_biequivalence
+       _ _ _
+       disp_biequivalence_data_topos_with_NNO_topos_univ.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/InternalLanguageTopos/ToposNatUniv.v</tt>, line 41)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. The biequivalence for topos universes
+  &gt;
+  &gt;                                                                                           *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

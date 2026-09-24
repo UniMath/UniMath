@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AbelianPushoutPullback.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Pushout of a Monic is Monic, Pullback of an Epi is Epi *)</span>
+<span class="sd">(** Contents</span>
+<span class="sd">- Pushout of a Monic is Monic</span>
+<span class="sd">- Pushout of a Monic is Pullback</span>
+<span class="sd">- Pullback of an Epi is Epi</span>
+<span class="sd">- Pullback of an Epi is Pushout</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Opp.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Morphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PreAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Additive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Abelian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.AbelianToAdditive.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Kernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cokernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinDirectSums.
+
+
+<span class="sd">(** ** Introduction</span>
+<span class="sd">We show that in abelian categories pushout of a Monic is a Monic and pullback of an Epi is an Epi.</span>
+<span class="sd">Also, in this case the pushout diagram (resp. pullback diagram) is a pullback diagram (resp. pushout</span>
+<span class="sd">diagram).</span>
+
+<span class="sd">More precisely, let f : x --&gt; y and g : x --&gt; z be morphisms in an abelian category. Consider the</span>
+<span class="sd">following pushout diagram</span>
+<span class="sd">                            x ----g----&gt; z</span>
+<span class="sd">                          f |        in2 |</span>
+<span class="sd">                            y ---in1---&gt; w</span>
+<span class="sd">If f is a Monic, then in2 is a Monic, [AbelianPushoutMonic2]. If g is a Monic, then in1 is a Monic,</span>
+<span class="sd">[AbelianPushoutMonic1]. In both of the cases the above diagram is a pullback diagram,</span>
+<span class="sd">[AbelianPushoutMonicisPullback1], [AbelianPushoutMonicisPullback2].</span>
+
+<span class="sd">Let f : x --&gt; z and g : y --&gt; z be morphisms in an abelian category. Consider the following pullback</span>
+<span class="sd">diagram</span>
+<span class="sd">                            w ---pr1---&gt; x</span>
+<span class="sd">                       pr2  |          f |</span>
+<span class="sd">                            y ----g----&gt; z</span>
+<span class="sd">If f is an Epi, then pr2 is an Epi, [AbelianPushoutEpi2], and if g is an Epi, then pr1 is an Epi,</span>
+<span class="sd">[AbelianPushoutEpi1]. In both of the cases the above diagram is a pushout diagram,</span>
+<span class="sd">[AbelianPullbackEpiisPushout1], [AbelianPullbackEpiisPushout2].</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">pushout_monic_pullback_epi</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> : AbelianPreCat}.
+  <span class="c">(* Let hs : has_homsets A := homset_property A. *)</span>
+
+  <span class="kn">Local</span> <span class="kn">Opaque</span> Abelian.Equalizer.
+  <span class="kn">Local</span> <span class="kn">Opaque</span> Abelian.Coequalizer.
+  <span class="kn">Local</span> <span class="kn">Opaque</span> to_BinDirectSums.
+  <span class="kn">Local</span> <span class="kn">Opaque</span> to_binop to_inv.
+
+
+  <span class="sd">(** ** Pushout of a Monic is Monic *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">AbelianPushoutMonic2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : Monic A x y) (<span class="nv">g</span> : x --&gt; z) (<span class="nv">Po</span> : Pushout f g) :
+    Monics.isMonic (PushoutIn2 Po).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (DS := to_BinDirectSums (AbelianToAdditive A) y z).
+    <span class="nb">set</span> (Po' := Pushout_from_Coequalizer_BinCoproduct
+                  A _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
+                  (Abelian.Coequalizer
+                     A
+                     (f · (to_In1 DS))
+                     (g · (to_In2 DS)))).
+    <span class="c">(* Transform the statement to a statement about other pushout *)</span>
+    <span class="nb">set</span> (iso := z_iso_from_Pushout_to_Pushout Po Po').
+    <span class="nb">apply</span> (isMonic_postcomp
+             A _ (PushoutArrow Po Po' (PushoutIn1 Po') (PushoutIn2 Po')
+                               (PushoutSqrCommutes Po'))).
+    <span class="nb">rewrite</span> (PushoutArrow_PushoutIn2
+               Po _ (PushoutIn1 Po') (PushoutIn2 Po')
+               (PushoutSqrCommutes Po')).
+    <span class="c">(* Prove that the arrow isMonic *)</span>
+    <span class="nb">set</span> (CE := Coequalizer A (f · to_In1 (A:=AbelianToPreAdditive A) DS)
+                           (g · to_In2 (A:=AbelianToPreAdditive A) DS)).
+    <span class="nb">set</span> (CK := AdditiveCoequalizerToCokernel (AbelianToAdditive A) _ _ CE).
+    <span class="nb">set</span> (M1 := @isMonic_to_binop_BinDirectSum1' (AbelianToAdditive A) x y z f g DS).
+    <span class="nb">set</span> (K := MonicToKernel' A (make_Monic _ _ M1) CK).
+    use (@to_isMonic (AbelianToAdditive A)).
+    <span class="nb">intros</span> z0 g0 H. <span class="nb">cbn</span> <span class="k">in</span> H. <span class="nb">rewrite</span> assoc <span class="k">in</span> H.
+    <span class="nb">set</span> (φ := KernelIn _ K z0 (g0 · to_In2 (A:=AbelianToPreAdditive A) DS) H).
+    <span class="nb">set</span> (KComm := KernelCommutes (to_Zero A) K z0 (g0 · to_In2 (A:=AbelianToPreAdditive A) DS) H).
+    <span class="nb">fold</span> φ <span class="k">in</span> KComm.
+    <span class="c">(* The result follows from KComm and the fact that φ = ZeroArrow *)</span>
+    <span class="nb">assert</span> (e1 : φ = ZeroArrow (to_Zero A) _ _).
+    {
+      use (MonicisMonic _ f).
+      <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">cbn</span> <span class="k">in</span> KComm.
+      <span class="nb">assert</span> (e2 : (MonicArrow _ f) =
+                   (@to_binop (AbelianToAdditive A) _ _
+                              (f · to_In1 (A:=AbelianToPreAdditive A) DS)
+                              (@to_inv (AbelianToAdditive A) _ _
+                                       (g · to_In2 (A:=AbelianToPreAdditive A) DS)))
+                     · to_Pr1 DS).
+      {
+        <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">rewrite</span> PreAdditive_invlcomp. <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">set</span> (tmp := to_IdIn1 DS). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">cbn</span>. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+        <span class="nb">set</span> (tmp := to_Unel2' DS). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+        <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> pathsinv0.
+        <span class="nb">set</span> (tmp := @to_runax'' (AbelianToAdditive A) (to_Zero A) _ _ f). <span class="bp">exact</span> tmp.
+      }
+      <span class="nb">rewrite</span> e2. <span class="nb">clear</span> e2. <span class="nb">rewrite</span> assoc. <span class="nb">cbn</span> <span class="k">in</span> KComm. <span class="nb">cbn</span>. <span class="nb">rewrite</span> KComm.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">set</span> (tmp := to_Unel2' DS). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+      <span class="nb">apply</span> ZeroArrow_comp_right.
+    }
+    use (to_In2_isMonic _ DS). <span class="nb">cbn</span> <span class="k">in</span> KComm. use (pathscomp0 (! KComm)).
+    <span class="nb">rewrite</span> e1. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AbelianPushoutMonic1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : Monic A x z) (<span class="nv">Po</span> : Pushout f g) :
+    Monics.isMonic (PushoutIn1 Po).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (Po' := make_Pushout _ _ _ _ _ _ (is_symmetric_isPushout _ (isPushout_Pushout Po))).
+    use (AbelianPushoutMonic2 g f Po').
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** Pushout of Monic is Pullback *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">AbelianPushoutMonicisPullback_eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : Monic A x y) (<span class="nv">g</span> : x --&gt; z)
+        {<span class="nv">e</span> : A} {<span class="nv">h</span> : A ⟦ e, y ⟧} {<span class="nv">k</span> : A ⟦ e, z ⟧}
+        (<span class="nv">Hk</span> : <span class="k">let</span> <span class="nv">DS</span> := to_BinDirectSums (AbelianToAdditive A) y z <span class="k">in</span>
+              <span class="k">let</span> <span class="nv">Po'</span> := Pushout_from_Coequalizer_BinCoproduct
+                           A _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
+                           (Abelian.Coequalizer A (f · (to_In1 DS)) (g · (to_In2 DS))) <span class="k">in</span>
+              h · PushoutIn1 Po' = k · PushoutIn2 Po') :
+    <span class="k">let</span> <span class="nv">DS</span> := to_BinDirectSums (AbelianToAdditive A) y z <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">Po'</span> := Pushout_from_Coequalizer_BinCoproduct
+                 A _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
+                 (Abelian.Coequalizer A (f · (to_In1 DS)) (g · (to_In2 DS))) <span class="k">in</span>
+    h · CokernelArrow (Abelian.Cokernel f) = ZeroArrow (to_Zero A) e (Abelian.Cokernel f).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> DS Po'. <span class="nb">cbn</span> zeta <span class="k">in</span> Hk. <span class="nb">fold</span> DS <span class="k">in</span> Hk. <span class="nb">fold</span> Po' <span class="k">in</span> Hk.
+    <span class="nb">set</span> (CK := Abelian.Cokernel f).
+    <span class="nb">assert</span> (e1 : f · CokernelArrow CK = g · ZeroArrow (to_Zero A) z CK).
+    {
+      <span class="nb">rewrite</span> CokernelCompZero. <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> &lt;- (PushoutArrow_PushoutIn1 Po' CK (CokernelArrow CK) (ZeroArrow (to_Zero A) _ _) e1).
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> Hk. <span class="nb">clear</span> Hk. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> (PushoutArrow_PushoutIn2 Po' CK (CokernelArrow CK) (ZeroArrow (to_Zero A) _ _) e1).
+    <span class="nb">apply</span> ZeroArrow_comp_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AbelianPushoutMonicisPullback1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : Monic A x y) (<span class="nv">g</span> : x --&gt; z)
+        (<span class="nv">Po</span> : Pushout f g) : isPullback <span class="c">(*(PushoutIn1 Po) (PushoutIn2 Po) f g*)</span> (PushoutSqrCommutes Po).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (DS := to_BinDirectSums (AbelianToAdditive A) y z).
+    <span class="nb">set</span> (Po' := Pushout_from_Coequalizer_BinCoproduct
+                  A _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
+                  (Abelian.Coequalizer
+                     A
+                     (f · (to_In1 DS))
+                     (g · (to_In2 DS)))).
+    <span class="nb">set</span> (i := z_iso_from_Pushout_to_Pushout Po Po').
+    use isPullback_up_to_z_iso.
+    - <span class="bp">exact</span> Po'.
+    - <span class="bp">exact</span> i.
+    - use isPullback_mor_paths.
+      + <span class="bp">exact</span> (PushoutIn1 Po').
+      + <span class="bp">exact</span> (PushoutIn2 Po').
+      + <span class="bp">exact</span> f.
+      + <span class="bp">exact</span> g.
+      + <span class="nb">apply</span> pathsinv0.
+        <span class="bp">exact</span> (PushoutArrow_PushoutIn1
+                 Po Po' (PushoutIn1 Po') (PushoutIn2 Po') (PushoutSqrCommutes Po')).
+      + <span class="nb">apply</span> pathsinv0.
+        <span class="bp">exact</span> (PushoutArrow_PushoutIn2
+                 Po Po' (PushoutIn1 Po') (PushoutIn2 Po') (PushoutSqrCommutes Po')).
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> idpath.
+      + <span class="bp">exact</span> (PushoutSqrCommutes _ ).
+      + <span class="nb">set</span> (K := MonicToKernel f).
+        <span class="nb">set</span> (CK := Abelian.Cokernel f). <span class="nb">fold</span> CK <span class="k">in</span> K.
+        use make_isPullback.
+        <span class="nb">intros</span> e h k Hk.
+        use unique_exists.
+        * use (KernelIn (to_Zero A) K).
+          -- <span class="bp">exact</span> h.
+          -- <span class="bp">exact</span> (AbelianPushoutMonicisPullback_eq f g Hk).
+        * <span class="nb">cbn</span>. <span class="nb">split</span>.
+          -- use (KernelCommutes (to_Zero A) K).
+          -- <span class="nb">assert</span> (Hk' : h · PushoutIn1 Po' = k · PushoutIn2 Po') <span class="bp">by</span> <span class="nb">apply</span> Hk.
+             <span class="nb">set</span> (comm := KernelCommutes
+                            (to_Zero A) K _ h (AbelianPushoutMonicisPullback_eq f g Hk)).
+             <span class="nb">cbn</span> <span class="k">in</span> comm. <span class="nb">rewrite</span> &lt;- comm <span class="k">in</span> Hk'. <span class="nb">clear</span> comm.
+             <span class="nb">apply</span> (AbelianPushoutMonic2 f g Po'). <span class="nb">rewrite</span> &lt;- Hk'.
+             <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+             <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> pathsinv0.
+             use CoequalizerEqAr.
+        * <span class="nb">intros</span> y0. <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> (homset_property A).
+        * <span class="nb">intros</span> y0 X. <span class="nb">cbn</span> <span class="k">in</span> X.
+          use (KernelArrowisMonic (to_Zero A) K). <span class="nb">rewrite</span> KernelCommutes. <span class="bp">exact</span> (dirprod_pr1 X).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AbelianPushoutMonicisPullback2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : Monic A x z)
+        (<span class="nv">Po</span> : Pushout f g) : isPullback <span class="c">(*(PushoutIn1 Po) (PushoutIn2 Po) f g*)</span> (PushoutSqrCommutes Po).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (Po' := make_Pushout _ _ _ _ _ _ (is_symmetric_isPushout _ (isPushout_Pushout Po))).
+    use is_symmetric_isPullback.
+    - <span class="bp">exact</span> (! (PushoutSqrCommutes _ )).
+    - <span class="bp">exact</span> (AbelianPushoutMonicisPullback1 g f Po').
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** Pullback of an Epi is Epi *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">AbelianPullbackEpi2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : Epi A x z) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">Pb</span> : Pullback f g) :
+    Epis.isEpi (PullbackPr2 Pb).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (DS := to_BinDirectSums (AbelianToAdditive A) x y).
+    <span class="nb">set</span> (Pb' := Pullback_from_Equalizer_BinProduct
+                  A  _ _ _ f g (BinDirectSum_BinProduct _ DS)
+                  (Abelian.Equalizer
+                     A
+                     ((to_Pr1 DS) · f)
+                     ((to_Pr2 DS) · g))).
+    <span class="c">(* Transform the statement to a statement about other pullback *)</span>
+    <span class="nb">set</span> (iso := z_iso_from_Pullback_to_Pullback Pb Pb').
+    <span class="nb">apply</span> (isEpi_precomp
+             A (PullbackArrow Pb Pb' (PullbackPr1 Pb') (PullbackPr2 Pb')
+                              (PullbackSqrCommutes Pb'))).
+    <span class="nb">rewrite</span> (PullbackArrow_PullbackPr2
+               Pb _ (PullbackPr1 Pb') (PullbackPr2 Pb')
+               (PullbackSqrCommutes Pb')).
+    <span class="c">(* Prove that the arrow isEpi *)</span>
+    <span class="nb">set</span> (E := Equalizer A ((to_Pr1 DS) · f) ((to_Pr2 DS) · g)).
+    <span class="nb">set</span> (K := AdditiveEqualizerToKernel (AbelianToAdditive A) _ _ E).
+    <span class="nb">set</span> (E1 := @isEpi_to_binop_BinDirectSum1' (AbelianToAdditive A) x y z f g DS).
+    <span class="nb">set</span> (CK := EpiToCokernel' A (make_Epi _ _ E1) K).
+    use (@to_isEpi (AbelianToAdditive A)).
+    <span class="nb">intros</span> z0 g0 H. <span class="nb">cbn</span> <span class="k">in</span> H. <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H.
+    <span class="nb">set</span> (φ := CokernelOut _ CK z0 (to_Pr2 DS · g0) H).
+    <span class="nb">set</span> (CKComm := CokernelCommutes (to_Zero A) CK z0 (to_Pr2 DS · g0) H).
+    <span class="nb">fold</span> φ <span class="k">in</span> CKComm.
+    <span class="c">(* The result follows from CKComm and the fact that φ = ZeroArrow *)</span>
+    <span class="nb">assert</span> (e1 : φ = ZeroArrow (to_Zero A) _ _).
+    {
+      use (EpiisEpi _ f).
+      <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">cbn</span> <span class="k">in</span> CKComm.
+      <span class="nb">assert</span> (e2 : (EpiArrow _ f) =
+                   (to_In1 DS)
+                     · (@to_binop (AbelianToAdditive A) _ _
+                                   (to_Pr1 DS · f)
+                                   (@to_inv (AbelianToAdditive A) _ _ (to_Pr2 DS · g)))).
+      {
+        <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> PreAdditive_invrcomp. <span class="nb">rewrite</span> assoc.
+        <span class="nb">set</span> (tmp := to_IdIn1 DS). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">cbn</span>. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+        <span class="nb">set</span> (tmp := to_Unel1' DS). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+        <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> pathsinv0.
+        <span class="nb">set</span> (tmp := @to_runax'' (AbelianToAdditive A) (to_Zero A) _ _ f). <span class="bp">exact</span> tmp.
+      }
+      <span class="nb">rewrite</span> e2. <span class="nb">clear</span> e2. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">cbn</span> <span class="k">in</span> CKComm. <span class="nb">cbn</span>. <span class="nb">rewrite</span> CKComm.
+      <span class="nb">rewrite</span> assoc. <span class="nb">set</span> (tmp := to_Unel1' DS). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+      <span class="nb">apply</span> ZeroArrow_comp_left.
+    }
+    use (to_Pr2_isEpi _ DS). <span class="nb">cbn</span> <span class="k">in</span> CKComm. use (pathscomp0 (! CKComm)).
+    <span class="nb">rewrite</span> e1. <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AbelianPullbackEpi1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : x --&gt; z) (<span class="nv">g</span> : Epi A y z) (<span class="nv">Pb</span> : Pullback f g) :
+    Epis.isEpi (PullbackPr1 Pb).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (Pb' := make_Pullback _ (is_symmetric_isPullback _ (isPullback_Pullback Pb))).
+    use (AbelianPullbackEpi2 g f Pb').
+  <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** ** Pullback of Epi is Pushout *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">AbelianPullbackEpiisPushout1_eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : Epi A x z) (<span class="nv">g</span> : y --&gt; z)
+        {<span class="nv">e</span> : A} {<span class="nv">h</span> : A ⟦ x, e ⟧} {<span class="nv">k</span> : A ⟦ y, e ⟧}
+        (<span class="nv">Hk</span> : <span class="k">let</span> <span class="nv">DS</span> := to_BinDirectSums (AbelianToAdditive A) x y <span class="k">in</span>
+              <span class="k">let</span> <span class="nv">Pb'</span> := Pullback_from_Equalizer_BinProduct
+                           A _ _ _ f g (BinDirectSum_BinProduct _ DS)
+                           (Abelian.Equalizer A ((to_Pr1 DS) · f) ((to_Pr2 DS) · g)) <span class="k">in</span>
+              PullbackPr1 Pb' · h = PullbackPr2 Pb' · k) :
+    <span class="k">let</span> <span class="nv">DS</span> := to_BinDirectSums (AbelianToAdditive A) x y <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">Pb'</span> := Pullback_from_Equalizer_BinProduct
+                           A _ _ _ f g (BinDirectSum_BinProduct _ DS)
+                           (Abelian.Equalizer A ((to_Pr1 DS) · f) ((to_Pr2 DS) · g)) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">K</span> := Abelian.Kernel f <span class="k">in</span>
+    KernelArrow K · h = ZeroArrow (to_Zero A) K e.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> DS Pb' K. <span class="nb">cbn</span> zeta <span class="k">in</span> Hk. <span class="nb">fold</span> DS <span class="k">in</span> Hk. <span class="nb">fold</span> Pb' <span class="k">in</span> Hk.
+    <span class="nb">assert</span> (e1 : KernelArrow K · f = ZeroArrow (to_Zero A) _ _ · g).
+    {
+      <span class="nb">rewrite</span> KernelCompZero. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> &lt;- (PullbackArrow_PullbackPr1 Pb' K (KernelArrow K) (ZeroArrow (to_Zero A) _ _) e1).
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> Hk. <span class="nb">clear</span> Hk. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (PullbackArrow_PullbackPr2 Pb' K (KernelArrow K) (ZeroArrow (to_Zero A) _ _) e1).
+    <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AbelianPullbackEpiisPushout1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : Epi A x z) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">Pb</span> : Pullback f g) :
+    isPushout (PullbackPr1 Pb) (PullbackPr2 Pb) f g (PullbackSqrCommutes Pb).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (DS := to_BinDirectSums (AbelianToAdditive A) x y).
+    <span class="nb">set</span> (Pb' := Pullback_from_Equalizer_BinProduct
+                  A _ _ _ f g (BinDirectSum_BinProduct _ DS)
+                  (Abelian.Equalizer A ((to_Pr1 DS) · f) ((to_Pr2 DS) · g))).
+    <span class="nb">set</span> (i := z_iso_from_Pullback_to_Pullback Pb' Pb).
+    use isPushout_up_to_z_iso.
+    - <span class="bp">exact</span> Pb'.
+    - <span class="bp">exact</span> i.
+    - use isPushout_mor_paths.
+      + <span class="bp">exact</span> (PullbackPr1 Pb').
+      + <span class="bp">exact</span> (PullbackPr2 Pb').
+      + <span class="bp">exact</span> f.
+      + <span class="bp">exact</span> g.
+      + <span class="nb">apply</span> pathsinv0.
+        <span class="bp">exact</span> (PullbackArrow_PullbackPr1
+                 Pb Pb' (PullbackPr1 Pb') (PullbackPr2 Pb') (PullbackSqrCommutes Pb')).
+      + <span class="nb">apply</span> pathsinv0.
+        <span class="bp">exact</span> (PullbackArrow_PullbackPr2
+                 Pb Pb' (PullbackPr1 Pb') (PullbackPr2 Pb') (PullbackSqrCommutes Pb')).
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> idpath.
+      + <span class="bp">exact</span> (PullbackSqrCommutes _ ).
+      + <span class="nb">set</span> (CK := EpiToCokernel f).
+        <span class="nb">set</span> (K := Abelian.Kernel f). <span class="nb">fold</span> K <span class="k">in</span> CK.
+        use make_isPushout.
+        <span class="nb">intros</span> e h k Hk.
+        use unique_exists.
+        * use (CokernelOut (to_Zero A) CK).
+          -- <span class="bp">exact</span> h.
+          -- <span class="bp">exact</span> (AbelianPullbackEpiisPushout1_eq f g Hk).
+        * <span class="nb">cbn</span>. <span class="nb">split</span>.
+          -- use (CokernelCommutes (to_Zero A) CK).
+          -- <span class="nb">assert</span> (Hk' : PullbackPr1 Pb' · h = PullbackPr2 Pb' · k) <span class="bp">by</span> <span class="nb">apply</span> Hk.
+             <span class="nb">set</span> (comm := CokernelCommutes
+                            (to_Zero A) CK _ h (AbelianPullbackEpiisPushout1_eq f g Hk)).
+             <span class="nb">cbn</span> <span class="k">in</span> comm. <span class="nb">rewrite</span> &lt;- comm <span class="k">in</span> Hk'. <span class="nb">clear</span> comm.
+             <span class="nb">apply</span> (AbelianPullbackEpi2 f g Pb'). <span class="nb">rewrite</span> &lt;- Hk'.
+             <span class="nb">cbn</span>. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+             <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> pathsinv0.
+             use EqualizerEqAr.
+        * <span class="nb">intros</span> y0. <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> (homset_property A).
+        * <span class="nb">intros</span> y0 X. <span class="nb">cbn</span> <span class="k">in</span> X.
+          use (CokernelArrowisEpi (to_Zero A) CK). <span class="nb">rewrite</span> CokernelCommutes. <span class="bp">exact</span> (dirprod_pr1 X).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AbelianPullbackEpiisPushout2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : x --&gt; z) (<span class="nv">g</span> : Epi A y z) (<span class="nv">Pb</span> : Pullback f g) :
+    isPushout (PullbackPr1 Pb) (PullbackPr2 Pb) f g (PullbackSqrCommutes Pb).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (Pb' := make_Pullback  _ (is_symmetric_isPullback _ (isPullback_Pullback Pb))).
+    use is_symmetric_isPushout.
+    - <span class="bp">exact</span> (! (PullbackSqrCommutes _ )).
+    - <span class="bp">exact</span> (AbelianPullbackEpiisPushout1 g f Pb').
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">pushout_monic_pullback_epi</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/AbelianPushoutPullback.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Pullback of an Epi is Pushout
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

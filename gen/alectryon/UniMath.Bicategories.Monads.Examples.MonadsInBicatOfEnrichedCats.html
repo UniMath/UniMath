@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonadsInBicatOfEnrichedCats.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************</span>
+
+<span class="sd"> Monads in the bicategory of enriched categories</span>
+
+<span class="sd"> We give some useful statements when using monads internal to the</span>
+<span class="sd"> bicategory of enriched categories.</span>
+
+<span class="sd"> **********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentMonad.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.EnrichedCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Monads.Examples.MonadsInBicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Monads.Examples.MonadsInTotalBicat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">EnrichmentMonads</span>.
+  <span class="kn">Context</span> (<span class="nv">V</span> : monoidal_cat).
+
+  <span class="kn">Definition</span> <span class="nf">make_mnd_enriched_cats</span>
+             {<span class="nv">C</span> : univalent_category}
+             (<span class="nv">E</span> : enrichment C V)
+             (<span class="nv">M</span> : Monad C)
+             (<span class="nv">EM</span> : monad_enrichment E M)
+    : mnd (bicat_of_enriched_cats V).
+  <span class="kn">Proof</span>.
+    use make_mnd_total_bicat.
+    - <span class="nb">apply</span> disp_2cell_isapprop_enriched_cats.
+    - <span class="bp">exact</span> (Monad_to_mnd_bicat_of_univ_cats M).
+    - use make_disp_mnd ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> E.
+      + <span class="bp">exact</span> EM.
+      + <span class="bp">exact</span> (unit_of_monad_enrichment EM).
+      + <span class="bp">exact</span> (mu_of_monad_enrichment EM).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Monad_from_mnd_enriched_cats</span>
+             (<span class="nv">M</span> : mnd (bicat_of_enriched_cats V))
+    : Monad (pr11 (ob_of_mnd M))
+    := mnd_bicat_of_univ_cats_to_Monad (pr1_of_mnd_total_bicat M).
+
+  <span class="kn">Definition</span> <span class="nf">Monad_enrichment_from_mnd_enriched_cats</span>
+             (<span class="nv">M</span> : mnd (bicat_of_enriched_cats V))
+    : monad_enrichment
+        (pr2 (ob_of_mnd M))
+        (Monad_from_mnd_enriched_cats M).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (pr2 (endo_of_mnd M)).
+    - <span class="bp">exact</span> (pr2 (unit_of_mnd M)).
+    - <span class="bp">exact</span> (pr2 (mult_of_mnd M)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">MonadMorProjections</span>.
+    <span class="kn">Context</span> {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd (bicat_of_enriched_cats V)}
+            (<span class="nv">f</span> : m₁ --&gt; m₂).
+
+    <span class="kn">Let</span> <span class="nf">C₁</span> : univalent_category := pr1 (ob_of_mnd m₁).
+    <span class="kn">Let</span> <span class="nf">C₂</span> : univalent_category := pr1 (ob_of_mnd m₂).
+    <span class="kn">Let</span> <span class="nf">M₁</span> : Monad C₁ := Monad_from_mnd_enriched_cats m₁.
+    <span class="kn">Let</span> <span class="nf">M₂</span> : Monad C₂ := Monad_from_mnd_enriched_cats m₂.
+    <span class="kn">Let</span> <span class="nf">η₁</span> : functor_identity _ ⟹ M₁ := pr1 (unit_of_mnd m₁).
+    <span class="kn">Let</span> <span class="nf">η₂</span> : functor_identity _ ⟹ M₂ := pr1 (unit_of_mnd m₂).
+    <span class="kn">Let</span> <span class="nf">μ₁</span> : M₁ ∙ M₁ ⟹ M₁ := pr1 (mult_of_mnd m₁).
+    <span class="kn">Let</span> <span class="nf">μ₂</span> : M₂ ∙ M₂ ⟹ M₂ := pr1 (mult_of_mnd m₂).
+    <span class="kn">Let</span> <span class="nf">F</span> : C₁ ⟶ C₂ := pr1 (mor_of_mnd_mor f).
+    <span class="kn">Let</span> <span class="nf">Fm</span> : F ∙ M₂ ⟹ M₁ ∙ F := pr1 (mnd_mor_endo f).
+
+    <span class="kn">Definition</span> <span class="nf">mnd_mor_unit_enriched</span>
+               (<span class="nv">x</span> : C₁)
+      : #F (η₁ x) = η₂ (F x) · Fm x.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (from_eq_enriched_nat_trans (mnd_mor_unit f) x) <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !id_left <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">mnd_mor_mu_enriched</span>
+               (<span class="nv">x</span> : C₁)
+      : #M₂ (Fm x) · Fm (M₁ x) · #F (μ₁ x) = μ₂ (F x) · Fm x.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (from_eq_enriched_nat_trans (mnd_mor_mu f) x) <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !id_left <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !id_right <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">MonadMorProjections</span>.
+
+  <span class="kn">Section</span> <span class="nf">MonadCellProjections</span>.
+    <span class="kn">Context</span> {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd (bicat_of_enriched_cats V)}
+            {<span class="nv">f₁</span> <span class="nv">f₂</span> : m₁ --&gt; m₂}
+            (<span class="nv">τ</span> : f₁ ==&gt; f₂).
+
+    <span class="kn">Let</span> <span class="nf">C₁</span> : univalent_category := pr1 (ob_of_mnd m₁).
+    <span class="kn">Let</span> <span class="nf">C₂</span> : univalent_category := pr1 (ob_of_mnd m₂).
+    <span class="kn">Let</span> <span class="nf">M₁</span> : Monad C₁ := Monad_from_mnd_enriched_cats m₁.
+    <span class="kn">Let</span> <span class="nf">M₂</span> : Monad C₂ := Monad_from_mnd_enriched_cats m₂.
+    <span class="kn">Let</span> <span class="nf">η₁</span> : functor_identity _ ⟹ M₁ := pr1 (unit_of_mnd m₁).
+    <span class="kn">Let</span> <span class="nf">η₂</span> : functor_identity _ ⟹ M₂ := pr1 (unit_of_mnd m₂).
+    <span class="kn">Let</span> <span class="nf">μ₁</span> : M₁ ∙ M₁ ⟹ M₁ := pr1 (mult_of_mnd m₁).
+    <span class="kn">Let</span> <span class="nf">μ₂</span> : M₂ ∙ M₂ ⟹ M₂ := pr1 (mult_of_mnd m₂).
+    <span class="kn">Let</span> <span class="nf">F₁</span> : C₁ ⟶ C₂ := pr1 (mor_of_mnd_mor f₁).
+    <span class="kn">Let</span> <span class="nf">Fm₁</span> : F₁ ∙ M₂ ⟹ M₁ ∙ F₁ := pr1 (mnd_mor_endo f₁).
+    <span class="kn">Let</span> <span class="nf">F₂</span> : C₁ ⟶ C₂ := pr1 (mor_of_mnd_mor f₂).
+    <span class="kn">Let</span> <span class="nf">Fm₂</span> : F₂ ∙ M₂ ⟹ M₁ ∙ F₂ := pr1 (mnd_mor_endo f₂).
+    <span class="kn">Let</span> <span class="nf">τc</span> : F₁ ⟹ F₂ := pr1 (cell_of_mnd_cell τ).
+
+    <span class="kn">Definition</span> <span class="nf">mnd_cell_endo_enriched</span>
+               (<span class="nv">x</span> : C₁)
+      : Fm₁ x · τc (M₁ x) = #M₂ (τc x) · Fm₂ x.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (from_eq_enriched_nat_trans (mnd_cell_endo τ) x) <span class="k">as</span> p.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">MonadCellProjections</span>.
+<span class="kn">End</span> <span class="nf">EnrichmentMonads</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Monads/Examples/MonadsInBicatOfEnrichedCats.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  bicategory of enriched categories.
+  &gt;
+  &gt;  **********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

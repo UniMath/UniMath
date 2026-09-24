@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PointedPosets.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Pointed posets</span>
+
+<span class="sd"> We look at posets with a bottom element. This bottom element can</span>
+<span class="sd"> either be part of the structure or it can be required to only</span>
+<span class="sd"> merely exist.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Pointed posets</span>
+<span class="sd"> 2. Basic constructions on pointed posets</span>
+<span class="sd"> 3. Strict and monotone functions</span>
+<span class="sd"> 4. Equality of pointed posets</span>
+<span class="sd"> 5. Examples of strict and monotone functions</span>
+<span class="sd"> 6. The equalizer of pointed posets</span>
+<span class="sd"> 7. Type indexed products of pointed posets</span>
+<span class="sd"> 8. Function spaces of pointed posets</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Pointed posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">bottom_element</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">RX</span> : PartialOrder X)
+  : UU
+  := ∑ (x : X), ∏ (y : X), RX x y.
+
+<span class="kn">Proposition</span> <span class="nf">bottom_element_eq</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">RX</span> : PartialOrder X)
+            (<span class="nv">b₁</span> <span class="nv">b₂</span> : bottom_element RX)
+  : b₁ = b₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    use impred ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> propproperty.
+  }
+  use (antisymm_PartialOrder RX).
+  - <span class="nb">apply</span> b₁.
+  - <span class="nb">apply</span> b₂.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_bottom_element</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">RX</span> : PartialOrder X)
+  : isaprop (bottom_element RX).
+<span class="kn">Proof</span>.
+  use invproofirrelevance.
+  <span class="bp">exact</span> (bottom_element_eq RX).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointed_PartialOrder</span>
+           (<span class="nv">X</span> : hSet)
+  : UU
+  := ∑ (RX : PartialOrder X), bottom_element RX.
+
+<span class="kn">Definition</span> <span class="nf">make_pointed_PartialOrder</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">RX</span> : PartialOrder X)
+           (<span class="nv">x</span> : X)
+           (<span class="nv">p</span> : ∏ (y : X), RX x y)
+  : pointed_PartialOrder X
+  := RX ,, x ,, p.
+
+<span class="kn">Coercion</span> <span class="nf">pointed_PartialOrder_to_Partial_order</span>
+         {X : hSet}
+         (RX : pointed_PartialOrder X)
+  : PartialOrder X
+  := pr1 RX.
+
+<span class="kn">Definition</span> <span class="nf">pointed_PartialOrder_to_point</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">RX</span> : pointed_PartialOrder X)
+  : X
+  := pr12 RX.
+
+<span class="kn">Notation</span> <span class="s2">"⊥_{ RX }"</span> := (pointed_PartialOrder_to_point RX).
+
+<span class="kn">Proposition</span> <span class="nf">pointed_PartialOrder_min_point</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">RX</span> : pointed_PartialOrder X)
+            (<span class="nv">y</span> : X)
+  : RX ⊥_{RX} y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr22 RX y).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Basic constructions on pointed posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">unit_pointed_PartialOrder</span>
+  : pointed_PartialOrder unitset.
+<span class="kn">Proof</span>.
+  use make_pointed_PartialOrder.
+  - <span class="bp">exact</span> unit_PartialOrder.
+  - <span class="bp">exact</span> tt.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">prod_pointed_PartialOrder</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">RX</span> : pointed_PartialOrder X)
+           (<span class="nv">RY</span> : pointed_PartialOrder Y)
+  : pointed_PartialOrder (X × Y)%<span class="nb">set</span>.
+<span class="kn">Proof</span>.
+  use make_pointed_PartialOrder.
+  - <span class="bp">exact</span> (prod_PartialOrder RX RY).
+  - <span class="bp">exact</span> (⊥_{RX} ,, ⊥_{RY}).
+  - <span class="nb">intro</span> y.
+    <span class="nb">refine</span> (_ ,, _).
+    + <span class="nb">apply</span> pointed_PartialOrder_min_point.
+    + <span class="nb">apply</span> pointed_PartialOrder_min_point.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bottom_PartialOrder_boolset</span>
+  : bottom_element PartialOrder_boolset.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (false ,, _).
+  <span class="kp">abstract</span>
+    (<span class="nb">intro</span> b ;
+     <span class="nb">induction</span> b ; <span class="nb">cbn</span> ;
+     <span class="bp">exact</span> tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointed_PartialOrder_boolset</span>
+  : pointed_PartialOrder boolset
+  := PartialOrder_boolset
+     ,,
+     bottom_PartialOrder_boolset.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Strict and monotone functions</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_strict_and_monotone</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">RX</span> : pointed_PartialOrder X)
+           (<span class="nv">RY</span> : pointed_PartialOrder Y)
+           (<span class="nv">f</span> : X → Y)
+  : UU
+  := is_monotone RX RY f × f ⊥_{RX} = ⊥_{RY}.
+
+<span class="kn">Coercion</span> <span class="nf">is_strict_and_monotone_function_to_is_monotone</span>
+         {X Y : hSet}
+         {RX : pointed_PartialOrder X}
+         {RY : pointed_PartialOrder Y}
+         {f : X → Y}
+         (Hf : is_strict_and_monotone RX RY f)
+  : is_monotone RX RY f
+  := pr1 Hf.
+
+<span class="kn">Definition</span> <span class="nf">strict_function_on_point</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           {<span class="nv">RX</span> : pointed_PartialOrder X}
+           {<span class="nv">RY</span> : pointed_PartialOrder Y}
+           {<span class="nv">f</span> : X → Y}
+           (<span class="nv">Hf</span> : is_strict_and_monotone RX RY f)
+  : f ⊥_{RX} = ⊥_{RY}
+  := pr2 Hf.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_strict_and_monotone</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">RX</span> : pointed_PartialOrder X)
+            (<span class="nv">RY</span> : pointed_PartialOrder Y)
+            (<span class="nv">f</span> : X → Y)
+  : isaprop (is_strict_and_monotone RX RY f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod.
+  - <span class="nb">apply</span> isaprop_is_monotone.
+  - <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">strict_and_monotone_function</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">RX</span> : pointed_PartialOrder X)
+           (<span class="nv">RY</span> : pointed_PartialOrder Y)
+  : UU
+  := ∑ (f : X → Y), is_strict_and_monotone RX RY f.
+
+<span class="kn">Definition</span> <span class="nf">strict_and_monotone_function_set</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">RX</span> : pointed_PartialOrder X)
+           (<span class="nv">RY</span> : pointed_PartialOrder Y)
+  : hSet.
+<span class="kn">Proof</span>.
+  use make_hSet.
+  - <span class="bp">exact</span> (strict_and_monotone_function RX RY).
+  - <span class="kp">abstract</span>
+      (use isaset_total2 ;
+       [ use funspace_isaset ;
+         <span class="nb">apply</span> Y
+       | <span class="nb">intro</span> f ;
+         <span class="nb">apply</span> isasetaprop ;
+         <span class="nb">apply</span> isaprop_is_strict_and_monotone ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">strict_and_monotone_function_to_fun</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           {<span class="nv">RX</span> : pointed_PartialOrder X}
+           {<span class="nv">RY</span> : pointed_PartialOrder Y}
+           (<span class="nv">f</span> : strict_and_monotone_function RX RY)
+  : X → Y
+  := pr1 f.
+
+<span class="kn">Coercion</span> <span class="nf">strict_and_monotone_function_to_fun</span>
+  : strict_and_monotone_function &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_strict_and_monotone_function</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            {<span class="nv">RX</span> : pointed_PartialOrder X}
+            {<span class="nv">RY</span> : pointed_PartialOrder Y}
+            {<span class="nv">f</span> <span class="nv">g</span> : strict_and_monotone_function RX RY}
+            (<span class="nv">p</span> : ∏ (x : X), f x = g x)
+  : f = g.
+<span class="kn">Proof</span>.
+  use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_strict_and_monotone | ].
+  use funextsec.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Equality of pointed posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">transportf_bottom_element</span>
+            {<span class="nv">X</span> : hSet}
+            {<span class="nv">PX</span> <span class="nv">PX'</span> : PartialOrder X}
+            (<span class="nv">p</span> : PX = PX')
+            (<span class="nv">x</span> : bottom_element PX)
+  : pr1 (transportf
+           bottom_element
+           p
+           x)
+    =
+    pr1 x.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_pointed_PartialOrder_monotone</span>
+            {<span class="nv">X</span> : hSet}
+            {<span class="nv">PX</span> <span class="nv">PX'</span> : pointed_PartialOrder X}
+            (<span class="nv">p</span> : is_monotone PX PX' (<span class="k">λ</span> <span class="nv">x</span>, x))
+            (<span class="nv">q</span> : is_monotone PX' PX (<span class="k">λ</span> <span class="nv">x</span>, x))
+  : PX = PX'.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_bottom_element.
+  }
+  use eq_PartialOrder.
+  - <span class="nb">apply</span> p.
+  - <span class="nb">apply</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_pointed_PartialOrder_strict_and_monotone</span>
+            {<span class="nv">X</span> : hSet}
+            {<span class="nv">PX</span> <span class="nv">PX'</span> : pointed_PartialOrder X}
+            (<span class="nv">p</span> : is_strict_and_monotone PX PX' (<span class="k">λ</span> <span class="nv">x</span>, x))
+            (<span class="nv">q</span> : is_strict_and_monotone PX' PX (<span class="k">λ</span> <span class="nv">x</span>, x))
+  : PX = PX'.
+<span class="kn">Proof</span>.
+  use eq_pointed_PartialOrder_monotone.
+  - <span class="nb">apply</span> p.
+  - <span class="nb">apply</span> q.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Examples of strict and monotone functions</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">idfun_is_strict_and_monotone</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">RX</span> : pointed_PartialOrder X)
+  : is_strict_and_monotone RX RX (idfun X).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> idfun_is_monotone.
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_is_strict_and_monotone</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> : hSet}
+            {<span class="nv">R₁</span> : pointed_PartialOrder X₁}
+            {<span class="nv">R₂</span> : pointed_PartialOrder X₂}
+            {<span class="nv">R₃</span> : pointed_PartialOrder X₃}
+            {<span class="nv">f</span> : X₁ → X₂}
+            {<span class="nv">g</span> : X₂ → X₃}
+            (<span class="nv">Hf</span> : is_strict_and_monotone R₁ R₂ f)
+            (<span class="nv">Hg</span> : is_strict_and_monotone R₂ R₃ g)
+  : is_strict_and_monotone R₁ R₃ (<span class="k">λ</span> <span class="nv">z</span>, g(f z)).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (comp_is_monotone (pr1 Hf) (pr1 Hg)).
+  - <span class="nb">rewrite</span> (strict_function_on_point Hf).
+    <span class="nb">rewrite</span> (strict_function_on_point Hg).
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dirprod_pr1_is_strict_and_monotone</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            (<span class="nv">R₁</span> : pointed_PartialOrder X₁)
+            (<span class="nv">R₂</span> : pointed_PartialOrder X₂)
+  : is_strict_and_monotone
+      (prod_pointed_PartialOrder R₁ R₂)
+      R₁
+      dirprod_pr1.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> dirprod_pr1_is_monotone.
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dirprod_pr2_is_strict_and_monotone</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            (<span class="nv">R₁</span> : pointed_PartialOrder X₁)
+            (<span class="nv">R₂</span> : pointed_PartialOrder X₂)
+  : is_strict_and_monotone
+      (prod_pointed_PartialOrder R₁ R₂)
+      R₂
+      dirprod_pr2.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> dirprod_pr2_is_monotone.
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">prodtofun_is_strict_and_monotone</span>
+            {<span class="nv">W</span> <span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            {<span class="nv">RW</span> : pointed_PartialOrder W}
+            {<span class="nv">R₁</span> : pointed_PartialOrder X₁}
+            {<span class="nv">R₂</span> : pointed_PartialOrder X₂}
+            {<span class="nv">f</span> : W → X₁}
+            {<span class="nv">g</span> : W → X₂}
+            (<span class="nv">Hf</span> : is_strict_and_monotone RW R₁ f)
+            (<span class="nv">Hg</span> : is_strict_and_monotone RW R₂ g)
+  : is_strict_and_monotone
+      RW
+      (prod_pointed_PartialOrder R₁ R₂)
+      (prodtofuntoprod (f,, g)).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (prodtofun_is_monotone Hf Hg).
+  - use pathsdirprod ; <span class="nb">cbn</span>.
+    + <span class="bp">exact</span> (strict_function_on_point Hf).
+    + <span class="bp">exact</span> (strict_function_on_point Hg).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">constant_is_strict_and_monotone</span>
+            {<span class="nv">X</span> : hSet}
+            {<span class="nv">Y</span> : hSet}
+            (<span class="nv">RX</span> : pointed_PartialOrder X)
+            (<span class="nv">RY</span> : pointed_PartialOrder Y)
+  : is_strict_and_monotone
+      RX
+      RY
+      (<span class="k">λ</span> <span class="nv">_</span>, ⊥_{RY}).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> ? ? p.
+    <span class="nb">apply</span> refl_PartialOrder.
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. The equalizer of pointed posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Equalizer</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+          {<span class="nv">RX</span> : pointed_PartialOrder X}
+          {<span class="nv">RY</span> : pointed_PartialOrder Y}
+          {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+          (<span class="nv">Hf</span> : is_strict_and_monotone RX RY f)
+          (<span class="nv">Hg</span> : is_strict_and_monotone RX RY g).
+
+  <span class="kn">Let</span> <span class="nf">Eq</span> : hSet
+    := (∑ (x : X), f x = g x) ,, isaset_total2 _ (pr2 X) (<span class="k">λ</span> <span class="nv">_</span>, isasetaprop (pr2 Y _ _)).
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer_pointed_PartialOrder</span>
+    : pointed_PartialOrder Eq.
+  <span class="kn">Proof</span>.
+    use make_pointed_PartialOrder.
+    - <span class="bp">exact</span> (Equalizer_order RX Y f g).
+    - <span class="nb">refine</span> (⊥_{RX} ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> (strict_function_on_point Hf) ;
+         <span class="nb">rewrite</span> (strict_function_on_point Hg) ;
+         <span class="nb">apply</span> idpath).
+    - <span class="nb">intros</span> x.
+      <span class="nb">apply</span> pointed_PartialOrder_min_point.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">Equalizer_pr1_strict_and_monotone</span>
+    : is_strict_and_monotone
+        Equalizer_pointed_PartialOrder
+        RX
+        (<span class="k">λ</span> <span class="nv">z</span>, pr1 z).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> Equalizer_pr1_monotone.
+    - <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">Equalizer_map_strict_and_monotone</span>
+              {<span class="nv">W</span> : hSet}
+              (<span class="nv">RW</span> : pointed_PartialOrder W)
+              {<span class="nv">h</span> : W → X}
+              (<span class="nv">Rh</span> : is_strict_and_monotone RW RX h)
+              (<span class="nv">p</span> : ∏ (w : W), f(h w) = g(h w))
+    : is_strict_and_monotone
+        RW
+        Equalizer_pointed_PartialOrder
+        (<span class="k">λ</span> <span class="nv">w</span>, h w ,, p w).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> Equalizer_map_monotone.
+      <span class="bp">exact</span> Rh.
+    - use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (strict_function_on_point Rh).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Equalizer</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Type indexed products of pointed posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">depfunction_pointed_poset</span>
+           {<span class="nv">X</span> : UU}
+           (<span class="nv">Y</span> : X → hSet)
+           (<span class="nv">RY</span> : ∏ (x : X), pointed_PartialOrder (Y x))
+  : pointed_PartialOrder (forall_hSet Y).
+<span class="kn">Proof</span>.
+  use make_pointed_PartialOrder.
+  - <span class="bp">exact</span> (depfunction_poset Y RY).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, ⊥_{RY x}).
+  - <span class="nb">intros</span> y x.
+    <span class="nb">apply</span> pointed_PartialOrder_min_point.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strict_and_monotone_depfunction_pointed_poset_pr</span>
+            {<span class="nv">X</span> : UU}
+            (<span class="nv">Y</span> : X → hSet)
+            (<span class="nv">RY</span> : ∏ (x : X), pointed_PartialOrder (Y x))
+            (<span class="nv">x</span> : X)
+  : is_strict_and_monotone
+      (depfunction_pointed_poset Y RY)
+      (RY x)
+      (<span class="k">λ</span> <span class="nv">f</span>, f x).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (is_monotone_depfunction_poset_pr Y).
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strict_and_monotone_depfunction_pointed_poset_pair</span>
+            {<span class="nv">W</span> : hSet}
+            {<span class="nv">X</span> : UU}
+            {<span class="nv">Y</span> : X → hSet}
+            {<span class="nv">RW</span> : pointed_PartialOrder W}
+            {<span class="nv">RY</span> : ∏ (x : X), pointed_PartialOrder (Y x)}
+            (<span class="nv">fs</span> : ∏ (x : X), W → Y x)
+            (<span class="nv">Hfs</span> : ∏ (x : X), is_strict_and_monotone RW (RY x) (fs x))
+  : is_strict_and_monotone
+      RW
+      (depfunction_pointed_poset Y RY)
+      (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">x</span>, fs x w).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> is_monotone_depfunction_poset_pair.
+    <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (Hfs x).
+  - use funextsec.
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (strict_function_on_point (Hfs x)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 8. Function spaces of pointed posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">FunctionPoset</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+          (<span class="nv">PX</span> : pointed_PartialOrder X)
+          (<span class="nv">PY</span> : pointed_PartialOrder Y).
+
+  <span class="kn">Definition</span> <span class="nf">strict_and_monotone_PartialOrder</span>
+    : PartialOrder (strict_and_monotone_function_set PX PY).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span>, <span class="k">∀</span> (<span class="nv">x</span> : X), PY (f x) (g x)).
+    - <span class="nb">refine</span> ((_ ,, _) ,, _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> f g h p q x ;
+           <span class="bp">exact</span> (trans_PartialOrder PY (p x) (q x))).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> f x ;
+           <span class="bp">exact</span> (refl_PartialOrder PY (f x))).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> f g p q ;
+           use eq_strict_and_monotone_function ;
+           <span class="nb">intro</span> x ;
+           <span class="bp">exact</span> (antisymm_PartialOrder PY (p x) (q x))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_and_monotone_PartialOrder_bottom</span>
+    : bottom_element strict_and_monotone_PartialOrder.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> ((_ ,, constant_is_strict_and_monotone PX PY) ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">intros</span> f x ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> (pr2 PY)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_and_monotone_pointed_PartialOrder</span>
+    : pointed_PartialOrder (strict_and_monotone_function_set PX PY)
+    := strict_and_monotone_PartialOrder
+       ,,
+       strict_and_monotone_PartialOrder_bottom.
+<span class="kn">End</span> <span class="nf">FunctionPoset</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Posets/PointedPosets.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Function spaces of pointed posets
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

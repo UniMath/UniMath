@@ -1,0 +1,1420 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Elimination.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"> <span class="sd">(**</span>
+
+<span class="sd">Gaussian Elimination over fields.</span>
+
+<span class="sd">Primary Author: Daniel @Skantz (November 2022)</span>
+<span class="sd">  With much help from, and thanks to, Peter LeFanu Lumsdaine</span>
+<span class="sd">*)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Nat.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Maybe.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.IteratedBinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Import</span> UniMath.Algebra.Matrix.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Domains_and_Fields.
+
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Auxiliary.
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Vectors.
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Matrices.
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.RowOps.
+
+
+<span class="sd">(** In this module we formalize Gaussian elimination,</span>
+<span class="sd">    using elementary row operations to put a matrix into row echelon form.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Local Notation</span> <span class="nf">Σ</span> := (iterop_fun <span class="mi">0</span>%rig op1).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"R1 *pw R2"</span> := ((pointwise _ op2) R1 R2) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"R1 +pw R2"</span> := ((pointwise _ op1) R1 R2) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A ** B"</span> := (@matrix_mult (_:<span class="bp">ring</span>) _ _ A _ B) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+
+<span class="sd">(** * Key definitions, and main goal theorem</span>
+
+<span class="sd">We start by stating the main goal theorem of the module, [gaussian_elimination_theorem_stmt]; this require the preliminary definition of (weak) row echelon form. *)</span>
+
+<span class="kn">Section</span> <span class="nf">Echelon_Form</span>.
+
+  <span class="kn">Context</span> {<span class="nv">R</span>: <span class="bp">ring</span>}.
+
+  <span class="kn">Definition</span> <span class="nf">is_leading_entry</span> {<span class="nv">n</span> : nat}
+    (<span class="nv">v</span> : Vector R n) (<span class="nv">i_1</span> : ⟦ n ⟧%stn)
+    := (v i_1 != <span class="mi">0</span>%<span class="bp">ring</span>)
+      × (∏ i_2 : ⟦ n ⟧%stn, i_2 &lt; i_1 -&gt; (v i_2) = <span class="mi">0</span>%<span class="bp">ring</span>).
+
+  <span class="sd">(** A matrix is in row echelon form if two conditions hold:</span>
+<span class="sd">    1. each leading entry is strictly to the right of earlier leading entries</span>
+<span class="sd">    2. any zero rows are below all non-zero rows</span>
+
+<span class="sd">  In the presence of the second condition, the first is equivalent to:</span>
+<span class="sd">    1'. for each leading entry, every entry strictly below and non-strictly left of it is 0 .</span>
+
+<span class="sd">  We take (1') in the definition, and show its equivalence with (1) later in the file.</span>
+
+<span class="sd">  Sometimes this notion is called _weak_ echelon form, with full echelon form also insisting that all leading entries are 1. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_row_echelon</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix R m n)
+  :=
+    ∏ i_1 i_2 : ⟦ m ⟧%stn,
+    (∏ j_1 j_2 : ⟦ n ⟧%stn,
+      is_leading_entry (mat i_1) j_1
+      -&gt; i_1 &lt; i_2 -&gt; j_2 ≤ j_1
+      -&gt; mat i_2 j_2 = <span class="mi">0</span>%<span class="bp">ring</span>)
+    × ((mat i_1 = const_vec <span class="mi">0</span>%<span class="bp">ring</span>)
+      -&gt; (i_1 &lt; i_2)
+      -&gt; (mat i_2 = const_vec <span class="mi">0</span>%<span class="bp">ring</span>)).
+
+<span class="kn">End</span> <span class="nf">Echelon_Form</span>.
+
+<span class="kn">Definition</span> <span class="nf">gaussian_elimination_stmt</span> : UU
+:= <span class="k">forall</span> (<span class="nv">F</span> : fld) (<span class="nv">m</span> <span class="nv">n</span> : nat) (<span class="nv">A</span> : Matrix F m n),
+      ∑ (B : Matrix F _ _), (@matrix_inverse F _ B)
+      × (is_row_echelon (B ** A)).
+
+<span class="sd">(** * Leading entries</span>
+
+<span class="sd">In this section, give functions for finding the leading entry of a vector,</span>
+<span class="sd">and related lemmata *)</span>
+
+<span class="kn">Section</span> <span class="nf">LeadingEntry</span>.
+
+  <span class="kn">Context</span> (<span class="nv">F</span>: fld).
+
+  <span class="sd">(** This section doesn’t really require full field structure, just a ring with decidable equality.*)</span>
+
+  <span class="c">(* There is also some related material in Combinatorics.StandardFiniteSets</span>
+<span class="c">    - could it be used here/for inspiration to simplify or generalize some of these proofs? *)</span>
+
+  <span class="sd">(** The leading entry of a (dual &lt;-&gt; "flipped") vector:</span>
+<span class="sd">     [... _ _ X 0 0 0] -&gt; index of X  (Up to a separator variable) *)</span>
+   <span class="kn">Definition</span> <span class="nf">leading_entry_compute_dual_internal_general</span>
+     {<span class="nv">X</span> : UU} { <span class="nv">n</span> : nat } (<span class="nv">v</span> : Vector F n)
+     (<span class="nv">iter</span> : ⟦ S n ⟧%stn)
+     : maybe (⟦ n ⟧%stn).
+   <span class="kn">Proof</span>.
+     <span class="nb">destruct</span> iter <span class="k">as</span> [iter lt].
+     <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH]. { <span class="bp">exact</span> nothing. }
+     <span class="nb">simpl</span> <span class="k">in</span> lt.
+     <span class="nb">destruct</span> (fldchoice0 (v (iter,, lt))).
+     - <span class="nb">refine</span> (IH _); <span class="nb">apply</span> (istransnatlth _ _ _ lt (natgthsnn n)).
+     - <span class="bp">exact</span> (just (iter,, lt)).
+   <span class="kn">Defined</span>.
+
+  <span class="sd">(** The leading entry of a (dual &lt;-&gt; "flipped") vector:</span>
+<span class="sd">     [... _ _ X 0 0 0] -&gt; index of X  (Up to a separator variable) *)</span>
+  <span class="kn">Definition</span> <span class="nf">leading_entry_compute_dual_internal</span>
+    { <span class="nv">n</span> : nat } (<span class="nv">v</span> : Vector F n) (<span class="nv">iter</span> : ⟦ S n ⟧%stn)
+    : maybe (⟦ n ⟧%stn).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter lt].
+    <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH]. { <span class="bp">exact</span> nothing. }
+    <span class="nb">simpl</span> <span class="k">in</span> lt.
+    <span class="nb">destruct</span> (fldchoice0 (v (iter,, lt))).
+    - <span class="nb">refine</span> (IH _); <span class="nb">apply</span> (istransnatlth _ _ _ lt (natgthsnn n)).
+    - <span class="bp">exact</span> (just (iter,, lt)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Leading entry of a vector in terms of dual *)</span>
+  <span class="kn">Definition</span> <span class="nf">leading_entry_compute_internal</span>
+    { <span class="nv">n</span> : nat } (<span class="nv">v</span> : Vector F n) (<span class="nv">iter</span> : ⟦ S n ⟧%stn)
+    : maybe (⟦ n ⟧)%stn.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (leading_entry_compute_dual_internal
+      (<span class="k">λ</span> <span class="nv">i</span> : ⟦ n ⟧%stn, v (dualelement i)) iter) <span class="k">as</span> [s | ?].
+    - <span class="bp">exact</span> (just (dualelement s)).
+    - <span class="bp">exact</span> nothing.
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">leading_entry_compute</span> {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n)
+     := leading_entry_compute_internal v (n,, natgthsnn _).
+
+  <span class="kn">Definition</span> <span class="nf">leading_entry_dual_compute</span> {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n)
+     := leading_entry_compute_dual_internal v (n,, natgthsnn _).
+
+  <span class="kn">Lemma</span> <span class="nf">leading_entry_compute_eq</span> {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n)
+    (<span class="nv">i_1</span> <span class="nv">i_2</span> : ⟦ n ⟧%stn)
+    (<span class="nv">e_1</span> : leading_entry_compute v = just i_1)
+    (<span class="nv">e_2</span> : leading_entry_dual_compute
+      (<span class="k">λ</span> <span class="nv">i</span> : ⟦ n ⟧%stn, v (dualelement i)) = just i_2)
+    : i_1 = dualelement i_2.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> leading_entry_compute, leading_entry_dual_compute,
+      leading_entry_compute_internal <span class="k">in</span> * |-.
+    <span class="nb">destruct</span> (leading_entry_compute_dual_internal
+      (<span class="k">λ</span> <span class="nv">i</span> : (⟦ n ⟧)%stn, v (dualelement i)) (n,, natgthsnn _))
+      <span class="k">as</span> [s | contr].
+    <span class="mi">2</span>: { <span class="bp">contradiction</span> (negpathsii1ii2 i_1 tt); <span class="nb">apply</span> pathsinv0, e_1. }
+    <span class="nb">assert</span> (e_3 : (dualelement s) = i_1).
+    { <span class="nb">apply</span> just_injectivity; <span class="bp">exact</span> (e_1). }
+    <span class="nb">assert</span> (e_4 : s = i_2).
+    { <span class="nb">unfold</span> just <span class="k">in</span> e_2; <span class="bp">now</span> <span class="nb">apply</span> ii1_injectivity <span class="k">in</span> e_2. }
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- e_3, e_4.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">leading_entry_compute_impl</span> {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n)
+    (<span class="nv">i_1</span> : ⟦ n ⟧%stn)
+    (<span class="nv">e_1</span> : leading_entry_compute_internal v (n,, natgthsnn _) = just i_1)
+    : ∑ (i_2 : ⟦ n ⟧%stn),
+      leading_entry_compute_dual_internal
+        (<span class="k">λ</span> <span class="nv">i</span> : ⟦ n ⟧%stn, v (dualelement i)) (n,, natgthsnn _) = just i_2.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> leading_entry_compute_internal <span class="k">in</span> * |-.
+    <span class="nb">destruct</span> (leading_entry_compute_dual_internal
+      (<span class="k">λ</span> <span class="nv">i</span> : (⟦ n ⟧)%stn, _) (n,, natgthsnn _)) <span class="k">as</span> [s | contr].
+    - <span class="nb">assert</span> (e_2 : dualelement s = i_1). {<span class="nb">apply</span> just_injectivity. <span class="nb">apply</span> e_1. }
+      <span class="nb">apply</span> dualelement_eq <span class="k">in</span> e_2; <span class="nb">rewrite</span> e_2.
+      <span class="k">exists</span> <span class="nv">s</span>; <span class="bp">now</span> <span class="nb">rewrite</span> e_2.
+    - <span class="nb">unfold</span> just, nothing <span class="k">in</span> e_1. <span class="bp">contradiction</span> (negpathsii1ii2 i_1 tt).
+      <span class="nb">apply</span> pathsinv0, e_1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">leading_entry_compute_dual_internal_inv1</span>
+    { <span class="nv">n</span> : nat } (<span class="nv">v</span> : Vector F n) (<span class="nv">iter</span> : ⟦ S n ⟧%stn)
+    {<span class="nv">i</span> : stn n} (<span class="nv">not_nothing</span> : (leading_entry_compute_dual_internal v iter) = just i)
+    : i &lt; iter × (v i != <span class="mi">0</span>%<span class="bp">ring</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> not_nothing.
+    <span class="nb">unfold</span> leading_entry_compute_dual_internal.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter p].
+    <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH]. { <span class="nb">simpl</span>; <span class="nb">intros</span>. <span class="bp">contradiction</span> (negpathsii1ii2 _ _ (!not_nothing)). }
+    <span class="nb">rewrite</span> nat_rect_step.
+    <span class="nb">destruct</span> (fldchoice0 _) <span class="k">as</span> [eq0| neq0].
+    - <span class="nb">intros</span> H; <span class="nb">apply</span> IH <span class="k">in</span> H; <span class="nb">destruct</span> H <span class="k">as</span> [lt neq0].
+      use tpair. {<span class="nb">apply</span> (istransnatlth _ _ _  lt (natgthsnn iter) ). }
+      <span class="nb">apply</span> neq0.
+    - <span class="nb">intros</span> ?.
+      <span class="nb">rename</span> not_nothing <span class="nb">into</span> eq; <span class="nb">apply</span> just_injectivity <span class="k">in</span> eq.
+      use tpair. {<span class="nb">rewrite</span> &lt;- eq. <span class="nb">apply</span> natgthsnn. }
+      <span class="nb">rewrite</span> &lt;- eq; <span class="bp">exact</span> neq0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">leading_entry_compute_dual_internal_inv2</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n) (<span class="nv">iter</span> : ⟦ S n ⟧%stn)
+    (<span class="nv">not_nothing</span> : (leading_entry_compute_dual_internal v iter) = nothing)
+    : ∏ i : ⟦ n ⟧%stn, i &lt; iter -&gt; v i = <span class="mi">0</span>%<span class="bp">ring</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i i_lt_iter.
+    <span class="nb">revert</span> not_nothing.
+    <span class="nb">unfold</span> leading_entry_compute_dual_internal.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter p].
+    <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH].
+    { <span class="nb">apply</span> fromempty; <span class="bp">now</span> <span class="nb">apply</span> negnatlthn0 <span class="k">in</span> i_lt_iter. }
+    <span class="nb">rewrite</span> nat_rect_step.
+    <span class="nb">destruct</span> (fldchoice0 (v (iter,, p))) <span class="k">as</span> [eq0 | ?].
+    <span class="mi">2</span> : { <span class="nb">intros</span> contr; <span class="bp">now</span> <span class="nb">apply</span> negpathsii1ii2 <span class="k">in</span> contr. }
+    <span class="nb">destruct</span> (natlehchoice i iter) <span class="k">as</span> [le | eq]. {<span class="bp">now</span> <span class="nb">apply</span> natlthsntoleh. }
+    - <span class="nb">intros</span> H; <span class="bp">now</span> <span class="nb">apply</span> IH <span class="k">in</span> H.
+    - <span class="nb">intros</span> ?; <span class="nb">refine</span> (_ @ eq0); <span class="nb">apply</span> maponpaths, stn_eq, eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">leading_entry_compute_dual_internal_inv3</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n)
+    (<span class="nv">iter</span> : ⟦ S n ⟧%stn)
+    (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    (<span class="nv">eq</span> : (leading_entry_compute_dual_internal v iter) = just i)
+    : (∏ i' : ⟦ n ⟧%stn, i &lt; i' -&gt; i' &lt; iter -&gt; v i' = <span class="mi">0</span>%<span class="bp">ring</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> eq.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter p].
+    <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH].
+    { <span class="nb">intros</span> _ ? _ x; <span class="bp">contradiction</span> (negnatgth0n _ x). }
+    <span class="nb">set</span> (p' := istransnatlth iter _ _ p (natgthsnn _)).
+    <span class="nb">pose</span> (@leading_entry_compute_dual_internal n v (S _,, p)) <span class="k">as</span> H.
+    <span class="nb">destruct</span> (maybe_choice' H) <span class="k">as</span> [s | c].
+    <span class="mi">2</span>: {<span class="nb">unfold</span> H <span class="k">in</span> c; <span class="nb">intros</span>; <span class="nb">rewrite</span> eq <span class="k">in</span> c; <span class="bp">contradiction</span> (negpathsii1ii2 _ _ c). }
+    <span class="nb">unfold</span> leading_entry_compute_dual_internal; <span class="nb">rewrite</span> nat_rect_step.
+    <span class="nb">destruct</span> (fldchoice0 (v (iter,, p) )) <span class="k">as</span> [z | nz].
+    - <span class="nb">intros</span> H'.
+      <span class="nb">simpl</span>; <span class="nb">intros</span> i' ? ?.
+      <span class="nb">destruct</span> (natlehchoice i' iter) <span class="k">as</span> [? | eq']. {<span class="bp">assumption</span>. }
+      <span class="mi">2</span>: {<span class="nb">refine</span> (_ @ z); <span class="nb">apply</span> maponpaths, stn_eq, eq'. }
+      <span class="nb">apply</span> (IH p'); <span class="kp">try</span> <span class="bp">assumption</span>.
+    - <span class="nb">intros</span> ? j i_le_iter lts.
+      <span class="nb">apply</span> natlthtonegnatgeh <span class="k">in</span> i_le_iter.
+      <span class="nb">unfold</span> leading_entry_compute_dual_internal <span class="k">in</span> eq.
+      <span class="nb">apply</span> just_injectivity <span class="k">in</span> eq.
+      <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- eq <span class="k">in</span> * |-.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">leading_entry_compute_dual_internal_inv4</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n)
+    (<span class="nv">iter</span> : ⟦ S n ⟧%stn)
+    (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    (<span class="nv">eq</span> : (leading_entry_compute_dual_internal v iter) = just i)
+    : (v i != <span class="mi">0</span>%<span class="bp">ring</span>) × (∏ i' : ⟦ n ⟧%stn, i &lt; i' -&gt; i' &lt; iter -&gt; v i' = <span class="mi">0</span>%<span class="bp">ring</span>).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> (leading_entry_compute_dual_internal_inv1 _ iter); <span class="bp">assumption</span>.
+    - <span class="nb">simpl</span>. <span class="nb">apply</span> (leading_entry_compute_dual_internal_inv3 _ iter); <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">leading_entry_compute_internal_inv1</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n) (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    (<span class="nv">eq</span> : (leading_entry_compute_internal v (n,, natgthsnn _)) = (just i))
+    : is_leading_entry v i.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_leading_entry.
+    <span class="nb">destruct</span> (leading_entry_compute_impl v i eq) <span class="k">as</span> [i' H1].
+    <span class="nb">pose</span> (H2 := leading_entry_compute_eq v i i' eq H1).
+    <span class="nb">unfold</span> leading_entry_compute_internal <span class="k">in</span> eq.
+    <span class="nb">pose</span> (H3 := @leading_entry_compute_dual_internal_inv4 _
+      (<span class="k">λ</span> <span class="nv">i</span> : (⟦ n ⟧)%stn, v (dualelement i)) (n,, natgthsnn _) (dualelement i)).
+    <span class="nb">destruct</span> (maybe_choice' (leading_entry_compute_dual_internal
+              (<span class="k">λ</span> <span class="nv">i</span> : (⟦ n ⟧)%stn, v (dualelement i)) (n,, natgthsnn _)))
+      <span class="k">as</span> [t | contr_eq].
+    <span class="mi">2</span>: { <span class="bp">contradiction</span> (@negpathsii1ii2 ((⟦ n ⟧)%stn) unit i' tt).
+         <span class="nb">unfold</span> just <span class="k">in</span> H1; <span class="nb">rewrite</span> &lt;- H1; <span class="bp">now</span> <span class="nb">rewrite</span> contr_eq. }
+    <span class="nb">destruct</span> t <span class="k">as</span> [t H4], (!H2), H3 <span class="k">as</span> [H5 H6]; <span class="kp">try</span> <span class="bp">now</span> <span class="nb">rewrite</span> dualelement_2x.
+    use tpair; <span class="nb">simpl</span>. { <span class="bp">now</span> <span class="nb">rewrite</span> dualelement_2x <span class="k">in</span> H5. }
+    <span class="nb">intros</span> j lt.
+    <span class="nb">change</span> <span class="mi">0</span>%<span class="bp">ring</span> <span class="k">with</span> (@rigunel1 F) <span class="k">in</span> *.
+    <span class="nb">rewrite</span> &lt;- (H6 (dualelement j)).
+    - <span class="bp">now</span> <span class="nb">rewrite</span> dualelement_2x.
+    - <span class="nb">apply</span> dualelement_lt_comp; <span class="bp">exact</span> lt.
+    - <span class="bp">exact</span> (pr2 (dualelement j)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">leading_entry_compute_internal_inv2</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n) (<span class="nv">iter</span> : ⟦ S n ⟧%stn)
+    (<span class="nv">eq_nothing</span> : (leading_entry_compute_internal v iter) = nothing)
+    : ∏ i : ⟦ n ⟧%stn, (dualelement i) &lt; iter -&gt; v i = <span class="mi">0</span>%<span class="bp">ring</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i i_lt_iter.
+    <span class="nb">revert</span> eq_nothing.
+    <span class="nb">unfold</span> leading_entry_compute_internal,
+      leading_entry_compute_dual_internal.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter pr2_].
+    <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH].
+    - <span class="bp">now</span> <span class="nb">apply</span> negnatlthn0 <span class="k">in</span> i_lt_iter.
+    - <span class="nb">rewrite</span> nat_rect_step.
+      <span class="nb">destruct</span> (fldchoice0 _) <span class="k">as</span> [? | _].
+      <span class="mi">2</span> : { <span class="nb">simpl</span>; <span class="nb">unfold</span> just; <span class="nb">intros</span> contr.
+            <span class="nb">apply</span> negpathsii1ii2 <span class="k">in</span> contr.
+            <span class="bp">now</span> <span class="nb">apply</span> fromempty.
+      }
+      <span class="nb">destruct</span> (natlehchoice (dualelement i) (iter)). { <span class="bp">now</span> <span class="nb">apply</span> natlthsntoleh. }
+      + <span class="bp">now</span> <span class="nb">apply</span> IH.
+      + <span class="nb">intros</span> ?.
+        <span class="nb">rewrite</span> (dualelement_eq i (iter,, pr2_)); <span class="kp">try</span> <span class="bp">easy</span>.
+        <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">leading_entry_compute_inv1</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n)
+    (<span class="nv">eq_nothing</span> : (leading_entry_compute v) = nothing)
+    : ∏ i : ⟦ n ⟧%stn, v i = <span class="mi">0</span>%<span class="bp">ring</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i.
+    <span class="nb">rewrite</span> (leading_entry_compute_internal_inv2 _ _ eq_nothing i);
+      <span class="kp">try</span> <span class="bp">reflexivity</span>.
+    <span class="nb">unfold</span> dualelement.
+    <span class="nb">destruct</span> (natchoice0 n) <span class="k">as</span> [eq | ?]; <span class="nb">simpl</span>.
+    - <span class="nb">apply</span> fromstn0; <span class="bp">now</span> <span class="nb">rewrite</span> eq.
+    - <span class="nb">refine</span> (natlehlthtrans (n - <span class="mi">1</span> - i) (n - <span class="mi">1</span>) n _ _ ).
+      + <span class="nb">apply</span> natminuslehn.
+      + <span class="bp">now</span> <span class="nb">apply</span> natminus1lthn.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">leading_entry_compute_inv2</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n)
+    (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    (<span class="nv">eq</span> : (leading_entry_compute v) = just i)
+    : is_leading_entry v i.
+  <span class="kn">Proof</span>.
+    use tpair; <span class="nb">simpl</span>.
+    { <span class="bp">now</span> <span class="nb">apply</span> leading_entry_compute_internal_inv1. }
+    <span class="nb">intros</span> i' i_gt_i'.
+    <span class="nb">destruct</span> (@leading_entry_compute_impl _ _ _ eq) <span class="k">as</span> [entry compeq].
+    <span class="nb">pose</span> (H := @leading_entry_compute_dual_internal_inv4 _ _ _ _ compeq).
+    <span class="nb">simpl</span> <span class="k">in</span> H; <span class="nb">destruct</span> H <span class="k">as</span> [neq0 eq0].
+    <span class="nb">rewrite</span> &lt;- (eq0 (dualelement i')).
+    - <span class="bp">now</span> <span class="nb">rewrite</span> dualelement_2x.
+    - <span class="nb">apply</span> dualelement_lt_comp'.
+      <span class="nb">rewrite</span> dualelement_2x.
+      <span class="nb">rewrite</span> &lt;- (@leading_entry_compute_eq _ _ _ entry eq compeq).
+      <span class="bp">exact</span> i_gt_i'.
+    - <span class="bp">exact</span> (pr2 (dualelement i')).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LeadingEntry</span>.
+
+<span class="sd">(** * Pivot-selection *)</span>
+<span class="kn">Section</span> <span class="nf">Pivot</span>.
+
+  <span class="kn">Context</span> (<span class="nv">F</span>: fld).
+
+  <span class="kn">Definition</span> <span class="nf">select_pivot_row_coprod</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">row_sep</span> : ⟦ m ⟧%stn) (<span class="nv">k</span> : ⟦ n ⟧%stn) :
+    coprod ((∑ i: ⟦ m ⟧%stn, row_sep ≤ i × ((mat i k) != <span class="mi">0</span>%<span class="bp">ring</span>)))
+            (∏ i : ⟦ m ⟧%stn, row_sep ≤ i -&gt; mat i k = <span class="mi">0</span>%<span class="bp">ring</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (H := (@leading_entry_compute_dual_internal_inv1 _
+                          _ (col mat k) (m,, natgthsnn _))).
+    <span class="nb">destruct</span> (maybe_choice' (leading_entry_compute_dual_internal
+                              _ (col mat k) (m,, natgthsnn _)))
+      <span class="k">as</span> [some | none].
+    - <span class="nb">destruct</span> some <span class="k">as</span> [t ist].
+      <span class="nb">destruct</span> (H t) <span class="k">as</span> [lt neq0]; <span class="kp">try</span> <span class="bp">assumption</span>.
+      <span class="nb">destruct</span> (natlthorgeh t row_sep) <span class="k">as</span> [? | gt].
+      <span class="mi">2</span>: { <span class="nb">apply</span> ii1; <span class="k">exists</span> <span class="nv">t</span>, gt; <span class="nb">apply</span> neq0. }
+      <span class="nb">apply</span> ii2.
+      <span class="nb">destruct</span> (@leading_entry_compute_dual_internal_inv4
+                _ _ (col mat k) (m,, natgthsnn _) t ist) <span class="k">as</span> [H3 H4].
+      <span class="nb">intros</span> i ke_le_i.
+      <span class="nb">unfold</span> col, transpose, flip <span class="k">in</span> * |-.
+      <span class="nb">rewrite</span> H4; <span class="kp">try</span> <span class="bp">easy</span>; <span class="kp">try</span> <span class="bp">now</span> <span class="nb">apply</span> (natlthlehtrans _ row_sep i).
+      <span class="bp">exact</span> (pr2 i).
+    - <span class="nb">apply</span> ii2; <span class="nb">intros</span>.
+      <span class="nb">pose</span> (H' := @leading_entry_compute_dual_internal_inv2).
+      <span class="nb">rewrite</span> &lt;- (H' _ _ (col mat k) (m,, natgthsnn _) none i);
+      <span class="kp">try</span> <span class="bp">reflexivity</span>.
+      <span class="nb">apply</span> (pr2 i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">exists_first_uncleared</span>
+  {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix F m n)
+  (<span class="nv">row_sep</span> : ⟦ m ⟧%stn) (<span class="nv">col_iter</span> : ⟦ S n ⟧%stn)
+    := ((∑ j: ⟦ n ⟧%stn,
+      j &lt; col_iter × (∑ i: ⟦ m ⟧%stn, row_sep ≤ i × (mat i j != <span class="mi">0</span>%<span class="bp">ring</span>)
+      × ∏ i' : (⟦ m ⟧)%stn, ∏ (j' : stn n),
+        row_sep ≤ i' -&gt; j' &lt; j -&gt; mat i' j' = <span class="mi">0</span>%<span class="bp">ring</span>))).
+
+  <span class="kn">Local Definition</span> <span class="nf">lower_left_zero</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix F m n)
+  (<span class="nv">row_sep</span> : ⟦ m ⟧%stn) (<span class="nv">col_iter</span> : ⟦ S n ⟧%stn)
+    := (∏ i : ⟦ m ⟧%stn, row_sep ≤ i
+      -&gt; (∏ j : ⟦ n ⟧%stn, j &lt; col_iter -&gt; mat i j = <span class="mi">0</span>%<span class="bp">ring</span>)).
+
+  <span class="kn">Lemma</span> <span class="nf">select_uncleared_column_internal</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">row_sep</span> : ⟦ m ⟧%stn) (<span class="nv">col_iter</span> : ⟦ S n ⟧%stn) (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+    : coprod
+      (exists_first_uncleared mat row_sep col_iter)
+      (lower_left_zero mat row_sep col_iter).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (natchoice0 m) <span class="k">as</span> [contr_eq | _].
+    { <span class="nb">apply</span> fromstn0; <span class="bp">now</span> <span class="nb">rewrite</span> contr_eq. }
+    <span class="nb">destruct</span> col_iter <span class="k">as</span> [col_iter lt].
+    <span class="nb">induction</span> col_iter <span class="k">as</span> [| col_iter IH].
+    { <span class="nb">right</span>; <span class="nb">intros</span> ? _ ? contr.
+      <span class="bp">contradiction</span> (negnatgth0n n contr). }
+    <span class="nb">assert</span> (lt' : col_iter &lt; S n).
+    { <span class="nb">simpl</span> <span class="k">in</span> lt. <span class="nb">apply</span> (istransnatlth _ _ _ lt (natgthsnn n)). }
+    <span class="nb">destruct</span> (IH lt') <span class="k">as</span> [IH_left | IH_right].
+    - <span class="nb">destruct</span> IH_left <span class="k">as</span> [m' [H1 [H2 H3]]].
+      <span class="nb">left</span>; <span class="k">exists</span> <span class="nv">m'</span>, (istransnatlth _ _ _ H1 (natgthsnn col_iter)), H2.
+      <span class="nb">apply</span> H3.
+    - <span class="nb">destruct</span> (select_pivot_row_coprod mat row_sep
+      (col_iter,, lt)) <span class="k">as</span> [nz | z].
+      + <span class="nb">left</span>;
+        <span class="k">exists</span>
+          (<span class="nv">col_iter</span>,, <span class="nv">lt</span>)
+        , (natgthsnn col_iter);
+        <span class="kp">do</span> <span class="mi">3</span>
+          (use tpair; <span class="kp">try</span> <span class="nb">apply</span> nz);
+          <span class="nb">simpl</span>; <span class="nb">intros</span>;
+          <span class="bp">now</span> <span class="nb">apply</span> IH_right.
+      + <span class="nb">right</span>.
+        <span class="nb">intros</span> i rowsep_le_i j j_lt_scoliter.
+        <span class="nb">destruct</span> (natlehchoice j col_iter) <span class="k">as</span> [? | eq]; <span class="nb">intros</span>.
+        { <span class="nb">apply</span> (natlehlthtrans _ _ _ j_lt_scoliter).
+          <span class="nb">apply</span> (natgthsnn col_iter). }
+        { <span class="bp">now</span> <span class="nb">apply</span> IH_right. }
+        <span class="nb">rewrite</span> &lt;- (z i); <span class="kp">try</span> <span class="bp">assumption</span>.
+        <span class="bp">now</span> <span class="nb">apply</span> maponpaths, subtypePath_prop.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Either finding all rows {r} &gt;= [row_sep] are zero,</span>
+<span class="sd">      or finding the first column segment with a non-zero element *)</span>
+  <span class="kn">Definition</span> <span class="nf">select_uncleared_column</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">row_sep</span> : ⟦ m ⟧%stn) (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+    := select_uncleared_column_internal mat row_sep (n,, natgthsnn _) p.
+
+<span class="kn">End</span> <span class="nf">Pivot</span>.
+
+<span class="sd">(** * Gaussian elimination *)</span>
+
+<span class="kn">Section</span> <span class="nf">Gauss</span>.
+
+  <span class="sd">(** - Defining procedures for gaussian elimination as</span>
+<span class="sd">        direct operations on matrix / left matrix multiplication equivalents</span>
+<span class="sd">      - Proving their correctness</span>
+<span class="sd">      - First defining &amp; showing procedure for clearing individual entries,</span>
+<span class="sd">        then segments of columns,</span>
+<span class="sd">        then working over multiple such segments. *)</span>
+
+  <span class="kn">Context</span> (<span class="nv">F</span> : fld).
+
+  <span class="sd">(** Clearing a target entry [i], if it does not equal the pivot row : [i] != [k_i]. *)</span>
+  <span class="kn">Definition</span> <span class="nf">gauss_clear_column_step</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat}
+    (<span class="nv">k_i</span> : (⟦ m ⟧%stn))
+    (<span class="nv">k_j</span> : (⟦ n ⟧%stn))
+    (<span class="nv">i</span> : (stn m))
+    (<span class="nv">mat</span> : Matrix F m n)
+    : Matrix F m n.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (stn_eq_or_neq i k_i).
+    - <span class="bp">exact</span> mat.
+    - <span class="nb">refine</span> ((@add_row_mult_matrix F _ k_i i _)%<span class="bp">ring</span> ** mat).
+      <span class="bp">exact</span> (- ((mat i k_j) * fldmultinv' (mat k_i k_j)))%<span class="bp">ring</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">gauss_clear_column_step'</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat}
+    (<span class="nv">k_i</span> : (⟦ m ⟧%stn))
+    (<span class="nv">k_j</span> : (⟦ n ⟧%stn))
+    (<span class="nv">i</span> : (stn m))
+    (<span class="nv">mat</span> : Matrix F m n)
+    : Matrix F m n.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (stn_eq_or_neq i k_i).
+    - <span class="bp">exact</span> mat.
+    - <span class="nb">refine</span> (add_row_mult k_i i _ mat).
+      <span class="bp">exact</span> (- ((mat i k_j) * fldmultinv' (mat k_i k_j)))%<span class="bp">ring</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_column_step_eq</span> {<span class="nv">m</span> <span class="nv">n</span> : nat}
+    (<span class="nv">k_i</span> <span class="nv">i</span>: (⟦ m ⟧%stn))
+    (<span class="nv">k_j</span> : (⟦ n ⟧%stn))
+    (<span class="nv">mat</span> : Matrix F m n)
+    : (gauss_clear_column_step k_i k_j i mat)
+      = (gauss_clear_column_step' k_i k_j i mat).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> gauss_clear_column_step, gauss_clear_column_step'.
+    <span class="nb">destruct</span> (stn_eq_or_neq i k_i).
+    { <span class="nb">apply</span> idpath. }
+    <span class="nb">rewrite</span> add_row_mult_as_matrix.
+    - <span class="nb">apply</span> idpath.
+    - <span class="bp">now</span> <span class="nb">apply</span> issymm_natneq.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Zeroing the column segment below [k_i]:</span>
+<span class="sd">        elements [mat {i} k_j], for {i} &gt; [k_i]*)</span>
+  <span class="kn">Definition</span> <span class="nf">gauss_clear_column</span> { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F m n) (<span class="nv">k_i</span> : (⟦ m ⟧%stn))
+    (<span class="nv">k_j</span> : (⟦ n ⟧%stn)) (<span class="nv">row_sep</span> : ⟦ S m ⟧%stn)
+    : Matrix F m n.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> row_sep <span class="k">as</span> [iter lt'].
+    <span class="nb">generalize</span> lt'; <span class="nb">intros</span> lt; <span class="nb">clear</span> lt'.
+    <span class="nb">induction</span> iter <span class="k">as</span> [ | iter gauss_clear_column_IH ].
+    { <span class="bp">exact</span> mat. }
+    <span class="nb">destruct</span> (natgthorleh iter k_i). <span class="mi">2</span>: {<span class="bp">exact</span> mat. }
+    <span class="nb">refine</span> (gauss_clear_column_step k_i k_j (iter,, lt) _ ).
+    <span class="nb">refine</span> (gauss_clear_column_IH _).
+    <span class="bp">now</span> <span class="nb">refine</span> (istransnatlth _ _ _ (natgthsnn iter) _).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* This could be rewritten to use the step variant internally</span>
+<span class="c">     -- would simplify the clear_column_eq_matrix_def proof. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_column_as_left_matrix</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">iter</span> : ⟦ S m ⟧%stn)
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">k_i</span> : (⟦ m ⟧%stn)) (<span class="nv">k_j</span> : (⟦ n ⟧%stn))
+    : Matrix F m m.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter p].
+    <span class="nb">generalize</span> p; <span class="nb">intros</span> lt; <span class="nb">clear</span> p.
+    <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH]. {<span class="bp">exact</span> (@identity_matrix F m). }
+    <span class="nb">assert</span> (p': iter &lt; S m).
+    { <span class="nb">apply</span> (istransnatlth _ _ _ (natgthsnn iter) lt). }
+    <span class="nb">destruct</span> (natgthorleh iter k_i).
+    <span class="mi">2</span>: { <span class="bp">exact</span> (@identity_matrix F m ** (IH p')). }
+    <span class="nb">refine</span> (@add_row_mult_matrix F _ k_i (iter,, lt) (- (_ * _))%<span class="bp">ring</span> ** _).
+    - <span class="bp">exact</span> (mat (iter,, lt) k_j).
+    - <span class="bp">exact</span> (fldmultinv' (mat k_i k_j)).
+    - <span class="bp">exact</span> (IH p').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_column_as_left_matrix_inv0</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">iter</span> : stn (S m))
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">k_i</span> : (⟦ m ⟧%stn)) (<span class="nv">k_j</span> : (stn n))
+    (<span class="nv">i</span> : ⟦ m ⟧%stn) (<span class="nv">i_leh_k</span> : i ≤ k_i)
+    : (gauss_clear_column_as_left_matrix iter mat k_i k_j ** mat) i = mat i.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> gauss_clear_column_as_left_matrix.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter p].
+    <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH]; <span class="nb">intros</span>.
+    { <span class="nb">simpl</span>; <span class="bp">now</span> <span class="nb">rewrite</span> matlunax2. }
+    <span class="nb">unfold</span> gauss_clear_column_as_left_matrix.
+    <span class="nb">rewrite</span> nat_rect_step.
+    <span class="nb">destruct</span> (natgthorleh iter k_i) <span class="k">as</span> [gt | _].
+    <span class="mi">2</span>: {<span class="nb">rewrite</span> matlunax2; <span class="bp">now</span> <span class="nb">rewrite</span> IH. }
+    <span class="nb">assert</span> (lt: iter &lt; S m). {<span class="nb">apply</span> (istransnatlth _ _ _ (natgthsnn iter) p). }
+    <span class="nb">rewrite</span> &lt;- (IH lt).
+    <span class="nb">rewrite</span> IH, matrix_mult_assoc, add_row_mult_as_matrix.
+    <span class="mi">2</span>: {<span class="bp">now</span> <span class="nb">apply</span> issymm_natneq, natgthtoneq. }
+    <span class="nb">rewrite</span> add_row_mult_nontarget_row.
+    <span class="mi">2</span>: {<span class="nb">apply</span> natgthtoneq. <span class="nb">apply</span> (natlehlthtrans _ _ _  i_leh_k gt).  }
+    <span class="bp">now</span> <span class="nb">rewrite</span> IH.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Proving [mat r] is unchanged after column clearance if [r &gt; sep]. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_column_inv0</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">k_i</span> : (⟦ m ⟧%stn))
+    (<span class="nv">k_j</span> : stn n) (<span class="nv">iter</span> : ⟦ S m ⟧%stn)
+    (<span class="nv">mat</span> : Matrix F m n) (<span class="nv">r</span> : ⟦ m ⟧%stn)
+    (<span class="nv">r_gt_sep</span> : r ≥ iter)
+    : (gauss_clear_column mat k_i k_j iter) r = mat r.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> gauss_clear_column.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [sep p].
+    <span class="nb">induction</span> sep <span class="k">as</span> [| sep IH]. {<span class="bp">easy</span>. }
+    <span class="nb">rewrite</span> nat_rect_step.
+    <span class="nb">destruct</span> (natgthorleh sep k_i). <span class="mi">2</span>: { <span class="nb">apply</span> idpath. }
+    <span class="nb">rewrite</span> gauss_clear_column_step_eq.
+    <span class="nb">unfold</span> gauss_clear_column_step'.
+    <span class="nb">destruct</span> (stn_eq_or_neq _ _).
+    { <span class="nb">unfold</span> gauss_clear_column, gauss_clear_column_step.
+      <span class="nb">unfold</span> gauss_clear_column <span class="k">in</span> IH.
+      <span class="bp">now</span> <span class="nb">apply</span> IH, natgthtogeh. }
+    <span class="nb">unfold</span> gauss_clear_column <span class="k">in</span> IH.
+    <span class="nb">rewrite</span> add_row_mult_nontarget_row. <span class="mi">2</span>: {<span class="bp">now</span> <span class="nb">apply</span> natlthtoneq. }
+    <span class="nb">rewrite</span> IH. { <span class="nb">apply</span> idpath. }
+    <span class="nb">apply</span> natgthtogeh, r_gt_sep.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">clear_column_eq_matrix_def</span> { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">iter</span> : ⟦ S m ⟧%stn)
+    (<span class="nv">k_i</span> : (⟦ m ⟧%stn)) (<span class="nv">k_j</span> : (⟦ n ⟧%stn)) (<span class="nv">mat</span> : Matrix F m n)
+    : ((gauss_clear_column_as_left_matrix iter mat k_i k_j) ** mat)
+      = gauss_clear_column mat k_i k_j iter.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter p].
+    <span class="nb">set</span> (p' := (stn_implies_ngt0 k_i)).
+    <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH]; <span class="kp">try</span> <span class="nb">apply</span> matlunax2.
+    <span class="nb">unfold</span> gauss_clear_column,
+      gauss_clear_column_as_left_matrix.
+    <span class="nb">unfold</span> gauss_clear_column, gauss_clear_column_as_left_matrix <span class="k">in</span> IH.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> nat_rect_step.
+    <span class="nb">rewrite</span> gauss_clear_column_step_eq.
+    <span class="nb">destruct</span> (natgthorleh iter k_i) <span class="k">as</span> [gt | leh].
+    <span class="mi">2</span> : { <span class="nb">rewrite</span> matlunax2; <span class="nb">rewrite</span> IH.
+          <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH']; <span class="kp">try</span> <span class="nb">apply</span> idpath.
+          <span class="nb">rewrite</span> nat_rect_step.
+          <span class="nb">destruct</span> (natgthorleh iter k_i) <span class="k">as</span> [gt' | ?]; <span class="kp">try</span> <span class="nb">apply</span> idpath.
+          <span class="nb">apply</span> natgehsntogth <span class="k">in</span> gt'.
+          <span class="nb">apply</span> fromempty, (isasymmnatgth _ _  gt' leh).
+    }
+    <span class="nb">rewrite</span> matrix_mult_assoc, &lt;- IH.
+    <span class="nb">unfold</span> gauss_clear_column_step'.
+    <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [eq | neq].
+    { <span class="nb">apply</span> fromempty. <span class="nb">apply</span> neggth_logeq_leh <span class="k">in</span> gt; <span class="kp">try</span> <span class="bp">assumption</span>.
+      <span class="nb">rewrite</span> &lt;- eq. <span class="nb">apply</span> isreflnatgeh. }
+      <span class="nb">rewrite</span> add_row_mult_as_matrix.
+      <span class="mi">2</span> : { <span class="bp">now</span> <span class="nb">apply</span> issymm_natneq, natgthtoneq. }
+      <span class="nb">apply</span> pathsinv0, maponpaths_2.
+      etrans.
+      { <span class="nb">set</span> (f := @gauss_clear_column_as_left_matrix_inv0 m n).
+        <span class="nb">unfold</span> gauss_clear_column_as_left_matrix <span class="k">in</span> f.
+        <span class="nb">set</span> (lt' := (istransnatlth _ _ _ (natgthsnn iter) p)).
+        <span class="nb">change</span> iter <span class="k">with</span> (pr1 (make_stn _ iter lt')).
+        <span class="nb">change</span> (istransnatlth _ _ _ _ p) <span class="k">with</span> (make_stn _ iter lt').
+        <span class="nb">rewrite</span> (f (make_stn _ iter lt') _ _ _ _ (isreflnatleh k_i)).
+        <span class="nb">change</span> (pr1 (make_stn _ iter lt')) <span class="k">with</span> iter.
+        <span class="nb">change</span> (make_stn _ iter lt') <span class="k">with</span> (istransnatlth _ _ _ _ p) .
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="nb">apply</span> maponpaths_1, maponpaths_2.
+      <span class="nb">rewrite</span> IH.
+      <span class="nb">pose</span> (H := @gauss_clear_column_inv0).
+      <span class="nb">unfold</span> gauss_clear_column <span class="k">in</span> H.
+      <span class="nb">set</span> (lt' := (istransnatlth _ _ _  (natgthsnn iter) p)).
+      <span class="nb">change</span> iter <span class="k">with</span> (pr1 (make_stn _ iter lt')).
+      <span class="nb">change</span> (istransnatlth _ _ _ _ p) <span class="k">with</span> (make_stn _ iter lt').
+      <span class="nb">rewrite</span> H; <span class="kp">try</span> <span class="bp">easy</span>.
+      <span class="nb">apply</span> isreflnatleh.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">clear_column_matrix_invertible</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">iter</span> : ⟦ S m ⟧%stn)
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">k_i</span> : (⟦ m ⟧%stn))
+    (<span class="nv">k_j</span> : stn n)
+    : @matrix_inverse F _ (gauss_clear_column_as_left_matrix iter mat k_i k_j).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> gauss_clear_column_as_left_matrix.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter p].
+    <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH]. { <span class="nb">apply</span> identity_matrix_invertible. }
+    <span class="nb">rewrite</span> nat_rect_step.
+    <span class="nb">destruct</span> (natgthorleh iter k_i).
+    - <span class="nb">apply</span> inv_matrix_prod_invertible.
+      { <span class="nb">apply</span> add_row_mult_matrix_invertible.
+        <span class="bp">now</span> <span class="nb">apply</span> natlthtoneq. }
+      <span class="nb">apply</span> IH.
+    - <span class="nb">apply</span> inv_matrix_prod_invertible.
+      { <span class="nb">apply</span> identity_matrix_invertible. }
+      <span class="nb">apply</span> IH.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The notion of clearing a row is finding the</span>
+<span class="sd">      next uncleared column {c} (having non-zero element below [row] at {r})</span>
+<span class="sd">      and performing elimination over it.</span>
+<span class="sd">      We inline a pivoting operation here as well,</span>
+<span class="sd">      switching [row] and {r} *)</span>
+  <span class="kn">Definition</span> <span class="nf">gauss_clear_row</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">row</span> : (⟦ m ⟧%stn))
+    : Matrix F m n.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (natchoice0 n) <span class="k">as</span> [contr_eq | p].
+    { <span class="nb">unfold</span> Matrix, Vector; <span class="nb">intros</span>; <span class="nb">apply</span> fromstn0.
+      <span class="bp">now</span> <span class="nb">rewrite</span> contr_eq. }
+    <span class="nb">destruct</span> (select_uncleared_column _ mat row p)
+      <span class="k">as</span> [[piv_col [? [piv_row ?]]] | none].
+    <span class="mi">2</span>: {<span class="bp">exact</span> mat. }
+    <span class="nb">refine</span> (gauss_clear_column _ row piv_col (m,, natlthnsn _)).
+    <span class="bp">exact</span> (@switch_row F _ _ row piv_row mat).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">gauss_clear_row_as_left_matrix</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">row</span> : (⟦ m ⟧%stn))
+    (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+    : Matrix F m m.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (select_uncleared_column F mat row p)
+      <span class="k">as</span> [[piv_col [_ [piv_row _]]] | none].
+    <span class="mi">2</span> : {<span class="bp">exact</span> (@identity_matrix F _). }
+    <span class="nb">set</span> (mat_by_normal_op := (@switch_row F _ _ row piv_row mat)).
+    <span class="nb">refine</span> ((gauss_clear_column_as_left_matrix
+      (m,, natgthsnn _) mat_by_normal_op row piv_col) ** _).
+    <span class="nb">refine</span> (@switch_row_matrix _ _ row piv_row).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">clear_row_eq_matrix_def</span> { <span class="nv">m</span> <span class="nv">n</span> : nat }
+     (<span class="nv">mat</span> : Matrix F m n) (<span class="nv">r</span> : ⟦ m ⟧%stn) (<span class="nv">p</span> : n &gt; <span class="mi">0</span>):
+     ((gauss_clear_row_as_left_matrix mat r p) ** mat)
+    = gauss_clear_row mat r.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">unfold</span> gauss_clear_row, gauss_clear_row_as_left_matrix.
+    <span class="nb">destruct</span> (natchoice0 _) <span class="k">as</span> [contr_eq | gt].
+    { <span class="nb">apply</span> fromempty; <span class="nb">rewrite</span> contr_eq <span class="k">in</span> p;
+      <span class="bp">contradiction</span> (isirreflnatgth _ p). }
+    <span class="nb">assert</span> (eq : p = gt). { <span class="nb">apply</span> propproperty. }
+    <span class="nb">rewrite</span> eq.
+    <span class="nb">destruct</span> (select_uncleared_column F mat r _).
+    <span class="mi">2</span>: {<span class="nb">apply</span> matlunax2. }
+    <span class="bp">now</span> <span class="nb">rewrite</span> matrix_mult_assoc,
+      switch_row_as_matrix,
+      clear_column_eq_matrix_def.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">clear_row_matrix_invertible</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">row</span> : (⟦ m ⟧%stn))
+    (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+    : @matrix_inverse F _ (gauss_clear_row_as_left_matrix mat row p).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> gauss_clear_row_as_left_matrix.
+    <span class="nb">destruct</span> (select_uncleared_column F mat row p) <span class="k">as</span> [some | none].
+    <span class="mi">2</span>: { <span class="nb">destruct</span> (natchoice0 m); <span class="kp">try</span> <span class="nb">apply</span> identity_matrix_invertible;
+         <span class="bp">now</span> <span class="nb">apply</span> nil_matrix_invertible, identity_matrix_invertible.
+    }
+    <span class="nb">apply</span> inv_matrix_prod_invertible.
+    - <span class="nb">apply</span> clear_column_matrix_invertible.
+    - <span class="nb">apply</span> switch_row_matrix_invertible.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">gauss_clear_rows_up_to</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">row_sep</span> : (⟦ S m ⟧%stn))
+    : (Matrix F m n).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> row_sep <span class="k">as</span> [row_sep row_sep_lt_n].
+    <span class="nb">induction</span> row_sep <span class="k">as</span> [| row_sep gauss_clear_earlier_rows].
+    {<span class="bp">exact</span> mat. }
+    <span class="nb">refine</span> (gauss_clear_row _ (row_sep,, row_sep_lt_n)).
+    <span class="nb">refine</span> (gauss_clear_earlier_rows _).
+    <span class="bp">exact</span> (istransnatlth _ _ _ (natgthsnn row_sep) row_sep_lt_n ).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** invertible matrix, such that left-multiplication by this</span>
+<span class="sd">     corresponds to [gauss_clear_columns_up_to]  *)</span>
+  <span class="kn">Lemma</span> <span class="nf">clear_rows_up_to_as_left_matrix</span>
+      { <span class="nv">m</span> <span class="nv">n</span> : nat }
+      (<span class="nv">mat</span> : Matrix F m n)
+      (<span class="nv">row_sep</span> : (⟦ S m ⟧%stn))
+      (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+    : (Matrix F m m).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> row_sep <span class="k">as</span> [row_sep row_sep_lt_n].
+    <span class="nb">induction</span> row_sep <span class="k">as</span> [ | row_sep gauss_clear_earlier_rows].
+    { <span class="bp">exact</span> (@identity_matrix F m). }
+    <span class="nb">assert</span> (lt : row_sep &lt; S m).
+    {<span class="nb">apply</span> (istransnatlth _ _ _ (natgthsnn row_sep) row_sep_lt_n ). }
+    <span class="nb">set</span> (mat_by_normal_op := (gauss_clear_rows_up_to mat (row_sep,, lt))).
+    <span class="nb">refine</span> ((gauss_clear_row_as_left_matrix mat_by_normal_op
+      (row_sep,, row_sep_lt_n) p ** _)).
+    <span class="bp">exact</span> (gauss_clear_earlier_rows lt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_rows_up_to_as_matrix_eq</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">iter</span> : ⟦ S m ⟧%stn)
+    (<span class="nv">mat</span> : Matrix F m n) (<span class="nv">p</span> : n &gt; <span class="mi">0</span>) :
+    ((@clear_rows_up_to_as_left_matrix _ _ mat iter p) ** mat)
+      = (gauss_clear_rows_up_to mat iter).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">unfold</span> clear_rows_up_to_as_left_matrix, gauss_clear_rows_up_to,
+      clear_rows_up_to_as_left_matrix, gauss_clear_rows_up_to.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter ?].
+    <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH ]. {<span class="nb">simpl</span>; <span class="bp">now</span> <span class="nb">rewrite</span> matlunax2. }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> nat_rect_step, &lt;- IH.
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (clear_row_eq_matrix_def _ _ p), &lt;- matrix_mult_assoc.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_rows_up_to_matrix_invertible</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat}
+    (<span class="nv">iter</span> : ⟦ S m ⟧%stn)
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+    : @matrix_inverse F _ (clear_rows_up_to_as_left_matrix mat iter p).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> clear_rows_up_to_as_left_matrix.
+    <span class="nb">set</span> (pre := gauss_clear_column_as_left_matrix iter mat ).
+    <span class="nb">unfold</span> gauss_clear_column_as_left_matrix <span class="k">in</span> pre.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter lt].
+    <span class="nb">induction</span> iter <span class="k">as</span> [| ? IH].
+    - <span class="nb">simpl</span>. <span class="nb">apply</span> identity_matrix_invertible.
+    - <span class="nb">unfold</span> clear_rows_up_to_as_left_matrix.
+      <span class="nb">rewrite</span> nat_rect_step.
+      <span class="nb">apply</span> inv_matrix_prod_invertible.
+      + <span class="bp">now</span> <span class="nb">apply</span> clear_row_matrix_invertible.
+      + <span class="nb">apply</span> IH.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Inputting a matrix and transforming it into an upper-triangular matrix by</span>
+<span class="sd">     elementary matrix operations or equivalent *)</span>
+  <span class="kn">Definition</span> <span class="nf">gauss_clear_all_rows</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F m n)
+    : Matrix F m n.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (gauss_clear_rows_up_to mat (m,,_));
+      <span class="bp">exact</span> (natgthsnn m).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">gauss_clear_all_rows_as_left_matrix</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+    : Matrix F m m.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (clear_rows_up_to_as_left_matrix mat (m,,_) p);
+      <span class="bp">exact</span> (natgthsnn m).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">gauss_clear_all_rows_as_matrix_eq</span>
+  { <span class="nv">m</span> <span class="nv">n</span> : nat }
+  (<span class="nv">mat</span> : Matrix F m n)
+  (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+  : ((gauss_clear_all_rows_as_left_matrix mat p) ** mat)
+    = gauss_clear_all_rows mat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (gauss_clear_rows_up_to_as_matrix_eq (m,, natgthsnn _) mat p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_all_rows_matrix_invertible</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat}
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+    : @matrix_inverse F _ (gauss_clear_all_rows_as_left_matrix mat p).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> gauss_clear_rows_up_to_matrix_invertible. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_column_step_inv1</span> {<span class="nv">m</span> <span class="nv">n</span> : nat}
+    (<span class="nv">r_pivot</span> : ⟦m⟧%stn) (<span class="nv">c_pivot</span> : ⟦ n ⟧%stn)
+    (<span class="nv">r</span> : (⟦ m ⟧%stn)) (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">p_1</span> : mat r_pivot c_pivot != <span class="mi">0</span>%<span class="bp">ring</span>)
+    (<span class="nv">p_2</span> : r ≠ r_pivot)
+    : (gauss_clear_column_step r_pivot c_pivot r mat) r c_pivot = <span class="mi">0</span>%<span class="bp">ring</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>; <span class="nb">unfold</span> gauss_clear_column_step.
+    <span class="nb">destruct</span> (stn_eq_or_neq r r_pivot) <span class="k">as</span> [p | _].
+    { <span class="nb">rewrite</span> p <span class="k">in</span> p_2. <span class="bp">now</span> <span class="nb">apply</span> isirrefl_natneq <span class="k">in</span> p_2. }
+    <span class="nb">rewrite</span> add_row_mult_as_matrix.
+    <span class="mi">2</span>: { <span class="bp">now</span> <span class="nb">apply</span> issymm_natneq. }
+    <span class="nb">rewrite</span> add_row_mult_target_row.
+    <span class="nb">rewrite</span> &lt;- (@ringlmultminus F), ringassoc2.
+    etrans. { <span class="bp">now</span> <span class="nb">apply</span> maponpaths, maponpaths, fldmultinvlax'. }
+    <span class="nb">rewrite</span> (@rigrunax2 F); <span class="nb">apply</span> ringrinvax1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_column_step_inv2</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat}
+    (<span class="nv">k_i</span> : stn m) (<span class="nv">k_j</span> : (⟦ n ⟧%stn))
+    (<span class="nv">r</span> : (⟦ m ⟧%stn))
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">j</span> : ⟦ m ⟧%stn)
+    (<span class="nv">p</span> : r ≠ j)
+    : (gauss_clear_column_step k_i k_j j mat) r = mat r.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> gauss_clear_column_step_eq.
+    <span class="nb">unfold</span> gauss_clear_column_step'.
+    <span class="nb">destruct</span> (stn_eq_or_neq j k_i).
+    { <span class="nb">apply</span> idpath. }
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> ?.
+    <span class="nb">rewrite</span> add_row_mult_nontarget_row; <span class="kp">try</span> <span class="bp">reflexivity</span>.
+    <span class="bp">now</span> <span class="nb">apply</span> issymm_natneq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_column_step_inv3</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">k_i</span> : stn m)
+    (<span class="nv">k_j</span> : (⟦ n ⟧%stn)) (<span class="nv">r</span> : (⟦ m ⟧%stn))
+    (<span class="nv">mat</span> : Matrix F m n) (<span class="nv">j</span> : ⟦ m ⟧%stn)
+    (<span class="nv">j'</span> : stn n) (<span class="nv">p</span> : r &lt; j)
+    : (gauss_clear_column_step k_i k_j j mat) r j' = mat r j'.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (p': r ≠ j). {<span class="bp">now</span> <span class="nb">apply</span> issymm_natneq, natgthtoneq. }
+    <span class="bp">now</span> <span class="nb">rewrite</span> (gauss_clear_column_step_inv2 k_i k_j r mat j  p').
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** if the target row r ≤ the pivot row k,</span>
+<span class="sd">     mat r is not changed by the clearing procedure. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_column_inv1</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">k_i</span> : (⟦ m ⟧%stn)) (<span class="nv">k_j</span> : stn n) (<span class="nv">r</span> : stn m)
+    (<span class="nv">iter</span> : ⟦ S m ⟧%stn) (<span class="nv">p'</span> : r ≤ k_i)
+    (<span class="nv">mat</span> : Matrix F m n)
+    : (gauss_clear_column mat k_i k_j iter) r = mat r.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> gauss_clear_column.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [sep p].
+    <span class="nb">induction</span> sep <span class="k">as</span> [| sep IH]. {<span class="bp">easy</span>. }
+    <span class="nb">unfold</span> gauss_clear_column.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> q.
+    <span class="nb">rewrite</span> nat_rect_step.
+    <span class="nb">destruct</span> (natgthorleh _ _)<span class="k">as</span> [gt | ?]; <span class="kp">try</span> <span class="bp">reflexivity</span>.
+    <span class="nb">rewrite</span> gauss_clear_column_step_inv3.
+    <span class="mi">2</span> : {<span class="bp">now</span> <span class="nb">refine</span> (natgthgehtrans _ _ _ gt _). }
+    <span class="nb">unfold</span> gauss_clear_column <span class="k">in</span> IH.
+    <span class="bp">now</span> <span class="nb">rewrite</span> IH.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Given a target row and pivot, proving the column clearing procedure equals applying step on it *)</span>
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_column_inv2</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">k_i</span> : (⟦ m ⟧%stn))
+    (<span class="nv">k_j</span> : stn n) (<span class="nv">row_sep</span> : ⟦ S m ⟧%stn)
+    (<span class="nv">mat</span> : Matrix F m n)
+    : ∏ r : (⟦ m ⟧%stn), r &lt; row_sep -&gt; k_i &lt; r -&gt;
+      ((gauss_clear_column mat k_i k_j row_sep) r
+      = (gauss_clear_column_step' k_i k_j r mat) r).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> gauss_clear_column.
+    <span class="nb">destruct</span> row_sep <span class="k">as</span> [sep p].
+    <span class="nb">induction</span> sep <span class="k">as</span> [| sep IH].
+    { <span class="nb">intros</span> r r_le_0.
+      <span class="bp">contradiction</span> (negnatgth0n r r_le_0). }
+    <span class="nb">intros</span> r r_le_sn k_le_r.
+    <span class="nb">set</span> (p' := istransnatlth _ _ _ (natgthsnn _) p).
+    <span class="nb">destruct</span> (natlehchoice r sep) <span class="k">as</span> [lt | eq]. {<span class="bp">assumption</span>. }
+    - <span class="nb">assert</span> (le: r ≤ sep). { <span class="bp">now</span> <span class="nb">apply</span> natlthtoleh <span class="k">in</span> lt. }
+      <span class="nb">unfold</span> gauss_clear_column.
+      <span class="nb">rewrite</span> nat_rect_step.
+      <span class="nb">unfold</span> gauss_clear_column <span class="k">in</span> IH.
+      <span class="nb">destruct</span> (natgthorleh _ _) <span class="k">as</span> [le' | gt].
+      + <span class="nb">rewrite</span> (gauss_clear_column_step_inv2).
+        <span class="mi">2</span> : { <span class="nb">apply</span> natgthtoneq <span class="k">in</span> lt; <span class="nb">apply</span> issymm_natneq; <span class="nb">apply</span> lt. }
+        <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (IH p').
+      + <span class="nb">assert</span> (<span class="nb">absurd</span> : sep ≤ r).
+        * <span class="nb">apply</span> natgthtogeh <span class="k">in</span> k_le_r.
+          <span class="nb">apply</span> (istransnatleh gt k_le_r).
+        * <span class="bp">now</span> <span class="nb">apply</span> natgehtonegnatlth <span class="k">in</span> <span class="nb">absurd</span>.
+    - <span class="nb">rewrite</span> nat_rect_step.
+      <span class="nb">unfold</span> gauss_clear_column_step'.
+      <span class="nb">destruct</span> (natgthorleh _ _) <span class="k">as</span> [gt | leh].
+      <span class="mi">2</span> : { <span class="nb">unfold</span> gauss_clear_column_step.
+            <span class="nb">destruct</span> (stn_eq_or_neq _ _); <span class="kp">try</span> <span class="bp">reflexivity</span>.
+            <span class="nb">assert</span> (<span class="nb">absurd</span> : sep ≤ r).
+            { <span class="nb">apply</span> natgthtogeh <span class="k">in</span> k_le_r. <span class="nb">rewrite</span> eq; <span class="nb">apply</span> isreflnatgeh. }
+            <span class="nb">destruct</span> (!eq).
+            <span class="bp">now</span> <span class="nb">apply</span> natlehneggth <span class="k">in</span> leh.
+      }
+      <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [contr_eq | ?].
+      { <span class="nb">rewrite</span> contr_eq <span class="k">in</span> k_le_r. <span class="bp">contradiction</span> (isirreflnatgth _ k_le_r). }
+      <span class="nb">assert</span> (interchange :
+         gauss_clear_column_step k_i k_j (sep,, p)
+          (gauss_clear_column mat k_i k_j (sep,, p')) r
+       = gauss_clear_column
+          (gauss_clear_column_step k_i k_j (sep,, p) mat) k_i k_j (sep,, p') r).
+      { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> gauss_clear_column_step_eq.
+        <span class="nb">unfold</span> gauss_clear_column_step'.
+        <span class="nb">destruct</span> (stn_eq_or_neq _ _); <span class="kp">try</span> <span class="bp">reflexivity</span>.
+        <span class="nb">unfold</span> add_row_mult.
+        <span class="nb">rewrite</span> gauss_clear_column_inv0; <span class="nb">simpl</span>; <span class="kp">try</span> <span class="nb">apply</span> natlthnsn.
+        <span class="nb">generalize</span> p; <span class="nb">generalize</span> p';
+        <span class="nb">rewrite</span> &lt;- eq; <span class="nb">intros</span> q q'; <span class="nb">simpl</span>.
+        <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [? | contr_neq]; <span class="nb">simpl</span>.
+        <span class="mi">2</span>: { <span class="bp">contradiction</span> (isirrefl_natneq _ contr_neq). }
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">rewrite</span> (gauss_clear_column_inv0); <span class="kp">try</span> <span class="bp">reflexivity</span>; <span class="nb">simpl</span>.
+             <span class="nb">rewrite</span> eq; <span class="nb">apply</span> natlthnsn. }
+        <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [? | contr_neq]; <span class="nb">simpl</span>.
+        <span class="mi">2</span>: { <span class="bp">contradiction</span> (isirrefl_natneq _ contr_neq). }
+        <span class="nb">apply</span> funextfun; <span class="nb">intros</span> y.
+        <span class="nb">apply</span> maponpaths, maponpaths_12.
+        - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> gauss_clear_column_inv1. {<span class="bp">reflexivity</span>. }
+          <span class="nb">apply</span> isreflnatgeh.
+        - <span class="nb">rewrite</span> gauss_clear_column_inv1; <span class="kp">try</span> <span class="bp">reflexivity</span>;
+          <span class="nb">apply</span> isreflnatleh.
+      }
+      <span class="nb">pose</span> (@gauss_clear_column_inv0 m n k_i k_j (sep,, p')) <span class="k">as</span> p1.
+      <span class="nb">change</span> (istransnatlth _ _ _ (natgthsnn _) p) <span class="k">with</span> p'.
+      <span class="nb">rewrite</span> &lt;- (stn_eq_2 _ _ eq p) <span class="k">in</span> interchange |- *.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> gauss_clear_column_step_eq <span class="k">in</span> interchange.
+      <span class="nb">rewrite</span> gauss_clear_column_step_eq <span class="k">in</span> *; <span class="nb">unfold</span> gauss_clear_column_step' <span class="k">in</span> *.
+      <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [contr_eq | ?]; <span class="kp">try</span> <span class="bp">reflexivity</span>.
+      { <span class="nb">rewrite</span> contr_eq <span class="k">in</span> k_le_r; <span class="bp">contradiction</span> (isirreflnatgth _ k_le_r). }
+      <span class="nb">unfold</span> gauss_clear_column <span class="k">in</span> interchange, p1 |-; <span class="nb">rewrite</span> interchange.
+      <span class="nb">rewrite</span> p1; <span class="nb">rewrite</span> (stn_eq_2 _ _ eq p); <span class="bp">now</span> <span class="kp">try</span> <span class="nb">apply</span> isreflnatleh.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_column_inv3</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">k_i</span> : (⟦ m ⟧%stn))
+    (<span class="nv">k_j</span> : (⟦ n ⟧%stn))
+    (<span class="nv">iter</span> : ⟦ S m ⟧%stn) (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">p'</span> : mat k_i k_j != <span class="mi">0</span>%<span class="bp">ring</span>)
+    : ∏ r : (⟦ m ⟧%stn), r &lt; iter -&gt; r &gt; k_i
+    -&gt; ((gauss_clear_column mat k_i k_j iter) r k_j = <span class="mi">0</span>%<span class="bp">ring</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [sep p].
+    <span class="nb">intros</span> r r_le_sep r_gt_k.
+    <span class="nb">rewrite</span> (gauss_clear_column_inv2  k_i k_j (sep ,, p) mat r r_le_sep)
+      , &lt;- gauss_clear_column_step_eq.
+    <span class="mi">2</span>: {<span class="bp">exact</span> r_gt_k. }
+    <span class="nb">rewrite</span> (gauss_clear_column_step_inv1 k_i k_j r mat); <span class="kp">try</span> <span class="bp">easy</span>.
+    <span class="bp">now</span> <span class="nb">apply</span> natgthtoneq.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** 0 in pivot row -&gt; corresponding col is unchanged after gcc *)</span>
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_column_inv4</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }  (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">k_i</span> : (⟦ m ⟧%stn)) (<span class="nv">k_j</span> : stn n)
+    (<span class="nv">iter</span> : ⟦ S m ⟧%stn) (<span class="nv">j</span> : ⟦ n ⟧%stn)
+    (<span class="nv">eq0</span> : mat k_i j = <span class="mi">0</span>%<span class="bp">ring</span>)
+    : ∏ i : ⟦ m ⟧%stn, gauss_clear_column mat k_i k_j iter i j = mat i j.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> gauss_clear_column.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter lt].
+    <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH]. { <span class="bp">easy</span>. }
+    <span class="nb">intros</span> i.
+    <span class="nb">rewrite</span> nat_rect_step, gauss_clear_column_step_eq.
+    <span class="nb">destruct</span> (stn_eq_or_neq (iter,, lt) k_i) <span class="k">as</span> [eq | ?].
+    - <span class="nb">rewrite</span> &lt;- eq.
+      <span class="nb">destruct</span> (natgthorleh _ _) <span class="k">as</span> [contr | ?].
+      { <span class="bp">now</span> <span class="nb">apply</span> isirreflnatgth <span class="k">in</span> contr. }
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> &lt;- (IH (istransnatlth _ _ _ (natlthnsn iter) lt))
+      , &lt;- gauss_clear_column_step_eq.
+      <span class="nb">unfold</span> gauss_clear_column_step'.
+      <span class="nb">destruct</span> (natgthorleh _ _) <span class="k">as</span> [_ | _].
+      <span class="mi">2</span>: { <span class="bp">now</span> <span class="nb">rewrite</span> IH. }
+      <span class="nb">rewrite</span> gauss_clear_column_step_eq.
+      <span class="nb">unfold</span> gauss_clear_column_step'.
+      <span class="nb">destruct</span> (stn_eq_or_neq _ _); <span class="kp">try</span> <span class="bp">reflexivity</span>.
+      <span class="nb">unfold</span> add_row_mult.
+      <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [eq | ?];
+        <span class="kp">try</span> <span class="nb">apply</span> coprod_rect_compute_1; <span class="kp">try</span> <span class="nb">apply</span> coprod_rect_compute_2.
+      + <span class="nb">rewrite</span> coprod_rect_compute_1.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> IH.
+        <span class="bp">now</span> <span class="nb">rewrite</span> eq0, &lt;- eq, (@rigmultx0 F), (@rigrunax1 F).
+      + <span class="bp">now</span> <span class="nb">rewrite</span> coprod_rect_compute_2.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Notion of being row echelon "up to" a separator,</span>
+<span class="sd">      and fulfilling criteria 1 and 2 from the preamble separately. *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_row_echelon_partial_1</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix F m n) (<span class="nv">row_sep</span> : ⟦ S m ⟧%stn) :=
+    ∏ i_1 i_2 : ⟦ m ⟧%stn,
+    ∏ j_1 j_2 : ⟦ n ⟧%stn,
+     i_1 &lt; row_sep
+    -&gt; is_leading_entry (mat i_1) j_2
+    -&gt; i_1 &lt; i_2
+    -&gt; j_1 ≤ j_2
+    -&gt; mat i_2 j_1 = <span class="mi">0</span>%<span class="bp">ring</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_row_echelon_partial_2</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix F m n) (<span class="nv">iter</span> : ⟦ S m ⟧%stn) :=
+    ∏ (i_1 i_2 : ⟦ m ⟧%stn),
+    i_1 &lt; iter
+    -&gt; (mat i_1 = const_vec <span class="mi">0</span>%<span class="bp">ring</span>)
+    -&gt; i_1 &lt; i_2
+    -&gt; mat i_2 = const_vec <span class="mi">0</span>%<span class="bp">ring</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_row_echelon_partial</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix F m n) (<span class="nv">iter</span> : ⟦ S m ⟧%stn)
+    := is_row_echelon_partial_1 mat iter × is_row_echelon_partial_2 mat iter.
+
+  <span class="sd">(** Step lemma *)</span>
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_row_inv0</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix F m n) (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+    (<span class="nv">row_sep</span> : (⟦ S m ⟧%stn)) (<span class="nv">p'</span> : row_sep &lt; m)
+    : is_row_echelon_partial_1 mat row_sep
+    -&gt; is_row_echelon_partial_1 (gauss_clear_row mat (pr1 row_sep,, p'))
+        (S (pr1 row_sep),, p').
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H1.
+    <span class="nb">unfold</span> is_row_echelon_partial_1.
+    <span class="nb">unfold</span> gauss_clear_rows_up_to.
+    <span class="nb">intros</span> i_1 i_2 j_1 j_2 i1_lt H2 i1_lt_i2 j1_lt_j2.
+    <span class="nb">revert</span> H2; <span class="nb">unfold</span> gauss_clear_row; <span class="nb">clear</span> p.
+    <span class="nb">destruct</span> (natchoice0 n) <span class="k">as</span> [contr_eq | p].
+    { <span class="nb">apply</span> fromstn0. <span class="bp">now</span> <span class="nb">rewrite</span> contr_eq. }
+    <span class="nb">destruct</span> (select_uncleared_column _ _)
+    <span class="k">as</span> [[piv_c [_ [piv_r [leh [neq0 eq0]]]]] | none]; <span class="nb">simpl</span>.
+    <span class="mi">2</span> : { <span class="nb">intros</span> isle.
+          <span class="nb">destruct</span> (natlehchoice i_1 (pr1 row_sep)) <span class="k">as</span> [? | eq];
+            <span class="kp">try</span> <span class="bp">assumption</span>.
+          {<span class="nb">rewrite</span> (H1 i_1 i_2 j_1 j_2); <span class="kp">try</span> <span class="bp">easy</span>. }
+          <span class="nb">rewrite</span> none; <span class="nb">intros</span>; <span class="kp">try</span> <span class="bp">easy</span>.
+          <span class="mi">2</span>: {<span class="bp">exact</span> (pr2 (j_1)). }
+          <span class="nb">apply</span> natgthtogeh; <span class="nb">simpl</span>.
+          <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- eq.
+    }
+    <span class="nb">intros</span> is_le.
+    <span class="nb">rewrite</span> gauss_clear_column_inv1 <span class="k">in</span> is_le.
+    <span class="mi">2</span> : { <span class="bp">now</span> <span class="nb">apply</span> natlthsntoleh. }
+    <span class="nb">destruct</span> (natlehchoice i_1 (pr1 row_sep)) <span class="k">as</span> [lt | eq].
+    { <span class="bp">now</span> <span class="nb">apply</span> natlthsntoleh. }
+    { <span class="nb">rewrite</span> switch_row_other_row' <span class="k">in</span> is_le.
+      <span class="mi">3</span>: { <span class="nb">apply</span> natlthtoneq. <span class="nb">refine</span> (natlthlehtrans _ _ _ lt leh). }
+      <span class="mi">2</span>: { <span class="bp">now</span> <span class="nb">apply</span> natlthtoneq. }
+      <span class="nb">rewrite</span> gauss_clear_column_inv4.
+        { <span class="nb">rewrite</span> switch_row_equal_entries.
+          - <span class="bp">now</span> <span class="nb">rewrite</span> (H1 i_1 i_2 j_1 j_2).
+          - <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">rewrite</span> (H1 i_1 _ j_1 j_2); <span class="kp">try</span> <span class="bp">easy</span>).
+            <span class="nb">refine</span> (natlthlehtrans _ _ _ lt leh).
+        }
+        <span class="nb">rewrite</span> switch_row_equal_entries.
+          + <span class="nb">rewrite</span> (H1 i_1 _ j_1 j_2); <span class="bp">easy</span>.
+          + <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">rewrite</span> (H1 i_1 _ j_1 j_2); <span class="kp">try</span> <span class="bp">easy</span>).
+            <span class="nb">refine</span> (natlthlehtrans _ _ _ lt leh).
+    }
+    <span class="nb">destruct</span> (natgthorleh piv_c j_1).
+    { <span class="nb">rewrite</span> gauss_clear_column_inv4; <span class="kp">try</span> <span class="bp">easy</span>.
+      - <span class="nb">unfold</span> switch_row.
+        <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [eq' | neq]; <span class="nb">simpl</span>.
+        + <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [contr_eq | neq']; <span class="nb">simpl</span>.
+          { <span class="bp">now</span> <span class="nb">rewrite</span> eq0. }
+          <span class="nb">rewrite</span> eq0; <span class="kp">try</span> <span class="bp">easy</span>.
+          <span class="nb">apply</span> (isreflnatleh).
+        + <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [contr_eq | neq']; <span class="nb">simpl</span>.
+          { <span class="bp">now</span> <span class="nb">rewrite</span> eq0. }
+          <span class="nb">rewrite</span> eq0; <span class="kp">try</span> <span class="bp">easy</span>.
+          <span class="nb">rewrite</span> &lt;- (stn_eq_2 _ _ eq).
+          <span class="bp">now</span> <span class="nb">apply</span> natgthtogeh.
+      - <span class="nb">rewrite</span> switch_row_equal_entries;
+        (<span class="nb">rewrite</span> eq0; <span class="kp">try</span> <span class="bp">easy</span>;
+        <span class="kp">try</span> <span class="nb">apply</span> isreflnatleh).
+        <span class="bp">now</span> <span class="nb">rewrite</span> eq0.
+    }
+    <span class="nb">destruct</span> (natlehchoice piv_c j_1) <span class="k">as</span> [gt | eq']; <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="mi">2</span> : { <span class="nb">rewrite</span> (stn_eq j_1 piv_c (!eq')).
+          <span class="nb">rewrite</span> gauss_clear_column_inv3; <span class="kp">try</span> <span class="bp">easy</span>.
+          - <span class="nb">unfold</span> switch_row.
+            <span class="nb">rewrite</span> stn_eq_or_neq_refl; <span class="nb">simpl</span>.
+            <span class="nb">apply</span> neq0.
+          - <span class="bp">exact</span> (pr2 i_2).
+          - <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (stn_eq_2 _ _ eq).
+    }
+    <span class="bp">contradiction</span> neq0.
+    <span class="nb">destruct</span> (natlehchoice i_1 (pr1 row_sep)) <span class="k">as</span> [lt | eq']. { <span class="bp">now</span> <span class="nb">apply</span> natlthsntoleh. }
+    - <span class="nb">rewrite</span> switch_row_other_row' <span class="k">in</span> is_le.
+      <span class="mi">3</span>: { <span class="nb">apply</span> natlthtoneq. <span class="nb">refine</span> (natlthlehtrans _ _ _ lt leh). }
+      <span class="mi">2</span>: { <span class="bp">now</span> <span class="nb">apply</span> natlthtoneq. }
+      <span class="nb">refine</span> (H1 _ _ _ _ lt is_le _ _).
+      + <span class="nb">refine</span> (natlthlehtrans _ _ _ lt leh).
+      + <span class="bp">now</span> <span class="nb">refine</span> (istransnatleh _  j1_lt_j2).
+    - <span class="nb">rewrite</span> eq <span class="k">in</span> * |-.
+      <span class="nb">assert</span> (is_le' : is_leading_entry (mat piv_r) j_2).
+      { <span class="nb">unfold</span> is_leading_entry, switch_row <span class="k">in</span> * |-;
+        <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [? | ?];
+          <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [? | contr_neq]; <span class="nb">simpl</span> <span class="k">in</span> is_le;
+          <span class="kp">try</span> <span class="nb">apply</span> is_le;
+          <span class="nb">simpl</span> <span class="k">in</span> contr_neq; <span class="nb">rewrite</span> &lt;- eq <span class="k">in</span> contr_neq;
+          <span class="bp">contradiction</span> (isirrefl_natneq _ contr_neq). }
+      <span class="nb">unfold</span> is_leading_entry <span class="k">in</span> is_le'.
+      <span class="nb">rewrite</span> (pr2 (is_le')); <span class="kp">try</span> <span class="bp">reflexivity</span>.
+      <span class="nb">refine</span> (natlthlehtrans _ _ _ gt j1_lt_j2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_rows_up_to_inv0</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix F m n) (<span class="nv">row_sep</span> : (⟦ S m ⟧%stn)) (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+   : ∏ i_1 : ⟦ m ⟧%stn, i_1 &lt; row_sep
+  -&gt; (gauss_clear_rows_up_to mat row_sep) i_1 = const_vec <span class="mi">0</span>%<span class="bp">ring</span>
+  -&gt; ∏ i_2 : ⟦ m ⟧%stn, i_1 &lt; i_2
+  -&gt; (gauss_clear_rows_up_to mat row_sep) i_2 = const_vec <span class="mi">0</span>%<span class="bp">ring</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_row_echelon_partial_2.
+    <span class="nb">intros</span> i_1 i1_lt_rowsep no_leading.
+    <span class="nb">unfold</span> gauss_clear_rows_up_to <span class="k">in</span> *.
+    <span class="nb">destruct</span> row_sep <span class="k">as</span> [row_sep lt].
+    <span class="nb">induction</span> row_sep <span class="k">as</span> [| row_sep IH].
+    {<span class="bp">contradiction</span> (negnatgth0n i_1 i1_lt_rowsep). }
+    <span class="nb">rename</span> i1_lt_rowsep <span class="nb">into</span> i1_lt_srowsep.
+    <span class="nb">set</span> (lt' := (istransnatlth _ _ _ (natgthsnn row_sep) lt)).
+    <span class="nb">rewrite</span> nat_rect_step <span class="k">in</span> no_leading |- *.
+    <span class="nb">unfold</span> gauss_clear_row <span class="k">in</span> IH, no_leading |- *.
+    <span class="nb">destruct</span> (natchoice0 n) <span class="k">as</span> [contr_eq | gt].
+    { <span class="nb">rewrite</span> contr_eq <span class="k">in</span> p.
+      <span class="bp">contradiction</span> (isirreflnatgth _ p). }
+    <span class="nb">revert</span> no_leading.
+    <span class="nb">destruct</span> (natlehchoice i_1 row_sep) <span class="k">as</span> [i1_lt_rowsep | eq].
+    {<span class="nb">apply</span> natlthsntoleh. <span class="bp">assumption</span>. }
+    - <span class="nb">destruct</span> (select_uncleared_column _ _)
+      <span class="k">as</span> [[piv_c [_ [piv_r [leh [neq0 eq0]]]]] | none]; <span class="nb">simpl</span>.
+      <span class="mi">2</span>: { <span class="bp">now</span> <span class="nb">apply</span> IH. }
+      <span class="nb">intros</span> ? ? i1_lt_i2.
+      <span class="nb">destruct</span> (natgthorleh i_2 row_sep) <span class="k">as</span> [i2_gt_rowsep | i2_le_rowsep].
+      + <span class="nb">rewrite</span> switch_row_equal_rows <span class="k">in</span> no_leading; <span class="kp">try</span> <span class="bp">assumption</span>.
+        * <span class="nb">rewrite</span> gauss_clear_column_inv1 <span class="k">in</span> no_leading.
+          <span class="mi">2</span>: { <span class="bp">now</span> <span class="nb">apply</span> natlthtoleh. }
+          <span class="nb">rewrite</span> gauss_clear_column_inv2; <span class="kp">try</span> <span class="bp">assumption</span>.
+          <span class="mi">2</span>: {<span class="nb">apply</span> (pr2 i_2). }
+          <span class="nb">unfold</span> gauss_clear_column_step'.
+          <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [contr_eq | ?].
+          { <span class="bp">contradiction</span> (isirreflnatgth row_sep).
+            <span class="bp">now</span> <span class="nb">rewrite</span> contr_eq <span class="k">in</span> * |-. }
+          <span class="nb">rewrite</span> add_row_mult_source_row_zero; <span class="kp">try</span> <span class="bp">assumption</span>.
+          -- <span class="nb">rewrite</span> switch_row_equal_rows.
+             ++ <span class="bp">now</span> <span class="nb">rewrite</span> IH.
+             ++ <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">rewrite</span> IH; <span class="kp">try</span> <span class="bp">easy</span>).
+                <span class="nb">apply</span> (natgehgthtrans _ _ _ leh i1_lt_rowsep).
+          -- <span class="nb">rewrite</span> switch_row_equal_rows; <span class="kp">try</span> <span class="bp">assumption</span>.
+             ++ <span class="bp">now</span> <span class="nb">rewrite</span> IH.
+             ++ <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">rewrite</span> IH; <span class="kp">try</span> <span class="bp">assumption</span>; <span class="kp">try</span> <span class="bp">reflexivity</span>).
+                <span class="nb">apply</span> (natgehgthtrans _ _ _ leh i1_lt_rowsep).
+        * <span class="nb">rewrite</span> gauss_clear_column_inv1 <span class="k">in</span> no_leading.
+          <span class="mi">2</span>: { <span class="bp">now</span> <span class="nb">apply</span> natlthtoleh. }
+          <span class="nb">rewrite</span> switch_row_other_row' <span class="k">in</span> no_leading.
+          <span class="mi">3</span>: { <span class="nb">apply</span> natlthtoneq, (natgehgthtrans _ _ _ leh i1_lt_rowsep). }
+          <span class="mi">2</span>: { <span class="bp">now</span> <span class="nb">apply</span> natlthtoneq. }
+          <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">rewrite</span> IH; <span class="kp">try</span> <span class="bp">easy</span>).
+          <span class="nb">apply</span> (natgehgthtrans _ _ _ leh i1_lt_rowsep).
+      + <span class="nb">rewrite</span> switch_row_equal_rows <span class="k">in</span> no_leading; <span class="kp">try</span> <span class="bp">assumption</span>.
+        * <span class="nb">rewrite</span> gauss_clear_column_inv1 <span class="k">in</span> no_leading.
+          <span class="mi">2</span>: { <span class="nb">apply</span> natgthtogeh <span class="k">in</span> i1_lt_i2;
+               <span class="nb">apply</span> (istransnatleh i1_lt_i2 i2_le_rowsep). }
+          <span class="nb">rewrite</span> gauss_clear_column_inv1; <span class="kp">try</span> <span class="bp">assumption</span>.
+          <span class="nb">rewrite</span> switch_row_equal_rows; <span class="kp">try</span> <span class="bp">assumption</span>.
+          -- <span class="bp">now</span> <span class="nb">rewrite</span> IH.
+          -- <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">rewrite</span> IH; <span class="kp">try</span> <span class="bp">easy</span>).
+             <span class="nb">apply</span> (natgehgthtrans _ _ _ leh i1_lt_rowsep).
+        * <span class="nb">rewrite</span> gauss_clear_column_inv1 <span class="k">in</span> no_leading.
+          <span class="mi">2</span>: { <span class="bp">now</span> <span class="nb">apply</span> natlthtoleh <span class="k">in</span> i1_lt_rowsep. }
+          <span class="nb">rewrite</span> switch_row_other_row' <span class="k">in</span> no_leading.
+          <span class="mi">3</span>: { <span class="nb">apply</span> natlthtoneq, (natgehgthtrans _ _ _ leh i1_lt_rowsep). }
+          <span class="mi">2</span>: { <span class="nb">apply</span> natlthtoneq, (natlthlehtrans _ _ _ i1_lt_i2 i2_le_rowsep). }
+          <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">rewrite</span> IH; <span class="kp">try</span> <span class="bp">easy</span>).
+          <span class="nb">apply</span> (natgehgthtrans _ _ _ leh i1_lt_rowsep).
+    - <span class="nb">intros</span>; <span class="nb">unfold</span> gauss_clear_row <span class="k">in</span> * |-.
+      <span class="nb">destruct</span> (select_uncleared_column _ _)
+        <span class="k">as</span> [[? [? [? [? [neq0 ?]]]]] | no_col].
+      <span class="mi">2</span>: { <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j_2.
+           <span class="nb">assert</span> (le : row_sep ≤ i_2).
+           {<span class="nb">apply</span> natgthtogeh. <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- eq. }
+           <span class="nb">apply</span> no_col; <span class="kp">try</span> <span class="bp">assumption</span>.
+           <span class="nb">apply</span> (pr2 j_2).
+      }
+      <span class="nb">unfold</span> leading_entry_compute <span class="k">in</span> no_leading.
+      <span class="bp">contradiction</span> neq0.
+      <span class="nb">refine</span> (const_vec_eq _ _ _ _).
+      <span class="nb">rewrite</span> &lt;- no_leading.
+      <span class="nb">unfold</span> switch_row.
+      <span class="nb">rewrite</span> gauss_clear_column_inv1.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> eq. <span class="nb">apply</span> isreflnatleh. }
+      <span class="nb">destruct</span> (stn_eq_or_neq _ _);
+       <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [? | contr_neq];
+       <span class="kp">try</span> <span class="bp">reflexivity</span>;
+       <span class="bp">contradiction</span> (nat_neq_to_nopath contr_neq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_rows_up_to_inv1</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+    (<span class="nv">row_sep</span> : (⟦ S m ⟧%stn))
+    : is_row_echelon_partial_1
+        (gauss_clear_rows_up_to mat row_sep) row_sep.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> gauss_clear_rows_up_to.
+    <span class="nb">destruct</span> row_sep <span class="k">as</span> [row_sep p''].
+    <span class="nb">induction</span> row_sep <span class="k">as</span> [| row_sep IH].
+    { <span class="nb">simpl</span>; <span class="nb">intros</span> ? ? ? ? contr; <span class="bp">contradiction</span> (negnatlthn0 n contr). }
+    <span class="nb">rewrite</span> nat_rect_step.
+    <span class="nb">set</span> (inner := nat_rect _ _ _ _).
+    <span class="nb">set</span> (lt' := (istransnatlth _ _ _ (natgthsnn row_sep) p'')).
+    <span class="nb">apply</span> (gauss_clear_row_inv0 (inner lt') p (row_sep,, lt') _), IH.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_rows_up_to_inv2</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">p</span> : n &gt; <span class="mi">0</span>) (<span class="nv">row_sep</span> : (⟦ S m ⟧%stn))
+    : is_row_echelon_partial_2
+        (gauss_clear_rows_up_to mat row_sep) row_sep.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> i_1; <span class="nb">intros</span> i_2 lt eq ?.
+    <span class="nb">rewrite</span> (gauss_clear_rows_up_to_inv0 _ row_sep p i_1 lt eq i_2); <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="bp">now</span> <span class="nb">destruct</span> row_sep.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_row_echelon_from_partial</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix F m n)
+    : (is_row_echelon_partial mat (m,, natgthsnn _))
+    -&gt; is_row_echelon mat.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_row_echelon, is_row_echelon_partial.
+    <span class="nb">unfold</span> is_row_echelon_partial_1, is_row_echelon_partial_2.
+    <span class="nb">intros</span> H ? ?; <span class="nb">intros</span>; use tpair.
+    { <span class="nb">intros</span> j_1 j_2 X. <span class="nb">refine</span> (pr1 H i_1 i_2 j_2 _ _ _ );
+      <span class="kp">try</span> <span class="nb">apply</span> X; <span class="kp">try</span> <span class="bp">assumption</span>; <span class="bp">exact</span> (pr2 i_1). }
+    <span class="nb">simpl</span>; <span class="nb">intros</span>.
+    <span class="nb">refine</span> ((pr2 H) i_1 i_2 _ _ _ ); <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="bp">exact</span> (pr2 i_1).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gauss_clear_rows_up_to_inv3</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+    (<span class="nv">row_sep</span> : (⟦ S m ⟧%stn))
+    : is_row_echelon (gauss_clear_rows_up_to mat (m,, natgthsnn _)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (@is_row_echelon_from_partial _ _
+      (gauss_clear_rows_up_to mat (m,, natgthsnn _))).
+    use tpair.
+    - <span class="bp">now</span> <span class="nb">apply</span> gauss_clear_rows_up_to_inv1.
+    - <span class="bp">now</span> <span class="nb">apply</span> gauss_clear_rows_up_to_inv2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">gauss_clear_all_rows_inv3</span>
+  { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix F m n) (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+  : is_row_echelon (gauss_clear_all_rows mat).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> (gauss_clear_rows_up_to_inv3 mat p (m,, natgthsnn _)). <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_row_echelon_nil_matrix</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat} {<span class="nv">A</span> : Matrix F m n}
+    (<span class="nv">eq0</span> : n = <span class="mi">0</span>)
+    : (@is_row_echelon _ m n A).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_row_echelon; <span class="nb">intros</span> i_1 i_2.
+    use tpair. {<span class="nb">intros</span> ?; <span class="nb">apply</span> fromstn0; <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- eq0. }
+    <span class="nb">simpl</span>; <span class="nb">intros</span> eq ?.
+    <span class="nb">rewrite</span> &lt;- eq.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j.
+    <span class="nb">apply</span> fromstn0; <span class="nb">rewrite</span> &lt;- eq0; <span class="bp">exact</span> j.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** A variant on the echelon form given in the introduction. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_row_echelon_eq</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix F m n)
+    : is_row_echelon mat
+    -&gt; ∏ i_1 i_2 : ⟦ m ⟧%stn, ∏ j_1 j_2 : ⟦ n ⟧%stn,
+       i_1 &lt; i_2
+    -&gt; is_leading_entry (mat i_1) j_1
+    -&gt; is_leading_entry (mat i_2) j_2
+    -&gt; j_1 &lt; j_2.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (natchoice0 n) <span class="k">as</span> [contr_eq0 | p].
+    { <span class="nb">unfold</span> is_upper_triangular. <span class="nb">intros</span> ? ? ? j.
+      <span class="nb">apply</span> fromstn0; <span class="bp">now</span> <span class="nb">rewrite</span> contr_eq0. }
+    <span class="nb">unfold</span> is_row_echelon.
+    <span class="nb">intros</span> H1 i_1 i_2 j_1 j_2 lt H2 H3.
+    <span class="nb">destruct</span> (natgthorleh j_2 j_1) <span class="k">as</span> [gt | leh]. {<span class="bp">now</span> <span class="nb">apply</span> gt. }
+    <span class="nb">destruct</span> (H1 i_1 i_2) <span class="k">as</span> [H4 H5].
+    <span class="nb">destruct</span> (natgthorleh j_2 j_1); <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="nb">unfold</span> is_leading_entry <span class="k">in</span> H3.
+    <span class="bp">contradiction</span> (pr1 H3).
+    <span class="nb">apply</span> (H4 _ _ H2 lt leh).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gaussian_elimination_width_0</span>
+    {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">A</span> : Matrix F m n) {<span class="nv">eq0</span> : <span class="mi">0</span> = n}
+  : ∑ (B : Matrix F _ _), (@matrix_inverse F _ B)
+                            × (is_row_echelon (B ** A)).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (@identity_matrix F m).
+    use tpair. { <span class="nb">apply</span> identity_matrix_invertible. }
+    <span class="nb">rewrite</span> matlunax2.
+    <span class="nb">apply</span> is_row_echelon_nil_matrix; <span class="bp">now</span> <span class="nb">rewrite</span> eq0.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The main theorem: Gaussian elimination over arbitrary fields *)</span>
+  <span class="kn">Theorem</span> <span class="nf">gaussian_elimination</span> {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">A</span> : Matrix F m n)
+    : ∑ (B : Matrix F _ _), (@matrix_inverse F _ B)
+                              × (is_row_echelon (B ** A)).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (natchoice0 n) <span class="k">as</span> [eq0 | gt].
+    { <span class="bp">now</span> <span class="nb">apply</span> gaussian_elimination_width_0. }
+    <span class="k">exists</span> (@gauss_clear_all_rows_as_left_matrix m n A gt).
+    use tpair. { <span class="nb">apply</span> gauss_clear_all_rows_matrix_invertible. }
+    <span class="nb">rewrite</span> gauss_clear_all_rows_as_matrix_eq; <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="bp">now</span> <span class="nb">apply</span> gauss_clear_all_rows_inv3.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Gauss</span>.
+
+<span class="sd">(** We now confirm that this fulfils the goal stated at the start of the file.  But we do this as a duplicate, leaving the actual main theorem above with a transparent statement, for better searchability downstream. *)</span>
+<span class="kn">Local Theorem</span> <span class="nf">gaussian_elimination_summary</span>
+  : gaussian_elimination_stmt.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F; <span class="nb">apply</span> gaussian_elimination.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/GaussianElimination/Elimination.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.NaturalNumbers.
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

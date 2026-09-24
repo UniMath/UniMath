@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NaturalNumbers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> A parameterized natural numbers object for presheaves</span>
+
+<span class="sd"> We verify that presheaves come with a (parameterized) natural numbers object. This</span>
+<span class="sd"> object is construct as a constant presheaf using the natural numbers. The structure</span>
+<span class="sd"> maps correspond to the structure maps in sets. We also prove that the natural</span>
+<span class="sd"> numbers object is stable under substitution.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The presheaf of natural numbers</span>
+<span class="sd"> 2. Zero and successor</span>
+<span class="sd"> 3. Recursion</span>
+<span class="sd"> 4. The parameterized natural numbers object</span>
+<span class="sd"> 5. Stability</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.NNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Constructions.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ParameterizedNNO</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="sd">(** * 1. The presheaf of natural numbers *)</span>
+  <span class="kn">Definition</span> <span class="nf">nno_dep_psh</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : dep_psh Γ
+    := constant_dep_psh Γ natset.
+
+  <span class="sd">(** * 2. Zero and successor *)</span>
+  <span class="kn">Definition</span> <span class="nf">nno_dep_psh_Z</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : dep_psh_nat_trans
+        (unit_dep_psh Γ)
+        (nno_dep_psh Γ)
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">_</span>, <span class="mi">0</span>).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q t ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nno_dep_psh_S</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : dep_psh_nat_trans
+        (nno_dep_psh Γ)
+        (nno_dep_psh Γ)
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">n</span>, S n).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q t ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. Recursion *)</span>
+  <span class="kn">Section</span> <span class="nf">Recursion</span>.
+    <span class="kn">Context</span> {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ}
+            (<span class="nv">zτ</span> : dep_psh_nat_trans A B (nat_trans_id _))
+            (<span class="nv">sτ</span> : dep_psh_nat_trans B B (nat_trans_id _)).
+
+    <span class="kn">Definition</span> <span class="nf">nno_dep_psh_rec_mor</span>
+               (<span class="nv">x</span> : C)
+               (<span class="nv">xx</span> : (Γ x : hSet))
+               (<span class="nv">an</span> : A x xx × ℕ)
+      : B x xx.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> an <span class="k">as</span> [ a n ].
+      <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+      - <span class="bp">exact</span> (zτ x xx a).
+      - <span class="bp">exact</span> (sτ x xx IHn).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">nno_dep_psh_rec_laws</span>
+      : dep_psh_nat_trans_naturality
+          (A := prod_dep_psh A (nno_dep_psh Γ))
+          (B := B)
+          (s := nat_trans_id _)
+          nno_dep_psh_rec_mor.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y xx yy s p q an.
+      <span class="nb">induction</span> an <span class="k">as</span> [ a n ].
+      <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+      - <span class="bp">exact</span> (dep_psh_nat_trans_ax zτ s p q a).
+      - <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (dep_psh_nat_trans_ax sτ s p q (nno_dep_psh_rec_mor x xx (a ,, n))).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (_ @ !IHn).
+          <span class="nb">apply</span> dep_psh_mor_path_eq.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">nno_dep_psh_rec</span>
+      : dep_psh_nat_trans
+          (prod_dep_psh A (nno_dep_psh Γ))
+          B
+          (nat_trans_id _).
+    <span class="kn">Proof</span>.
+      use make_dep_psh_nat_trans.
+      - <span class="bp">exact</span> nno_dep_psh_rec_mor.
+      - <span class="bp">exact</span> nno_dep_psh_rec_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">nno_dep_psh_rec_Z</span>
+      : BinProductArrow
+          ((disp_cat_dep_psh C) [{Γ}])
+          (dep_psh_fiber_binproducts Γ A (nno_dep_psh Γ))
+          (identity _)
+          (TerminalArrow (dep_psh_fiber_terminal Γ) A · nno_dep_psh_Z Γ)
+        · nno_dep_psh_rec
+        =
+        zτ.
+    <span class="kn">Proof</span>.
+      <span class="nb">cbn</span> -[fiber_category].
+      use dep_psh_nat_trans_eq.
+      <span class="nb">intros</span> x xx a.
+      <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">cbn</span> -[fiber_category].
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (dep_psh_fiber_comp _ _ (nno_dep_psh_Z Γ) a).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">nno_dep_psh_rec_S</span>
+      : BinProductOfArrows
+          ((disp_cat_dep_psh C) [{Γ}])
+          (dep_psh_fiber_binproducts Γ A (nno_dep_psh Γ))
+          (dep_psh_fiber_binproducts Γ A (nno_dep_psh Γ))
+          (identity _)
+          (nno_dep_psh_S Γ)
+        · nno_dep_psh_rec
+        =
+        compose (C := (disp_cat_dep_psh C)[{Γ}]) nno_dep_psh_rec sτ.
+    <span class="kn">Proof</span>.
+      use dep_psh_nat_trans_eq.
+      <span class="nb">intros</span> x xx a.
+      <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">cbn</span> -[fiber_category].
+        <span class="nb">rewrite</span> !dep_psh_fiber_comp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (_ @ !(dep_psh_fiber_comp _ _ _ _)).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">nno_dep_psh_rec_unique</span>
+                (<span class="nv">τ'</span> : ∑ f,
+                      (BinProductArrow
+                         ((disp_cat_dep_psh C) [{Γ}])
+                         (dep_psh_fiber_binproducts Γ A (nno_dep_psh Γ))
+                         (identity _)
+                         (TerminalArrow (dep_psh_fiber_terminal Γ) A
+                          · nno_dep_psh_Z Γ)
+                       · f
+                       =
+                       zτ)
+                      ×
+                      (BinProductOfArrows
+                         ((disp_cat_dep_psh C) [{Γ}])
+                         (dep_psh_fiber_binproducts Γ A (nno_dep_psh Γ))
+                         (dep_psh_fiber_binproducts Γ A (nno_dep_psh Γ))
+                         (identity _)
+                         (nno_dep_psh_S Γ)
+                       · f
+                       =
+                       f · sτ))
+      : pr1 τ' = nno_dep_psh_rec.
+    <span class="kn">Proof</span>.
+      use dep_psh_nat_trans_eq.
+      <span class="nb">cbn</span>.
+      <span class="nb">intros</span> x xx an.
+      <span class="nb">induction</span> an <span class="k">as</span> [ a n ].
+      <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+      - <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> (<span class="nv">z</span> : dep_psh_nat_trans _ _ _), z x xx a) (pr12 τ')).
+        <span class="nb">refine</span> (_ @ !(dep_psh_fiber_comp _ _ _ _)).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">cbn</span> -[fiber_category].
+        <span class="nb">rewrite</span> dep_psh_fiber_comp.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">cbn</span>.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!IHn).
+        }
+        <span class="nb">pose</span> (maponpaths
+                (<span class="k">λ</span> (<span class="nv">z</span> : dep_psh_nat_trans (prod_dep_psh A (nno_dep_psh Γ)) _ _),
+                 z x xx (a ,, n))
+                (pr22 τ'))
+          <span class="k">as</span> p.
+        <span class="nb">refine</span> (_ @ !p @ _) ; <span class="nb">clear</span> p.
+        + <span class="bp">exact</span> (!(dep_psh_fiber_comp _ _ _ _)).
+        + <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">cbn</span> -[fiber_category].
+          <span class="nb">rewrite</span> !dep_psh_fiber_comp.
+          <span class="nb">cbn</span>.
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Recursion</span>.
+
+  <span class="sd">(** * 4. The parameterized natural numbers object *)</span>
+  <span class="kn">Definition</span> <span class="nf">dep_psh_fiberwise_nno</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : parameterized_NNO
+        (dep_psh_fiber_terminal Γ)
+        (dep_psh_fiber_binproducts Γ).
+  <span class="kn">Proof</span>.
+    use make_parameterized_NNO.
+    - <span class="bp">exact</span> (nno_dep_psh Γ).
+    - <span class="bp">exact</span> (nno_dep_psh_Z Γ).
+    - <span class="bp">exact</span> (nno_dep_psh_S Γ).
+    - <span class="nb">intros</span> A B zτ sτ.
+      use make_iscontr.
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (nno_dep_psh_rec zτ sτ).
+        * <span class="nb">apply</span> nno_dep_psh_rec_Z.
+        * <span class="nb">apply</span> nno_dep_psh_rec_S.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> τ' ;
+           use subtypePath ;
+           [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">apply</span> nno_dep_psh_rec_unique).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 5. Stability *)</span>
+  <span class="kn">Definition</span> <span class="nf">dep_psh_fiberwise_nno_stable_inv</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+    : dep_psh_nat_trans
+        (dep_psh_subst s (nno_dep_psh Γ₂))
+        (nno_dep_psh Γ₁)
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">n</span>, n).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q n ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dep_psh_fiberwise_nno_stable_laws</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+    : is_inverse_in_precat
+        (preserves_parameterized_NNO_mor
+           (dep_psh_fiberwise_nno Γ₂)
+           (dep_psh_fiberwise_nno Γ₁)
+           (fiber_functor_from_cleaving
+              (disp_cat_dep_psh C)
+              (cleaving_disp_cat_dep_psh C)
+              s)
+           (dep_psh_preserves_terminal s))
+        (dep_psh_fiberwise_nno_stable_inv s).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use dep_psh_nat_trans_eq.
+      <span class="nb">intros</span> x xx n.
+      <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _).
+      <span class="nb">cbn</span> -[fiber_category fiber_functor_from_cleaving].
+      <span class="nb">unfold</span> preserves_parameterized_NNO_mor, is_NNO_parameterized_NNO_mor.
+      <span class="nb">rewrite</span> dep_psh_fiber_comp.
+      <span class="nb">cbn</span> -[fiber_category fiber_functor_from_cleaving].
+      <span class="nb">rewrite</span> !dep_psh_fiber_comp.
+      <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+      + <span class="nb">cbn</span> -[fiber_functor_from_cleaving].
+        <span class="nb">rewrite</span> (dep_psh_fiber_functor_from_cleaving _ s).
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">cbn</span> -[fiber_functor_from_cleaving].
+        <span class="nb">rewrite</span> (dep_psh_fiber_functor_from_cleaving _ s).
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> IHn.
+    - use dep_psh_nat_trans_eq.
+      <span class="nb">intros</span> x xx n.
+      <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _).
+      <span class="nb">cbn</span> -[fiber_category fiber_functor_from_cleaving].
+      <span class="nb">unfold</span> preserves_parameterized_NNO_mor, is_NNO_parameterized_NNO_mor.
+      <span class="nb">rewrite</span> dep_psh_fiber_comp.
+      <span class="nb">cbn</span> -[fiber_category fiber_functor_from_cleaving].
+      <span class="nb">rewrite</span> !dep_psh_fiber_comp.
+      <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+      + <span class="nb">cbn</span> -[fiber_functor_from_cleaving].
+        <span class="nb">rewrite</span> (dep_psh_fiber_functor_from_cleaving _ s).
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">cbn</span> -[fiber_functor_from_cleaving].
+        <span class="nb">rewrite</span> (dep_psh_fiber_functor_from_cleaving _ s).
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> IHn.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_psh_fiberwise_nno_stable</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+             (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+    : preserves_parameterized_NNO
+        (dep_psh_fiberwise_nno Γ₂)
+        (dep_psh_fiberwise_nno Γ₁)
+        (fiber_functor_from_cleaving
+           (disp_cat_dep_psh C)
+           (cleaving_disp_cat_dep_psh C)
+           s)
+        (dep_psh_preserves_terminal s).
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (dep_psh_fiberwise_nno_stable_inv s).
+    - <span class="bp">exact</span> (dep_psh_fiberwise_nno_stable_laws s).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ParameterizedNNO</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/NaturalNumbers.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Stability
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Presheaf.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

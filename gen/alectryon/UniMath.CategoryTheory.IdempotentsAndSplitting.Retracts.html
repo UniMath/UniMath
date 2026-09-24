@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Retracts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Retracts and (split) idempotents</span>
+
+<span class="sd">  Defines the types of retractions, idempotents and split idempotents in a category and shows that</span>
+<span class="sd">  these are preserved by functors.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Retractions [retraction]</span>
+<span class="sd">  2. Sections</span>
+<span class="sd">  3. Idempotents and split idempotents [idempotent] [split_idempotent]</span>
+<span class="sd">  3.1. Split idempotent implies idempotent [split_idempotent_is_idempotent]</span>
+<span class="sd">  3.2. In a univalent category, being split idempotent is a mere proposition</span>
+<span class="sd">    [isaprop_is_split_idempotent]</span>
+<span class="sd">  4. Functors</span>
+<span class="sd">  4.1. Retractions are preserved by functors [functor_preserves_retraction]</span>
+<span class="sd">  4.2. Idempotents are preserved by functors [functor_preserves_idempotent]</span>
+<span class="sd">  4.3. Split idempotents are preserved by functors [functor_preserves_split_idempotent]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Retractions *)</span>
+<span class="kn">Section</span> <span class="nf">SectionsAndRetractions</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : precategory}.
+
+  <span class="kn">Definition</span> <span class="nf">is_retraction</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : C}
+    (<span class="nv">s</span> : A --&gt; B)
+    (<span class="nv">r</span> : B --&gt; A)
+    : UU
+    := s · r = identity A.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_retraction</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : C}
+    (<span class="nv">s</span> : A --&gt; B)
+    (<span class="nv">r</span> : B --&gt; A)
+    (<span class="nv">H</span> : has_homsets C)
+    : isaprop (is_retraction s r).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** A retraction of B onto A *)</span>
+  <span class="kn">Definition</span> <span class="nf">retraction</span>
+    (<span class="nv">A</span> <span class="nv">B</span> : C)
+    : UU
+    := ∑ (s : A --&gt; B)
+        (r : B --&gt; A),
+        is_retraction s r.
+
+  <span class="kn">Definition</span> <span class="nf">make_retraction</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : C}
+    (<span class="nv">s</span> : A --&gt; B)
+    (<span class="nv">r</span> : B --&gt; A)
+    (<span class="nv">H</span> : is_retraction s r)
+    : retraction A B
+    := s ,, r ,, H.
+
+  <span class="kn">Section</span> <span class="nf">Accessors</span>.
+
+    <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : C}.
+    <span class="kn">Context</span> (<span class="nv">H</span> : retraction A B).
+
+    <span class="kn">Definition</span> <span class="nf">retraction_section</span>
+      : A --&gt; B
+      := pr1 H.
+
+    <span class="kn">Definition</span> <span class="nf">retraction_retraction</span>
+      : B --&gt; A
+      := pr12 H.
+
+    <span class="kn">Definition</span> <span class="nf">retraction_is_retraction</span>
+      : retraction_section · retraction_retraction = identity A
+      := pr22 H.
+
+  <span class="kn">End</span> <span class="nf">Accessors</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">retraction_retraction</span>
+    : retraction &gt;-&gt; precategory_morphisms.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_retraction</span>
+    (<span class="nv">A</span> <span class="nv">B</span> : ob C)
+    (<span class="nv">H</span> : has_homsets C)
+    : isaset (retraction A B).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> isaset_total2; [<span class="nb">apply</span> H | <span class="nb">intro</span>]).
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_is_retraction.
+    <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">compose_retraction</span>
+    {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+    (<span class="nv">f</span> : retraction X Y)
+    (<span class="nv">g</span> : retraction Y Z)
+    : retraction X Z.
+  <span class="kn">Proof</span>.
+    use make_retraction.
+    - <span class="bp">exact</span> (retraction_section f · retraction_section g).
+    - <span class="bp">exact</span> (g · f).
+    - <span class="kp">abstract</span> (
+        <span class="nb">refine</span> (assoc _ _ _ @ _);
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (assoc' _ _ _) @ _);
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x · _) (retraction_is_retraction _) @ _);
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (id_right _) @ _);
+        <span class="nb">apply</span> retraction_is_retraction
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Sections *)</span>
+  <span class="kn">Definition</span> <span class="nf">section_of_mor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">r</span> : x --&gt; y)
+    : UU
+    := ∑ (s : y --&gt; x),
+       is_retraction s r.
+
+  <span class="kn">Definition</span> <span class="nf">make_section_of_mor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">r</span> : x --&gt; y)
+             (<span class="nv">s</span> : y --&gt; x)
+             (<span class="nv">sr</span> : is_retraction s r)
+    : section_of_mor r.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> s.
+    - <span class="bp">exact</span> sr.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">section_of_mor_to_mor</span>
+           {x y : C}
+           {r : x --&gt; y}
+           (s : section_of_mor r)
+    : y --&gt; x
+    := pr1 s.
+
+  <span class="kn">Proposition</span> <span class="nf">section_of_mor_eq</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              {<span class="nv">r</span> : x --&gt; y}
+              (<span class="nv">s</span> : section_of_mor r)
+    : s · r = identity _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 s).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SectionsAndRetractions</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_section_of_mor</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">r</span> : x --&gt; y}
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> : section_of_mor r}
+            (<span class="nv">p</span> : (s₁ : y --&gt; x) = s₂)
+  : s₁ = s₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_retraction.
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_on_section</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+           {<span class="nv">r</span> : x --&gt; y}
+           (<span class="nv">s</span> : section_of_mor r)
+  : section_of_mor (#F r).
+<span class="kn">Proof</span>.
+  use make_section_of_mor.
+  - <span class="bp">exact</span> (#F s).
+  - <span class="kp">abstract</span>
+      (<span class="nb">unfold</span> is_retraction ;
+       <span class="nb">rewrite</span> &lt;- functor_comp ;
+       <span class="nb">rewrite</span> section_of_mor_eq ;
+       <span class="nb">apply</span> functor_id).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Idempotents and split idempotents *)</span>
+<span class="kn">Section</span> <span class="nf">Idempotents</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : precategory}.
+
+  <span class="kn">Definition</span> <span class="nf">is_idempotent</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">e</span> : c --&gt; c)
+    : UU
+    := e · e = e.
+
+  <span class="kn">Definition</span> <span class="nf">idempotent</span>
+    (<span class="nv">c</span> : C)
+    : UU
+    := ∑ (e : c --&gt; c), is_idempotent e.
+
+  <span class="kn">Coercion</span> <span class="nf">idempotent_morphism</span>
+    {c : C}
+    (e : idempotent c)
+    : c --&gt; c
+    := pr1 e.
+
+  <span class="kn">Definition</span> <span class="nf">idempotent_is_idempotent</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">e</span> : idempotent c)
+    : is_idempotent e
+    := pr2 e.
+
+  <span class="kn">Definition</span> <span class="nf">is_split_idempotent</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">e</span> : c --&gt; c)
+    : UU
+    := ∑ c' (H : retraction c' c), e = retraction_retraction H · retraction_section H.
+
+  <span class="kn">Definition</span> <span class="nf">make_is_split_idempotent</span>
+    {<span class="nv">c</span> : C}
+    {<span class="nv">e</span> : c --&gt; c}
+    (<span class="nv">c'</span> : C)
+    (<span class="nv">H1</span> : retraction c' c)
+    (<span class="nv">H2</span> : e = retraction_retraction H1 · retraction_section H1)
+    : is_split_idempotent e
+    := c' ,, H1 ,, H2.
+
+  <span class="kn">Definition</span> <span class="nf">split_idempotent</span>
+    (<span class="nv">c</span> : C)
+    : UU
+    := ∑ (e : c --&gt; c), is_split_idempotent e.
+
+  <span class="kn">Coercion</span> <span class="nf">split_idempotent_morphism</span>
+    {c : C}
+    (e : split_idempotent c)
+    : c --&gt; c
+    := pr1 e.
+
+  <span class="kn">Definition</span> <span class="nf">split_idempotent_is_split_idempotent</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">e</span> : split_idempotent c)
+    : is_split_idempotent e
+    := pr2 e.
+
+  <span class="kn">Definition</span> <span class="nf">split_idempotent_object</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">e</span> : split_idempotent c)
+    : C
+    := pr12 e.
+
+  <span class="kn">Definition</span> <span class="nf">split_idempotent_retraction</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">e</span> : split_idempotent c)
+    : retraction (split_idempotent_object e) c
+    := pr122 e.
+
+  <span class="kn">Definition</span> <span class="nf">split_idempotent_is_split</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">e</span> : split_idempotent c)
+    : split_idempotent_morphism e = split_idempotent_retraction e · retraction_section (split_idempotent_retraction e)
+    := pr222 e.
+
+<span class="sd">(** ** 3.1. Split idempotent implies idempotent *)</span>
+  <span class="kn">Lemma</span> <span class="nf">split_idempotent_is_idempotent</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">e</span> : split_idempotent c)
+    : is_idempotent e.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> (!split_idempotent_is_split e).
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths _ (retraction_is_retraction _) @ _).
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Idempotents</span>.
+
+<span class="kn">Definition</span> <span class="nf">idempotents_split</span>
+  (<span class="nv">C</span> : category)
+  : UU
+  := ∏ (x : C) (f : idempotent x), ∥ is_split_idempotent f ∥.
+
+<span class="sd">(** ** 3.2. In a univalent category, being split idempotent is a mere proposition *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_split_idempotent_eq</span>
+  {<span class="nv">C</span> : category}
+  {<span class="nv">X</span> : C}
+  {<span class="nv">f</span> : C⟦X, X⟧}
+  (<span class="nv">g</span> <span class="nv">g'</span> : is_split_idempotent f)
+  (<span class="nv">H1</span> : pr1 g = pr1 g')
+  (<span class="nv">H2</span> : transportf (<span class="k">λ</span> <span class="nv">Y</span>, C⟦Y, X⟧) H1 (pr112 g) = pr112 g')
+  (<span class="nv">H3</span> : transportf (<span class="k">λ</span> <span class="nv">Y</span>, C⟦X, Y⟧) H1 (pr1 (pr212 g)) = pr1 (pr212 g'))
+  : g = g'.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> use total2_paths_f.
+  - <span class="bp">exact</span> H1.
+  - <span class="nb">refine</span> (_ @ H2).
+    <span class="nb">clear</span> H2 H3.
+    <span class="bp">now</span> <span class="nb">induction</span> H1.
+  - <span class="nb">refine</span> (_ @ H3).
+    <span class="nb">refine</span> (pr1_transportf (B := <span class="k">λ</span> <span class="nv">_</span>, C⟦X, _⟧) _ _ @ _).
+    <span class="nb">refine</span> (eqtohomot (transportf_const _ _) _ @ _).
+    <span class="nb">clear</span> H3 H2.
+    <span class="bp">now</span> <span class="nb">induction</span> H1.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_split_idempotent</span>
+  {<span class="nv">C</span> : category}
+  {<span class="nv">x</span> : C}
+  (<span class="nv">f</span> : C⟦x, x⟧)
+  (<span class="nv">C_is_univ</span> : is_univalent C)
+  : isaprop (is_split_idempotent f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invproofirrelevance.
+  <span class="nb">intros</span> X X'.
+  <span class="nb">induction</span> X <span class="k">as</span> [X HX], HX <span class="k">as</span> [r HX].
+  <span class="nb">induction</span> X' <span class="k">as</span> [X' HX'], HX' <span class="k">as</span> [r' HX'].
+  use is_split_idempotent_eq.
+  - <span class="nb">apply</span> (isotoid _ C_is_univ).
+    use make_z_iso.
+    + <span class="bp">exact</span> (retraction_section r · r').
+    + <span class="bp">exact</span> (retraction_section r' · r).
+    + <span class="kp">abstract</span> (
+        use make_is_inverse_in_precat;
+        <span class="nb">refine</span> (assoc _ _ _ @ _);
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (assoc' _ _ _) @ _);
+        [ <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x · _) (!HX' @ HX) @ _)
+        | <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x · _) (!HX @ HX') @ _) ];
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (assoc _ _ _) @ _);
+        <span class="nb">refine</span> (assoc' _ _ _ @ _);
+        <span class="nb">refine</span> (maponpaths _ (retraction_is_retraction _) @ _);
+        <span class="nb">refine</span> (id_right _ @ _);
+        <span class="nb">apply</span> retraction_is_retraction
+      ).
+  - <span class="nb">refine</span> (transportf_isotoid _ _ _ _ _ _ _ @ _).
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (!HX @ HX') @ _).
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (retraction_is_retraction _) @ _).
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">refine</span> (transportf_isotoid' _ _ _ _ _ _ _ @ _).
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (!HX @ HX') @ _).
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths _ (retraction_is_retraction _) @ _).
+    <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Functors *)</span>
+<span class="kn">Section</span> <span class="nf">Functors</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}.
+  <span class="kn">Context</span> (<span class="nv">F</span> : C ⟶ D).
+  <span class="kn">Context</span> (<span class="nv">H</span> : fully_faithful F).
+
+<span class="sd">(** ** 4.1. Retractions are preserved by functors *)</span>
+  <span class="kn">Lemma</span> <span class="nf">functor_preserves_is_retraction</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : C}
+    (<span class="nv">f</span> : retraction b a)
+    : is_retraction (#F (retraction_section f)) (#F f).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!functor_comp _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths _ (retraction_is_retraction f) @ _).
+    <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_retraction</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : C}
+    (<span class="nv">H</span> : retraction b a)
+    : retraction (F b) (F a)
+    := _ ,, _ ,, functor_preserves_is_retraction H.
+
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_functor_reflects_is_retraction</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : C}
+    (<span class="nv">f</span> : retraction (F b) (F a))
+    : is_retraction (fully_faithful_inv_hom H _ _ (retraction_section f)) (fully_faithful_inv_hom H _ _ f).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!fully_faithful_inv_comp _ _ _ _ _ _ _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths _ (retraction_is_retraction _) @ _).
+    <span class="nb">apply</span> fully_faithful_inv_identity.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fully_faithful_functor_reflects_retraction</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : C}
+    (<span class="nv">f</span> : retraction (F b) (F a))
+    : retraction b a
+    := _ ,, _ ,, fully_faithful_functor_reflects_is_retraction f.
+
+<span class="sd">(** ** 4.2. Idempotents are preserved by functors *)</span>
+  <span class="kn">Lemma</span> <span class="nf">functor_preserves_is_idempotent</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">f</span> : idempotent c)
+    : is_idempotent (#F f).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!functor_comp _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> idempotent_is_idempotent.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_idempotent</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">H</span> : idempotent c)
+    : idempotent (F c)
+    := _ ,, functor_preserves_is_idempotent H.
+
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_functor_reflects_is_idempotent</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">f</span> : idempotent (F c))
+    : is_idempotent (fully_faithful_inv_hom H _ _ f).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!fully_faithful_inv_comp _ _ _ _ _ _ _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> idempotent_is_idempotent.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fully_faithful_functor_reflects_idempotent</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">f</span> : idempotent (F c))
+    : idempotent c
+    := _ ,, fully_faithful_functor_reflects_is_idempotent f.
+
+<span class="sd">(** ** 4.3. Split idempotents are preserved by functors *)</span>
+  <span class="kn">Lemma</span> <span class="nf">functor_preserves_is_split_idempotent</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">f</span> : split_idempotent c)
+    : is_split_idempotent (#F f).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">F</span> (split_idempotent_object f)).
+    <span class="k">exists</span> (<span class="nv">functor_preserves_retraction</span> (split_idempotent_retraction f)).
+    <span class="nb">refine</span> (_ @ functor_comp _ _ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> split_idempotent_is_split.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_split_idempotent</span>
+    {<span class="nv">c</span> : C}
+    (<span class="nv">f</span> : split_idempotent c)
+    : split_idempotent (F c)
+    := _ ,, (functor_preserves_is_split_idempotent f).
+
+<span class="kn">End</span> <span class="nf">Functors</span>.
+
+<span class="kn">Section</span> <span class="nf">Opp</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+  <span class="kn">Context</span> (<span class="nv">A</span> <span class="nv">B</span> : C).
+  <span class="kn">Context</span> (<span class="nv">r</span> : retraction A B).
+
+  <span class="kn">Definition</span> <span class="nf">opp_retraction</span>
+    : retraction (A : C^opp) (B : C^opp)
+    := retraction_retraction r ,, retraction_section r ,, retraction_is_retraction r.
+
+<span class="kn">End</span> <span class="nf">Opp</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/IdempotentsAndSplitting/Retracts.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   4.3. Split idempotents are preserved by functors [functor_preserves_split_idempotent]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

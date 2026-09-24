@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SetGroupoidModel.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************************</span>
+
+<span class="sd"> The setgroupoid model of type theory</span>
+
+<span class="sd"> The groupoid model by Hofmann and Streicher is fundamental in the study of type theory. It</span>
+<span class="sd"> gives us a space-based interpretation of type theory (groupoids represent spaces of dimension 1),</span>
+<span class="sd"> and as a consequence, it shows the independence of UIP from Martin-Löf type theory.</span>
+
+<span class="sd"> In UF, there are several ways to incarnate the notion of a groupoid, and as a consequence, we</span>
+<span class="sd"> can represent the groupoid model in multiple ways:</span>
+<span class="sd"> - with univalent groupoids (groupoids up to adjoint equivalence)</span>
+<span class="sd"> - with setgroupoids (groupoids up to isomorphism)</span>
+<span class="sd"> One could also imagine an approach using iterative sets, which would give us a set of</span>
+<span class="sd"> groupoids (groupoids up to strict equality) following the work by Gratzer, Gylterud, Mörtberg,</span>
+<span class="sd"> and Stenholm.</span>
+
+<span class="sd"> Each of these approaches comes with their own characteristics. For instance, univalent groupoids</span>
+<span class="sd"> form a univalent bicategory rather than a univalent category, and, as a consequence, the</span>
+<span class="sd"> model of univalent groupoids is described by a comprehension bicategory. The resulting syntax</span>
+<span class="sd"> is thus 2-dimensional in nature (see 'Bicategorical type theory: semantics and syntax' or</span>
+<span class="sd"> 'Two-dimensional models of type theory').</span>
+
+<span class="sd"> Since setgroupoids form a univalent category rather than a univalent bicategory, we can form</span>
+<span class="sd"> a univalent comprehension category of setgroupoids. Objects are identified up to isomorphisms</span>
+<span class="sd"> in this comprehension category, and because of that, all substitution laws from type theory</span>
+<span class="sd"> hold. Note that this is in contrast to the set-theoretic case, where one needs to replace the</span>
+<span class="sd"> fibration by a split fibration (see 'The internal languages of univalent categories').</span>
+
+<span class="sd"> In this file, we define the univalent comprehension category of setgroupoids. This</span>
+<span class="sd"> comprehension category is defined as follows:</span>
+<span class="sd"> - Contexts: setgroupoids</span>
+<span class="sd"> - Substitution: functors</span>
+<span class="sd"> - Types in context [Γ]: isofibrations into [Γ], which we represent using displayed categories</span>
+<span class="sd"> - Context extension: the context extension is given by the total category</span>
+
+<span class="sd"> It is important to note that this comprehension category is not full. Morphisms between</span>
+<span class="sd"> types are given by functors that preserve the chosen Cartesian lifts, which is not generally</span>
+<span class="sd"> satisfied by all functors. The same holds for other univalent comprehension categories that</span>
+<span class="sd"> give higher dimensional models of type theory, such as cubical sets or simplicial sets. That</span>
+<span class="sd"> is because types in such models are equipped with structure that expresses that they are</span>
+<span class="sd"> fibrant in some suitable sense, and to guarantee that the resulting displayed category is</span>
+<span class="sd"> univalent, morphisms must be required to preserve that structure on the nose. Since not all</span>
+<span class="sd"> morphisms satisfy this requirement, the resulting comprehension category will not be full.</span>
+
+<span class="sd"> Note that we consider two versions of the setgroupid model: one where types in a context [Γ]</span>
+<span class="sd"> are given by pseudofunctors from [Γ] to the bicategory of setgroupoids, and one where types</span>
+<span class="sd"> in a context [Γ] are given by functors to the category of setgroupoids. Usually, the groupoid</span>
+<span class="sd"> model is the latter of the two, and types are given by functors to setgroupoids. However, we</span>
+<span class="sd"> define both versions.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - 'Bicategorical type theory: semantics and syntax' by Ahrens, North, Van der Weide</span>
+<span class="sd"> - 'Two-dimensional models of type theory' by Garner</span>
+<span class="sd"> - 'The Category of Iterative Sets in Homotopy Type Theory and Univalent Foundations' by</span>
+<span class="sd">   Gratzer, Gylterud, Mörtberg, and Stenholm</span>
+<span class="sd"> - 'The groupoid interpretation of type theory' by Hofmann and Streicher</span>
+<span class="sd"> - 'The internal languages of univalent categories' by Van der Weide</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The univalent comprehension category of setgroupoids</span>
+<span class="sd"> 2. The univalent comprehension category of setgroupoids with split isofibrations</span>
+
+<span class="sd"> *********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetGroupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Examples.CategoryOfSetGroupoidsLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidsIsoFib.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidComprehension.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+
+<span class="sd">(** * 1. The univalent comprehension category of setgroupoids *)</span>
+<span class="kn">Definition</span> <span class="nf">setgroupoid_cat_with_terminal_disp_cat</span>
+  : cat_with_terminal_disp_cat.
+<span class="kn">Proof</span>.
+  use make_cat_with_terminal_disp_cat.
+  - <span class="bp">exact</span> univalent_cat_of_setgroupoid.
+  - <span class="bp">exact</span> terminal_obj_setgroupoid.
+  - <span class="bp">exact</span> univalent_disp_cat_isofib.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">setgroupoid_cat_with_terminal_cleaving</span>
+  : cat_with_terminal_cleaving.
+<span class="kn">Proof</span>.
+  use make_cat_with_terminal_cleaving.
+  - <span class="bp">exact</span> setgroupoid_cat_with_terminal_disp_cat.
+  - <span class="bp">exact</span> cleaving_disp_cat_isofib.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">setgroupoid_comprehension_functor</span>
+  : comprehension_functor setgroupoid_cat_with_terminal_cleaving.
+<span class="kn">Proof</span>.
+  use make_comprehension_functor.
+  - <span class="bp">exact</span> disp_cat_isofib_comprehension.
+  - <span class="bp">exact</span> disp_cat_isofib_comprehension_cartesian.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">setgroupoid_comp_cat</span>
+  : comp_cat.
+<span class="kn">Proof</span>.
+  use make_comp_cat.
+  - <span class="bp">exact</span> setgroupoid_cat_with_terminal_cleaving.
+  - <span class="bp">exact</span> setgroupoid_comprehension_functor.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. The univalent comprehension category of setgroupoids with split isofibrations *)</span>
+<span class="kn">Definition</span> <span class="nf">setgroupoid_cat_split_with_terminal_disp_cat</span>
+  : cat_with_terminal_disp_cat.
+<span class="kn">Proof</span>.
+  use make_cat_with_terminal_disp_cat.
+  - <span class="bp">exact</span> univalent_cat_of_setgroupoid.
+  - <span class="bp">exact</span> terminal_obj_setgroupoid.
+  - <span class="bp">exact</span> univalent_disp_cat_split_isofib.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">setgroupoid_cat_split_with_terminal_cleaving</span>
+  : cat_with_terminal_cleaving.
+<span class="kn">Proof</span>.
+  use make_cat_with_terminal_cleaving.
+  - <span class="bp">exact</span> setgroupoid_cat_split_with_terminal_disp_cat.
+  - <span class="bp">exact</span> cleaving_disp_cat_split_isofib.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">setgroupoid_split_comprehension_functor</span>
+  : comprehension_functor setgroupoid_cat_split_with_terminal_cleaving.
+<span class="kn">Proof</span>.
+  use make_comprehension_functor.
+  - <span class="bp">exact</span> disp_cat_split_isofib_comprehension.
+  - <span class="bp">exact</span> disp_cat_split_isofib_comprehension_cartesian.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">setgroupoid_comp_cat_split</span>
+  : comp_cat.
+<span class="kn">Proof</span>.
+  use make_comp_cat.
+  - <span class="bp">exact</span> setgroupoid_cat_split_with_terminal_cleaving.
+  - <span class="bp">exact</span> setgroupoid_split_comprehension_functor.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/SetGroupoidModel.v</tt>, line 64)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. The univalent comprehension category of setgroupoids with split isofibrations
+  &gt;
+  &gt;  *********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

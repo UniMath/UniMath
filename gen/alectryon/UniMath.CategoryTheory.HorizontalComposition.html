@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>HorizontalComposition.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents:</span>
+
+<span class="sd">- Definition of horizontal composition for natural transformations ([horcomp])</span>
+
+<span class="sd">Written by: Benedikt Ahrens, Ralph Matthes (2015)</span>
+
+<span class="sd">************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">horizontal_composition</span>.
+
+<span class="kn">Variables</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category.
+
+<span class="kn">Variables</span> <span class="nv">F</span> <span class="nv">F'</span> : functor C D.
+<span class="kn">Variables</span> <span class="nv">G</span> <span class="nv">G'</span> : functor D E.
+
+<span class="kn">Variable</span> <span class="nv">α</span> : F ⟹ F'.
+<span class="kn">Variable</span> <span class="nv">β</span> : G ⟹ G'.
+
+
+<span class="kn">Definition</span> <span class="nf">horcomp_data</span> : nat_trans_data (F ∙ G) (F' ∙ G') := <span class="k">λ</span> <span class="nv">c</span> : C, β (F c) · #G' (α c).
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_horcomp</span> : is_nat_trans _ _ horcomp_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c d f; <span class="nb">unfold</span> horcomp_data; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> assoc, nat_trans_ax, &lt;- !assoc; <span class="nb">apply</span> maponpaths.
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- !functor_comp, nat_trans_ax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">horcomp</span> : nat_trans (F ∙ G) (F' ∙ G') := tpair _ _ is_nat_trans_horcomp.
+
+<span class="kn">End</span> <span class="nf">horizontal_composition</span>.
+
+<span class="kn">Arguments</span> horcomp { _ _ _ } { _ _ _ _ } _ _ .
+
+<span class="kn">Lemma</span> <span class="nf">horcomp_id_prewhisker</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+  (<span class="nv">X</span> : functor C D) (<span class="nv">Z</span> <span class="nv">Z'</span> : functor D E) (<span class="nv">f</span> : nat_trans Z Z') :
+  horcomp (nat_trans_id X) f = pre_whisker _ f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq E); <span class="nb">intro</span> x; <span class="nb">simpl</span>; <span class="nb">unfold</span> horcomp_data; <span class="nb">simpl</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> functor_id, id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">horcomp_id_left</span> (<span class="nv">C</span> <span class="nv">D</span> : category) (<span class="nv">X</span> : functor C C) (<span class="nv">Z</span> <span class="nv">Z'</span> : functor C D)(<span class="nv">f</span> : nat_trans Z Z') :
+  ∏ c : C, horcomp (nat_trans_id X) f c = f (X c).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c; <span class="nb">simpl</span>. <span class="nb">unfold</span> horcomp_data; <span class="nb">simpl</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> functor_id, id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">horcomp_id_postwhisker</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) (<span class="nv">X</span> <span class="nv">X'</span> : [A, B]) (<span class="nv">α</span> : X --&gt; X')
+   (<span class="nv">Z</span> : [B, C]) :
+  horcomp α (nat_trans_id _ ) = post_whisker α Z.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> a; <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functorial_composition_legacy_data</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) :
+  functor_data (precategory_binproduct_data [A, B] [B, C])
+               [A, C].
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">FG</span>, <span class="nv">functor_composite</span> (pr1 FG) (pr2 FG)).
+  <span class="nb">intros</span> a b αβ.
+  <span class="bp">exact</span> (horcomp (pr1 αβ) (pr2 αβ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_functorial_composition_legacy_data</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) : is_functor (functorial_composition_legacy_data A B C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">red</span>. <span class="nb">intros</span> FG.
+    <span class="nb">apply</span> (nat_trans_eq C).
+    <span class="nb">intros</span> x.
+    <span class="nb">apply</span> remove_id_left.
+    + <span class="nb">apply</span> idpath.
+    + <span class="bp">exact</span> (functor_id (pr2 FG) ((pr1 (pr1 FG)) x)).
+  - <span class="nb">red</span>. <span class="nb">intros</span> FG1 FG2 FG3 αβ1 αβ2.
+    <span class="nb">induction</span> αβ1 <span class="k">as</span> [α1 β1].
+    <span class="nb">induction</span> αβ2 <span class="k">as</span> [α2 β2].
+    <span class="nb">apply</span> (nat_trans_eq C).
+    <span class="nb">intros</span> a.
+    <span class="nb">simpl</span>. <span class="nb">unfold</span> horcomp_data; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> &lt;- <span class="nl">?assoc</span>.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> -&gt; <span class="nl">?assoc</span>.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> nat_trans_ax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functorial_composition_legacy</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) :
+  functor (precategory_binproduct [A, B] [B, C]) [A, C].
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">functorial_composition_legacy_data</span> <span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span>).
+  <span class="nb">apply</span> is_functor_functorial_composition_legacy_data.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functorial_composition_data</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) :
+  functor_data (precategory_binproduct_data [A, B] [B, C])
+               [A, C].
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">FG</span>, <span class="nv">functor_composite</span> (pr1 FG) (pr2 FG)).
+  <span class="nb">intros</span> F G αβ.
+  <span class="bp">exact</span> (# (post_comp_functor (pr2 F)) (pr1 αβ) · # (pre_comp_functor (pr1 G)) (pr2 αβ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_functorial_composition_data</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) : is_functor (functorial_composition_data A B C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">red</span>. <span class="nb">intros</span> FG.
+    <span class="nb">unfold</span> functorial_composition_data.
+    <span class="nb">unfold</span> functor_on_morphisms.
+    <span class="nb">unfold</span> pr2.
+    <span class="nb">change</span> (# (post_comp_functor (pr2 FG)) (identity (pr1 FG)) ·
+              # (pre_comp_functor (pr1 FG)) (identity (pr2 FG)) =
+              identity _).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">red</span>. <span class="nb">intros</span> FG1 FG2 FG3 αβ1 αβ2.
+    <span class="nb">induction</span> αβ1 <span class="k">as</span> [α1 β1].
+    <span class="nb">induction</span> αβ2 <span class="k">as</span> [α2 β2].
+    <span class="nb">unfold</span> functorial_composition_data.
+    <span class="nb">unfold</span> functor_on_morphisms.
+    <span class="nb">unfold</span> pr2.
+    <span class="nb">change</span> (# (post_comp_functor (pr2 FG1)) (α1 · α2) ·
+              # (pre_comp_functor (pr1 FG3)) (β1 · β2) =
+              # (post_comp_functor (pr2 FG1)) α1 ·
+               # (pre_comp_functor (pr1 FG2)) β1 ·
+              (# (post_comp_functor (pr2 FG2)) α2 ·
+                 # (pre_comp_functor (pr1 FG3)) β2)).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> functor_comp.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> maponpaths.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="c">(* we need the interchange between the two variants of presenting horcomp already here *)</span>
+    <span class="nb">apply</span> (nat_trans_eq C).
+    <span class="nb">intro</span> a.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> nat_trans_ax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functorial_composition</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) :
+  functor (category_binproduct [A, B] [B, C]) [A, C].
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">functorial_composition_data</span> <span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span>).
+  <span class="nb">apply</span> is_functor_functorial_composition_data.
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ (A B C : category)
+      (F G : precategory_binproduct_data [A, B] [B, C])
+      (αβ : precategory_binproduct_data [A, B] [B, C] ⟦ F, G ⟧),
+  # (functorial_composition _ _ _ ) αβ =
+    # (post_comp_functor (pr2 F)) (pr1 αβ) ·
+      # (pre_comp_functor (pr1 G)) (pr2 αβ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">horcomp_pre_post</span>
+      (<span class="nv">C</span> <span class="nv">D</span> : category) (<span class="nv">E</span> : category) (<span class="nv">F</span> <span class="nv">F'</span> : functor C D) (<span class="nv">G</span> <span class="nv">G'</span> : functor D E) (<span class="nv">f</span>:nat_trans F F')
+      (<span class="nv">g</span>:nat_trans G G') :
+  horcomp f g = compose (C:=functor_category C E) (a:= (F ∙ G)) (b:= (F ∙ G')) (c:= (F' ∙ G'))
+                        (pre_whisker F g)
+                        (post_whisker f G').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (nat_trans_eq (homset_property E)).
+  <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="c">(* the other view as composition is not by definition but follows from naturality *)</span>
+<span class="kn">Lemma</span> <span class="nf">horcomp_post_pre</span>
+      (<span class="nv">C</span> <span class="nv">D</span> : category) (<span class="nv">E</span> : category) (<span class="nv">F</span> <span class="nv">F'</span> : functor C D) (<span class="nv">G</span> <span class="nv">G'</span> : functor D E) (<span class="nv">f</span>:nat_trans F F')
+      (<span class="nv">g</span>:nat_trans G G') :
+  horcomp f g = compose (C:=functor_category C E) (a:= (F ∙ G)) (b:= (F' ∙ G)) (c:= (F' ∙ G'))
+                        (post_whisker f G)
+                        (pre_whisker F' g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (nat_trans_eq (homset_property E)).
+  <span class="nb">intro</span> x.
+  <span class="nb">unfold</span> horcomp, horcomp_data.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> nat_trans_ax.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** now in the functor category *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">functorial_composition_pre_post</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span>: category)
+      (<span class="nv">F</span> <span class="nv">F'</span> : [C, D]) (<span class="nv">G</span> <span class="nv">G'</span> : [D, E]) (<span class="nv">f</span>: [C, D]⟦F, F'⟧) (<span class="nv">g</span>: [D, E]⟦G, G'⟧) :
+  # (functorial_composition _ _ _) (f,, g:precategory_binproduct [C, D] [D, E] ⟦(F,,G), (F',,G')⟧) =
+  # (pre_comp_functor F) g · # (post_comp_functor G') f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq E).
+  <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> nat_trans_ax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">functorial_composition_post_pre</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category)
+      (<span class="nv">F</span> <span class="nv">F'</span> : [C, D]) (<span class="nv">G</span> <span class="nv">G'</span> : [D, E]) (<span class="nv">f</span>: [C, D]⟦F, F'⟧) (<span class="nv">g</span>: [D, E]⟦G, G'⟧) :
+  # (functorial_composition _ _ _) (f,, g:precategory_binproduct [C, D] [D, E] ⟦(F,,G), (F',,G')⟧) =
+  # (post_comp_functor G) f · # (pre_comp_functor F') g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>. <span class="c">(* this seems justified not to be ended with Qed *)</span>
+
+<span class="kn">Corollary</span> <span class="nf">functorial_composition_legacy_ok</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category} :
+  functorial_composition_legacy A B C = functorial_composition _ _ _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_eq.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">cbn</span>.
+    use functor_data_eq.
+    + <span class="nb">intro</span> FG. <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> FG1 FG2 αβ.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (horcomp_post_pre _ _ C).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** currying functorial composition *)</span>
+
+<span class="sd">(** we define the two possible curried forms anew for better applicability *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pre_composition_as_a_functor_data</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span>: category) :
+  functor_data [A , B] [[B, C], [A, C]].
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">apply</span> pre_composition_functor.
+  - <span class="nb">intros</span> H1 H2 η.
+    use make_nat_trans.
+    + <span class="nb">intro</span> G.
+      <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (# (post_comp_functor G) η).
+    + <span class="nb">intros</span> G G' β.
+      etrans.
+      <span class="nb">apply</span> pathsinv0, functorial_composition_pre_post.
+      <span class="nb">apply</span> functorial_composition_post_pre.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pre_composition_as_a_functor_data_is_fun</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) :
+  is_functor (pre_composition_as_a_functor_data A B C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> H.
+    <span class="nb">apply</span> (nat_trans_eq (homset_property _ )).
+    <span class="nb">intro</span> G.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> post_whisker_identity; <span class="bp">exact</span> C.
+  - <span class="nb">intros</span> H1 H2 H3 β β'.
+    <span class="nb">apply</span> (nat_trans_eq (functor_category_has_homsets A C C)).
+    <span class="nb">intro</span> G.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> post_whisker_composition; <span class="bp">exact</span> C.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_composition_as_a_functor</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) :
+  functor [A , B] [[B, C], [A, C]] :=
+  _ ,, pre_composition_as_a_functor_data_is_fun A B C.
+
+
+<span class="kn">Definition</span> <span class="nf">post_composition_as_a_functor_data</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) :
+  functor_data [B, C] [[A, B], [A, C]].
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">apply</span> post_composition_functor.
+  - <span class="nb">intros</span> H1 H2 η.
+    use make_nat_trans.
+    + <span class="nb">intro</span> G.
+      <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (# (pre_comp_functor G) η).
+    + <span class="nb">intros</span> G G' β.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> functorial_composition_pre_post. }
+      <span class="nb">apply</span> pathsinv0, functorial_composition_post_pre.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">post_composition_as_a_functor_data_is_fun</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) :
+  is_functor (post_composition_as_a_functor_data A B C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> H.
+    <span class="nb">apply</span> (nat_trans_eq (functor_category_has_homsets A C C)).
+    <span class="nb">intro</span> G.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> pre_whisker_identity; <span class="bp">exact</span> C.
+  - <span class="nb">intros</span> H1 H2 H3 β β'.
+    <span class="nb">apply</span> (nat_trans_eq (functor_category_has_homsets A C C)).
+    <span class="nb">intro</span> G.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> pre_whisker_composition; <span class="bp">exact</span> C.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">post_composition_as_a_functor</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) :
+  functor [B, C] [[A, B], [A, C]] :=
+  _ ,, post_composition_as_a_functor_data_is_fun A B C.
+
+<span class="sd">(** [α_functors] itself is natural *)</span>
+<span class="kn">Section</span> <span class="nf">associativity</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> <span class="nv">F</span>: category).
+
+  <span class="kn">Definition</span> <span class="nf">assoc_left_gen</span> :
+    precategory_binproduct(precategory_binproduct [C, D] [D, E]) [E, F] ⟶ [C, F] :=
+    functor_composite (pair_functor (functorial_composition _ _ _ ) (functor_identity _))
+                      (functorial_composition _ _ _ ).
+
+  <span class="kn">Definition</span> <span class="nf">assoc_right_gen</span> :
+    precategory_binproduct(precategory_binproduct [C, D] [D, E]) [E, F] ⟶ [C, F] :=
+    functor_composite (precategory_binproduct_unassoc _ _ _)
+            (functor_composite (pair_functor (functor_identity _) (functorial_composition _ _ _ )) (functorial_composition _ _ _ )).
+
+<span class="kn">Local Lemma</span> <span class="nf">is_nat_trans_a_functors</span>: is_nat_trans assoc_left_gen assoc_right_gen
+  (<span class="k">λ</span> <span class="nv">F</span> : (C ⟶ D × D ⟶ E) × E ⟶ F, α_functors (pr1 (pr1 F)) (pr2 (pr1 F)) (pr2 F)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' m.
+  <span class="c">(* unfold α_functors.</span>
+<span class="c">  etrans; [ use id_right |].</span>
+<span class="c">  apply pathsinv0.</span>
+<span class="c">  etrans; [ use id_left |]. *)</span>
+  <span class="nb">apply</span> (nat_trans_eq F).
+  <span class="nb">intro</span> c. <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">rewrite</span> id_left.
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> functor_comp. }
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">associativity_as_nat_z_iso</span>: nat_z_iso assoc_left_gen assoc_right_gen.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">_</span>,, <span class="nv">is_nat_trans_a_functors</span>).
+    <span class="nb">intro</span> f1f2f3.
+    <span class="nb">apply</span> α_functors_pointwise_is_z_iso.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">associativity</span>.
+
+<span class="kn">Section</span> <span class="nf">leftunit</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span>: category).
+
+  <span class="kn">Definition</span> <span class="nf">lunit_left_gen</span> : [C, D] ⟶ [C, D] := pre_comp_functor (functor_identity C).
+
+  <span class="kn">Local Lemma</span> <span class="nf">is_nat_trans_l_functors</span>: is_nat_trans lunit_left_gen (functor_identity [C, D]) (@<span class="k">λ</span><span class="nv">_functors</span> <span class="nv">C</span> <span class="nv">D</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F F' m.
+  <span class="nb">apply</span> (nat_trans_eq (homset_property D)).
+  <span class="nb">intro</span> c. <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_unit_as_nat_z_iso</span>: nat_z_iso lunit_left_gen (functor_identity [C, D]).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    + use make_nat_trans.
+      * <span class="nb">intro</span> F. <span class="nb">apply</span> <span class="k">λ</span><span class="nv">_functors</span>.
+      * <span class="nb">apply</span> is_nat_trans_l_functors.
+    + <span class="nb">intro</span> F. <span class="nb">cbn</span>.
+      use nat_trafo_z_iso_if_pointwise_z_iso.
+      <span class="nb">intro</span> c.
+      use tpair.
+      * <span class="bp">exact</span> (identity (pr1 F c)).
+      * <span class="kp">abstract</span> ( <span class="nb">apply</span> Isos.is_inverse_in_precat_identity ).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">leftunit</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/HorizontalComposition.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; ************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

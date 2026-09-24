@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>HValuedSets.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************************</span>
+
+<span class="sd"> The category of H-valued sets</span>
+
+<span class="sd"> In this file, we construct the topos of sets valued in a complete Heyting algebra. Given a</span>
+<span class="sd"> complete Heyting algebra [H], an [H]-valued set consists of a set [X] together with a partial</span>
+<span class="sd"> equivalence relation on [X] valued in [H]. This category was originally considered independently</span>
+<span class="sd"> by Higgs and by Fourman and Scott. They provide a categorical way to understand Heyting valued</span>
+<span class="sd"> models for IZF and Boolean-valued models for ZFC.</span>
+
+<span class="sd"> To define the category of H-valued sets, we follow the paper "Tripos Theory in Retrospect" by</span>
+<span class="sd"> Andrew Pitts, and we use the tripos to topos construction. From this, we directly obtain that</span>
+<span class="sd"> this category is a topos.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Injectivity in the topos of complete Heyting Algebra valued sets" by Denis Higgs</span>
+<span class="sd"> - "Sheaves and logic" by Fourman and Scott</span>
+<span class="sd"> - "Tripos Theory in Retrospect" by Andrew Pitts</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The topos of H-valued sets</span>
+<span class="sd"> 2. Accessors and builders for H-valued sets</span>
+<span class="sd"> 3. Accessors and builders for morphisms of H-valued sets</span>
+
+<span class="sd"> **********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.CompleteHeyting.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ElementaryTopos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.HValuedPredicates.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Tripos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.GenericPredicate.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.TriposToTopos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="kn">Section</span> <span class="nf">HValuedSets</span>.
+  <span class="kn">Context</span> (<span class="nv">H</span> : complete_heyting_algebra).
+
+  <span class="sd">(** * 1. The topos of H-valued sets *)</span>
+  <span class="kn">Definition</span> <span class="nf">topos_of_h_valued_sets</span>
+    : Topos
+    := tripos_to_topos (tripos_h_valued_sets H).
+
+  <span class="sd">(** * 2. Accessors and builders for H-valued sets *)</span>
+  <span class="kn">Definition</span> <span class="nf">h_valued_set</span>
+    : UU
+    := ob topos_of_h_valued_sets.
+
+  <span class="kn">Definition</span> <span class="nf">make_h_valued_set</span>
+             (<span class="nv">X</span> : hSet)
+             (<span class="nv">R</span> : X → X → H)
+             (<span class="nv">sym</span> : ∏ (x y : X), R x y = R y x)
+             (<span class="nv">trans</span> : ∏ (x y z : X), ((R x y ∧ R y z) ≤ R x z)%heyting)
+    : h_valued_set.
+  <span class="kn">Proof</span>.
+    use make_partial_setoid.
+    - <span class="bp">exact</span> X.
+    - use make_per.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, R (pr1 x) (pr2 x)).
+      + <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> [] ; <span class="nb">cbn</span>.
+        * <span class="kp">abstract</span>
+            (use cha_le_glb ;
+             <span class="nb">intros</span> i ;
+             <span class="nb">induction</span> i <span class="k">as</span> [ [ [] x ] p ] ;
+             use cha_le_glb ;
+             <span class="nb">intros</span> i ;
+             <span class="nb">induction</span> i <span class="k">as</span> [ [ [ [] y ] z ] q ] ;
+             <span class="nb">cbn</span> <span class="k">in</span> * ;
+             use cha_to_le_exp ;
+             <span class="nb">rewrite</span> cha_lunit_min_top ;
+             <span class="nb">rewrite</span> sym ;
+             <span class="nb">apply</span> cha_le_refl).
+        * <span class="kp">abstract</span>
+            (use cha_le_glb ;
+             <span class="nb">intros</span> i ;
+             <span class="nb">induction</span> i <span class="k">as</span> [ [ [] x₁ ] p ] ;
+             use cha_le_glb ;
+             <span class="nb">intros</span> i ;
+             <span class="nb">induction</span> i <span class="k">as</span> [ [ [ [] x₂ ] x₃ ] q ] ;
+             use cha_le_glb ;
+             <span class="nb">intros</span> i ;
+             <span class="nb">induction</span> i <span class="k">as</span> [ [ [ [ [] x₄ ] x₅ ] x₆ ] r ] ;
+             <span class="nb">cbn</span> <span class="k">in</span> * ;
+             <span class="kp">do</span> <span class="mi">2</span> use cha_to_le_exp ;
+             <span class="nb">rewrite</span> cha_lunit_min_top ;
+             <span class="nb">apply</span> trans).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">set_of_h_valued_set</span>
+           (X : h_valued_set)
+    : hSet
+    := pr1 X.
+
+  <span class="kn">Definition</span> <span class="nf">per_of_h_valued_set</span>
+             {<span class="nv">X</span> : h_valued_set}
+             (<span class="nv">x</span> <span class="nv">y</span> : X)
+    : H
+    := pr12 X (x ,, y).
+
+  <span class="kn">Notation</span> <span class="s2">"x ~_{ X } y"</span> := (@per_of_h_valued_set X x y) (<span class="kn">at level</span> <span class="mi">10</span>).
+
+  <span class="kn">Proposition</span> <span class="nf">sym_per_of_h_valued_set</span>
+              {<span class="nv">X</span> : h_valued_set}
+              (<span class="nv">x</span> <span class="nv">y</span> : X)
+    : x ~_{X} y = y ~_{X} x.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (pr122 X tt) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p ; <span class="nb">unfold</span> prodtofuntoprod <span class="k">in</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    use cha_le_antisymm.
+    - <span class="nb">assert</span> (⊤ ≤ (x ~_{X} y ⇒ y ~_{X} x))%heyting <span class="k">as</span> q.
+      {
+        <span class="nb">refine</span> (cha_le_trans p _).
+        <span class="nb">simple refine</span> (cha_le_trans (cha_glb_le_pt _ _) _).
+        {
+          <span class="nb">refine</span> ((tt ,, x) ,, _).
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">simple refine</span> (cha_le_trans (cha_glb_le_pt _ _) _).
+        {
+          <span class="nb">refine</span> (((tt ,, x) ,, y) ,, _).
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cha_le_refl.
+      }
+      <span class="nb">pose proof</span> (cha_from_le_exp q) <span class="k">as</span> r.
+      <span class="nb">rewrite</span> cha_lunit_min_top <span class="k">in</span> r.
+      <span class="bp">exact</span> r.
+    - <span class="nb">assert</span> (⊤ ≤ (y ~_{X} x ⇒ x ~_{X} y))%heyting <span class="k">as</span> q.
+      {
+        <span class="nb">refine</span> (cha_le_trans p _).
+        <span class="nb">simple refine</span> (cha_le_trans (cha_glb_le_pt _ _) _).
+        {
+          <span class="nb">refine</span> ((tt ,, y) ,, _).
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">simple refine</span> (cha_le_trans (cha_glb_le_pt _ _) _).
+        {
+          <span class="nb">refine</span> (((tt ,, y) ,, x) ,, _).
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cha_le_refl.
+      }
+      <span class="nb">pose proof</span> (cha_from_le_exp q) <span class="k">as</span> r.
+      <span class="nb">rewrite</span> cha_lunit_min_top <span class="k">in</span> r.
+      <span class="bp">exact</span> r.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">trans_per_of_h_valued_set</span>
+              {<span class="nv">X</span> : h_valued_set}
+              (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X)
+    : ((x ~_{X} y ∧ y ~_{X} z) ≤ (x ~_{X} z))%heyting.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (pr222 X tt) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p ; <span class="nb">unfold</span> prodtofuntoprod <span class="k">in</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">assert</span> (⊤ ≤ (x ~_{X} y ⇒ y ~_{X} z ⇒ x ~_{X} z))%heyting <span class="k">as</span> q.
+    {
+      <span class="nb">refine</span> (cha_le_trans p _).
+      <span class="nb">simple refine</span> (cha_le_trans (cha_glb_le_pt _ _) _).
+      {
+        <span class="nb">refine</span> ((tt ,, x) ,, _).
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">simple refine</span> (cha_le_trans (cha_glb_le_pt _ _) _).
+      {
+        <span class="nb">refine</span> (((tt ,, x) ,, y) ,, _).
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">simple refine</span> (cha_le_trans (cha_glb_le_pt _ _) _).
+      {
+        <span class="nb">refine</span> ((((tt ,, x) ,, y) ,, z) ,, _).
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+    }
+    <span class="nb">pose proof</span> (cha_from_le_exp q) <span class="k">as</span> r.
+    <span class="nb">rewrite</span> cha_lunit_min_top <span class="k">in</span> r.
+    <span class="bp">exact</span> (cha_from_le_exp r).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. Accessors and builders for morphisms of H-valued sets *)</span>
+  <span class="kn">Definition</span> <span class="nf">h_valued_morphism</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> : h_valued_set)
+    : UU
+    := X --&gt; Y.
+
+  <span class="kn">Definition</span> <span class="nf">h_valued_morphism_is_function</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : h_valued_set}
+             (<span class="nv">f</span> : h_valued_morphism X Y)
+             (<span class="nv">x</span> : X)
+             (<span class="nv">y</span> : Y)
+    : H
+    := partial_setoid_morphism_to_form f (x ,, y).
+
+  <span class="kn">Coercion</span> <span class="nf">h_valued_morphism_is_function</span> : h_valued_morphism &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Section</span> <span class="nf">Accessors</span>.
+    <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : h_valued_set}
+            (<span class="nv">f</span> : h_valued_morphism X Y).
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_morphism_dom_defined</span>
+                (<span class="nv">x</span> : X)
+                (<span class="nv">y</span> : Y)
+      : (f x y ≤ x ~_{X} x)%heyting.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (@partial_setoid_mor_dom_defined
+                 _ _ _ f
+                 unitset
+                 (<span class="k">λ</span> <span class="nv">_</span>, f x y) (<span class="k">λ</span> <span class="nv">_</span>, x) (<span class="k">λ</span> <span class="nv">_</span>, y)
+                 _
+                 tt).
+      <span class="nb">intro</span> ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_morphism_cod_defined</span>
+                (<span class="nv">x</span> : X)
+                (<span class="nv">y</span> : Y)
+      : (f x y ≤ (y ~_{Y} y))%heyting.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (@partial_setoid_mor_cod_defined
+                 _ _ _ f
+                 unitset
+                 (<span class="k">λ</span> <span class="nv">_</span>, f x y) (<span class="k">λ</span> <span class="nv">_</span>, x) (<span class="k">λ</span> <span class="nv">_</span>, y)
+                 _
+                 tt).
+      <span class="nb">intro</span> ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_morphism_eq_defined</span>
+                (<span class="nv">x₁</span> <span class="nv">x₂</span> : X)
+                (<span class="nv">y₁</span> <span class="nv">y₂</span> : Y)
+      :  ((x₁ ~_{X} x₂ ∧ y₁ ~_{Y} y₂ ∧ f x₁ y₁) ≤ f x₂ y₂)%heyting.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (@partial_setoid_mor_eq_defined
+                 _ _ _ f
+                 unitset
+                 (<span class="k">λ</span> <span class="nv">_</span>, (x₁ ~_{X} x₂ ∧ y₁ ~_{Y} y₂ ∧ f x₁ y₁)%heyting)
+                 (<span class="k">λ</span> <span class="nv">_</span>, x₁) (<span class="k">λ</span> <span class="nv">_</span>, x₂) (<span class="k">λ</span> <span class="nv">_</span>, y₁) (<span class="k">λ</span> <span class="nv">_</span>, y₂)
+                 _ _ _
+                 tt) ;
+        <span class="nb">cbn</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">cbn</span> ; <span class="nb">intro</span>.
+      - <span class="nb">apply</span> cha_min_le_l.
+      - <span class="nb">refine</span> (cha_le_trans _ _).
+        {
+          <span class="nb">apply</span> cha_min_le_r.
+        }
+        <span class="nb">apply</span> cha_min_le_l.
+      - <span class="nb">refine</span> (cha_le_trans _ _).
+        {
+          <span class="nb">apply</span> cha_min_le_r.
+        }
+        <span class="nb">apply</span> cha_min_le_r.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_morphism_hom_exists</span>
+                (<span class="nv">x</span> : X)
+      : (x ~_{X} x ≤ \/_{ y } f x y)%heyting.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (cha_le_trans _ _).
+      {
+        <span class="nb">refine</span> (@partial_setoid_mor_hom_exists
+                   _ _ _ f
+                   unitset
+                   (<span class="k">λ</span> <span class="nv">_</span>, x ~_{X} x)%heyting (<span class="k">λ</span> <span class="nv">_</span>, x)
+                   _
+                   tt).
+        <span class="nb">cbn</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">cbn</span> ; <span class="nb">intro</span>.
+        <span class="nb">apply</span> cha_le_refl.
+      }
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">cbn</span>.
+      use cha_lub_le ; <span class="nb">cbn</span>.
+      <span class="nb">intro</span> i.
+      <span class="nb">induction</span> i <span class="k">as</span> [ [ [] y ] p ] ; <span class="nb">cbn</span>.
+      use cha_le_lub.
+      {
+        <span class="bp">exact</span> y.
+      }
+      <span class="nb">apply</span> cha_le_refl.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_morphism_unique_im</span>
+                (<span class="nv">x</span> : X)
+                (<span class="nv">y₁</span> <span class="nv">y₂</span> : Y)
+      : ((f x y₁ ∧ f x y₂) ≤ y₁ ~_{Y} y₂)%heyting.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (@partial_setoid_mor_unique_im
+                 _ _ _ f
+                 unitset
+                 (<span class="k">λ</span> <span class="nv">_</span>, f x y₁ ∧ f x y₂)%heyting
+                 (<span class="k">λ</span> <span class="nv">_</span>, x) (<span class="k">λ</span> <span class="nv">_</span>, y₁) (<span class="k">λ</span> <span class="nv">_</span>, y₂)
+                 _ _
+                 tt) ;
+        <span class="nb">cbn</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">cbn</span> ; <span class="nb">intro</span>.
+      - <span class="nb">apply</span> cha_min_le_l.
+      - <span class="nb">apply</span> cha_min_le_r.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Accessors</span>.
+
+  <span class="kn">Section</span> <span class="nf">Builder</span>.
+    <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : h_valued_set}
+            (<span class="nv">f</span> : X → Y → H)
+            (<span class="nv">p₁</span> : ∏ (x : X) (y : Y),
+                  (f x y ≤ x ~_{X} x)%heyting)
+            (<span class="nv">p₂</span> : ∏ (x : X) (y : Y),
+                  (f x y ≤ y ~_{Y} y)%heyting)
+            (<span class="nv">p₃</span> : ∏ (x₁ x₂ : X) (y₁ y₂ : Y),
+                  ((x₁ ~_{X} x₂ ∧ y₁ ~_{Y} y₂ ∧ f x₁ y₁) ≤ f x₂ y₂)%heyting)
+            (<span class="nv">p₄</span> : ∏ (x : X) (y₁ y₂ : Y),
+                  ((f x y₁ ∧ f x y₂) ≤ y₁ ~_{Y} y₂)%heyting)
+            (<span class="nv">p₅</span> : ∏ (x : X),
+                  (x ~_{X} x ≤ \/_{ y } f x y)%heyting).
+
+    <span class="kn">Let</span> <span class="nf">XH</span> : partial_setoid (tripos_h_valued_sets H) := X.
+    <span class="kn">Let</span> <span class="nf">YH</span> : partial_setoid (tripos_h_valued_sets H) := Y.
+
+    <span class="kn">Let</span> <span class="nf">φ</span> : form (XH ×h YH) := <span class="k">λ</span> <span class="nv">x</span>, f (pr1 x) (pr2 x).
+
+    <span class="kn">Proposition</span> <span class="nf">make_h_valued_morphism_laws</span>
+      : partial_setoid_morphism_laws φ.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">cbn</span> ; <span class="nb">intros</span> z ; <span class="nb">induction</span> z.
+      - use cha_le_glb.
+        <span class="nb">intros</span> [ [ [] x ] p ].
+        use cha_le_glb.
+        <span class="nb">intros</span> [ [ [ [] x' ] y  ] q ].
+        <span class="nb">cbn</span> <span class="k">in</span> *.
+        use cha_to_le_exp.
+        <span class="nb">rewrite</span> cha_lunit_min_top.
+        <span class="nb">apply</span> p₁.
+      - use cha_le_glb.
+        <span class="nb">intros</span> [ [ [] x ] p ].
+        use cha_le_glb.
+        <span class="nb">intros</span> [ [ [ [] x' ] y  ] q ].
+        <span class="nb">cbn</span> <span class="k">in</span> *.
+        use cha_to_le_exp.
+        <span class="nb">rewrite</span> cha_lunit_min_top.
+        <span class="nb">apply</span> p₂.
+      - use cha_le_glb.
+        <span class="nb">intros</span> [ [ [] x₁ ] q₁ ].
+        use cha_le_glb.
+        <span class="nb">intros</span> [ [ [ [] x' ] x₂ ] q₂ ].
+        <span class="nb">cbn</span> <span class="k">in</span> *.
+        use cha_le_glb.
+        <span class="nb">intros</span> [ [ [ [ [ ] x₁' ] x₂' ] y₁ ] q₃ ].
+        <span class="nb">cbn</span> <span class="k">in</span> *.
+        use cha_le_glb.
+        <span class="nb">intros</span> [ [ [ [ [ [ ] x₁'' ]  x₂'' ] y₁' ] y₂ ] q₄ ].
+        <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="kp">do</span> <span class="mi">3</span> use cha_to_le_exp.
+        <span class="nb">rewrite</span> cha_lunit_min_top.
+        <span class="nb">rewrite</span> cha_min_assoc.
+        <span class="nb">apply</span> p₃.
+      - use cha_le_glb.
+        <span class="nb">intros</span> [ [ [] x ] q₁ ].
+        use cha_le_glb.
+        <span class="nb">intros</span> [ [ [ [] x' ] y₁ ] q₂ ].
+        use cha_le_glb.
+        <span class="nb">intros</span> [ [ [ [ [ ] x'' ] y₁' ] y₂ ] q₃ ].
+        <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="kp">do</span> <span class="mi">2</span> use cha_to_le_exp.
+        <span class="nb">rewrite</span> cha_lunit_min_top.
+        <span class="nb">apply</span> p₄.
+      - use cha_le_glb.
+        <span class="nb">intros</span> [ [ [] x ] q ] ; <span class="nb">cbn</span>.
+        use cha_to_le_exp.
+        <span class="nb">rewrite</span> cha_lunit_min_top.
+        <span class="nb">refine</span> (cha_le_trans _ _).
+        {
+          <span class="nb">apply</span> p₅.
+        }
+        use cha_lub_le.
+        <span class="nb">intros</span> y.
+        use cha_le_lub.
+        + <span class="nb">refine</span> (((tt ,, x) ,, y) ,, _).
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">apply</span> cha_le_refl.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_h_valued_morphism</span>
+      : h_valued_morphism X Y.
+    <span class="kn">Proof</span>.
+      use make_partial_setoid_morphism.
+      - <span class="bp">exact</span> φ.
+      - <span class="bp">exact</span> make_h_valued_morphism_laws.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Builder</span>.
+<span class="kn">End</span> <span class="nf">HValuedSets</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/HValuedSets.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Accessors and builders for morphisms of H-valued sets
+  &gt;
+  &gt;  **********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Lattice.CompleteHeyting.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

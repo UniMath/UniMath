@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EnrichedRelDoubleCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*************************************************************************************</span>
+
+<span class="sd"> The double category of enriched relations</span>
+
+<span class="sd"> Suppose that we have a quantale `V`. An enriched relation between sets `X` and `Y` is</span>
+<span class="sd"> given by a map `X → Y → V`. This is a generalization of relations: instead of taking</span>
+<span class="sd"> values in `hProp`, it takes values in `V`. In this file, we construct the univalent</span>
+<span class="sd"> pseudo double category of enriched relations. This double category is defined as follows:</span>
+<span class="sd"> - Objects: sets</span>
+<span class="sd"> - Vertical morphisms: functions</span>
+<span class="sd"> - Horizontal morphisms: enriched relations</span>
+<span class="sd"> - Squares: given by the order relation on `V`</span>
+<span class="sd"> Note that if we take `V` to be `hProp`, then we obtain the usual double category of</span>
+<span class="sd"> functions and relations, and thus the double category that we define in this files,</span>
+<span class="sd"> generalizes the double category of sets and relations. For a reference on quantale</span>
+<span class="sd"> enriched relations, see the paper "A point-free perspective on lax extensions and</span>
+<span class="sd"> predicate liftings" . However, in that paper, double categories are not used.</span>
+
+<span class="sd"> It is also good to compare it to the double category of categories enriched over a</span>
+<span class="sd"> quantale. That double category is defined as follows:</span>
+<span class="sd"> - Objects: `V`-enriched categories</span>
+<span class="sd"> - Vertical morphisms: `V`-enriched functors</span>
+<span class="sd"> - Horizontal morphisms: `V`-enriched profunctors</span>
+<span class="sd"> - Squares: given by enriched natural transformation</span>
+<span class="sd"> If we instantiate this double category with `hProp`, then we acquire a different</span>
+<span class="sd"> double category, namely the double category of partially ordered sets, monotone</span>
+<span class="sd"> functions, and monotone relations. As such, the difference between these two double</span>
+<span class="sd"> categories is that the objects in the category of enriched relations are only sets</span>
+<span class="sd"> and do not have any other structure.</span>
+
+<span class="sd"> All the relevant constructions and proofs to define this double category have been</span>
+<span class="sd"> given in other files, so this file only collects these facts.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "A point-free perspective on lax extensions and predicate liftings" by Goncharov,</span>
+<span class="sd">   Hofmann, Nora, Schröder and Wild</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Horizontal identities</span>
+<span class="sd"> 2. Horizontal composition</span>
+<span class="sd"> 3. Unitors and associators</span>
+<span class="sd"> 4. The double category of enriched relations</span>
+<span class="sd"> 5. Companion pairs and conjoints</span>
+
+<span class="sd"> *************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.PosetCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.SymmetricUnivalent.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">EnrichedRelationDoubleCat</span>.
+  <span class="kn">Context</span> (<span class="nv">V</span> : quantale_cosmos).
+
+  <span class="sd">(** * 1. Horizontal identities *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_rel_double_cat_hor_id_data</span>
+    : hor_id_data (enriched_relation_twosided_disp_cat V).
+  <span class="kn">Proof</span>.
+    use make_hor_id_data.
+    - <span class="nb">intro</span> X.
+      <span class="bp">exact</span> (id_enriched_relation X).
+    - <span class="nb">intros</span> X Y f.
+      <span class="bp">exact</span> (id_h_enriched_relation_square f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_rel_double_cat_hor_id</span>
+    : hor_id (enriched_relation_twosided_disp_cat V).
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - <span class="bp">exact</span> enriched_rel_double_cat_hor_id_data.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isaprop_enriched_relation_square).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Horizontal composition *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_rel_double_cat_hor_comp_data</span>
+    : hor_comp_data (enriched_relation_twosided_disp_cat V).
+  <span class="kn">Proof</span>.
+    use make_hor_comp_data.
+    - <span class="nb">intros</span> X Y Z R₁ R₂.
+      <span class="bp">exact</span> (R₁ ·e R₂).
+    - <span class="nb">intros</span> ? ? ? ? ? ? ? ? ? ? ? ? ? τ θ.
+      <span class="bp">exact</span> (comp_h_enriched_relation_square τ θ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_rel_double_cat_hor_comp</span>
+    : hor_comp (enriched_relation_twosided_disp_cat V).
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - <span class="bp">exact</span> enriched_rel_double_cat_hor_comp_data.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isaprop_enriched_relation_square).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. Unitors and associators *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_rel_double_cat_lunitor_data</span>
+    : double_lunitor_data
+        enriched_rel_double_cat_hor_id
+        enriched_rel_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y R.
+    use to_iso_enriched_relation_twosided_disp_cat.
+    - <span class="bp">exact</span> (enriched_relation_lunitor R).
+    - <span class="bp">exact</span> (enriched_relation_linvunitor R).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_rel_double_cat_lunitor</span>
+    : double_cat_lunitor
+        enriched_rel_double_cat_hor_id
+        enriched_rel_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="bp">exact</span> enriched_rel_double_cat_lunitor_data.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isaprop_enriched_relation_square).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_rel_double_cat_runitor_data</span>
+    : double_runitor_data
+        enriched_rel_double_cat_hor_id
+        enriched_rel_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y R.
+    use to_iso_enriched_relation_twosided_disp_cat.
+    - <span class="bp">exact</span> (enriched_relation_runitor R).
+    - <span class="bp">exact</span> (enriched_relation_rinvunitor R).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_rel_double_cat_runitor</span>
+    : double_cat_runitor
+        enriched_rel_double_cat_hor_id
+        enriched_rel_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="bp">exact</span> enriched_rel_double_cat_runitor_data.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isaprop_enriched_relation_square).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_rel_double_cat_associator_data</span>
+    : double_associator_data enriched_rel_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> W X Y Z R₁ R₂ R₃.
+    use to_iso_enriched_relation_twosided_disp_cat.
+    - <span class="bp">exact</span> (enriched_relation_rassociator R₁ R₂ R₃).
+    - <span class="bp">exact</span> (enriched_relation_lassociator R₁ R₂ R₃).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_rel_double_cat_associator</span>
+    : double_cat_associator enriched_rel_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="bp">exact</span> enriched_rel_double_cat_associator_data.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isaprop_enriched_relation_square).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. The double category of enriched relations *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_rel_double_cat</span>
+    : double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_cat.
+    - <span class="bp">exact</span> SET.
+    - <span class="bp">exact</span> (enriched_relation_twosided_disp_cat V).
+    - <span class="bp">exact</span> enriched_rel_double_cat_hor_id.
+    - <span class="bp">exact</span> enriched_rel_double_cat_hor_comp.
+    - <span class="bp">exact</span> enriched_rel_double_cat_lunitor.
+    - <span class="bp">exact</span> enriched_rel_double_cat_runitor.
+    - <span class="bp">exact</span> enriched_rel_double_cat_associator.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isaprop_enriched_relation_square).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isaprop_enriched_relation_square).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_rel_univalent_double_cat</span>
+    : univalent_double_cat.
+  <span class="kn">Proof</span>.
+    use make_univalent_double_cat.
+    - <span class="bp">exact</span> enriched_rel_double_cat.
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> is_univalent_HSET.
+      + <span class="bp">exact</span> (is_univalent_enriched_relation_twosided_disp_cat V).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_flat_enriched_rel_double_cat</span>
+    : is_flat_double_cat enriched_rel_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_enriched_relation_square.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. Companion pairs and conjoints *)</span>
+  <span class="kn">Definition</span> <span class="nf">all_companions_enriched_rel</span>
+    : all_companions_double_cat enriched_rel_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : hSet) (<span class="nv">f</span> : X → Y), _).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (companion_enriched_relation f).
+    - use make_double_cat_are_companions' ; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> companion_enriched_relation_left.
+      + <span class="nb">apply</span> companion_enriched_relation_right.
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> isaprop_enriched_relation_square).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> isaprop_enriched_relation_square).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">all_conjoints_enriched_rel</span>
+    : all_conjoints_double_cat enriched_rel_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : hSet) (<span class="nv">f</span> : X → Y), _).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (conjoint_enriched_relation f).
+    - use make_double_cat_are_conjoints'.
+      + <span class="nb">apply</span> conjoint_enriched_relation_left.
+      + <span class="nb">apply</span> conjoint_enriched_relation_right.
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> isaprop_enriched_relation_square).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> isaprop_enriched_relation_square).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EnrichedRelationDoubleCat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/EnrichedRelDoubleCat.v</tt>, line 46)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Companion pairs and conjoints
+  &gt;
+  &gt;  *************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

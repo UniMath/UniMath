@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UnitDoubleCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> The unit double category</span>
+
+<span class="sd"> In this file, we define the unit double category. Its objects, vertical morphisms,</span>
+<span class="sd"> horizontal morphisms, and squares are all inhabitants of the unit type. We also</span>
+<span class="sd"> verify that it is a terminal object.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Horizontal operations of the unit double category</span>
+<span class="sd"> 2. The unit double category</span>
+<span class="sd"> 3. Functors to the unit double category</span>
+<span class="sd"> 4. Transformations to the unit double category</span>
+<span class="sd"> 5. The unit double category is a terminal object</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Final.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.Basics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Horizontal operations of the unit double category *)</span>
+<span class="kn">Definition</span> <span class="nf">unit_double_cat_hor_id_data</span>
+  : hor_id_data (constant_twosided_disp_cat unit_category unit_category unit_category).
+<span class="kn">Proof</span>.
+  use make_hor_id_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, tt).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, idpath _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">unit_double_cat_hor_id_laws</span>
+  : hor_id_laws unit_double_cat_hor_id_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isapropunit.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isapropunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_double_cat_hor_id</span>
+  : hor_id (constant_twosided_disp_cat unit_category unit_category unit_category).
+<span class="kn">Proof</span>.
+  use make_hor_id.
+  - <span class="bp">exact</span> unit_double_cat_hor_id_data.
+  - <span class="bp">exact</span> unit_double_cat_hor_id_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_double_cat_hor_comp_data</span>
+  : hor_comp_data (constant_twosided_disp_cat unit_category unit_category unit_category).
+<span class="kn">Proof</span>.
+  use make_hor_comp_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, tt).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, idpath _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">unit_double_cat_hor_comp_laws</span>
+  : hor_comp_laws unit_double_cat_hor_comp_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isapropunit.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isapropunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_double_cat_hor_comp</span>
+  : hor_comp (constant_twosided_disp_cat unit_category unit_category unit_category).
+<span class="kn">Proof</span>.
+  use make_hor_comp.
+  - <span class="bp">exact</span> unit_double_cat_hor_comp_data.
+  - <span class="bp">exact</span> unit_double_cat_hor_comp_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_double_lunitor</span>
+  : double_cat_lunitor unit_double_cat_hor_id unit_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  use make_double_lunitor.
+  - <span class="nb">intros</span> x y f.
+    use make_iso_twosided_disp.
+    + <span class="nb">apply</span> isapropunit.
+    + use to_is_twosided_disp_cat_iso_constant.
+      <span class="nb">apply</span> path_groupoid.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isapropunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_double_runitor</span>
+  : double_cat_runitor unit_double_cat_hor_id unit_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  use make_double_runitor.
+  - <span class="nb">intros</span> x y f.
+    use make_iso_twosided_disp.
+    + <span class="nb">apply</span> isapropunit.
+    + use to_is_twosided_disp_cat_iso_constant.
+      <span class="nb">apply</span> path_groupoid.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isapropunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_double_associator</span>
+  : double_cat_associator unit_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  use make_double_associator.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use make_iso_twosided_disp.
+    + <span class="nb">apply</span> isapropunit.
+    + use to_is_twosided_disp_cat_iso_constant.
+      <span class="nb">apply</span> path_groupoid.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isapropunit.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. The unit double category *)</span>
+<span class="kn">Definition</span> <span class="nf">unit_double_cat</span>
+  : double_cat.
+<span class="kn">Proof</span>.
+  use make_double_cat.
+  - <span class="bp">exact</span> unit_category.
+  - <span class="bp">exact</span> (constant_twosided_disp_cat unit_category unit_category unit_category).
+  - <span class="bp">exact</span> unit_double_cat_hor_id.
+  - <span class="bp">exact</span> unit_double_cat_hor_comp.
+  - <span class="bp">exact</span> unit_double_lunitor.
+  - <span class="bp">exact</span> unit_double_runitor.
+  - <span class="bp">exact</span> unit_double_associator.
+  - <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isasetunit).
+  - <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isasetunit).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_flat_unit_double_cat</span>
+  : is_flat_double_cat unit_double_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> isasetunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_univalent_double_cat</span>
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_univalent_double_cat.
+  - <span class="bp">exact</span> unit_double_cat.
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> univalent_category_is_univalent.
+    + <span class="nb">apply</span> is_univalent_constant_twosided_disp_cat.
+      <span class="nb">apply</span> univalent_category_is_univalent.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Functors to the unit double category *)</span>
+<span class="kn">Section</span> <span class="nf">FunctorToUnitDoubleCat</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : univalent_double_cat).
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_to_unit_double_cat_data</span>
+    : twosided_disp_functor_data
+        (functor_to_unit C) (functor_to_unit C)
+        (hor_mor C)
+        (hor_mor unit_univalent_double_cat).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, tt).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, idpath _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">twosided_disp_functor_to_unit_double_cat_laws</span>
+    : twosided_disp_functor_laws
+        _ _ _ _
+        twosided_disp_functor_to_unit_double_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isasetunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_to_unit_double_cat</span>
+    : twosided_disp_functor
+        (functor_to_unit C) (functor_to_unit C)
+        (hor_mor C)
+        (hor_mor unit_univalent_double_cat).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> twosided_disp_functor_to_unit_double_cat_data.
+    - <span class="bp">exact</span> twosided_disp_functor_to_unit_double_cat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lax_double_functor_to_unit_double_cat_hor_id</span>
+    : double_functor_hor_id
+        twosided_disp_functor_to_unit_double_cat
+        (hor_id_double_cat C)
+        (hor_id_double_cat unit_univalent_double_cat).
+  <span class="kn">Proof</span>.
+    use make_double_functor_hor_id.
+    - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> isasetunit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lax_double_functor_to_unit_double_cat_hor_comp</span>
+    : double_functor_hor_comp
+        twosided_disp_functor_to_unit_double_cat
+        (hor_comp_double_cat C)
+        (hor_comp_double_cat unit_univalent_double_cat).
+  <span class="kn">Proof</span>.
+    use make_double_functor_hor_comp.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> isasetunit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lax_double_functor_to_unit_double_cat</span>
+    : lax_double_functor C unit_univalent_double_cat.
+  <span class="kn">Proof</span>.
+    use make_lax_double_functor.
+    - <span class="nb">apply</span> functor_to_unit.
+    - <span class="bp">exact</span> twosided_disp_functor_to_unit_double_cat.
+    - <span class="bp">exact</span> lax_double_functor_to_unit_double_cat_hor_id.
+    - <span class="bp">exact</span> lax_double_functor_to_unit_double_cat_hor_comp.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isasetunit).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isasetunit).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isasetunit).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FunctorToUnitDoubleCat</span>.
+
+<span class="sd">(** * 4. Transformations to the unit double category *)</span>
+<span class="kn">Section</span> <span class="nf">NatTransToUnitDoubleCat</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : univalent_double_cat}
+          (<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C unit_univalent_double_cat).
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_nat_trans_to_unit_double_cat</span>
+    : twosided_disp_nat_trans
+        (unit_category_nat_trans F G) (unit_category_nat_trans F G)
+        (lax_double_functor_hor_mor F)
+        (lax_double_functor_hor_mor G).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isapropunit.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isasetunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_transformation_to_unit_double_cat</span>
+    : double_transformation F G.
+  <span class="kn">Proof</span>.
+    use make_double_transformation.
+    - <span class="nb">apply</span> unit_category_nat_trans.
+    - <span class="bp">exact</span> twosided_disp_nat_trans_to_unit_double_cat.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isasetunit).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isasetunit).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">NatTransToUnitDoubleCat</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_transformation_to_unit_double_cat_eq</span>
+           {<span class="nv">C</span> : univalent_double_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C unit_univalent_double_cat}
+           (<span class="nv">τ</span> <span class="nv">θ</span> : double_transformation F G)
+  : τ = θ.
+<span class="kn">Proof</span>.
+  use double_transformation_eq.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isasetunit.
+  - <span class="nb">intros</span> x y f.
+    <span class="nb">apply</span> isasetunit.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. The unit double category is a terminal object *)</span>
+<span class="kn">Definition</span> <span class="nf">is_bifinal_unit_univalent_double_cat</span>
+  : is_bifinal unit_univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_is_bifinal.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, lax_double_functor_to_unit_double_cat C).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">F</span> <span class="nv">G</span>, double_transformation_to_unit_double_cat F G).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">τ</span> <span class="nv">θ</span>, double_transformation_to_unit_double_cat_eq τ θ).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/UnitDoubleCat.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. The unit double category is a terminal object
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EnrichmentAdjunction.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************</span>
+
+<span class="sd"> Enriched adjunctions</span>
+
+<span class="sd"> In this file, we define the notion of enriched adjunctions. To do so,</span>
+<span class="sd"> we first define the notion of an enrichment of an adjunction, which</span>
+<span class="sd"> is a pair of an enrichment for both functors and for the unit and</span>
+<span class="sd"> counit. An enriched adjunction is a pair of an adjunction together</span>
+<span class="sd"> with an enrichment.</span>
+
+<span class="sd"> Context</span>
+<span class="sd"> 1. Enrichments of adjunctions</span>
+<span class="sd"> 2. Enriched adjunctions</span>
+<span class="sd"> 3. Isos between the enriched homs</span>
+
+<span class="sd"> **********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Enrichments of adjunctions</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">adjunction_enrichment</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">L</span> : adjunction C₁ C₂)
+           (<span class="nv">E₁</span> : enrichment C₁ V)
+           (<span class="nv">E₂</span> : enrichment C₂ V)
+  : UU
+  := ∑ (EL : functor_enrichment (left_adjoint L) E₁ E₂)
+       (ER : functor_enrichment (right_adjoint L) E₂ E₁),
+     (nat_trans_enrichment
+        (adjunit L)
+        (functor_id_enrichment E₁)
+        (functor_comp_enrichment EL ER))
+     ×
+     (nat_trans_enrichment
+        (adjcounit L)
+        (functor_comp_enrichment ER EL))
+     (functor_id_enrichment E₂).
+
+<span class="kn">Definition</span> <span class="nf">make_adjunction_enrichment</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">L</span> : adjunction C₁ C₂)
+           (<span class="nv">E₁</span> : enrichment C₁ V)
+           (<span class="nv">E₂</span> : enrichment C₂ V)
+           (<span class="nv">EL</span> : functor_enrichment (left_adjoint L) E₁ E₂)
+           (<span class="nv">ER</span> : functor_enrichment (right_adjoint L) E₂ E₁)
+           (<span class="nv">Eη</span> : nat_trans_enrichment
+                   (adjunit L)
+                   (functor_id_enrichment E₁)
+                   (functor_comp_enrichment EL ER))
+           (<span class="nv">Eε</span> : nat_trans_enrichment
+                   (adjcounit L)
+                   (functor_comp_enrichment ER EL)
+                   (functor_id_enrichment E₂))
+  : adjunction_enrichment L E₁ E₂
+  := EL ,, ER ,, Eη ,, Eε.
+
+<span class="kn">Section</span> <span class="nf">Accessors</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">L</span> : adjunction C₁ C₂}
+          {<span class="nv">E₁</span> : enrichment C₁ V}
+          {<span class="nv">E₂</span> : enrichment C₂ V}
+          (<span class="nv">EL</span> : adjunction_enrichment L E₁ E₂).
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_enrichment</span>
+    : functor_enrichment (left_adjoint L) E₁ E₂
+    := pr1 EL.
+
+  <span class="kn">Definition</span> <span class="nf">right_adjoint_enrichment</span>
+    : functor_enrichment (right_adjoint L) E₂ E₁
+    := pr12 EL.
+
+  <span class="kn">Definition</span> <span class="nf">adjoint_unit_enrichment</span>
+    : nat_trans_enrichment
+        (adjunit L)
+        (functor_id_enrichment E₁)
+        (functor_comp_enrichment
+           left_adjoint_enrichment
+           right_adjoint_enrichment)
+    := pr122 EL.
+
+  <span class="kn">Definition</span> <span class="nf">adjoint_counit_enrichment</span>
+    : nat_trans_enrichment
+        (adjcounit L)
+        (functor_comp_enrichment
+           right_adjoint_enrichment
+           left_adjoint_enrichment)
+        (functor_id_enrichment E₂)
+    := pr222 EL.
+<span class="kn">End</span> <span class="nf">Accessors</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Enriched adjunctions</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">enriched_adjunction</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">E₁</span> : enrichment C₁ V)
+           (<span class="nv">E₂</span> : enrichment C₂ V)
+  : UU
+  := ∑ (L : adjunction C₁ C₂), adjunction_enrichment L E₁ E₂.
+
+<span class="kn">Coercion</span> <span class="nf">enriched_adjunction_to_adjunction</span>
+         {V : monoidal_cat}
+         {C₁ C₂ : category}
+         {E₁ : enrichment C₁ V}
+         {E₂ : enrichment C₂ V}
+         (L : enriched_adjunction E₁ E₂)
+  : adjunction C₁ C₂
+  := pr1 L.
+
+<span class="kn">Coercion</span> <span class="nf">enriched_adjunction_to_enrichment</span>
+         {V : monoidal_cat}
+         {C₁ C₂ : category}
+         {E₁ : enrichment C₁ V}
+         {E₂ : enrichment C₂ V}
+         (L : enriched_adjunction E₁ E₂)
+  : adjunction_enrichment L E₁ E₂
+  := pr2 L.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Isos between the enriched homs</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">HomEquiv</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">A</span> : adjunction C₁ C₂}
+          {<span class="nv">E₁</span> : enrichment C₁ V}
+          {<span class="nv">E₂</span> : enrichment C₂ V}
+          (<span class="nv">EA</span> : adjunction_enrichment A E₁ E₂).
+
+  <span class="kn">Let</span> <span class="nf">L</span> : C₁ ⟶ C₂ := left_adjoint A.
+  <span class="kn">Let</span> <span class="nf">EL</span> : functor_enrichment L E₁ E₂
+    := left_adjoint_enrichment EA.
+
+  <span class="kn">Let</span> <span class="nf">R</span> : C₂ ⟶ C₁ := right_adjoint A.
+  <span class="kn">Let</span> <span class="nf">ER</span> : functor_enrichment R E₂ E₁
+    := right_adjoint_enrichment EA.
+
+  <span class="kn">Let</span> <span class="nf">η</span> : functor_identity _ ⟹ L ∙ R := adjunit A.
+  <span class="kn">Let</span> <span class="nf">Eη</span> : nat_trans_enrichment
+             η
+             (functor_id_enrichment _)
+             (functor_comp_enrichment EL ER)
+    := adjoint_unit_enrichment EA.
+
+  <span class="kn">Let</span> <span class="nf">ε</span> : R ∙ L ⟹ functor_identity _ := adjcounit A.
+  <span class="kn">Let</span> <span class="nf">Eε</span> : nat_trans_enrichment
+             ε
+             (functor_comp_enrichment ER EL)
+             (functor_id_enrichment _)
+    := adjoint_counit_enrichment EA.
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_enrichment_left_hom</span>
+             (<span class="nv">x</span> : C₁)
+             (<span class="nv">y</span> : C₂)
+    : E₂ ⦃ L x , y ⦄ --&gt; E₁ ⦃ x , R y ⦄
+    := ER (L x) y · precomp_arr E₁ (R y) (η x).
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_enrichment_right_hom</span>
+             (<span class="nv">x</span> : C₁)
+             (<span class="nv">y</span> : C₂)
+    : E₁ ⦃ x , R y ⦄ --&gt; E₂ ⦃ L x , y ⦄
+    := EL x (R y) · postcomp_arr E₂ (L x) (ε y).
+
+  <span class="kn">Proposition</span> <span class="nf">adjunction_enrichment_hom_is_inverse</span>
+              (<span class="nv">x</span> : C₁)
+              (<span class="nv">y</span> : C₂)
+    : is_inverse_in_precat
+        (adjunction_enrichment_left_hom x y)
+        (adjunction_enrichment_right_hom x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">unfold</span> adjunction_enrichment_left_hom, adjunction_enrichment_right_hom.
+    - <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- functor_enrichment_precomp_arr.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> precomp_postcomp_arr.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (!(nat_trans_enrichment_to_comp Eε (L x) y)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> &lt;- precomp_arr_comp.
+      <span class="nb">refine</span> (_ @ precomp_arr_id _ _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (triangle_1_statement_from_adjunction A x).
+    - <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- functor_enrichment_postcomp_arr.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> &lt;- precomp_postcomp_arr.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (nat_trans_enrichment_to_comp Eη x (R y)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> &lt;- postcomp_arr_comp.
+      <span class="nb">refine</span> (_ @ postcomp_arr_id _ _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (triangle_2_statement_from_adjunction A y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_enrichment_hom_iso</span>
+             (<span class="nv">x</span> : C₁)
+             (<span class="nv">y</span> : C₂)
+    : z_iso (E₂ ⦃ L x , y ⦄) (E₁ ⦃ x , R y ⦄).
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> (adjunction_enrichment_left_hom x y).
+    - <span class="bp">exact</span> (adjunction_enrichment_right_hom x y).
+    - <span class="bp">exact</span> (adjunction_enrichment_hom_is_inverse x y).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">HomEquiv</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/EnrichmentAdjunction.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Isos between the enriched homs
+  &gt;
+  &gt;  **********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

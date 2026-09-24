@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.OrderTheory.DCPOs.Examples.Propositions</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.OrderTheory.DCPOs.Examples.Propositions</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#"><span class="id" title="library">UniMath.OrderTheory.Posets.Basics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#"><span class="id" title="library">UniMath.OrderTheory.Posets.PointedPosets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#"><span class="id" title="library">UniMath.OrderTheory.Posets.MonotoneFunctions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.DirectedSets.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.DirectedSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.Basics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.ScottContinuous.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.ScottContinuous</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">dcpo</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. hProp is a DCPO
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Proposition</span> <a id="isPartialOrder_hProp" class="idref" href="#isPartialOrder_hProp"><span class="id" title="lemma">isPartialOrder_hProp</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#isPartialOrder"><span class="id" title="definition">isPartialOrder</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="e80090675465756e33db76b52b3735d8" class="idref" href="#e80090675465756e33db76b52b3735d8"><span class="id" title="binder">P₁</span></a> <a id="849c10a41af36c55b3e2fcfc4d51e232" class="idref" href="#849c10a41af36c55b3e2fcfc4d51e232"><span class="id" title="binder">P₂</span></a> : <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#e80090675465756e33db76b52b3735d8"><span class="id" title="variable">P₁</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">⇒</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#849c10a41af36c55b3e2fcfc4d51e232"><span class="id" title="variable">P₂</span></a>)%<span class="id" title="var">logic</span>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="95865fdbcd41ee7f7241d39eefff037d" class="idref" href="#95865fdbcd41ee7f7241d39eefff037d"><span class="id" title="binder"><span id="c8d071c423f40aebd15c01d7be39004a" class="id">P₁</span></span></a> <a id="4bdedb27634420ffbcf9ca686e96be7b" class="idref" href="#4bdedb27634420ffbcf9ca686e96be7b"><span class="id" title="binder"><span id="eae207114cc7729402147fe55013e5a6" class="id">P₂</span></span></a> <a id="23fa7a1f36f57ac155212bab4392d95f" class="idref" href="#23fa7a1f36f57ac155212bab4392d95f"><span class="id" title="binder"><span id="78ad280246e62afb8daa6733daef0d5f" class="id">P₃</span></span></a> <a id="f:6" class="idref" href="#f:6"><span class="id" title="binder"><span id="f:12" class="id">f</span></span></a> <a id="g:7" class="idref" href="#g:7"><span class="id" title="binder"><span id="g:13" class="id">g</span></span></a> <a id="x:8" class="idref" href="#x:8"><span class="id" title="binder"><span id="x:14" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#g:7"><span class="id" title="variable">g</span></a>(<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#f:6"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#x:8"><span class="id" title="variable">x</span></a>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="P:15" class="idref" href="#P:15"><span class="id" title="binder"><span id="P:17" class="id">P</span></span></a> <a id="x:16" class="idref" href="#x:16"><span class="id" title="binder"><span id="x:18" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#x:16"><span class="id" title="variable">x</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="f20cbb953f0f74c7e8dbd39e796f1fc9" class="idref" href="#f20cbb953f0f74c7e8dbd39e796f1fc9"><span class="id" title="binder"><span id="34b595076c052d792d850214b1f35ceb" class="id">P₁</span></span></a> <a id="a781ad3410dc0f2007b4ba67bf45a0fd" class="idref" href="#a781ad3410dc0f2007b4ba67bf45a0fd"><span class="id" title="binder"><span id="9820d828a09768d850b23a690ebb6ef2" class="id">P₂</span></span></a> <a id="f:21" class="idref" href="#f:21"><span class="id" title="binder"><span id="f:25" class="id">f</span></span></a> <a id="g:22" class="idref" href="#g:22"><span class="id" title="binder"><span id="g:26" class="id">g</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hPropUnivalence"><span class="id" title="lemma">hPropUnivalence</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#f:21"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#g:22"><span class="id" title="variable">g</span></a>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="hProp_PartialOrder" class="idref" href="#hProp_PartialOrder"><span class="id" title="definition">hProp_PartialOrder</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> <a class="idref" href="UniMath.MoreFoundations.Sets.html#hProp_set"><span class="id" title="definition">hProp_set</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Sets.html#make_PartialOrder"><span class="id" title="definition">make_PartialOrder</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="705d3a3e35ee0b8b3378e209933b4c16" class="idref" href="#705d3a3e35ee0b8b3378e209933b4c16"><span class="id" title="binder"><span id="c0b42754059696a15d2f096bec19ffa8" class="id">P₁</span></span></a> <a id="697d91e7bea4801bd41913698ee4285c" class="idref" href="#697d91e7bea4801bd41913698ee4285c"><span class="id" title="binder"><span id="dd2ba2bf0dd2e5afe185dc93f84a42a9" class="id">P₂</span></span></a> : <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#705d3a3e35ee0b8b3378e209933b4c16"><span class="id" title="variable">P₁</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">⇒</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#697d91e7bea4801bd41913698ee4285c"><span class="id" title="variable">P₂</span></a>)%<span class="id" title="var">logic</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#isPartialOrder_hProp"><span class="id" title="lemma">isPartialOrder_hProp</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="hProp_lub" class="idref" href="#hProp_lub"><span class="id" title="definition">hProp_lub</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="D:31" class="idref" href="#D:31"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f:32" class="idref" href="#f:32"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#D:31"><span class="id" title="variable">D</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hf:33" class="idref" href="#Hf:33"><span class="id" title="binder">Hf</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.DirectedSets.html#is_directed"><span class="id" title="definition">is_directed</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#hProp_PartialOrder"><span class="id" title="definition">hProp_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#f:32"><span class="id" title="variable">f</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#lub"><span class="id" title="definition">lub</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#hProp_PartialOrder"><span class="id" title="definition">hProp_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#f:32"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#make_lub"><span class="id" title="definition">make_lub</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">∃</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">(</span></a><a id="d:34" class="idref" href="#d:34"><span class="id" title="binder"><span id="d:35" class="id">d</span></span></a> : <span class="id" title="var">D</span><a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">),</span></a> <span class="id" title="var">f</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#d:34"><span class="id" title="variable">d</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="d:36" class="idref" href="#d:36"><span class="id" title="binder"><span id="d:38" class="id">d</span></span></a> <a id="x:37" class="idref" href="#x:37"><span class="id" title="binder"><span id="x:39" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#d:36"><span class="id" title="variable">d</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#x:37"><span class="id" title="variable">x</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">P</span> <span class="id" title="var">HP</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a> ; [ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a> | ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">HP</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">x</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">x</span>))).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="hProp_dcpo_struct" class="idref" href="#hProp_dcpo_struct"><span class="id" title="definition">hProp_dcpo_struct</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo_struct"><span class="id" title="definition">dcpo_struct</span></a> <a class="idref" href="UniMath.MoreFoundations.Sets.html#hProp_set"><span class="id" title="definition">hProp_set</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#make_dcpo_struct"><span class="id" title="definition">make_dcpo_struct</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#hProp_PartialOrder"><span class="id" title="definition">hProp_PartialOrder</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="D:40" class="idref" href="#D:40"><span class="id" title="binder"><span id="D:43" class="id">D</span></span></a> <a id="f:41" class="idref" href="#f:41"><span class="id" title="binder"><span id="f:44" class="id">f</span></span></a> <a id="Hf:42" class="idref" href="#Hf:42"><span class="id" title="binder"><span id="Hf:45" class="id">Hf</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#hProp_lub"><span class="id" title="definition">hProp_lub</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#Hf:42"><span class="id" title="variable">Hf</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="hProp_dcpo" class="idref" href="#hProp_dcpo"><span class="id" title="definition">hProp_dcpo</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo"><span class="id" title="definition">dcpo</span></a><br/>
+&nbsp;&nbsp;:= <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#hProp_dcpo_struct"><span class="id" title="definition">hProp_dcpo_struct</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. hProp is pointed
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="hProp_dcppo" class="idref" href="#hProp_dcppo"><span class="id" title="definition">hProp_dcppo</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcppo"><span class="id" title="definition">dcppo</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Examples.Propositions.html#hProp_dcpo_struct"><span class="id" title="definition">hProp_dcpo_struct</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#hfalse"><span class="id" title="definition">hfalse</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">P</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.PartA.html#fromempty"><span class="id" title="definition">fromempty</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

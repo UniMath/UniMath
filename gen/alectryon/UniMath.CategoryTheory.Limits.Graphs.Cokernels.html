@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Cokernels.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Cokernels defined in terms of colimits. *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition coincides with direct definition</span>
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cokernels.
+
+
+<span class="sd">(** * Definition of cokernels in terms of colimits *)</span>
+<span class="kn">Section</span> <span class="nf">def_cokernels</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span>: has_homsets C := homset_property C.
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero C.
+
+  <span class="kn">Definition</span> <span class="nf">Cokernel</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) := Coequalizer C f (ZeroArrow Z a b).
+
+  <span class="sd">(** ** Coincides with the direct definiton *)</span>
+  <span class="kn">Lemma</span> <span class="nf">equiv_Cokernel1_eq</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+        (<span class="nv">CK</span> : Limits.Cokernels.Cokernel (equiv_Zero2 Z) f) :
+    f · (CokernelArrow CK) = ZeroArrow Z a b · (CokernelArrow CK).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> CokernelCompZero. <span class="nb">rewrite</span> postcomp_with_ZeroArrow. <span class="nb">apply</span> equiv_ZeroArrow.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_Cokernel1_isCoequalizer</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+        (<span class="nv">CK</span> : Limits.Cokernels.Cokernel (equiv_Zero2 Z) f) :
+    isCoequalizer C f (ZeroArrow Z a b) CK (CokernelArrow CK) (equiv_Cokernel1_eq f CK).
+  <span class="kn">Proof</span>.
+    use (make_isCoequalizer _).
+    <span class="nb">intros</span> w h H.
+    use unique_exists.
+    <span class="c">(* Construction of the morphism *)</span>
+    - use CokernelOut.
+      + <span class="bp">exact</span> h.
+      + <span class="nb">rewrite</span> postcomp_with_ZeroArrow <span class="k">in</span> H.
+        use (pathscomp0 _ (!(equiv_ZeroArrow a w Z))).
+        <span class="bp">exact</span> H.
+    <span class="c">(* Commutativity *)</span>
+    - use CokernelCommutes.
+    <span class="c">(* Equality on equalities of morphisms *)</span>
+    - <span class="nb">intros</span> y. <span class="nb">apply</span> hs.
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="nb">intros</span> y T. <span class="nb">cbn</span> <span class="k">in</span> T.
+      use CokernelOutsEq. <span class="nb">unfold</span> CokernelArrow.
+      use (pathscomp0 T). <span class="nb">apply</span> pathsinv0.
+      use CokernelCommutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_Cokernel1</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+             (<span class="nv">CK</span> : Limits.Cokernels.Cokernel (equiv_Zero2 Z) f) : Cokernel f.
+  <span class="kn">Proof</span>.
+    use make_Coequalizer.
+    - <span class="bp">exact</span> CK.
+    - <span class="bp">exact</span> (CokernelArrow CK).
+    - <span class="bp">exact</span> (equiv_Cokernel1_eq f CK).
+    - <span class="bp">exact</span> (equiv_Cokernel1_isCoequalizer f CK).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Other direction *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_Cokernel2_eq</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">CK</span> : Limits.Cokernels.Cokernel (equiv_Zero2 Z) f) :
+    f · CokernelArrow CK = ZeroArrow Z a b · CokernelArrow CK.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> CokernelCompZero. <span class="nb">rewrite</span> postcomp_with_ZeroArrow. <span class="nb">apply</span> equiv_ZeroArrow.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_Cokernel2_isCoequalizer</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+        (<span class="nv">CK</span> : Limits.Cokernels.Cokernel (equiv_Zero2 Z) f) :
+    isCoequalizer C f (ZeroArrow Z a b) CK (CokernelArrow CK) (equiv_Cokernel2_eq f CK).
+  <span class="kn">Proof</span>.
+    use (make_isCoequalizer _ ).
+    <span class="nb">intros</span> w h H.
+    use unique_exists.
+    <span class="c">(* Construction of the morphism *)</span>
+    - use CokernelOut.
+      + <span class="bp">exact</span> h.
+      + use (pathscomp0 H). <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> postcomp_with_ZeroArrow. <span class="nb">apply</span> equiv_ZeroArrow.
+    <span class="c">(* Commutativity *)</span>
+    - use CokernelCommutes.
+    <span class="c">(* Equality on equalities of morphisms *)</span>
+    - <span class="nb">intros</span> y. <span class="nb">apply</span> hs.
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="nb">intros</span> y T. <span class="nb">cbn</span> <span class="k">in</span> T. use CokernelOutsEq. <span class="nb">rewrite</span> T. <span class="nb">rewrite</span> CokernelCommutes.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_Cokernel2</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C⟦a, b⟧)
+             (<span class="nv">CK</span> : Limits.Cokernels.Cokernel (equiv_Zero2 Z) f) : Cokernel f.
+  <span class="kn">Proof</span>.
+    use make_Coequalizer.
+    - <span class="bp">exact</span> CK.
+    - <span class="bp">exact</span> (CokernelArrow CK).
+    - <span class="bp">exact</span> (equiv_Cokernel2_eq f CK).
+    - <span class="bp">exact</span> (equiv_Cokernel2_isCoequalizer f CK).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">def_cokernels</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Graphs/Cokernels.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** ** Contents
+  &gt; - Definition coincides with direct definition
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

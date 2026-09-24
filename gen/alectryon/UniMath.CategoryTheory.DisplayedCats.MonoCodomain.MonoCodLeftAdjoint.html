@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoCodLeftAdjoint.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************************</span>
+
+<span class="sd"> The existential quantifier in regular categories</span>
+
+<span class="sd"> Suppose that we have a regular category. Following the interpretation of quantifiers as</span>
+<span class="sd"> adjoints, then the existential quantifier is given by the left adjoint of the pullback</span>
+<span class="sd"> functor. We show that in the displayed category of monomorphisms such left adjoints</span>
+<span class="sd"> exists, which allows us to interpret the existential quantifier in regular categories.</span>
+
+<span class="sd"> For ordinary morphisms, the left adjoint to pullback gives rise to dependent sums. For</span>
+<span class="sd"> them, the left adjoint always exists, and it is constructed by taking the composition.</span>
+<span class="sd"> The construction for monomorphisms is similar, because again we take the composition.</span>
+<span class="sd"> However, the composition of a monomorphism with an arbitrary morphism is not guaranteed</span>
+<span class="sd"> to result in a monomorphism, and thus we factorize the composition as an epimorphism</span>
+<span class="sd"> followed by a monomorphism. The inclusion of the image gives the existential quantifier.</span>
+
+<span class="sd"> The main work lies in proving the stability of the existential quantifier under</span>
+<span class="sd"> pullback. The main steps are described throughout the proof.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Interpretation of the existential quantifier</span>
+<span class="sd"> 2. Stability</span>
+<span class="sd"> 3. Dependent sums in the displayed category of monomorphisms</span>
+
+<span class="sd"> ***************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.MonoCodomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MonoCodomain.FiberMonoCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpiFacts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+#[local] <span class="kn">Opaque</span> regular_category_epi_mono_factorization.
+
+<span class="kn">Section</span> <span class="nf">MonoCodomainLeftAdj</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">HC</span> : is_regular_category C).
+
+  <span class="kn">Let</span> <span class="nf">PB</span> : Pullbacks C := is_regular_category_pullbacks HC.
+  <span class="kn">Let</span> <span class="nf">HD</span> : cleaving (disp_mono_codomain C) := mono_cod_disp_cleaving PB.
+
+  <span class="sd">(** * 1. Interpretation of the existential quantifier *)</span>
+  <span class="kn">Section</span> <span class="nf">ExistentialQuantifier</span>.
+    <span class="kn">Context</span> {<span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            (<span class="nv">f</span> : y₁ --&gt; y₂)
+            (<span class="nv">xg</span> : C /m y₁).
+
+    <span class="kn">Let</span> <span class="nf">x</span> : C := mono_cod_dom xg.
+    <span class="kn">Let</span> <span class="nf">g</span> : Monic _ x y₁ := mono_cod_mor xg.
+
+    <span class="sd">(**</span>
+<span class="sd">       The factorization</span>
+<span class="sd">     *)</span>
+    <span class="kn">Let</span> <span class="nf">im</span> : C
+      := pr1 (regular_category_epi_mono_factorization HC (g · f)).
+
+    <span class="kn">Let</span> <span class="nf">e</span> : x --&gt; im
+      := pr12 (regular_category_epi_mono_factorization HC (g · f)).
+
+    <span class="kn">Let</span> <span class="nf">He</span> : is_strong_epi e
+      := is_strong_epi_regular_epi
+           (pr1 (pr222 (regular_category_epi_mono_factorization HC (g · f)))).
+    <span class="kn">Let</span> <span class="nf">m</span> : Monic _ im y₂
+      := make_Monic _ _ (pr12 (pr222 (regular_category_epi_mono_factorization HC (g · f)))).
+    <span class="kn">Let</span> <span class="nf">p</span> : g · f = e · m
+      := pr22 (pr222 (regular_category_epi_mono_factorization HC (g · f))).
+
+    <span class="sd">(**</span>
+<span class="sd">       The existential quantifier</span>
+<span class="sd">     *)</span>
+    <span class="kn">Definition</span> <span class="nf">mono_codomain_exists</span>
+      : C /m y₂
+      := make_mono_cod_fib_ob m.
+
+    <span class="kn">Definition</span> <span class="nf">mono_codomain_exists_intro</span>
+      : xg --&gt; mono_cod_pb PB f mono_codomain_exists.
+    <span class="kn">Proof</span>.
+      use make_mono_cod_fib_mor.
+      - use (PullbackArrow _ _ e (mono_cod_mor xg)).
+        <span class="kp">abstract</span>
+          (<span class="bp">exact</span> (!p)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">apply</span> PullbackArrow_PullbackPr2).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Context</span> {<span class="nv">zh</span> : C /m y₂}
+            (<span class="nv">φ</span> : xg --&gt; mono_cod_pb PB f zh).
+
+    <span class="kn">Let</span> <span class="nf">z</span> : C := mono_cod_dom zh.
+    <span class="kn">Let</span> <span class="nf">h</span> : Monic _ z y₂ := mono_cod_mor zh.
+    <span class="kn">Let</span> <span class="nf">φf</span> : x --&gt; mono_cod_dom (mono_cod_pb PB f zh) := mono_dom_mor φ.
+    <span class="kn">Let</span> <span class="nf">q</span> : φf · PullbackPr2 _ = g := mono_mor_eq φ.
+
+    <span class="kn">Definition</span> <span class="nf">mono_codomain_exists_elim</span>
+      : mono_codomain_exists --&gt; zh.
+    <span class="kn">Proof</span>.
+      use make_mono_cod_fib_mor.
+      - <span class="nb">simple refine</span> (pr11 (He _ _ h _ _ _ (MonicisMonic _ h))).
+        + <span class="bp">exact</span> (φf · PullbackPr1 _).
+        + <span class="bp">exact</span> m.
+        + <span class="kp">abstract</span>
+            (<span class="nb">refine</span> (!p @ !_) ;
+             <span class="nb">rewrite</span> &lt;- q ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">cbn</span> ;
+             <span class="nb">apply</span> PullbackSqrCommutes).
+      - <span class="kp">abstract</span>
+          (<span class="bp">exact</span> (pr121 (He _ _ h _ _ _ (MonicisMonic _ h)))).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ExistentialQuantifier</span>.
+
+  <span class="sd">(** * 2. Stability *)</span>
+  <span class="kn">Section</span> <span class="nf">Stability</span>.
+    <span class="kn">Context</span> {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">x₄</span> : C}
+            {<span class="nv">s₁</span> : x₂ --&gt; x₁}
+            {<span class="nv">s₂</span> : x₃ --&gt; x₁}
+            {<span class="nv">s₃</span> : x₄ --&gt; x₃}
+            {<span class="nv">s₄</span> : x₄ --&gt; x₂}
+            {<span class="nv">p</span> : s₄ · s₁ = s₃ · s₂}
+            (<span class="nv">Hp</span> : isPullback p)
+            (<span class="nv">yg</span> : C /m x₂).
+
+    <span class="sd">(**</span>
+<span class="sd">       We use the following abbreviations.</span>
+<span class="sd">     *)</span>
+    <span class="kn">Let</span> <span class="nf">P</span> : Pullback _ _ := make_Pullback _ Hp.
+    <span class="kn">Let</span> <span class="nf">y</span> : C := mono_cod_dom yg.
+    <span class="kn">Let</span> <span class="nf">g</span> : Monic _ y x₂ := mono_cod_mor yg.
+
+    <span class="kn">Let</span> <span class="nf">Q₁</span> : Pullback g s₄ := PB x₂ y x₄ g s₄.
+    <span class="kn">Let</span> <span class="nf">f₁</span> : Q₁ --&gt; x₃ := PullbackPr2 Q₁ · s₃.
+
+    <span class="kn">Let</span> <span class="nf">im₁</span> : C := pr1 (regular_category_epi_mono_factorization HC f₁).
+    <span class="kn">Let</span> <span class="nf">e₁</span> : Q₁ --&gt; im₁
+      := pr12 (regular_category_epi_mono_factorization HC f₁).
+    <span class="kn">Let</span> <span class="nf">m₁</span> : Monic _ im₁ x₃
+      := make_Monic _ _ (pr12 (pr222 (regular_category_epi_mono_factorization HC f₁))).
+    <span class="kn">Let</span> <span class="nf">He₁</span> : is_strong_epi e₁
+      := is_strong_epi_regular_epi
+           (pr1 (pr222 (regular_category_epi_mono_factorization HC f₁))).
+    <span class="kn">Let</span> <span class="nf">p₁</span> : f₁ = e₁ · m₁
+      := pr22 (pr222 (regular_category_epi_mono_factorization HC f₁)).
+
+    <span class="kn">Let</span> <span class="nf">f₂</span> : y --&gt; x₁ := g · s₁.
+
+    <span class="kn">Let</span> <span class="nf">im₂</span> : C := pr1 (regular_category_epi_mono_factorization HC f₂).
+    <span class="kn">Let</span> <span class="nf">e₂</span> : y --&gt; im₂
+      := pr12 (regular_category_epi_mono_factorization HC f₂).
+    <span class="kn">Let</span> <span class="nf">m₂</span> : Monic _ im₂ x₁
+      := make_Monic _ _ (pr12 (pr222 (regular_category_epi_mono_factorization HC f₂))).
+    <span class="kn">Let</span> <span class="nf">He₂</span> : is_regular_epi e₂
+      := pr1 (pr222 (regular_category_epi_mono_factorization HC f₂)).
+    <span class="kn">Let</span> <span class="nf">p₂</span> : f₂ = e₂ · m₂
+      := pr22 (pr222 (regular_category_epi_mono_factorization HC f₂)).
+
+    <span class="kn">Let</span> <span class="nf">Q₂</span> : Pullback m₂ s₂ := PB x₁ im₂ x₃ m₂ s₂.
+    <span class="kn">Let</span> <span class="nf">Q₃</span> := PB x₁ y x₃ (g · s₁) s₂.
+
+    <span class="sd">(**</span>
+<span class="sd">       To show that dependent sums are stable under pullback in the displayed category</span>
+<span class="sd">       of all arrows, we use the following morphism. We also use it here.</span>
+<span class="sd">     *)</span>
+    <span class="kn">Local Definition</span> <span class="nf">mono_cod_left_beck_chevalley_mor_inv</span>
+      : Q₃ --&gt; Q₁.
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - <span class="bp">exact</span> (PullbackPr1 _).
+      - use (PullbackArrow P).
+        + <span class="bp">exact</span> (PullbackPr1 _ · g).
+        + <span class="bp">exact</span> (PullbackPr2 _).
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">apply</span> PullbackSqrCommutes).
+      - <span class="kp">abstract</span>
+          (<span class="bp">exact</span> (!(PullbackArrow_PullbackPr1 P _ _ _ _))).
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(**</span>
+<span class="sd">       The key idea in the proof is showing that we have a regular epimorphism from</span>
+<span class="sd">       the pullback `Q₃` to `Q₁`. This permits us to use the lifting property of</span>
+<span class="sd">       regular epimorphisms.</span>
+<span class="sd">     *)</span>
+    <span class="kn">Local Definition</span> <span class="nf">map_between_pbs</span>
+      : Q₃ --&gt; Q₂.
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - <span class="bp">exact</span> (PullbackPr1 _ · e₂).
+      - <span class="bp">exact</span> (PullbackPr2 _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> &lt;- p₂ ;
+           <span class="nb">apply</span> PullbackSqrCommutes).
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(**</span>
+<span class="sd">       To show that this map is a regular epimorphism, we construct a pullback square</span>
+<span class="sd">       such that the side opposite to `map_between_pbs` is a regular epimorphism. Then</span>
+<span class="sd">       by stability of regular epimorphisms (`C` is a regular category), we obtain that</span>
+<span class="sd">       this morphism is a regular epimorphism.</span>
+<span class="sd">     *)</span>
+    <span class="kn">Local Lemma</span> <span class="nf">map_between_pbs_eq</span>
+      : PullbackPr1 Q₃ · e₂ = map_between_pbs · PullbackPr1 _.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> map_between_pbs.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">UMP</span>.
+      <span class="kn">Context</span> {<span class="nv">w</span> : C}
+              {<span class="nv">h</span> : w --&gt; y}
+              {<span class="nv">k</span> : w --&gt; Q₂}
+              (<span class="nv">r</span> : h · e₂ = k · PullbackPr1 Q₂).
+
+      <span class="kn">Local Lemma</span> <span class="nf">is_pb_square_mor_unique</span>
+        : isaprop (∑ hk, hk · PullbackPr1 Q₃ = h × hk · map_between_pbs = k).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> ζ₁ ζ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+        }
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback Q₃)).
+        - <span class="bp">exact</span> (pr12 ζ₁ @ !(pr12 ζ₂)).
+        - <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · PullbackPr2 _) (pr22 ζ₁ @ !(pr22 ζ₂))) <span class="k">as</span> q.
+          <span class="nb">cbn</span> <span class="k">in</span> q.
+          <span class="nb">unfold</span> map_between_pbs <span class="k">in</span> q.
+          <span class="nb">rewrite</span> !assoc' <span class="k">in</span> q.
+          <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2 <span class="k">in</span> q.
+          <span class="bp">exact</span> q.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Local Definition</span> <span class="nf">is_pb_square_mor</span>
+        : w --&gt; Q₃.
+      <span class="kn">Proof</span>.
+        use PullbackArrow.
+        - <span class="bp">exact</span> h.
+        - <span class="bp">exact</span> (k · PullbackPr2 _).
+        - <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> &lt;- PullbackSqrCommutes ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> &lt;- r ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> &lt;- p₂ ;
+             <span class="nb">apply</span> idpath).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Local Lemma</span> <span class="nf">is_pb_square_mor_pr2</span>
+        : is_pb_square_mor · map_between_pbs = k.
+      <span class="kn">Proof</span>.
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback Q₂)).
+        - <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          <span class="nb">unfold</span> map_between_pbs, is_pb_square_mor.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="bp">exact</span> r.
+        - <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          <span class="nb">unfold</span> map_between_pbs, is_pb_square_mor.
+          <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+          <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">UMP</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">is_pb_square</span>
+      : isPullback map_between_pbs_eq.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w h k r.
+      use iscontraprop1.
+      - <span class="nb">apply</span> is_pb_square_mor_unique.
+      - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        + <span class="bp">exact</span> (is_pb_square_mor r).
+        + <span class="kp">abstract</span>
+            (<span class="nb">apply</span> PullbackArrow_PullbackPr1).
+        + <span class="nb">apply</span> is_pb_square_mor_pr2.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">is_strong_epi_map_between_pbs</span>
+      : is_strong_epi map_between_pbs.
+    <span class="kn">Proof</span>.
+      use is_strong_epi_regular_epi.
+      <span class="bp">exact</span> (is_regular_category_regular_epi_pb_stable
+               HC
+               _ _ _ _ _ _ _ _ _
+               is_pb_square
+               He₂).
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(**</span>
+<span class="sd">       Now we consider the following square</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd">                                 e₁</span>
+<span class="sd">        Q₃ -------------&gt; Q₁ --------&gt; im₁</span>
+<span class="sd">        |                              |</span>
+<span class="sd">        |                              | m₁</span>
+<span class="sd">        |                              |</span>
+<span class="sd">        V                              V</span>
+<span class="sd">        Q₂ --------------------------&gt; x₃</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd">       The map `Q₁ --&gt; Q₂` is `map_between_pbs`, which is a regular</span>
+<span class="sd">       epimorphism. The map `Q₂ --&gt; x₃` is a pullback projection, and</span>
+<span class="sd">       `mono_cod_left_beck_chevalley_mor_inv` is the moprhism from `Q₃`</span>
+<span class="sd">       to `Q₁`. By showing that this diagram commutes, we can use the</span>
+<span class="sd">       lifting property of regular epimorphisms with respect to</span>
+<span class="sd">       monomorphism to obtain a map `Q₂ --&gt; im₁` making the triangles</span>
+<span class="sd">       commute. From this we can directly conclude the stability under</span>
+<span class="sd">       pullback of existential quantification.</span>
+<span class="sd">     *)</span>
+    <span class="kn">Local Lemma</span> <span class="nf">mono_codomain_exists_stable_mor_eq</span>
+      : map_between_pbs · PullbackPr2 _
+        =
+        mono_cod_left_beck_chevalley_mor_inv · e₁ · m₁.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- p₁.
+      <span class="nb">unfold</span> f₁.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">unfold</span> map_between_pbs, mono_cod_left_beck_chevalley_mor_inv.
+      <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 P).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">mono_codomain_exists_stable_mor</span>
+      : Q₂ --&gt; im₁
+      := pr11 (is_strong_epi_map_between_pbs
+                 _ _ _ _ _
+                 mono_codomain_exists_stable_mor_eq
+                 (MonicisMonic _ m₁)).
+
+    <span class="kn">Definition</span> <span class="nf">mono_codomain_exists_stable</span>
+      : mono_cod_pb PB s₂ (mono_codomain_exists s₁ yg)
+        --&gt;
+        mono_codomain_exists s₃ (mono_cod_pb PB s₄ yg).
+    <span class="kn">Proof</span>.
+      use make_mono_cod_fib_mor.
+      - <span class="bp">exact</span> mono_codomain_exists_stable_mor.
+      - <span class="kp">abstract</span>
+          (<span class="nb">apply</span> (pr121 (is_strong_epi_map_between_pbs _ _ _ _ _ _ (MonicisMonic _ _)))).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Stability</span>.
+
+  <span class="sd">(** 3. Dependent sums in the displayed category of monomorphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">mono_codomain_has_dependent_sums</span>
+    : has_dependent_sums HD.
+  <span class="kn">Proof</span>.
+    use make_has_dependent_sums_poset.
+    - <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">f</span> <span class="nv">xg</span>, mono_codomain_exists f xg).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">f</span> <span class="nv">xg</span>, mono_codomain_exists_intro f xg).
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> mono_codomain_exists_elim.
+      <span class="bp">exact</span> p.
+    - <span class="nb">intros</span> x₁ x₂ x₃ x₄ s₁ s₂ s₃ s₄ p Hp yg.
+      <span class="bp">exact</span> (mono_codomain_exists_stable Hp yg).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MonoCodomainLeftAdj</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/MonoCodomain/MonoCodLeftAdjoint.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Dependent sums in the displayed category of monomorphisms
+  &gt;
+  &gt;  ***************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

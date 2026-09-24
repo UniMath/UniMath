@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AlgebraicTheoryCategoryCore.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The category of algebraic theories</span>
+
+<span class="sd">  Defines the category of algebraic theories. The category is formalized via a stack of displayed</span>
+<span class="sd">  categories.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The category of algebraic theories [algebraic_theory_cat]</span>
+<span class="sd">  1.1. The category of algebraic theory data [algebraic_theory_data_cat]</span>
+<span class="sd">  1.1.1. Temporary accessors</span>
+<span class="sd">  1.2. The category of algebraic theories</span>
+<span class="sd">  1.2.1. Temporary accessors</span>
+<span class="sd">  1.2.2. A lemma about algebraic theories [isaprop_is_algebraic_theory]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.IndexedSetCategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The category of algebraic theories *)</span>
+
+<span class="kn">Section</span> <span class="nf">AlgebraicTheoryCategory</span>.
+
+<span class="sd">(** ** 1.1. The category of algebraic theory data *)</span>
+
+  <span class="c">(* The suffix '_ax' for 'axiom' makes sense for descriptions of properties that are hProps. *)</span>
+  <span class="c">(* I am, however, still searching for a better naming scheme for non-propositional properties. *)</span>
+  <span class="kn">Definition</span> <span class="nf">var_ax</span>
+    (<span class="nv">T</span> : indexed_set_cat nat)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">i</span> : stn n)
+    : UU
+    := T n.
+
+  <span class="kn">Definition</span> <span class="nf">subst_ax</span>
+    (<span class="nv">T</span> : indexed_set_cat nat)
+    (<span class="nv">m</span> <span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : T m)
+    (<span class="nv">g</span> : stn m → T n)
+    : UU
+    := T n.
+
+  <span class="kn">Let</span> <span class="nf">mor_var_ax'</span>
+    {<span class="nv">T</span> <span class="nv">T'</span> : indexed_set_cat nat}
+    (<span class="nv">F</span> : indexed_set_cat nat⟦T, T'⟧)
+    (<span class="nv">var</span> : ∏ n i, var_ax T n i)
+    (<span class="nv">var'</span> : ∏ n i, var_ax T' n i)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">i</span> : stn n)
+    : UU
+    := F n (var n i) = var' n i.
+
+  <span class="kn">Let</span> <span class="nf">mor_subst_ax'</span>
+    {<span class="nv">T</span> <span class="nv">T'</span> : indexed_set_cat nat}
+    (<span class="nv">F</span> : indexed_set_cat nat⟦T, T'⟧)
+    (<span class="nv">subst</span> : ∏ m n f g, subst_ax T m n f g)
+    (<span class="nv">subst'</span> : ∏ m n f g, subst_ax T' m n f g)
+    (<span class="nv">m</span> <span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : T m)
+    (<span class="nv">g</span> : stn m → T n)
+    : UU
+    := F n (<span class="nb">subst</span> m n f g) = subst' m n (F m f) (<span class="k">λ</span> <span class="nv">i</span>, F n (g i)).
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_data_disp_cat</span>
+    : disp_cat (indexed_set_cat nat).
+  <span class="kn">Proof</span>.
+    use disp_struct.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">T</span>, _ × _).
+      + <span class="bp">exact</span> (∏ n i, var_ax T n i).
+      + <span class="bp">exact</span> (∏ m n f g, subst_ax T m n f g).
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">T</span> <span class="nv">T'</span> <span class="nv">Tdata</span> <span class="nv">T'data</span> <span class="nv">F</span>, _ × _).
+      + <span class="bp">exact</span> (∏ n i, mor_var_ax' F (pr1 Tdata) (pr1 T'data) n i).
+      + <span class="bp">exact</span> (∏ m n f g, mor_subst_ax' F (pr2 Tdata) (pr2 T'data) m n f g).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span>;
+        <span class="nb">apply</span> isapropdirprod;
+        <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+        <span class="nb">apply</span> setproperty
+      ).
+    - <span class="kp">abstract</span> <span class="bp">easy</span>.
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> T T' T'' Tdata T'data T''data F F' Fdata F'data;
+        <span class="nb">split</span>;
+        [ <span class="nb">intros</span> n i;
+          <span class="bp">exact</span> (maponpaths _ (pr1 Fdata _ _) @ pr1 F'data _ _)
+        | <span class="nb">intros</span> m n f g;
+          <span class="nb">refine</span> (maponpaths _ (pr2 Fdata _ _ _ _) @ pr2 F'data _ _ _ _) ]
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_data_cat</span>
+    : category
+    := total_category algebraic_theory_data_disp_cat.
+
+<span class="sd">(** *** 1.1.1. Temporary accessors *)</span>
+
+  <span class="kn">Let</span> <span class="nf">data_set</span>
+    (<span class="nv">T</span> : algebraic_theory_data_cat)
+    : nat → hSet
+    := pr1 T.
+
+  <span class="kn">Let</span> <span class="nf">data_var</span>
+    {<span class="nv">T</span> : algebraic_theory_data_cat}
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">i</span> : stn n)
+    : var_ax (data_set T) n i
+    := pr12 T n i.
+
+  <span class="kn">Let</span> <span class="nf">data_subst</span>
+    {<span class="nv">T</span> : algebraic_theory_data_cat}
+    {<span class="nv">m</span> <span class="nv">n</span> : nat}
+    (<span class="nv">f</span> : data_set T m)
+    (<span class="nv">g</span> : stn m → data_set T n)
+    : subst_ax (data_set T) m n f g
+    := pr22 T m n f g.
+
+  <span class="kn">Let</span> <span class="nf">data_mor</span>
+    {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory_data_cat}
+    (<span class="nv">F</span> : T --&gt; T')
+    {<span class="nv">n</span> : nat}
+    : data_set T n → data_set T' n
+    := pr1 F n.
+
+  <span class="kn">Local Definition</span> <span class="nf">mor_var_ax</span>
+    {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory_data_cat}
+    (<span class="nv">F</span> : indexed_set_cat nat⟦data_set T, data_set T'⟧)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">i</span> : stn n)
+    : UU
+    := mor_var_ax' F (@data_var T) (@data_var T') n i.
+
+  <span class="kn">Local Definition</span> <span class="nf">mor_subst_ax</span>
+    {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory_data_cat}
+    (<span class="nv">F</span> : indexed_set_cat nat⟦data_set T, data_set T'⟧)
+    (<span class="nv">m</span> <span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : data_set T m)
+    (<span class="nv">g</span> : stn m → data_set T n)
+    : UU
+    := mor_subst_ax' F (@data_subst T) (@data_subst T') m n f g.
+
+  <span class="kn">Let</span> <span class="nf">data_mor_var</span>
+    {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory_data_cat}
+    (<span class="nv">F</span> : T --&gt; T')
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">i</span> : stn n)
+    : mor_var_ax (@data_mor _ _ F) n i
+    := pr12 F n i.
+
+  <span class="kn">Let</span> <span class="nf">data_mor_subst</span>
+    {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory_data_cat}
+    (<span class="nv">F</span> : T --&gt; T')
+    {<span class="nv">m</span> <span class="nv">n</span> : nat}
+    (<span class="nv">f</span> : data_set T m)
+    (<span class="nv">g</span> : stn m → data_set T n)
+    : mor_subst_ax (@data_mor _ _ F) m n f g
+    := pr22 F m n f g.
+
+<span class="sd">(** ** 1.2. The category of algebraic theories  *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">subst_subst_ax</span>
+    (<span class="nv">T</span> : algebraic_theory_data_cat)
+    (<span class="nv">l</span> <span class="nv">m</span> <span class="nv">n</span> : nat)
+    (<span class="nv">f_l</span> : data_set T l)
+    (<span class="nv">f_m</span> : stn l → data_set T m)
+    (<span class="nv">f_n</span> : stn m → data_set T n)
+    : UU
+    := data_subst (data_subst f_l f_m) f_n = data_subst f_l (<span class="k">λ</span> <span class="nv">t_l</span>, data_subst (f_m t_l) f_n).
+
+  <span class="kn">Local Definition</span> <span class="nf">var_subst_ax</span>
+    (<span class="nv">T</span> : algebraic_theory_data_cat)
+    (<span class="nv">m</span> <span class="nv">n</span> : nat)
+    (<span class="nv">i</span> : stn m)
+    (<span class="nv">f</span> : stn m → data_set T n)
+    : UU
+    := data_subst (data_var i) f = f i.
+
+  <span class="kn">Local Definition</span> <span class="nf">subst_var_ax</span>
+    (<span class="nv">T</span> : algebraic_theory_data_cat)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : data_set T n)
+    : UU
+    := data_subst f data_var = f.
+
+  <span class="kn">Local Definition</span> <span class="nf">is_algebraic_theory</span> (<span class="nv">T</span> : algebraic_theory_data_cat) : UU :=
+    (∏ l m n f_l f_m f_n, subst_subst_ax T l m n f_l f_m f_n) ×
+    (∏ m n i f, var_subst_ax T m n i f) ×
+    (∏ n f, subst_var_ax T n f).
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_disp_cat</span>
+    : disp_cat algebraic_theory_data_cat
+    := disp_full_sub algebraic_theory_data_cat is_algebraic_theory.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_cat</span>
+    : category
+    := total_category algebraic_theory_disp_cat.
+
+<span class="sd">(** *** 1.2.2. A lemma about algebraic theories *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_algebraic_theory</span> (<span class="nv">T</span> : algebraic_theory_data_cat) : isaprop (is_algebraic_theory T).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">apply</span> isapropdirprod;
+      <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+      <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">AlgebraicTheoryCategory</span>.
+
+<span class="c">(* The _ax definitions are mainly for ease of defining stuff. *)</span>
+<span class="c">(* The Arguments commands here make sure that they are unfolded as soon as possible. *)</span>
+<span class="kn">Arguments</span> var_ax /.
+<span class="kn">Arguments</span> subst_ax /.
+<span class="kn">Arguments</span> mor_var_ax /.
+<span class="kn">Arguments</span> mor_subst_ax /.
+<span class="kn">Arguments</span> subst_subst_ax /.
+<span class="kn">Arguments</span> var_subst_ax /.
+<span class="kn">Arguments</span> subst_var_ax /.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/AlgebraicTheoryCategoryCore.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   1.2.2. A lemma about algebraic theories [isaprop_is_algebraic_theory]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

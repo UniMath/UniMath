@@ -1,0 +1,1215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RelativeMonads.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents:</span>
+
+<span class="sd">- Definition of relative monads [RelMonad]</span>
+<span class="sd">- Functoriality for relative monads [r_lift]</span>
+<span class="sd">- Kleisli category associated to a relative monad [Kleisli_precat] [Kleisli_cat], canonical relative adjunction [rKleisli_functors_are_relative_adjoints]</span>
+<span class="sd">- Category of relative monads is univalent if the target category is [is_univalent_RelMonad]</span>
+
+<span class="sd">Reference: % \cite{DBLP:journals/corr/AltenkirchCU14} \par %</span>
+
+<span class="sd">Written by: Benedikt Ahrens (started May 2017)</span>
+<span class="sd">Extended by: Ralph Matthes (starting August 2018), in particular all on univalence</span>
+
+
+<span class="sd">************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of relative monads *)</span>
+<span class="kn">Section</span> <span class="nf">RMonad_def</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">J</span> : functor_data C D}.
+
+<span class="c">(* implicitness of arguments for RelMonad_data are set after this section *)</span>
+<span class="kn">Definition</span> <span class="nf">RelMonad_data</span> : UU
+  := ∑ F : C -&gt; D, (∏ c, D ⟦J c, F c⟧)
+                 × (∏ c d, D ⟦J c, F d⟧ → D ⟦F c, F d⟧).
+
+<span class="kn">Definition</span> <span class="nf">RelMonad_ob</span> (<span class="nv">R</span> : RelMonad_data) (<span class="nv">c</span> : C) : D := pr1 R c.
+<span class="kn">Coercion</span> <span class="nf">RelMonad_ob</span> : RelMonad_data &gt;-&gt; <span class="kt">Funclass</span>.
+<span class="kn">Definition</span> <span class="nf">r_eta</span> (<span class="nv">R</span> : RelMonad_data) <span class="nv">c</span> : D ⟦J c, R c⟧ := pr1 (pr2 R) c.
+<span class="kn">Definition</span> <span class="nf">r_bind</span> (<span class="nv">R</span> : RelMonad_data) {<span class="nv">c</span> <span class="nv">d</span>} (<span class="nv">f</span> : D⟦J c, R d⟧) : D ⟦R c, R d⟧
+  := pr2 (pr2 R) _ _ f.
+
+<span class="kn">Definition</span> <span class="nf">RelMonad_axioms</span> (<span class="nv">R</span> : RelMonad_data) : UU
+  := (∏ c, r_bind R (r_eta R c) = identity _ )
+   × (∏ c d (f : D⟦J c, R d⟧), r_eta R _ · r_bind R f = f)
+   × (∏ c d e (f : D ⟦J c, R d⟧) (g : D ⟦J d, R e⟧),
+      r_bind R f · r_bind R g = r_bind R (f · r_bind R g)).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_RelMonad_axioms</span> (<span class="nv">R</span> : RelMonad_data)(<span class="nv">hs</span> : has_homsets D) :
+  isaprop (RelMonad_axioms R).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod.
+  - <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span>. <span class="nb">apply</span> hs.
+  - <span class="nb">apply</span> isapropdirprod; <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span>); <span class="nb">apply</span> hs.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">r_bind_r_eta</span> {<span class="nv">R</span> : RelMonad_data} (<span class="nv">X</span> : RelMonad_axioms R)
+  : ∏ c, r_bind R (r_eta R c) = identity _ := pr1 X.
+<span class="kn">Definition</span> <span class="nf">r_eta_r_bind</span> {<span class="nv">R</span> : RelMonad_data} (<span class="nv">X</span> : RelMonad_axioms R)
+  : ∏ c d (f : D⟦J c, R d⟧), r_eta R _ · r_bind R f = f := pr1 (pr2 X).
+<span class="kn">Definition</span> <span class="nf">r_bind_r_bind</span> {<span class="nv">R</span> : RelMonad_data} (<span class="nv">X</span> : RelMonad_axioms R)
+  : ∏ c d e (f : D ⟦J c, R d⟧) (g : D ⟦J d, R e⟧),
+         r_bind R f · r_bind R g = r_bind R (f · r_bind R g)
+  := pr2 (pr2 X).
+
+<span class="c">(* implicitness of arguments for RelMonad are set after this section *)</span>
+<span class="kn">Definition</span> <span class="nf">RelMonad</span> : UU := ∑ R : RelMonad_data, RelMonad_axioms R.
+<span class="kn">Coercion</span> <span class="nf">RelMonad_data_from_RelMonad</span> (R : RelMonad) : RelMonad_data := pr1 R.
+<span class="kn">Coercion</span> <span class="nf">RelMonad_axioms_from_RelMonad</span> (R : RelMonad) : RelMonad_axioms R := pr2 R.
+
+<span class="kn">Lemma</span> <span class="nf">RelMonad_eq</span> (<span class="nv">R</span> <span class="nv">R'</span> : RelMonad)(<span class="nv">hs</span> : has_homsets D) :
+  pr1 R = pr1 R' -&gt; R = R'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> p.
+  <span class="nb">apply</span> (total2_paths_f p).
+  <span class="nb">apply</span> proofirrelevance.
+  <span class="nb">apply</span> isaprop_RelMonad_axioms.
+  <span class="bp">exact</span> hs.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**  previous proof *)</span>
+<span class="kn">Lemma</span> <span class="nf">RelMonad_eq_obsolete</span> (<span class="nv">R</span> <span class="nv">R'</span> : RelMonad)(<span class="nv">hs</span> : has_homsets D) :
+  pr1 R = pr1 R' -&gt; R = R'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> p.
+  <span class="nb">apply</span> subtypeInjectivity.
+  - <span class="nb">intro</span> R''.
+    <span class="nb">apply</span> isaprop_RelMonad_axioms.
+    <span class="bp">exact</span> hs.
+  - <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** generalize [UniMath.CategoryTheory.Monads.KTriples.map] *)</span>
+<span class="kn">Definition</span> <span class="nf">r_lift</span> (<span class="nv">R</span> : RelMonad_data) {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : c --&gt; d) : R c --&gt; R d
+  := r_bind R (#J f · r_eta R _ ).
+
+<span class="kn">End</span> <span class="nf">RMonad_def</span>.
+
+<span class="sd">(** generalize [UniMath.CategoryTheory.Monads.KTriples.map_id] and</span>
+<span class="sd">               [UniMath.CategoryTheory.Monads.KTriples.map_map] *)</span>
+<span class="kn">Definition</span> <span class="nf">is_functor_r_lift</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span>: precategory} {<span class="nv">J</span> : functor C D} (<span class="nv">R</span> : RelMonad)
+  : is_functor (RelMonad_ob R,, @r_lift _ _ J R).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; [<span class="nb">intro</span> c | <span class="nb">intros</span> a b c f g]; <span class="nb">cbn</span>; <span class="nb">unfold</span> r_lift; <span class="nb">cbn</span>.
+  - etrans. <span class="nb">apply</span> maponpaths.
+      etrans. <span class="nb">eapply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _  )). <span class="nb">apply</span> functor_id.
+      <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> (r_bind_r_eta R).
+  - etrans. <span class="mi">2</span>: { <span class="nb">eapply</span> pathsinv0; <span class="nb">apply</span> (r_bind_r_bind R). }
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    <span class="nb">apply</span> map_on_two_paths. <span class="nb">apply</span> functor_comp. <span class="nb">apply</span> idpath.
+    etrans.
+    <span class="mi">2</span>: { etrans. <span class="mi">2</span>: <span class="nb">apply</span> assoc.
+         <span class="nb">eapply</span> pathsinv0. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> (r_eta_r_bind R).
+    }
+    <span class="nb">apply</span> pathsinv0, assoc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">R_functor</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span>: precategory} {<span class="nv">J</span> : functor C D}
+  (<span class="nv">R</span> : RelMonad): functor C D
+  := _,, is_functor_r_lift(J:=J) R.
+
+
+<span class="sd">(** generalize [UniMath.CategoryTheory.Monads.KTriples.is_nat_trans_η] *)</span>
+<span class="kn">Definition</span> <span class="nf">is_nat_trans_r_eta</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span>: precategory} {<span class="nv">J</span> : functor C D}(<span class="nv">R</span> : RelMonad)
+  : is_nat_trans J (R_functor R) (r_eta R).
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> c c' f.
+  <span class="nb">unfold</span> R_functor; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> r_lift; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (r_eta_r_bind R).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">r_eta_nat_trans</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span>: precategory} {<span class="nv">J</span> : functor C D}(<span class="nv">R</span> : RelMonad)
+  : nat_trans J (R_functor R) := _ ,, is_nat_trans_r_eta R.
+
+
+<span class="sd">(** generalize [UniMath.CategoryTheory.Monads.KTriples.map_bind] *)</span>
+<span class="kn">Definition</span> <span class="nf">r_lift_r_bind</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span>: precategory} {<span class="nv">J</span> : functor C D}(<span class="nv">R</span> : RelMonad)(<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C) (<span class="nv">f</span> : b --&gt; c) (<span class="nv">g</span> : J a --&gt; R b)
+  : r_bind R g · r_lift R f = r_bind R (g · r_lift R f).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> r_lift.
+  <span class="nb">rewrite</span> &lt;- (r_bind_r_bind R).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** generalize [UniMath.CategoryTheory.Monads.KTriples.bind_map] *)</span>
+<span class="kn">Definition</span> <span class="nf">r_bind_r_lift</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span>: precategory} {<span class="nv">J</span> : functor C D}(<span class="nv">R</span> : RelMonad)(<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C) (<span class="nv">f</span> : J b --&gt; R c) (<span class="nv">g</span> : a --&gt; b)
+  : r_lift R g · r_bind R f = r_bind R (#J g · f).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> r_lift.
+  <span class="nb">rewrite</span> (r_bind_r_bind R).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">apply</span> (r_eta_r_bind R).
+<span class="kn">Defined</span>.
+
+
+<span class="c">(* Underlying functor argument should be explicit for RelMonad_data and RelMonad *)</span>
+<span class="kn">Arguments</span> RelMonad_data {C} {D} J.
+<span class="kn">Arguments</span> RelMonad {C} {D} J.
+
+
+<span class="sd">(** analogue of [UniMath.CategoryTheory.Core.Functors.functor_eq_eq_from_functor_ob_eq] *)</span>
+<span class="kn">Definition</span> <span class="nf">relmonad_eq_eq_from_relmonad_ob_eq</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span>: precategory} (<span class="nv">hs</span>: has_homsets D)
+           {<span class="nv">J</span> : functor C D} (<span class="nv">R</span> <span class="nv">R'</span> : RelMonad J) (<span class="nv">p</span> <span class="nv">q</span> : R = R')
+    (<span class="nv">H</span> : base_paths _ _ (base_paths _ _ p) =
+         base_paths _ _ (base_paths _ _ q)) :
+    p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (invmaponpathsweq (total2_paths_equiv _ _ _ )); <span class="nb">simpl</span>.
+  <span class="nb">assert</span> (H' : base_paths _ _ p = base_paths _ _ q).
+  { <span class="nb">apply</span> (invmaponpathsweq (total2_paths_equiv _ _ _ )); <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (two_arg_paths_f H), uip.
+    <span class="nb">apply</span> isaset_dirprod.
+    - <span class="nb">apply</span> impred_isaset; <span class="nb">intro</span> c. <span class="nb">apply</span> hs.
+    - <span class="nb">apply</span> impred_isaset; <span class="nb">intro</span> c; <span class="nb">apply</span> impred_isaset; <span class="nb">intro</span> d; <span class="nb">apply</span> impred_isaset; <span class="nb">intro</span> f.
+      <span class="nb">apply</span> hs.
+  }
+  <span class="nb">apply</span> (two_arg_paths_f H'), uip, isasetaprop, isaprop_RelMonad_axioms, hs.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** Kleisli precategory associated to a relative monad *)</span>
+<span class="kn">Section</span> <span class="nf">Kleisli_precat</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span> : precategory} {<span class="nv">J</span> : functor_data C D}.
+
+<span class="kn">Definition</span> <span class="nf">Kleisli_precat_ob_mor</span> (<span class="nv">R</span> : RelMonad_data J) : precategory_ob_mor :=
+  make_precategory_ob_mor (ob C) (<span class="k">λ</span> <span class="nv">c</span> <span class="nv">d</span>, J c --&gt; R d).
+
+<span class="kn">Definition</span> <span class="nf">Kleisli_precat_data</span> (<span class="nv">R</span> : RelMonad_data J) : precategory_data :=
+  make_precategory_data (Kleisli_precat_ob_mor R) (<span class="k">λ</span> <span class="nv">c</span>, r_eta R c)
+                                              (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">f</span> <span class="nv">g</span>, f · r_bind R g).
+
+<span class="kn">Lemma</span> <span class="nf">Kleisli_precat_is_precat</span> (<span class="nv">R</span> : RelMonad J) : is_precategory (Kleisli_precat_data R).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_precategory_one_assoc_to_two.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="kp">try</span> <span class="nb">apply</span> tpair;
+    <span class="kp">try</span> <span class="nb">unfold</span> compose; <span class="nb">simpl</span>.
+  - <span class="nb">intros</span> a b f.
+    <span class="nb">apply</span> (r_eta_r_bind R).
+  - <span class="nb">intros</span> a b f.
+    <span class="bp">now</span> <span class="nb">rewrite</span> (r_bind_r_eta R), id_right.
+  - <span class="nb">intros</span> a b c d f g h.
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc, (r_bind_r_bind R).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Kleisli_precat</span> (<span class="nv">R</span> : RelMonad J) : precategory := (_,, Kleisli_precat_is_precat R).
+
+<span class="kn">End</span> <span class="nf">Kleisli_precat</span>.
+
+<span class="sd">(** Kleisli category associated to a relative monad *)</span>
+<span class="kn">Section</span> <span class="nf">Kleisli_cat</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Kleisli_precat_has_homsets</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category} {<span class="nv">J</span> : functor_data C D} (<span class="nv">R</span> : RelMonad J)
+      (<span class="nv">hs</span> : has_homsets D) : has_homsets (Kleisli_precat_data R).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b.
+  <span class="nb">apply</span> hs.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Kleisli_cat</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category} {<span class="nv">J</span> : functor_data C D} (<span class="nv">R</span> : RelMonad J)
+  : category := (Kleisli_precat R,, Kleisli_precat_has_homsets R (homset_property D)).
+
+<span class="kn">End</span> <span class="nf">Kleisli_cat</span>.
+
+<span class="kn">Section</span> <span class="nf">MorphismsOfRelativeMonads</span>.
+
+<span class="kn">Definition</span> <span class="nf">RelMonadMor_data</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data}
+           {<span class="nv">J</span> : functor_data C D} (<span class="nv">R</span> <span class="nv">R'</span> : RelMonad_data J): UU :=
+  ∏ a : C, R a --&gt; R' a.
+
+<span class="kn">Definition</span> <span class="nf">RelMonadMor_axioms</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data}
+           {<span class="nv">J</span> : functor_data C D} {<span class="nv">R</span> <span class="nv">R'</span> : RelMonad_data J} (<span class="nv">α</span> : RelMonadMor_data R R') : UU
+  := (∏ a : C, r_eta R a · α a = r_eta R' a) ×
+     (∏ (a b : C) (f : D⟦J a,R b⟧), α a · r_bind R' (f · α b) = (r_bind R f)· α b).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_RelMonadMor_axioms</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data}
+      {<span class="nv">J</span> : functor_data C D} {<span class="nv">R</span> <span class="nv">R'</span> : RelMonad_data J} (<span class="nv">α</span> : RelMonadMor_data R R')
+      (<span class="nv">hs</span> : has_homsets D) :
+  isaprop (RelMonadMor_axioms α).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod; <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span>); <span class="nb">apply</span> hs.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** generalize [UniMath.CategoryTheory.Monads.KTriples.Kleisli_Mor_η] *)</span>
+<span class="kn">Definition</span> <span class="nf">r_eta_α</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">J</span> : functor_data C D}
+           {<span class="nv">R</span> <span class="nv">R'</span> : RelMonad_data J} {<span class="nv">α</span> : RelMonadMor_data R R'}
+           (<span class="nv">X</span> : RelMonadMor_axioms α)
+  : ∏ a : C, r_eta R a · α a = r_eta R' a := pr1 X.
+
+<span class="sd">(** generalize [UniMath.CategoryTheory.Monads.KTriples.Kleisli_Mor_bind] *)</span>
+<span class="kn">Definition</span> <span class="nf">α_r_bind</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">J</span> : functor_data C D}
+           {<span class="nv">R</span> <span class="nv">R'</span> : RelMonad_data J} {<span class="nv">α</span> : RelMonadMor_data R R'}
+           (<span class="nv">X</span> : RelMonadMor_axioms α)
+  : ∏ (a b : C) (f : D⟦J a,R b⟧), α a · r_bind R' (f · α b) = (r_bind R f) · α b  := pr2 X.
+
+<span class="kn">Definition</span> <span class="nf">RelMonadMor</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">J</span> : functor_data C D}
+           (<span class="nv">R</span> <span class="nv">R'</span> : RelMonad_data J) : UU
+  := ∑ α : RelMonadMor_data R R', RelMonadMor_axioms α.
+<span class="kn">Coercion</span> <span class="nf">RelMonadMor_data_from_RelMonadMor</span>  {C D : precategory_data} {J : functor_data C D}
+           {R R' : RelMonad_data J} (α : RelMonadMor R R') : RelMonadMor_data R R' := pr1 α.
+
+ <span class="kn">Coercion</span> <span class="nf">RelMonadMor_axioms_from_RelMonadMor</span> {C D : precategory_data} {J : functor_data C D}
+         {R R' : RelMonad_data J} (α : RelMonadMor R R') :
+  RelMonadMor_axioms α := pr2 α.
+
+<span class="kn">Definition</span> <span class="nf">RelMonadMor_map</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">J</span> : functor_data C D}
+           {<span class="nv">R</span> <span class="nv">R'</span> : RelMonad_data J} (<span class="nv">f</span> : RelMonadMor R R') (<span class="nv">X</span> : C)
+  : R X --&gt; R' X
+  := (f : RelMonadMor_data _ _ ) X.
+
+<span class="kn">Definition</span> <span class="nf">RelMonadMor_equiv</span>  {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} (<span class="nv">hs</span> : has_homsets D)
+           {<span class="nv">J</span> : functor_data C D} {<span class="nv">R</span> <span class="nv">R'</span> : RelMonad_data J} (<span class="nv">α</span> <span class="nv">β</span> : RelMonadMor R R') :
+  α = β ≃ ((α: RelMonadMor_data R R') = β).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypeInjectivity.
+  <span class="nb">intro</span> a.
+  <span class="nb">apply</span> isaprop_RelMonadMor_axioms.
+  <span class="bp">exact</span> hs.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** generalize [UniMath.CategoryTheory.Monads.KTriples.is_nat_trans_kleisli_mor] *)</span>
+<span class="kn">Definition</span> <span class="nf">is_nat_trans_RelMonadMor</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span>: precategory} {<span class="nv">J</span> : functor C D}
+           {<span class="nv">R</span> <span class="nv">R'</span> : RelMonad J} (<span class="nv">α</span> : RelMonadMor R R'):
+  is_nat_trans (R_functor R) (R_functor R') (α:RelMonadMor_data R R').
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> c c' f.
+  <span class="nb">unfold</span> R_functor; <span class="nb">simpl</span>. <span class="nb">unfold</span> r_lift; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> &lt;- (α_r_bind α).
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="bp">now</span> <span class="nb">rewrite</span> (r_eta_α α).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_RelMonadMor</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span>: precategory} {<span class="nv">J</span> : functor C D}
+           {<span class="nv">R</span> <span class="nv">R'</span> : RelMonad J} (<span class="nv">α</span> : RelMonadMor R R'):
+  nat_trans (R_functor R) (R_functor R') := _ ,, is_nat_trans_RelMonadMor α.
+
+<span class="kn">End</span> <span class="nf">MorphismsOfRelativeMonads</span>.
+
+<span class="kn">Section</span> <span class="nf">PrecategoryOfRelativeMonads</span>.
+
+<span class="c">(* ----- Identity Morphism ----- *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">RelMonad_identity_laws</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory}
+      {<span class="nv">J</span> : functor_data C D} (<span class="nv">R</span> : RelMonad_data J):
+  RelMonadMor_axioms (<span class="k">λ</span> <span class="nv">a</span> : C, identity (R a)).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intros</span> c.
+  - <span class="nb">apply</span> id_right.
+  - <span class="nb">intros</span>. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">RelMonad_identity</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory}
+  {<span class="nv">J</span> : functor_data C D} (<span class="nv">R</span> : RelMonad_data J): RelMonadMor R R
+  := _ ,, RelMonad_identity_laws R.
+
+<span class="c">(* ----- Composition of Morphisms ----- *)</span>
+
+<span class="sd">(** generalize [UniMath.CategoryTheory.Monads.KTriples.Kleisli_composition_laws] *)</span>
+<span class="kn">Lemma</span> <span class="nf">RelMonad_composition_laws</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory}
+      {<span class="nv">J</span> : functor_data C D} {<span class="nv">R</span> <span class="nv">R'</span> <span class="nv">R''</span> : RelMonad_data J}
+      (<span class="nv">α</span> : RelMonadMor R R') (<span class="nv">α'</span> : RelMonadMor R' R''):
+  RelMonadMor_axioms (<span class="k">λ</span> <span class="nv">a</span> : C, (α : RelMonadMor_data R R') a · (α' : RelMonadMor_data R' R'') a).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">simpl</span>.
+  - <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (r_eta_α α).
+    <span class="nb">apply</span> (r_eta_α α').
+  - intermediate_path ((α:RelMonadMor_data R R') a ·
+             ((α':RelMonadMor_data R' R'') a ·
+              r_bind R'' ((f · (α:RelMonadMor_data R R') b) ·
+                        (α':RelMonadMor_data R' R'') b))).
+    * <span class="bp">now</span> <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    * <span class="nb">rewrite</span> (α_r_bind α').
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> (α_r_bind α).
+      <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> assoc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">RelMonad_composition</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory}
+      {<span class="nv">J</span> : functor_data C D} {<span class="nv">R</span> <span class="nv">R'</span> <span class="nv">R''</span> : RelMonad_data J}
+      (<span class="nv">α</span> : RelMonadMor R R') (<span class="nv">α'</span> : RelMonadMor R' R''):
+  RelMonadMor R R'' := _ ,, RelMonad_composition_laws α α'.
+
+<span class="c">(* ----- Precategory of relative Monads (for a given functor [J]) ----- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">precategory_RelMonad_ob_mor</span>  {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory}
+      (<span class="nv">J</span> : functor_data C D) : precategory_ob_mor :=
+  make_precategory_ob_mor (RelMonad J) RelMonadMor.
+
+<span class="kn">Definition</span> <span class="nf">precategory_RelMonad_data</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory}
+           (<span class="nv">J</span> : functor_data C D) : precategory_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (make_precategory_data (precategory_RelMonad_ob_mor J)).
+  - <span class="nb">intro</span> R.
+    <span class="nb">apply</span> RelMonad_identity.
+  - <span class="nb">intros</span> R R' R'' α α'.
+    <span class="nb">apply</span> (RelMonad_composition α α').
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">precategory_RelMonad_axioms</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory}
+      (<span class="nv">hs</span> : has_homsets D) (<span class="nv">J</span> : functor_data C D) :
+  is_precategory (precategory_RelMonad_data J).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>.
+  - <span class="nb">apply</span> (invmap (RelMonadMor_equiv hs _ _ )).
+    <span class="nb">apply</span> funextsec. <span class="nb">intros</span> x. <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> (invmap (RelMonadMor_equiv hs _ _ )).
+    <span class="nb">apply</span> funextsec. <span class="nb">intros</span> x. <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> (invmap (RelMonadMor_equiv hs _ _ )).
+    <span class="nb">apply</span> funextsec. <span class="nb">intros</span> x. <span class="nb">apply</span> assoc.
+  - <span class="nb">apply</span> (invmap (RelMonadMor_equiv hs _ _ )).
+    <span class="nb">apply</span> funextsec. <span class="nb">intros</span> x. <span class="nb">apply</span> assoc'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_RelMonad</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory}
+      (<span class="nv">hs</span> : has_homsets D) (<span class="nv">J</span> : functor_data C D): precategory :=
+  _ ,, precategory_RelMonad_axioms hs J.
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_RelMonad</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory} (<span class="nv">hs</span>: has_homsets D)
+      (<span class="nv">J</span> : functor_data C D) :
+  has_homsets (precategory_RelMonad hs J).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> R R'. <span class="nb">simpl</span>. <span class="nb">unfold</span> RelMonadMor.
+  <span class="nb">apply</span> isaset_total2 .
+  - <span class="nb">apply</span> impred_isaset.
+    <span class="nb">intro</span>. <span class="nb">apply</span> hs.
+  - <span class="nb">intro</span> α.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_RelMonadMor_axioms.
+    <span class="nb">apply</span> hs.
+<span class="kn">Defined</span>.
+
+<span class="c">(* ----- Category of relative Monads (for a given functor [J]) ----- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">category_RelMonad</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+      (<span class="nv">J</span> : functor_data C D) : category :=
+  precategory_RelMonad (homset_property D) J,, has_homsets_RelMonad (homset_property D) J.
+
+
+<span class="kn">Definition</span> <span class="nf">forgetfunctor_RelMonad</span> {<span class="nv">C</span> : precategory} (<span class="nv">D</span> : category)
+      (<span class="nv">J</span> : functor C D) :
+  functor (category_RelMonad D J) (functor_category C D).
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="nb">simpl</span>.
+    use make_functor_data.
+    + <span class="nb">simpl</span>.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">R</span> : RelMonad J, R_functor R).
+    + <span class="nb">simpl</span>. <span class="nb">intros</span> R R' α.
+      <span class="bp">exact</span> (nat_trans_RelMonadMor α).
+  - <span class="nb">split</span>.
+    + <span class="nb">red</span>. <span class="nb">intros</span>. <span class="nb">simpl</span>. <span class="nb">apply</span> nat_trans_eq.
+      * <span class="nb">apply</span> D.
+      * <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+    + <span class="nb">unfold</span> functor_compax. <span class="nb">simpl</span>. <span class="nb">intros</span> R R' R'' α α'. <span class="nb">apply</span> nat_trans_eq.
+      * <span class="nb">apply</span> D.
+      * <span class="nb">intro</span> c. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">forgetRelMonad_faithful</span> {<span class="nv">C</span> : precategory} (<span class="nv">D</span> : category)
+      (<span class="nv">J</span> : functor C D) : faithful (forgetfunctor_RelMonad D J).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> R R'. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> isinclbetweensets.
+  - <span class="nb">apply</span> isaset_total2.
+    + <span class="nb">apply</span> impred_isaset.
+      <span class="nb">intros</span>. <span class="nb">apply</span> D.
+    + <span class="nb">intros</span>. <span class="nb">apply</span> isasetaprop. <span class="nb">apply</span> isaprop_RelMonadMor_axioms. <span class="nb">apply</span> D.
+  - <span class="nb">apply</span> isaset_nat_trans. <span class="nb">apply</span> D.
+  - <span class="nb">intros</span> α α' p.
+    <span class="nb">apply</span> RelMonadMor_equiv.
+    + <span class="nb">apply</span> D.
+    + <span class="nb">apply</span> funextsec. <span class="nb">intro</span> c.
+      <span class="nb">change</span> (nat_trans_RelMonadMor α c = nat_trans_RelMonadMor α' c).
+      <span class="nb">rewrite</span> p.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">PrecategoryOfRelativeMonads</span>.
+
+<span class="kn">Section</span> <span class="nf">RelativeMonads_saturated</span>.
+
+  <span class="kn">Definition</span> <span class="nf">relmonadmor_weq_nat_trans_fails</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+    (<span class="nv">J</span> : functor C D) (<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J) :
+  (category_RelMonad D J ⟦R, R'⟧) ≃ [C, D] ⟦R_functor R, R_functor R'⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (make_weq nat_trans_RelMonadMor).
+  use isweq_iso.
+  - <span class="nb">intro</span> α.
+    <span class="k">exists</span> (<span class="nv">nat_trans_data_from_nat_trans</span> <span class="nv">α</span>).
+    <span class="nb">split</span>; <span class="nb">intros</span>.
+    <span class="c">(* nothing like that! *)</span>
+<span class="kn">Abort</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">relmonadmor_eq_type</span>  {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+      (<span class="nv">J</span> : functor C D)(<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J) : UU
+  := ∑ p : z_iso (C := [C, D]) (R_functor R) (R_functor R'),
+           RelMonadMor_axioms (nat_trans_data_from_nat_trans (morphism_from_z_iso _ _ p)).
+
+<span class="kn">Definition</span> <span class="nf">relmonadmor_ob_eq</span>  {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category} (<span class="nv">H</span>: is_univalent D)
+      (<span class="nv">J</span> : functor C D)(<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J) :
+  (R = R') ≃ relmonadmor_eq_type D J R R'.
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> weqcomp.
+  - <span class="nb">apply</span> total2_paths_equiv.
+  - <span class="nb">set</span> (H1 := make_weq _ ( (is_univalent_functor_category C D H) (R_functor R) (R_functor R'))).
+<span class="kn">Abort</span>.
+
+
+<span class="sd">(** better upstream *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_z_iso_pointwise_if_z_iso'</span> (<span class="nv">C</span> : precategory_data) (<span class="nv">C'</span> : category)
+ (<span class="nv">F</span> <span class="nv">G</span> : ob [C, C']) (<span class="nv">α</span>: z_iso F G) :
+     ∏ a : ob C,
+       z_iso (pr1 F a) (pr1 G a) :=
+  <span class="k">λ</span> <span class="nv">a</span>, tpair _ _ (is_functor_z_iso_pointwise_if_z_iso C C' _ F G (pr1 α) (pr2 α) a).
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_functorcat_compute_pointwise'</span> (<span class="nv">C</span> : precategory_data) (<span class="nv">D</span> : category)
+  (<span class="nv">F</span> <span class="nv">G</span> : ob [C, D]) (<span class="nv">p</span> : F = G) (<span class="nv">a</span> : ob C) :
+  functor_z_iso_pointwise_if_z_iso' C D F G (idtoiso p) a =
+idtoiso
+  (toforallpaths (<span class="k">λ</span> <span class="nv">_</span> : ob C, D) (pr1 (pr1 F)) (pr1 (pr1 G))
+     (base_paths (pr1 F) (pr1 G) (base_paths F G p)) a).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> z_iso_eq. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+<span class="sd">(** end of better upstream *)</span>
+
+
+<span class="sd">(** a rather trivial observation *)</span>
+<span class="kn">Definition</span> <span class="nf">is_z_iso_from_is_relmonadmor_z_iso</span>  {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+      (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J} (<span class="nv">α</span> : z_iso(C := category_RelMonad D J) R R')
+  : is_z_isomorphism(C := [C, D]) (nat_trans_RelMonadMor (pr1 α)).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (H' := z_iso_inv_after_z_iso α).
+  <span class="nb">set</span> (H'':= z_iso_after_z_iso_inv α).
+  <span class="nb">set</span> (α' := inv_from_z_iso α).
+  <span class="k">exists</span> (<span class="nv">nat_trans_RelMonadMor</span> <span class="nv">α'</span>).
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  - <span class="nb">unfold</span> α'. <span class="nb">unfold</span> R_functor.
+    <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+    <span class="nb">apply</span> (nat_trans_eq D).
+    <span class="nb">set</span> (aux := maponpaths pr1 H'). <span class="nb">apply</span> toforallpaths <span class="k">in</span> aux.
+    <span class="bp">exact</span> aux.
+  - <span class="nb">unfold</span> α'. <span class="nb">unfold</span> R_functor.
+    <span class="nb">apply</span> (nat_trans_eq D).
+    <span class="nb">set</span> (aux := maponpaths pr1 H''). <span class="nb">apply</span> toforallpaths <span class="k">in</span> aux.
+    <span class="bp">exact</span> aux.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** its immediate consequence *)</span>
+<span class="kn">Definition</span> <span class="nf">z_iso_from_is_relmonadmor_z_iso</span>  {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+      (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J} (<span class="nv">α</span> : z_iso(C := category_RelMonad D J) R R')
+  : z_iso(C := [C, D]) (R_functor R) (R_functor R') :=
+  (_,, is_z_iso_from_is_relmonadmor_z_iso D J α).
+
+
+<span class="kn">Corollary</span> <span class="nf">z_iso_from_is_relmonadmor_z_iso_p</span>  {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+          (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J} (<span class="nv">α</span> : z_iso(C := category_RelMonad D J) R R') (<span class="nv">c</span> : C) :
+  pr1 (pr1 α) c =
+        functor_z_iso_pointwise_if_z_iso' C D
+          (R_functor R) (R_functor R') (z_iso_from_is_relmonadmor_z_iso
+            D J α) c.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_from_is_relmonadmor_z_iso_idtoiso</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+      (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J} (<span class="nv">p</span> : @paths (category_RelMonad D J) R R'):
+  z_iso_from_is_relmonadmor_z_iso D J (idtoiso p) =
+  idtoiso(C := [C, D]) (maponpaths (@R_functor C D J) p).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> z_iso_from_is_relmonadmor_z_iso.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (z_iso_eq(C := [C, D])).
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (nat_trans_eq D).
+  <span class="nb">intro</span> c.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">alternative_inv_to_relmonadmor_z_iso</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+           (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J} (<span class="nv">α</span> : z_iso(C := category_RelMonad D J) R R')
+  : precategory_RelMonad D J ⟦R', R⟧.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> c.
+    <span class="bp">exact</span> (inv_from_z_iso (functor_z_iso_pointwise_if_z_iso' C D
+                             (R_functor R) (R_functor R') (z_iso_from_is_relmonadmor_z_iso
+                                                             D J α) c)).
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span> c.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> z_iso_inv_on_left.
+      <span class="nb">rewrite</span> &lt;- z_iso_from_is_relmonadmor_z_iso_p.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> (r_eta_α (RelMonadMor_axioms_from_RelMonadMor (pr1 α))).
+    + <span class="nb">intros</span> c d f.
+      <span class="nb">apply</span> z_iso_inv_on_left.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> z_iso_inv_on_right.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- z_iso_from_is_relmonadmor_z_iso_p.
+      intermediate_path (pr1 (pr1 α) c · r_bind R' ((f · (inv_from_z_iso
+           (functor_z_iso_pointwise_if_z_iso' C D (R_functor R)
+              (R_functor R') (z_iso_from_is_relmonadmor_z_iso D J α) d) )) ·
+                  (functor_z_iso_pointwise_if_z_iso' C D (R_functor R)
+                      (R_functor R') (z_iso_from_is_relmonadmor_z_iso D J α) d ))).
+      <span class="mi">2</span>: { <span class="nb">apply</span> cancel_precomposition.
+           <span class="nb">apply</span> maponpaths.
+           <span class="nb">rewrite</span> &lt;- assoc.
+           <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+           <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">rewrite</span> &lt;- z_iso_from_is_relmonadmor_z_iso_p.
+      <span class="nb">apply</span> (α_r_bind (RelMonadMor_axioms_from_RelMonadMor (pr1 α))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">alternative_inv_to_relmonadmor_z_iso_is_inv</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+      (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J} (<span class="nv">α</span> : z_iso(C := category_RelMonad D J) R R'):
+  alternative_inv_to_relmonadmor_z_iso D J α = inv_from_z_iso α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> inv_z_iso_unique'.
+  <span class="nb">unfold</span> precomp_with.
+  <span class="nb">apply</span> RelMonadMor_equiv.
+  - <span class="nb">apply</span> D.
+  - <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> c.
+    <span class="nb">unfold</span> alternative_inv_to_relmonadmor_z_iso.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> z_iso_inv_on_left.
+    <span class="nb">rewrite</span> id_left.
+    intermediate_path (pr1 (pr1 α) c).
+    { <span class="nb">apply</span> idpath. }
+    <span class="nb">rewrite</span> z_iso_from_is_relmonadmor_z_iso_p.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Corollary</span> <span class="nf">z_iso_from_is_relmonadmor_z_iso_inv_p</span>  {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+          (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J} (<span class="nv">α</span> : z_iso(C := category_RelMonad D J) R R') (<span class="nv">c</span> : C) :
+  pr1 (inv_from_z_iso α) c =
+        inv_from_z_iso (functor_z_iso_pointwise_if_z_iso' C D
+          (R_functor R) (R_functor R') (z_iso_from_is_relmonadmor_z_iso
+            D J α) c).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- alternative_inv_to_relmonadmor_z_iso_is_inv.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** the other direction, first the inverse monad morphism *)</span>
+<span class="kn">Definition</span> <span class="nf">inv_relmonadmor_from_is_z_iso</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+  (<span class="nv">J</span> : functor C D){<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J} (<span class="nv">α</span> : category_RelMonad D J ⟦R, R'⟧)
+  : is_z_isomorphism(C := [C, D]) (nat_trans_RelMonadMor α) → category_RelMonad D J ⟦R', R⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> T.
+  <span class="nb">set</span> (fiso := (_,, T): z_iso(C := [C, D]) (R_functor R) (R_functor R')).
+  <span class="nb">set</span> (finv := inv_from_z_iso fiso).
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">finv</span>).
+  <span class="nb">unfold</span> finv.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> c.
+    <span class="nb">unfold</span> fiso.
+    etrans.
+    { <span class="nb">apply</span> maponpaths, pathsinv0.
+      <span class="nb">apply</span> (nat_trans_inv_pointwise_inv_after_p_z_iso C D D (R_functor R) (R_functor R')). }
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> z_iso_inv_on_left.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (r_eta_α (RelMonadMor_axioms_from_RelMonadMor α)).
+  - <span class="nb">intros</span> a b f.
+    <span class="nb">unfold</span> fiso.
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition, pathsinv0.
+      <span class="nb">apply</span> (nat_trans_inv_pointwise_inv_after_p_z_iso C D D (R_functor R) (R_functor R')). }
+    etrans.
+    { <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> (nat_trans_inv_pointwise_inv_after_p_z_iso C D D (R_functor R) (R_functor R')). }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+         <span class="nb">apply</span> (nat_trans_inv_pointwise_inv_after_p_z_iso C D D (R_functor R) (R_functor R')). }
+    <span class="nb">apply</span> z_iso_inv_on_left.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> z_iso_inv_on_right.
+    <span class="nb">simpl</span>.
+    etrans.
+    { <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> (α_r_bind (RelMonadMor_axioms_from_RelMonadMor α)). }
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> id_right. }
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> z_iso_inv_on_right.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_right.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** verification that the proposed inverse monad morphism is suitable *)</span>
+<span class="kn">Definition</span> <span class="nf">is_relmonadmor_z_iso_from_is_z_iso</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+  (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J} (<span class="nv">α</span> : category_RelMonad D J ⟦R, R'⟧)
+  : is_z_isomorphism(C := [C, D]) (nat_trans_RelMonadMor α) → is_z_isomorphism α.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> T.
+  <span class="k">exists</span> (<span class="nv">inv_relmonadmor_from_is_z_iso</span> <span class="nv">D</span> <span class="nv">J</span> <span class="nv">α</span> <span class="nv">T</span>).
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  - <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+    <span class="nb">apply</span> RelMonadMor_equiv.
+    + <span class="nb">apply</span> D.
+    + <span class="nb">simpl</span>.
+      <span class="nb">set</span> (aux := z_iso_inv_after_z_iso ((_,, T): z_iso(C := [C, D]) (R_functor R) (R_functor R'))).
+      <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> aux.
+      <span class="bp">exact</span> aux.
+  - <span class="nb">apply</span> RelMonadMor_equiv.
+    + <span class="nb">apply</span> D.
+    + <span class="nb">simpl</span>.
+      <span class="nb">set</span> (aux := z_iso_after_z_iso_inv ((_,, T): z_iso(C := [C, D]) (R_functor R) (R_functor R'))).
+      <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> aux.
+      <span class="bp">exact</span> aux.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** its immediate consequence *)</span>
+<span class="kn">Definition</span> <span class="nf">relmonadmor_iso_from_is_z_iso</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+  (<span class="nv">J</span> : functor C D)(<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J) (<span class="nv">α</span> : precategory_RelMonad D J ⟦R, R'⟧)
+  : is_z_isomorphism(C := [C, D]) (nat_trans_RelMonadMor α) → z_iso(C := category_RelMonad D J) R R'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> T.
+  <span class="k">exists</span> <span class="nv">α</span>.
+  <span class="bp">exact</span> (is_relmonadmor_z_iso_from_is_z_iso D J α T).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">relmonadmor_z_iso_first_z_iso</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category)
+  (<span class="nv">J</span> : functor C D)(<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J)
+  : z_iso(C := category_RelMonad D J) R R' ≃ ∑ α : R_functor R ⟹ R_functor R', is_z_isomorphism(C := [C, D]) α.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> z_iso.
+<span class="kn">Abort</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category}
+   (<span class="nv">H</span>: is_univalent D) (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J} :
+  z_iso(C := category_RelMonad D J) R R' -&gt; pr1 (pr1 R) = pr1 (pr1 R').
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> α.
+  <span class="nb">change</span> (pr1 (pr1 (R_functor R)) = pr1 (pr1 (R_functor R'))).
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+  <span class="nb">set</span> (H1 := make_weq _ ((is_univalent_functor_category C D H) (R_functor R) (R_functor R'))).
+  <span class="nb">apply</span> H1.
+  <span class="nb">apply</span> (z_iso_from_is_relmonadmor_z_iso D J α).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso_idtoiso_aux</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">D</span> : category) (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J}
+      (<span class="nv">p</span>: @paths (category_RelMonad D J) R R'):
+  base_paths (pr1 (R_functor R)) (pr1 (R_functor R'))
+             (base_paths (R_functor R) (R_functor R') (maponpaths R_functor p)) =
+  base_paths (pr1 R) (pr1 R') (base_paths R R' p).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> base_paths.
+  <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+  etrans.
+  { <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (maponpathscomp (@R_functor C D J) (@functor_data_from_functor C D)).
+  }
+  etrans.
+  { <span class="nb">apply</span> (maponpathscomp ((functor_data_from_functor C D ∘ R_functor)%functions) (@functor_on_objects C D)). }
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0.
+       <span class="nb">apply</span> (maponpathscomp  (@RelMonad_data_from_RelMonad C D J) (@RelMonad_ob C D J)).
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso_idtoiso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category}
+      (<span class="nv">H</span>: is_univalent D) (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J}
+      (<span class="nv">p</span>: @paths (category_RelMonad D J) R R'):
+  pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso H J (idtoiso p) =
+  base_paths (pr1 R) (pr1 R') (base_paths R R' p).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> (z_iso_from_is_relmonadmor_z_iso_idtoiso D J).
+  <span class="nb">rewrite</span> functor_eq_from_functor_z_iso_idtoiso.
+  <span class="nb">apply</span> pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso_idtoiso_aux.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">transport_of_relmonad_η_is_pointwise</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory}
+      (<span class="nv">J</span> : functor C D) (<span class="nv">F0</span> <span class="nv">G0</span> : ob C -&gt; ob D)
+      (<span class="nv">F1</span> : ∏ a : ob C, J a --&gt; F0 a)
+      (<span class="nv">gamma</span> : F0 = G0 )
+      (<span class="nv">c</span>: ob C) :
+  transportf (<span class="k">fun</span> <span class="nv">x</span> : ob C -&gt; ob D =&gt; ∏ a, D ⟦J a, x a⟧) gamma F1 c =
+  transportf (<span class="k">fun</span> <span class="nv">d</span>: ob D =&gt; D ⟦J c, d⟧) (toforallpaths (<span class="k">λ</span> <span class="nv">_</span> : ob C, D) F0 G0 gamma c) (F1 c).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> gamma.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_of_relmonad_bind_is_pointwise</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory}
+      (<span class="nv">J</span> : functor C D) (<span class="nv">F0</span> <span class="nv">G0</span> : ob C -&gt; ob D)
+      (<span class="nv">F1</span> : ∏ a b : ob C , D ⟦J a, F0 b⟧ → D ⟦F0 a, F0 b⟧)
+      (<span class="nv">gamma</span> : F0 = G0 )
+      (<span class="nv">c</span> <span class="nv">d</span> : ob C) (<span class="nv">f</span> : J c --&gt; G0 d) :
+  transportf (<span class="k">fun</span> <span class="nv">x</span> : ob C -&gt; ob D =&gt; ∏ a b : ob C , D ⟦J a, x b⟧ → D ⟦x a, x b⟧) gamma F1 c d f =
+  double_transport (toforallpaths (<span class="k">λ</span> <span class="nv">_</span> : ob C, D) F0 G0 gamma c)
+                   (toforallpaths (<span class="k">λ</span> <span class="nv">_</span> : ob C, D) F0 G0 gamma d)
+                   (F1 c d (transportb (<span class="k">fun</span> <span class="nv">x</span> : ob D =&gt; D ⟦J c, x⟧)
+                                       (toforallpaths (<span class="k">λ</span> <span class="nv">_</span> : ob C, D) F0 G0 gamma d) f)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> gamma.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** a preparation for the following lemma *)</span>
+<span class="kn">Lemma</span> <span class="nf">isotoid_functorcat_pointwise_aux</span> (<span class="nv">C</span> : precategory_data) (<span class="nv">D</span> : category)
+      (<span class="nv">H</span> : is_univalent D) (<span class="nv">F</span> <span class="nv">G</span> : ob [C, D, D]) (<span class="nv">p</span>: F = G) (<span class="nv">c</span>: C) :
+  <span class="k">let</span> <span class="nv">α</span> := idtoiso p <span class="k">in</span>
+   toforallpaths (<span class="k">fun</span> <span class="nv">_</span> : ob C =&gt; ob D) (pr1 (pr1 F)) (pr1 (pr1 G))
+    (maponpaths pr1
+       (maponpaths pr1
+          (isotoid (functor_category C D)
+                   (is_univalent_functor_category C D H) α))) c
+   = isotoid D H
+             (functor_z_iso_pointwise_if_z_iso C D D F G α (pr2 α) c).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">cbn</span> delta <span class="k">in</span> *.
+  <span class="nb">unfold</span> functor_z_iso_pointwise_if_z_iso.
+  <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+  <span class="nb">rewrite</span> isotoid_idtoiso.
+  <span class="nb">unfold</span> idtoiso.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> idtoiso_inj; <span class="kp">try</span> <span class="bp">assumption</span>.
+  <span class="nb">rewrite</span> idtoiso_isotoid.
+  <span class="nb">simpl</span>.
+  <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+  <span class="nb">apply</span> z_iso_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** general lemma on univalence of functor category *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">isotoid_functorcat_pointwise</span> (<span class="nv">C</span> : precategory_data) (<span class="nv">D</span> : category) (<span class="nv">H</span> : is_univalent D)
+      (<span class="nv">F</span> <span class="nv">G</span> : ob [C, D, D]) (<span class="nv">α</span>: z_iso F G) (<span class="nv">c</span>: C) :
+   toforallpaths (<span class="k">fun</span> <span class="nv">_</span> : ob C =&gt; ob D) (pr1 (pr1 F)) (pr1 (pr1 G))
+    (maponpaths pr1
+       (maponpaths pr1
+          (isotoid (functor_category C D)
+                   (is_univalent_functor_category C D H) α))) c
+   = isotoid D H
+             (functor_z_iso_pointwise_if_z_iso' C D F G α c).
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (aux := isotoid_functorcat_pointwise_aux C D H F G
+                      (isotoid (functor_category C D) (is_univalent_functor_category C D H) α)).
+
+  <span class="nb">rewrite</span> (idtoiso_isotoid [C, D] _ ) <span class="k">in</span> aux.
+  <span class="nb">apply</span> aux.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">η_relmonadmor_eq_from_relmonadmor_z_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category}
+           (<span class="nv">H</span>: is_univalent D) (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J}
+           (<span class="nv">α</span>: z_iso(C := category_RelMonad D J) R R')
+  : transportf (<span class="k">fun</span> <span class="nv">x</span> : ob C -&gt; ob D =&gt; ∏ c, D ⟦J c, x c⟧)
+               (pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso H J α) (pr1 (pr2 (pr1 R))) =
+    pr1 (pr2 (pr1 R')).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> c.
+  <span class="nb">rewrite</span> transport_of_relmonad_η_is_pointwise.
+  <span class="nb">unfold</span> pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> &lt;- idtoiso_postcompose.
+  <span class="nb">simpl</span>.
+  <span class="nb">change</span> (pr1 (pr2 (pr1 R')) c) <span class="k">with</span> (r_eta R' c).
+  <span class="nb">change</span> (pr1 (pr2 (pr1 R)) c) <span class="k">with</span> (r_eta R c).
+  intermediate_path (r_eta R c · (pr1 (pr1 α): RelMonadMor_data _ _) c).
+  <span class="mi">2</span>: { <span class="nb">set</span> (X := RelMonadMor_axioms_from_RelMonadMor (pr1 α)).
+       <span class="bp">exact</span> (pr1 X c).
+       <span class="c">(* does not terminate: apply (r_eta_α X). *)</span>
+  }
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">set</span> (isor := z_iso_from_is_relmonadmor_z_iso D J α).
+  <span class="nb">set</span> (isor_p := functor_z_iso_pointwise_if_z_iso' C D _ _ isor c).
+  <span class="nb">change</span> (pr1 (pr1 α) c) <span class="k">with</span> (pr1 isor_p).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">unfold</span> precategory_data_from_precategory <span class="k">in</span> isor.
+  <span class="nb">simpl</span> <span class="k">in</span> isor.
+  <span class="nb">unfold</span> precategory_data_from_precategory; <span class="nb">simpl</span>.
+  <span class="nb">fold</span> isor.
+  intermediate_path (idtoiso (isotoid _ H isor_p)).
+  <span class="mi">2</span>: { <span class="nb">apply</span> idtoiso_isotoid. }
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">change</span> (functor_eq_from_functor_z_iso
+             H  (R_functor R)
+             (R_functor R') isor) <span class="k">with</span> (isotoid _ (is_univalent_functor_category C D H) isor).
+  <span class="nb">apply</span> (isotoid_functorcat_pointwise C D H (R_functor R) (R_functor R')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bind_relmonadmor_eq_from_relmonadmor_z_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category}
+           (<span class="nv">H</span>: is_univalent D) (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J}
+           (<span class="nv">α</span>: z_iso(C := category_RelMonad D J) R R')
+  : transportf (<span class="k">fun</span> <span class="nv">x</span> : ob C -&gt; ob D =&gt; ∏ c d, D ⟦J c, x d⟧ → D ⟦x c, x d⟧)
+               (pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso H J α) (pr2 (pr2 (pr1 R))) =
+    pr2 (pr2 (pr1 R')).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> c. <span class="nb">apply</span> funextsec; <span class="nb">intro</span> d. <span class="nb">apply</span> funextsec; <span class="nb">intro</span> f.
+  <span class="nb">rewrite</span> transport_of_relmonad_bind_is_pointwise.
+  <span class="nb">unfold</span> pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> double_transport_idtoiso.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">set</span> (isor := z_iso_from_is_relmonadmor_z_iso D J α).
+  <span class="nb">unfold</span> precategory_data_from_precategory <span class="k">in</span> isor.
+  <span class="nb">simpl</span> <span class="k">in</span> isor.
+  <span class="nb">unfold</span> precategory_data_from_precategory; <span class="nb">simpl</span>.
+  <span class="nb">fold</span> isor.
+  <span class="nb">change</span> (functor_eq_from_functor_z_iso
+             H  (R_functor R)
+             (R_functor R') isor) <span class="k">with</span> (isotoid _ (is_univalent_functor_category C D H) isor).
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (isotoid_functorcat_pointwise C D H (R_functor R) (R_functor R')).
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> idtoiso_isotoid.
+  <span class="nb">change</span> (pr2 (pr2 (pr1 R')) c d f) <span class="k">with</span> (r_bind R' f).
+  <span class="nb">change</span> (pr2 (pr2 (pr1 R)) c d) <span class="k">with</span> (r_bind(c:=c)(d:=d) R).
+  <span class="nb">rewrite</span> (transportb_isotoid D H).
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (z_iso_from_is_relmonadmor_z_iso_inv_p D J α).
+  <span class="nb">rewrite</span> &lt;- (z_iso_from_is_relmonadmor_z_iso_p D J α).
+  <span class="nb">assert</span> (aux := α_r_bind (RelMonadMor_axioms_from_RelMonadMor (inv_from_z_iso α)) c d f).
+  etrans.
+  { <span class="nb">apply</span> assoc. }
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> aux.
+  }
+  intermediate_path (r_bind R' f · identity _).
+  <span class="mi">2</span>: { <span class="nb">apply</span> id_right. }
+  etrans.
+  { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> assoc. }
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">assert</span> (aux2 := z_iso_after_z_iso_inv α).
+  <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> aux2.
+  <span class="nb">apply</span> toforallpaths <span class="k">in</span> aux2.
+  <span class="nb">apply</span> aux2.
+<span class="kn">Defined</span>.
+
+
+
+
+
+<span class="kn">Definition</span> <span class="nf">relmonad_eq_from_relmonad_z_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category}
+           (<span class="nv">H</span>: is_univalent D) (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J}
+           (<span class="nv">α</span> : z_iso(C := category_RelMonad D J) R R')
+  : R = R'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> RelMonad_eq.
+  - <span class="bp">exact</span> D.
+  - <span class="nb">set</span> (Hob := pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso H J α).
+    <span class="nb">apply</span> (total2_paths_f Hob).
+    <span class="nb">apply</span> dirprodeq.
+    + intermediate_path (transportf (<span class="k">λ</span> <span class="nv">F</span> : C → D, ∏ c : C, D ⟦ J c, F c ⟧) Hob
+                                    (pr1 (pr2 (pr1 R)))).
+      { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> (transport_map (<span class="k">fun</span> <span class="nv">F</span> =&gt; dirprod_pr1(X := ∏ c : C, D ⟦ J c, F c ⟧)(Y := ∏ c d : C, D ⟦ J c, F d ⟧ → D ⟦ F c, F d ⟧))). }
+      <span class="nb">apply</span> (η_relmonadmor_eq_from_relmonadmor_z_iso H J α).
+    + intermediate_path (transportf (<span class="k">λ</span> <span class="nv">F</span> : C → D, ∏ c d : C, D ⟦ J c, F d ⟧ → D ⟦ F c, F d ⟧) Hob
+                                    (pr2 (pr2 (pr1 R)))).
+      { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> (transport_map (<span class="k">fun</span> <span class="nv">F</span> =&gt; dirprod_pr2(X := ∏ c : C, D ⟦ J c, F c ⟧)(Y := ∏ c d : C, D ⟦ J c, F d ⟧ → D ⟦ F c, F d ⟧))). }
+      <span class="nb">apply</span> (bind_relmonadmor_eq_from_relmonadmor_z_iso H J α).
+<span class="kn">Defined</span>.
+
+
+<span class="c">(* former more destructive proof: *)</span>
+
+<span class="kn">Definition</span> <span class="nf">relmonad_eq_from_relmonad_z_iso_obsolete</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category}
+           (<span class="nv">H</span>: is_univalent D) (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J}
+           (<span class="nv">α</span> : z_iso(C := category_RelMonad D J) R R')
+  : R = R'.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (Hob := pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso H J α).
+  <span class="nb">assert</span> (η_eq := η_relmonadmor_eq_from_relmonadmor_z_iso H J α).
+  <span class="nb">assert</span> (bind_eq := bind_relmonadmor_eq_from_relmonadmor_z_iso H J α).
+  <span class="nb">fold</span> Hob <span class="k">in</span> η_eq, bind_eq.
+  <span class="nb">induction</span> R <span class="k">as</span> [[F [e b]] a].
+  <span class="nb">induction</span> R' <span class="k">as</span> [[F' [e' b']] a'].
+  <span class="nb">simpl</span> <span class="k">in</span> Hob.
+  <span class="nb">induction</span> Hob.
+  <span class="nb">cbn</span> <span class="k">in</span> η_eq, bind_eq.
+  <span class="nb">apply</span> RelMonad_eq.
+  + <span class="bp">exact</span> D.
+  + <span class="nb">simpl</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsdirprod; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Lemma</span> <span class="nf">relmonad_eq_from_relmonad_z_iso_idtoiso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category}
+           (<span class="nv">H</span>: is_univalent D) (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J} (<span class="nv">p</span>: R = R') :
+  relmonad_eq_from_relmonad_z_iso H J (idtoiso(C := category_RelMonad D J) p) = p.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> relmonad_eq_eq_from_relmonad_ob_eq.
+  - <span class="nb">apply</span> D.
+  - <span class="nb">unfold</span> relmonad_eq_from_relmonad_z_iso.
+    <span class="nb">unfold</span> RelMonad_eq.
+    <span class="nb">rewrite</span> base_total2_paths.
+    <span class="nb">rewrite</span> base_total2_paths.
+    <span class="nb">apply</span> pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso_idtoiso.
+<span class="kn">Qed</span>.
+
+
+
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_relmonad_eq_from_relmonad_z_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category}
+           (<span class="nv">H</span>: is_univalent D) (<span class="nv">J</span> : functor C D) {<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J}
+           (<span class="nv">α</span> : z_iso(C := category_RelMonad D J) R R') :
+        idtoiso(C := category_RelMonad D J) (relmonad_eq_from_relmonad_z_iso H J α) = α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (z_iso_eq(C := category_RelMonad D J)).
+  <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+  <span class="nb">apply</span> RelMonadMor_equiv.
+  - <span class="nb">apply</span> D.
+  - <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> c.
+    <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+    etrans.
+    { <span class="nb">apply</span> z_iso_from_is_relmonadmor_z_iso_p. }
+    <span class="nb">rewrite</span> (z_iso_from_is_relmonadmor_z_iso_idtoiso D J (relmonad_eq_from_relmonad_z_iso H J α)).
+    <span class="nb">rewrite</span> idtoiso_functorcat_compute_pointwise'.
+    <span class="nb">unfold</span> relmonad_eq_from_relmonad_z_iso.
+    <span class="nb">unfold</span> RelMonad_eq.
+    <span class="nb">rewrite</span> pr1_pr1_relmonadmor_eq_from_relmonadmor_z_iso_idtoiso_aux.
+    <span class="nb">rewrite</span> base_total2_paths.
+    <span class="nb">rewrite</span> base_total2_paths.
+    intermediate_path (pr1 (idtoiso
+     (isotoid D H (functor_z_iso_pointwise_if_z_iso' C D _ _ (z_iso_from_is_relmonadmor_z_iso D J α) c)))).
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> idtoiso_isotoid.
+         <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> isotoid_functorcat_pointwise.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">relmonadmor_idtoiso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category}
+           (<span class="nv">H</span>: is_univalent D) (<span class="nv">J</span> : functor C D)(<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J) :
+  (R = R') ≃ z_iso(C := category_RelMonad D J) R R'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (make_weq (@idtoiso (category_RelMonad D J) R R')).
+  use isweq_iso.
+  - <span class="bp">exact</span> (relmonad_eq_from_relmonad_z_iso H J).
+  - <span class="nb">intro</span> p. <span class="bp">exact</span> (relmonad_eq_from_relmonad_z_iso_idtoiso H J p).
+  - <span class="nb">intro</span> α. <span class="bp">exact</span> (idtoiso_relmonad_eq_from_relmonad_z_iso H J α).
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Lemma</span> <span class="nf">isweq_idtoiso_RelMonad</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category}
+           (<span class="nv">H</span>: is_univalent D) (<span class="nv">J</span> : functor C D)(<span class="nv">R</span> <span class="nv">R'</span>: RelMonad J)
+  : isweq (@idtoiso (category_RelMonad D J) R R').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweqhomot (relmonadmor_idtoiso H J R R')).
+  - <span class="nb">intro</span> p. <span class="nb">induction</span> p.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> (pr2 _ ).
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_RelMonad</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : category}
+      (<span class="nv">H</span>: is_univalent D) (<span class="nv">J</span> : functor C D)
+  : is_univalent (category_RelMonad D J).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> R R'.
+  <span class="nb">apply</span> isweq_idtoiso_RelMonad.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">End</span> <span class="nf">RelativeMonads_saturated</span>.
+
+<span class="kn">Section</span> <span class="nf">RelAdjunctionWithKleisliCategory</span>.
+<span class="sd">(** The canonical relative adjunction between J and the Kleisli category of a J-relative monad</span>
+
+<span class="sd">    This is the obvious generalization of the material in [UniMath.CategoryTheory.Monads.KleisliCategory].</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">Left_rKleisli_functor_data</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span> : precategory}
+             {<span class="nv">J</span> : functor_data C D} (<span class="nv">R</span>: RelMonad J) :
+  functor_data C (Kleisli_precat R).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">apply</span> idfun.
+  - <span class="nb">intros</span> a b f; <span class="nb">unfold</span> idfun.
+    <span class="bp">exact</span> (#J f · (r_eta R) b).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Left_rKleisli_is_functor</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span> : precategory}
+      {<span class="nv">J</span> : functor C D} (<span class="nv">R</span>: RelMonad J) :
+  is_functor (Left_rKleisli_functor_data R).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> a.
+    <span class="nb">unfold</span> Left_rKleisli_functor_data; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span> a b c f g.
+    <span class="nb">unfold</span> Left_rKleisli_functor_data; <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> compose <span class="nb">at</span> <span class="mi">3</span>; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">rewrite</span> &lt;- assoc).
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (r_eta_r_bind R).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Left_rKleisli_functor</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span> : precategory}
+      {<span class="nv">J</span> : functor C D} (<span class="nv">R</span>: RelMonad J) :
+  functor C (Kleisli_precat R)
+  := (Left_rKleisli_functor_data R,,Left_rKleisli_is_functor R).
+
+<span class="kn">Definition</span> <span class="nf">Right_rKleisli_functor_data</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span> : precategory}
+      {<span class="nv">J</span> : functor_data C D} (<span class="nv">R</span>: RelMonad J):
+  functor_data (Kleisli_precat R) D.
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> R.
+  - <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> r_bind.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Right_rKleisli_is_functor</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span> : precategory}
+      {<span class="nv">J</span> : functor C D} (<span class="nv">R</span>: RelMonad J) :
+  is_functor (Right_rKleisli_functor_data R).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> a.
+    <span class="nb">unfold</span> Right_rKleisli_functor_data; <span class="nb">unfold</span> identity;
+    <span class="nb">unfold</span> functor_on_morphisms; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (r_bind_r_eta R).
+  - <span class="nb">intros</span> a b c f g; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (r_bind_r_bind R).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Right_rKleisli_functor</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span> : precategory}
+      {<span class="nv">J</span> : functor C D} (<span class="nv">R</span>: RelMonad J) :
+  functor (Kleisli_precat R) D
+  := (Right_rKleisli_functor_data R,,Right_rKleisli_is_functor R).
+
+<span class="sd">(** Composition of the left and right Kleisli functors is equal to [R] as a functor **)</span>
+
+<span class="kn">Definition</span> <span class="nf">rKleisli_functor_left_right_compose</span> {<span class="nv">C</span>: precategory} {<span class="nv">D</span> : precategory}
+  (<span class="nv">hs</span> : has_homsets D) {<span class="nv">J</span> : functor C D} (<span class="nv">R</span>: RelMonad J) :
+  (Left_rKleisli_functor R) ∙ (Right_rKleisli_functor R) = R_functor R.
+<span class="kn">Proof</span>.
+  use functor_eq.
+  - <span class="bp">exact</span> hs.
+  - use functor_data_eq_from_nat_trans.
+    + <span class="nb">intro</span> a; <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> a b f; <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Showing that these functors are relative adjoints *)</span>
+
+<span class="kn">Definition</span> <span class="nf">rKleisli_functors_are_relative_adjoints</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">D</span> : precategory}
+           (<span class="nv">hs</span> : has_homsets D) {<span class="nv">J</span> : functor C D} (<span class="nv">R</span>: RelMonad J) :
+  are_relative_adjoints J (Left_rKleisli_functor R) (Right_rKleisli_functor R).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intros</span> a b.
+    use tpair.
+    + <span class="nb">simpl</span>.
+      <span class="nb">apply</span> idfun.
+    + <span class="nb">simpl</span>.
+      <span class="nb">apply</span> idisweq.
+  - <span class="nb">simpl</span>; <span class="nb">split</span>.
+    + <span class="nb">intros</span> a b f c h.
+      <span class="nb">unfold</span> compose <span class="nb">at</span> <span class="mi">1</span>; <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (r_eta_r_bind R).
+    + <span class="nb">intros</span> a b f c k.
+      <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">RelAdjunctionWithKleisliCategory</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monads/RelativeMonads.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; ************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

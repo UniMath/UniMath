@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Subposets.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Export</span> UniMath.MoreFoundations.Notations.
+
+<span class="kn">Definition</span> <span class="nf">Subposet</span> (<span class="nv">X</span>:Poset) := hsubtype X. <span class="c">(* this seems simpler than the next one *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Subposet'</span> (<span class="nv">X</span>:Poset) := ∑ (S:Poset) (f:posetmorphism S X), isincl f.
+
+<span class="kn">Definition</span> <span class="nf">Subposet'_to_Poset</span> {<span class="nv">X</span>:Poset} (<span class="nv">S</span>:Subposet' X) := pr1 S.
+
+<span class="kn">Coercion</span> <span class="nf">Subposet'_to_Poset</span> : Subposet' &gt;-&gt; Poset.
+
+<span class="kn">Definition</span> <span class="nf">Subposet_to_Subposet'</span> {<span class="nv">X</span>:Poset} : Subposet X -&gt; Subposet' X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> S. use tpair.
+  - <span class="k">exists</span> (<span class="nv">carrier_subset</span> <span class="nv">S</span>).
+    use tpair.
+    + <span class="nb">intros</span> s t. <span class="bp">exact</span> (pr1 s ≤ pr1 t)%poset.
+    + <span class="nb">simpl</span>. <span class="nb">split</span>.
+      { <span class="nb">split</span>.
+        { <span class="nb">intros</span> s t u. <span class="bp">exact</span> (istrans_posetRelation _ _ _ _). }
+        { <span class="nb">intros</span> s. <span class="bp">exact</span> (isrefl_posetRelation _ _). } }
+      { <span class="nb">intros</span> s t a b. <span class="nb">apply</span> subtypePath_prop. <span class="bp">exact</span> (isantisymm_posetRelation _ _ _ a b). }
+  - <span class="nb">simpl</span>. use tpair.
+    + <span class="k">exists</span> (<span class="nv">pr1carrier</span> <span class="nv">_</span>).
+      <span class="nb">intros</span> s t a. <span class="nb">simpl</span> <span class="k">in</span> s,t. <span class="bp">exact</span> a.
+    + <span class="nb">simpl</span>. <span class="nb">apply</span> isinclpr1carrier.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Subposet'_to_Subposet</span> {<span class="nv">X</span>:Poset} : Subposet' X -&gt; Subposet X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> S x. <span class="nb">set</span> (f := pr1 (pr2 S)); <span class="nb">simpl</span> <span class="k">in</span> f. <span class="bp">exact</span> (nonempty (hfiber f x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">Subposet_to_Subposet'</span> : Subposet &gt;-&gt; Subposet'.
+
+<span class="kn">Definition</span> <span class="nf">Subposet'_equiv_Subposet</span> (<span class="nv">X</span>:Poset) : Subposet' X ≃ Subposet X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">Subposet'_to_Subposet</span>.
+  <span class="nb">apply</span> set_bijection_to_weq.
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span> S.
+      <span class="k">exists</span> (<span class="nv">Subposet_to_Subposet'</span> <span class="nv">S</span>).
+      <span class="nb">apply</span> funextfun; <span class="nb">intro</span> z.
+      <span class="nb">apply</span> hPropUnivalence.
+      * <span class="nb">simple refine</span> (hinhuniv _); <span class="nb">intro</span> w.
+        <span class="nb">simpl</span> <span class="k">in</span> w. <span class="nb">induction</span> w <span class="k">as</span> [s p]. <span class="nb">induction</span> s <span class="k">as</span> [y q]; <span class="nb">simpl</span> <span class="k">in</span> p.
+        <span class="nb">induction</span> p. <span class="bp">exact</span> q.
+      * <span class="nb">intro</span> h. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">z</span>,,<span class="nv">h</span>). <span class="bp">reflexivity</span>.
+    + <span class="nb">intros</span> S T p.
+      <span class="c">(* first develop univalence for posets and Poset_rect *)</span>
+      <span class="nb">admit</span>.
+  - <span class="nb">unfold</span> Subposet.
+    <span class="nb">apply</span> isasethsubtype.
+<span class="kn">Abort</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Posets/Subposets.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Notations.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Export UniMath.MoreFoundations.Notations.&lt;&lt;&lt;
+  &gt;
+  &gt; Definition Subposet (X:Poset) := hsubtype X. (* this seems simpler than the next one *)
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

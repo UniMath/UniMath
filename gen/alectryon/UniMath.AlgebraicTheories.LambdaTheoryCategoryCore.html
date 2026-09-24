@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LambdaTheoryCategoryCore.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The category of λ-theories</span>
+
+<span class="sd">  Defines the category of λ-theories. The category is formalized via a stack of displayed</span>
+<span class="sd">  categories.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The category of λ-theories [lambda_theory_cat]</span>
+<span class="sd">  1.1. The category of λ-theory data [lambda_theory_data_cat]</span>
+<span class="sd">  1.1.1. Temporary accessors</span>
+<span class="sd">  1.2. The category of λ-theories</span>
+<span class="sd">  1.2.1. A lemma about λ-theories [isaprop_is_lambda_theory]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Tuples.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+
+<span class="kn">Section</span> <span class="nf">LambdaTheoryCategory</span>.
+
+<span class="sd">(** * 1. The category of λ-theories *)</span>
+<span class="sd">(** ** 1.1. The category of λ-theory data *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">app_ax</span>
+    (<span class="nv">T</span> : algebraic_theory)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : T n)
+    : UU
+    := T (S n).
+
+  <span class="kn">Definition</span> <span class="nf">abs_ax</span>
+    (<span class="nv">T</span> : algebraic_theory)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : T (S n))
+    : UU
+    := T n.
+
+  <span class="kn">Let</span> <span class="nf">mor_app_ax'</span>
+    {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory}
+    (<span class="nv">F</span> : algebraic_theory_morphism T T')
+    (<span class="nv">app</span> : ∏ n f, app_ax T n f)
+    (<span class="nv">app'</span> : ∏ n f, app_ax T' n f)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : T n)
+    : UU
+    := F (S n) (app n f) = app' n (F n f).
+
+  <span class="kn">Let</span> <span class="nf">mor_abs_ax'</span>
+    {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory}
+    (<span class="nv">F</span> : algebraic_theory_morphism T T')
+    (<span class="nv">abs</span> : ∏ n f, abs_ax T n f)
+    (<span class="nv">abs'</span> : ∏ n f, abs_ax T' n f)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : T (S n))
+    : UU
+    := F n (abs n f) = abs' n (F (S n) f).
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_data_disp_cat</span>
+    : disp_cat algebraic_theory_cat.
+  <span class="kn">Proof</span>.
+    use disp_struct.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">T</span>, _ × _).
+        + <span class="bp">exact</span> (∏ n f, app_ax T n f).
+        + <span class="bp">exact</span> (∏ n f, abs_ax T n f).
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">appabs</span> <span class="nv">appabs'</span> <span class="nv">F</span>, _ × _).
+        + <span class="bp">exact</span> (∏ n t, mor_app_ax' F (pr1 appabs) (pr1 appabs') n t).
+        + <span class="bp">exact</span> (∏ n t, mor_abs_ax' F (pr2 appabs) (pr2 appabs') n t).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span>;
+        <span class="nb">apply</span> isapropdirprod;
+        <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>);
+        <span class="nb">apply</span> setproperty
+      ).
+    - <span class="kp">abstract</span> <span class="bp">now</span> <span class="nb">intros</span>.
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> ? ? ? ? ? ? ? ? Fdata F'data;
+        <span class="nb">split</span>;
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">intro</span>;
+        [ <span class="bp">exact</span> (maponpaths _ (pr1 Fdata _ _) @ (pr1 F'data _ _))
+        | <span class="bp">exact</span> (maponpaths _ (pr2 Fdata _ _) @ (pr2 F'data _ _)) ]
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_data_cat</span>
+    : category
+    := total_category lambda_theory_data_disp_cat.
+
+<span class="sd">(** *** 1.1.1. Temporary accessors *)</span>
+
+  <span class="kn">Let</span> <span class="nf">data_theory</span>
+    (<span class="nv">L</span> : lambda_theory_data_cat)
+    : algebraic_theory
+    := pr1 L.
+
+  <span class="kn">Let</span> <span class="nf">data_app</span>
+    {<span class="nv">L</span> : lambda_theory_data_cat}
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">f</span> : data_theory L n)
+    : data_theory L (S n)
+    := pr12 L n f.
+
+  <span class="kn">Let</span> <span class="nf">data_abs</span>
+    {<span class="nv">L</span> : lambda_theory_data_cat}
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">f</span> : data_theory L (S n))
+    : data_theory L n
+    := pr22 L n f.
+
+  <span class="kn">Let</span> <span class="nf">data_mor</span>
+    {<span class="nv">L</span> <span class="nv">L'</span> : lambda_theory_data_cat}
+    (<span class="nv">F</span> : lambda_theory_data_cat⟦L, L'⟧)
+    : algebraic_theory_morphism (data_theory L) (data_theory L')
+    := pr1 F.
+
+  <span class="kn">Local Definition</span> <span class="nf">mor_app_ax</span>
+    {<span class="nv">L</span> <span class="nv">L'</span> : lambda_theory_data_cat}
+    (<span class="nv">F</span> : algebraic_theory_morphism (data_theory L) (data_theory L'))
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : data_theory L n)
+    : UU
+    := mor_app_ax' F (@data_app L) (@data_app L') n f.
+
+  <span class="kn">Local Definition</span> <span class="nf">mor_abs_ax</span>
+    {<span class="nv">L</span> <span class="nv">L'</span> : lambda_theory_data_cat}
+    (<span class="nv">F</span> : algebraic_theory_morphism (data_theory L) (data_theory L'))
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : data_theory L (S n))
+    : UU
+    := mor_abs_ax' F (@data_abs L) (@data_abs L') n f.
+
+  <span class="kn">Let</span> <span class="nf">data_mor_app</span>
+    {<span class="nv">L</span> <span class="nv">L'</span> : lambda_theory_data_cat}
+    (<span class="nv">F</span> : lambda_theory_data_cat⟦L, L'⟧)
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">f</span> : data_theory L n)
+    : mor_app_ax (data_mor F) n f
+    := pr12 F n f.
+
+  <span class="kn">Let</span> <span class="nf">data_mor_abs</span>
+    {<span class="nv">L</span> <span class="nv">L'</span> : lambda_theory_data_cat}
+    (<span class="nv">F</span> : lambda_theory_data_cat⟦L, L'⟧)
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">f</span> : data_theory L (S n))
+    : mor_abs_ax (data_mor F) n f
+    := pr22 F n f.
+
+<span class="sd">(** ** 1.2. The category of λtheories *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">extended_composition</span>
+    {<span class="nv">T</span> : algebraic_theory_data}
+    {<span class="nv">m</span> <span class="nv">n</span> : nat}
+    (<span class="nv">f</span> : T (S m))
+    (<span class="nv">g</span> : stn m → T n)
+    : T (S n)
+    := f • (extend_tuple (<span class="k">λ</span> <span class="nv">i</span>, (g i) • (<span class="k">λ</span> <span class="nv">i</span>, var (stnweq (inl i)))) (var (stnweq (inr tt)))).
+
+  <span class="kn">Local Definition</span> <span class="nf">app_subst_ax</span>
+    (<span class="nv">L</span> : lambda_theory_data_cat)
+    (<span class="nv">m</span> <span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : data_theory L m)
+    (<span class="nv">g</span> : stn m → data_theory L n)
+    : UU
+    := data_app (f • g) = extended_composition (data_app f) g.
+
+  <span class="kn">Local Definition</span> <span class="nf">abs_subst_ax</span>
+    (<span class="nv">L</span> : lambda_theory_data_cat)
+    (<span class="nv">m</span> <span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : data_theory L (S m))
+    (<span class="nv">g</span> : stn m → data_theory L n)
+    : UU
+    := data_abs (extended_composition f g) = (data_abs f) • g.
+
+  <span class="kn">Local Definition</span> <span class="nf">is_lambda_theory</span> (<span class="nv">L</span> : lambda_theory_data_cat) : UU :=
+    (∏ m n f g, app_subst_ax L m n f g) ×
+    (∏ m n f g, abs_subst_ax L m n f g).
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_disp_cat</span>
+    : disp_cat lambda_theory_data_cat
+    := disp_full_sub lambda_theory_data_cat is_lambda_theory.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_cat</span>
+    : category
+    := total_category lambda_theory_disp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">theory_data</span>
+    (<span class="nv">L</span> : lambda_theory_cat)
+    : lambda_theory_data_cat
+    := pr1 L.
+
+  <span class="kn">Definition</span> <span class="nf">β_ax</span>
+    (<span class="nv">L</span> : lambda_theory_cat)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">l</span> : (data_theory (theory_data L)) (S n))
+    : UU
+    := data_app (data_abs l) = l.
+
+  <span class="kn">Definition</span> <span class="nf">η_ax</span>
+    (<span class="nv">L</span> : lambda_theory_cat)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">l</span> : (data_theory (theory_data L)) n)
+    : UU
+    := data_abs (data_app l) = l.
+
+  <span class="kn">Definition</span> <span class="nf">β_lambda_theory_cat</span>
+    : category
+    := full_subcat lambda_theory_cat (<span class="k">λ</span> <span class="nv">L</span>, ∏ n l, β_ax L n l).
+
+<span class="sd">(** *** 1.2.1. A lemma about λ-theories *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_lambda_theory</span>
+    (<span class="nv">L</span> : lambda_theory_data_cat)
+    : isaprop (is_lambda_theory L).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">apply</span> isapropdirprod;
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>);
+    <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">LambdaTheoryCategory</span>.
+
+<span class="kn">Arguments</span> app_ax /.
+<span class="kn">Arguments</span> abs_ax /.
+<span class="kn">Arguments</span> mor_app_ax /.
+<span class="kn">Arguments</span> mor_abs_ax /.
+<span class="kn">Arguments</span> app_subst_ax /.
+<span class="kn">Arguments</span> abs_subst_ax /.
+<span class="kn">Arguments</span> β_ax /.
+<span class="kn">Arguments</span> η_ax /.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/LambdaTheoryCategoryCore.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   1.2.1. A lemma about λ-theories [isaprop_is_lambda_theory]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>TwoSidedDispCatOnDispCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************************</span>
+
+<span class="sd"> 2-sided displayed categories over displayed categories</span>
+
+<span class="sd"> Suppose that we have a 2-sided displayed category `D₁₂` over categories `C₁` and `C₂`. Then</span>
+<span class="sd"> we are able to lift `D₁₂` to total categories of displayed categories. More specifically, if</span>
+<span class="sd"> we also have displayed categories `D₁` over C₁` and `D₂` over `C₂`, then we can lift `D₁₂` to</span>
+<span class="sd"> a 2-sided displayed category over the total categories over `D₁` and `D₂`. The displayed</span>
+<span class="sd"> objects and morphisms are the same as in `D₁₂`. Intuitively, this construction means that we</span>
+<span class="sd"> are able to add structure/properties to `C₁` and `C₂` and lift our 2-sided displayed category</span>
+<span class="sd"> along that.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The 2-sided displayed category</span>
+<span class="sd"> 2. Isomorphisms in this 2-sided displayed category</span>
+<span class="sd"> 3. Properties of this 2-sided displayed category</span>
+
+<span class="sd"> **********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Total.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">TwoSidedDispCatAndDispCat</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">D₁</span> : disp_cat C₁)
+          (<span class="nv">D₂</span> : disp_cat C₂)
+          (<span class="nv">D₁₂</span> : twosided_disp_cat C₁ C₂).
+
+  <span class="kn">Let</span> <span class="nf">E₁</span> : category := total_category D₁.
+  <span class="kn">Let</span> <span class="nf">E₂</span> : category := total_category D₂.
+
+  <span class="sd">(** * 1. The 2-sided displayed category *)</span>
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_on_disp_cat_ob_mor</span>
+    : twosided_disp_cat_ob_mor E₁ E₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, D₁₂ (pr1 x) (pr1 y)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span> <span class="nv">f</span> <span class="nv">g</span>, xy₁ --&gt;[ pr1 f ][ pr1 g ] xy₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_on_disp_cat_id_comp</span>
+    : twosided_disp_cat_id_comp twosided_disp_cat_on_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xy</span>, id_two_disp xy).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span> <span class="nv">xy₃</span> <span class="nv">f₁</span> <span class="nv">f₂</span> <span class="nv">g₁</span> <span class="nv">g₂</span> <span class="nv">fg₁</span> <span class="nv">fg₂</span>, fg₁ ;;<span class="mi">2</span> fg₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_on_disp_cat_data</span>
+    : twosided_disp_cat_data E₁ E₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> twosided_disp_cat_on_disp_cat_ob_mor.
+    - <span class="bp">exact</span> twosided_disp_cat_on_disp_cat_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transportf_disp_mor2_twosided_disp_cat_on_disp_cat</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> : E₁}
+              {<span class="nv">f</span> <span class="nv">f'</span> : x₁ --&gt; x₂}
+              (<span class="nv">p</span> : f = f')
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : E₂}
+              {<span class="nv">g</span> <span class="nv">g'</span> : y₁ --&gt; y₂}
+              (<span class="nv">q</span> : g = g')
+              {<span class="nv">xy₁</span> : twosided_disp_cat_on_disp_cat_data x₁ y₁}
+              {<span class="nv">xy₂</span> : twosided_disp_cat_on_disp_cat_data x₂ y₂}
+              (<span class="nv">fg</span> : xy₁ --&gt;[ f ][ g ] xy₂)
+    : transportf_disp_mor2 p q fg
+      =
+      transportf_disp_mor2 (maponpaths pr1 p) (maponpaths pr1 q) fg.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transportb_disp_mor2_twosided_disp_cat_on_disp_cat</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> : E₁}
+              {<span class="nv">f</span> <span class="nv">f'</span> : x₁ --&gt; x₂}
+              (<span class="nv">p</span> : f' = f)
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : E₂}
+              {<span class="nv">g</span> <span class="nv">g'</span> : y₁ --&gt; y₂}
+              (<span class="nv">q</span> : g' = g)
+              {<span class="nv">xy₁</span> : twosided_disp_cat_on_disp_cat_data x₁ y₁}
+              {<span class="nv">xy₂</span> : twosided_disp_cat_on_disp_cat_data x₂ y₂}
+              (<span class="nv">fg</span> : xy₁ --&gt;[ f ][ g ] xy₂)
+    : transportb_disp_mor2 p q fg
+      =
+      transportb_disp_mor2 (maponpaths pr1 p) (maponpaths pr1 q) fg.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">twosided_disp_cat_on_disp_cat_axioms</span>
+    : twosided_disp_cat_axioms twosided_disp_cat_on_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat.
+      <span class="nb">refine</span> (id_two_disp_left _ @ _).
+      use transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat.
+      <span class="nb">refine</span> (id_two_disp_right _ @ _).
+      use transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat.
+      <span class="nb">refine</span> (assoc_two_disp _ _ _ @ _).
+      use transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaset_disp_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_on_disp_cat</span>
+    : twosided_disp_cat E₁ E₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> twosided_disp_cat_on_disp_cat_data.
+    - <span class="bp">exact</span> twosided_disp_cat_on_disp_cat_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Isomorphisms in this 2-sided displayed category *)</span>
+  <span class="kn">Definition</span> <span class="nf">to_is_iso_twosided_disp_cat_on_disp_cat</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : E₁}
+             {<span class="nv">f</span> : x₁ --&gt; x₂}
+             (<span class="nv">Hf</span> : is_z_isomorphism f)
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : E₂}
+             {<span class="nv">g</span> : y₁ --&gt; y₂}
+             (<span class="nv">Hg</span> : is_z_isomorphism g)
+             {<span class="nv">xy₁</span> : twosided_disp_cat_on_disp_cat x₁ y₁}
+             {<span class="nv">xy₂</span> : twosided_disp_cat_on_disp_cat x₂ y₂}
+             (<span class="nv">fg</span> : xy₁ --&gt;[ f ][ g ] xy₂)
+             (<span class="nv">Hfg</span> : is_iso_twosided_disp
+                      (is_z_iso_base_from_total Hf)
+                      (is_z_iso_base_from_total Hg)
+                      fg)
+    : is_iso_twosided_disp Hf Hg fg.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (iso_inv_twosided_disp Hfg).
+    - <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat ;
+         <span class="nb">refine</span> (inv_after_iso_twosided_disp Hfg @ _) ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat ;
+         <span class="nb">refine</span> (iso_after_inv_twosided_disp Hfg @ _) ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_is_iso_twosided_disp_cat_on_disp_cat</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : E₁}
+             {<span class="nv">f</span> : x₁ --&gt; x₂}
+             (<span class="nv">Hf</span> : is_z_isomorphism f)
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : E₂}
+             {<span class="nv">g</span> : y₁ --&gt; y₂}
+             (<span class="nv">Hg</span> : is_z_isomorphism g)
+             {<span class="nv">xy₁</span> : twosided_disp_cat_on_disp_cat x₁ y₁}
+             {<span class="nv">xy₂</span> : twosided_disp_cat_on_disp_cat x₂ y₂}
+             (<span class="nv">fg</span> : xy₁ --&gt;[ f ][ g ] xy₂)
+             (<span class="nv">Hfg</span> : is_iso_twosided_disp Hf Hg fg)
+    : is_iso_twosided_disp
+        (is_z_iso_base_from_total Hf)
+        (is_z_iso_base_from_total Hg)
+        fg.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (iso_inv_twosided_disp Hfg).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (inv_after_iso_twosided_disp Hfg @ _) ;
+         <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat ;
+         <span class="nb">cbn</span> ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (iso_after_inv_twosided_disp Hfg @ _) ;
+         <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat ;
+         <span class="nb">cbn</span> ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_is_iso_twosided_disp_cat_on_disp_cat_id</span>
+             {<span class="nv">x</span> : E₁}
+             {<span class="nv">y</span> : E₂}
+             {<span class="nv">xy₁</span> <span class="nv">xy₂</span> : twosided_disp_cat_on_disp_cat x y}
+             (<span class="nv">fg</span> : xy₁ --&gt;[ identity _ ][ identity _ ] xy₂)
+             (<span class="nv">Hfg</span> : is_iso_twosided_disp
+                      (identity_is_z_iso (pr1 x))
+                      (identity_is_z_iso (pr1 y))
+                      fg)
+    : is_iso_twosided_disp
+        (identity_is_z_iso x)
+        (identity_is_z_iso y)
+        fg.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (iso_inv_twosided_disp Hfg).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (inv_after_iso_twosided_disp Hfg @ _) ;
+         <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat ;
+         <span class="nb">cbn</span> ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (iso_after_inv_twosided_disp Hfg @ _) ;
+         <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat ;
+         <span class="nb">cbn</span> ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_is_iso_twosided_disp_cat_on_disp_cat_id</span>
+             {<span class="nv">x</span> : E₁}
+             {<span class="nv">y</span> : E₂}
+             {<span class="nv">xy₁</span> <span class="nv">xy₂</span> : twosided_disp_cat_on_disp_cat x y}
+             (<span class="nv">fg</span> : xy₁ --&gt;[ identity _ ][ identity _ ] xy₂)
+             (<span class="nv">Hfg</span> : is_iso_twosided_disp
+                      (identity_is_z_iso x)
+                      (identity_is_z_iso y)
+                      fg)
+    : is_iso_twosided_disp
+        (identity_is_z_iso (pr1 x))
+        (identity_is_z_iso (pr1 y))
+        fg.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (iso_inv_twosided_disp Hfg).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (inv_after_iso_twosided_disp Hfg @ _) ;
+         <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat ;
+         <span class="nb">cbn</span> ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (iso_after_inv_twosided_disp Hfg @ _) ;
+         <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat ;
+         <span class="nb">cbn</span> ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_iso_twosided_disp_cat_on_disp_cat</span>
+             {<span class="nv">x</span> : E₁}
+             {<span class="nv">y</span> : E₂}
+             {<span class="nv">xy₁</span> <span class="nv">xy₂</span> : twosided_disp_cat_on_disp_cat x y}
+             (<span class="nv">fg</span> : iso_twosided_disp
+                     (identity_z_iso (pr1 x)) (identity_z_iso (pr1 y))
+                     xy₁ xy₂)
+    : iso_twosided_disp (identity_z_iso x) (identity_z_iso y) xy₁ xy₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> fg.
+    - use to_is_iso_twosided_disp_cat_on_disp_cat_id.
+      <span class="nb">apply</span> fg.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_iso_twosided_disp_cat_on_disp_cat</span>
+             {<span class="nv">x</span> : E₁}
+             {<span class="nv">y</span> : E₂}
+             {<span class="nv">xy₁</span> <span class="nv">xy₂</span> : twosided_disp_cat_on_disp_cat x y}
+             (<span class="nv">fg</span> : iso_twosided_disp (identity_z_iso x) (identity_z_iso y) xy₁ xy₂)
+    : iso_twosided_disp
+        (identity_z_iso (pr1 x)) (identity_z_iso (pr1 y))
+        xy₁ xy₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> fg.
+    - use from_is_iso_twosided_disp_cat_on_disp_cat_id.
+      <span class="nb">apply</span> fg.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_twosided_disp_cat_on_disp_cat_weq</span>
+             {<span class="nv">x</span> : E₁}
+             {<span class="nv">y</span> : E₂}
+             (<span class="nv">xy₁</span> <span class="nv">xy₂</span> : twosided_disp_cat_on_disp_cat x y)
+    : iso_twosided_disp
+        (identity_z_iso (pr1 x)) (identity_z_iso (pr1 y))
+        xy₁ xy₂
+      ≃
+      iso_twosided_disp (identity_z_iso x) (identity_z_iso y) xy₁ xy₂.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">apply</span> to_iso_twosided_disp_cat_on_disp_cat.
+    - <span class="nb">apply</span> from_iso_twosided_disp_cat_on_disp_cat.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> fg ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> fg ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. Properties of this 2-sided displayed category *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_univalent_twosided_disp_cat_on_disp_cat</span>
+             (<span class="nv">H</span> : is_univalent_twosided_disp_cat D₁₂)
+    : is_univalent_twosided_disp_cat twosided_disp_cat_on_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ p q xy₁ xy₂.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    use weqhomot.
+    - <span class="bp">exact</span> (iso_twosided_disp_cat_on_disp_cat_weq xy₁ xy₂
+             ∘ make_weq _ (H _ _ _ _ (idpath _) (idpath _) xy₁ xy₂))%weq.
+    - <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_mor_twosided_disp_cat_on_disp_cat</span>
+              (<span class="nv">H</span> : isaprop_disp_twosided_mor D₁₂)
+    : isaprop_disp_twosided_mor twosided_disp_cat_on_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ xy₁ xy₂ f g fg fg'.
+    <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">all_disp_mor_iso_twosided_disp_cat_on_disp_cat</span>
+              (<span class="nv">H</span> : all_disp_mor_iso D₁₂)
+    : all_disp_mor_iso twosided_disp_cat_on_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ xy₁ xy₂ f g Hf Hg fg.
+    use to_is_iso_twosided_disp_cat_on_disp_cat.
+    <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_discrete_twosided_disp_cat_on_disp_cat</span>
+              (<span class="nv">H</span> : discrete_twosided_disp_cat D₁₂)
+    : discrete_twosided_disp_cat twosided_disp_cat_on_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - use isaprop_mor_twosided_disp_cat_on_disp_cat.
+      <span class="nb">apply</span> H.
+    - use all_disp_mor_iso_twosided_disp_cat_on_disp_cat.
+      <span class="nb">apply</span> H.
+    - use is_univalent_twosided_disp_cat_on_disp_cat.
+      <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">TwoSidedDispCatAndDispCat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/TwoSidedDisplayedCats/Examples/TwoSidedDispCatOnDispCat.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Properties of this 2-sided displayed category
+  &gt;
+  &gt;  **********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

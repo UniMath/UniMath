@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FunctorCategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** some categories of monoidal functors and their univalence</span>
+
+<span class="sd">- the lax monoidal functors</span>
+<span class="sd">- the symmetric lax monoidal functors</span>
+<span class="sd">- the symmetric lax monoidal comonads (functors with counit and comultiplication)</span>
+
+<span class="sd">author: Ralph Matthes, August 2023</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.SIP.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">LaxMonoidalFunctorCategory</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">M</span> : monoidal C) (<span class="nv">N</span> : monoidal D).
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_lax_monoidal_functors</span> : disp_cat [C,D].
+<span class="kn">Proof</span>.
+  use disp_struct.
+  - <span class="nb">intro</span> F. <span class="bp">exact</span> (fmonoidal_lax M N F).
+  - <span class="nb">intros</span> F G Fm Gm α. <span class="bp">exact</span> (is_mon_nat_trans Fm Gm α).
+  - <span class="nb">intros</span>; <span class="nb">apply</span> isaprop_is_mon_nat_trans.
+  - <span class="nb">intros</span> F Fm. <span class="nb">apply</span> is_mon_nat_trans_identity.
+  - <span class="nb">intros</span> F G H Fm Gm Hm α β Hα Hβ. <span class="bp">exact</span> (is_mon_nat_trans_comp Fm Gm Hm α β Hα Hβ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">category_lax_monoidal_functors</span> : category
+  := total_category disp_cat_lax_monoidal_functors.
+
+<span class="kn">Lemma</span> <span class="nf">lax_monoidal_functors_Pisset</span> (<span class="nv">F</span> : C ⟶ D) : isaset (fmonoidal_lax M N F).
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> isaset <span class="k">with</span> (isofhlevel <span class="mi">2</span>).
+  <span class="nb">apply</span> isofhleveltotal2.
+  { <span class="nb">apply</span> isasetdirprod.
+    - <span class="nb">apply</span> impred; <span class="nb">intro</span> x; <span class="nb">apply</span> impred; <span class="nb">intro</span> y. <span class="nb">apply</span> D.
+    - <span class="nb">apply</span> D.
+  }
+  <span class="nb">intro</span> fmd.
+  <span class="nb">apply</span> isasetaprop.
+  <span class="nb">apply</span> isaprop_fmonoidal_laxlaws.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lax_monoidal_functors_Hstandard</span> {<span class="nv">F</span> : C ⟶ D}
+  (<span class="nv">Fm</span> <span class="nv">Fm'</span> : fmonoidal_lax M N F) :
+  is_mon_nat_trans Fm Fm' (nat_trans_id (pr1 F))
+  → is_mon_nat_trans Fm' Fm (nat_trans_id (pr1 F)) → Fm = Fm'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H H'.
+  <span class="nb">apply</span> fmonoidal_lax_eq.
+  <span class="nb">apply</span> dirprodeq.
+  - <span class="nb">destruct</span> H <span class="k">as</span> [H _].
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> c.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> c'.
+    <span class="nb">assert</span> (aux := H c c').
+    <span class="nb">cbn</span> <span class="k">in</span> aux.
+    <span class="nb">rewrite</span> id_right <span class="k">in</span> aux.
+    <span class="nb">rewrite</span> (bifunctor_distributes_over_id) <span class="k">in</span> aux.
+    + <span class="nb">rewrite</span> id_left <span class="k">in</span> aux.
+      <span class="bp">exact</span> aux.
+    + <span class="nb">apply</span> (bifunctor_leftid N).
+    + <span class="nb">apply</span> (bifunctor_rightid N).
+  - <span class="nb">destruct</span> H <span class="k">as</span> [_ H].
+    <span class="nb">red</span> <span class="k">in</span> H. <span class="nb">cbn</span> <span class="k">in</span> H.
+    <span class="nb">rewrite</span> id_right <span class="k">in</span> H.
+    <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_disp_cat_lax_monoidal_functors</span> :
+  is_univalent_disp disp_cat_lax_monoidal_functors.
+<span class="kn">Proof</span>.
+  use is_univalent_disp_from_SIP_data.
+  - <span class="bp">exact</span> lax_monoidal_functors_Pisset.
+  - <span class="nb">intros</span> F Fm Fm'. <span class="nb">apply</span> lax_monoidal_functors_Hstandard.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LaxMonoidalFunctorCategory</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_category_lax_monoidal_functors</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">HD</span> : is_univalent D)
+  (<span class="nv">M</span> : monoidal C) (<span class="nv">N</span> : monoidal D)
+  : is_univalent (category_lax_monoidal_functors M N).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_category.
+  - <span class="nb">apply</span> is_univalent_functor_category. <span class="nb">apply</span> HD.
+  - <span class="nb">apply</span> is_univalent_disp_cat_lax_monoidal_functors.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">SymmetricLaxMonoidalFunctorCategory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">M</span> : monoidal C} {<span class="nv">N</span> : monoidal D}
+    (<span class="nv">HM</span> : symmetric M) (<span class="nv">HN</span> : symmetric N).
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_symmetric_lax_monoidal_functors_aux</span> :
+  disp_cat (category_lax_monoidal_functors M N).
+<span class="kn">Proof</span>.
+  use disp_full_sub.
+  <span class="nb">intro</span> FFm. <span class="bp">exact</span> (is_symmetric_monoidal_functor HM HN (pr2 FFm)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_disp_cat_symmetric_lax_monoidal_functors_aux</span> :
+  is_univalent_disp disp_cat_symmetric_lax_monoidal_functors_aux.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_full_sub_univalent.
+  <span class="nb">intro</span> F. <span class="nb">apply</span> isaprop_is_symmetric_monoidal_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_symmetric_lax_monoidal_functors</span> : disp_cat [C,D]
+  := sigma_disp_cat disp_cat_symmetric_lax_monoidal_functors_aux.
+
+<span class="kn">Definition</span> <span class="nf">category_symmetric_lax_monoidal_functors</span> : category
+  := total_category disp_cat_symmetric_lax_monoidal_functors.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_disp_cat_symmetric_lax_monoidal_functors</span> :
+  is_univalent_disp disp_cat_symmetric_lax_monoidal_functors.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_sigma_disp.
+  - <span class="nb">apply</span> is_univalent_disp_cat_lax_monoidal_functors.
+  - <span class="nb">apply</span> is_univalent_disp_cat_symmetric_lax_monoidal_functors_aux.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">SymmetricLaxMonoidalFunctorCategory</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_category_symmetric_lax_monoidal_functors</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">HD</span> : is_univalent D) {<span class="nv">M</span> : monoidal C} {<span class="nv">N</span> : monoidal D}
+  (<span class="nv">HM</span> : symmetric M) (<span class="nv">HN</span> : symmetric N) :
+  is_univalent (category_symmetric_lax_monoidal_functors HM HN).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_category.
+  - <span class="nb">apply</span> is_univalent_functor_category. <span class="nb">apply</span> HD.
+  - <span class="nb">apply</span> is_univalent_disp_cat_symmetric_lax_monoidal_functors.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">SymmetricMonoidalComonads</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">M</span> : monoidal C} (<span class="nv">HM</span> : symmetric M).
+
+<span class="kn">Definition</span> <span class="nf">symmetric_monoidal_comonads_extra_laws</span> {<span class="nv">F</span> : C ⟶ C}
+  (<span class="nv">Fm</span> : disp_cat_lax_monoidal_functors M M F)
+  (<span class="nv">δ</span> : F ⟹ F ∙ F) (<span class="nv">ε</span> : F ⟹ functor_identity C) : UU :=
+  is_mon_nat_trans Fm (comp_fmonoidal_lax Fm Fm) δ ×
+  is_mon_nat_trans Fm (identity_fmonoidal_lax M) ε.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_symmetric_monoidal_comonads_extra_laws</span> {<span class="nv">F</span> : C ⟶ C}
+  (<span class="nv">Fm</span> : disp_cat_lax_monoidal_functors M M F)
+  (<span class="nv">δ</span> : F ⟹ F ∙ F) (<span class="nv">ε</span> : F ⟹ functor_identity C) :
+  isaprop (symmetric_monoidal_comonads_extra_laws Fm δ ε).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> isaprop_is_mon_nat_trans.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_symmetric_monoidal_comonads</span> :
+  disp_cat (category_symmetric_lax_monoidal_functors HM HM).
+<span class="kn">Proof</span>.
+  use disp_struct.
+  - <span class="nb">intros</span> [F [Fm Fs]].
+    use total2.
+    + <span class="bp">exact</span> (comonads_category_disp F).
+    + <span class="nb">intro</span> H.
+      <span class="nb">induction</span> H <span class="k">as</span> [[δ ε] _].
+      <span class="bp">exact</span> (symmetric_monoidal_comonads_extra_laws Fm δ ε).
+  - <span class="nb">intros</span> F G T T' α.
+    <span class="bp">exact</span> (disp_Comonad_Mor_laws (pr11 T) (pr11 T') (pr1 α)).
+  - <span class="nb">intros</span>. <span class="nb">apply</span> isaprop_disp_Comonad_Mor_laws.
+  - <span class="nb">intros</span> F T. <span class="nb">apply</span> comonads_category_id_subproof.
+    <span class="bp">exact</span> (pr21 T).
+  - <span class="nb">intros</span> F F' F'' T T' T'' α α' Hα Hα'. <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (comonads_category_comp_subproof (pr11 T) (pr21 T) (pr11 T') (pr21 T') (pr11 T'') (pr21 T'') _ _ Hα Hα').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">category_symmetric_monoidal_comonad</span> : category
+  := total_category disp_cat_symmetric_monoidal_comonads.
+
+<span class="kn">Definition</span> <span class="nf">symmetric_monoidal_comonad</span> : UU := ob category_symmetric_monoidal_comonad.
+
+<span class="kn">Coercion</span> <span class="nf">comonad_from_symmetric_monoidal_comonad</span> (T : symmetric_monoidal_comonad)
+  : Comonad C
+  := pr11 T ,, pr12 T.
+
+<span class="kn">Definition</span> <span class="nf">lax_monoidal_from_symmetric_monoidal_comonad</span> (<span class="nv">T</span> : symmetric_monoidal_comonad) : fmonoidal_lax M M T
+  := pr121 T.
+
+<span class="kn">Definition</span> <span class="nf">symmetric_monoidal_comonad_extra_laws</span> (<span class="nv">T</span> : symmetric_monoidal_comonad)
+  : symmetric_monoidal_comonads_extra_laws (pr121 T) (δ T) (ε T)
+  := pr22 T.
+
+<span class="kn">Definition</span> <span class="nf">make_symmetric_monoidal_comonad</span>
+  {<span class="nv">T</span> : Comonad C}
+  {<span class="nv">Tm</span> : fmonoidal_lax M M (pr1 T)}
+  (<span class="nv">Ts</span> : is_symmetric_monoidal_functor HM HM Tm)
+  (<span class="nv">Hδ</span> : is_mon_nat_trans Tm (comp_fmonoidal_lax Tm Tm) (δ T))
+  (<span class="nv">Hε</span> : is_mon_nat_trans Tm (identity_fmonoidal_lax M) (ε T))
+  : symmetric_monoidal_comonad.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use tpair.
+    + <span class="bp">exact</span> (pr1 T).
+    + <span class="bp">exact</span> (Tm,,Ts).
+  - use tpair.
+    + <span class="bp">exact</span> (pr2 T).
+    + <span class="bp">exact</span> (Hδ,,Hε).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">category_symmetric_monoidal_comonad_disp_eq</span>
+  (<span class="nv">F</span> : category_symmetric_lax_monoidal_functors HM HM)
+  (<span class="nv">T</span> <span class="nv">T'</span> : disp_cat_symmetric_monoidal_comonads F)
+  : pr1 T = pr1 T' -&gt; T = T'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">induction</span> T <span class="k">as</span> [T Textralaws].
+  <span class="nb">induction</span> T' <span class="k">as</span> [T' T'extralaws].
+  <span class="nb">apply</span> subtypePath.
+  - <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_symmetric_monoidal_comonads_extra_laws.
+  - <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">symmetric_monoidal_comonad_category_Pisset</span>
+  (<span class="nv">smF</span> : ∑ (F : C ⟶ C) (d : fmonoidal_lax M M F),
+      is_symmetric_monoidal_functor HM HM d)
+  : isaset
+    (∑ H : ∑ T : disp_Comonad_data (pr1 smF), disp_Comonad_laws T,
+          symmetric_monoidal_comonads_extra_laws (pr12 smF) (pr11 H) (pr21 H)).
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> isaset <span class="k">with</span> (isofhlevel <span class="mi">2</span>).
+  <span class="nb">apply</span> isofhleveltotal2.
+  - <span class="nb">apply</span> isofhleveltotal2.
+    { <span class="nb">apply</span> isasetdirprod; <span class="nb">apply</span> [C,C]. }
+    <span class="nb">intro</span> T.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_disp_Comonad_laws.
+  - <span class="nb">intro</span> TT.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_symmetric_monoidal_comonads_extra_laws.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">symmetric_monoidal_comonad_category_Hstandard</span>
+  (<span class="nv">smF</span> : ∑ (F : C ⟶ C) (d : fmonoidal_lax M M F), is_symmetric_monoidal_functor HM HM d)
+  (<span class="nv">TT</span> <span class="nv">TT'</span> : ∑ H : ∑ T : disp_Comonad_data (pr1 smF), disp_Comonad_laws T,
+        symmetric_monoidal_comonads_extra_laws (pr12 smF) (pr11 H) (pr21 H)) :
+  disp_Comonad_Mor_laws (pr11 TT) (pr11 TT') (nat_trans_id (pr11 smF))
+  → disp_Comonad_Mor_laws (pr11 TT') (pr11 TT) (nat_trans_id (pr11 smF)) → TT = TT'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H H'.
+  <span class="nb">apply</span> category_symmetric_monoidal_comonad_disp_eq.
+  <span class="nb">apply</span> comonads_category_Hstandard; <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_disp_cat_symmetric_monoidal_comonads</span> :
+  is_univalent_disp disp_cat_symmetric_monoidal_comonads.
+<span class="kn">Proof</span>.
+  use is_univalent_disp_from_SIP_data.
+  - <span class="nb">apply</span> symmetric_monoidal_comonad_category_Pisset.
+  - <span class="nb">apply</span> symmetric_monoidal_comonad_category_Hstandard.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">SymmetricMonoidalComonads</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_symmetric_monoidal_comonad</span> {<span class="nv">C</span> : category} (<span class="nv">HC</span> : is_univalent C)
+  {<span class="nv">M</span> : monoidal C} (<span class="nv">HM</span> : symmetric M)
+  : is_univalent (category_symmetric_monoidal_comonad HM).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_category.
+  - <span class="nb">apply</span> (is_univalent_category_symmetric_lax_monoidal_functors HC).
+  - <span class="nb">apply</span> is_univalent_disp_cat_symmetric_monoidal_comonads.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Alias for the bundled case</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">sym_monoidal_cmd</span>
+           (<span class="nv">V</span> : sym_monoidal_cat)
+  : UU
+  := symmetric_monoidal_comonad (pr2 V).
+
+<span class="kn">Identity Coercion</span> <span class="nf">sym_monoidal_cmd_to_symmetric_monoidal_comonad</span>
+  : sym_monoidal_cmd &gt;-&gt; symmetric_monoidal_comonad.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/FunctorCategories.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

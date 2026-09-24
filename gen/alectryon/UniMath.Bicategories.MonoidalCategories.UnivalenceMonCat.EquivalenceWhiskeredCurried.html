@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EquivalenceWhiskeredCurried.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesReordered.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.
+
+<span class="kn">Import</span> BifunctorNotations.
+
+<span class="kn">Section</span> <span class="nf">TensorEquivalence</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">ctensor</span> (<span class="nv">C</span> : category) := CurriedMonoidalCategories.tensor C.
+  <span class="kn">Identity Coercion</span> <span class="nf">ctensor_to_tensor</span>: ctensor &gt;-&gt; CurriedMonoidalCategories.tensor.
+  <span class="kn">Local Definition</span> <span class="nf">wtensor</span> (<span class="nv">C</span> : category) := bifunctor C C C.
+  <span class="kn">Identity Coercion</span> <span class="nf">wtensor_to_tensor</span>: wtensor &gt;-&gt; bifunctor.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="kn">Definition</span> <span class="nf">wtensor_to_ctensor</span> (<span class="nv">T</span> : wtensor C)
+    : ctensor C.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use tpair).
+    - <span class="nb">apply</span> T.
+    - <span class="nb">intros</span> x1 x2 y1 y2 f g.
+      <span class="bp">exact</span> (f ⊗^{T} g).
+    - <span class="nb">intros</span> x y.
+      <span class="nb">apply</span> (bifunctor_distributes_over_id
+               (C := C)
+               (bifunctor_leftid T)
+               (bifunctor_rightid T)
+            ).
+    - <span class="nb">intros</span> x1 x2 x3 y1 y2 y3 f1 f2 g1 g2.
+      <span class="nb">apply</span> (bifunctor_distributes_over_comp
+               (C := C)
+               (bifunctor_leftcomp T)
+               (bifunctor_rightcomp T)
+               (bifunctor_equalwhiskers T)
+            ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ctensor_to_wtensor</span> (<span class="nv">T</span> : ctensor C)
+    : wtensor C.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use tpair).
+    - <span class="nb">apply</span> T.
+    - <span class="nb">intros</span> x ? ? g.
+      <span class="bp">exact</span> ((tensor_on_hom (pr1 T)) _ _ _ _ (identity x) g).
+    - <span class="nb">intros</span> y ? ? f.
+      <span class="bp">exact</span> ((tensor_on_hom (pr1 T)) _ _ _ _ f (identity y)).
+    - <span class="nb">intro</span> ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> tensor_id.
+    - <span class="nb">intro</span> ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> tensor_id.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      use pathscomp0.
+      <span class="mi">3</span>: <span class="nb">apply</span> tensor_comp.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      use pathscomp0.
+      <span class="mi">3</span>: <span class="nb">apply</span> tensor_comp.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> ? ? ? ? f g.
+      use pathscomp0.
+      <span class="mi">3</span>: <span class="nb">apply</span> tensor_comp.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> id_left.
+      etrans. {
+        <span class="nb">apply</span> (! tensor_comp _ _ _ _ _ _ _ _ _ _ _).
+      }
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Lemma transport_of_right_partial_bifunctor_map_is_pointwise</span>
+<span class="c">      {F0 G0 : ob C -&gt; ob C -&gt; ob C}</span>
+<span class="c">      (F1 : ∏ y x1 x2 : ob C, C⟦x1,x2⟧ -&gt; C⟦F0 x1 y, F0 x2 y⟧)</span>
+<span class="c">      (gamma : F0  = G0)</span>
+<span class="c">      {x1 x2 : ob C} (y : C) (f : C⟦x1,x2⟧) :</span>
+<span class="c">  transportf (fun T : C -&gt; C -&gt; C =&gt;</span>
+<span class="c">                ∏ b a1 a2 : C, C⟦a1,a2⟧ -&gt; C⟦T a1 b, T a2 b⟧)</span>
+<span class="c">             gamma F1 y x1 x2 f =</span>
+<span class="c">    double_transport</span>
+<span class="c">      (toforallpaths (λ _ : ob C, C) (F0 x1) (G0 x1) (toforallpaths (λ _ : ob C, C -&gt; C) F0 G0 gamma x1) y)</span>
+<span class="c">      (toforallpaths (λ _ : ob C, C) (F0 x2) (G0 x2) (toforallpaths (λ _ : ob C, C -&gt; C) F0 G0 gamma x2) y)</span>
+<span class="c">                   (F1 _ _ _ f).</span>
+<span class="c">  Proof.</span>
+<span class="c">    induction gamma.</span>
+<span class="c">    apply idpath.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma transport_of_left_partial_bifunctor_map_is_pointwise</span>
+<span class="c">      {F0 G0 : ob C -&gt; ob C -&gt; ob C}</span>
+<span class="c">      (F1 : ∏ x y1 y2 : ob C, C⟦y1,y2⟧ -&gt; C⟦F0 x y1, F0 x y2⟧)</span>
+<span class="c">      (gamma : F0  = G0)</span>
+<span class="c">      {y1 y2 : ob C} (x : C) (g : C⟦y1,y2⟧) :</span>
+<span class="c">  transportf (fun T : C -&gt; C -&gt; C =&gt;</span>
+<span class="c">                ∏ a b1 b2 : C, C⟦b1,b2⟧ -&gt; C⟦T a b1, T a b2⟧)</span>
+<span class="c">             gamma F1 x y1 y2 g =</span>
+<span class="c">    double_transport</span>
+<span class="c">      (toforallpaths (λ _ : ob C, C) (F0 x) (G0 x) (toforallpaths (λ _ : ob C, C -&gt; C) F0 G0 gamma x) y1)</span>
+<span class="c">      (toforallpaths (λ _ : ob C, C) (F0 x) (G0 x) (toforallpaths (λ _ : ob C, C -&gt; C) F0 G0 gamma x) y2)</span>
+<span class="c">                   (F1 x y1 y2 g).</span>
+<span class="c">  Proof.</span>
+<span class="c">    induction gamma.</span>
+<span class="c">    apply idpath.</span>
+<span class="c">  Qed. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">w_c_wtensor</span> (<span class="nv">T</span> : wtensor C)
+    : ctensor_to_wtensor (wtensor_to_ctensor T) = T.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use total2_paths_f) ; <span class="kp">try</span> (<span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homset_property).
+    - <span class="nb">apply</span> idpath.
+    - <span class="kp">abstract</span> (<span class="nb">rewrite</span> idpath_transportf ;
+      <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>) ;
+      <span class="nb">simpl</span> ;
+      <span class="nb">unfold</span> functoronmorphisms1 ;
+      <span class="nb">rewrite</span> bifunctor_rightid ;
+      <span class="nb">apply</span> id_left).
+    - <span class="nb">rewrite</span> pr2_transportf.
+      <span class="nb">rewrite</span> (idpath_transportf ((<span class="k">λ</span> <span class="nv">a</span> : C → C → C, ∏ b a1 a2 : C, C ⟦ a1, a2 ⟧ → C ⟦ a a1 b, a a2 b ⟧))).
+      <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      <span class="nb">rewrite</span> transportf_const.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> functoronmorphisms1.
+      <span class="nb">rewrite</span> bifunctor_leftid.
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">c_w_ctensor</span> (<span class="nv">T</span> : ctensor C)
+    : wtensor_to_ctensor (ctensor_to_wtensor T) = T.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use total2_paths_f).
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> idpath_transportf.
+      <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      <span class="nb">refine</span> ((! pr22 T _ _ _ _ _ _ _ _ _ _) @ _).
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> id_left.
+    - <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+    - <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_equivalence</span>
+    : ctensor C ≃ wtensor C.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">apply</span> ctensor_to_wtensor.
+    - <span class="nb">apply</span> wtensor_to_ctensor.
+    - <span class="nb">intro</span>. <span class="nb">apply</span> c_w_ctensor.
+    - <span class="nb">intro</span>. <span class="nb">apply</span> w_c_wtensor.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">TensorEquivalence</span>.
+
+<span class="kn">Section</span> <span class="nf">MonoidalCategoryEquivalence</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_equivalence</span> (<span class="nv">C</span> : category)
+    : CurriedMonoidalCategories.tensor_unit C ≃ MonoidalCategoriesReordered.tensor_unit C.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqtotal2.
+    - <span class="nb">apply</span> tensor_equivalence.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> idweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_unitors_associator_equivalence</span> (<span class="nv">C</span> : category)
+    :  CurriedMonoidalCategories.tensor_unit_unitors_associator C ≃ MonoidalCategoriesReordered.tensor_unit_unitors_associator C.
+  <span class="kn">Proof</span>.
+    use weqtotal2.
+    { <span class="bp">exact</span> (tensor_unit_equivalence C). }
+    <span class="nb">intro</span> tu.
+    <span class="kp">repeat</span> (use weqdirprodf) ; <span class="nb">apply</span> idweq.
+    use weqtotal2.
+    { <span class="nb">apply</span> idweq. }
+    <span class="nb">intro</span> α.
+
+    <span class="nb">apply</span> weqimplimpl.
+    - <span class="nb">intro</span> αnat.
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="nb">intros</span> x y z1 z2 h.
+        <span class="nb">refine</span> (αnat x x y y z1 z2 (identity x) (identity y) h @ _).
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">rewrite</span> tensor_id.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> x1 x2 y z f.
+        <span class="nb">refine</span> (_ @ αnat x1 x2 y y z z f (identity y) (identity z)).
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">rewrite</span> tensor_id.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> x y1 y2 z g.
+        <span class="nb">apply</span> (αnat x x y1 y2 z z (identity x) g (identity z)).
+    - <span class="nb">intro</span> αnat.
+      <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (!(id_left _)).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (!(id_right _)).
+          }
+          <span class="nb">apply</span> tensor_comp.
+        }
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (!(id_left _)).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (!(id_right _)).
+          }
+          <span class="nb">apply</span> tensor_comp.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(id_left _)).
+        }
+        <span class="nb">apply</span> tensor_comp.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (pr1 αnat x y z z' h).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (pr22 αnat x y y' z' g).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (pr12 αnat x x' y' z' f).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> tensor_comp.
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> tensor_comp.
+      }
+      <span class="nb">rewrite</span> !id_left, !id_right.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> tensor_comp.
+      }
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homset_property.
+    - <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_lax_monoidal_leftunitor_inverse</span> {<span class="nv">C</span> : category}
+        (<span class="nv">luua</span> :  MonoidalCategoriesReordered.tensor_unit_unitors_associator C)
+    : isaprop (lax_monoidal_leftunitor_inverse luua).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaproptotal2.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> Isos.isaprop_is_inverse_in_precat.
+    }
+    <span class="nb">intros</span> lui0 lui1 l0 l1.
+    <span class="nb">apply</span> funextsec ; <span class="nb">intro</span>.
+    use Isos.inverse_unique_precat.
+    - <span class="nb">apply</span> luua.
+    - <span class="nb">apply</span> l0.
+    - <span class="nb">apply</span> l1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_lax_monoidal_rightunitor_inverse</span> {<span class="nv">C</span> : category}
+        (<span class="nv">luua</span> :  MonoidalCategoriesReordered.tensor_unit_unitors_associator C)
+    : isaprop (lax_monoidal_rightunitor_inverse luua).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaproptotal2.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> Isos.isaprop_is_inverse_in_precat.
+    }
+    <span class="nb">intros</span> lui0 lui1 l0 l1.
+    <span class="nb">apply</span> funextsec ; <span class="nb">intro</span>.
+    use Isos.inverse_unique_precat.
+    - <span class="nb">apply</span> luua.
+    - <span class="nb">apply</span> l0.
+    - <span class="nb">apply</span> l1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_lax_monoidal_associator_inverse</span> {<span class="nv">C</span> : category}
+        (<span class="nv">luua</span> :  MonoidalCategoriesReordered.tensor_unit_unitors_associator C)
+    : isaprop (lax_monoidal_associator_inverse luua).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaproptotal2.
+    {
+      <span class="nb">intro</span>.
+      <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> Isos.isaprop_is_inverse_in_precat.
+    }
+    <span class="nb">intros</span> lui0 lui1 l0 l1.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+    use Isos.inverse_unique_precat.
+    - <span class="nb">apply</span> luua.
+    - <span class="nb">apply</span> l0.
+    - <span class="nb">apply</span> l1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cmon_equiv_monreordered</span> (<span class="nv">C</span> : category)
+    : CurriedMonoidalCategories.mon_structure C ≃ MonoidalCategoriesReordered.monoidal_struct C.
+  <span class="kn">Proof</span>.
+    use weqtotal2.
+    { <span class="nb">apply</span> tensor_unit_unitors_associator_equivalence. }
+    <span class="nb">intro</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> weqdirprodf).
+    - <span class="nb">apply</span> weqimplimpl ; <span class="kp">try</span> (<span class="nb">intro</span> ; <span class="bp">assumption</span>) ; (<span class="kp">try</span> <span class="nb">apply</span> isaprop_triangle).
+    - <span class="nb">apply</span> weqimplimpl ; <span class="kp">try</span> (<span class="nb">intro</span> ; <span class="bp">assumption</span>) ; (<span class="kp">try</span> <span class="nb">apply</span> isaprop_pentagon).
+    - use weq_iso.
+      + <span class="nb">intro</span> lui.
+        <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">pr1</span> (lui c)).
+        <span class="nb">intro</span> ; <span class="nb">apply</span> lui.
+      + <span class="nb">intro</span> lui.
+        <span class="nb">intro</span> c.
+        <span class="k">exists</span> ((pr1 lui) c).
+        <span class="nb">apply</span> ((pr2 lui) c).
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_lunitor_invertible.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_lax_monoidal_leftunitor_inverse.
+    - use weq_iso.
+      + <span class="nb">intro</span> rui.
+        <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">pr1</span> (rui c)).
+        <span class="nb">intro</span> ; <span class="nb">apply</span> rui.
+      + <span class="nb">intro</span> rui.
+        <span class="nb">intro</span> c.
+        <span class="k">exists</span> ((pr1 rui) c).
+        <span class="nb">apply</span> ((pr2 rui) c).
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_runitor_invertible.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_lax_monoidal_rightunitor_inverse.
+    - use weq_iso.
+      + <span class="nb">intro</span> ai.
+        <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c1</span> <span class="nv">c2</span> <span class="nv">c3</span>, <span class="nv">pr1</span> (ai c1 c2 c3)).
+        <span class="nb">intro</span> ; <span class="nb">apply</span> ai.
+      + <span class="nb">intro</span> ai.
+        <span class="nb">intros</span> c1 c2 c3.
+        <span class="k">exists</span> ((pr1 ai) c1 c2 c3).
+        <span class="nb">apply</span> ((pr2 ai) c1 c2 c3).
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_associator_invertible.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_lax_monoidal_associator_inverse.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cmonoidal_to_cmonoidalreordered</span>
+             {<span class="nv">C</span> : category} (<span class="nv">M</span> : CurriedMonoidalCategories.mon_structure C)
+    : MonoidalCategoriesReordered.monoidal_struct C := cmon_equiv_monreordered C M.
+
+  <span class="kn">Definition</span> <span class="nf">cmonoidal_to_cmonoidalReordered</span>
+             {<span class="nv">C</span> : category} (<span class="nv">M</span> : MonoidalCategoriesReordered.monoidal_struct C)
+    : CurriedMonoidalCategories.mon_structure C
+    := invmap (cmon_equiv_monreordered C) M.
+
+  <span class="kn">Definition</span> <span class="nf">cmon_equiv_wmon</span> (<span class="nv">C</span> : category)
+    : CurriedMonoidalCategories.mon_structure C ≃ monoidal C
+    := (monoidal_struct_equiv_monoidal C ∘ cmon_equiv_monreordered C)%weq.
+
+  <span class="kn">Definition</span> <span class="nf">cmonoidal_to_wmonoidal</span>
+             {<span class="nv">C</span> : category} (<span class="nv">M</span> : CurriedMonoidalCategories.mon_structure C)
+    : monoidal C := cmon_equiv_wmon C M.
+
+  <span class="kn">Definition</span> <span class="nf">wmonoidal_to_cmonoidal</span>
+             {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    : CurriedMonoidalCategories.mon_structure C
+    := invmap (cmon_equiv_wmon C) M.
+
+<span class="kn">End</span> <span class="nf">MonoidalCategoryEquivalence</span>.
+
+<span class="kn">Section</span> <span class="nf">MonoidalFunctorEquivalence</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+          (<span class="nv">MC</span> : CurriedMonoidalCategories.mon_structure C)
+          (<span class="nv">MD</span> : CurriedMonoidalCategories.mon_structure D).
+
+  <span class="kn">Definition</span> <span class="nf">cmonfunctor</span> : UU := CurriedMonoidalCategories.functor_lax_monoidal F MC MD.
+  <span class="kn">Definition</span> <span class="nf">wmonfunctordata</span> : UU
+    := fmonoidal_data
+         (cmonoidal_to_wmonoidal MC)
+         (cmonoidal_to_wmonoidal MD)
+         F.
+
+  <span class="kn">Definition</span> <span class="nf">wmonfunctorlaws</span> (<span class="nv">MF</span> : wmonfunctordata)
+    := fmonoidal_laxlaws MF.
+
+  <span class="kn">Definition</span> <span class="nf">wmonfunctor</span> : UU
+    := fmonoidal_lax
+         (cmonoidal_to_wmonoidal MC)
+         (cmonoidal_to_wmonoidal MD)
+         F.
+
+  <span class="kn">Definition</span> <span class="nf">cmonfunctor_to_wmonfunctordata</span>
+    : cmonfunctor -&gt; wmonfunctordata.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> cmf.
+    <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> cmf.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cmonfunctor_to_wmonfunctorlaws</span> (<span class="nv">cmf</span> : cmonfunctor)
+    : wmonfunctorlaws (cmonfunctor_to_wmonfunctordata cmf).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y1 y2 g.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0. <span class="bp">exact</span> ((pr211 cmf) x x y1 y2 (identity x) g). }
+      <span class="nb">unfold</span> leftwhiskering_on_morphisms.
+      <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (! functor_id F x).
+    - <span class="nb">split</span>.
+      + <span class="nb">intros</span> x1 x2 y f.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0. <span class="bp">exact</span> (pr211 cmf x1 x2 y y f (identity y)). }
+        <span class="nb">unfold</span> rightwhiskering_on_morphisms.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (! functor_id F y).
+      + <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> (pr2 cmf).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cmonfunctor_to_wmonfunctor</span>
+    : cmonfunctor -&gt; wmonfunctor
+    := (<span class="k">λ</span> <span class="nv">cmf</span>, cmonfunctor_to_wmonfunctordata cmf ,, cmonfunctor_to_wmonfunctorlaws cmf).
+
+  <span class="kn">Definition</span> <span class="nf">wmonfunctor_to_cmontensorunitfunctor</span>
+    : wmonfunctor -&gt; functor_tensor_unit MC MD F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> wmf.
+    <span class="nb">split</span>.
+    - <span class="k">exists</span> (<span class="nv">pr11</span> <span class="nv">wmf</span>).
+      <span class="nb">intros</span> x1 x2 y1 y2 f g.
+
+      <span class="nb">assert</span> (p0 : #F (tensor_on_hom MC _ _ _ _ f g)
+                   = #F (tensor_on_hom MC _ _ _ _ f (identity y1))
+                      · #F (tensor_on_hom MC _ _ _ _ (identity x2) g)).
+      {
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_ @ tensor_comp _ _ _ _ _ _ _ f (identity x2) (identity y1) g).
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths_2 ; <span class="nb">apply</span> (! id_right _). }
+        <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> (! id_left _).
+      }
+      etrans. { <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> p0. }
+      etrans. { <span class="nb">apply</span> assoc. }
+      etrans. { <span class="nb">apply</span> maponpaths_2 ; <span class="nb">apply</span> (! pr122 wmf x1 x2 y1 f). }
+      etrans. { <span class="nb">apply</span> assoc'. }
+      etrans. { <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> (! pr12 wmf x2 y1 y2 g). }
+      etrans. { <span class="nb">apply</span> assoc. }
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id_left.
+      }
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id_right.
+      }
+
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (! functor_comp _ _ _).
+      }
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (! functor_comp _ _ _).
+      }
+      <span class="nb">refine</span> (_ @ ! tensor_comp _ _ _ _ _ _ _ _ _ _ _).
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (! functor_id _ _).
+      }
+      <span class="nb">apply</span> maponpaths_2.
+
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (! functor_id _ _).
+      }
+      <span class="nb">apply</span> idpath.
+    - <span class="bp">exact</span> (pr21 wmf).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">wmonfunctor_to_cmonfunctor</span>
+    : wmonfunctor -&gt; cmonfunctor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> wmf.
+    <span class="k">exists</span> (<span class="nv">wmonfunctor_to_cmontensorunitfunctor</span> <span class="nv">wmf</span>).
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">apply</span> (pr2 wmf).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cwcmf</span> (<span class="nv">cmf</span> : cmonfunctor)
+    : wmonfunctor_to_cmonfunctor (cmonfunctor_to_wmonfunctor cmf) = cmf.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use total2_paths_f) ; <span class="kp">try</span> (<span class="nb">apply</span> idpath) ; <span class="kp">try</span> (<span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homset_property).
+    <span class="nb">rewrite</span> transportf_const.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">wcwmf</span> (<span class="nv">cmf</span> : wmonfunctor)
+    : cmonfunctor_to_wmonfunctor (wmonfunctor_to_cmonfunctor cmf) = cmf.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use total2_paths_f) ; <span class="kp">try</span> (<span class="nb">apply</span> idpath) ; <span class="kp">try</span> (<span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homset_property).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cmonfunctor_equiv_wmonfunctor</span>
+    : cmonfunctor ≃ wmonfunctor.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">apply</span> cmonfunctor_to_wmonfunctor.
+    - <span class="nb">apply</span> wmonfunctor_to_cmonfunctor.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> cwcmf.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> wcwmf.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">MonoidalFunctorEquivalence</span>.
+
+<span class="kn">Section</span> <span class="nf">StrongMonoidalFunctorEquivalence</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+          (<span class="nv">MC</span> : CurriedMonoidalCategories.mon_structure C)
+          (<span class="nv">MD</span> : CurriedMonoidalCategories.mon_structure D).
+
+  <span class="kn">Definition</span> <span class="nf">csmonfunctor</span> : UU := CurriedMonoidalCategories.functor_strong_monoidal F MC MD.
+  <span class="kn">Definition</span> <span class="nf">wsmonfunctor</span> : UU
+    := fmonoidal
+         (cmonoidal_to_wmonoidal MC)
+         (cmonoidal_to_wmonoidal MD)
+         F.
+
+  <span class="kn">Definition</span> <span class="nf">csmonfunctor_equiv_wsmonfunctor</span>
+    : csmonfunctor ≃ wsmonfunctor.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> csmonfunctor ; <span class="nb">unfold</span> wsmonfunctor.
+    <span class="nb">unfold</span> functor_strong_monoidal ; <span class="nb">unfold</span> fmonoidal.
+    use weqtotal2.
+    { <span class="nb">apply</span> cmonfunctor_equiv_wmonfunctor. }
+    <span class="nb">intro</span> cmf.
+    <span class="nb">apply</span> weqimplimpl.
+    - <span class="nb">intro</span> csmf.
+      <span class="nb">split</span>.
+      + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">intro</span>.
+        <span class="nb">apply</span> (pr2 csmf).
+      + <span class="nb">apply</span> (pr1 csmf).
+    - <span class="nb">intro</span> csmf.
+      <span class="nb">split</span>.
+      + <span class="nb">apply</span> (pr2 csmf).
+      + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">intro</span> ; <span class="nb">apply</span> (pr1 csmf).
+    - <span class="nb">apply</span> isaprop_functor_strong.
+    - <span class="nb">apply</span> isapropdirprod ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>) ; <span class="nb">apply</span> Isos.isaprop_is_z_isomorphism.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">StrongMonoidalFunctorEquivalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/UnivalenceMonCat/EquivalenceWhiskeredCurried.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

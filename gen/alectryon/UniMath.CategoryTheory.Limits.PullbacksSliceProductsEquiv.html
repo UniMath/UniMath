@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PullbacksSliceProductsEquiv.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Matthew Weaver, 2017</span>
+
+<span class="sd"> ************************************************************)</span>
+
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents : Equivalence of binary products in C/Z to</span>
+<span class="sd">           pullbacks of pairs of arrows to Z in C</span>
+
+<span class="sd"> ************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.slicecat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Proof that the types of binary products in C/Z and pullbacks of pairs of arrows to Z in C are equivalent *)</span>
+<span class="kn">Section</span> <span class="nf">pullbacks_slice_products_equiv</span>.
+
+  <span class="kn">Definition</span> <span class="nf">some_pullback</span> (<span class="nv">C</span> : category) (<span class="nv">Z</span> : C) : UU :=
+    ∑ A B (f : A --&gt; Z) (g : B --&gt; Z) , Pullback f g.
+
+  <span class="kn">Definition</span> <span class="nf">some_binprod</span> (<span class="nv">C</span> : category) : UU :=
+    ∑ A B , BinProduct C A B.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C / X"</span> := (slice_cat C X).
+
+  <span class="kn">Lemma</span> <span class="nf">isPullback_to_isBinProduct</span> {<span class="nv">Z</span> : C} {<span class="nv">AZ</span> <span class="nv">BZ</span> <span class="nv">PZ</span> : C / Z} {<span class="nv">l</span> : PZ --&gt; AZ} {<span class="nv">r</span> : PZ --&gt; BZ} :
+     @isPullback _ _ _ _ _ (pr2 AZ) (pr2 BZ) (pr1 l) (pr1 r) (! (pr2 l) @ (pr2 r)) → isBinProduct (C / Z) AZ BZ PZ l r.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> AZ <span class="k">as</span> [A f].
+    <span class="nb">induction</span> BZ <span class="k">as</span> [B g].
+    <span class="nb">induction</span> PZ <span class="k">as</span> [P h].
+    <span class="nb">induction</span> l <span class="k">as</span> [l leq].
+    <span class="nb">induction</span> r <span class="k">as</span> [r req].
+    <span class="nb">intros</span> isPull [Y i] [j jeq] [k keq]; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> isPullback <span class="k">in</span> isPull. <span class="nb">specialize</span> isPull <span class="k">with</span> Y j k.
+    use unique_exists.
+    + use tpair.
+      ++ <span class="nb">apply</span> isPull.
+         <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- jeq , keq).
+      ++ <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="bp">now</span> <span class="nb">rewrite</span> leq, assoc, (pr1 (pr2 (pr1 (isPull _)))), jeq).
+    + <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">apply</span> (eq_mor_slicecat C); <span class="nb">simpl</span>;
+                [<span class="nb">apply</span> (pr1 (pr2 (pr1 (isPull _)))) | <span class="nb">apply</span> (pr2 (pr2 (pr1 (isPull _))))]).
+    + <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">intros</span> q; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> (has_homsets_slice_precat C)).
+    + <span class="kp">abstract</span> (<span class="nb">intros</span> q [H1 H2]; <span class="nb">apply</span> (eq_mor_slicecat C);
+                use (maponpaths pr1 ((pr2 (isPull _)) ((pr1 q) ,, (_ ,, _))));
+                [<span class="nb">apply</span> (maponpaths pr1 H1) | <span class="nb">apply</span> (maponpaths pr1 H2)]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">slice_isBinProduct_to_isPullback</span>
+        {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">Z</span> <span class="nv">P</span> : C} {<span class="nv">f</span> : A --&gt; Z} {<span class="nv">g</span> : B --&gt; Z} {<span class="nv">l</span> : P --&gt; A} {<span class="nv">r</span> : P --&gt; B} {<span class="nv">e</span> : l · f = r · g} :
+    isBinProduct (C / Z) (A ,, f) (B ,, g) (P ,, l · f) (l ,, idpath _) (r ,, e) → isPullback <span class="c">(*f g l r*)</span> e.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> PisProd Y j k Yeq.
+    use unique_exists.
+    + <span class="bp">exact</span> (pr1 (pr1 (pr1 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))))).
+    + <span class="kp">abstract</span> (<span class="bp">exact</span> (maponpaths pr1 (pr1 (pr2 (pr1 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))))) ,,
+                                  maponpaths pr1 (pr2 (pr2 (pr1 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))))))).
+    + <span class="kp">abstract</span> (<span class="nb">intros</span> x; <span class="nb">apply</span> isofhleveldirprod; <span class="nb">apply</span> C).
+    + <span class="nb">intros</span> t teqs.
+      use (maponpaths pr1 (maponpaths pr1 (pr2 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))
+                                                  ((t ,, (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · f) (!(pr1 teqs)) @ !(assoc _ _ _) @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, t · x) (idpath _))) ,, _)))).
+      <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">apply</span> eq_mor_slicecat; [<span class="bp">exact</span> (pr1 teqs) | <span class="bp">exact</span> (pr2 teqs)]).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** equivalence of function taking proof of isPullback to proof of isBinProduct *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isweq_isPullback_to_isBinProduct</span> {<span class="nv">Z</span> : C} {<span class="nv">AZ</span> <span class="nv">BZ</span> <span class="nv">PZ</span> : C / Z} {<span class="nv">l</span> : PZ --&gt; AZ} {<span class="nv">r</span> : PZ --&gt; BZ} :
+    isweq (@isPullback_to_isBinProduct Z AZ BZ PZ l r).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isweqimplimpl.
+    + <span class="nb">induction</span> AZ <span class="k">as</span> [A f].
+      <span class="nb">induction</span> BZ <span class="k">as</span> [B g].
+      <span class="nb">induction</span> PZ <span class="k">as</span> [P h].
+      <span class="nb">induction</span> l <span class="k">as</span> [l leq].
+      <span class="nb">induction</span> r <span class="k">as</span> [r req].
+      <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">induction</span> (! leq).
+      <span class="nb">assert</span> (H : leq = idpath (l · f)) <span class="bp">by</span> <span class="nb">apply</span> C.
+      <span class="nb">intros</span> PisProd.
+      <span class="nb">apply</span> slice_isBinProduct_to_isPullback; <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> &lt;- H.
+      <span class="bp">exact</span> PisProd.
+    + <span class="nb">apply</span> isaprop_isPullback.
+    + <span class="nb">apply</span> isaprop_isBinProduct.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** equivalence of function taking proof of isBinProduct to proof of isPullback *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isweq_slice_isBinProduct_to_isPullback</span>
+        {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">Z</span> <span class="nv">P</span> : C} {<span class="nv">f</span> : A --&gt; Z} {<span class="nv">g</span> : B --&gt; Z} {<span class="nv">l</span> : P --&gt; A} {<span class="nv">r</span> : P --&gt; B} {<span class="nv">e</span> : l · f = r · g} :
+    isweq (@slice_isBinProduct_to_isPullback A B Z P f g l r e).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isweqimplimpl.
+    + <span class="nb">intros</span> isPull.
+      <span class="bp">now</span> <span class="nb">apply</span> isPullback_to_isBinProduct.
+    + <span class="bp">now</span> <span class="nb">apply</span> isaprop_isBinProduct.
+    + <span class="bp">now</span> <span class="nb">apply</span> isaprop_isPullback.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Context</span> (<span class="nv">Z</span> : C).
+
+  <span class="sd">(** ** pullback_to_slice_binprod is invertible *)</span>
+  <span class="kn">Lemma</span> <span class="nf">pullback_to_slice_binprod_inv</span> {<span class="nv">A</span> <span class="nv">B</span> : C} {<span class="nv">f</span> : A --&gt; Z} {<span class="nv">g</span> : B --&gt; Z} (<span class="nv">P</span> : Pullback f g) :
+    slice_binprod_to_pullback C (pullback_to_slice_binprod C P) = P.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> P <span class="k">as</span> [[P [l r]] [Peq PisPull]].
+    <span class="nb">apply</span> (invmaponpathsincl pr1).
+    { <span class="nb">apply</span> isinclpr1.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isofhleveltotal2.
+      + <span class="nb">apply</span> C.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_isPullback.
+    }
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** slice_binprod_to_pullback is invertible *)</span>
+  <span class="kn">Lemma</span> <span class="nf">slice_binprod_to_pullback_inv</span> {<span class="nv">AZ</span> <span class="nv">BZ</span> : C / Z} (<span class="nv">P</span> : BinProduct (C / Z) AZ BZ) :
+    pullback_to_slice_binprod C (slice_binprod_to_pullback C P) = P.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> AZ <span class="k">as</span> [A f].
+    <span class="nb">induction</span> BZ <span class="k">as</span> [B g].
+    <span class="nb">induction</span> P <span class="k">as</span> [[[P h] [[l leq] [r req]]] PisProd].
+    <span class="nb">apply</span> (invmaponpathsincl pr1).
+    { <span class="nb">apply</span> isinclpr1.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_isBinProduct.
+    }
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    use total2_paths2_f.
+    + <span class="nb">apply</span> (total2_paths2_f (idpath _)).
+      <span class="nb">rewrite</span> idpath_transportf.
+      <span class="bp">exact</span> (!leq).
+    + <span class="nb">induction</span> (!leq). <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> idpath_transportf.
+      use total2_paths2_f.
+    - <span class="bp">now</span> <span class="nb">apply</span> (eq_mor_slicecat C).
+    - <span class="nb">rewrite</span> transportf_const.
+      <span class="bp">now</span> <span class="nb">apply</span> (eq_mor_slicecat C).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** function taking the type of all binary products in C / Z</span>
+<span class="sd">         to the type of all pullbacks of functions to Z in C *)</span>
+  <span class="kn">Definition</span> <span class="nf">binprod_to_pullback</span> : some_binprod (C / Z) → some_pullback C Z.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> P.
+    <span class="nb">induction</span> P <span class="k">as</span> [AZ BZ].
+    <span class="nb">induction</span> BZ <span class="k">as</span> [BZ P].
+    <span class="bp">exact</span> (pr1 AZ ,, pr1 BZ ,, pr2 AZ ,, pr2 BZ ,, slice_binprod_to_pullback C P).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** function taking the type of all pullbacks of functions to Z in C</span>
+<span class="sd">         to the type of all binary products in C / Z  *)</span>
+  <span class="kn">Definition</span> <span class="nf">pullback_to_binprod</span> : some_pullback C Z → some_binprod (C / Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [A [B [f [g P]]]].
+    use ((A ,, f) ,, (B ,, g) ,, pullback_to_slice_binprod C P).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** binprod_to_pullback is invertible *)</span>
+  <span class="kn">Lemma</span> <span class="nf">binprod_to_pullback_inv</span> (<span class="nv">P</span> : some_binprod (C / Z)) :
+    pullback_to_binprod (binprod_to_pullback P) = P.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> P <span class="k">as</span> [[A f] [[B g] P]].
+    <span class="nb">unfold</span> pullback_to_binprod , binprod_to_pullback.
+    <span class="nb">simpl</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> (total2_paths2_f (idpath _)); <span class="nb">rewrite</span> idpath_transportf).
+    <span class="bp">exact</span> (slice_binprod_to_pullback_inv P).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** pullback_to_binprod is invertible *)</span>
+  <span class="kn">Lemma</span> <span class="nf">pullback_to_binprod_inv</span> (<span class="nv">P</span> : some_pullback C Z) :
+    binprod_to_pullback (pullback_to_binprod P) = P.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> P <span class="k">as</span> [A [B [f [g P]]]].
+    <span class="nb">unfold</span> binprod_to_pullback , pullback_to_binprod.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> (total2_paths2_f (idpath _)); <span class="nb">rewrite</span> idpath_transportf).
+    <span class="bp">exact</span> (pullback_to_slice_binprod_inv P).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isweq_binprod_to_pullback</span> : isweq binprod_to_pullback :=
+    isweq_iso _ _ binprod_to_pullback_inv pullback_to_binprod_inv.
+
+  <span class="sd">(** ** the equivalence of the types of binary products in C/Z</span>
+<span class="sd">         and pullbacks of pairs of arrows to Z in C *)</span>
+  <span class="kn">Definition</span> <span class="nf">weq_binprod_to_pullback</span> : weq (some_binprod (C / Z)) (some_pullback C Z) :=
+    binprod_to_pullback ,, isweq_binprod_to_pullback.
+
+<span class="kn">End</span> <span class="nf">pullbacks_slice_products_equiv</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/PullbacksSliceProductsEquiv.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Tactics.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.Tactics.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

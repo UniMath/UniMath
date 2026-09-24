@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Truth.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> The truth formula of partial setoids</span>
+
+<span class="sd"> In this file, we construct the truth formula in the category of partial setoids. Here we</span>
+<span class="sd"> use the characterization of subobjects in terms of formulas as given in the file</span>
+<span class="sd"> `SubobjectDispCat.v`.</span>
+
+<span class="sd"> The construction of the connectives of subobjects of partial setoids is similar to how</span>
+<span class="sd"> connectives are defined for subsets. For the truth formula, we take the whole set, so all</span>
+<span class="sd"> elements that are defined (i.e. reflexive according to the partial equivalence relation).</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The formula</span>
+<span class="sd"> 2. Introduction rule</span>
+<span class="sd"> 3. Stability under substitution</span>
+<span class="sd"> 4. The fiberwise terminal object</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="kn">Section</span> <span class="nf">TruthFormula</span>.
+  <span class="kn">Context</span> (<span class="nv">H</span> : first_order_hyperdoctrine).
+
+  <span class="sd">(** * 1. The formula *)</span>
+  <span class="kn">Proposition</span> <span class="nf">per_subobject_truth_laws</span>
+              (<span class="nv">Γ</span> : partial_setoid H)
+    : per_subobject_laws (tm_var Γ ~ tm_var Γ).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      hypersimplify.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use impl_intro.
+      hypersimplify.
+      <span class="nb">pose</span> (γ₁ := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h Γ)))).
+      <span class="nb">pose</span> (γ₂ := π₂ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h Γ))).
+      <span class="nb">fold</span> γ₁ γ₂.
+      use partial_setoid_refl_r.
+      {
+        <span class="bp">exact</span> γ₁.
+      }
+      use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">per_subobject_truth</span>
+             (<span class="nv">Γ</span> : partial_setoid H)
+    : per_subobject Γ.
+  <span class="kn">Proof</span>.
+    use make_per_subobject.
+    - <span class="bp">exact</span> (tm_var _ ~ tm_var _).
+    - <span class="bp">exact</span> (per_subobject_truth_laws Γ).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Introduction rule *)</span>
+  <span class="kn">Proposition</span> <span class="nf">per_subobject_truth_intro</span>
+              {<span class="nv">Γ</span> : partial_setoid H}
+              (<span class="nv">φ</span> : per_subobject Γ)
+    : per_subobject_mor_law
+        (id_partial_setoid_morphism Γ)
+        φ
+        (per_subobject_truth Γ).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    use impl_intro.
+    <span class="nb">cbn</span>.
+    hypersimplify.
+    <span class="nb">pose</span> (γ₁ := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h Γ)))).
+    <span class="nb">pose</span> (γ₂ := π₂ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h Γ))).
+    <span class="nb">fold</span> γ₁ γ₂.
+    use partial_setoid_refl_r.
+    {
+      <span class="bp">exact</span> γ₁.
+    }
+    use weaken_left.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. Stability under substitution *)</span>
+  <span class="kn">Proposition</span> <span class="nf">per_subobject_truth_subst</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : partial_setoid H}
+              (<span class="nv">s</span> : partial_setoid_morphism Γ₁ Γ₂)
+    : per_subobject_mor_law
+        (id_partial_setoid_morphism Γ₁)
+        (per_subobject_truth Γ₁)
+        (per_subobject_subst s (per_subobject_truth Γ₂)).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    use impl_intro.
+    <span class="nb">cbn</span>.
+    hypersimplify.
+    <span class="nb">pose</span> (γ₁ := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h Γ₁) ×h Γ₁)))).
+    <span class="nb">pose</span> (γ₂ := π₂ (tm_var ((<span class="mi">𝟙</span> ×h Γ₁) ×h Γ₁))).
+    <span class="nb">fold</span> γ₁ γ₂.
+    <span class="nb">simple refine</span> (exists_elim (partial_setoid_mor_hom_exists s _) _).
+    - <span class="bp">exact</span> γ₂.
+    - use weaken_left.
+      use partial_setoid_refl_r.
+      {
+        <span class="bp">exact</span> γ₁.
+      }
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">unfold</span> γ₁, γ₂ ; <span class="nb">clear</span> γ₁ γ₂.
+      <span class="nb">pose</span> (γ₁ := π₂ (π₁ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h Γ₁) ×h Γ₁) ×h Γ₂))))).
+      <span class="nb">pose</span> (γ₂ := π₂ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h Γ₁) ×h Γ₁) ×h Γ₂)))).
+      <span class="nb">pose</span> (γ₃ := π₂ (tm_var (((<span class="mi">𝟙</span> ×h Γ₁) ×h Γ₁) ×h Γ₂))).
+      <span class="nb">rewrite</span> exists_subst.
+      use exists_intro.
+      {
+        <span class="bp">exact</span> γ₃.
+      }
+      hypersimplify_form.
+      hypersimplify.
+      <span class="nb">fold</span> γ₁ γ₂ γ₃.
+      use conj_intro.
+      + use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use weaken_right.
+        use (partial_setoid_mor_cod_defined s).
+        * <span class="bp">exact</span> γ₂.
+        * <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. The fiberwise terminal object *)</span>
+  <span class="kn">Definition</span> <span class="nf">fiberwise_terminal_per_subobject</span>
+    : fiberwise_terminal (disp_cat_per_subobject_cleaving H).
+  <span class="kn">Proof</span>.
+    use make_fiberwise_terminal_locally_propositional.
+    - <span class="nb">apply</span> locally_prop_disp_cat_per_subobject.
+    - <span class="bp">exact</span> per_subobject_truth.
+    - <span class="nb">intros</span> Γ φ.
+      <span class="bp">exact</span> (per_subobject_truth_intro φ).
+    - <span class="nb">intros</span> Γ₁ Γ₂ s.
+      <span class="bp">exact</span> (per_subobject_truth_subst s).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">TruthFormula</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/PartialEqRels/Logic/Truth.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The fiberwise terminal object
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

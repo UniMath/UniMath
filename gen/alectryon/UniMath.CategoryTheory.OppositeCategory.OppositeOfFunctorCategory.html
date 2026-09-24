@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OppositeOfFunctorCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">OppositeOfFunctorCatToFunctorCatOfOpposite</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">opfunctorcat_to_functorcatofoppcats_data</span>
+    : functor_data ([C,D]^opp) ([C^opp,D^opp]).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intro</span> F.
+      use make_functor.
+      + <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, (pr1 F) c).
+        <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">c1</span> <span class="nv">c2</span> <span class="nv">f</span>, #(pr1 F) f).
+      + <span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; [ <span class="nb">apply</span> functor_id | <span class="nb">apply</span> functor_comp ]).
+    - <span class="nb">intros</span> F G α.
+      <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">pr1</span> <span class="nv">α</span> <span class="nv">c</span>).
+      <span class="nb">intros</span> c1 c2 f.
+      <span class="bp">exact</span> (! pr2 α c2 c1 f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opfunctorcat_to_functorcatofoppcats_is_functor</span>
+    : is_functor opfunctorcat_to_functorcatofoppcats_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; (<span class="nb">apply</span> nat_trans_eq ;
+      [ <span class="nb">apply</span> homset_property
+      | <span class="nb">intro</span> ; <span class="nb">apply</span> idpath
+      ]).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opfunctorcat_to_functorcatofoppcats</span>
+    : functor ([C,D]^opp) ([C^opp,D^opp])
+    := opfunctorcat_to_functorcatofoppcats_data ,, opfunctorcat_to_functorcatofoppcats_is_functor.
+
+<span class="kn">End</span> <span class="nf">OppositeOfFunctorCatToFunctorCatOfOpposite</span>.
+
+<span class="kn">Section</span> <span class="nf">OppositeOfFunctorCatFromFunctorCatOfOpposite</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">opfunctorcat_from_functorcatofoppcats_data</span>
+    : functor_data ([C^opp,D^opp]) ([C,D]^opp).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intro</span> F.
+      use make_functor.
+      + <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, (pr1 F) c).
+        <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">c1</span> <span class="nv">c2</span> <span class="nv">f</span>, #(pr1 F) f).
+      + <span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; [ <span class="nb">apply</span> (functor_id F) | <span class="nb">apply</span> (functor_comp F) ]).
+    - <span class="nb">intros</span> F G α.
+      <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">pr1</span> <span class="nv">α</span> <span class="nv">c</span>).
+      <span class="nb">intros</span> c1 c2 f.
+      <span class="bp">exact</span> (! pr2 α c2 c1 f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opfunctorcat_from_functorcatofoppcats_is_functor</span>
+    : is_functor opfunctorcat_from_functorcatofoppcats_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; (<span class="nb">apply</span> nat_trans_eq ;
+      [ <span class="nb">apply</span> homset_property
+      | <span class="nb">intro</span> ; <span class="nb">apply</span> idpath
+      ]).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opfunctorcat_from_functorcatofoppcats</span>
+    : functor ([C^opp,D^opp]) ([C,D]^opp)
+    := opfunctorcat_from_functorcatofoppcats_data ,, opfunctorcat_from_functorcatofoppcats_is_functor.
+
+<span class="kn">End</span> <span class="nf">OppositeOfFunctorCatFromFunctorCatOfOpposite</span>.
+
+<span class="kn">Section</span> <span class="nf">UnitCounit</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category).
+
+  <span class="kn">Lemma</span> <span class="nf">counit_opfunctorcat_functorcatofoppcats</span>
+    : nat_trans (functor_composite
+                   (opfunctorcat_to_functorcatofoppcats C D)
+                   (opfunctorcat_from_functorcatofoppcats C D)
+                )
+                (functor_identity ([C, D]^opp)).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span>.
+      use make_nat_trans.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> identity.
+      + <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; <span class="nb">apply</span> (id_right _ @ ! id_left _)).
+    - <span class="kp">abstract</span> (
+          <span class="nb">intro</span> ; <span class="nb">intros</span> ; use nat_trans_eq ;
+          [ <span class="nb">apply</span> homset_property
+          | <span class="nb">intro</span> ; <span class="nb">simpl</span> ; <span class="nb">apply</span> (id_left _ @ ! id_right _) ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">unit_opfunctorcat_functorcatofoppcats</span>
+    : nat_trans
+        (functor_identity [C^opp , D^opp])
+        (functor_composite
+           (opfunctorcat_from_functorcatofoppcats C D)
+           (opfunctorcat_to_functorcatofoppcats C D)
+        ).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span>.
+      use make_nat_trans.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> identity.
+      + <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; <span class="nb">apply</span> (id_left _ @ ! id_right _)).
+    - <span class="kp">abstract</span> (
+          <span class="nb">intro</span> ; <span class="nb">intros</span> ; use nat_trans_eq ;
+          [ <span class="nb">apply</span> homset_property
+          | <span class="nb">intro</span> ; <span class="nb">simpl</span> ; <span class="nb">apply</span> (id_left _ @ ! id_right _) ]).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">UnitCounit</span>.
+
+
+<span class="kn">Section</span> <span class="nf">OppositeOfFunctorCatEquivFunctorCatOfOpposite</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">opfunctorcat_adjdata_functorcatofoppcats</span>
+    : adjunction_data [C ^opp, D ^opp] ([C, D] ^opp).
+  <span class="kn">Proof</span>.
+    use make_adjunction_data.
+    - <span class="bp">exact</span> (opfunctorcat_from_functorcatofoppcats C D).
+    - <span class="bp">exact</span> (opfunctorcat_to_functorcatofoppcats C D).
+    - <span class="bp">exact</span> (unit_opfunctorcat_functorcatofoppcats C D).
+    - <span class="bp">exact</span> (counit_opfunctorcat_functorcatofoppcats C D).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">opfunctorcat_adjdata_functorcatofoppcats_form_adjunction</span>
+    :  form_adjunction
+         (opfunctorcat_from_functorcatofoppcats C D)
+         (opfunctorcat_to_functorcatofoppcats C D)
+         (unit_opfunctorcat_functorcatofoppcats C D)
+         (counit_opfunctorcat_functorcatofoppcats C D).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span>.
+      use nat_trans_eq.
+      { <span class="nb">apply</span> homset_property. }
+      <span class="nb">intro</span>  ; <span class="nb">apply</span> id_left.
+    - <span class="nb">intro</span>.
+      use nat_trans_eq.
+      { <span class="nb">apply</span> homset_property. }
+      <span class="nb">intro</span>  ; <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_left_adjoint_opfunctorcat_from_functorcatofoppcats</span>
+    :  is_left_adjoint (opfunctorcat_from_functorcatofoppcats C D).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">opfunctorcat_to_functorcatofoppcats</span> <span class="nv">C</span> <span class="nv">D</span>).
+    <span class="nb">unfold</span> are_adjoints.
+    use tpair.
+    - <span class="k">exists</span> (<span class="nv">unit_opfunctorcat_functorcatofoppcats</span> <span class="nv">C</span> <span class="nv">D</span>).
+      <span class="bp">exact</span> (counit_opfunctorcat_functorcatofoppcats C D).
+    - <span class="bp">exact</span> opfunctorcat_adjdata_functorcatofoppcats_form_adjunction.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opfunctorcat_functorcatofoppcats_formequivalence</span>
+    : forms_equivalence opfunctorcat_adjdata_functorcatofoppcats.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span>.
+      use make_is_z_isomorphism.
+      + use make_nat_trans.
+        * <span class="nb">intro</span> ; <span class="nb">apply</span> identity.
+        * <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; <span class="nb">apply</span> (id_left _ @ ! id_right _)).
+      + <span class="nb">split</span> ; (<span class="nb">apply</span> nat_trans_eq ; [ <span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">apply</span> id_right ]).
+    - <span class="nb">intro</span>.
+      use make_is_z_isomorphism.
+      + use make_nat_trans.
+        * <span class="nb">intro</span> ; <span class="nb">apply</span> identity.
+        * <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; <span class="nb">apply</span> (id_right _ @ ! id_left _)).
+      + <span class="nb">split</span> ; (<span class="nb">apply</span> nat_trans_eq ; [ <span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">apply</span> id_right ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opfunctorcat_equiv_functorcatofoppcats</span>
+    : equivalence_of_cats [C^opp,D^opp] ([C,D]^opp).
+  <span class="kn">Proof</span>.
+    use make_equivalence_of_cats.
+    - <span class="bp">exact</span> opfunctorcat_adjdata_functorcatofoppcats.
+    - <span class="bp">exact</span> opfunctorcat_functorcatofoppcats_formequivalence.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opfunctorcat_adjequiv_functorcatofoppcats</span>
+    : adj_equivalence_of_cats (opfunctorcat_from_functorcatofoppcats C D).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">is_left_adjoint_opfunctorcat_from_functorcatofoppcats</span>.
+    <span class="bp">exact</span> opfunctorcat_functorcatofoppcats_formequivalence.
+  <span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">OppositeOfFunctorCatEquivFunctorCatOfOpposite</span>.
+
+<span class="kn">Section</span> <span class="nf">PrecompositionFunctorOfOppositeFunctor</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : category} (<span class="nv">C</span> : category) (<span class="nv">F</span> : functor A B).
+
+  <span class="c">(* In the following lemma we show that the following diagram commutes (up to a natural isomorphism):</span>
+
+<span class="c">     [B, C] ^opp      ⟶ [A, C] ^opp</span>
+<span class="c">       |                    |</span>
+<span class="c">       |                    |</span>
+<span class="c">     [B^opp, C^opp]   ⟶ [A^opp, C^opp]</span>
+
+<span class="c">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">functor_op_of_precomp_functor_factorizes_through_functorcatofopp_as_nat_trans</span>
+    : nat_trans
+        (functor_op (pre_composition_functor A B C F))
+        (functor_composite
+          (opfunctorcat_to_functorcatofoppcats B C)
+          (functor_composite
+             (pre_composition_functor _ _ _ (functor_op F))
+             (opfunctorcat_from_functorcatofoppcats A C))
+        ).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span>.
+      use make_nat_trans.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> identity.
+      + <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (id_right _ @ ! id_left _)).
+    - <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">apply</span> (id_left _ @ ! id_right _)]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">functor_op_of_precomp_functor_factorizes_through_functorcatofopp_is_nat_z_iso</span>
+    : is_nat_z_iso functor_op_of_precomp_functor_factorizes_through_functorcatofopp_as_nat_trans.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> G.
+    use make_is_z_isomorphism.
+    - use make_nat_trans.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> identity.
+      + <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (id_right _ @ ! id_left _)).
+    - <span class="kp">abstract</span> (<span class="nb">split</span> ; (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">apply</span> id_right ])).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_op_of_precomp_functor_factorizes_through_functorcatofopp_nat_z_iso</span>
+    : nat_z_iso
+        (functor_op (pre_composition_functor A B C F))
+        (functor_composite
+          (opfunctorcat_to_functorcatofoppcats B C)
+          (functor_composite
+             (pre_composition_functor _ _ _ (functor_op F))
+             (opfunctorcat_from_functorcatofoppcats A C))
+        )
+    := make_nat_z_iso _ _ _ (functor_op_of_precomp_functor_factorizes_through_functorcatofopp_is_nat_z_iso).
+
+<span class="kn">End</span> <span class="nf">PrecompositionFunctorOfOppositeFunctor</span>.
+
+<span class="kn">Section</span> <span class="nf">PostcompositionFunctorOfOppositeFunctor</span>.
+
+  <span class="kn">Context</span> {<span class="nv">B</span> <span class="nv">C</span> : category} (<span class="nv">A</span> : category) (<span class="nv">F</span> : functor B C).
+
+  <span class="kn">Definition</span> <span class="nf">functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_as_nat_trans</span>
+    : nat_trans
+        (functor_op (post_composition_functor A B C F))
+        (functor_composite
+          (opfunctorcat_to_functorcatofoppcats A B)
+          (functor_composite
+             (post_composition_functor _ _ _ (functor_op F))
+             (opfunctorcat_from_functorcatofoppcats A C))
+        ).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span>.
+      use make_nat_trans.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> identity.
+      + <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (id_right _ @ ! id_left _)).
+    - <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">apply</span> (id_left _ @ ! id_right _)]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_is_nat_z_iso</span>
+    : is_nat_z_iso functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_as_nat_trans.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> G.
+    use make_is_z_isomorphism.
+    - use make_nat_trans.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> identity.
+      + <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (id_right _ @ ! id_left _)).
+    - <span class="kp">abstract</span> (<span class="nb">split</span> ; (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">apply</span> id_right ])).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_nat_z_iso</span>
+    : nat_z_iso
+        (functor_op (post_composition_functor A B C F))
+        (functor_composite
+          (opfunctorcat_to_functorcatofoppcats A B)
+          (functor_composite
+             (post_composition_functor _ _ _ (functor_op F))
+             (opfunctorcat_from_functorcatofoppcats A C))
+        )
+    := make_nat_z_iso _ _ _ (functor_op_of_postcomp_functor_factorizes_through_functorcatofopp_is_nat_z_iso).
+
+<span class="kn">End</span> <span class="nf">PostcompositionFunctorOfOppositeFunctor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/OppositeCategory/OppositeOfFunctorCategory.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

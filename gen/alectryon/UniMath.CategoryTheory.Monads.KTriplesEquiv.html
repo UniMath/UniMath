@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>KTriplesEquiv.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ============================================================================================= *)</span>
+<span class="c">(* * Equivalence of category between Kleisli monads and multiplicative monads.                   *)</span>
+<span class="c">(*                                                                                               *)</span>
+<span class="c">(* Contents:                                                                                     *)</span>
+<span class="c">(*   - kleislification (functor from multiplicative monads to Kleisli monads).                   *)</span>
+<span class="c">(*   - unkleislification (functor from Kleisli monads to multiplicative monads).                 *)</span>
+<span class="c">(*   - kleislification/unkleislification is an equivalence of categories.                        *)</span>
+<span class="c">(*                                                                                               *)</span>
+<span class="c">(* Written by: Marco Maggesi, Cosimo Perini (2017)                                               *)</span>
+<span class="c">(* ============================================================================================= *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.KTriples.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="kn">Lemma</span> <span class="nf">Monad_Mor_eq</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> <span class="nv">T'</span> : Monad C) (<span class="nv">α</span> <span class="nv">β</span> : Monad_Mor T T')
+      (<span class="nv">e</span> : ∏ a : C, α a = β a) :
+  α = β.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  - <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_disp_Monad_Mor_laws; <span class="nb">apply</span> homset_property.
+  - <span class="bp">now</span> <span class="nb">apply</span> (nat_trans_eq_alt).
+<span class="kn">Defined</span>.
+
+<span class="c">(* ----- Monad associated to a Kleisli monad ----- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">unkleislify_data</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : KleisliMonad C) : disp_Monad_data (kleisli_functor T) :=
+  nat_trans_μ T ,, nat_trans_η T.
+
+<span class="kn">Lemma</span> <span class="nf">unkleislify_laws</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : KleisliMonad C) :
+  disp_Monad_laws (unkleislify_data T).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>; <span class="nb">unfold</span> μ.
+  + <span class="nb">split</span>; <span class="nb">intros</span>.
+    * <span class="nb">apply</span> (bind_η T).
+    * <span class="nb">rewrite</span> (bind_map T). <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> (η_bind T).
+  + <span class="nb">rewrite</span> (bind_map T). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> (bind_bind T). <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unkleislify</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : KleisliMonad C) : Monad C :=
+  kleisli_functor T ,, unkleislify_data T ,, unkleislify_laws T.
+
+<span class="c">(* ----- Monad morphism associated to a Kleisli monad morphism ----- *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">unkleislify_mor_laws</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> <span class="nv">T'</span> : KleisliMonad C} (<span class="nv">α</span> : Kleisli_Mor T T') :
+  Monad_Mor_laws (T  := unkleislify T)
+                 (T' := unkleislify T')
+                 (nat_trans_kleisli_mor α).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>; <span class="nb">unfold</span> μ.
+  + <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> (bind_map T'). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> &lt;- (Kleisli_Mor_bind α). <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  + <span class="nb">apply</span> Kleisli_Mor_η.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unkleislify_mor</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> <span class="nv">T'</span> : KleisliMonad C}
+           (<span class="nv">α</span> : Kleisli_Mor T T') :
+  Monad_Mor (unkleislify T) (unkleislify T') :=
+  nat_trans_kleisli_mor α ,, unkleislify_mor_laws α.
+
+<span class="c">(* ----- Functor from KleisliMonad to Monads. ----- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">functor_data_unkleislify</span> (<span class="nv">C</span> : category) :
+  functor_data (category_Kleisli C) (category_Monad C).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">T</span> : KleisliMonad C, unkleislify T).
+  - <span class="nb">intros</span>. <span class="nb">apply</span> (unkleislify_mor X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_unkleislify</span> {<span class="nv">C</span> : category} :
+  is_functor (functor_data_unkleislify C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>.
+  - <span class="nb">unfold</span> unkleislify_mor.
+    <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>.
+    + <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_disp_Monad_Mor_laws; <span class="nb">apply</span> homset_property.
+    + <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>.
+      * <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_is_nat_trans; <span class="nb">apply</span> homset_property.
+      * <span class="bp">now</span> <span class="nb">apply</span> funextsec.
+  - <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>.
+    + <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_disp_Monad_Mor_laws; <span class="nb">apply</span> homset_property.
+    + <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>.
+      * <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_is_nat_trans; <span class="nb">apply</span> homset_property.
+      * <span class="bp">now</span> <span class="nb">apply</span> funextsec.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_unkleislify</span> {<span class="nv">C</span> : category} :
+  functor (category_Kleisli C) (category_Monad C) :=
+  (functor_data_unkleislify C) ,, is_functor_unkleislify.
+
+<span class="c">(* ----- Support Lemmas. ----- *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">Monad_law4</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : Monad C} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) :
+  Monads.η T a · # T f = f · Monads.η T b.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> (nat_trans_ax (Monads.η T) _ _ f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Monad_law5</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : Monad C} {<span class="nv">a</span> <span class="nv">b</span>: C} (<span class="nv">f</span>: a --&gt; b) :
+  # T (# T f) · (Monads.μ T b) = (Monads.μ T a) · (# T f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_ax (Monads.μ T) _ _ f).
+<span class="kn">Defined</span>.
+
+<span class="c">(* ----- Kleisli monad associated to a Monad. ----- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Monad_Kleisli_data</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Monad C) : Kleisli_Data C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">T</span>.
+  <span class="bp">exact</span> ((Monads.η T: nat_trans_data _ _),, (@Monads.bind C T)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Monad_Kleisli_laws</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Monad C) :
+  Kleisli_Laws (Monad_Kleisli_data T).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> Monad_law2.
+  - <span class="nb">split</span>.
+    + <span class="bp">exact</span> (@Monads.η_bind C T).
+    + <span class="bp">exact</span> (@Monads.bind_bind C T).
+<span class="kn">Defined</span>.
+
+<span class="c">(* ----- Kleisli monad morphism associated to a Monad morphism. ----- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">kleislify</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : Monad C) : KleisliMonad C :=
+  Monad_Kleisli_data M ,, Monad_Kleisli_laws M.
+
+<span class="kn">Lemma</span> <span class="nf">kleislify_mor_law</span> {<span class="nv">C</span> : category} {<span class="nv">M</span> <span class="nv">M'</span> : Monad C} (<span class="nv">α</span> : Monad_Mor M M') :
+  Kleisli_Mor_laws (kleislify M) (kleislify M') (<span class="k">λ</span> <span class="nv">x</span> : C, α x).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>.
+  - <span class="nb">apply</span> Monad_Mor_η.
+  - <span class="nb">unfold</span> bind. <span class="nb">unfold</span> Monad_Kleisli_data. <span class="nb">simpl</span>. <span class="nb">unfold</span> Monads.bind.
+    <span class="nb">rewrite</span> functor_comp. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">set</span> (H := nat_trans_ax α). <span class="nb">simpl</span> <span class="k">in</span> H. <span class="nb">rewrite</span> &lt;- H. <span class="nb">rewrite</span> assoc4.
+    <span class="nb">rewrite</span> &lt;-H. <span class="nb">rewrite</span> &lt;- assoc4. <span class="nb">set</span> (H2 :=  Monad_Mor_μ α b).
+    <span class="nb">simpl</span> <span class="k">in</span> H2. <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">unfold</span> Monads.μ <span class="k">in</span> H2. <span class="nb">simpl</span> <span class="k">in</span> H2.
+    <span class="nb">unfold</span> Monads.μ. <span class="nb">simpl</span>.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc4.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> H.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> H2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">kleislify_mor</span> {<span class="nv">C</span> : category} {<span class="nv">M</span> <span class="nv">M'</span> : Monad C}
+           (<span class="nv">α</span> : Monad_Mor M M') :
+  Kleisli_Mor (kleislify M) (kleislify M') :=
+  (<span class="k">λ</span> <span class="nv">x</span>:C, α x) ,, kleislify_mor_law α.
+
+<span class="kn">Definition</span> <span class="nf">functor_data_kleislify</span> (<span class="nv">C</span> : category) :
+  functor_data (category_Monad C) (category_Kleisli C).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">T</span> : Monad C, kleislify T).
+  - <span class="nb">intros</span>. <span class="nb">apply</span> (kleislify_mor X).
+<span class="kn">Defined</span>.
+
+<span class="c">(* ----- Functoriality of [kleislify]. ----- *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_kleislify</span> {<span class="nv">C</span> : category} :
+  is_functor (functor_data_kleislify C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>.
+  - <span class="nb">unfold</span> kleislify_mor.
+    <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>.
+    + <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_Kleisli_Mor_laws; <span class="nb">apply</span> homset_property.
+    + <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>.
+    + <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_Kleisli_Mor_laws; <span class="nb">apply</span> homset_property.
+    + <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_kleislify</span> {<span class="nv">C</span> : category} :
+  functor (category_Monad C) (category_Kleisli C) :=
+  (functor_data_kleislify C) ,, is_functor_kleislify.
+
+<span class="c">(* ----- Proof of the isomorphism. ----- *)</span>
+
+<span class="kn">Section</span> <span class="nf">Adjunction</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="c">(* this result could not be preserved with the parameter [F] as field of [Kleisli_Data]:</span>
+<span class="c">  Lemma Kleisli_data_eq {F : C → C} (K K' : Kleisli_Data F)</span>
+<span class="c">        (η_eq : ∏ a : C, η K a = η K' a)</span>
+<span class="c">        (bind_eq : ∏ (a b : C) (f : a --&gt; F b), bind K f = bind K' f) :</span>
+<span class="c">    K = K'.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. apply dirprod_paths.</span>
+<span class="c">    - change (η K = η K'). apply funextsec. intro a. apply η_eq.</span>
+<span class="c">    - apply funextsec. intro a. apply funextsec. intro b. apply funextfun.</span>
+<span class="c">      intro f. apply bind_eq.</span>
+<span class="c">  Defined.</span>
+<span class="c">*)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">unkleislify_data_eq</span>  (<span class="nv">T</span> : KleisliMonad C) : Monad_Kleisli_data (unkleislify T) = T.
+  <span class="kn">Proof</span>.
+    <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">p</span>, tpair _ _ p )).
+    <span class="nb">apply</span> pair_path_in2.
+    <span class="nb">simpl</span>. <span class="nb">apply</span> funextsec. <span class="nb">intro</span> a. <span class="nb">apply</span> funextsec. <span class="nb">intro</span> b.
+    <span class="nb">apply</span> funextfun. <span class="nb">intro</span> f.
+    <span class="nb">unfold</span> Monads.bind.
+    <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">unfold</span> μ; <span class="nb">rewrite</span> (bind_map T); <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">kleislify_unkleislify</span> (<span class="nv">T</span> : KleisliMonad C) :
+    kleislify (unkleislify T) = T.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> unkleislify, kleislify. <span class="nb">simpl</span>.
+    <span class="nb">destruct</span> T <span class="k">as</span> (D, L). <span class="nb">simpl</span>.
+    use total2_paths_f; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> unkleislify_data_eq.
+    <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+    <span class="nb">apply</span> (isaprop_Kleisli_Laws D).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">unkleislify_kleislify</span> (<span class="nv">M</span> : Monad C) :
+    unkleislify (kleislify M) = M.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> Monad_eq_raw_data.
+    <span class="nb">unfold</span> Monad_to_raw_data. <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (pair_path_in2). <span class="nb">apply</span> total2_paths2.
+    <span class="mi">2</span>: <span class="nb">apply</span> idpath.
+    <span class="nb">apply</span> total2_paths2.
+    - <span class="nb">apply</span> funextsec. <span class="nb">intro</span> a.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b.
+      <span class="nb">apply</span> funextfun; <span class="nb">intro</span> f.
+      <span class="nb">simpl</span>. <span class="nb">unfold</span> map. <span class="nb">unfold</span> bind. <span class="nb">unfold</span> η. <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> Monads.bind, Monads.η.
+      <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">set</span> (H:= Monad_law2 (T:=M) b). <span class="nb">simpl</span> <span class="k">in</span> H.
+      <span class="nb">unfold</span> Monads.η, Monads.μ <span class="k">in</span> H. <span class="nb">simpl</span> <span class="k">in</span> H.
+      <span class="nb">unfold</span> Monads.μ.
+      etrans.
+      { <span class="nb">apply</span> cancel_precomposition. <span class="nb">apply</span> H. }
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x.
+      <span class="nb">set</span> (H:= functor_id (C:=C) (C':=C) M (M x)). <span class="nb">simpl</span> <span class="k">in</span> H.
+      <span class="nb">unfold</span> μ. <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> bind, Monads.μ. <span class="nb">simpl</span>. <span class="nb">unfold</span> Monads.bind, Monads.μ.
+      etrans.
+      { <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> H. }
+      <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">eps</span> (<span class="nv">T</span> : KleisliMonad C) (<span class="nv">a</span> : C) : C ⟦ T a, T a ⟧ :=
+    identity (pr1 T a).
+
+  <span class="kn">Lemma</span> <span class="nf">eps_morph_law</span> (<span class="nv">T</span> : KleisliMonad C) :
+    Kleisli_Mor_laws T (kleislify (unkleislify T)) (eps T).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> id_left, id_right. <span class="nb">rewrite</span> id_right.
+      <span class="nb">unfold</span> μ. <span class="nb">unfold</span> bind. <span class="nb">simpl</span>. <span class="nb">unfold</span> Monads.bind. <span class="nb">unfold</span> Monads.μ. <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> μ. <span class="nb">rewrite</span> (bind_map T). <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eps_morph</span> (<span class="nv">T</span> : KleisliMonad C) :
+    Kleisli_Mor T (kleislify (unkleislify T)) :=
+    eps T ,, eps_morph_law T.
+
+  <span class="kn">Lemma</span> <span class="nf">epsinv_morph_law</span> (<span class="nv">T</span> : KleisliMonad C) :
+    Kleisli_Mor_laws (kleislify (unkleislify T)) T (eps T).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> id_left, id_right. <span class="nb">rewrite</span> id_right.
+      <span class="nb">unfold</span> μ. <span class="nb">unfold</span> bind. <span class="nb">simpl</span>. <span class="nb">unfold</span> Monads.bind. <span class="nb">unfold</span> Monads.μ. <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> μ. <span class="nb">rewrite</span> (bind_map T). <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">epsinv_morph</span> (<span class="nv">T</span> : KleisliMonad C) :
+    Kleisli_Mor (kleislify (unkleislify T)) T :=
+    eps T ,, epsinv_morph_law T.
+
+  <span class="kn">Lemma</span> <span class="nf">is_inverse_epsinv</span> (<span class="nv">T</span> : KleisliMonad C) :
+    is_inverse_in_precat
+      (eps_morph T : category_Kleisli C ⟦T, kleislify (unkleislify T)⟧)
+      (epsinv_morph T).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> Kleisli_Mor_eq.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> a. <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> eps. <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> Kleisli_Mor_eq.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> a. <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> eps. <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_eps_morph</span> (<span class="nv">T</span> : KleisliMonad C) :
+    is_z_isomorphism (eps_morph T :
+              category_Kleisli C ⟦ T,(kleislify (unkleislify T))⟧) :=
+      epsinv_morph T,, is_inverse_epsinv T.
+
+  <span class="kn">Lemma</span> <span class="nf">is_natural_eps</span> :
+    is_nat_trans (functor_identity (category_Kleisli C))
+                 (functor_unkleislify ∙ functor_kleislify)
+                 eps_morph.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>. <span class="nb">simpl</span>. <span class="nb">intros</span> T T' α.
+    <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+    <span class="nb">apply</span> (Kleisli_Mor_eq(T := T)(T' := kleislify(unkleislify T'))). <span class="nb">simpl</span>.
+    <span class="nb">apply</span> funextsec. <span class="nb">intro</span> a.
+    <span class="nb">unfold</span> nat_trans_from_kleisli_mor, eps.
+    <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eps_natural</span> :
+    functor_identity (category_Kleisli C)
+    ⟹ functor_unkleislify ∙ functor_kleislify :=
+    eps_morph ,, is_natural_eps.
+
+  <span class="kn">Definition</span> <span class="nf">eta_arrow</span> (<span class="nv">T</span> : Monad C) (<span class="nv">a</span> : C) : C ⟦ T a, T a ⟧ := identity (T a).
+
+  <span class="kn">Lemma</span> <span class="nf">eta_arrow_natural</span> (<span class="nv">T</span> : Monad C) :
+    is_nat_trans (kleisli_functor_data (kleislify T)) T (eta_arrow T).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f. <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> eta_arrow.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">unfold</span> map, bind, η. <span class="nb">simpl</span>. <span class="nb">unfold</span> Monads.bind, Monads.η, Monads.μ.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">set</span> (H := Monad_law2 (T := T) b). <span class="kp">progress</span> <span class="nb">simpl</span> <span class="k">in</span> H.
+    <span class="nb">unfold</span> Monads.η, Monads.μ <span class="k">in</span> H.
+    etrans.
+    { <span class="nb">apply</span> cancel_precomposition. <span class="nb">apply</span> H. }
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eta_data</span> (<span class="nv">T</span> : Monad C) : kleisli_functor_data (kleislify T) ⟹ T :=
+    eta_arrow T ,, eta_arrow_natural T.
+
+  <span class="kn">Lemma</span> <span class="nf">is_nat_trans_etainv</span> (<span class="nv">T</span> : Monad C) :
+    is_nat_trans T (kleisli_functor_data (kleislify T)) (eta_arrow T).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f.
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> eta_arrow.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">unfold</span> map, bind, η. <span class="nb">simpl</span>. <span class="nb">unfold</span> Monads.bind, Monads.η, Monads.μ.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">set</span> (H := Monad_law2 (T := T) b). <span class="kp">progress</span> <span class="nb">simpl</span> <span class="k">in</span> H.
+    <span class="nb">unfold</span> Monads.η, Monads.μ <span class="k">in</span> H.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_precomposition. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> H. }
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">etainv_data</span> (<span class="nv">T</span> : Monad C) : T ⟹ kleisli_functor_data (kleislify T) :=
+    eta_arrow T ,, is_nat_trans_etainv T.
+
+  <span class="kn">Lemma</span> <span class="nf">etainv_data_laws</span> (<span class="nv">T</span> : Monad C) :
+    @Monad_Mor_laws C
+                    T
+                    (@unkleislify C (@kleislify C T)) (etainv_data T).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>.
+    - <span class="nb">unfold</span> eta_arrow.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">unfold</span> map, μ, Monads.μ, bind. <span class="nb">simpl</span>. <span class="nb">unfold</span> Monads.bind, η, Monads.μ. <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> Monads.η.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> functor_id, id_left.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">set</span> (H := Monad_law3 (T := T) a). <span class="kp">progress</span> <span class="nb">simpl</span> <span class="k">in</span> H.
+      <span class="nb">unfold</span> Monads.μ <span class="k">in</span> H.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> cancel_precomposition. <span class="nb">apply</span> H. }
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">set</span> (H1 := Monad_law1 (T := T) a). <span class="kp">progress</span> <span class="nb">simpl</span> <span class="k">in</span> H1.
+      <span class="nb">unfold</span> Monads.η, Monads.μ <span class="k">in</span> H1.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> pathsinv0.
+           <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span> <span class="nb">eapply</span> H1. }
+      <span class="bp">now</span> <span class="nb">rewrite</span> functor_id, id_left.
+    - <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">etainv_morph</span> (<span class="nv">T</span> : Monad C) :
+    Monad_Mor T (unkleislify (kleislify T)) :=
+    etainv_data T ,, etainv_data_laws T.
+
+  <span class="kn">Lemma</span> <span class="nf">etainv_morph_law</span> (<span class="nv">T</span> : Monad C) :
+    Monad_Mor_laws (T := T) (T' := (unkleislify (kleislify T))) (etainv_data T).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intro</span> a.
+    - <span class="nb">unfold</span> eta_arrow.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">unfold</span> Monads.μ, bind, μ, map, μ, bind, map, μ. <span class="nb">simpl</span>. <span class="nb">unfold</span> Monads.bind, Monad_Kleisli_data; <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> Monads.μ, η.
+      <span class="nb">rewrite</span> functor_comp. <span class="nb">cbn</span>. <span class="nb">rewrite</span> functor_id.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+      <span class="nb">set</span> (H1 := Monad_law2 (T := T) (T a)).
+      <span class="nb">unfold</span> Monads.μ, Monads.η <span class="k">in</span> H1.
+      <span class="kp">progress</span> <span class="nb">simpl</span> <span class="k">in</span> H1.
+      <span class="nb">simpl</span>. <span class="nb">unfold</span> Monads.η.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> H1. }
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+    - <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">eta_data_laws</span> (<span class="nv">T</span> : Monad C) :
+    @Monad_Mor_laws C
+                    (@unkleislify C (@kleislify C T))
+                    T (eta_data T).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>.
+    - <span class="nb">unfold</span> eta_arrow.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">unfold</span> Monads.μ, μ, bind, μ. <span class="nb">simpl</span>. <span class="nb">unfold</span> Monads.bind, Monads.μ.
+      <span class="nb">rewrite</span> functor_id. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eta_morph</span> (<span class="nv">T</span> : Monad C) :
+    Monad_Mor (unkleislify (kleislify T)) T :=
+    eta_data T ,, eta_data_laws T.
+
+  <span class="kn">Lemma</span> <span class="nf">is_inverse_etainv</span> (<span class="nv">T</span> : Monad C) :
+    is_inverse_in_precat
+      (eta_morph T : category_Monad C ⟦unkleislify (kleislify T), T⟧)
+      (etainv_morph T : category_Monad C ⟦T, unkleislify (kleislify T)⟧).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> Monad_Mor_eq.
+      <span class="nb">intros</span>. <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> eta_arrow. <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> Monad_Mor_eq.
+      <span class="nb">intros</span>. <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> eta_arrow. <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_eta_morph</span> (<span class="nv">T</span> : Monad C) :
+    is_z_isomorphism (eta_morph T :
+              category_Monad C ⟦unkleislify (kleislify T), T⟧)
+   := etainv_morph T,, is_inverse_etainv T.
+
+  <span class="kn">Lemma</span> <span class="nf">is_natural_eta</span> :
+    is_nat_trans
+      (functor_composite_data (functor_data_kleislify C)
+                              (functor_data_unkleislify C))
+      (functor_identity (category_Monad C)) eta_morph.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">simpl</span>. <span class="nb">intros</span> T T' α.
+    <span class="nb">apply</span> (Monad_Mor_eq (unkleislify (kleislify T))).
+    <span class="nb">intros</span>. <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> eta_arrow.
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eta_natural</span> :
+    functor_kleislify ∙ functor_unkleislify
+                               ⟹ functor_identity (category_Monad C) :=
+    eta_morph ,, is_natural_eta.
+
+  <span class="kn">Lemma</span> <span class="nf">form_adjunction_eps_eta</span> :
+    form_adjunction functor_unkleislify
+                    functor_kleislify
+                    eps_natural eta_natural.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">simpl</span>.
+    - <span class="nb">intro</span> T.
+      <span class="nb">apply</span> (Monad_Mor_eq (unkleislify T) (unkleislify T)).
+      <span class="nb">intros</span>. <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> eps.
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+    - <span class="nb">intro</span> T. <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+      <span class="nb">apply</span> (Kleisli_Mor_eq (T:=kleislify T) (T':=kleislify T)).
+      <span class="nb">intros</span>. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span> a.
+      <span class="nb">unfold</span> eps.
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">are_adjoint_monad_form_kleislify</span> :
+    are_adjoints functor_unkleislify functor_kleislify :=
+    (eps_natural ,, eta_natural) ,, form_adjunction_eps_eta.
+
+  <span class="kn">Definition</span> <span class="nf">is_left_adjoint_functor_unkleislify</span> :
+    is_left_adjoint functor_unkleislify :=
+    functor_kleislify ,, are_adjoint_monad_form_kleislify.
+
+  <span class="kn">Lemma</span> <span class="nf">form_equivalence_unkleislify</span> :
+    forms_equivalence is_left_adjoint_functor_unkleislify.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">simpl</span>.
+    - <span class="nb">intros</span> T. <span class="nb">apply</span> is_z_iso_eps_morph.
+    - <span class="nb">intros</span> T. <span class="nb">apply</span> is_z_iso_eta_morph.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_catiso</span> : is_catiso (functor_unkleislify(C:=C)).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> fully_faithful_from_equivalence.
+      use (is_left_adjoint_functor_unkleislify,, form_equivalence_unkleislify).
+    - <span class="nb">apply</span> (isweq_iso _ (<span class="k">λ</span> <span class="nv">T</span> : Monad C, kleislify T)).
+      + <span class="nb">intro</span> T. <span class="nb">simpl</span>. <span class="nb">apply</span> kleislify_unkleislify.
+      + <span class="nb">simpl</span>. <span class="nb">apply</span> unkleislify_kleislify.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">weq_Kleisli_Monad_categories</span>:
+    (category_Monad C) ≃ (category_Kleisli C).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (aux := pr2 is_catiso).
+    <span class="bp">exact</span> (invweq (make_weq _ aux)).
+  <span class="kn">Defined</span>.
+<span class="sd">(** This is the main result of [UniMath.CategoryTheory.Monads.Kleisli]. *)</span>
+
+
+<span class="kn">End</span> <span class="nf">Adjunction</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monads/KTriplesEquiv.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (* Written by: Marco Maggesi, Cosimo Perini (2017)                                               *)
+  &gt; (* ============================================================================================= *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

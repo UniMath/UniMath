@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Collage.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************************************</span>
+
+<span class="sd"> The collage of a profunctor</span>
+
+<span class="sd"> In this file, we define the collage (also know as the cograph) of profunctors. The collage</span>
+<span class="sd"> of a profunctor `P : C₁ ↛ C₂` is defined as the following category:</span>
+<span class="sd"> - objects: `C₁ ⨿ C₂`</span>
+<span class="sd"> - morphisms from `x₁ : C₁` to `x₂ : C₁`: morphisms in `C₁`</span>
+<span class="sd"> - morphisms from `x₁ : C₁` to `y₂ : C₂`: inhabitants of the empty type</span>
+<span class="sd"> - morphisms from `y₁ : C₂` to `x₂ : C₁`: inhabitants of `P y₁ x₂`</span>
+<span class="sd"> - morphisms from `y₁ : C₂` to `y₂ : C₂`: morphisms in `C₂`</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The collage of a profunctor</span>
+<span class="sd"> 2. The collage is univalent</span>
+<span class="sd"> 3. The inclusions into the collage</span>
+<span class="sd"> 4. The squares from the collage</span>
+
+<span class="sd"> *****************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Profunctors.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Profunctors.Examples.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Profunctors.Squares.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Collage</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">P</span> : C₁ ↛ C₂).
+
+  <span class="sd">(** * 1. The collage of a profunctor *)</span>
+  <span class="kn">Definition</span> <span class="nf">collage_profunctor_precategory_ob_mor</span>
+    : precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    use make_precategory_ob_mor.
+    - <span class="bp">exact</span> (C₁ ⨿ C₂).
+    - <span class="nb">intros</span> x₁ x₂.
+      <span class="nb">induction</span> x₁ <span class="k">as</span> [ x₁ | y₁ ] ; <span class="nb">induction</span> x₂ <span class="k">as</span> [ x₂ | y₂ ].
+      + <span class="bp">exact</span> (x₁ --&gt; x₂).
+      + <span class="bp">exact</span> ∅.
+      + <span class="bp">exact</span> (P y₁ x₂).
+      + <span class="bp">exact</span> (y₁ --&gt; y₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">collage_profunctor_precategory_data</span>
+    : precategory_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - <span class="bp">exact</span> collage_profunctor_precategory_ob_mor.
+    - <span class="nb">intro</span> x.
+      <span class="nb">induction</span> x <span class="k">as</span> [ x | y ].
+      + <span class="bp">exact</span> (identity x).
+      + <span class="bp">exact</span> (identity y).
+    - <span class="nb">intros</span> x₁ x₂ x₃ f g.
+      <span class="nb">induction</span> x₁ <span class="k">as</span> [ x₁ | y₁ ] ;
+        <span class="nb">induction</span> x₂ <span class="k">as</span> [ x₂ | y₂ ] ;
+        <span class="nb">induction</span> x₃ <span class="k">as</span> [ x₃ | y₃ ] ;
+        <span class="kp">try</span> (<span class="nb">apply</span> (fromempty f)) ;
+        <span class="kp">try</span> (<span class="nb">apply</span> (fromempty g)) ;
+        <span class="nb">cbn</span> <span class="k">in</span> *.
+      + <span class="bp">exact</span> (f · g).
+      + <span class="bp">exact</span> (rmap P g f).
+      + <span class="bp">exact</span> (lmap P f g).
+      + <span class="bp">exact</span> (f · g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">collage_profunctor_is_precategory</span>
+    : is_precategory collage_profunctor_precategory_data.
+  <span class="kn">Proof</span>.
+    use make_is_precategory_one_assoc.
+    - <span class="nb">intros</span> x₁ x₂ f.
+      <span class="nb">induction</span> x₁ <span class="k">as</span> [ x₁ | y₁ ] ;
+        <span class="nb">induction</span> x₂ <span class="k">as</span> [ x₂ | y₂ ] ;
+        <span class="kp">try</span> (<span class="nb">apply</span> (fromempty f)) ;
+        <span class="nb">cbn</span> <span class="k">in</span> *.
+      + <span class="nb">apply</span> id_left.
+      + <span class="nb">apply</span> lmap_id.
+      + <span class="nb">apply</span> id_left.
+    - <span class="nb">intros</span> x₁ x₂ f.
+      <span class="nb">induction</span> x₁ <span class="k">as</span> [ x₁ | y₁ ] ;
+        <span class="nb">induction</span> x₂ <span class="k">as</span> [ x₂ | y₂ ] ;
+        <span class="kp">try</span> (<span class="nb">apply</span> (fromempty f)) ;
+        <span class="nb">cbn</span> <span class="k">in</span> *.
+      + <span class="nb">apply</span> id_right.
+      + <span class="nb">apply</span> rmap_id.
+      + <span class="nb">apply</span> id_right.
+    - <span class="nb">intros</span> x₁ x₂ x₃ x₄ f g h.
+      <span class="nb">induction</span> x₁ <span class="k">as</span> [ x₁ | y₁ ] ;
+        <span class="nb">induction</span> x₂ <span class="k">as</span> [ x₂ | y₂ ] ;
+        <span class="nb">induction</span> x₃ <span class="k">as</span> [ x₃ | y₃ ] ;
+        <span class="nb">induction</span> x₄ <span class="k">as</span> [ x₄ | y₄ ] ;
+        <span class="kp">try</span> (<span class="nb">apply</span> (fromempty f)) ;
+        <span class="kp">try</span> (<span class="nb">apply</span> (fromempty g)) ;
+        <span class="kp">try</span> (<span class="nb">apply</span> (fromempty h)) ;
+        <span class="nb">cbn</span> <span class="k">in</span> *.
+      + <span class="nb">apply</span> assoc.
+      + <span class="nb">apply</span> rmap_comp.
+      + <span class="nb">apply</span> lmap_rmap.
+      + <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> lmap_comp.
+      + <span class="nb">apply</span> assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">collage_profunctor_precategory</span>
+    : precategory.
+  <span class="kn">Proof</span>.
+    use make_precategory.
+    - <span class="bp">exact</span> collage_profunctor_precategory_data.
+    - <span class="bp">exact</span> collage_profunctor_is_precategory.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">collage_profunctor_category_has_homsets</span>
+    : has_homsets collage_profunctor_precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂.
+    <span class="nb">induction</span> x₁ <span class="k">as</span> [ x₁ | y₁ ] ;
+      <span class="nb">induction</span> x₂ <span class="k">as</span> [ x₂ | y₂ ] ;
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> isasetempty.
+    - <span class="nb">apply</span> setproperty.
+    - <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">collage_profunctor_category</span>
+    : category.
+  <span class="kn">Proof</span>.
+    use make_category.
+    - <span class="bp">exact</span> collage_profunctor_precategory.
+    - <span class="bp">exact</span> collage_profunctor_category_has_homsets.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The collage is univalent *)</span>
+  <span class="kn">Definition</span> <span class="nf">idtoiso_in_collage_inl</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+             (<span class="nv">p</span> : x₁ = x₂)
+    : pr1 (idtoiso p)
+      =
+      pr1 (@idtoiso
+             collage_profunctor_category
+             (inl x₁)
+             (inl x₂)
+             (maponpaths inl p)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">idtoiso_in_collage_inr</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₂}
+             (<span class="nv">p</span> : x₁ = x₂)
+    : pr1 (idtoiso p)
+      =
+      pr1 (@idtoiso
+             collage_profunctor_category
+             (inr x₁)
+             (inr x₂)
+             (maponpaths inr p)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_univalent_collage_profunctor_category</span>
+              (<span class="nv">H₁</span> : is_univalent C₁)
+              (<span class="nv">H₂</span> : is_univalent C₂)
+    : is_univalent collage_profunctor_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂.
+    <span class="nb">induction</span> x₁ <span class="k">as</span> [ x₁ | y₁ ] ;
+      <span class="nb">induction</span> x₂ <span class="k">as</span> [ x₂ | y₂ ].
+    - use weqhomot.
+      + <span class="bp">exact</span> (make_weq _ (H₁ _ _) ∘ paths_inl_inl_equiv _ _)%weq.
+      + <span class="nb">intro</span> p ; <span class="nb">cbn</span> -[equality_by_case_equiv].
+        use z_iso_eq.
+        <span class="nb">refine</span> (idtoiso_in_collage_inl (paths_inl_inl_equiv x₁ x₂ p) @ _).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (homotinvweqweq (paths_inl_inl_equiv _ _)).
+    - use weqhomot.
+      + <span class="nb">refine</span> (invweq _ ∘ paths_inl_inr_equiv _ _)%weq.
+        use weqtoempty.
+        <span class="nb">intro</span> f.
+        <span class="bp">exact</span> (pr1 f).
+      + <span class="nb">intro</span> p.
+        use fromempty.
+        <span class="bp">exact</span> (negpathsii1ii2 _ _ p).
+    - use weqhomot.
+      + <span class="nb">refine</span> (invweq _ ∘ paths_inr_inl_equiv _ _)%weq.
+        use weqtoempty.
+        <span class="nb">intro</span> f.
+        <span class="bp">exact</span> (inv_from_z_iso f).
+      + <span class="nb">intro</span> p.
+        use fromempty.
+        <span class="bp">exact</span> (negpathsii2ii1 _ _ p).
+    - use weqhomot.
+      + <span class="bp">exact</span> (make_weq _ (H₂ _ _) ∘ paths_inr_inr_equiv _ _)%weq.
+      + <span class="nb">intro</span> p ; <span class="nb">cbn</span> -[equality_by_case_equiv].
+        use z_iso_eq.
+        <span class="nb">refine</span> (idtoiso_in_collage_inr (paths_inr_inr_equiv y₁ y₂ p) @ _).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (homotinvweqweq (paths_inr_inr_equiv _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. The inclusions into the collage *)</span>
+  <span class="kn">Definition</span> <span class="nf">collage_profunctor_category_inl_data</span>
+    : functor_data C₁ collage_profunctor_category.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> inl.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">collage_profunctor_category_inl</span>
+    : C₁ ⟶ collage_profunctor_category.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> collage_profunctor_category_inl_data.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">collage_profunctor_category_inl_ff</span>
+    : fully_faithful collage_profunctor_category_inl.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> idisweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">collage_profunctor_category_inr_data</span>
+    : functor_data C₂ collage_profunctor_category.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> inr.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">collage_profunctor_category_inr</span>
+    : C₂ ⟶ collage_profunctor_category.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> collage_profunctor_category_inr_data.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">collage_profunctor_category_inr_ff</span>
+    : fully_faithful collage_profunctor_category_inr.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> idisweq.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. The squares from the collage *)</span>
+  <span class="kn">Definition</span> <span class="nf">collage_profunctor_square</span>
+    : profunctor_square
+        collage_profunctor_category_inr
+        collage_profunctor_category_inl
+        P
+        (id_profunctor _).
+  <span class="kn">Proof</span>.
+    use make_profunctor_square.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">h</span>, h).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> rmap_id ;
+         <span class="nb">rewrite</span> lmap_id ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Collage</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Profunctors/Collage.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The squares from the collage
+  &gt;
+  &gt;  *****************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Profunctors.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

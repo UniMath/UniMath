@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Disjunction.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Disjunction</span>
+
+<span class="sd"> In this file, we construct the disjunction in the category of partial setoids. Here we</span>
+<span class="sd"> use the characterization of subobjects in terms of formulas as given in the file</span>
+<span class="sd"> `SubobjectDispCat.v`.</span>
+
+<span class="sd"> The construction of the connectives of subobjects of partial setoids is similar to how</span>
+<span class="sd"> connectives are defined for subsets. For the disjunction, we reuse the disjunction of the</span>
+<span class="sd"> first-order hyperdoctrine.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The formula</span>
+<span class="sd"> 2. Introduction rules</span>
+<span class="sd"> 3. Elimination rule</span>
+<span class="sd"> 4. Stability under substitution</span>
+<span class="sd"> 5. Fiberwise binary coproducts</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.Logic.SubobjectDispCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="kn">Section</span> <span class="nf">Disjunction</span>.
+  <span class="kn">Context</span> (<span class="nv">H</span> : first_order_hyperdoctrine).
+
+  <span class="kn">Section</span> <span class="nf">Disjunction</span>.
+    <span class="kn">Context</span> {<span class="nv">Γ</span> : partial_setoid H}
+            (<span class="nv">ψ₁</span> <span class="nv">ψ₂</span> : per_subobject Γ).
+
+    <span class="sd">(** * 1. The formula *)</span>
+    <span class="kn">Proposition</span> <span class="nf">per_subobject_disj_laws</span>
+      : per_subobject_laws (ψ₁ ∨ ψ₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        hypersimplify.
+        use (disj_elim (hyperdoctrine_hyp _)).
+        + use weaken_right.
+          use (per_subobject_def ψ₁).
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + use weaken_right.
+          use (per_subobject_def ψ₂).
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      - <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        use impl_intro.
+        use hyp_sym.
+        hypersimplify.
+        <span class="nb">pose</span> (γ₁ := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h Γ)))).
+        <span class="nb">pose</span> (γ₂ := π₂ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h Γ))).
+        <span class="nb">fold</span> γ₁ γ₂.
+        use (disj_elim (weaken_left (hyperdoctrine_hyp _) _)).
+        + use hyp_ltrans.
+          use weaken_right.
+          use disj_intro_left.
+          use (per_subobject_eq ψ₁).
+          * <span class="bp">exact</span> γ₁.
+          * use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+        + use hyp_ltrans.
+          use weaken_right.
+          use disj_intro_right.
+          use (per_subobject_eq ψ₂).
+          * <span class="bp">exact</span> γ₁.
+          * use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">per_subobject_disj</span>
+      : per_subobject Γ.
+    <span class="kn">Proof</span>.
+      use make_per_subobject.
+      - <span class="bp">exact</span> (ψ₁ ∨ ψ₂).
+      - <span class="bp">exact</span> per_subobject_disj_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** * 2. Introduction rules *)</span>
+    <span class="kn">Proposition</span> <span class="nf">per_subobject_disj_intro_left</span>
+      : per_subobject_mor_law
+          (id_partial_setoid_morphism Γ)
+          ψ₁
+          per_subobject_disj.
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use impl_intro.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">pose</span> (γ₁ := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h Γ)))).
+      <span class="nb">pose</span> (γ₂ := π₂ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h Γ))).
+      <span class="nb">fold</span> γ₁ γ₂.
+      use disj_intro_left.
+      use per_subobject_eq.
+      - <span class="bp">exact</span> γ₁.
+      - use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      - use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">per_subobject_disj_intro_right</span>
+      : per_subobject_mor_law
+          (id_partial_setoid_morphism Γ)
+          ψ₂
+          per_subobject_disj.
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use impl_intro.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">pose</span> (γ₁ := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h Γ)))).
+      <span class="nb">pose</span> (γ₂ := π₂ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h Γ))).
+      <span class="nb">fold</span> γ₁ γ₂.
+      use disj_intro_right.
+      use per_subobject_eq.
+      - <span class="bp">exact</span> γ₁.
+      - use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      - use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** * 3. Elimination rule *)</span>
+    <span class="kn">Context</span> {<span class="nv">χ</span> : per_subobject Γ}
+            (<span class="nv">p</span> : per_subobject_mor_law (id_partial_setoid_morphism Γ) ψ₁ χ)
+            (<span class="nv">q</span> : per_subobject_mor_law (id_partial_setoid_morphism Γ) ψ₂ χ).
+
+    <span class="kn">Proposition</span> <span class="nf">per_subobject_disj_elim</span>
+      : per_subobject_mor_law
+          (id_partial_setoid_morphism Γ)
+          per_subobject_disj
+          χ.
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use impl_intro.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">pose</span> (γ₁ := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h Γ)))).
+      <span class="nb">pose</span> (γ₂ := π₂ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h Γ))).
+      <span class="nb">fold</span> γ₁ γ₂.
+      use hyp_sym.
+      use (disj_elim (weaken_left (hyperdoctrine_hyp _) _)).
+      - use hyp_ltrans.
+        use weaken_right.
+        use (per_subobject_mor p).
+        + <span class="bp">exact</span> γ₁.
+        + <span class="nb">cbn</span>.
+          hypersimplify.
+          use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      - use hyp_ltrans.
+        use weaken_right.
+        use (per_subobject_mor q).
+        + <span class="bp">exact</span> γ₁.
+        + <span class="nb">cbn</span>.
+          hypersimplify.
+          use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Disjunction</span>.
+
+  <span class="sd">(** * 4. Stability under substitution *)</span>
+  <span class="kn">Proposition</span> <span class="nf">per_subobject_disj_subst</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : partial_setoid H}
+              (<span class="nv">s</span> : partial_setoid_morphism Γ₁ Γ₂)
+              (<span class="nv">ψ₁</span> <span class="nv">ψ₂</span> : per_subobject Γ₂)
+    : per_subobject_mor_law
+        (id_partial_setoid_morphism Γ₁)
+        (per_subobject_subst s (per_subobject_disj ψ₁ ψ₂))
+        (per_subobject_disj (per_subobject_subst s ψ₁) (per_subobject_subst s ψ₂)).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    use impl_intro.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> partial_setoid_subst.
+    <span class="nb">rewrite</span> !exists_subst.
+    use hyp_sym.
+    use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
+    <span class="nb">rewrite</span> !conj_subst.
+    use hyp_ltrans.
+    use weaken_right.
+    hypersimplify_form.
+    hypersimplify.
+    <span class="nb">pose</span> (γ₁ := π₂ (π₁ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h Γ₁) ×h Γ₁) ×h Γ₂))))).
+    <span class="nb">pose</span> (γ₁' := π₂ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h Γ₁) ×h Γ₁) ×h Γ₂)))).
+    <span class="nb">pose</span> (γ₂ := π₂ (tm_var (((<span class="mi">𝟙</span> ×h Γ₁) ×h Γ₁) ×h Γ₂))).
+    <span class="nb">fold</span> γ₁ γ₁' γ₂.
+    use hyp_rtrans.
+    use hyp_sym.
+    use (disj_elim (weaken_left (hyperdoctrine_hyp _) _)).
+    - use hyp_ltrans.
+      use weaken_right.
+      use disj_intro_left.
+      use exists_intro.
+      + <span class="bp">exact</span> γ₂.
+      + hypersimplify.
+        <span class="nb">fold</span> γ₁'.
+        use conj_intro.
+        * use weaken_left.
+          use (partial_setoid_mor_eq_defined s).
+          ** <span class="bp">exact</span> γ₁.
+          ** <span class="bp">exact</span> γ₂.
+          ** use weaken_left.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+          ** use weaken_right.
+             <span class="bp">exact</span> (partial_setoid_mor_cod_defined s _ _ (hyperdoctrine_hyp _)).
+          ** use weaken_right.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+    - use hyp_ltrans.
+      use weaken_right.
+      use disj_intro_right.
+      use exists_intro.
+      + <span class="bp">exact</span> γ₂.
+      + hypersimplify.
+        <span class="nb">fold</span> γ₁'.
+        use conj_intro.
+        * use weaken_left.
+          use (partial_setoid_mor_eq_defined s).
+          ** <span class="bp">exact</span> γ₁.
+          ** <span class="bp">exact</span> γ₂.
+          ** use weaken_left.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+          ** use weaken_right.
+             <span class="bp">exact</span> (partial_setoid_mor_cod_defined s _ _ (hyperdoctrine_hyp _)).
+          ** use weaken_right.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. Fiberwise binary coproducts *)</span>
+  <span class="kn">Definition</span> <span class="nf">fiberwise_bincoproducts_per_subobject</span>
+    : fiberwise_bincoproducts (disp_cat_per_subobject_cleaving H).
+  <span class="kn">Proof</span>.
+    use make_fiberwise_bincoproducts_locally_propositional.
+    - <span class="nb">apply</span> locally_prop_disp_cat_per_subobject.
+    - <span class="nb">intros</span> Γ ψ₁ ψ₂.
+      <span class="bp">exact</span> (per_subobject_disj ψ₁ ψ₂).
+    - <span class="nb">intros</span> Γ ψ₁ ψ₂.
+      <span class="bp">exact</span> (per_subobject_disj_intro_left ψ₁ ψ₂).
+    - <span class="nb">intros</span> Γ ψ₁ ψ₂.
+      <span class="bp">exact</span> (per_subobject_disj_intro_right ψ₁ ψ₂).
+    - <span class="nb">intros</span> Γ ψ₁ ψ₂ χ p q.
+      <span class="bp">exact</span> (per_subobject_disj_elim ψ₁ ψ₂ p q).
+    - <span class="nb">intros</span> Γ₁ Γ₂ s ψ₁ ψ₂.
+      <span class="bp">exact</span> (per_subobject_disj_subst s ψ₁ ψ₂).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Disjunction</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/PartialEqRels/Logic/Disjunction.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Fiberwise binary coproducts
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

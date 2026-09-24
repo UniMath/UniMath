@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FubiniTheorem.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> A Fubini-like Theorem for DCPOs</span>
+
+<span class="sd"> Fubini's theorem in analysis allows one to swap double integrals.</span>
+<span class="sd"> For DCPO's, we can state a similar theorem, namely that one can</span>
+<span class="sd"> switch the order of double suprema.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Preliminary definitions</span>
+<span class="sd"> 2. Fubini's theorem</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottContinuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Examples.BinaryProducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Preliminary definitions</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">monotone_function_app_l</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : dcpo}
+           (<span class="nv">f</span> : monotone_function (X × Y) Z)
+           (<span class="nv">x</span> : X)
+  : monotone_function Y Z.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, f (x ,, y)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> y₁ y₂ p ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> f ;
+       <span class="bp">exact</span> (refl_PartialOrder X x ,, p)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monotone_function_app_r</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : dcpo}
+           (<span class="nv">f</span> : monotone_function (X × Y) Z)
+           (<span class="nv">y</span> : Y)
+  : monotone_function X Z.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, f (x ,, y)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> y₁ y₂ p ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> f ;
+       <span class="bp">exact</span> (p ,, refl_PartialOrder Y y)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"f ·l x"</span> := (monotone_function_app_l f x) (<span class="kn">at level</span> <span class="mi">60</span>).
+<span class="kn">Notation</span> <span class="s2">"f ·r y"</span> := (monotone_function_app_r f y) (<span class="kn">at level</span> <span class="mi">60</span>).
+
+<span class="kn">Definition</span> <span class="nf">fubini_monotone_function_l</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : dcpo}
+           (<span class="nv">f</span> : monotone_function (X × Y) Z)
+           (<span class="nv">D</span> : directed_set (X × Y))
+  : monotone_function X Z.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> ((<span class="k">λ</span> <span class="nv">x</span>, ⨆_{π₂ {{ D }}} (f ·l x)) ,, _).
+  <span class="kp">abstract</span>
+    (<span class="nb">intros</span> x₁ x₂ p ;
+     use dcpo_lub_is_least ;
+     <span class="nb">cbn</span> ;
+     <span class="nb">intro</span> i ;
+     use less_than_dcpo_lub ; [ <span class="bp">exact</span> i | ] ;
+     <span class="nb">cbn</span> ;
+     <span class="nb">apply</span> f ;
+     <span class="nb">split</span> ; [ <span class="bp">exact</span> p | ] ;
+     <span class="nb">apply</span> refl_PartialOrder).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fubini_monotone_function_r</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : dcpo}
+           (<span class="nv">f</span> : monotone_function (X × Y) Z)
+           (<span class="nv">D</span> : directed_set (X × Y))
+  : monotone_function Y Z.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> ((<span class="k">λ</span> <span class="nv">x</span>, ⨆_{π₁ {{ D }}} (f ·r x)) ,, _).
+  <span class="kp">abstract</span>
+    (<span class="nb">intros</span> x₁ x₂ p ;
+     use dcpo_lub_is_least ;
+     <span class="nb">cbn</span> ;
+     <span class="nb">intro</span> i ;
+     use less_than_dcpo_lub ; [ <span class="bp">exact</span> i | ] ;
+     <span class="nb">cbn</span> ;
+     <span class="nb">apply</span> f ;
+     <span class="nb">split</span> ; [ | <span class="bp">exact</span> p ] ;
+     <span class="nb">apply</span> refl_PartialOrder).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Fubini's theorem</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">monotone_prod_map_fubini_pair_l</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : dcpo}
+            (<span class="nv">f</span> : monotone_function (X × Y) Z)
+            (<span class="nv">D</span> : directed_set (X × Y))
+  : ⨆_{D} f = ⨆_{π₁ {{D}}} fubini_monotone_function_l f D.
+<span class="kn">Proof</span>.
+  use (eq_lub Z (f {{ D }})).
+  - <span class="nb">apply</span> is_least_upperbound_dcpo_comp_lub.
+  - use make_dcpo_is_least_upperbound.
+    + <span class="nb">cbn</span> ; <span class="nb">intro</span> i.
+      use less_than_dcpo_lub.
+      * <span class="bp">exact</span> i.
+      * <span class="nb">cbn</span>.
+        use less_than_dcpo_lub.
+        ** <span class="bp">exact</span> i.
+        ** <span class="nb">apply</span> refl_PartialOrder.
+    + <span class="nb">intros</span> x' Hx'.
+      use dcpo_lub_is_least ; <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> Hx'.
+      <span class="nb">intro</span> i.
+      use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+      <span class="nb">intro</span> j.
+      <span class="nb">assert</span> (H := is_directed_top (directed_set_is_directed D) i j).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> kH.
+      <span class="nb">induction</span> kH <span class="k">as</span> [ k [ H₁ H₂ ]].
+      <span class="nb">refine</span> (trans_PartialOrder Z _ (Hx' k)).
+      <span class="nb">apply</span> f.
+      <span class="nb">split</span>.
+      * <span class="bp">exact</span> (pr1 H₁).
+      * <span class="bp">exact</span> (pr2 H₂).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">monotone_prod_map_fubini_pair_r</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : dcpo}
+            (<span class="nv">f</span> : monotone_function (X × Y) Z)
+            (<span class="nv">D</span> : directed_set (X × Y))
+  : ⨆_{D} f = ⨆_{π₂ {{D}}} fubini_monotone_function_r f D.
+<span class="kn">Proof</span>.
+  use (eq_lub Z (f {{ D }})).
+  - <span class="nb">apply</span> is_least_upperbound_dcpo_comp_lub.
+  - use make_dcpo_is_least_upperbound.
+    + <span class="nb">cbn</span> ; <span class="nb">intro</span> i.
+      use less_than_dcpo_lub.
+      * <span class="bp">exact</span> i.
+      * <span class="nb">cbn</span>.
+        use less_than_dcpo_lub.
+        ** <span class="bp">exact</span> i.
+        ** <span class="nb">apply</span> refl_PartialOrder.
+    + <span class="nb">intros</span> x' Hx'.
+      use dcpo_lub_is_least ; <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> Hx'.
+      <span class="nb">intro</span> i.
+      use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+      <span class="nb">intro</span> j.
+      <span class="nb">assert</span> (H := is_directed_top (directed_set_is_directed D) i j).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> kH.
+      <span class="nb">induction</span> kH <span class="k">as</span> [ k [ H₁ H₂ ]].
+      <span class="nb">refine</span> (trans_PartialOrder Z _ (Hx' k)).
+      <span class="nb">apply</span> f.
+      use prod_dcpo_le ; <span class="nb">cbn</span>.
+      * <span class="bp">exact</span> (pr1 H₂).
+      * <span class="bp">exact</span> (pr2 H₁).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">monotone_fubini_swap</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : dcpo}
+            (<span class="nv">f</span> : monotone_function (X × Y) Z)
+            (<span class="nv">D</span> : directed_set (X × Y))
+  : ⨆_{π₁ {{D}}} fubini_monotone_function_l f D
+    =
+    ⨆_{π₂ {{D}}} fubini_monotone_function_r f D.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- monotone_prod_map_fubini_pair_l.
+  <span class="nb">rewrite</span> &lt;- monotone_prod_map_fubini_pair_r.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">monotone_fubini_swap'</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : dcpo}
+            (<span class="nv">D₁</span> : directed_set X)
+            (<span class="nv">D₂</span> : directed_set Y)
+            (<span class="nv">f</span> : monotone_function (X × Y) Z)
+  : ⨆_{D₁} (fubini_monotone_function_l f (prod_directed_set D₁ D₂))
+    =
+    ⨆_{D₂} (fubini_monotone_function_r f (prod_directed_set D₁ D₂)).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ @ monotone_fubini_swap f (prod_directed_set D₁ D₂) @ _).
+  - use antisymm_dcpo.
+    + use dcpo_lub_is_least.
+      <span class="nb">cbn</span> ; <span class="nb">intro</span> i.
+      use dcpo_lub_is_least.
+      <span class="nb">cbn</span> ; <span class="nb">intro</span> j.
+      use less_than_dcpo_lub.
+      * <span class="bp">exact</span> (i ,, pr2 j).
+      * <span class="nb">cbn</span>.
+        use less_than_dcpo_lub.
+        ** <span class="bp">exact</span> (i ,, pr2 j).
+        ** <span class="nb">cbn</span>.
+           <span class="nb">apply</span> refl_dcpo.
+    + use dcpo_lub_is_least.
+      <span class="nb">cbn</span> ; <span class="nb">intro</span> i.
+      use dcpo_lub_is_least.
+      <span class="nb">cbn</span> ; <span class="nb">intro</span> j.
+      use less_than_dcpo_lub.
+      * <span class="bp">exact</span> (pr1 i).
+      * <span class="nb">cbn</span>.
+        use less_than_dcpo_lub.
+        ** <span class="bp">exact</span> j.
+        ** <span class="nb">cbn</span>.
+           <span class="nb">apply</span> refl_dcpo.
+  - use antisymm_dcpo.
+    + use dcpo_lub_is_least.
+      <span class="nb">cbn</span> ; <span class="nb">intro</span> i.
+      use dcpo_lub_is_least.
+      <span class="nb">cbn</span> ; <span class="nb">intro</span> j.
+      use less_than_dcpo_lub.
+      * <span class="bp">exact</span> (pr2 i).
+      * <span class="nb">cbn</span>.
+        use less_than_dcpo_lub.
+        ** <span class="bp">exact</span> j.
+        ** <span class="nb">cbn</span>.
+           <span class="nb">apply</span> refl_dcpo.
+    + use dcpo_lub_is_least.
+      <span class="nb">cbn</span> ; <span class="nb">intro</span> i.
+      use dcpo_lub_is_least.
+      <span class="nb">cbn</span> ; <span class="nb">intro</span> j.
+      use less_than_dcpo_lub.
+      * <span class="bp">exact</span> (pr1 j ,, i).
+      * <span class="nb">cbn</span>.
+        use less_than_dcpo_lub.
+        ** <span class="bp">exact</span> (pr1 j ,, i).
+        ** <span class="nb">cbn</span>.
+           <span class="nb">apply</span> refl_dcpo.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Core/FubiniTheorem.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Fubini's theorem
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+  &gt; Require Import UniMath.OrderTheory.Posets.MonotoneFunctions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.OrderTheory.DCPOs.Elements.Sharp</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.OrderTheory.DCPOs.Elements.Sharp</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.DirectedSets.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.DirectedSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.Basics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.WayBelow.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.WayBelow</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.ScottTopology.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.ScottTopology</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Basis.Continuous.html#"><span class="id" title="library">UniMath.OrderTheory.DCPOs.Basis.Continuous</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">dcpo</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. Definition of sharp elements
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="is_sharp" class="idref" href="#is_sharp"><span class="id" title="definition">is_sharp</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:1" class="idref" href="#X:1"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo"><span class="id" title="definition">dcpo</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="x:2" class="idref" href="#x:2"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:1"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a><br/>
+&nbsp;&nbsp;:= (<a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">∀</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">(</span></a><a id="y:3" class="idref" href="#y:3"><span class="id" title="binder">y</span></a> <a id="z:4" class="idref" href="#z:4"><span class="id" title="binder">z</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:1"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:3"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.WayBelow.html#d12db9529d3067d113501f563f4ae6f2"><span class="id" title="notation">≪</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#z:4"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">⇒</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:3"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.WayBelow.html#d12db9529d3067d113501f563f4ae6f2"><span class="id" title="notation">≪</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:2"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">∨</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">¬(</span></a><a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#z:4"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#33fa011e9130f9bd62c97cc82de6d228"><span class="id" title="notation">⊑</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:2"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">)</span></a><a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">)</span></a>)%<span class="id" title="var">logic</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. Characterization of sharp elements in a continuous DCPO
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Proposition</span> <a id="is_sharp_continuous_dcpo" class="idref" href="#is_sharp_continuous_dcpo"><span class="id" title="lemma">is_sharp_continuous_dcpo</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:5" class="idref" href="#X:5"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo"><span class="id" title="definition">dcpo</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="CX:6" class="idref" href="#CX:6"><span class="id" title="binder">CX</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Basis.Continuous.html#continuous_dcpo_struct"><span class="id" title="definition">continuous_dcpo_struct</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:5"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="x:7" class="idref" href="#x:7"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:5"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#is_sharp"><span class="id" title="definition">is_sharp</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:7"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> (<a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">∀</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">(</span></a><a id="y:8" class="idref" href="#y:8"><span class="id" title="binder">y</span></a> <a id="z:9" class="idref" href="#z:9"><span class="id" title="binder">z</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:5"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:8"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.WayBelow.html#d12db9529d3067d113501f563f4ae6f2"><span class="id" title="notation">≪</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#z:9"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">⇒</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:8"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.WayBelow.html#d12db9529d3067d113501f563f4ae6f2"><span class="id" title="notation">≪</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:7"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">∨</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#z:9"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#bf53a3d03e05b96c226082344c9a7307"><span class="id" title="notation">⊄</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:7"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">)</span></a>)%<span class="id" title="var">logic</span>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#weqimplimpl"><span class="id" title="definition">weqimplimpl</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Hx</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">H</span> := <a class="idref" href="UniMath.OrderTheory.DCPOs.Basis.Continuous.html#unary_interpolation"><span class="id" title="lemma">unary_interpolation</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">u</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">u</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">u</span> [ <span class="id" title="var">q₁</span> <span class="id" title="var">q₂</span> ]].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">H</span> := <a class="idref" href="UniMath.OrderTheory.DCPOs.Basis.Continuous.html#unary_interpolation"><span class="id" title="lemma">unary_interpolation</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">q₂</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">v</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">v</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">v</span> [ <span class="id" title="var">r₁</span> <span class="id" title="var">r₂</span> ]].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">specialize</span> (<span class="id" title="var">Hx</span> <span class="id" title="var">u</span> <span class="id" title="var">v</span> <span class="id" title="var">r₁</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">Hx</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">s</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">s</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">s</span> | <span class="id" title="var">s</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.WayBelow.html#trans_way_below"><span class="id" title="lemma">trans_way_below</span></a> <span class="id" title="var">q₁</span> <span class="id" title="var">s</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">s</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invmap"><span class="id" title="definition">invmap</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#continuous_not_specialization_weq"><span class="id" title="lemma">continuous_not_specialization_weq</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">z</span> <span class="id" title="var">x</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<span class="id" title="var">v</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">r₂</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">s</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Hx</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">specialize</span> (<span class="id" title="var">Hx</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">Hx</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">q</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">q</span> | <span class="id" title="var">q</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> <span class="id" title="var">q</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#dcpo_not_specialization_le"><span class="id" title="lemma">dcpo_not_specialization_le</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 3. Tightness of the instrinsic apartness relation for sharp elements
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="is_sharp_to_le" class="idref" href="#is_sharp_to_le"><span class="id" title="lemma">is_sharp_to_le</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:10" class="idref" href="#X:10"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo"><span class="id" title="definition">dcpo</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="CX:11" class="idref" href="#CX:11"><span class="id" title="binder">CX</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Basis.Continuous.html#continuous_dcpo_struct"><span class="id" title="definition">continuous_dcpo_struct</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:10"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:12" class="idref" href="#x:12"><span class="id" title="binder">x</span></a> <a id="y:13" class="idref" href="#y:13"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:10"><span class="id" title="variable">X</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hy:14" class="idref" href="#Hy:14"><span class="id" title="binder">Hy</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#is_sharp"><span class="id" title="definition">is_sharp</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:13"><span class="id" title="variable">y</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:15" class="idref" href="#p:15"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">¬(</span></a><a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:12"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#bf53a3d03e05b96c226082344c9a7307"><span class="id" title="notation">⊄</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:13"><span class="id" title="variable">y</span></a><a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">)</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:12"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#33fa011e9130f9bd62c97cc82de6d228"><span class="id" title="notation">⊑</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:13"><span class="id" title="variable">y</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invmap"><span class="id" title="definition">invmap</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Basis.Continuous.html#continuous_dcpo_struct_le_via_approximation"><span class="id" title="lemma">continuous_dcpo_struct_le_via_approximation</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">H</span> := <a class="idref" href="UniMath.OrderTheory.DCPOs.Basis.Continuous.html#unary_interpolation"><span class="id" title="lemma">unary_interpolation</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">q</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a>.<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">H</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">u</span> [ <span class="id" title="var">r₁</span> <span class="id" title="var">r₂</span> ]].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">H</span> := <span class="id" title="var">Hy</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">r₁</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a>.<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">H</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">s</span> | <span class="id" title="var">s</span> ].<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">s</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">s</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#fromempty"><span class="id" title="definition">fromempty</span></a> (<span class="id" title="var">p</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.ScottTopology.html#upper_set_is_scott_open"><span class="id" title="lemma">upper_set_is_scott_open</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">u</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">r₂</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">w</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">s</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.WayBelow.html#way_below_to_le"><span class="id" title="lemma">way_below_to_le</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">w</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="is_sharp_tight_apartness" class="idref" href="#is_sharp_tight_apartness"><span class="id" title="lemma">is_sharp_tight_apartness</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:16" class="idref" href="#X:16"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo"><span class="id" title="definition">dcpo</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="CX:17" class="idref" href="#CX:17"><span class="id" title="binder">CX</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Basis.Continuous.html#continuous_dcpo_struct"><span class="id" title="definition">continuous_dcpo_struct</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:16"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:18" class="idref" href="#x:18"><span class="id" title="binder">x</span></a> <a id="y:19" class="idref" href="#y:19"><span class="id" title="binder">y</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:16"><span class="id" title="variable">X</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hx:20" class="idref" href="#Hx:20"><span class="id" title="binder">Hx</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#is_sharp"><span class="id" title="definition">is_sharp</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:18"><span class="id" title="variable">x</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hy:21" class="idref" href="#Hy:21"><span class="id" title="binder">Hy</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#is_sharp"><span class="id" title="definition">is_sharp</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:19"><span class="id" title="variable">y</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:22" class="idref" href="#p:22"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">¬(</span></a><a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:18"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#c315e69cfe64a7553bd8eefc2c065fa3"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:19"><span class="id" title="variable">y</span></a><a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">)</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:18"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:19"><span class="id" title="variable">y</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#antisymm_dcpo"><span class="id" title="lemma">antisymm_dcpo</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#is_sharp_to_le"><span class="id" title="lemma">is_sharp_to_le</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">Hy</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> <span class="id" title="var">q</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#is_sharp_to_le"><span class="id" title="lemma">is_sharp_to_le</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">Hx</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <span class="id" title="var">q</span>)).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 4. Cotransitivity of the intrinsic apartness relation for sharp elements
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="is_sharp_cotransitive_apartness_help" class="idref" href="#is_sharp_cotransitive_apartness_help"><span class="id" title="lemma">is_sharp_cotransitive_apartness_help</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:23" class="idref" href="#X:23"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo"><span class="id" title="definition">dcpo</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="CX:24" class="idref" href="#CX:24"><span class="id" title="binder">CX</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Basis.Continuous.html#continuous_dcpo_struct"><span class="id" title="definition">continuous_dcpo_struct</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:23"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:25" class="idref" href="#x:25"><span class="id" title="binder">x</span></a> <a id="y:26" class="idref" href="#y:26"><span class="id" title="binder">y</span></a> <a id="z:27" class="idref" href="#z:27"><span class="id" title="binder">z</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:23"><span class="id" title="variable">X</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hz:28" class="idref" href="#Hz:28"><span class="id" title="binder">Hz</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#is_sharp"><span class="id" title="definition">is_sharp</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#z:27"><span class="id" title="variable">z</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:29" class="idref" href="#p:29"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:25"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#bf53a3d03e05b96c226082344c9a7307"><span class="id" title="notation">⊄</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:26"><span class="id" title="variable">y</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:25"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#c315e69cfe64a7553bd8eefc2c065fa3"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#z:27"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">∨</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:26"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#c315e69cfe64a7553bd8eefc2c065fa3"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#z:27"><span class="id" title="variable">z</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">H</span> := <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#continuous_not_specialization_weq"><span class="id" title="lemma">continuous_not_specialization_weq</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a>.<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">u</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">u</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">u</span> [ <span class="id" title="var">q₁</span> <span class="id" title="var">q₂</span> ]].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">H</span> := <a class="idref" href="UniMath.OrderTheory.DCPOs.Basis.Continuous.html#unary_interpolation"><span class="id" title="lemma">unary_interpolation</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">q₁</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a>.<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">H</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">v</span> [ <span class="id" title="var">r₁</span> <span class="id" title="var">r₂</span> ]].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">H</span> := <span class="id" title="var">Hz</span> <span class="id" title="var">u</span> <span class="id" title="var">v</span> <span class="id" title="var">r₁</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a>.<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">s</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">s</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">s</span> | <span class="id" title="var">s</span> ].<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <span class="id" title="var">_</span>)))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invmap"><span class="id" title="definition">invmap</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#continuous_not_specialization_weq"><span class="id" title="lemma">continuous_not_specialization_weq</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">z</span> <span class="id" title="var">y</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<span class="id" title="var">u</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">s</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">q₂</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> <span class="id" title="var">_</span>)))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invmap"><span class="id" title="definition">invmap</span></a> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#continuous_not_specialization_weq"><span class="id" title="lemma">continuous_not_specialization_weq</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">x</span> <span class="id" title="var">z</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<span class="id" title="var">v</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">r₂</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">s</span>)).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="is_sharp_cotransitive_apartness" class="idref" href="#is_sharp_cotransitive_apartness"><span class="id" title="lemma">is_sharp_cotransitive_apartness</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:30" class="idref" href="#X:30"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.Basics.html#dcpo"><span class="id" title="definition">dcpo</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="CX:31" class="idref" href="#CX:31"><span class="id" title="binder">CX</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Basis.Continuous.html#continuous_dcpo_struct"><span class="id" title="definition">continuous_dcpo_struct</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:30"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:32" class="idref" href="#x:32"><span class="id" title="binder">x</span></a> <a id="y:33" class="idref" href="#y:33"><span class="id" title="binder">y</span></a> <a id="z:34" class="idref" href="#z:34"><span class="id" title="binder">z</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#X:30"><span class="id" title="variable">X</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Hz:35" class="idref" href="#Hz:35"><span class="id" title="binder">Hz</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#is_sharp"><span class="id" title="definition">is_sharp</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#z:34"><span class="id" title="variable">z</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:36" class="idref" href="#p:36"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:32"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#c315e69cfe64a7553bd8eefc2c065fa3"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:33"><span class="id" title="variable">y</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#x:32"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#c315e69cfe64a7553bd8eefc2c065fa3"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#z:34"><span class="id" title="variable">z</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">∨</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#y:33"><span class="id" title="variable">y</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.html#c315e69cfe64a7553bd8eefc2c065fa3"><span class="id" title="notation">#</span></a> <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#z:34"><span class="id" title="variable">z</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a>.<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">p</span> | <span class="id" title="var">p</span> ].<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#is_sharp_cotransitive_apartness_help"><span class="id" title="lemma">is_sharp_cotransitive_apartness_help</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">Hz</span> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">assert</span> (<span class="id" title="var">H</span> := <a class="idref" href="UniMath.OrderTheory.DCPOs.Elements.Sharp.html#is_sharp_cotransitive_apartness_help"><span class="id" title="lemma">is_sharp_cotransitive_apartness_help</span></a> <span class="id" title="var">CX</span> <span class="id" title="var">Hz</span> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Propositions.html#factor_through_squash"><span class="id" title="lemma">factor_through_squash</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">q</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">q</span> | <span class="id" title="var">q</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <span class="id" title="var">q</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> <span class="id" title="var">q</span>)).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

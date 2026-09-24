@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Tripos.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************************</span>
+
+<span class="sd"> Triposes</span>
+
+<span class="sd"> In the literature, various examples of toposes have been established. Among those, are</span>
+<span class="sd"> 1. Realizability toposes, which arise from partial combinatory algebras.</span>
+<span class="sd"> 2. Sets valued in a complete Heyting algebra.</span>
+<span class="sd"> These examples can be captured in various general frameworks, and one of them is given by</span>
+<span class="sd"> triposes. In essence, a tripos is a place where one can interpret first-order predicate logic</span>
+<span class="sd"> and where one has power sets. Concretely, this means that a tripos is given by a first-order</span>
+<span class="sd"> hyperdoctrine such that for every object `X` there is a powerset object `PX` and a membership</span>
+<span class="sd"> predicate on `X ×h PX`. There also is some kind of universal property that relates predicates</span>
+<span class="sd"> on `X` in context `Γ` and terms of type `PX`. This is expressed by the axiom (CA) in the</span>
+<span class="sd"> paper "Tripos Theory in Retrospect" by Andrew Pitts. This file gives the definition of</span>
+<span class="sd"> triposes.</span>
+
+<span class="sd"> The universal property of power sets can be expressed in two ways, and this gives rise to the</span>
+<span class="sd"> notion of tripos and that of weak tripos. In "Tripos Theory in Retrospect" by Andrew Pitts,</span>
+<span class="sd"> it is shown that any first-order hyperdoctrine that satisfies the axiom CA (Axiom 4.1) gives</span>
+<span class="sd"> rise to a topos. This axiom is fully expressed in the logic of the first-order hyperdoctrine,</span>
+<span class="sd"> and we say that a weak tripos is a first-order hyperdoctrine satisfying axiom CA. Note that</span>
+<span class="sd"> this axiom is both necessary and sufficient (Theorem 4.2). However, in practice, examples</span>
+<span class="sd"> satisfy a stronger condition, which is given in Definition 4.3. Definition 4.3 is not</span>
+<span class="sd"> expressed in the internal language of the hyperdoctrine, but instead witnesses are given.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Tripos Theory in Retrospect" by Andrew Pitts</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Triposes</span>
+<span class="sd"> 2. Some substitutions necessary to define weak triposes</span>
+<span class="sd"> 3. The definition of weak triposes</span>
+<span class="sd"> 4. Every tripos is a weak tripos</span>
+
+<span class="sd"> **********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="sd">(** * 1. Tripos *)</span>
+<span class="kn">Definition</span> <span class="nf">is_power_object_tripos</span>
+           {<span class="nv">H</span> : first_order_preorder_hyperdoctrine}
+           (<span class="nv">X</span> : ty H)
+           (<span class="nv">PX</span> : ty H)
+           (<span class="nv">inX</span> : form (X ×h PX))
+  : UU
+  := ∏ (Γ : ty H)
+       (R : form (X ×h Γ)),
+     ∑ (f : tm Γ PX),
+     R
+     =
+     inX [ ⟨ π₁ (tm_var _) , f [ π₂ (tm_var _) ]tm ⟩ ].
+
+<span class="kn">Definition</span> <span class="nf">is_preorder_tripos</span>
+           (<span class="nv">H</span> : first_order_preorder_hyperdoctrine)
+  : UU
+  := ∏ (X : ty H),
+     ∑ (PX : ty H)
+       (inX : form (X ×h PX)),
+     is_power_object_tripos X PX inX.
+
+<span class="kn">Definition</span> <span class="nf">preorder_tripos</span>
+  : UU
+  := ∑ (H : first_order_preorder_hyperdoctrine), is_preorder_tripos H.
+
+<span class="kn">Coercion</span> <span class="nf">preorder_tripos_to_first_order_hyperdoctrine</span>
+         (H : preorder_tripos)
+  : first_order_preorder_hyperdoctrine.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_tripos</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+           (<span class="nv">H'</span> := first_order_hyperdoctrine_to_preorder_hyperdoctrine H)
+  : UU
+  := ∏ (X : ty H'),
+     ∑ (PX : ty H')
+       (inX : form (X ×h PX)),
+     is_power_object_tripos X PX inX.
+
+<span class="kn">Definition</span> <span class="nf">tripos</span>
+  : UU
+  := ∑ (H : first_order_hyperdoctrine), is_tripos H.
+
+<span class="kn">Coercion</span> <span class="nf">tripos_to_first_order_hyperdoctrine</span>
+         (H : tripos)
+  : first_order_hyperdoctrine.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">tripos_power</span>
+           {<span class="nv">H</span> : tripos}
+           (<span class="nv">X</span> : ty H)
+  : ty H
+  := pr1 (pr2 H X).
+
+<span class="kn">Notation</span> <span class="s2">"'ℙ'"</span> := tripos_power. <span class="c">(* \bP *)</span>
+
+<span class="kn">Definition</span> <span class="nf">tripos_in</span>
+           {<span class="nv">H</span> : tripos}
+           (<span class="nv">X</span> : ty H)
+  : form (X ×h ℙ X)
+  := pr12 (pr2 H X).
+
+<span class="kn">Notation</span> <span class="s2">"x ∈ P"</span> := ((tripos_in _) [ ⟨ x , P ⟩ ]).
+
+<span class="kn">Proposition</span> <span class="nf">tripos_in_subst</span>
+            {<span class="nv">H</span> : tripos}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">X</span> : ty H}
+            (<span class="nv">x</span> : tm Γ₂ X)
+            (<span class="nv">P</span> : tm Γ₂ (ℙ X))
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+  : (x ∈ P) [ s ]
+    =
+    ((x [ s ]tm) ∈ (P [ s ]tm)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> tripos_in.
+  hypersimplify.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">tripos_compr</span>
+           {<span class="nv">H</span> : tripos}
+           {<span class="nv">X</span> : ty H}
+           {<span class="nv">Γ</span> : ty H}
+           (<span class="nv">R</span> : form (X ×h Γ))
+  : tm Γ (ℙ X)
+  := pr1 (pr22 (pr2 H X) Γ R).
+
+<span class="kn">Notation</span> <span class="s2">"{{ R }}"</span> := (tripos_compr R).
+
+<span class="kn">Proposition</span> <span class="nf">mor_to_tripos_power_eq</span>
+            {<span class="nv">H</span> : tripos}
+            (<span class="nv">X</span> : ty H)
+            (<span class="nv">Γ</span> : ty H)
+            (<span class="nv">R</span> : form (X ×h Γ))
+            (<span class="nv">x</span> := π₁ (tm_var (X ×h Γ)))
+            (<span class="nv">γ</span> := π₂ (tm_var (X ×h Γ)))
+  : R = (x ∈ ({{ R }} [ γ ]tm)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (pr22 (pr2 H X) Γ R)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">mor_to_tripos_power_f</span>
+            {<span class="nv">H</span> : tripos}
+            (<span class="nv">X</span> : ty H)
+            (<span class="nv">Γ</span> : ty H)
+            (<span class="nv">R</span> : form (X ×h Γ))
+            (<span class="nv">Δ</span> : form (X ×h Γ))
+            (<span class="nv">x</span> := π₁ (tm_var (X ×h Γ)))
+            (<span class="nv">γ</span> := π₂ (tm_var (X ×h Γ)))
+            (<span class="nv">p</span> : Δ ⊢ R)
+  : Δ ⊢ x ∈ ({{ R }} [ γ ]tm).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_cut p _).
+  <span class="bp">exact</span> (hyperdoctrine_formula_eq_f (mor_to_tripos_power_eq  X Γ R)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">mor_to_tripos_power_b</span>
+            {<span class="nv">H</span> : tripos}
+            (<span class="nv">X</span> : ty H)
+            (<span class="nv">Γ</span> : ty H)
+            (<span class="nv">R</span> : form (X ×h Γ))
+            (<span class="nv">Δ</span> : form (X ×h Γ))
+            (<span class="nv">x</span> := π₁ (tm_var (X ×h Γ)))
+            (<span class="nv">γ</span> := π₂ (tm_var (X ×h Γ)))
+            (<span class="nv">p</span> : Δ ⊢ x ∈ {{ R }} [ γ ]tm)
+  : Δ ⊢ R.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_cut p _).
+  <span class="bp">exact</span> (hyperdoctrine_formula_eq_b (mor_to_tripos_power_eq  X Γ R)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_tripos</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+           (<span class="nv">HH</span> : is_tripos H)
+  : tripos
+  := H ,, HH.
+
+<span class="sd">(** * 2. Some substitutions necessary to define weak triposes *)</span>
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_sub_pr_1_of_4</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : ty H}
+  : tm (((A ×h B) ×h C) ×h D) A
+  := π₁ (π₁ (π₁ (tm_var _))).
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_sub_pr_2_of_4</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : ty H}
+  : tm (((A ×h B) ×h C) ×h D) B
+  := π₂ (π₁ (π₁ (tm_var _))).
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_sub_pr_3_of_4</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : ty H}
+  : tm (((A ×h B) ×h C) ×h D) C
+  := π₂ (π₁ (tm_var _)).
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_sub_pr_4_of_4</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : ty H}
+  : tm (((A ×h B) ×h C) ×h D) D
+  := π₂ (tm_var _).
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_sub_pr_4_3</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : ty H}
+  : tm (((A ×h B) ×h C) ×h D) (D ×h C)
+  := ⟨ hyperdoctrine_sub_pr_4_of_4 , hyperdoctrine_sub_pr_3_of_4 ⟩.
+
+<span class="kn">Definition</span> <span class="nf">hyperdoctrine_sub_pr_4_2</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : ty H}
+  : tm (((A ×h B) ×h C) ×h D) (D ×h B)
+  := ⟨ hyperdoctrine_sub_pr_4_of_4 , hyperdoctrine_sub_pr_2_of_4 ⟩.
+
+<span class="kn">Arguments</span> hyperdoctrine_sub_pr_1_of_4 {_ _ _ _ _} /.
+<span class="kn">Arguments</span> hyperdoctrine_sub_pr_2_of_4 {_ _ _ _ _} /.
+<span class="kn">Arguments</span> hyperdoctrine_sub_pr_3_of_4 {_ _ _ _ _} /.
+<span class="kn">Arguments</span> hyperdoctrine_sub_pr_4_of_4 {_ _ _ _ _} /.
+<span class="kn">Arguments</span> hyperdoctrine_sub_pr_4_3 {_ _ _ _ _} /.
+<span class="kn">Arguments</span> hyperdoctrine_sub_pr_4_2 {_ _ _ _ _} /.
+
+<span class="sd">(** * 3. The definition of weak triposes *)</span>
+<span class="kn">Definition</span> <span class="nf">is_weak_tripos_law</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">X</span> : ty H}
+           {<span class="nv">PX</span> : ty H}
+           (<span class="nv">inX</span> : form (X ×h PX))
+  : UU
+  := ∏ (Γ : ty H)
+       (R : form (X ×h Γ)),
+     <span class="k">let</span> <span class="nv">s₁</span> := (hyperdoctrine_sub_pr_4_3 : tm (((<span class="mi">𝟙</span> ×h Γ) ×h PX) ×h X) _) <span class="k">in</span>
+     <span class="k">let</span> <span class="nv">s₂</span> := (hyperdoctrine_sub_pr_4_2 : tm (((<span class="mi">𝟙</span> ×h Γ) ×h PX) ×h X) _) <span class="k">in</span>
+     ⊤ ⊢ (<span class="k">∀</span><span class="nv">h</span> <span class="k">∃</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span> (<span class="nv">inX</span> [ s₁ ] ⇔ R [ s₂ ])).
+
+<span class="kn">Definition</span> <span class="nf">is_weak_tripos</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+  : UU
+  := ∏ (X : ty H),
+     ∑ (PX : ty H)
+       (inX : form (X ×h PX)),
+     is_weak_tripos_law inX.
+
+<span class="kn">Definition</span> <span class="nf">weak_tripos</span>
+  : UU
+  := ∑ (H : first_order_hyperdoctrine), is_weak_tripos H.
+
+<span class="kn">Coercion</span> <span class="nf">weak_tripos_to_first_order_hyperdoctrine</span>
+         (H : weak_tripos)
+  : first_order_hyperdoctrine.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_weak_tripos</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+           (<span class="nv">HH</span> : is_weak_tripos H)
+  : weak_tripos
+  := H ,, HH.
+
+<span class="sd">(** * 4. Every tripos is a weak tripos *)</span>
+<span class="kn">Proposition</span> <span class="nf">tripos_to_weak_tripos_law</span>
+            {<span class="nv">H</span> : tripos}
+            (<span class="nv">X</span> : ty H)
+  : is_weak_tripos_law (tripos_in X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Γ R.
+  use forall_intro.
+  use exists_intro.
+  - <span class="bp">exact</span> ({{ R }} [ π₂ (tm_var _) ]tm).
+  - <span class="nb">cbn</span> ; hypersimplify.
+    use forall_intro.
+    <span class="nb">pose</span> (x :=  π₂ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h X))).
+    <span class="nb">pose</span> (γ := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h Γ) ×h X)))).
+    <span class="nb">fold</span> x γ.
+    use iff_intro.
+    + use weaken_right.
+      <span class="nb">refine</span> (hyperdoctrine_cut
+                _
+                (hyperdoctrine_proof_subst
+                   ⟨ x , γ ⟩
+                   (mor_to_tripos_power_b X Γ R _ (hyperdoctrine_hyp _)))).
+      <span class="nb">rewrite</span> tripos_in_subst.
+      hypersimplify.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    + use weaken_right.
+      <span class="nb">refine</span> (hyperdoctrine_cut
+                (hyperdoctrine_proof_subst
+                   ⟨ x , γ ⟩
+                   (mor_to_tripos_power_f X Γ R _ (hyperdoctrine_hyp _)))
+                _).
+      <span class="nb">rewrite</span> tripos_in_subst.
+      hypersimplify.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">tripos_to_weak_tripos</span>
+           (<span class="nv">H</span> : tripos)
+  : is_weak_tripos H.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _).
+  - <span class="bp">exact</span> (ℙ X).
+  - <span class="bp">exact</span> (tripos_in X).
+  - <span class="bp">exact</span> (tripos_to_weak_tripos_law X).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/Tripos.v</tt>, line 36)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Every tripos is a weak tripos
+  &gt;
+  &gt;  **********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

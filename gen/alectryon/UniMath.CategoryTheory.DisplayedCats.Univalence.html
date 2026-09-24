@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Univalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="sd">(** ** Saturation: displayed univalent categories *)</span>
+<span class="kn">Section</span> <span class="nf">Univalent_Categories</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_disp</span> {<span class="nv">C</span>} (<span class="nv">D</span> : disp_cat C)
+    := ∏ x x' (e : x = x') (xx : D x) (xx' : D x'),
+      isweq (<span class="k">λ</span> <span class="nv">ee</span>, @idtoiso_disp _ _ _ _ e xx xx' ee).
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_univalent_disp</span>
+             {<span class="nv">C</span> : category}
+             (<span class="nv">D</span> : disp_cat C)
+    : isaprop (is_univalent_disp D).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_univalent_disp.
+    <span class="kp">do</span> <span class="mi">5</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropisweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_in_fibers</span> {<span class="nv">C</span>} (<span class="nv">D</span> : disp_cat C) : UU
+    := ∏ x (xx xx' : D x), isweq (<span class="k">fun</span> <span class="nv">e</span> : xx = xx' =&gt; idtoiso_fiber_disp e).
+
+  <span class="c">(* TODO: maybe rename further.  *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_disp_from_fibers</span> {<span class="nv">C</span>} {<span class="nv">D</span> : disp_cat C}
+    : is_univalent_in_fibers D
+      -&gt; is_univalent_disp D.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H x x' e. <span class="nb">destruct</span> e. <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_in_fibers_from_univalent_disp</span> {<span class="nv">C</span>} (<span class="nv">D</span> : disp_cat C)
+    : is_univalent_disp D -&gt; is_univalent_in_fibers D.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_univalent_disp , is_univalent_in_fibers.
+    <span class="nb">intros</span> H x xx xx'.
+    <span class="nb">specialize</span> (H x x (idpath _ ) xx xx').
+    <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">univalent_disp_cat_has_groupoid_obs</span> {<span class="nv">C</span>} (<span class="nv">D</span> : disp_cat C)
+        (<span class="nv">is_u</span> : is_univalent_disp D) : ∏ c, isofhlevel <span class="mi">3</span> (D c).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> c.
+    <span class="nb">change</span> (isofhlevel <span class="mi">3</span> (D c)) <span class="k">with</span>
+      (∏ a b : D c, isofhlevel <span class="mi">2</span> (a = b)).
+    <span class="nb">intros</span> xx xx'.
+    <span class="nb">set</span> (XR := is_univalent_in_fibers_from_univalent_disp _ is_u).
+    <span class="nb">apply</span> (isofhlevelweqb _ (make_weq _ (XR _ xx xx'))).
+    <span class="nb">apply</span> isaset_z_iso_disp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_univalent_category</span> <span class="nv">C</span>
+    := ∑ D : disp_cat C, is_univalent_disp D.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_univalent_category</span>
+             {<span class="nv">C</span>} {<span class="nv">D</span> : disp_cat C} (<span class="nv">H</span> : is_univalent_disp D)
+    : disp_univalent_category C
+    := (D,,H).
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_disp_univalent_cat</span> {<span class="nv">C</span>} (<span class="nv">D</span> : disp_univalent_category C)
+    : disp_cat C
+    := pr1 D.
+  <span class="kn">Coercion</span> <span class="nf">disp_cat_of_disp_univalent_cat</span> : disp_univalent_category &gt;-&gt; disp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">disp_univalent_category_is_univalent_disp</span> {<span class="nv">C</span>} (<span class="nv">D</span> : disp_univalent_category C)
+    : is_univalent_disp D
+    := pr2 D.
+  <span class="kn">Coercion</span> <span class="nf">disp_univalent_category_is_univalent_disp</span> : disp_univalent_category &gt;-&gt; is_univalent_disp.
+
+  <span class="kn">Definition</span> <span class="nf">isotoid_disp</span>
+             {<span class="nv">C</span>} {<span class="nv">D</span> : disp_cat C} (<span class="nv">D_cat</span> : is_univalent_disp D)
+             {<span class="nv">c</span> <span class="nv">c'</span> : C} (<span class="nv">e</span> : c = c') {<span class="nv">d</span> : D c} {<span class="nv">d'</span>} (<span class="nv">i</span> : z_iso_disp (idtoiso e) d d')
+    : transportf _ e d = d'.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (invmap (make_weq (idtoiso_disp e) (D_cat _ _ _ _ _)) i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">idtoiso_isotoid_disp</span>
+             {<span class="nv">C</span>} {<span class="nv">D</span> : disp_cat C} (<span class="nv">D_cat</span> : is_univalent_disp D)
+             {<span class="nv">c</span> <span class="nv">c'</span> : C} (<span class="nv">e</span> : c = c') {<span class="nv">d</span> : D c} {<span class="nv">d'</span>} (<span class="nv">i</span> : z_iso_disp (idtoiso e) d d')
+    : idtoiso_disp e (isotoid_disp D_cat e i) = i.
+  <span class="kn">Proof</span>.
+    use homotweqinvweq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isotoid_idtoiso_disp</span>
+             {<span class="nv">C</span>} {<span class="nv">D</span> : disp_cat C} (<span class="nv">D_cat</span> : is_univalent_disp D)
+             {<span class="nv">c</span> <span class="nv">c'</span> : C} (<span class="nv">e</span> : c = c') {<span class="nv">d</span> : D c} {<span class="nv">d'</span>} (<span class="nv">ee</span> : transportf _ e d = d')
+    : isotoid_disp D_cat e (idtoiso_disp e ee) = ee.
+  <span class="kn">Proof</span>.
+    use homotinvweqweq.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Univalent_Categories</span>.
+
+<span class="sd">(** The displayed objects in a univalent displayed category form a set if it is locally propositional *)</span>
+<span class="kn">Definition</span> <span class="nf">isaset_disp_ob</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">D</span> : disp_univalent_category C)
+           (<span class="nv">H</span> : locally_propositional D)
+           (<span class="nv">x</span> : C)
+  : isaset (D x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> xx xx'.
+  use (isofhlevelweqb
+         <span class="mi">1</span>
+         (make_weq
+            _
+            (disp_univalent_category_is_univalent_disp D x x (idpath _) xx xx'))).
+  use isaproptotal2.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_z_iso_disp.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Univalence.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

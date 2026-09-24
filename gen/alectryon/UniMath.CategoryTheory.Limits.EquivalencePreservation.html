@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EquivalencePreservation.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Equivalences and (co)limits</span>
+
+<span class="sd"> Whenever we have two categories and equivalence between them, then they inherit limits and</span>
+<span class="sd"> colimits from each other. We show this for several classes of limits and colimits.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Equivalences and limits (backward preservation)</span>
+<span class="sd"> 2. Equivalences and colimits (forward preservation)</span>
+<span class="sd"> 3. Equivalences and limits (forward preservation)</span>
+<span class="sd"> 4. Equivalences and colimits (backward preservation)</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.LimitIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Equivalence</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">L</span> : C₁ ⟶ C₂}
+          (<span class="nv">HL</span> : adj_equivalence_of_cats L).
+
+  <span class="kn">Let</span> <span class="nf">R</span> : C₂ ⟶ C₁ := right_adjoint HL.
+  <span class="kn">Let</span> <span class="nf">ε</span> : nat_z_iso (R ∙ L) (functor_identity C₂)
+    := counit_nat_z_iso_from_adj_equivalence_of_cats HL.
+  <span class="kn">Let</span> <span class="nf">η</span> : nat_z_iso (functor_identity C₁) (L ∙ R)
+    := unit_nat_z_iso_from_adj_equivalence_of_cats HL.
+
+  <span class="sd">(** * 1. Equivalences and limits (backward preservation) *)</span>
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_preserves_terminal_b</span>
+             (<span class="nv">T</span> : Terminal C₂)
+    : Terminal C₁
+    := make_Terminal
+         _
+         (right_adjoint_preserves_terminal _ HL _ (pr2 T)).
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_preserves_binproducts_b</span>
+             (<span class="nv">P</span> : BinProducts C₂)
+    : BinProducts C₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">pose</span> (H := pr2 (P (L x) (L y))).
+    <span class="nb">pose</span> (prod := make_BinProduct
+                    _ _ _ _ _ _
+                    (right_adjoint_preserves_binproduct _ HL _ _ _ _ _ H)).
+    use (BinProduct_z_iso_lr prod).
+    - <span class="nb">apply</span> (nat_z_iso_pointwise_z_iso η).
+    - <span class="nb">apply</span> (nat_z_iso_pointwise_z_iso η).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_preserves_equalizers_b</span>
+             (<span class="nv">E</span> : Equalizers C₂)
+    : Equalizers C₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g.
+    use (Equalizer_z_iso_lr
+           (make_Equalizer
+              _ _ _ _
+              (right_adjoint_preserves_equalizer
+                 _ HL
+                 _ _ _ _ _ _ _ _
+                 (isEqualizer_Equalizer (E (L x) (L y) (#L f) (#L g)))))).
+    - <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> EqualizerEqAr.
+    - <span class="nb">apply</span> (nat_z_iso_pointwise_z_iso η).
+    - <span class="nb">apply</span> (nat_z_iso_pointwise_z_iso η).
+    - <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (!(nat_trans_ax η _ _ f))).
+    - <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (!(nat_trans_ax η _ _ g))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Equivalences and colimits (forward preservation) *)</span>
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_preserves_initial_f</span>
+             (<span class="nv">I</span> : Initial C₁)
+    : Initial C₂
+    := make_Initial
+         _
+         (left_adjoint_preserves_initial _ HL _ (pr2 I)).
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_preserves_bincoproducts_f</span>
+             (<span class="nv">P</span> : BinCoproducts C₁)
+    : BinCoproducts C₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">pose</span> (H := pr2 (P (R x) (R y))).
+    <span class="nb">pose</span> (prod := make_BinCoproduct
+                    _ _ _ _ _ _
+                    (left_adjoint_preserves_bincoproduct _ HL _ _ _ _ _ H)).
+    use (BinCoproduct_z_iso_lr prod).
+    - <span class="nb">apply</span> (nat_z_iso_pointwise_z_iso ε).
+    - <span class="nb">apply</span> (nat_z_iso_pointwise_z_iso ε).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Equivalence</span>.
+
+<span class="kn">Section</span> <span class="nf">Equivalence</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">L</span> : C₂ ⟶ C₁}
+          (<span class="nv">HL</span> : adj_equivalence_of_cats L).
+
+  <span class="sd">(** * 3. Equivalences and limits (forward preservation) *)</span>
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_preserves_terminal_f</span>
+             (<span class="nv">T</span> : Terminal C₂)
+    : Terminal C₁
+    := adj_equiv_preserves_terminal_b
+         (adj_equivalence_of_cats_inv HL)
+         T.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_preserves_binproducts_f</span>
+             (<span class="nv">P</span> : BinProducts C₂)
+    : BinProducts C₁
+    := adj_equiv_preserves_binproducts_b
+         (adj_equivalence_of_cats_inv HL)
+         P.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_preserves_equalizers_f</span>
+             (<span class="nv">E</span> : Equalizers C₂)
+    : Equalizers C₁
+    := adj_equiv_preserves_equalizers_b
+         (adj_equivalence_of_cats_inv HL)
+         E.
+
+  <span class="sd">(** * 4. Equivalences and colimits (backward preservation) *)</span>
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_preserves_initial_b</span>
+             (<span class="nv">I</span> : Initial C₁)
+    : Initial C₂
+    := adj_equiv_preserves_initial_f
+         (adj_equivalence_of_cats_inv HL)
+         I.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_preserves_bincoproducts_b</span>
+             (<span class="nv">P</span> : BinCoproducts C₁)
+    : BinCoproducts C₂
+    := adj_equiv_preserves_bincoproducts_f
+         (adj_equivalence_of_cats_inv HL)
+         P.
+<span class="kn">End</span> <span class="nf">Equivalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/EquivalencePreservation.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Equivalences and colimits (backward preservation)
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

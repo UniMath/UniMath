@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EsosInBicatOfUnivCats.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd"> Morphisms in the bicat of univalent categories</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Esos</span>
+<span class="sd"> 2. (eso, ff)-factorization</span>
+<span class="sd"> 3. Esos are closed under pullback</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IsoCommaCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Eso.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Examples.MorphismsInBicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.PullbackFunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Esos</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">EsoIsEssentiallySurjective</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          {<span class="nv">F</span> : C₁ --&gt; C₂}
+          (<span class="nv">HF</span> : is_eso F).
+
+  <span class="kn">Let</span> <span class="nf">im</span> : bicat_of_univ_cats := univalent_image F.
+  <span class="kn">Let</span> <span class="nf">fim</span> : C₁ --&gt; im := functor_full_img F.
+  <span class="kn">Let</span> <span class="nf">π</span> : im --&gt; C₂ := sub_precategory_inclusion _ _.
+
+  <span class="kn">Definition</span> <span class="nf">eso_is_essentially_surjective_inv2cell</span>
+    : invertible_2cell (fim · π) (F · id₁ C₂).
+  <span class="kn">Proof</span>.
+    use nat_z_iso_to_invertible_2cell.
+    use make_nat_z_iso.
+    - use make_nat_trans.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, identity _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> identity_is_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eso_is_essentially_surjective_lift</span>
+    : C₂ --&gt; im
+    := is_eso_lift_1
+         _
+         HF
+         (cat_fully_faithful_is_fully_faithful_1cell
+            π
+            (fully_faithful_sub_precategory_inclusion _ _))
+         fim
+         (id₁ _)
+         eso_is_essentially_surjective_inv2cell.
+
+  <span class="kn">Let</span> <span class="nf">φ</span> := eso_is_essentially_surjective_lift.
+
+  <span class="kn">Definition</span> <span class="nf">eso_is_essentially_surjective</span>
+    : essentially_surjective F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use (factor_through_squash _ _ (pr2 (pr1 φ x))).
+    {
+      <span class="nb">apply</span> ishinh.
+    }
+    <span class="nb">intros</span> q.
+    use hinhpr.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (pr1 q).
+    - <span class="nb">simpl</span>.
+      <span class="nb">refine</span> (z_iso_comp (pr2 q) _).
+      <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso
+               (invertible_2cell_to_nat_z_iso
+                  _ _
+                  (is_eso_lift_1_comm_right
+                     _
+                     HF
+                     (cat_fully_faithful_is_fully_faithful_1cell
+                        π
+                        (fully_faithful_sub_precategory_inclusion _ _))
+                     fim
+                     (id₁ _)
+                     eso_is_essentially_surjective_inv2cell))
+               x).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EsoIsEssentiallySurjective</span>.
+
+<span class="kn">Section</span> <span class="nf">EssentiallySurjectiveIsEso</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          {<span class="nv">F</span> : C₁ --&gt; C₂}
+          (<span class="nv">HF</span> : essentially_surjective F).
+
+  <span class="kn">Section</span> <span class="nf">EssentiallySurjectiveEsoFull</span>.
+    <span class="kn">Context</span> {<span class="nv">D₁</span> <span class="nv">D₂</span> : bicat_of_univ_cats}
+            {<span class="nv">G</span> : D₁ --&gt; D₂}
+            (<span class="nv">HG</span> : fully_faithful_1cell G)
+            {<span class="nv">H₁</span> <span class="nv">H₂</span> : C₂ --&gt; D₁}
+            (<span class="nv">n₁</span> : F · H₁ ==&gt; F · H₂)
+            (<span class="nv">n₂</span> : H₁ · G ==&gt; H₂ · G)
+            (<span class="nv">p</span> : (n₁ ▹ G) • rassociator F H₂ G
+                 =
+                 rassociator F H₁ G • (F ◃ n₂)).
+
+    <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_lift_2_data</span>
+      : nat_trans_data (pr1 H₁) (pr1 H₂)
+      := <span class="k">λ</span> <span class="nv">x</span>, invmap
+                (make_weq
+                   _
+                   (cat_fully_faithful_1cell_is_fully_faithful
+                      _
+                      HG
+                      (pr1 H₁ x)
+                      (pr1 H₂ x)))
+                (pr1 n₂ x).
+
+    <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_lift_2_is_nat_trans</span>
+      : is_nat_trans _ _ essentially_surjective_is_eso_lift_2_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f.
+      <span class="nb">unfold</span> essentially_surjective_is_eso_lift_2_data.
+      <span class="nb">pose</span> (H := homotinvweqweq
+                   (make_weq
+                      _
+                      (cat_fully_faithful_1cell_is_fully_faithful
+                         _
+                         HG
+                         (pr1 H₁ x)
+                         (pr1 H₂ y)))).
+      <span class="nb">refine</span> (!(H _) @ _ @ H _) ; <span class="nb">clear</span> H.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !functor_comp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (homotweqinvweq
+                 (make_weq
+                    _
+                    (cat_fully_faithful_1cell_is_fully_faithful
+                       _
+                       HG
+                       (pr1 H₁ y)
+                       (pr1 H₂ y)))).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (homotweqinvweq
+                 (make_weq
+                    _
+                    (cat_fully_faithful_1cell_is_fully_faithful
+                       _
+                       HG
+                       (pr1 H₁ x)
+                       (pr1 H₂ x)))).
+      }
+      <span class="bp">exact</span> (!(nat_trans_ax n₂ _ _ f)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_lift_2</span>
+      : H₁ ==&gt; H₂.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> essentially_surjective_is_eso_lift_2_data.
+      - <span class="bp">exact</span> essentially_surjective_is_eso_lift_2_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_lift_2_left</span>
+      : F ◃ essentially_surjective_is_eso_lift_2 = n₁.
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> essentially_surjective_is_eso_lift_2_data.
+      <span class="nb">pose</span> (H := homotinvweqweq
+                   (make_weq
+                      _
+                      (cat_fully_faithful_1cell_is_fully_faithful
+                         _
+                         HG
+                         (pr1 H₁ (pr1 F x))
+                         (pr1 H₂ (pr1 F x))))).
+      <span class="nb">refine</span> (!(H _) @ _ @ H _) ; <span class="nb">clear</span> H.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> (homotweqinvweq
+                 (make_weq
+                    _
+                    (cat_fully_faithful_1cell_is_fully_faithful
+                       _
+                       HG
+                       (pr1 H₁ (pr1 F x))
+                       (pr1 H₂ (pr1 F x))))).
+      }
+      <span class="nb">refine</span> (_ @ !(nat_trans_eq_pointwise p x) @ _) ; <span class="nb">cbn</span>.
+      - <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_lift_2_right</span>
+      : essentially_surjective_is_eso_lift_2 ▹ G = n₂.
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> essentially_surjective_is_eso_lift_2_data.
+      <span class="nb">apply</span> (homotweqinvweq
+                 (make_weq
+                    _
+                    (cat_fully_faithful_1cell_is_fully_faithful
+                       _
+                       HG
+                       _ _))).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">EssentiallySurjectiveEsoFull</span>.
+
+  <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_full</span>
+    : is_eso_full F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> D₁ D₂ G HG H₁ H₂ n₁ n₂ p.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (essentially_surjective_is_eso_lift_2 HG n₂).
+    - <span class="bp">exact</span> (essentially_surjective_is_eso_lift_2_left HG _ _ p).
+    - <span class="nb">apply</span> essentially_surjective_is_eso_lift_2_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_faithful</span>
+    : is_eso_faithful F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> D₁ D₂ G HG H₁ H₂ n₁ n₂ p₁ p₂.
+    use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">intro</span> y.
+    use (factor_through_squash _ _ (HF y)).
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> xx.
+      <span class="nb">induction</span> xx <span class="k">as</span> [ x i ].
+      use (cancel_z_iso' (functor_on_z_iso H₁ i)).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !nat_trans_ax.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (nat_trans_eq_pointwise p₁ x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">EssentiallySurjectiveLift</span>.
+    <span class="kn">Context</span> {<span class="nv">D₁</span> <span class="nv">D₂</span> : bicat_of_univ_cats}
+            {<span class="nv">G</span> : D₁ --&gt; D₂}
+            (<span class="nv">HG</span> : fully_faithful_1cell G)
+            (<span class="nv">H₁</span> : C₁ --&gt; D₁)
+            (<span class="nv">H₂</span> : C₂ --&gt; D₂)
+            (<span class="nv">α</span> : invertible_2cell (H₁ · G) (F · H₂)).
+
+    <span class="kn">Let</span> <span class="nf">HG'</span> : fully_faithful G
+      := cat_fully_faithful_1cell_is_fully_faithful _ HG.
+    <span class="kn">Let</span> <span class="nf">α'</span> : nat_z_iso (H₁ ∙ G) (F ∙ H₂)
+      := invertible_2cell_to_nat_z_iso _ _ α.
+
+    <span class="kn">Local Definition</span> <span class="nf">isaprop_ob_fiber</span>
+               (<span class="nv">y</span> : pr1 C₂)
+      : isaprop (∑ (x : pr1 D₁), z_iso (pr1 G x) (pr1 H₂ y)).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use total2_paths_f.
+      - <span class="nb">apply</span> (isotoid _ (pr2 D₁)).
+        <span class="bp">exact</span> (make_z_iso'
+                 _
+                 (fully_faithful_reflects_iso_proof
+                    _ _ _
+                    HG'
+                    _ _
+                    (z_iso_comp (pr2 φ₁) (z_iso_inv_from_z_iso (pr2 φ₂))))).
+      - use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isaprop_is_z_isomorphism.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> transportf_z_iso_functors.
+        }
+        <span class="nb">rewrite</span> functor_on_inv_from_z_iso.
+        use z_iso_inv_on_right.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> idtoiso_isotoid.
+          <span class="nb">apply</span> (homotweqinvweq (make_weq _ (HG' _ _)) _).
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">apply</span> id_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">iscontr_ob_fiber</span>
+               (<span class="nv">y</span> : pr1 C₂)
+      : iscontr (∑ (x : pr1 D₁), z_iso (pr1 G x) (pr1 H₂ y)).
+    <span class="kn">Proof</span>.
+      use (factor_through_squash _ _ (HF y)).
+      - <span class="nb">apply</span> isapropiscontr.
+      - <span class="nb">intros</span> z.
+        use iscontraprop1.
+        + <span class="bp">exact</span> (isaprop_ob_fiber y).
+        + <span class="nb">refine</span> (pr1 H₁ (pr1 z) ,, _).
+          <span class="bp">exact</span> (z_iso_comp
+                   (nat_z_iso_pointwise_z_iso α' (pr1 z))
+                   (functor_on_z_iso H₂ (pr2 z))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">isaprop_mor_fiber</span>
+               {<span class="nv">y₁</span> <span class="nv">y₂</span> : pr1 C₂}
+               (<span class="nv">g</span> : y₁ --&gt; y₂)
+               {<span class="nv">x₁</span> <span class="nv">x₂</span> : pr1 D₁}
+               (<span class="nv">i₁</span> : z_iso (pr1 G x₁) (pr1 H₂ y₁))
+               (<span class="nv">i₂</span> : z_iso (pr1 G x₂) (pr1 H₂ y₂))
+      : isaprop (∑ (f : x₁ --&gt; x₂), i₁ · # (pr1 H₂) g = # (pr1 G) f · i₂).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      use (invmaponpathsweq (make_weq _ (HG' x₁ x₂))) ; <span class="nb">cbn</span>.
+      use (cancel_z_iso _ _ i₂).
+      <span class="bp">exact</span> (!(pr2 φ₁) @ pr2 φ₂).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">iscontr_mor_fiber</span>
+               {<span class="nv">y₁</span> <span class="nv">y₂</span> : pr1 C₂}
+               (<span class="nv">g</span> : y₁ --&gt; y₂)
+               {<span class="nv">x₁</span> <span class="nv">x₂</span> : pr1 D₁}
+               (<span class="nv">i₁</span> : z_iso (pr1 G x₁) (pr1 H₂ y₁))
+               (<span class="nv">i₂</span> : z_iso (pr1 G x₂) (pr1 H₂ y₂))
+      : iscontr (∑ (f : x₁ --&gt; x₂),
+                 i₁ · # (pr1 H₂) g
+                 =
+                 # (pr1 G) f · i₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (HG'' := pr1 (fully_faithful_implies_full_and_faithful _ _ _ HG')
+                        x₁ x₂
+                        (i₁ · #(pr1 H₂) g · inv_from_z_iso i₂)).
+      use (factor_through_squash _ _ HG'').
+      - <span class="nb">apply</span> isapropiscontr.
+      - <span class="nb">intro</span> f.
+        <span class="nb">apply</span> iscontraprop1.
+        + <span class="bp">exact</span> (isaprop_mor_fiber g i₁ i₂).
+        + <span class="nb">refine</span> (pr1 f ,, _).
+          <span class="kp">abstract</span>
+            (<span class="nb">pose</span> (p := pr2 f) ;
+             <span class="nb">cbn</span> <span class="k">in</span> p ;
+             <span class="nb">refine</span> (!_) ;
+             <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) p @ _) ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> z_iso_after_z_iso_inv ;
+             <span class="nb">rewrite</span> id_right ;
+             <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">mor_fiber_eq</span>
+               {<span class="nv">y₁</span> <span class="nv">y₂</span> : pr1 C₂}
+               (<span class="nv">g</span> : y₁ --&gt; y₂)
+               {<span class="nv">x₁</span> <span class="nv">x₂</span> : pr1 D₁}
+               (<span class="nv">i₁</span> : z_iso (pr1 G x₁) (pr1 H₂ y₁))
+               (<span class="nv">i₂</span> : z_iso (pr1 G x₂) (pr1 H₂ y₂))
+               (<span class="nv">h</span> : x₁ --&gt; x₂)
+               (<span class="nv">p</span> : i₁ · # (pr1 H₂) g
+                    =
+                    # (pr1 G) h · i₂)
+      : pr11 (iscontr_mor_fiber g i₁ i₂) = h.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (maponpaths pr1 (pr2 (iscontr_mor_fiber g i₁ i₂) (h ,, p))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">essentially_surjective_is_eso_lift_data</span>
+      : functor_data (pr1 C₂) (pr1 D₁).
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, pr11 (iscontr_ob_fiber y)).
+      - <span class="nb">intros</span> y₁ y₂ g.
+        <span class="bp">exact</span> (pr11 (iscontr_mor_fiber
+                       g
+                       (pr21 (iscontr_ob_fiber y₁))
+                       (pr21 (iscontr_ob_fiber y₂)))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">essentially_surjective_is_eso_lift_is_functor</span>
+      : is_functor essentially_surjective_is_eso_lift_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> y ; <span class="nb">cbn</span>.
+        use mor_fiber_eq.
+        <span class="nb">rewrite</span> (functor_id H₂), (functor_id G).
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intros</span> y₁ y₂ y₃ g₁ g₂ ; <span class="nb">cbn</span>.
+        use mor_fiber_eq.
+        <span class="nb">rewrite</span> (functor_comp H₂).
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (pr21 (iscontr_mor_fiber
+                         g₁
+                         (pr21 (iscontr_ob_fiber y₁))
+                         (pr21 (iscontr_ob_fiber y₂)))).
+        }
+        <span class="nb">rewrite</span> (functor_comp G).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr21 (iscontr_mor_fiber
+                       g₂
+                       (pr21 (iscontr_ob_fiber y₂))
+                       (pr21 (iscontr_ob_fiber y₃)))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_lift</span>
+      : C₂ --&gt; D₁.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> essentially_surjective_is_eso_lift_data.
+      - <span class="bp">exact</span> essentially_surjective_is_eso_lift_is_functor.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">essentially_surjective_is_eso_lift_left_nat_trans_data</span>
+      : nat_trans_data
+          (F ∙ essentially_surjective_is_eso_lift)
+          (pr1 H₁)
+      := <span class="k">λ</span> <span class="nv">x</span>,
+         fully_faithful_inv_hom
+           HG'
+           _ _
+           (pr21 (iscontr_ob_fiber (pr1 F x))
+            · inv_from_z_iso (nat_z_iso_pointwise_z_iso α' x)).
+
+    <span class="kn">Local Definition</span> <span class="nf">essentially_surjective_is_eso_lift_left_is_nat_trans</span>
+      : is_nat_trans
+          _ _
+          essentially_surjective_is_eso_lift_left_nat_trans_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      use (invmaponpathsweq (make_weq _ (HG' _ _))).
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (functor_comp _ _ _@ _ @ !(functor_comp _ _ _)).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (homotweqinvweq (make_weq _ (HG' _ _))).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (homotweqinvweq (make_weq _ (HG' _ _))).
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (!(pr21 (iscontr_mor_fiber
+                         (#(pr1 F) f)
+                         (pr21 (iscontr_ob_fiber (pr1 F x)))
+                         (pr21 (iscontr_ob_fiber (pr1 F y)))))).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (nat_trans_ax α^-<span class="mi">1</span>).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_lift_left_nat_trans</span>
+      : F ∙ essentially_surjective_is_eso_lift ⟹ pr1 H₁.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> essentially_surjective_is_eso_lift_left_nat_trans_data.
+      - <span class="bp">exact</span> essentially_surjective_is_eso_lift_left_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_lift_left</span>
+      : invertible_2cell
+          (F · essentially_surjective_is_eso_lift)
+          H₁.
+    <span class="kn">Proof</span>.
+      use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
+      - <span class="bp">exact</span> essentially_surjective_is_eso_lift_left_nat_trans.
+      - <span class="nb">intro</span>.
+        use (fully_faithful_reflects_iso_proof _ _ _ HG' _ _ (make_z_iso' _ _)).
+        use is_z_isomorphism_comp.
+        + <span class="nb">apply</span> z_iso_is_z_isomorphism.
+        + <span class="nb">apply</span> is_z_iso_inv_from_z_iso.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_lift_right_nat_trans</span>
+      : essentially_surjective_is_eso_lift ∙ G ⟹ pr1 H₂.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, pr21 (iscontr_ob_fiber y)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> y₁ y₂ f ; <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (!(pr21 (iscontr_mor_fiber
+                            f
+                            (pr21 (iscontr_ob_fiber y₁))
+                            (pr21 (iscontr_ob_fiber y₂)))))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_lift_right</span>
+      : invertible_2cell
+          (essentially_surjective_is_eso_lift · G)
+          H₂.
+    <span class="kn">Proof</span>.
+      use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
+      - <span class="bp">exact</span> essentially_surjective_is_eso_lift_right_nat_trans.
+      - <span class="nb">intro</span>.
+        <span class="nb">apply</span> z_iso_is_z_isomorphism.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_lift_eq</span>
+      : (essentially_surjective_is_eso_lift_left ▹ G) • α
+        =
+        rassociator _ _ _
+        • (F ◃ essentially_surjective_is_eso_lift_right).
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x.
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ !(id_left _)).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (homotweqinvweq (make_weq _ (HG' _ _)) _).
+      }
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (nat_trans_eq_pointwise (vcomp_linv α) x).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">EssentiallySurjectiveLift</span>.
+
+  <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso_essentially_surjective</span>
+    : is_eso_essentially_surjective F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> D₁ D₂ G HG H₁ H₂ α.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> (essentially_surjective_is_eso_lift HG H₁ H₂ α).
+    - <span class="bp">exact</span> (essentially_surjective_is_eso_lift_left HG H₁ H₂ α).
+    - <span class="bp">exact</span> (essentially_surjective_is_eso_lift_right HG H₁ H₂ α).
+    - <span class="bp">exact</span> (essentially_surjective_is_eso_lift_eq HG H₁ H₂ α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">essentially_surjective_is_eso</span>
+    : is_eso F.
+  <span class="kn">Proof</span>.
+    use make_is_eso.
+    - <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+    - <span class="bp">exact</span> essentially_surjective_is_eso_full.
+    - <span class="bp">exact</span> essentially_surjective_is_eso_faithful.
+    - <span class="bp">exact</span> essentially_surjective_is_eso_essentially_surjective.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EssentiallySurjectiveIsEso</span>.
+
+<span class="kn">Definition</span> <span class="nf">eso_weq_essentially_surjective</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+           (<span class="nv">F</span> : C₁ --&gt; C₂)
+  : is_eso F ≃ essentially_surjective F.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> eso_is_essentially_surjective.
+  - <span class="bp">exact</span> essentially_surjective_is_eso.
+  - <span class="nb">apply</span> isaprop_is_eso.
+    <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="nb">apply</span> isaprop_essentially_surjective.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. (eso, ff)-factorization</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">eso_ff_factorization_bicat_of_univ_cats</span>
+  : eso_ff_factorization bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> C₁ C₂ F.
+  <span class="nb">refine</span> (univalent_image F ,, functor_full_img _ ,, sub_precategory_inclusion _ _ ,, _).
+  <span class="nb">simple refine</span> (_ ,, _ ,, _).
+  - use essentially_surjective_is_eso.
+    <span class="nb">apply</span> functor_full_img_essentially_surjective.
+  - use cat_fully_faithful_is_fully_faithful_1cell.
+    <span class="nb">apply</span> fully_faithful_sub_precategory_inclusion.
+  - use nat_z_iso_to_invertible_2cell.
+    <span class="bp">exact</span> (full_image_inclusion_commute_nat_iso F).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Esos are closed under pullback</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_eso_closed_under_pb_bicat_of_univ_cats</span>
+  : is_eso_closed_under_pb (_ ,, has_pb_bicat_of_univ_cats).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> C₁ C₂ C₃ F HF G.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> essentially_surjective_is_eso.
+  <span class="nb">apply</span> iso_comma_essentially_surjective.
+  <span class="nb">apply</span> eso_is_essentially_surjective.
+  <span class="bp">exact</span> HF.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Morphisms/Examples/EsosInBicatOfUnivCats.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. (eso, ff)-factorization
+  &gt;  3. Esos are closed under pullback
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,984 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Spans.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> The two-sided displayed category of spans</span>
+
+<span class="sd"> A span in a category `C` is a diagram `x₁ &lt;-- y --&gt; x₂`. We construct a two-sided</span>
+<span class="sd"> displayed category whose displayed objects are spans. We also give the spans that</span>
+<span class="sd"> are necessary to construct the double category of spans.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The definition</span>
+<span class="sd"> 2. The univalence</span>
+<span class="sd"> 3. Builders and accessors</span>
+<span class="sd"> 4. Isomorphisms of spans</span>
+<span class="sd"> 5. The identity spans</span>
+<span class="sd"> 6. The composition of spans</span>
+<span class="sd"> 7. The left unitor of spans</span>
+<span class="sd"> 8. The right unitor of spans</span>
+<span class="sd"> 9. The associator of spans</span>
+<span class="sd"> 10. Companions and conjoints</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.DispCatOnTwoSidedDispCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Spans</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="sd">(** * 1. The definition *)</span>
+  <span class="kn">Definition</span> <span class="nf">spans_ob</span>
+    : twosided_disp_cat C C
+    := constant_twosided_disp_cat C C C.
+
+  <span class="kn">Definition</span> <span class="nf">spans_mor_left_ob_mor</span>
+    : disp_cat_ob_mor (total_twosided_disp_category spans_ob).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xyz</span>, pr22 xyz --&gt; pr1 xyz).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xyz₁</span> <span class="nv">xyz₂</span> <span class="nv">l₁</span> <span class="nv">l₂</span> <span class="nv">fgh</span>,
+             l₁ · pr1 fgh
+             =
+             pr22 fgh · l₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">spans_mor_left_id_comp</span>
+    : disp_cat_id_comp
+        (total_twosided_disp_category spans_ob)
+        spans_mor_left_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> xyz fgh ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> xyz₁ xyz₂ xyz₃ fgh₁ fgh₂ h₁ h₂ h₃ p₁ p₂ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> p₁.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> p₂.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">spans_mor_left_data</span>
+    : disp_cat_data (total_twosided_disp_category spans_ob).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> spans_mor_left_ob_mor.
+    - <span class="bp">exact</span> spans_mor_left_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">spans_mor_left_axioms</span>
+    : disp_cat_axioms
+        (total_twosided_disp_category spans_ob)
+        spans_mor_left_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">spans_mor_left</span>
+    : disp_cat (total_twosided_disp_category spans_ob).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> spans_mor_left_data.
+    - <span class="bp">exact</span> spans_mor_left_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">spans_mor_right_ob_mor</span>
+    : disp_cat_ob_mor (total_twosided_disp_category spans_ob).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xyz</span>, pr22 xyz --&gt; pr12 xyz).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xyz₁</span> <span class="nv">xyz₂</span> <span class="nv">l₁</span> <span class="nv">l₂</span> <span class="nv">fgh</span>,
+             l₁ · pr12 fgh
+             =
+             pr22 fgh · l₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">spans_mor_right_id_comp</span>
+    : disp_cat_id_comp
+        (total_twosided_disp_category spans_ob)
+        spans_mor_right_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> xyz fgh ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> xyz₁ xyz₂ xyz₃ fgh₁ fgh₂ h₁ h₂ h₃ p₁ p₂ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> p₁.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> p₂.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">spans_mor_right_data</span>
+    : disp_cat_data (total_twosided_disp_category spans_ob).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> spans_mor_right_ob_mor.
+    - <span class="bp">exact</span> spans_mor_right_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">spans_mor_right_axioms</span>
+    : disp_cat_axioms
+        (total_twosided_disp_category spans_ob)
+        spans_mor_right_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">spans_mor_right</span>
+    : disp_cat (total_twosided_disp_category spans_ob).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> spans_mor_right_data.
+    - <span class="bp">exact</span> spans_mor_right_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">spans_mors</span>
+    : disp_cat (total_twosided_disp_category spans_ob)
+    := dirprod_disp_cat
+         spans_mor_left
+         spans_mor_right.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_of_spans</span>
+    : twosided_disp_cat C C
+    := sigma_twosided_disp_cat _ spans_mors.
+
+  <span class="sd">(** * 2. The univalence *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_univalent_disp_spans_mor_left</span>
+    : is_univalent_disp spans_mor_left.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y p l₁ l₂.
+    <span class="nb">induction</span> p.
+    use isweqimplimpl.
+    - <span class="nb">intro</span> f ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">pose</span> (p := pr1 f) ; <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    - <span class="nb">apply</span> homset_property.
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_iso_disp.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_disp_spans_mor_right</span>
+    : is_univalent_disp spans_mor_right.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y p l₁ l₂.
+    <span class="nb">induction</span> p.
+    use isweqimplimpl.
+    - <span class="nb">intro</span> f ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">pose</span> (p := pr1 f) ; <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    - <span class="nb">apply</span> homset_property.
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_iso_disp.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_spans_twosided_disp_cat</span>
+             (<span class="nv">HC</span> : is_univalent C)
+    : is_univalent_twosided_disp_cat twosided_disp_cat_of_spans.
+  <span class="kn">Proof</span>.
+    use is_univalent_sigma_of_twosided_disp_cat.
+    - use is_univalent_constant_twosided_disp_cat.
+      <span class="bp">exact</span> HC.
+    - use dirprod_disp_cat_is_univalent.
+      + <span class="bp">exact</span> is_univalent_disp_spans_mor_left.
+      + <span class="bp">exact</span> is_univalent_disp_spans_mor_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_strict_spans_twosided_disp_cat</span>
+             (<span class="nv">HC</span> : is_setcategory C)
+    : is_strict_twosided_disp_cat twosided_disp_cat_of_spans.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    use isaset_total2.
+    - <span class="nb">apply</span> HC.
+    - <span class="nb">intro</span> z.
+      use isasetdirprod.
+      + <span class="nb">apply</span> homset_property.
+      + <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. Builders and accessors *)</span>
+  <span class="kn">Definition</span> <span class="nf">span</span>
+             (<span class="nv">a</span> <span class="nv">b</span> : C)
+    : UU
+    := twosided_disp_cat_of_spans a b.
+
+  <span class="kn">Definition</span> <span class="nf">make_span</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">x</span> : C}
+             (<span class="nv">l</span> : x --&gt; a)
+             (<span class="nv">r</span> : x --&gt; b)
+    : span a b
+    :=  x ,, l ,, r.
+
+  <span class="kn">Definition</span> <span class="nf">ob_of_span</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">s</span> : span a b)
+    : C
+    := pr1 s.
+
+  <span class="kn">Definition</span> <span class="nf">mor_left_of_span</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">s</span> : span a b)
+    : ob_of_span s --&gt; a
+    := pr12 s.
+
+  <span class="kn">Definition</span> <span class="nf">mor_right_of_span</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">s</span> : span a b)
+    : ob_of_span s --&gt; b
+    := pr22 s.
+
+  <span class="kn">Definition</span> <span class="nf">span_sqr</span>
+             {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : C}
+             (<span class="nv">f</span> : a₁ --&gt; a₂)
+             (<span class="nv">g</span> : b₁ --&gt; b₂)
+             (<span class="nv">s₁</span> : span a₁ b₁)
+             (<span class="nv">s₂</span> : span a₂ b₂)
+    : UU
+    := s₁ --&gt;[ f ][ g ] s₂.
+
+  <span class="kn">Definition</span> <span class="nf">span_laws</span>
+             {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : C}
+             (<span class="nv">f</span> : a₁ --&gt; a₂)
+             (<span class="nv">g</span> : b₁ --&gt; b₂)
+             (<span class="nv">s₁</span> : span a₁ b₁)
+             (<span class="nv">s₂</span> : span a₂ b₂)
+             (<span class="nv">φ</span> : ob_of_span s₁ --&gt; ob_of_span s₂)
+    : UU
+    := (mor_left_of_span s₁ · f
+        =
+        φ · mor_left_of_span s₂)
+       ×
+       (mor_right_of_span s₁ · g
+        =
+        φ · mor_right_of_span s₂).
+
+  <span class="kn">Definition</span> <span class="nf">make_span_sqr</span>
+             {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : C}
+             {<span class="nv">f</span> : a₁ --&gt; a₂}
+             {<span class="nv">g</span> : b₁ --&gt; b₂}
+             {<span class="nv">s₁</span> : span a₁ b₁}
+             {<span class="nv">s₂</span> : span a₂ b₂}
+             (<span class="nv">φ</span> : ob_of_span s₁ --&gt; ob_of_span s₂)
+             (<span class="nv">Hφ</span> : span_laws f g _ _ φ)
+    : span_sqr f g s₁ s₂
+    := φ ,, Hφ.
+
+  <span class="kn">Definition</span> <span class="nf">span_sqr_ob_mor</span>
+             {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : C}
+             {<span class="nv">f</span> : a₁ --&gt; a₂}
+             {<span class="nv">g</span> : b₁ --&gt; b₂}
+             {<span class="nv">s₁</span> : span a₁ b₁}
+             {<span class="nv">s₂</span> : span a₂ b₂}
+             (<span class="nv">sq</span> : span_sqr f g s₁ s₂)
+    : ob_of_span s₁ --&gt; ob_of_span s₂
+    := pr1 sq.
+
+  <span class="kn">Proposition</span> <span class="nf">span_sqr_mor_left</span>
+              {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : C}
+              {<span class="nv">f</span> : a₁ --&gt; a₂}
+              {<span class="nv">g</span> : b₁ --&gt; b₂}
+              {<span class="nv">s₁</span> : span a₁ b₁}
+              {<span class="nv">s₂</span> : span a₂ b₂}
+              (<span class="nv">sq</span> : span_sqr f g s₁ s₂)
+    : mor_left_of_span s₁ · f
+      =
+      span_sqr_ob_mor sq · mor_left_of_span s₂.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 sq).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">span_sqr_mor_right</span>
+              {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : C}
+              {<span class="nv">f</span> : a₁ --&gt; a₂}
+              {<span class="nv">g</span> : b₁ --&gt; b₂}
+              {<span class="nv">s₁</span> : span a₁ b₁}
+              {<span class="nv">s₂</span> : span a₂ b₂}
+              (<span class="nv">sq</span> : span_sqr f g s₁ s₂)
+    : mor_right_of_span s₁ · g
+      =
+      span_sqr_ob_mor sq · mor_right_of_span s₂.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 sq).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">span_sqr_eq</span>
+              {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : C}
+              {<span class="nv">f</span> : a₁ --&gt; a₂}
+              {<span class="nv">g</span> : b₁ --&gt; b₂}
+              {<span class="nv">s₁</span> : span a₁ b₁}
+              {<span class="nv">s₂</span> : span a₂ b₂}
+              (<span class="nv">sq₁</span> <span class="nv">sq₂</span> : span_sqr f g s₁ s₂)
+              (<span class="nv">p</span> : span_sqr_ob_mor sq₁
+                   =
+                   span_sqr_ob_mor sq₂)
+    : sq₁ = sq₂.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    }
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. Isomorphisms of spans *)</span>
+  <span class="kn">Proposition</span> <span class="nf">transportf_disp_mor2_span</span>
+              {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : C}
+              {<span class="nv">f</span> <span class="nv">f'</span> : a₁ --&gt; a₂}
+              (<span class="nv">p</span> : f = f')
+              {<span class="nv">g</span> <span class="nv">g'</span> : b₁ --&gt; b₂}
+              (<span class="nv">q</span> : g = g')
+              {<span class="nv">s₁</span> : span a₁ b₁}
+              {<span class="nv">s₂</span> : span a₂ b₂}
+              (<span class="nv">sq</span> : span_sqr f g s₁ s₂)
+    : span_sqr_ob_mor
+        (transportf_disp_mor2
+           p
+           q
+           sq)
+      =
+      span_sqr_ob_mor sq.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transportb_disp_mor2_span</span>
+              {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : C}
+              {<span class="nv">f</span> <span class="nv">f'</span> : a₁ --&gt; a₂}
+              (<span class="nv">p</span> : f' = f)
+              {<span class="nv">g</span> <span class="nv">g'</span> : b₁ --&gt; b₂}
+              (<span class="nv">q</span> : g' = g)
+              {<span class="nv">s₁</span> : span a₁ b₁}
+              {<span class="nv">s₂</span> : span a₂ b₂}
+              (<span class="nv">sq</span> : span_sqr f g s₁ s₂)
+    : span_sqr_ob_mor
+        (transportb_disp_mor2
+           p
+           q
+           sq)
+      =
+      span_sqr_ob_mor sq.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> transportf_disp_mor2_span.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">IsoSpan</span>.
+    <span class="kn">Context</span> {<span class="nv">a</span> <span class="nv">b</span> : C}
+            {<span class="nv">s₁</span> : span a b}
+            {<span class="nv">s₂</span> : span a b}
+            (<span class="nv">sq</span> : span_sqr (identity _) (identity _) s₁ s₂)
+            (<span class="nv">Hsq</span> : is_z_isomorphism (span_sqr_ob_mor sq)).
+
+    <span class="kn">Let</span> <span class="nf">i</span> : z_iso (ob_of_span s₁) (ob_of_span s₂)
+      := make_z_iso _ _ Hsq.
+
+    <span class="kn">Proposition</span> <span class="nf">is_iso_twosided_disp_span_sqr_inv_laws</span>
+      : span_laws
+          (identity a) (identity b)
+          s₂ s₁
+          (inv_from_z_iso i).
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">rewrite</span> id_right.
+        <span class="nb">refine</span> (!_).
+        use z_iso_inv_on_right.
+        <span class="nb">refine</span> (_ @ span_sqr_mor_left sq).
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> id_right.
+        <span class="nb">refine</span> (!_).
+        use z_iso_inv_on_right.
+        <span class="nb">refine</span> (_ @ span_sqr_mor_right sq).
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_iso_twosided_disp_span_sqr_inv</span>
+      : span_sqr (identity _) (identity _) s₂ s₁.
+    <span class="kn">Proof</span>.
+      use make_span_sqr.
+      - <span class="bp">exact</span> (inv_from_z_iso i).
+      - <span class="bp">exact</span> is_iso_twosided_disp_span_sqr_inv_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_iso_twosided_disp_span_sqr</span>
+      : is_iso_twosided_disp
+          (identity_is_z_iso _)
+          (identity_is_z_iso _)
+          sq.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      - <span class="bp">exact</span> is_iso_twosided_disp_span_sqr_inv.
+      - <span class="kp">abstract</span>
+          (use span_sqr_eq ;
+           <span class="nb">rewrite</span> transportb_disp_mor2_span ; <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (z_iso_inv_after_z_iso i)).
+      - <span class="kp">abstract</span>
+          (use span_sqr_eq ;
+           <span class="nb">rewrite</span> transportb_disp_mor2_span ; <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (z_iso_after_z_iso_inv i)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">IsoSpan</span>.
+
+  <span class="sd">(** * 5. The identity spans *)</span>
+  <span class="kn">Definition</span> <span class="nf">id_span</span>
+             (<span class="nv">a</span> : C)
+    : span a a.
+  <span class="kn">Proof</span>.
+    use make_span.
+    - <span class="bp">exact</span> a.
+    - <span class="bp">exact</span> (identity _).
+    - <span class="bp">exact</span> (identity _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">id_span_mor_laws</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+    : span_laws
+        f f
+        (id_span x) (id_span y)
+        f.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">id_span_mor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+    : span_sqr f f (id_span x) (id_span y).
+  <span class="kn">Proof</span>.
+    use make_span_sqr.
+    - <span class="bp">exact</span> f.
+    - <span class="nb">apply</span> id_span_mor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> (<span class="nv">PC</span> : Pullbacks C).
+
+  <span class="sd">(** * 6. The composition of spans *)</span>
+  <span class="kn">Section</span> <span class="nf">CompSpan</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">s</span> : span x y)
+            (<span class="nv">t</span> : span y z).
+
+    <span class="kn">Definition</span> <span class="nf">comp_span_Pullback</span>
+      : Pullback (mor_right_of_span s) (mor_left_of_span t)
+      := PC _ _ _ (mor_right_of_span s) (mor_left_of_span t).
+
+    <span class="kn">Definition</span> <span class="nf">comp_span</span>
+      : span x z.
+    <span class="kn">Proof</span>.
+      use make_span.
+      - <span class="bp">exact</span> comp_span_Pullback.
+      - <span class="bp">exact</span> (PullbackPr1 _ · mor_left_of_span s).
+      - <span class="bp">exact</span> (PullbackPr2 _ · mor_right_of_span t).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">CompSpan</span>.
+
+  <span class="kn">Section</span> <span class="nf">CompSpanMor</span>.
+    <span class="kn">Context</span> {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+            {<span class="nv">v₁</span> : x₁ --&gt; x₂} {<span class="nv">v₂</span> : y₁ --&gt; y₂} {<span class="nv">v₃</span> : z₁ --&gt; z₂}
+            {<span class="nv">h₁</span> : span x₁ y₁}
+            {<span class="nv">h₂</span> : span y₁ z₁}
+            {<span class="nv">k₁</span> : span x₂ y₂}
+            {<span class="nv">k₂</span> : span y₂ z₂}
+            (<span class="nv">s₁</span> : span_sqr v₁ v₂ h₁ k₁)
+            (<span class="nv">s₂</span> : span_sqr v₂ v₃ h₂ k₂).
+
+    <span class="kn">Definition</span> <span class="nf">mor_of_comp_span_mor</span>
+      : comp_span_Pullback h₁ h₂ --&gt; comp_span_Pullback k₁ k₂.
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - <span class="bp">exact</span> (PullbackPr1 _ · span_sqr_ob_mor s₁).
+      - <span class="bp">exact</span> (PullbackPr2 _ · span_sqr_ob_mor s₂).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> &lt;- span_sqr_mor_left, &lt;- span_sqr_mor_right ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> PullbackSqrCommutes).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">comp_span_mor_laws</span>
+      : span_laws
+          v₁ v₃
+          (comp_span h₁ h₂) (comp_span k₁ k₂)
+          mor_of_comp_span_mor.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      - <span class="nb">unfold</span> mor_of_comp_span_mor.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> span_sqr_mor_left.
+      - <span class="nb">unfold</span> mor_of_comp_span_mor.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> span_sqr_mor_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comp_span_mor</span>
+      : span_sqr
+          v₁ v₃
+          (comp_span h₁ h₂) (comp_span k₁ k₂).
+    <span class="kn">Proof</span>.
+      use make_span_sqr.
+      - <span class="bp">exact</span> mor_of_comp_span_mor.
+      - <span class="bp">exact</span> comp_span_mor_laws.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">CompSpanMor</span>.
+
+  <span class="sd">(** * 7. The left unitor of spans *)</span>
+  <span class="kn">Section</span> <span class="nf">SpanLunitor</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">h</span> : span x y).
+
+    <span class="kn">Definition</span> <span class="nf">span_lunitor_mor</span>
+      : comp_span_Pullback (id_span x) h --&gt; ob_of_span h
+      := PullbackPr2 _.
+
+    <span class="kn">Definition</span> <span class="nf">span_linvunitor</span>
+      : ob_of_span h --&gt; comp_span_Pullback (id_span x) h.
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - <span class="bp">exact</span> (mor_left_of_span h).
+      - <span class="bp">exact</span> (identity _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_z_iso_span_lunitor_mor_eqs</span>
+      : is_inverse_in_precat
+          span_lunitor_mor
+          span_linvunitor.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">unfold</span> span_lunitor_mor, span_linvunitor ; <span class="nb">cbn</span>.
+      - use (MorphismsIntoPullbackEqual (isPullback_Pullback (PC _ _ _ _ _))) ; <span class="nb">cbn</span>.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">rewrite</span> &lt;- PullbackSqrCommutes.
+          <span class="nb">apply</span> id_right.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> id_left, id_right.
+          <span class="nb">apply</span> idpath.
+      - <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_z_iso_span_lunitor_mor</span>
+      : is_z_isomorphism span_lunitor_mor.
+    <span class="kn">Proof</span>.
+      use make_is_z_isomorphism.
+      - <span class="bp">exact</span> span_linvunitor.
+      - <span class="bp">exact</span> is_z_iso_span_lunitor_mor_eqs.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">span_lunitor_laws</span>
+      : span_laws
+          (identity x) (identity y)
+          (comp_span (id_span x) h) h
+          span_lunitor_mor.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> span_lunitor_mor.
+      - <span class="nb">rewrite</span> !id_right.
+        <span class="nb">rewrite</span> &lt;- PullbackSqrCommutes ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">span_lunitor</span>
+      : span_sqr
+          (identity _) (identity _)
+          (comp_span (id_span _) h)
+          h.
+    <span class="kn">Proof</span>.
+      use make_span_sqr.
+      - <span class="bp">exact</span> span_lunitor_mor.
+      - <span class="bp">exact</span> span_lunitor_laws.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">SpanLunitor</span>.
+
+  <span class="sd">(** * 8. The right unitor of spans *)</span>
+  <span class="kn">Section</span> <span class="nf">SpanRunitor</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">h</span> : span x y).
+
+    <span class="kn">Definition</span> <span class="nf">span_runitor_mor</span>
+      : comp_span_Pullback h (id_span y) --&gt; ob_of_span h
+      := PullbackPr1 _.
+
+    <span class="kn">Definition</span> <span class="nf">span_rinvunitor</span>
+      : ob_of_span h --&gt; comp_span_Pullback h (id_span y).
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - <span class="bp">exact</span> (identity _).
+      - <span class="bp">exact</span> (mor_right_of_span h).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_z_iso_span_runitor_mor_eqs</span>
+      : is_inverse_in_precat
+          span_runitor_mor
+          span_rinvunitor.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">unfold</span> span_runitor_mor, span_rinvunitor ; <span class="nb">cbn</span>.
+      - use (MorphismsIntoPullbackEqual (isPullback_Pullback (PC _ _ _ _ _))) ; <span class="nb">cbn</span>.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> id_right.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">rewrite</span> PullbackSqrCommutes.
+          <span class="nb">apply</span> id_right.
+      - <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_z_iso_span_runitor_mor</span>
+      : is_z_isomorphism span_runitor_mor.
+    <span class="kn">Proof</span>.
+      use make_is_z_isomorphism.
+      - <span class="bp">exact</span> span_rinvunitor.
+      - <span class="bp">exact</span> is_z_iso_span_runitor_mor_eqs.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">span_runitor_laws</span>
+      : span_laws
+          (identity x) (identity y)
+          (comp_span h (id_span y)) h
+          span_runitor_mor.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> span_runitor_mor.
+      - <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !id_right.
+        <span class="nb">rewrite</span> PullbackSqrCommutes ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">span_runitor</span>
+      : span_sqr
+          (identity _) (identity _)
+          (comp_span h (id_span _))
+          h.
+    <span class="kn">Proof</span>.
+      use make_span_sqr.
+      - <span class="bp">exact</span> span_runitor_mor.
+      - <span class="bp">exact</span> span_runitor_laws.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">SpanRunitor</span>.
+
+  <span class="sd">(** * 9. The associator of spans *)</span>
+  <span class="kn">Section</span> <span class="nf">SpanAssociator</span>.
+    <span class="kn">Context</span> {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">h₁</span> : span w x)
+            (<span class="nv">h₂</span> : span x y)
+            (<span class="nv">h₃</span> : span y z).
+
+    <span class="kn">Definition</span> <span class="nf">span_associator_mor</span>
+      : comp_span_Pullback h₁ (comp_span h₂ h₃)
+        --&gt;
+        comp_span_Pullback (comp_span h₁ h₂) h₃.
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - use PullbackArrow.
+        + <span class="bp">exact</span> (PullbackPr1 _).
+        + <span class="bp">exact</span> (PullbackPr2 _ · PullbackPr1 _).
+        + <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> PullbackSqrCommutes ;
+             <span class="nb">apply</span> idpath).
+      - <span class="bp">exact</span> (PullbackPr2 _ · PullbackPr2 _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> PullbackSqrCommutes ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">span_associator_mor_inv</span>
+      : comp_span_Pullback (comp_span h₁ h₂) h₃
+        --&gt;
+        comp_span_Pullback h₁ (comp_span h₂ h₃).
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - <span class="bp">exact</span> (PullbackPr1 _ · PullbackPr1 _).
+      - use PullbackArrow.
+        + <span class="bp">exact</span> (PullbackPr1 _ · PullbackPr2 _).
+        + <span class="bp">exact</span> (PullbackPr2 _).
+        + <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> PullbackSqrCommutes ;
+             <span class="nb">apply</span> idpath).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> PullbackArrow_PullbackPr1 ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> PullbackSqrCommutes ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_iso_span_associator_mor_eq</span>
+      : is_inverse_in_precat
+          span_associator_mor
+          span_associator_mor_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - use (MorphismsIntoPullbackEqual (isPullback_Pullback (PC _ _ _ _ _))) ; <span class="nb">cbn</span>.
+        + <span class="nb">rewrite</span> id_left.
+          <span class="nb">unfold</span> span_associator_mor_inv.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">unfold</span> span_associator_mor.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> id_left.
+          <span class="nb">unfold</span> span_associator_mor_inv.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+          use (MorphismsIntoPullbackEqual (isPullback_Pullback (PC _ _ _ _ _))) ; <span class="nb">cbn</span>.
+          * <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+            <span class="nb">unfold</span> span_associator_mor.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+            <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+            <span class="nb">apply</span> idpath.
+          * <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">unfold</span> span_associator_mor.
+            <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+            <span class="nb">apply</span> idpath.
+      - use (MorphismsIntoPullbackEqual (isPullback_Pullback (PC _ _ _ _ _))) ; <span class="nb">cbn</span>.
+        + <span class="nb">rewrite</span> id_left.
+          <span class="nb">unfold</span> span_associator_mor.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          use (MorphismsIntoPullbackEqual (isPullback_Pullback (PC _ _ _ _ _))) ; <span class="nb">cbn</span>.
+          * <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+            <span class="nb">unfold</span> span_associator_mor_inv.
+            <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+            <span class="nb">apply</span> idpath.
+          * <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+            <span class="nb">unfold</span> span_associator_mor_inv.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+            <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+            <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">unfold</span> span_associator_mor.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+          <span class="nb">unfold</span> span_associator_mor_inv.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_z_iso_span_associator_mor</span>
+      : is_z_isomorphism span_associator_mor.
+    <span class="kn">Proof</span>.
+      use make_is_z_isomorphism.
+      - <span class="bp">exact</span> span_associator_mor_inv.
+      - <span class="bp">exact</span> is_iso_span_associator_mor_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">span_associator_laws</span>
+      : span_laws
+          (identity _) (identity _)
+          (comp_span h₁ (comp_span h₂ h₃))
+          (comp_span (comp_span h₁ h₂) h₃)
+          span_associator_mor.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      - <span class="nb">rewrite</span> id_right.
+        <span class="nb">unfold</span> span_associator_mor.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> id_right.
+        <span class="nb">unfold</span> span_associator_mor.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">span_associator</span>
+      : span_sqr
+          (identity _) (identity _)
+          (comp_span h₁ (comp_span h₂ h₃))
+          (comp_span (comp_span h₁ h₂) h₃).
+    <span class="kn">Proof</span>.
+      use make_span_sqr.
+      - <span class="bp">exact</span> span_associator_mor.
+      - <span class="bp">exact</span> span_associator_laws.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">SpanAssociator</span>.
+
+  <span class="sd">(** * 10. Companions and conjoints *)</span>
+  <span class="kn">Section</span> <span class="nf">CompanionsAndConjoints</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y).
+
+    <span class="kn">Definition</span> <span class="nf">span_companion</span>
+      : span x y.
+    <span class="kn">Proof</span>.
+      use make_span.
+      - <span class="bp">exact</span> x.
+      - <span class="bp">exact</span> (identity x).
+      - <span class="bp">exact</span> f.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">span_companion_unit</span>
+      : span_sqr f (identity y) span_companion (id_span y).
+    <span class="kn">Proof</span>.
+      use make_span_sqr.
+      - <span class="bp">exact</span> f.
+      - <span class="kp">abstract</span>
+          (<span class="nb">split</span> ; <span class="nb">cbn</span> ; [ | <span class="nb">apply</span> idpath ] ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">span_companion_counit</span>
+      : span_sqr (identity x) f (id_span x) span_companion.
+    <span class="kn">Proof</span>.
+      use make_span_sqr.
+      - <span class="bp">exact</span> (identity x).
+      - <span class="kp">abstract</span>
+          (<span class="nb">split</span> ; <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">span_conjoint</span>
+      : span y x.
+    <span class="kn">Proof</span>.
+      use make_span.
+      - <span class="bp">exact</span> x.
+      - <span class="bp">exact</span> f.
+      - <span class="bp">exact</span> (identity x).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">span_conjoint_unit</span>
+      : span_sqr f (identity x) (id_span x) span_conjoint.
+    <span class="kn">Proof</span>.
+      use make_span_sqr.
+      - <span class="bp">exact</span> (identity x).
+      - <span class="kp">abstract</span>
+          (<span class="nb">split</span> ; <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">span_conjoint_counit</span>
+      : span_sqr (identity y) f span_conjoint (id_span y).
+    <span class="kn">Proof</span>.
+      use make_span_sqr.
+      - <span class="bp">exact</span> f.
+      - <span class="kp">abstract</span>
+          (<span class="nb">split</span> ; <span class="nb">cbn</span> ; [ <span class="nb">apply</span> idpath | ] ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">CompanionsAndConjoints</span>.
+<span class="kn">End</span> <span class="nf">Spans</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/TwoSidedDisplayedCats/Examples/Spans.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  10. Companions and conjoints
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

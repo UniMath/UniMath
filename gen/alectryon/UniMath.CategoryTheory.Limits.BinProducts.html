@@ -1,0 +1,1772 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BinProducts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Direct implementation of binary products</span>
+
+<span class="sd">Written by: Benedikt Ahrens, Ralph Matthes</span>
+<span class="sd">Extended by: Anders Mörtberg and Tomi Pannila</span>
+<span class="sd">Extended by: Langston Barrett (@siddharthist), 2018</span>
+
+<span class="sd">*)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">- Definition of binary products</span>
+<span class="sd">- Definition of binary product functor ([binproduct_functor])</span>
+<span class="sd">- Definition of a binary product structure on a functor category by taking</span>
+<span class="sd">  pointwise binary products in the target category ([BinProducts_functor_precat])</span>
+<span class="sd">- Binary products from limits ([BinProducts_from_Lims])</span>
+<span class="sd">- Equivalent universal property: [(C --&gt; A) × (C --&gt; B) ≃ (C --&gt; A × B)]</span>
+<span class="sd">- Terminal object as the unit (up to isomorphism) of binary products</span>
+<span class="sd">- Definition of the "associative" z-isomorphism [BinProduct_assoc]</span>
+<span class="sd">- Definition of the diagonal map [diagonalMap]</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Definition of binary products *)</span>
+<span class="kn">Section</span> <span class="nf">binproduct_def</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+<span class="kn">Definition</span> <span class="nf">isBinProduct</span> (<span class="nv">c</span> <span class="nv">d</span> <span class="nv">p</span> : C) (<span class="nv">p1</span> : p --&gt; c) (<span class="nv">p2</span> : p --&gt; d) : UU :=
+  ∏ (a : C) (f : a --&gt; c) (g : a --&gt; d),
+  <span class="k">∃</span>! fg, (fg · p1 = f) × (fg · p2 = g).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_isBinProduct</span> (<span class="nv">c</span> <span class="nv">d</span> <span class="nv">p</span> : C) (<span class="nv">p1</span> : p --&gt; c) (<span class="nv">p2</span> : p --&gt; d) :
+  isaprop (isBinProduct c d p p1 p2).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">BinProduct</span> (<span class="nv">c</span> <span class="nv">d</span> : C) : UU :=
+  ∑ pp1p2 : (∑ p : C, (p --&gt; c) × (p --&gt; d)),
+    isBinProduct c d (pr1 pp1p2) (pr1 (pr2 pp1p2)) (pr2 (pr2 pp1p2)).
+
+<span class="kn">Definition</span> <span class="nf">BinProducts</span> : UU := ∏ (c d : C), BinProduct c d.
+<span class="kn">Definition</span> <span class="nf">hasBinProducts</span> : UU := ∏ (c d : C), ∥ BinProduct c d ∥.
+
+<span class="kn">Definition</span> <span class="nf">BinProductObject</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct c d) : C := pr1 (pr1 P).
+<span class="kn">Coercion</span> <span class="nf">BinProductObject</span> : BinProduct &gt;-&gt; ob.
+
+<span class="kn">Definition</span> <span class="nf">BinProductPr1</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct c d): BinProductObject P --&gt; c :=
+  pr1 (pr2 (pr1 P)).
+<span class="kn">Definition</span> <span class="nf">BinProductPr2</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct c d) : BinProductObject P --&gt; d :=
+   pr2 (pr2 (pr1 P)).
+
+<span class="kn">Definition</span> <span class="nf">isBinProduct_BinProduct</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct c d) :
+   isBinProduct c d (BinProductObject P) (BinProductPr1 P) (BinProductPr2 P).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 P).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">BinProductArrow</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct c d) {<span class="nv">a</span> : C} (<span class="nv">f</span> : a --&gt; c) (<span class="nv">g</span> : a --&gt; d) :
+       a --&gt; BinProductObject P.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr1 (isBinProduct_BinProduct P _ f g))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProductPr1Commutes</span> (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">P</span> : BinProduct c d):
+     ∏ (a : C) (f : a --&gt; c) g, BinProductArrow P f g · BinProductPr1 P = f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a f g.
+  <span class="bp">exact</span> (pr1 (pr2 (pr1 (isBinProduct_BinProduct P _ f g)))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProductPr2Commutes</span> (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">P</span> : BinProduct c d):
+     ∏ (a : C) (f : a --&gt; c) g, BinProductArrow P f g · BinProductPr2 P = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a f g.
+  <span class="bp">exact</span> (pr2 (pr2 (pr1 (isBinProduct_BinProduct P _ f g)))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProductArrowUnique</span> (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">P</span> : BinProduct c d) (<span class="nv">x</span> : C)
+    (<span class="nv">f</span> : x --&gt; c) (<span class="nv">g</span> : x --&gt; d) (<span class="nv">k</span> : x --&gt; BinProductObject P) :
+    k · BinProductPr1 P = f -&gt; k · BinProductPr2 P = g -&gt;
+      k = BinProductArrow P f g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>; <span class="nb">apply</span> path_to_ctr; <span class="nb">split</span>; <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProductArrowsEq</span> (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">P</span> : BinProduct c d) (<span class="nv">x</span> : C)
+      (<span class="nv">k1</span> <span class="nv">k2</span> : x --&gt; BinProductObject P) :
+  k1 · BinProductPr1 P = k2 · BinProductPr1 P -&gt;
+  k1 · BinProductPr2 P = k2 · BinProductPr2 P -&gt;
+  k1 = k2.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H1 H2.
+  <span class="nb">set</span> (p1 := k1 · BinProductPr1 P).
+  <span class="nb">set</span> (p2 := k1 · BinProductPr2 P).
+  <span class="nb">rewrite</span> (BinProductArrowUnique _ _ P _ p1 p2 k1).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> BinProductArrowUnique.
+  <span class="nb">unfold</span> p1. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> H1.
+  <span class="nb">unfold</span> p2. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> H2.
+  <span class="nb">apply</span> idpath. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_BinProduct</span> (<span class="nv">a</span> <span class="nv">b</span> : C) :
+  ∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
+   isBinProduct _ _ _ f g -&gt; BinProduct a b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  use tpair.
+  - <span class="k">exists</span> <span class="nv">c</span>.
+    <span class="k">exists</span> <span class="nv">f</span>.
+    <span class="bp">exact</span> g.
+  - <span class="bp">exact</span> X.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_isBinProduct</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">p</span> : C)
+  (<span class="nv">pa</span> : C⟦p,a⟧) (<span class="nv">pb</span> : C⟦p,b⟧) :
+  (∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
+    <span class="k">∃</span>! k : C⟦c,p⟧, k · pa = f × k · pb = g) -&gt;
+  isBinProduct a b p pa pb.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H c cc g.
+  <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProductArrowEta</span> (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">P</span> : BinProduct c d) (<span class="nv">x</span> : C)
+    (<span class="nv">f</span> : x --&gt; BinProductObject P) :
+    f = BinProductArrow P (f · BinProductPr1 P) (f · BinProductPr2 P).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> BinProductArrowUnique;
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">BinProductOfArrows</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">Pcd</span> : BinProduct c d) {<span class="nv">a</span> <span class="nv">b</span> : C}
+    (<span class="nv">Pab</span> : BinProduct a b) (<span class="nv">f</span> : a --&gt; c) (<span class="nv">g</span> : b --&gt; d) :
+          BinProductObject Pab --&gt; BinProductObject Pcd :=
+    BinProductArrow Pcd (BinProductPr1 Pab · f) (BinProductPr2 Pab · g).
+
+<span class="kn">Lemma</span> <span class="nf">BinProductOfArrowsPr1</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">Pcd</span> : BinProduct c d) {<span class="nv">a</span> <span class="nv">b</span> : C}
+    (<span class="nv">Pab</span> : BinProduct a b) (<span class="nv">f</span> : a --&gt; c) (<span class="nv">g</span> : b --&gt; d) :
+    BinProductOfArrows Pcd Pab f g · BinProductPr1 Pcd = BinProductPr1 Pab · f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> BinProductOfArrows.
+  <span class="nb">rewrite</span> BinProductPr1Commutes.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProductOfArrowsPr2</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">Pcd</span> : BinProduct c d) {<span class="nv">a</span> <span class="nv">b</span> : C}
+    (<span class="nv">Pab</span> : BinProduct a b) (<span class="nv">f</span> : a --&gt; c) (<span class="nv">g</span> : b --&gt; d) :
+    BinProductOfArrows Pcd Pab f g · BinProductPr2 Pcd = BinProductPr2 Pab · g.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> BinProductOfArrows.
+  <span class="nb">rewrite</span> BinProductPr2Commutes.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">postcompWithBinProductArrow</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">Pcd</span> : BinProduct c d) {<span class="nv">a</span> <span class="nv">b</span> : C}
+    (<span class="nv">Pab</span> : BinProduct a b) (<span class="nv">f</span> : a --&gt; c) (<span class="nv">g</span> : b --&gt; d)
+    {<span class="nv">x</span> : C} (<span class="nv">k</span> : x --&gt; a) (<span class="nv">h</span> : x --&gt; b) :
+        BinProductArrow Pab k h · BinProductOfArrows Pcd Pab f g =
+         BinProductArrow Pcd (k · f) (h · g).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> BinProductArrowUnique.
+  - <span class="nb">rewrite</span> &lt;- assoc, BinProductOfArrowsPr1.
+    <span class="nb">rewrite</span> assoc, BinProductPr1Commutes.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> &lt;- assoc, BinProductOfArrowsPr2.
+    <span class="nb">rewrite</span> assoc, BinProductPr2Commutes.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">precompWithBinProductArrow</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">Pcd</span> : BinProduct c d) {<span class="nv">a</span> : C}
+    (<span class="nv">f</span> : a --&gt; c) (<span class="nv">g</span> : a --&gt; d) {<span class="nv">x</span> : C} (<span class="nv">k</span> : x --&gt; a)  :
+       k · BinProductArrow Pcd f g  = BinProductArrow Pcd (k · f) (k · g).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> BinProductArrowUnique.
+  -  <span class="nb">rewrite</span> &lt;- assoc, BinProductPr1Commutes;
+     <span class="nb">apply</span> idpath.
+  -  <span class="nb">rewrite</span> &lt;- assoc, BinProductPr2Commutes;
+     <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">binproduct_def</span>.
+
+
+<span class="kn">Section</span> <span class="nf">BinProducts</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category) (<span class="nv">CC</span> : BinProducts C).
+
+<span class="kn">Definition</span> <span class="nf">BinProductOfArrows_comp</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : a --&gt; c) (<span class="nv">f'</span> : b --&gt; d) (<span class="nv">g</span> : c --&gt; x) (<span class="nv">g'</span> : d --&gt; y)
+  : BinProductOfArrows _ (CC c d) (CC a b) f f' ·
+    BinProductOfArrows _ (CC _ _) (CC _ _) g g'
+    =
+    BinProductOfArrows _ (CC _ _) (CC _ _)(f · g) (f' · g').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> BinProductArrowUnique.
+  - <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> assoc.
+  - <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProductOfArrows_idxcomp</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span>:C⟦ b, c ⟧) (<span class="nv">g</span>:C⟦ c, d ⟧)
+  :   BinProductOfArrows _ (CC a c) (CC a b) (identity a) f ·
+      BinProductOfArrows _ (CC _ _) (CC _ _) (identity a) g
+  =
+  BinProductOfArrows _ (CC _ _) (CC _ _)(identity a) (f·g).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> BinProductOfArrows_comp, id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProductOfArrows_compxid</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span>:C⟦ b, c ⟧) (<span class="nv">g</span>:C⟦ c, d ⟧)
+  :   BinProductOfArrows _ (CC c a) (CC b a) f (identity a) ·
+      BinProductOfArrows _ (CC _ _) (CC _ _) g (identity a)
+      =
+      BinProductOfArrows _ (CC _ _) (CC _ _) (f·g) (identity a).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> BinProductOfArrows_comp, id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProductOfArrows_id</span> (<span class="nv">a</span> <span class="nv">b</span>:C)
+  : BinProductOfArrows _ (CC a b) (CC a b) (identity a) (identity b)
+    = identity _ .
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> BinProductOfArrows.
+  use pathsinv0.
+  use BinProductArrowUnique.
+  + <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+  + <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">BinProducts</span>.
+
+<span class="kn">Section</span> <span class="nf">BinProduct_unique</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category) (<span class="nv">CC</span> : BinProducts C) (<span class="nv">a</span> <span class="nv">b</span> : C).
+
+<span class="kn">Lemma</span> <span class="nf">BinProduct_endo_is_identity</span> (<span class="nv">P</span> : BinProduct _ a b)
+  (<span class="nv">k</span> : BinProductObject _ P --&gt; BinProductObject _ P)
+  (<span class="nv">H1</span> : k · BinProductPr1 _ P = BinProductPr1 _ P)
+  (<span class="nv">H2</span> : k · BinProductPr2 _ P = BinProductPr2 _ P)
+  : identity _ = k.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="nb">apply</span> BinProductArrowEta.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> BinProductArrowUnique; <span class="nb">apply</span> pathsinv0.
+  + <span class="nb">rewrite</span> id_left. <span class="bp">exact</span> H1.
+  + <span class="nb">rewrite</span> id_left. <span class="bp">exact</span> H2.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">BinProduct_unique</span>.
+
+<span class="sd">(** ** Binary products from limits ([BinProducts_from_Lims]) *)</span>
+
+<span class="kn">Section</span> <span class="nf">BinProducts_from_Lims</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+<span class="kn">Definition</span> <span class="nf">two_graph</span> : graph := (bool,,<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>,empty).
+
+<span class="kn">Definition</span> <span class="nf">binproduct_diagram</span> (<span class="nv">a</span> <span class="nv">b</span> : C) : diagram two_graph C.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span> : bool, <span class="k">if</span> x <span class="k">then</span> a <span class="k">else</span> b).
+<span class="kp">abstract</span> (<span class="nb">intros</span> u v F; <span class="nb">induction</span> F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Binproduct</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : c --&gt; a) (<span class="nv">g</span> : c --&gt; b) :
+  cone (binproduct_diagram a b) c.
+<span class="kn">Proof</span>.
+use make_cone.
++ <span class="nb">intros</span> x; <span class="nb">induction</span> x; <span class="bp">assumption</span>.
++ <span class="kp">abstract</span> (<span class="nb">intros</span> x y e; <span class="nb">destruct</span> e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProducts_from_Lims</span> : Lims_of_shape two_graph C -&gt; BinProducts C.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> H a b.
+<span class="nb">set</span> (LC := H (binproduct_diagram a b)).
+use make_BinProduct.
++ <span class="nb">apply</span> (lim LC).
++ <span class="nb">apply</span> (limOut LC true).
++ <span class="nb">apply</span> (limOut LC false).
++ <span class="nb">apply</span> (make_isBinProduct C); <span class="nb">intros</span> c f g.
+  use unique_exists.
+  - <span class="nb">apply</span> limArrow, (Binproduct f g).
+  - <span class="kp">abstract</span> (<span class="nb">split</span>;
+      [ <span class="nb">apply</span> (limArrowCommutes LC c (Binproduct f g) true)
+      | <span class="nb">apply</span> (limArrowCommutes LC c (Binproduct f g) false) ]).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> h; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> C).
+  - <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">intros</span> h [H1 H2]; <span class="nb">apply</span> limArrowUnique; <span class="nb">intro</span> x; <span class="nb">induction</span> x).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BinProducts_from_Lims</span>.
+
+<span class="kn">Section</span> <span class="nf">test</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : BinProducts C).
+
+<span class="kn">Arguments</span> BinProductObject [C] c d {_}.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"c 'x' d"</span> := (BinProductObject  c d )(<span class="kn">at level</span> <span class="mi">5</span>).
+<span class="c">(*</span>
+<span class="c">Check (λ c d : C, c x d).</span>
+<span class="c">*)</span>
+<span class="kn">End</span> <span class="nf">test</span>.
+
+<span class="sd">(** ** Definition of binary product functor ([binproduct_functor]) *)</span>
+
+<span class="kn">Section</span> <span class="nf">binproduct_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">PC</span> : BinProducts C).
+
+<span class="kn">Definition</span> <span class="nf">binproduct_functor_data</span> :
+  functor_data (category_binproduct C C) C.
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intros</span> p.
+  <span class="nb">apply</span> (BinProductObject _ (PC (pr1 p) (pr2 p))).
+- <span class="nb">intros</span> p q f.
+  <span class="nb">apply</span> (BinProductOfArrows _ (PC (pr1 q) (pr2 q))
+                           (PC (pr1 p) (pr2 p)) (pr1 f) (pr2 f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">binproduct_functor</span> : functor (category_binproduct C C) C.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (tpair _ binproduct_functor_data).
+<span class="kp">abstract</span> (<span class="nb">split</span>;
+  [ <span class="nb">intro</span> x; <span class="nb">simpl</span>; <span class="nb">apply</span> pathsinv0, BinProduct_endo_is_identity;
+    [ <span class="bp">now</span> <span class="nb">rewrite</span> BinProductOfArrowsPr1, id_right
+    | <span class="bp">now</span> <span class="nb">rewrite</span> BinProductOfArrowsPr2, id_right ]
+  | <span class="bp">now</span> <span class="nb">intros</span> x y z f g; <span class="nb">simpl</span>; <span class="nb">rewrite</span> BinProductOfArrows_comp]).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">binproduct_functor</span>.
+
+<span class="c">(* Defines the product of two functors by:</span>
+<span class="c">    x -&gt; (x,x) -&gt; (F x,G x) -&gt; F x * G x</span>
+
+<span class="c">  For a direct definition see FunctorsPointwiseBinProduct.v</span>
+
+<span class="c">*)</span>
+<span class="kn">Definition</span> <span class="nf">BinProduct_of_functors_alt</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">HD</span> : BinProducts D)
+  (<span class="nv">F</span> <span class="nv">G</span> : functor C D) : functor C D :=
+  functor_composite (bindelta_functor C)
+     (functor_composite (pair_functor F G) (binproduct_functor HD)).
+
+
+<span class="sd">(** In the following section we show that if the morphism to components are</span>
+<span class="sd">    zero, then the unique morphism factoring through the binproduct is the</span>
+<span class="sd">    zero morphism. *)</span>
+<span class="kn">Section</span> <span class="nf">BinProduct_zeroarrow</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category) (<span class="nv">Z</span> : Zero C).
+
+  <span class="kn">Lemma</span> <span class="nf">BinProductArrowZero</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>: C} {<span class="nv">BP</span> : BinProduct C x y} (<span class="nv">f</span> : z --&gt; x) (<span class="nv">g</span> : z --&gt; y) :
+    f = ZeroArrow Z _ _ -&gt; g = ZeroArrow Z _ _ -&gt; BinProductArrow C BP f g = ZeroArrow Z _ _ .
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X X0. <span class="nb">apply</span> pathsinv0.
+    use BinProductArrowUnique.
+    <span class="nb">rewrite</span> X. <span class="nb">apply</span> ZeroArrow_comp_left.
+    <span class="nb">rewrite</span> X0. <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">BinProduct_zeroarrow</span>.
+
+<span class="sd">(** ** Definition of a binary product structure on a functor category *)</span>
+
+<span class="sd">(** Goal: lift binary products from the target (pre)category to the functor (pre)category *)</span>
+<span class="kn">Section</span> <span class="nf">def_functor_pointwise_binprod</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category) (<span class="nv">HD</span> : BinProducts D).
+
+<span class="kn">Section</span> <span class="nf">BinProduct_of_functors</span>.
+
+<span class="kn">Context</span> (<span class="nv">F</span> <span class="nv">G</span> : functor C D).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"c ⊗ d"</span> := (BinProductObject _ (HD c d)).
+
+<span class="kn">Definition</span> <span class="nf">BinProduct_of_functors_ob</span> (<span class="nv">c</span> : C) : D := F c ⊗ G c.
+
+<span class="kn">Definition</span> <span class="nf">BinProduct_of_functors_mor</span> (<span class="nv">c</span> <span class="nv">c'</span> : C) (<span class="nv">f</span> : c --&gt; c')
+  : BinProduct_of_functors_ob c --&gt; BinProduct_of_functors_ob c'
+  := BinProductOfArrows _ _ _ (#F f) (#G f).
+
+<span class="kn">Definition</span> <span class="nf">BinProduct_of_functors_data</span> : functor_data C D.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">BinProduct_of_functors_ob</span>.
+  <span class="bp">exact</span> BinProduct_of_functors_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_BinProduct_of_functors_data</span> : is_functor BinProduct_of_functors_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>.
+  - <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">unfold</span> BinProduct_of_functors_mor.
+    <span class="nb">apply</span> BinProduct_endo_is_identity.
+    + <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">apply</span> id_right.
+    + <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">apply</span> id_right.
+  - <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> BinProduct_of_functors_mor.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> BinProductOfArrows_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">BinProduct_of_functors</span> : functor C D :=
+  tpair _ _ is_functor_BinProduct_of_functors_data.
+
+<span class="kn">Lemma</span> <span class="nf">BinProduct_of_functors_alt_eq_BinProduct_of_functors</span> :
+  BinProduct_of_functors_alt HD F G = BinProduct_of_functors.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> (functor_eq _ _ D).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">binproduct_nat_trans_pr1_data</span> : ∏ c, BinProduct_of_functors c --&gt; F c
+  := <span class="k">λ</span> <span class="nv">c</span> : C, BinProductPr1 _ (HD (F c) (G c)).
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_binproduct_nat_trans_pr1_data</span>
+  : is_nat_trans _ _ binproduct_nat_trans_pr1_data.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> c c' f.
+  <span class="nb">unfold</span> binproduct_nat_trans_pr1_data.
+  <span class="nb">unfold</span> BinProduct_of_functors. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> BinProduct_of_functors_mor.
+  <span class="nb">apply</span> BinProductOfArrowsPr1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">binproduct_nat_trans_pr1</span> : nat_trans _ _
+  := tpair _ _ is_nat_trans_binproduct_nat_trans_pr1_data.
+
+
+<span class="kn">Definition</span> <span class="nf">binproduct_nat_trans_pr2_data</span> : ∏ c, BinProduct_of_functors c --&gt; G c
+  := <span class="k">λ</span> <span class="nv">c</span> : C, BinProductPr2 _ (HD (F c) (G c)).
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_binproduct_nat_trans_pr2_data</span>
+  : is_nat_trans _ _ binproduct_nat_trans_pr2_data.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> c c' f.
+  <span class="nb">unfold</span> binproduct_nat_trans_pr2_data.
+  <span class="nb">unfold</span> BinProduct_of_functors. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> BinProduct_of_functors_mor.
+  <span class="nb">apply</span> BinProductOfArrowsPr2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">binproduct_nat_trans_pr2</span> : nat_trans _ _
+  := tpair _ _ is_nat_trans_binproduct_nat_trans_pr2_data.
+
+
+<span class="kn">Section</span> <span class="nf">vertex</span>.
+
+<span class="sd">(** The product morphism of a diagram with vertex [A] *)</span>
+
+<span class="kn">Context</span> (<span class="nv">A</span> : functor C D) (<span class="nv">f</span> : A ⟹ F) (<span class="nv">g</span> : A ⟹ G).
+
+<span class="kn">Definition</span> <span class="nf">binproduct_nat_trans_data</span> : ∏ c,  A c --&gt; BinProduct_of_functors c.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  <span class="nb">apply</span> BinProductArrow.
+  - <span class="bp">exact</span> (f c).
+  - <span class="bp">exact</span> (g c).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_binproduct_nat_trans_data</span> : is_nat_trans _ _ binproduct_nat_trans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b k.
+  <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> BinProduct_of_functors_mor.
+  <span class="nb">unfold</span> binproduct_nat_trans_data.
+  <span class="nb">set</span> (XX:=postcompWithBinProductArrow).
+  <span class="nb">set</span> (X1 := XX D _ _ (HD (F b) (G b))).
+  <span class="nb">set</span> (X2 := X1 _ _ (HD (F a) (G a))).
+  <span class="nb">rewrite</span> X2.
+  <span class="nb">clear</span> X2 X1 XX.
+  <span class="nb">set</span> (XX:=precompWithBinProductArrow).
+  <span class="nb">set</span> (X1 := XX D _ _ (HD (F b) (G b))).
+  <span class="nb">rewrite</span> X1.
+  <span class="nb">rewrite</span> (nat_trans_ax f).
+  <span class="nb">rewrite</span> (nat_trans_ax g).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">binproduct_nat_trans</span> : nat_trans _ _
+  := tpair _ _ is_nat_trans_binproduct_nat_trans_data.
+
+<span class="kn">Lemma</span> <span class="nf">binproduct_nat_trans_Pr1Commutes</span> :
+  nat_trans_comp _ _ _ binproduct_nat_trans binproduct_nat_trans_pr1  = f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq.
+  - <span class="nb">apply</span> D.
+  - <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> BinProductPr1Commutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">binproduct_nat_trans_Pr2Commutes</span> :
+  nat_trans_comp _ _ _ binproduct_nat_trans binproduct_nat_trans_pr2  = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq.
+  - <span class="nb">apply</span> D.
+  - <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> BinProductPr2Commutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">vertex</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">binproduct_nat_trans_univ_prop</span> (<span class="nv">A</span> : [C, D])
+  (<span class="nv">f</span> : A --&gt; (F:[C,D])) (<span class="nv">g</span> : A --&gt; (G:[C,D])) :
+   ∏
+   t : ∑ fg : A --&gt; (BinProduct_of_functors:[C,D]),
+       fg · (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D]) --&gt; F) = f
+      ×
+       fg · (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D]) --&gt; G) = g,
+   t =
+   tpair
+     (<span class="k">λ</span> <span class="nv">fg</span> : A --&gt; (BinProduct_of_functors:[C,D]),
+      fg · (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D]) --&gt; F) = f
+   ×
+      fg · (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D]) --&gt; G) = g)
+     (binproduct_nat_trans A f g)
+     (make_dirprod (binproduct_nat_trans_Pr1Commutes A f g)
+        (binproduct_nat_trans_Pr2Commutes A f g)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> t.
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">destruct</span> t <span class="k">as</span> [t1 [ta tb]].
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> subtypePath.
+  - <span class="nb">intro</span>.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> isapropdirprod;
+    <span class="nb">apply</span> isaset_nat_trans;
+    <span class="nb">apply</span> D.
+  - <span class="nb">simpl</span>.
+    <span class="nb">apply</span> nat_trans_eq.
+    + <span class="nb">apply</span> D.
+    + <span class="nb">intro</span> c.
+      <span class="nb">unfold</span> binproduct_nat_trans.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> binproduct_nat_trans_data.
+      <span class="nb">apply</span> BinProductArrowUnique.
+      * <span class="nb">apply</span> (nat_trans_eq_pointwise ta).
+      * <span class="nb">apply</span> (nat_trans_eq_pointwise tb).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_precat_binproduct_cone</span>
+  : BinProduct [C, D] F G.
+<span class="kn">Proof</span>.
+use make_BinProduct.
+- <span class="nb">apply</span> BinProduct_of_functors.
+- <span class="nb">apply</span> binproduct_nat_trans_pr1.
+- <span class="nb">apply</span> binproduct_nat_trans_pr2.
+- use make_isBinProduct.
+  + <span class="nb">intros</span> A f g.
+    <span class="k">exists</span> (<span class="nv">tpair</span> <span class="nv">_</span> (binproduct_nat_trans A f g)
+             (make_dirprod (binproduct_nat_trans_Pr1Commutes _ _ _ )
+                          (binproduct_nat_trans_Pr2Commutes _ _ _ ))).
+    <span class="nb">apply</span> binproduct_nat_trans_univ_prop.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BinProduct_of_functors</span>.
+
+<span class="kn">Definition</span> <span class="nf">BinProducts_functor_precat</span> : BinProducts [C, D].
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F G.
+  <span class="nb">apply</span> functor_precat_binproduct_cone.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">def_functor_pointwise_binprod</span>.
+
+<span class="kn">Section</span> <span class="nf">BinProduct_of_functors_commutative</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category) (<span class="nv">BD</span> : BinProducts D) (<span class="nv">F</span> <span class="nv">G</span> : functor C D).
+
+<span class="kn">Definition</span> <span class="nf">BinProduct_of_functors_commutes_data</span> :
+  nat_trans_data (BinProduct_of_functors C D BD F G) (BinProduct_of_functors C D BD G F).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  use BinProductArrow.
+  - <span class="nb">apply</span> BinProductPr2.
+  - <span class="nb">apply</span> BinProductPr1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">BinProduct_of_functors_commutes_invdata</span> :
+  nat_trans_data (BinProduct_of_functors C D BD G F) (BinProduct_of_functors C D BD F G).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  use BinProductArrow.
+  - <span class="nb">apply</span> BinProductPr2.
+  - <span class="nb">apply</span> BinProductPr1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProduct_of_functors_commutes_is_inverse</span> (<span class="nv">c</span>: C) :
+  is_inverse_in_precat (BinProduct_of_functors_commutes_data c) (BinProduct_of_functors_commutes_invdata c).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> BinProductArrowsEq.
+    + <span class="nb">rewrite</span> assoc'.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinProductPr1Commutes. }
+      etrans.
+      { <span class="nb">apply</span> BinProductPr2Commutes. }
+      <span class="nb">apply</span> pathsinv0, id_left.
+    + <span class="nb">rewrite</span> assoc'.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinProductPr2Commutes. }
+      etrans.
+      { <span class="nb">apply</span> BinProductPr1Commutes. }
+      <span class="nb">apply</span> pathsinv0, id_left.
+  - <span class="nb">apply</span> BinProductArrowsEq.
+    + <span class="nb">rewrite</span> assoc'.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinProductPr1Commutes. }
+      etrans.
+      { <span class="nb">apply</span> BinProductPr2Commutes. }
+      <span class="nb">apply</span> pathsinv0, id_left.
+    + <span class="nb">rewrite</span> assoc'.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinProductPr2Commutes. }
+      etrans.
+      { <span class="nb">apply</span> BinProductPr1Commutes. }
+      <span class="nb">apply</span> pathsinv0, id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProduct_of_functors_commutes_law</span> : is_nat_trans _ _ BinProduct_of_functors_commutes_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c c' f.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> BinProduct_of_functors_mor.
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, postcompWithBinProductArrow. }
+  <span class="nb">apply</span> BinProductArrowUnique.
+  - <span class="nb">rewrite</span> assoc'.
+    etrans.
+    { <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> BinProductPr1Commutes. }
+    etrans.
+    { <span class="nb">apply</span> BinProductOfArrowsPr2. }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> assoc'.
+    etrans.
+    { <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> BinProductPr2Commutes. }
+    etrans.
+    { <span class="nb">apply</span> BinProductOfArrowsPr1. }
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">BinProduct_of_functors_commutes</span> :
+  nat_z_iso (BinProduct_of_functors C D BD F G) (BinProduct_of_functors C D BD G F).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + <span class="bp">exact</span> BinProduct_of_functors_commutes_data.
+    + <span class="bp">exact</span> BinProduct_of_functors_commutes_law.
+  - <span class="nb">intro</span> c.
+    use make_is_z_isomorphism.
+    { <span class="nb">apply</span> BinProduct_of_functors_commutes_invdata. }
+    <span class="nb">apply</span> BinProduct_of_functors_commutes_is_inverse.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BinProduct_of_functors_commutative</span>.
+
+
+<span class="kn">Section</span> <span class="nf">PairNatTrans</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+          {<span class="nv">F</span> : C₁ ⟶ C₂}
+          {<span class="nv">G₁</span> <span class="nv">G₂</span> <span class="nv">G₃</span> : C₂ ⟶ C₃}
+          (<span class="nv">H</span> : BinProducts C₃)
+          (<span class="nv">η₁</span> : F ∙ G₁ ⟹ F ∙ G₂)
+          (<span class="nv">η₂</span> : F ∙ G₁ ⟹ F ∙ G₃).
+
+  <span class="kn">Local Definition</span> <span class="nf">pair_nat_trans_data</span>
+    : nat_trans_data (F ∙ G₁) (F ∙ BinProduct_of_functors C₂ C₃ H G₂ G₃).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    <span class="nb">apply</span> (BinProductArrow).
+    - <span class="bp">exact</span> (η₁ x).
+    - <span class="bp">exact</span> (η₂ x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_nat_trans_is_nat_trans</span>
+    : is_nat_trans
+        (F ∙ G₁)
+        (F ∙ BinProduct_of_functors C₂ C₃ H G₂ G₃)
+        pair_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (precompWithBinProductArrow _ _ _ _ _ @ _).
+    <span class="nb">pose</span> (pr2 η₁ x y f) <span class="k">as</span> p.
+    <span class="nb">pose</span> (pr2 η₂ x y f) <span class="k">as</span> q.
+    <span class="nb">cbn</span> <span class="k">in</span> p, q.
+    <span class="nb">refine</span> (_ @ _).
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> q.
+    }
+    <span class="nb">refine</span> (_ @ _).
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> p.
+    }
+    <span class="nb">unfold</span> BinProduct_of_functors_mor, BinProductOfArrows, BinProductPr1, BinProductPr2.
+    <span class="bp">exact</span> (!(postcompWithBinProductArrow _ _ _ _ _ _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_nat_trans</span>
+    : F ∙ G₁ ⟹ F ∙ (BinProduct_of_functors _ _ H G₂ G₃).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> pair_nat_trans_data.
+    - <span class="bp">exact</span> pair_nat_trans_is_nat_trans.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PairNatTrans</span>.
+
+<span class="sd">(** ** Construction of BinProduct from an isomorphism to BinProduct. *)</span>
+<span class="kn">Section</span> <span class="nf">BinProductFromIso</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="kn">Local Lemma</span> <span class="nf">iso_to_isBinProduct_comm</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">BP</span> : BinProduct C x y)
+        (<span class="nv">i</span> : iso z (BinProductObject C BP)) (<span class="nv">w</span> : C) (<span class="nv">f</span> : w --&gt; x) (<span class="nv">g</span> : w --&gt; y) :
+    (BinProductArrow C BP f g · inv_from_iso i · (i · BinProductPr1 C BP) = f)
+      × (BinProductArrow C BP f g · inv_from_iso i · (i · BinProductPr2 C BP) = g).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> (assoc _ i).
+      <span class="nb">rewrite</span> (iso_after_iso_inv i). <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> BinProductPr1Commutes.
+    - <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> (assoc _ i).
+      <span class="nb">rewrite</span> (iso_after_iso_inv i). <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> BinProductPr2Commutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">iso_to_isBinProduct_unique</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">BP</span> : BinProduct C x y)
+        (<span class="nv">i</span> : iso z (BinProductObject C BP)) (<span class="nv">w</span> : C) (<span class="nv">f</span> : C ⟦w, x⟧) (<span class="nv">g</span> : C ⟦w, y⟧) (<span class="nv">y0</span> : C ⟦w, z⟧)
+        (<span class="nv">T</span> : y0 · (i · BinProductPr1 C BP) = f × y0 · (i · BinProductPr2 C BP) = g) :
+    y0 = BinProductArrow C BP f g · iso_inv_from_iso i.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (post_comp_with_iso_is_inj _ _ i (pr2 i)).
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">cbn</span>. <span class="nb">rewrite</span> (iso_after_iso_inv i). <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> BinProductArrowUnique.
+    - <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> (dirprod_pr1 T).
+    - <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> (dirprod_pr2 T).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iso_to_isBinProduct</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">BP</span> : BinProduct C x y)
+        (<span class="nv">i</span> : iso z (BinProductObject C BP)) :
+    isBinProduct C _ _ z (i · (BinProductPr1 C BP))  (i · (BinProductPr2 C BP)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w f g.
+    use unique_exists.
+    <span class="c">(* Arrow *)</span>
+    - <span class="bp">exact</span> ((BinProductArrow C BP f g) · (iso_inv_from_iso i)).
+    <span class="c">(* Commutativity *)</span>
+    - <span class="kp">abstract</span> (<span class="bp">exact</span> (iso_to_isBinProduct_comm BP i w f g)).
+    <span class="c">(* Equality of equalities of morphisms. *)</span>
+    - <span class="kp">abstract</span> (<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> C).
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> y0 T; <span class="bp">exact</span> (iso_to_isBinProduct_unique BP i w f g y0 T)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_to_BinProduct</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">BP</span> : BinProduct C x y)
+             (<span class="nv">i</span> : iso z (BinProductObject C BP)) :
+    BinProduct C x y := make_BinProduct C _ _ z
+                                              (i · (BinProductPr1 C BP))
+                                              (i · (BinProductPr2 C BP))
+                                              (iso_to_isBinProduct BP i).
+
+<span class="kn">End</span> <span class="nf">BinProductFromIso</span>.
+
+<span class="sd">(** ** Equivalent universal property: [(C --&gt; A) × (C --&gt; B) ≃ (C --&gt; A × B)]</span>
+
+<span class="sd"> Compare to [weqfuntoprodtoprod].</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Section</span> <span class="nf">EquivalentDefinition</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">c</span> <span class="nv">d</span> <span class="nv">p</span> : ob C} (<span class="nv">p1</span> : p --&gt; c) (<span class="nv">p2</span> : p --&gt; d).
+
+  <span class="kn">Definition</span> <span class="nf">postcomp_with_projections</span> (<span class="nv">a</span> : ob C) (<span class="nv">f</span> : a --&gt; p) :
+    (a --&gt; c) × (a --&gt; d) := make_dirprod (f · p1)  (f · p2).
+
+  <span class="kn">Definition</span> <span class="nf">isBinProduct'</span> : UU := ∏ a : ob C, isweq (postcomp_with_projections a).
+
+  <span class="kn">Definition</span> <span class="nf">isBinProduct'_weq</span> (<span class="nv">isc</span> : isBinProduct') :
+    ∏ a, (a --&gt; p) ≃ (a --&gt; c) × (a --&gt; d) :=
+    <span class="k">λ</span> <span class="nv">a</span>, make_weq (postcomp_with_projections a) (isc a).
+
+  <span class="kn">Lemma</span> <span class="nf">isBinProduct'_to_isBinProduct</span> :
+    isBinProduct' -&gt; isBinProduct _ _ _ p p1 p2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> isBP' ? f g.
+    <span class="nb">apply</span> (@iscontrweqf (hfiber (isBinProduct'_weq isBP' _)
+                                (make_dirprod f g))).
+    - use weqfibtototal; <span class="nb">intro</span>; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> postcomp_with_projections.
+      <span class="nb">apply</span> pathsdirprodweq.
+    - <span class="nb">apply</span> weqproperty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isBinProduct_to_isBinProduct'</span> :
+    isBinProduct _ _ _ p p1 p2 -&gt; isBinProduct'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> isBP ? fg.
+    <span class="nb">unfold</span> hfiber, postcomp_with_projections.
+    <span class="nb">apply</span> (@iscontrweqf (∑ u : C ⟦ a, p ⟧, u · p1 = pr1 fg × u · p2 = pr2 fg)).
+    - use weqfibtototal; <span class="nb">intro</span>; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> invweq, pathsdirprodweq.
+    - <span class="bp">exact</span> (isBP a (pr1 fg) (pr2 fg)). <span class="c">(* apply universal property *)</span>
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* TODO: prove that [isBinProduct'_to_isBinProduct] is an equivalence *)</span>
+
+<span class="kn">End</span> <span class="nf">EquivalentDefinition</span>.
+
+<span class="sd">(** Match non-implicit arguments of [isBinProduct] *)</span>
+<span class="kn">Arguments</span> isBinProduct' _ _ _ _ _ : <span class="kn">clear implicits</span>.
+
+<span class="sd">(** ** Terminal object as the unit (up to isomorphism) of binary products *)</span>
+
+<span class="sd">(** [T × x ≅ x]*)</span>
+<span class="kn">Lemma</span> <span class="nf">terminal_binprod_unit_l_z_aux</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Terminal C) (<span class="nv">BC</span> : BinProducts C) (<span class="nv">x</span> : C) :
+  is_inverse_in_precat (BinProductPr2 C (BC T x))
+    (BinProductArrow C (BC T x) (TerminalArrow T x) (identity x)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_inverse_in_precat.
+  <span class="nb">split</span>; [|<span class="nb">apply</span> BinProductPr2Commutes].
+  <span class="nb">refine</span> (precompWithBinProductArrow _ _ _ _ _ @ _).
+  <span class="nb">refine</span> (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
+  <span class="nb">apply</span> maponpaths_12.
+  - <span class="nb">apply</span> TerminalArrowEq.
+  - <span class="bp">exact</span> (id_right _ @ !id_left _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">terminal_binprod_unit_l_z</span> {<span class="nv">C</span> : category}
+      (<span class="nv">T</span> : Terminal C) (<span class="nv">BC</span> : BinProducts C) (<span class="nv">x</span> : C) :
+  is_z_isomorphism (BinProductPr2 C (BC T x)).
+<span class="kn">Proof</span>.
+  use make_is_z_isomorphism.
+  - <span class="nb">apply</span> BinProductArrow.
+    + <span class="sd">(** The unique [x -&gt; T] *)</span>
+      <span class="nb">apply</span> TerminalArrow.
+    + <span class="nb">apply</span> identity.
+  - <span class="nb">apply</span> terminal_binprod_unit_l_z_aux.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** [x × T ≅ x]*)</span>
+<span class="kn">Lemma</span> <span class="nf">terminal_binprod_unit_r_z_aux</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Terminal C) (<span class="nv">BC</span> : BinProducts C) (<span class="nv">x</span> : C) :
+  is_inverse_in_precat (BinProductPr1 C (BC x T)) (BinProductArrow C (BC x T) (identity x)
+                                                     (TerminalArrow T x)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_inverse_in_precat.
+  <span class="nb">split</span>; [|<span class="nb">apply</span> BinProductPr1Commutes].
+  <span class="nb">refine</span> (precompWithBinProductArrow _ _ _ _ _ @ _).
+  <span class="nb">refine</span> (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
+  <span class="nb">apply</span> maponpaths_12.
+  - <span class="bp">exact</span> (id_right _ @ !id_left _).
+  - <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">terminal_binprod_unit_r_z</span> {<span class="nv">C</span> : category}
+      (<span class="nv">T</span> : Terminal C) (<span class="nv">BC</span> : BinProducts C) (<span class="nv">x</span> : C) :
+  is_z_isomorphism (BinProductPr1 C (BC x T)).
+<span class="kn">Proof</span>.
+  use make_is_z_isomorphism.
+  - <span class="nb">apply</span> BinProductArrow.
+    + <span class="nb">apply</span> identity.
+    + <span class="sd">(** The unique [x -&gt; T] *)</span>
+      <span class="nb">apply</span> TerminalArrow.
+  - <span class="nb">apply</span> terminal_binprod_unit_r_z_aux.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">BinProduct_of_functors_with_terminal</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category) (<span class="nv">HD</span> : BinProducts D) (<span class="nv">TD</span> : Terminal D) (<span class="nv">F</span> : functor C D).
+
+<span class="kn">Definition</span> <span class="nf">terminal_BinProduct_of_functors_unit_l_data</span> :
+  nat_trans_data (BinProduct_of_functors C D HD (constant_functor C D TD) F) F.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c. <span class="bp">exact</span> (BinProductPr2 D (HD TD (F c))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">terminal_BinProduct_of_functors_unit_l_law</span> :
+  is_nat_trans _ _ terminal_BinProduct_of_functors_unit_l_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c c' f.
+  <span class="nb">apply</span> BinProductOfArrowsPr2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">terminal_BinProduct_of_functors_unit_l</span>  :
+  nat_z_iso (BinProduct_of_functors _ _ HD (constant_functor _ _ TD) F) F.
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + <span class="bp">exact</span> terminal_BinProduct_of_functors_unit_l_data.
+    + <span class="bp">exact</span> terminal_BinProduct_of_functors_unit_l_law.
+  - <span class="nb">intro</span> c. <span class="nb">apply</span> terminal_binprod_unit_l_z.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">terminal_BinProduct_of_functors_unit_r_data</span> :
+  nat_trans_data (BinProduct_of_functors C D HD F (constant_functor C D TD)) F.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c. <span class="bp">exact</span> (BinProductPr1 D (HD (F c) TD)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">terminal_BinProduct_of_functors_unit_r_law</span> :
+  is_nat_trans _ _ terminal_BinProduct_of_functors_unit_r_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c c' f.
+  <span class="nb">apply</span> BinProductOfArrowsPr1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">terminal_BinProduct_of_functors_unit_r</span>  :
+  nat_z_iso (BinProduct_of_functors _ _ HD F (constant_functor _ _ TD)) F.
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + <span class="bp">exact</span> terminal_BinProduct_of_functors_unit_r_data.
+    + <span class="bp">exact</span> terminal_BinProduct_of_functors_unit_r_law.
+  - <span class="nb">intro</span> c. <span class="nb">apply</span> terminal_binprod_unit_r_z.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BinProduct_of_functors_with_terminal</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> In a univalent category, the type of binary products on a given diagram</span>
+<span class="sd"> is a proposition</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">eq_BinProduct</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">prod₁</span> <span class="nv">prod₂</span> : BinProduct C x y)
+           (<span class="nv">q</span> : BinProductObject _ prod₁ = BinProductObject _ prod₂)
+           (<span class="nv">e₁</span> : BinProductPr1 _ prod₁ = idtoiso q · BinProductPr1 _ prod₂)
+           (<span class="nv">e₂</span> : BinProductPr2 _ prod₁ = idtoiso q · BinProductPr2 _ prod₂)
+  : prod₁ = prod₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    use isapropiscontr.
+  }
+  use total2_paths_f.
+  - <span class="bp">exact</span> q.
+  - <span class="nb">rewrite</span> transportf_dirprod.
+    <span class="nb">rewrite</span> &lt;- !idtoiso_precompose.
+    <span class="nb">rewrite</span> !idtoiso_inv.
+    use pathsdirprod ; <span class="nb">cbn</span> ; use z_iso_inv_on_right.
+    + <span class="bp">exact</span> e₁.
+    + <span class="bp">exact</span> e₂.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">IsoBinProduct</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">x</span> <span class="nv">y</span> : C}
+          (<span class="nv">p₁</span> <span class="nv">p₂</span> : BinProduct C x y).
+
+  <span class="kn">Let</span> <span class="nf">f</span> : BinProductObject C p₁ --&gt; BinProductObject C p₂
+      := BinProductArrow _ _ (BinProductPr1 _ p₁) (BinProductPr2 _ p₁).
+
+  <span class="kn">Let</span> <span class="nf">g</span> : BinProductObject C p₂ --&gt; BinProductObject C p₁
+      := BinProductArrow _ _ (BinProductPr1 _ p₂) (BinProductPr2 _ p₂).
+
+  <span class="kn">Local Lemma</span> <span class="nf">iso_between_BinProduct_eq</span>
+    : is_inverse_in_precat f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> f, g.
+    <span class="nb">split</span>.
+    - use BinProductArrowsEq.
+      + <span class="nb">rewrite</span> assoc'.
+        <span class="nb">rewrite</span> !BinProductPr1Commutes.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> assoc'.
+        <span class="nb">rewrite</span> !BinProductPr2Commutes.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+    - use BinProductArrowsEq.
+      + <span class="nb">rewrite</span> assoc'.
+        <span class="nb">rewrite</span> !BinProductPr1Commutes.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> assoc'.
+        <span class="nb">rewrite</span> !BinProductPr2Commutes.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_between_BinProduct</span>
+    : z_iso (BinProductObject C p₁) (BinProductObject C p₂).
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span> g.
+    - <span class="bp">exact</span> iso_between_BinProduct_eq.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">IsoBinProduct</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_BinProduct</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : is_univalent C)
+           (<span class="nv">x</span> <span class="nv">y</span> : C)
+  : isaprop (BinProduct C x y).
+<span class="kn">Proof</span>.
+  use invproofirrelevance.
+  <span class="nb">intros</span> p₁ p₂.
+  use eq_BinProduct.
+  - <span class="nb">refine</span> (isotoid _ HC _).
+    <span class="nb">apply</span> iso_between_BinProduct.
+  - <span class="nb">rewrite</span> idtoiso_isotoid ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> BinProductPr1Commutes.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> idtoiso_isotoid ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> BinProductPr2Commutes.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Products when the projections are equal</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">isBinProduct_eq_arrow</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           {<span class="nv">π₁</span> <span class="nv">π₁'</span> : z --&gt; x}
+           (<span class="nv">p₁</span> : π₁ = π₁')
+           {<span class="nv">π₂</span> <span class="nv">π₂'</span> : z --&gt; y}
+           (<span class="nv">p₂</span> : π₂ = π₂')
+           (<span class="nv">H</span> : isBinProduct C x y z π₁ π₂)
+  : isBinProduct C x y z π₁' π₂'.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (P := make_BinProduct _ _ _ _ _ _ H).
+  use make_isBinProduct.
+  <span class="nb">intros</span> w f g.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (<span class="nb">induction</span> p₁, p₂ ;
+       <span class="nb">apply</span> isapropifcontr ;
+       <span class="nb">apply</span> H).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="bp">exact</span> (BinProductArrow _ P f g).
+    + <span class="kp">abstract</span>
+        (<span class="nb">induction</span> p₁ ;
+         <span class="bp">exact</span> (BinProductPr1Commutes _ _ _ P _ f g)).
+    + <span class="kp">abstract</span>
+        (<span class="nb">induction</span> p₂ ;
+         <span class="bp">exact</span> (BinProductPr2Commutes _ _ _ P _ f g)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Products of isos</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">BinProductOfIsos</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+          (<span class="nv">Pab</span> : BinProduct C a b)
+          (<span class="nv">Pcd</span> : BinProduct C c d)
+          (<span class="nv">f</span> : z_iso a c)
+          (<span class="nv">g</span> : z_iso b d).
+
+  <span class="kn">Let</span> <span class="nf">fg</span> : BinProductObject _ Pab --&gt; BinProductObject _ Pcd
+    := BinProductOfArrows _ _ _ f g.
+
+  <span class="kn">Let</span> <span class="nf">fg_inv</span> : BinProductObject _ Pcd --&gt; BinProductObject _ Pab
+    := BinProductOfArrows _ _ _ (inv_from_z_iso f) (inv_from_z_iso g).
+
+  <span class="kn">Definition</span> <span class="nf">binproduct_of_z_iso_inv</span>
+    : is_inverse_in_precat fg fg_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; use BinProductArrowsEq ; <span class="nb">unfold</span> fg, fg_inv.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binproduct_of_z_iso</span>
+    : z_iso (BinProductObject _ Pab) (BinProductObject _ Pcd).
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> fg.
+    - <span class="bp">exact</span> fg_inv.
+    - <span class="bp">exact</span> binproduct_of_z_iso_inv.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BinProductOfIsos</span>.
+
+<span class="c">(*</span>
+<span class="c">Definition of the "associative" z-isomorphism</span>
+<span class="c">*)</span>
+<span class="kn">Section</span> <span class="nf">BinProduct_assoc_z_iso</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">P</span> : BinProducts C)
+          (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C).
+
+  <span class="kn">Let</span> <span class="nf">Pbc</span> := P b c.
+  <span class="kn">Let</span> <span class="nf">Pa_bc</span> := P a (BinProductObject _ Pbc).
+  <span class="kn">Let</span> <span class="nf">Pab</span> := P a b.
+  <span class="kn">Let</span> <span class="nf">Pab_c</span> := P (BinProductObject _ Pab) c.
+
+  <span class="kn">Definition</span> <span class="nf">BinProduct_assoc_mor</span> : C ⟦ BinProductObject C Pa_bc , BinProductObject C Pab_c ⟧.
+  <span class="kn">Proof</span>.
+    use BinProductArrow.
+    + use BinProductOfArrows.
+      - <span class="bp">exact</span> (identity a).
+      - use BinProductPr1.
+    + use (compose (b := BinProductObject C Pbc)).
+      - use BinProductPr2.
+      - use BinProductPr2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">BinProduct_assoc_invmor</span> : C ⟦ BinProductObject C Pab_c , BinProductObject C Pa_bc ⟧.
+  <span class="kn">Proof</span>.
+    use BinProductArrow.
+    + use (compose (b := BinProductObject C Pab)).
+      - use BinProductPr1.
+      - use BinProductPr1.
+    + use BinProductOfArrows.
+      - use BinProductPr2.
+      - <span class="bp">exact</span> (identity c).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">BinProduct_assoc_is_inverse</span> : is_inverse_in_precat BinProduct_assoc_mor BinProduct_assoc_invmor.
+  <span class="kn">Proof</span>.
+    use make_is_inverse_in_precat.
+    - <span class="nb">unfold</span> BinProduct_assoc_mor, BinProduct_assoc_invmor.
+      use BinProductArrowsEq.
+      * <span class="bp">now</span> <span class="nb">rewrite</span>
+          id_left,
+          assoc',
+          BinProductPr1Commutes,
+          assoc,
+          BinProductPr1Commutes,
+          BinProductOfArrowsPr1,
+          id_right.
+      * <span class="bp">now</span> <span class="nb">rewrite</span>
+          id_left,
+          assoc',
+          BinProductPr2Commutes,
+          postcompWithBinProductArrow,
+          id_right,
+          BinProductOfArrowsPr2,
+          &lt;-precompWithBinProductArrow,
+          &lt;-(id_left (BinProductPr1 C Pbc)),
+          &lt;-(id_left (BinProductPr2 C Pbc)),
+          &lt;-BinProductArrowEta,
+          id_right.
+    - <span class="nb">unfold</span> BinProduct_assoc_mor, BinProduct_assoc_invmor.
+      use BinProductArrowsEq.
+      * <span class="bp">now</span> <span class="nb">rewrite</span>
+          id_left,
+          assoc',
+          BinProductPr1Commutes,
+          postcompWithBinProductArrow,
+          id_right,
+          BinProductOfArrowsPr1,
+          &lt;-precompWithBinProductArrow,
+          &lt;-(id_left (BinProductPr1 C Pab)),
+          &lt;-(id_left (BinProductPr2 C Pab)),
+          &lt;-BinProductArrowEta, id_right.
+      * <span class="bp">now</span> <span class="nb">rewrite</span>
+          id_left,
+          assoc',
+          BinProductPr2Commutes,
+          assoc,
+          BinProductPr2Commutes,
+          BinProductOfArrowsPr2,
+          id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">BinProduct_assoc_is_z_iso</span> : is_z_isomorphism (BinProduct_assoc_mor).
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    + <span class="bp">exact</span> BinProduct_assoc_invmor.
+    + <span class="bp">exact</span> BinProduct_assoc_is_inverse.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">BinProduct_assoc</span> : z_iso (BinProductObject C Pa_bc) (BinProductObject C Pab_c).
+  <span class="kn">Proof</span>.
+    use make_z_iso'.
+    + <span class="bp">exact</span> BinProduct_assoc_mor.
+    + <span class="bp">exact</span> BinProduct_assoc_is_z_iso.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BinProduct_assoc_z_iso</span>.
+
+<span class="kn">Section</span> <span class="nf">BinProduct_OfArrows_assoc</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+  (<span class="nv">P</span> : BinProducts C)
+  {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">b'</span> <span class="nv">c</span> <span class="nv">c'</span> : C}
+  (<span class="nv">f</span> : C ⟦ a', a ⟧) (<span class="nv">g</span> : C ⟦ b', b ⟧) (<span class="nv">h</span> : C ⟦ c', c ⟧).
+
+  <span class="kn">Let</span> <span class="nf">Pbc</span> := P b c.
+  <span class="kn">Let</span> <span class="nf">Pa_bc</span> := P a (BinProductObject _ Pbc).
+  <span class="kn">Let</span> <span class="nf">Pab</span> := P a b.
+  <span class="kn">Let</span> <span class="nf">Pab_c</span> := P (BinProductObject _ Pab) c.
+  <span class="kn">Let</span> <span class="nf">Pbc'</span> := P b' c'.
+  <span class="kn">Let</span> <span class="nf">Pa_bc'</span> := P a' (BinProductObject _ Pbc').
+  <span class="kn">Let</span> <span class="nf">Pab'</span> := P a' b'.
+  <span class="kn">Let</span> <span class="nf">Pab_c'</span> := P (BinProductObject _ Pab') c'.
+
+  <span class="kn">Lemma</span> <span class="nf">BinProduct_OfArrows_assoc</span>
+  : BinProductOfArrows _ Pa_bc Pa_bc' f (BinProductOfArrows _ Pbc Pbc' g h) · (BinProduct_assoc P a b c) =
+    (BinProduct_assoc P a' b' c') · BinProductOfArrows _ Pab_c Pab_c' (BinProductOfArrows _ Pab Pab' f g) h.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> BinProduct_assoc, BinProduct_assoc_mor.
+    <span class="nb">simpl</span>.
+    use BinProductArrowsEq.
+    + <span class="nb">rewrite</span> !assoc', (BinProductPr1Commutes), BinProductOfArrowsPr1, assoc, BinProductPr1Commutes.
+      use BinProductArrowsEq.
+      - <span class="bp">now</span> <span class="nb">rewrite</span> !assoc',
+          !BinProductOfArrowsPr1,
+          !assoc,
+          !BinProductOfArrowsPr1,
+          id_right, !assoc', id_left.
+      - <span class="bp">now</span> <span class="nb">rewrite</span> !assoc',
+          !BinProductOfArrowsPr2,
+          !assoc,
+          !BinProductOfArrowsPr2,
+          !assoc',
+          !BinProductOfArrowsPr1.
+    + <span class="bp">now</span> <span class="nb">rewrite</span> !assoc',
+        !BinProductOfArrowsPr2, !BinProductPr2Commutes,
+        !assoc,
+        !BinProductOfArrowsPr2, !BinProductPr2Commutes,
+        !assoc',
+        !BinProductOfArrowsPr2.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">BinProduct_OfArrows_assoc</span>.
+
+<span class="kn">Section</span> <span class="nf">diagonalMap</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span>:category} (<span class="nv">P</span> : BinProducts C) (<span class="nv">B</span>:C).
+
+  <span class="kn">Definition</span> <span class="nf">diagonalMap'</span> : C ⟦ B, BinProductObject C (P B B) ⟧.
+  <span class="kn">Proof</span>.
+    use BinProductArrow.
+    - <span class="bp">exact</span> (identity B).
+    - <span class="bp">exact</span> (identity B).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">diagonalMap_isMonic</span> : isMonic (diagonalMap').
+  <span class="kn">Proof</span>.
+    use make_isMonic.
+    <span class="nb">intros</span> x g h p.
+    <span class="nb">assert</span> (p' :=
+      (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, compose f (BinProductPr1 C (P B B))) p)).
+    <span class="nb">unfold</span> diagonalMap' <span class="k">in</span> p'.
+    <span class="nb">rewrite</span> !assoc', BinProductPr1Commutes , !id_right <span class="k">in</span> p'.
+    <span class="bp">exact</span> p'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">diagonalMap</span> : Monic _ B (BinProductObject C (P B B)).
+  <span class="kn">Proof</span>.
+    use make_Monic.
+    + <span class="bp">exact</span> diagonalMap'.
+    + <span class="bp">exact</span> diagonalMap_isMonic.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">diagonalMap</span>.
+
+<span class="kn">Section</span> <span class="nf">ProductFunctions</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">prodC</span> : BinProducts C).
+
+  <span class="kn">Definition</span> <span class="nf">prod_swap</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : prodC x y --&gt; prodC y x.
+  <span class="kn">Proof</span>.
+    use BinProductArrow.
+    - <span class="nb">apply</span> BinProductPr2.
+    - <span class="nb">apply</span> BinProductPr1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_lwhisker</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : C}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+             (<span class="nv">y</span> : C)
+    : prodC x₁ y --&gt; prodC x₂ y.
+  <span class="kn">Proof</span>.
+    use BinProductOfArrows.
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span> (identity _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_rwhisker</span>
+             (<span class="nv">x</span> : C)
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+             (<span class="nv">g</span> : y₁ --&gt; y₂)
+    : prodC x y₁ --&gt; prodC x y₂.
+  <span class="kn">Proof</span>.
+    use BinProductOfArrows.
+    - <span class="bp">exact</span> (identity _).
+    - <span class="bp">exact</span> g.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_lwhisker_rwhisker</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> : C}
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+              (<span class="nv">f</span> : x₁ --&gt; x₂)
+              (<span class="nv">g</span> : y₁ --&gt; y₂)
+    : prod_lwhisker f _ · prod_rwhisker _ g
+      =
+      BinProductOfArrows _ _ _ f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> prod_lwhisker, prod_rwhisker.
+    <span class="nb">rewrite</span> BinProductOfArrows_comp.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_swap_swap</span>
+              (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : prod_swap x y · prod_swap y x = identity _.
+  <span class="kn">Proof</span>.
+    use BinProductArrowsEq.
+    - <span class="nb">unfold</span> prod_swap.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !id_left.
+      <span class="nb">rewrite</span> BinProductPr1Commutes.
+      <span class="nb">rewrite</span> BinProductPr2Commutes.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> prod_swap.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !id_left.
+      <span class="nb">rewrite</span> BinProductPr2Commutes.
+      <span class="nb">rewrite</span> BinProductPr1Commutes.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">BinProductOfArrows_swap</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> : C}
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+              (<span class="nv">f</span> : x₁ --&gt; x₂)
+              (<span class="nv">g</span> : y₁ --&gt; y₂)
+    : BinProductOfArrows C (prodC _ _) (prodC _ _) f g · prod_swap x₂ y₂
+      =
+      prod_swap x₁ y₁ · BinProductOfArrows C _ _ g f.
+  <span class="kn">Proof</span>.
+    use BinProductArrowsEq.
+    - <span class="nb">unfold</span> prod_swap.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> BinProductPr1Commutes.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> BinProductPr1Commutes.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> prod_swap.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> BinProductPr2Commutes.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> BinProductPr2Commutes.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ProductFunctions</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Binary products are closed under iso</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">isBinProduct_z_iso</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">a₁</span> <span class="nv">a₂</span> : C}
+           {<span class="nv">p₁</span> : a₁ --&gt; x}
+           {<span class="nv">q₁</span> : a₁ --&gt; y}
+           {<span class="nv">p₂</span> : a₂ --&gt; x}
+           {<span class="nv">q₂</span> : a₂ --&gt; y}
+           (<span class="nv">H</span> : isBinProduct C x y a₁ p₁ q₁)
+           (<span class="nv">f</span> : z_iso a₂ a₁)
+           (<span class="nv">r₁</span> : p₂ = f · p₁)
+           (<span class="nv">r₂</span> : q₂ = f · q₁)
+  : isBinProduct C x y a₂ p₂ q₂.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w h₁ h₂.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> φ₁ φ₂ ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+       use (cancel_z_iso _ _ f) ;
+       use (BinProductArrowsEq _ _ _ (make_BinProduct _ _ _ _ _ _ H)) ;
+       [ <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> &lt;- !r₁ ;
+         <span class="bp">exact</span> (pr12 φ₁ @ !(pr12 φ₂))
+       | <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> &lt;- !r₂ ;
+         <span class="bp">exact</span> (pr22 φ₁ @ !(pr22 φ₂)) ]).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="bp">exact</span> (BinProductArrow _ (make_BinProduct _ _ _ _ _ _ H) h₁ h₂ · inv_from_z_iso f).
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> r₁ ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)) ;
+         <span class="nb">rewrite</span> z_iso_after_z_iso_inv ;
+         <span class="nb">rewrite</span> id_left ;
+         <span class="nb">apply</span> BinProductPr1Commutes).
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> r₂ ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)) ;
+         <span class="nb">rewrite</span> z_iso_after_z_iso_inv ;
+         <span class="nb">rewrite</span> id_left ;
+         <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ (make_BinProduct _ _ _ _ _ _ H))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">BinProductsFromProducts</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+<span class="kn">Context</span> (<span class="nv">c</span> <span class="nv">d</span> : C).
+
+<span class="kn">Let</span> <span class="nf">binproduct_indexed_objects</span>
+  (<span class="nv">i</span> : bool)
+  : C
+  := <span class="k">if</span> i <span class="k">then</span> c <span class="k">else</span> d.
+
+<span class="kn">Context</span> (<span class="nv">P</span> : Product bool C binproduct_indexed_objects).
+
+<span class="kn">Definition</span> <span class="nf">BinProduct_from_Product</span>
+  : BinProduct _ c d.
+<span class="kn">Proof</span>.
+  use ((_ ,, _ ,, _) ,, (<span class="k">λ</span> <span class="nv">p'</span> <span class="nv">π₁</span> <span class="nv">π₂</span>, ((_ ,, _ ,, _) ,, _))).
+  - <span class="bp">exact</span> (ProductObject _ _ P).
+  - <span class="bp">exact</span> (ProductPr _ _ P true).
+  - <span class="bp">exact</span> (ProductPr _ _ P false).
+  - <span class="nb">apply</span> ProductArrow.
+    <span class="nb">intro</span> i.
+    <span class="nb">induction</span> i.
+    + <span class="bp">exact</span> π₁.
+    + <span class="bp">exact</span> π₂.
+  - <span class="bp">exact</span> (ProductPrCommutes _ _ _ P _ _ true).
+  - <span class="bp">exact</span> (ProductPrCommutes _ _ _ P _ _ false).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span> t;
+      <span class="nb">apply</span> subtypePath;
+      [ <span class="nb">intro</span>;
+        <span class="nb">apply</span> isapropdirprod;
+        <span class="nb">apply</span> homset_property | ];
+      <span class="nb">apply</span> (ProductArrowUnique _ _ _ P);
+      <span class="nb">intro</span> i;
+      <span class="nb">induction</span> i;
+      [ <span class="bp">exact</span> (pr12 t)
+      | <span class="bp">exact</span> (pr22 t) ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BinProductsFromProducts</span>.
+
+<span class="kn">Definition</span> <span class="nf">BinProducts_from_Products</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">P</span> : Products bool C)
+  : BinProducts C
+  := <span class="k">λ</span> <span class="nv">c</span> <span class="nv">d</span>, BinProduct_from_Product c d (P _).
+
+<span class="kn">Section</span> <span class="nf">ProductsFromBinProducts</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+  <span class="kn">Context</span> (<span class="nv">BP</span> : BinProducts C).
+  <span class="kn">Context</span> {<span class="nv">n</span> : nat}.
+  <span class="kn">Context</span> {<span class="nv">c</span> : C}.
+  <span class="kn">Context</span> (<span class="nv">P</span> : Product (stn n) C (<span class="k">λ</span> <span class="nv">_</span>, c)).
+  <span class="kn">Let</span> <span class="nf">stnweq</span> := (weqdnicoprod n lastelement).
+
+  <span class="kn">Definition</span> <span class="nf">sn_power_object</span>
+    : C
+    := BP P c.
+
+  <span class="kn">Definition</span> <span class="nf">sn_power_projection</span>
+    (<span class="nv">i</span> : stn (S n))
+    : C ⟦ sn_power_object, c ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+    - <span class="bp">exact</span> (
+        BinProductPr1 _ _ ·
+        ProductPr _ _ _ i'
+      ).
+    - <span class="nb">apply</span> BinProductPr2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">Arrow</span>.
+
+    <span class="kn">Context</span> (<span class="nv">c'</span> : C).
+    <span class="kn">Context</span> (<span class="nv">cone'</span> : stn (S n) → C⟦c', c⟧).
+
+    <span class="kn">Definition</span> <span class="nf">sn_power_arrow</span>
+      : C ⟦c', sn_power_object⟧.
+    <span class="kn">Proof</span>.
+      use BinProductArrow.
+      - <span class="nb">apply</span> ProductArrow.
+        <span class="nb">intro</span> i.
+        <span class="nb">apply</span> (cone' (stnweq (inl i))).
+      - <span class="nb">apply</span> (cone' (stnweq (inr tt))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">sn_power_arrow_commutes</span>
+      (<span class="nv">i</span> : stn (S n))
+      : sn_power_arrow · sn_power_projection i = cone' i.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> &lt;- (homotweqinvweq stnweq i).
+      <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+      - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · (_ x)) (homotinvweqweq stnweq (inl i')) @ _).
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (BinProductPr1Commutes _ _ _ _ _ _ _) @ _).
+        <span class="nb">apply</span> (ProductPrCommutes _ _ _ P).
+      - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · (_ x)) (homotinvweqweq stnweq (inr i')) @ _).
+        <span class="nb">refine</span> (BinProductPr2Commutes _ _ _ (BP P c) _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">now</span> <span class="nb">apply</span> stn_eq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">sn_power_arrow_unique</span>
+      (<span class="nv">t</span> : ∑ (f: C ⟦c', sn_power_object⟧),
+        ∏ i, f · sn_power_projection i = cone' i)
+      : t = (sn_power_arrow ,, sn_power_arrow_commutes).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> subtypePairEquality.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> impred_isaprop.
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">apply</span> BinProductArrowUnique.
+      - <span class="nb">apply</span> ProductArrowUnique.
+        <span class="nb">intro</span> i.
+        <span class="nb">refine</span> (_ @ pr2 t _).
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths _ (!_)).
+        <span class="bp">exact</span> (maponpaths _ (homotinvweqweq _ _)).
+      - <span class="nb">refine</span> (!_ @ pr2 t _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths _ (homotinvweqweq _ _)).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">Arrow</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sn_power_is_product</span>
+    : isProduct _ _ _ sn_power_object sn_power_projection.
+  <span class="kn">Proof</span>.
+    use (make_isProduct _ _ (homset_property C)).
+    <span class="nb">intros</span> c' cone'.
+    use make_iscontr.
+    + <span class="k">exists</span> (<span class="nv">sn_power_arrow</span> <span class="nv">c'</span> <span class="nv">cone'</span>).
+      <span class="bp">exact</span> (sn_power_arrow_commutes c' cone').
+    + <span class="bp">exact</span> (sn_power_arrow_unique c' cone').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">n_power_to_sn_power</span>
+    : Product (stn (S n)) C (<span class="k">λ</span> <span class="nv">_</span>, c).
+  <span class="kn">Proof</span>.
+    use make_Product.
+    - <span class="bp">exact</span> sn_power_object.
+    - <span class="bp">exact</span> sn_power_projection.
+    - <span class="bp">exact</span> sn_power_is_product.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ProductsFromBinProducts</span>.
+
+<span class="kn">Definition</span> <span class="nf">bin_product_power</span>
+  (<span class="nv">C</span> : category)
+  (<span class="nv">c</span> : C)
+  (<span class="nv">T</span> : Terminal C)
+  (<span class="nv">BP</span> : BinProducts C)
+  (<span class="nv">n</span> : nat)
+  : Product (stn n) C (<span class="k">λ</span> <span class="nv">_</span>, c).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn].
+  - <span class="bp">exact</span> (Terminal_is_empty_product T _ weqstn0toempty).
+  - <span class="nb">apply</span> (n_power_to_sn_power BP IHn).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">BinProductOfIso</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isbinproduct_of_isos</span>
+        {<span class="nv">C</span> : category} {<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y1</span> <span class="nv">y2</span> <span class="nv">py</span> : C}
+        (<span class="nv">px</span> : BinProduct _ x1 x2)
+        (<span class="nv">i1</span> : z_iso y1 x1) (<span class="nv">i2</span> : z_iso y2 x2)
+        (<span class="nv">i</span> : z_iso py px)
+        (<span class="nv">f1</span> : C ⟦py, y1 ⟧) (<span class="nv">f2</span> : C ⟦py, y2 ⟧)
+        (<span class="nv">pf1</span> : i · BinProductPr1 C px = f1 · i1)
+        (<span class="nv">pf2</span> : i · BinProductPr2 C px = f2 · i2)
+    : isBinProduct _ y1 y2 py f1 f2.
+  <span class="kn">Proof</span>.
+    use make_isBinProduct.
+    <span class="nb">intros</span> c g1 g2.
+    use iscontraprop1.
+    - use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property. }
+
+      use (cancel_z_iso _ _ _ (BinProductArrowsEq _ _ _ px _ (pr1 φ₁ · _) (pr1 φ₂ · _) _ _)).
+      + <span class="bp">exact</span> i.
+      + <span class="nb">rewrite</span> ! assoc'.
+        <span class="nb">rewrite</span> pf1.
+        <span class="nb">rewrite</span> ! assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (pr12 φ₁ @ ! pr12 φ₂).
+      + <span class="nb">rewrite</span> ! assoc'.
+        <span class="nb">rewrite</span> pf2.
+        <span class="nb">rewrite</span> ! assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (pr22 φ₁ @ ! pr22 φ₂).
+    - <span class="nb">set</span> (t := pr1 (iso_to_isBinProduct _ px (z_iso_to_iso i) c (g1 · i1) (g2 · i2))).
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">t</span>).
+      <span class="nb">split</span>.
+      + <span class="nb">refine</span> (_ @ ! z_iso_inv_on_left _ _ _ _ _ _ (pr12 t)).
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        use z_iso_inv_on_left.
+        <span class="bp">exact</span> pf1.
+      + <span class="nb">refine</span> (_ @ ! z_iso_inv_on_left _ _ _ _ _ _ (pr22 t)).
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        use z_iso_inv_on_left.
+        <span class="bp">exact</span> pf2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">binproduct_of_isos</span> {<span class="nv">C</span> : category} {<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y1</span> <span class="nv">y2</span> : C}
+    (<span class="nv">p</span> : BinProduct _ x1 x2) (<span class="nv">i1</span> : z_iso x1 y1) (<span class="nv">i2</span> : z_iso x2 y2)
+    : BinProduct _ y1 y2.
+  <span class="kn">Proof</span>.
+    use make_BinProduct.
+    - <span class="bp">exact</span> p.
+    - <span class="bp">exact</span> (BinProductPr1 _ p · i1).
+    - <span class="bp">exact</span> (BinProductPr2 _ p · i2).
+    - use (isbinproduct_of_isos p (z_iso_inv i1) (z_iso_inv i2) (identity_z_iso p))
+      ; <span class="nb">rewrite</span> id_left;
+        <span class="nb">rewrite</span> assoc';
+        <span class="nb">rewrite</span> z_iso_inv_after_z_iso;
+        <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BinProductOfIso</span>.
+
+<span class="kn">Section</span> <span class="nf">HelperLemmas</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transportf_BinProductOfArrows_right</span>
+    {<span class="nv">C</span> : category}
+    (<span class="nv">P</span> : BinProducts C)
+    {<span class="nv">x</span> <span class="nv">y</span> : C}
+    {<span class="nv">x₁</span> <span class="nv">x₂</span> : C}
+    (<span class="nv">f</span> : C⟦P x x₁, y⟧)
+    (<span class="nv">p</span> : x₁ = x₂)
+    : transportf (<span class="k">λ</span> <span class="nv">z</span> : C, C ⟦ P x z, y⟧) p f =
+        BinProductOfArrows C (P x x₁) (P x x₂) (identity x) (idtoiso (! p)) · f.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> BinProductOfArrows_id.
+    <span class="bp">exact</span> (! id_left _).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">HelperLemmas</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/BinProducts.v</tt>, line 23)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

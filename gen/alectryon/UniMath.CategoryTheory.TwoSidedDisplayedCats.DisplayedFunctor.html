@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisplayedFunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Functors of two-sided displayed categories</span>
+
+<span class="sd"> We define functors of two-sided displayed categories and we show that every such</span>
+<span class="sd"> functor gives rise to a functor between the total categories. In addition, we give</span>
+<span class="sd"> examples of such functors, namely the identity and composition. We also show that</span>
+<span class="sd"> if the target two-sided displayed category is discrete, then the type of functors</span>
+<span class="sd"> between them forms a set.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Functors of two-sided displayed categories</span>
+<span class="sd"> 2. Some laws</span>
+<span class="sd"> 3. The total functor</span>
+<span class="sd"> 4. The identity</span>
+<span class="sd"> 5. Composition</span>
+<span class="sd"> 6. Functors between discrete two-sided displayed categories form a set</span>
+<span class="sd"> 7. Two-sided displayed functors versus displayed functors</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Total.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Functors of two-sided displayed categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">DisplayedFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+          (<span class="nv">F</span> : C₁ ⟶ C₁')
+          (<span class="nv">G</span> : C₂ ⟶ C₂')
+          (<span class="nv">D₁</span> : twosided_disp_cat C₁ C₂)
+          (<span class="nv">D₂</span> : twosided_disp_cat C₁' C₂').
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_data</span>
+    : UU
+    := ∑ (FGob : ∏ (x : C₁) (y : C₂), D₁ x y → D₂ (F x) (G y)),
+       ∏ (x₁ x₂ : C₁)
+         (y₁ y₂ : C₂)
+         (xy₁ : D₁ x₁ y₁)
+         (xy₂ : D₁ x₂ y₂)
+         (f : x₁ --&gt; x₂)
+         (g : y₁ --&gt; y₂)
+         (fg : xy₁ --&gt;[ f ][ g ] xy₂),
+       FGob _ _ xy₁ --&gt;[ #F f ][ #G g] FGob _ _ xy₂.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_data_ob</span>
+             (<span class="nv">FG</span> : twosided_disp_functor_data)
+             {<span class="nv">x</span> : C₁}
+             {<span class="nv">y</span> : C₂}
+             (<span class="nv">xy</span> : D₁ x y)
+    : D₂ (F x) (G y)
+    := pr1 FG x y xy.
+
+  <span class="kn">Coercion</span> <span class="nf">twosided_disp_functor_data_ob</span> : twosided_disp_functor_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_data_mor</span>
+             (<span class="nv">FG</span> : twosided_disp_functor_data)
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+             {<span class="nv">xy₁</span> : D₁ x₁ y₁}
+             {<span class="nv">xy₂</span> : D₁ x₂ y₂}
+             {<span class="nv">f</span> : x₁ --&gt; x₂}
+             {<span class="nv">g</span> : y₁ --&gt; y₂}
+             (<span class="nv">fg</span> : xy₁ --&gt;[ f ][ g ] xy₂)
+    : FG _ _ xy₁ --&gt;[ #F f ][ #G g] FG _ _ xy₂
+    := pr2 FG _ _ _ _ _ _ _ _ fg.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'#2' F"</span> := (twosided_disp_functor_data_mor F) (<span class="kn">at level</span> <span class="mi">10</span>).
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_id_law</span>
+             (<span class="nv">FG</span> : twosided_disp_functor_data)
+    : UU
+    := ∏ (x : C₁) (y : C₂) (xy : D₁ x y),
+       #<span class="mi">2</span> FG (id_two_disp xy)
+       =
+       transportb_disp_mor2
+         (functor_id F x)
+         (functor_id G y)
+         (id_two_disp (FG _ _ xy)).
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_comp_law</span>
+             (<span class="nv">FG</span> : twosided_disp_functor_data)
+    : UU
+    := ∏ (x₁ x₂ x₃ : C₁)
+         (y₁ y₂ y₃ : C₂)
+         (xy₁ : D₁ x₁ y₁)
+         (xy₂ : D₁ x₂ y₂)
+         (xy₃ : D₁ x₃ y₃)
+         (f₁ : x₁ --&gt; x₂)
+         (g₁ : y₁ --&gt; y₂)
+         (fg₁ : xy₁ --&gt;[ f₁ ][ g₁ ] xy₂)
+         (f₂ : x₂ --&gt; x₃)
+         (g₂ : y₂ --&gt; y₃)
+         (fg₂ : xy₂ --&gt;[ f₂ ][ g₂ ] xy₃),
+       #<span class="mi">2</span> FG (fg₁ ;;<span class="mi">2</span> fg₂)
+       =
+       transportb_disp_mor2
+         (functor_comp F f₁ f₂)
+         (functor_comp G g₁ g₂)
+         (#<span class="mi">2</span> FG fg₁ ;;<span class="mi">2</span> #<span class="mi">2</span> FG fg₂).
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_laws</span>
+             (<span class="nv">FG</span> : twosided_disp_functor_data)
+    : UU
+    := twosided_disp_functor_id_law FG × twosided_disp_functor_comp_law FG.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_twosided_disp_functor_laws</span>
+              (<span class="nv">FG</span> : twosided_disp_functor_data)
+    : isaprop (twosided_disp_functor_laws FG).
+  <span class="kn">Proof</span>.
+    use isapropdirprod ; <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ; <span class="nb">apply</span> isaset_disp_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor</span>
+    : UU
+    := ∑ (FG : twosided_disp_functor_data), twosided_disp_functor_laws FG.
+
+  <span class="kn">Coercion</span> <span class="nf">twosided_disp_functor_to_data</span>
+           (FG : twosided_disp_functor)
+    : twosided_disp_functor_data
+    := pr1 FG.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_id</span>
+             (<span class="nv">FG</span> : twosided_disp_functor)
+             {<span class="nv">x</span> : C₁}
+             {<span class="nv">y</span> : C₂}
+             (<span class="nv">xy</span> : D₁ x y)
+    : #<span class="mi">2</span> FG (id_two_disp xy)
+      =
+      transportb_disp_mor2
+        (functor_id F x)
+        (functor_id G y)
+        (id_two_disp (FG _ _ xy))
+    := pr12 FG x y xy.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_id_alt</span>
+             (<span class="nv">FG</span> : twosided_disp_functor)
+             {<span class="nv">x</span> : C₁}
+             {<span class="nv">y</span> : C₂}
+             (<span class="nv">xy</span> : D₁ x y)
+    : id_two_disp (FG _ _ xy)
+      =
+      transportf_disp_mor2
+        (functor_id F x)
+        (functor_id G y)
+        (#<span class="mi">2</span> FG (id_two_disp xy)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> twosided_disp_functor_id.
+    <span class="nb">rewrite</span> transportfb_disp_mor2.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_comp</span>
+             (<span class="nv">FG</span> : twosided_disp_functor)
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> : C₁}
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : C₂}
+             {<span class="nv">xy₁</span> : D₁ x₁ y₁}
+             {<span class="nv">xy₂</span> : D₁ x₂ y₂}
+             {<span class="nv">xy₃</span> : D₁ x₃ y₃}
+             {<span class="nv">f₁</span> : x₁ --&gt; x₂}
+             {<span class="nv">g₁</span> : y₁ --&gt; y₂}
+             (<span class="nv">fg₁</span> : xy₁ --&gt;[ f₁ ][ g₁ ] xy₂)
+             {<span class="nv">f₂</span> : x₂ --&gt; x₃}
+             {<span class="nv">g₂</span> : y₂ --&gt; y₃}
+             (<span class="nv">fg₂</span> : xy₂ --&gt;[ f₂ ][ g₂ ] xy₃)
+    : #<span class="mi">2</span> FG (fg₁ ;;<span class="mi">2</span> fg₂)
+      =
+      transportb_disp_mor2
+        (functor_comp F f₁ f₂)
+        (functor_comp G g₁ g₂)
+        (#<span class="mi">2</span> FG fg₁ ;;<span class="mi">2</span> #<span class="mi">2</span> FG fg₂)
+    := pr22 FG _ _ _ _ _ _ _ _ _ _ _ fg₁ _ _ fg₂.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_comp_alt</span>
+             (<span class="nv">FG</span> : twosided_disp_functor)
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> : C₁}
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : C₂}
+             {<span class="nv">xy₁</span> : D₁ x₁ y₁}
+             {<span class="nv">xy₂</span> : D₁ x₂ y₂}
+             {<span class="nv">xy₃</span> : D₁ x₃ y₃}
+             {<span class="nv">f₁</span> : x₁ --&gt; x₂}
+             {<span class="nv">g₁</span> : y₁ --&gt; y₂}
+             (<span class="nv">fg₁</span> : xy₁ --&gt;[ f₁ ][ g₁ ] xy₂)
+             {<span class="nv">f₂</span> : x₂ --&gt; x₃}
+             {<span class="nv">g₂</span> : y₂ --&gt; y₃}
+             (<span class="nv">fg₂</span> : xy₂ --&gt;[ f₂ ][ g₂ ] xy₃)
+    : #<span class="mi">2</span> FG fg₁ ;;<span class="mi">2</span> #<span class="mi">2</span> FG fg₂
+      =
+      transportf_disp_mor2
+        (functor_comp F f₁ f₂)
+        (functor_comp G g₁ g₂)
+        (#<span class="mi">2</span> FG (fg₁ ;;<span class="mi">2</span> fg₂)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> twosided_disp_functor_comp.
+    <span class="nb">rewrite</span> transportfb_disp_mor2.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">DisplayedFunctor</span>.
+
+<span class="kn">Arguments</span> twosided_disp_functor_data_mor
+            {C₁ C₁' C₂ C₂' F G D₁ D₂}
+            FG
+            {x₁ x₂ y₁ y₂ xy₁ xy₂ f g}
+            fg.
+<span class="kn">Notation</span> <span class="s2">"'#2' F"</span> := (twosided_disp_functor_data_mor F) (<span class="kn">at level</span> <span class="mi">10</span>) : cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Some laws</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">transportb_twosided_disp_functor_left</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₁'}
+           {<span class="nv">G</span> : C₂ ⟶ C₂'}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₂}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₁' C₂'}
+           (<span class="nv">FG</span> : twosided_disp_functor F G D₁ D₂)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+           {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+           {<span class="nv">xy₁</span> : D₁ x₁ y₁}
+           {<span class="nv">xy₂</span> : D₁ x₂ y₂}
+           {<span class="nv">f</span> <span class="nv">f'</span> : x₁ --&gt; x₂}
+           (<span class="nv">p</span> : f = f')
+           {<span class="nv">g</span> : y₁ --&gt; y₂}
+           (<span class="nv">fg</span> : xy₁ --&gt;[ f' ][ g ] xy₂)
+  : #<span class="mi">2</span> FG (transportb (<span class="k">λ</span> <span class="nv">z</span>, xy₁ --&gt;[ z ][ g ] xy₂) p fg)
+    =
+    transportb
+      (<span class="k">λ</span> <span class="nv">z</span>, FG _ _ xy₁ --&gt;[ z ][ _ ] FG _ _ xy₂)
+      (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #F z) p)
+      (#<span class="mi">2</span> FG fg).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportb_twosided_disp_functor_right</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₁'}
+           {<span class="nv">G</span> : C₂ ⟶ C₂'}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₂}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₁' C₂'}
+           (<span class="nv">FG</span> : twosided_disp_functor F G D₁ D₂)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+           {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+           {<span class="nv">xy₁</span> : D₁ x₁ y₁}
+           {<span class="nv">xy₂</span> : D₁ x₂ y₂}
+           {<span class="nv">f</span> : x₁ --&gt; x₂}
+           {<span class="nv">g</span> <span class="nv">g'</span> : y₁ --&gt; y₂}
+           (<span class="nv">p</span> : g = g')
+           (<span class="nv">fg</span> : xy₁ --&gt;[ f ][ g' ] xy₂)
+  : #<span class="mi">2</span> FG (transportb (<span class="k">λ</span> <span class="nv">z</span>, xy₁ --&gt;[ f ][ z ] xy₂) p fg)
+    =
+    transportb
+      (<span class="k">λ</span> <span class="nv">z</span>, FG _ _ xy₁ --&gt;[ _ ][ z ] FG _ _ xy₂)
+      (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #G z) p)
+      (#<span class="mi">2</span> FG fg).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportf_twosided_disp_functor_left</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₁'}
+           {<span class="nv">G</span> : C₂ ⟶ C₂'}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₂}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₁' C₂'}
+           (<span class="nv">FG</span> : twosided_disp_functor F G D₁ D₂)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+           {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+           {<span class="nv">xy₁</span> : D₁ x₁ y₁}
+           {<span class="nv">xy₂</span> : D₁ x₂ y₂}
+           {<span class="nv">f</span> <span class="nv">f'</span> : x₁ --&gt; x₂}
+           (<span class="nv">p</span> : f' = f)
+           {<span class="nv">g</span> : y₁ --&gt; y₂}
+           (<span class="nv">fg</span> : xy₁ --&gt;[ f' ][ g ] xy₂)
+  : #<span class="mi">2</span> FG (transportf (<span class="k">λ</span> <span class="nv">z</span>, xy₁ --&gt;[ z ][ g ] xy₂) p fg)
+    =
+    transportf
+      (<span class="k">λ</span> <span class="nv">z</span>, FG _ _ xy₁ --&gt;[ z ][ _ ] FG _ _ xy₂)
+      (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #F z) p)
+      (#<span class="mi">2</span> FG fg).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportf_twosided_disp_functor_right</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₁'}
+           {<span class="nv">G</span> : C₂ ⟶ C₂'}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₂}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₁' C₂'}
+           (<span class="nv">FG</span> : twosided_disp_functor F G D₁ D₂)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+           {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+           {<span class="nv">xy₁</span> : D₁ x₁ y₁}
+           {<span class="nv">xy₂</span> : D₁ x₂ y₂}
+           {<span class="nv">f</span> : x₁ --&gt; x₂}
+           {<span class="nv">g</span> <span class="nv">g'</span> : y₁ --&gt; y₂}
+           (<span class="nv">p</span> : g' = g)
+           (<span class="nv">fg</span> : xy₁ --&gt;[ f ][ g' ] xy₂)
+  : #<span class="mi">2</span> FG (transportf (<span class="k">λ</span> <span class="nv">z</span>, xy₁ --&gt;[ f ][ z ] xy₂) p fg)
+    =
+    transportf
+      (<span class="k">λ</span> <span class="nv">z</span>, FG _ _ xy₁ --&gt;[ _ ][ z ] FG _ _ xy₂)
+      (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #G z) p)
+      (#<span class="mi">2</span> FG fg).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportf_twosided_disp_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₁'}
+           {<span class="nv">G</span> : C₂ ⟶ C₂'}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₂}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₁' C₂'}
+           (<span class="nv">FG</span> : twosided_disp_functor F G D₁ D₂)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+           {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+           {<span class="nv">xy₁</span> : D₁ x₁ y₁}
+           {<span class="nv">xy₂</span> : D₁ x₂ y₂}
+           {<span class="nv">f</span> <span class="nv">f'</span> : x₁ --&gt; x₂}
+           (<span class="nv">p</span> : f = f')
+           {<span class="nv">g</span> <span class="nv">g'</span> : y₁ --&gt; y₂}
+           (<span class="nv">q</span> : g = g')
+           (<span class="nv">fg</span> : xy₁ --&gt;[ f ][ g ] xy₂)
+  : #<span class="mi">2</span> FG (transportf_disp_mor2 p q fg)
+    =
+    transportf_disp_mor2
+      (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #F z) p)
+      (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #G z) q)
+      (#<span class="mi">2</span> FG fg).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportb_twosided_disp_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₁'}
+           {<span class="nv">G</span> : C₂ ⟶ C₂'}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₂}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₁' C₂'}
+           (<span class="nv">FG</span> : twosided_disp_functor F G D₁ D₂)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+           {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+           {<span class="nv">xy₁</span> : D₁ x₁ y₁}
+           {<span class="nv">xy₂</span> : D₁ x₂ y₂}
+           {<span class="nv">f</span> <span class="nv">f'</span> : x₁ --&gt; x₂}
+           (<span class="nv">p</span> : f = f')
+           {<span class="nv">g</span> <span class="nv">g'</span> : y₁ --&gt; y₂}
+           (<span class="nv">q</span> : g = g')
+           (<span class="nv">fg</span> : xy₁ --&gt;[ f' ][ g' ] xy₂)
+  : #<span class="mi">2</span> FG (transportb_disp_mor2 p q fg)
+    =
+    transportb_disp_mor2
+      (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #F z) p)
+      (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #G z) q)
+      (#<span class="mi">2</span> FG fg).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. The total functor</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">TotalFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+          {<span class="nv">F</span> : C₁ ⟶ C₁'}
+          {<span class="nv">G</span> : C₂ ⟶ C₂'}
+          {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₂}
+          {<span class="nv">D₂</span> : twosided_disp_cat C₁' C₂'}
+          (<span class="nv">FG</span> : twosided_disp_functor F G D₁ D₂).
+
+  <span class="kn">Definition</span> <span class="nf">total_twosided_disp_functor_data</span>
+    : functor_data
+        (total_twosided_disp_category D₁)
+        (total_twosided_disp_category D₂).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span>, F (pr1 xy) ,, G (pr12 xy) ,, FG _ _ (pr22 xy)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span> <span class="nv">fg</span>, #F (pr1 fg) ,, #G (pr12 fg) ,, #<span class="mi">2</span> FG (pr22 fg)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_twosided_disp_functor_is_functor</span>
+    : is_functor total_twosided_disp_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      use total2_paths_2_b.
+      + <span class="nb">apply</span> functor_id.
+      + <span class="nb">apply</span> functor_id.
+      + <span class="nb">apply</span> twosided_disp_functor_id.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      use total2_paths_2_b.
+      + <span class="nb">apply</span> functor_comp.
+      + <span class="nb">apply</span> functor_comp.
+      + <span class="nb">apply</span> twosided_disp_functor_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_twosided_disp_functor</span>
+    : total_twosided_disp_category D₁ ⟶ total_twosided_disp_category D₂.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> total_twosided_disp_functor_data.
+    - <span class="bp">exact</span> total_twosided_disp_functor_is_functor.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">TotalFunctor</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. The identity</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">IdFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">D</span> : twosided_disp_cat C₁ C₂).
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_identity_data</span>
+    : twosided_disp_functor_data
+        (functor_identity C₁) (functor_identity C₂)
+        D D.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xy</span>, xy).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">fg</span>, fg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_identity_laws</span>
+    : twosided_disp_functor_laws
+        _ _ _ _
+        twosided_disp_functor_identity_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y xy ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ x₃ y₁ y₂ y₃ xy₁ xy₂ xy₃ f₁ g₁ fg₁ f₂ g₂ fg₂ ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_functor_identity</span>
+    : twosided_disp_functor
+        (functor_identity C₁) (functor_identity C₂)
+        D D.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> twosided_disp_functor_identity_data.
+    - <span class="bp">exact</span> twosided_disp_functor_identity_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">IdFunctor</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Composition</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">CompFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₁''</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> <span class="nv">C₂''</span> : category}
+          {<span class="nv">F</span> : C₁ ⟶ C₁'} {<span class="nv">F'</span> : C₁' ⟶ C₁''}
+          {<span class="nv">G</span> : C₂ ⟶ C₂'} {<span class="nv">G'</span> : C₂' ⟶ C₂''}
+          {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+          {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+          {<span class="nv">D''</span> : twosided_disp_cat C₁'' C₂''}
+          (<span class="nv">FG</span> : twosided_disp_functor F G D D')
+          (<span class="nv">FG'</span> : twosided_disp_functor F' G' D' D'').
+
+  <span class="kn">Definition</span> <span class="nf">comp_twosided_disp_functor_data</span>
+    : twosided_disp_functor_data (F ∙ F') (G ∙ G') D D''.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xy</span>, FG' _ _ (FG _ _ xy)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">fg</span>, #<span class="mi">2</span> FG' (#<span class="mi">2</span> FG fg)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_twosided_disp_functor_laws</span>
+    : twosided_disp_functor_laws _ _ _ _ comp_twosided_disp_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> twosided_disp_functor_id.
+      <span class="nb">rewrite</span> transportb_twosided_disp_functor.
+      <span class="nb">rewrite</span> twosided_disp_functor_id.
+      <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+      use transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> twosided_disp_functor_comp.
+      <span class="nb">rewrite</span> transportb_twosided_disp_functor.
+      <span class="nb">rewrite</span> twosided_disp_functor_comp.
+      <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+      use transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_twosided_disp_functor</span>
+    : twosided_disp_functor (F ∙ F') (G ∙ G') D D''.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> comp_twosided_disp_functor_data.
+    - <span class="bp">exact</span> comp_twosided_disp_functor_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CompFunctor</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Functors between discrete two-sided displayed categories form a set</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">isaset_twosided_disp_functor_to_discrete</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₁'}
+           {<span class="nv">G</span> : C₂ ⟶ C₂'}
+           (<span class="nv">D₁</span> : twosided_disp_cat C₁ C₂)
+           {<span class="nv">D₂</span> : twosided_disp_cat C₁' C₂'}
+           (<span class="nv">HD</span> : discrete_twosided_disp_cat D₂)
+  : isaset (twosided_disp_functor F G D₁ D₂).
+<span class="kn">Proof</span>.
+  use isaset_total2.
+  - use isaset_total2.
+    + <span class="kp">repeat</span> (use impred_isaset ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaset_discrete_twosided_cat_ob.
+      <span class="bp">exact</span> HD.
+    + <span class="nb">intro</span>.
+      <span class="kp">repeat</span> (use impred_isaset ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaset_disp_mor.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_twosided_disp_functor_laws.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Two-sided displayed functors versus displayed functors</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ToDispFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+          {<span class="nv">F</span> : C₁ ⟶ C₁'}
+          {<span class="nv">G</span> : C₂ ⟶ C₂'}
+          {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₂}
+          {<span class="nv">D₂</span> : twosided_disp_cat C₁' C₂'}
+          (<span class="nv">FG</span> : twosided_disp_functor F G D₁ D₂).
+
+  <span class="kn">Definition</span> <span class="nf">two_sided_disp_functor_to_disp_functor_data</span>
+    : disp_functor_data
+        (pair_functor F G)
+        (twosided_disp_cat_to_disp_cat _ _ D₁)
+        (twosided_disp_cat_to_disp_cat _ _ D₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span>, FG (pr1 xy) (pr2 xy)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">xx₁</span> <span class="nv">xx₂</span> <span class="nv">f</span> <span class="nv">ff</span>, #<span class="mi">2</span> FG ff).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">two_sided_disp_functor_to_disp_functor_axioms</span>
+    : disp_functor_axioms
+        two_sided_disp_functor_to_disp_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> twosided_disp_functor_id.
+      <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2.
+      <span class="nb">rewrite</span> twosided_prod_transport.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> x y z xx yy zz f g ff gg ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> twosided_disp_functor_comp.
+      <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2.
+      <span class="nb">rewrite</span> twosided_prod_transport.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">two_sided_disp_functor_to_disp_functor</span>
+    : disp_functor
+        (pair_functor F G)
+        (twosided_disp_cat_to_disp_cat _ _ D₁)
+        (twosided_disp_cat_to_disp_cat _ _ D₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> two_sided_disp_functor_to_disp_functor_data.
+    - <span class="bp">exact</span> two_sided_disp_functor_to_disp_functor_axioms.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ToDispFunctor</span>.
+
+<span class="kn">Section</span> <span class="nf">FromDispFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+          {<span class="nv">F</span> : C₁ ⟶ C₁'}
+          {<span class="nv">G</span> : C₂ ⟶ C₂'}
+          {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₂}
+          {<span class="nv">D₂</span> : twosided_disp_cat C₁' C₂'}
+          (<span class="nv">FG</span> : disp_functor
+                  (pair_functor F G)
+                  (twosided_disp_cat_to_disp_cat _ _ D₁)
+                  (twosided_disp_cat_to_disp_cat _ _ D₂)).
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_to_two_sided_disp_functor_data</span>
+    : twosided_disp_functor_data F G D₁ D₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xy</span>, FG (x ,, y) xy).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">fg</span>,
+             @disp_functor_on_morphisms
+                _ _ _ _ _
+                FG
+                (x₁ ,, y₁) (x₂ ,, y₂)
+                xy₁ xy₂
+                (f ,, g)
+                fg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_functor_to_two_sided_disp_functor_axioms</span>
+    : twosided_disp_functor_laws
+        F G D₁ D₂
+        disp_functor_to_two_sided_disp_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y xy ; <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="bp">exact</span> (@disp_functor_id _ _ _ _ _ FG (x ,, y) xy).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2.
+      <span class="nb">rewrite</span> twosided_prod_transport.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> x₁ x₂ x₃ y₁ y₂ y₃ xy₁ xy₂ xy₃ f₁ g₁ fg₁ f₂ g₂ fg₂ ; <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="bp">exact</span> (@disp_functor_comp
+                 _ _ _ _ _
+                 FG
+                 (x₁ ,, y₁) (x₂ ,, y₂) (x₃ ,, y₃)
+                 xy₁ xy₂ xy₃
+                 (f₁ ,, g₁) (f₂ ,, g₂)
+                 fg₁ fg₂).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2.
+      <span class="nb">rewrite</span> twosided_prod_transport.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_to_two_sided_disp_functor</span>
+    : twosided_disp_functor F G D₁ D₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_functor_to_two_sided_disp_functor_data.
+    - <span class="bp">exact</span> disp_functor_to_two_sided_disp_functor_axioms.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FromDispFunctor</span>.
+
+<span class="kn">Definition</span> <span class="nf">two_sided_disp_functor_weq_disp_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₁')
+           (<span class="nv">G</span> : C₂ ⟶ C₂')
+           (<span class="nv">D₁</span> : twosided_disp_cat C₁ C₂)
+           (<span class="nv">D₂</span> : twosided_disp_cat C₁' C₂')
+  : twosided_disp_functor F G D₁ D₂
+    ≃
+    disp_functor
+      (pair_functor F G)
+      (twosided_disp_cat_to_disp_cat _ _ D₁)
+      (twosided_disp_cat_to_disp_cat _ _ D₂).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> two_sided_disp_functor_to_disp_functor.
+  - <span class="bp">exact</span> disp_functor_to_two_sided_disp_functor.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> FG ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_twosided_disp_functor_laws | ] ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> FG ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_disp_functor_axioms | ] ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/TwoSidedDisplayedCats/DisplayedFunctor.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. Two-sided displayed functors versus displayed functors
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

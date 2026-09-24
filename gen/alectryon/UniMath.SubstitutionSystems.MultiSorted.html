@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MultiSorted.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">This file contains a formalization of multisorted binding signatures:</span>
+
+<span class="sd">- Definition of multisorted binding signatures ([MultiSortedSig])</span>
+<span class="sd">- Construction of a functor from a multisorted binding signature</span>
+<span class="sd">  ([MultiSortedSigToFunctor])</span>
+<span class="sd">- Construction of signature with strength from a multisorted binding</span>
+<span class="sd">  signature ([MultiSortedSigToSignature])</span>
+<span class="sd">- Proof that the functor obtained from a multisorted binding signature</span>
+<span class="sd">  is omega-cocontinuous ([is_omega_cocont_MultiSortedSigToFunctor])</span>
+
+<span class="sd">The construction of a monad on Set/sort from a multisorted signature</span>
+<span class="sd">is now found in [UniMath.SubstitutionSystems.MultiSortedMonadConstruction].</span>
+
+
+<span class="sd">Written by: Anders Mörtberg, 2016. The formalization follows a note</span>
+<span class="sd">written by Benedikt Ahrens and Ralph Matthes, and is also inspired by</span>
+<span class="sd">discussions with them and Vladimir Voevodsky.</span>
+
+<span class="sd">Strength calculation added by Ralph Matthes, 2017.</span>
+
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Slice.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Structures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.slicecat.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SumOfSignatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.BinProductOfSignatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.<span class="kn">Notation</span>.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subsys.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SignatureExamples.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MonadsMultiSorted.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C / X"</span> := (slicecat_ob C X).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C / X"</span> := (slice_precat_data C X).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C / X"</span> := (slice_cat C X).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C / X ⟦ a , b ⟧"</span> := (slicecat_mor C X a b) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">format</span> <span class="s2">"C / X ⟦ a , b ⟧"</span>).
+
+<span class="c">(* These should be global *)</span>
+<span class="kn">Arguments</span> Gθ_Signature {_ _ _ _} _ _.
+<span class="kn">Arguments</span> Signature_Functor {_ _ _} _.
+<span class="kn">Arguments</span> BinProduct_of_functors {_ _} _ _ _.
+<span class="kn">Arguments</span> DL_comp {_ _} _ {_} _.
+<span class="kn">Arguments</span> θ_from_δ_Signature {_ _} _.
+<span class="kn">Arguments</span> BinProduct_of_Signatures {_ _ _} _ _ _.
+<span class="kn">Arguments</span> Sum_of_Signatures _ {_ _ _} _ _.
+
+<span class="sd">(** * Definition of multisorted binding signatures *)</span>
+<span class="kn">Section</span> <span class="nf">MBindingSig</span>.
+
+<span class="kn">Context</span> (<span class="nv">sort</span> : hSet).
+
+<span class="kn">Local Definition</span> <span class="nf">HSET_over_sort</span> : category.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (<span class="nv">HSET</span> / sort).
+<span class="bp">now</span> <span class="nb">apply</span> has_homsets_slice_precat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Let</span> <span class="nf">BC</span> := BinCoproducts_slice_precat _ BinCoproductsHSET sort: BinCoproducts (HSET / sort).
+
+<span class="sd">(** Definition of multi sorted signatures *)</span>
+<span class="kn">Definition</span> <span class="nf">MultiSortedSig</span> : UU :=
+  ∑ (I : hSet), I → list (list sort × sort) × sort.
+
+<span class="kn">Definition</span> <span class="nf">ops</span> (<span class="nv">M</span> : MultiSortedSig) : hSet := pr1 M.
+<span class="kn">Definition</span> <span class="nf">arity</span> (<span class="nv">M</span> : MultiSortedSig) : ops M → list (list sort × sort) × sort :=
+  <span class="k">λ</span> <span class="nv">x</span>, pr2 M x.
+
+<span class="kn">Definition</span> <span class="nf">make_MultiSortedSig</span> {<span class="nv">I</span> : hSet}
+  (<span class="nv">ar</span> : I → list (list sort × sort) × sort) : MultiSortedSig := (I,,ar).
+
+
+<span class="sd">(** * Construction of an endofunctor on [HSET/sort,HSET/sort] from a multisorted signature *)</span>
+<span class="kn">Section</span> <span class="nf">functor</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">proj_fun</span> (<span class="nv">s</span> : sort) : HSET / sort -&gt; HSET :=
+  <span class="k">λ</span> <span class="nv">p</span>, hfiber_hSet (pr2 p) s.
+
+<span class="kn">Definition</span> <span class="nf">proj_functor</span> (<span class="nv">s</span> : sort) : functor (HSET / sort) HSET.
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="k">exists</span> (<span class="nv">proj_fun</span> <span class="nv">s</span>).
+  <span class="nb">intros</span> X Y f p.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">f</span> (pr1 p)).
+  <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">induction</span> f <span class="k">as</span> [h hh]; <span class="nb">induction</span> p <span class="k">as</span> [x hx]; <span class="nb">simpl</span> <span class="k">in</span> *; <span class="nb">rewrite</span> &lt;- hx, hh).
+- <span class="kp">abstract</span> (<span class="nb">split</span>; [<span class="nb">intros</span> X|<span class="nb">intros</span> X Y Z f g];
+            <span class="nb">apply</span> funextsec; <span class="nb">intro</span> p; <span class="nb">apply</span> subtypePath; <span class="kp">try</span> <span class="nb">apply</span> idpath;
+            <span class="nb">intros</span> x; <span class="nb">apply</span> setproperty).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The left adjoint to the proj_functor *)</span>
+<span class="kn">Definition</span> <span class="nf">hat_functor</span> (<span class="nv">t</span> : sort) : functor HSET (HSET / sort).
+<span class="kn">Proof</span>.
+use tpair.
+- use tpair.
+  + <span class="nb">intro</span> A; <span class="nb">apply</span> (A,,<span class="k">λ</span> <span class="nv">_</span>, t).
+  + <span class="nb">intros</span> A B f; <span class="nb">apply</span> (tpair _ f), idpath.
+- <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">split</span>; [<span class="nb">intros</span> A|<span class="nb">intros</span> A B C f g];
+            <span class="nb">apply</span> subtypePath; <span class="kp">try</span> (<span class="nb">intro</span> x; <span class="nb">apply</span> has_homsets_HSET)).
+<span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">(** The object (1,λ _,s) in HSET/sort that can be seen as a sorted variable *)</span>
+<span class="c">Local Definition constHSET_slice (s : sort) : HSET / sort.</span>
+<span class="c">Proof.</span>
+<span class="c">exists (TerminalObject TerminalHSET); simpl.</span>
+<span class="c">apply (λ x, s).</span>
+<span class="c">Defined.</span>
+<span class="c"> *)</span>
+<span class="kn">Local Definition</span> <span class="nf">constHSET_slice</span> := constHSET_slice sort.
+
+<span class="c">(*</span>
+<span class="c">Definition sorted_option_functor (s : sort) : functor (HSET / sort) (HSET / sort) :=</span>
+<span class="c">  constcoprod_functor1 (BinCoproducts_HSET_slice sort) (constHSET_slice s).</span>
+<span class="c"> *)</span>
+<span class="kn">Local Definition</span> <span class="nf">sorted_option_functor</span> := sorted_option_functor sort.
+
+<span class="sd">(** Sorted option functor for lists (also called option in the note) *)</span>
+<span class="kn">Local Definition</span> <span class="nf">option_list</span> (<span class="nv">xs</span> : list sort) : functor (HSET / sort) (HSET / sort).
+<span class="kn">Proof</span>.
+<span class="c">(* This should be foldr1 in order to avoid composing with the</span>
+<span class="c">   identity functor in the base case *)</span>
+use (foldr1 (<span class="k">λ</span> <span class="nv">F</span> <span class="nv">G</span>, F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Define a functor</span>
+
+<span class="sd">F^(l,t)(X) := proj_functor(t) ∘ X ∘ option_functor(l)</span>
+
+<span class="sd">if l is nonempty and</span>
+
+<span class="sd">F^(l,t)(X) := proj_functor(t) ∘ X</span>
+
+<span class="sd">otherwise</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">exp_functor</span> (<span class="nv">lt</span> : list sort × sort) :
+  functor [HSET_over_sort,HSET_over_sort] [HSET_over_sort,HSET].
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> lt <span class="k">as</span> [l t].
+<span class="c">(* use list_ind to do a case on whether l is empty or not *)</span>
+use (list_ind _ _ _ l); <span class="nb">clear</span> l.
+- <span class="bp">exact</span> (post_comp_functor (proj_functor t)).
+- <span class="nb">intros</span> s l _.
+  <span class="nb">eapply</span> functor_composite.
+  + <span class="bp">exact</span> (pre_comp_functor (option_list (cons s l))).
+  + <span class="bp">exact</span> (post_comp_functor (proj_functor t)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** This defines F^lts where lts is a list of (l,t). Outputs a product of</span>
+<span class="sd">    functors if the list is nonempty and otherwise the constant functor. *)</span>
+<span class="kn">Local Definition</span> <span class="nf">exp_functor_list</span> (<span class="nv">xs</span> : list (list sort × sort)) :
+  functor [HSET_over_sort,HSET_over_sort] [HSET_over_sort,HSET].
+<span class="kn">Proof</span>.
+  <span class="c">(* If the list is empty we output the constant functor *)</span>
+<span class="nb">set</span> (T0 := (Terminal_functor_precat _ _ TerminalHSET) : Terminal [HSET_over_sort, HSET]).
+<span class="nb">set</span> (T := constant_functor [HSET_over_sort,HSET_over_sort] _ T0).
+<span class="c">(* TODO: Maybe use indexed finite products instead of a fold? *)</span>
+<span class="nb">set</span> (XS := map exp_functor xs).
+<span class="c">(* This should be foldr1 in order to avoid composing with the</span>
+<span class="c">   constant functor in the base case *)</span>
+use (foldr1 (<span class="k">λ</span> <span class="nv">F</span> <span class="nv">G</span>, BinProduct_of_functors _ F G) T XS).
+<span class="nb">apply</span> BinProducts_functor_precat, BinProductsHSET.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">hat_exp_functor_list</span> (<span class="nv">xst</span> : list (list sort × sort) × sort) :
+  functor [HSET_over_sort,HSET_over_sort] [HSET_over_sort,HSET_over_sort] :=
+    exp_functor_list (pr1 xst) ∙ post_comp_functor (hat_functor (pr2 xst)).
+
+<span class="sd">(** The function from multisorted signatures to functors *)</span>
+<span class="kn">Definition</span> <span class="nf">MultiSortedSigToFunctor</span> (<span class="nv">M</span> : MultiSortedSig) :
+  functor [HSET_over_sort,HSET_over_sort] [HSET_over_sort,HSET_over_sort].
+<span class="kn">Proof</span>.
+use (coproduct_of_functors (ops M)).
++ <span class="nb">apply</span> Coproducts_functor_precat, Coproducts_slice_precat, CoproductsHSET, setproperty.
++ <span class="nb">intros</span> op.
+  <span class="bp">exact</span> (hat_exp_functor_list (arity M op)).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">functor</span>.
+
+
+<span class="sd">(** * Construction of the strength for the endofunctor on [HSET/sort,HSET/sort] derived from a</span>
+<span class="sd">      multisorted signature *)</span>
+<span class="kn">Section</span> <span class="nf">strength</span>.
+
+<span class="c">(* The DL for sorted_option_functor *)</span>
+<span class="kn">Local Definition</span> <span class="nf">DL_sorted_option_functor</span> (<span class="nv">s</span> : sort) :
+  DistributiveLaw _ (sorted_option_functor s) :=
+    genoption_DistributiveLaw _ (constHSET_slice s)(BinCoproducts_HSET_slice sort).
+
+<span class="c">(* The DL for option_list *)</span>
+<span class="kn">Local Definition</span> <span class="nf">DL_option_list</span> (<span class="nv">xs</span> : list sort) :
+  DistributiveLaw _ (option_list xs).
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> xs <span class="k">as</span> [[|n] xs].
++ <span class="nb">induction</span> xs.
+  <span class="nb">apply</span> DL_id.
++ <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  * <span class="nb">induction</span> xs <span class="k">as</span> [m []].
+    <span class="nb">apply</span> DL_sorted_option_functor.
+  * <span class="nb">induction</span> xs <span class="k">as</span> [m [k xs]].
+    <span class="nb">apply</span> (DL_comp (DL_sorted_option_functor m) (IH (k,,xs))).
+<span class="kn">Defined</span>.
+
+<span class="c">(* The signature for exp_functor *)</span>
+<span class="kn">Local Definition</span> <span class="nf">Sig_exp_functor</span> (<span class="nv">lt</span> : list sort × sort) :
+  Signature HSET_over_sort HSET HSET_over_sort.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (<span class="nv">exp_functor</span> <span class="nv">lt</span>).
+<span class="nb">induction</span> lt <span class="k">as</span> [l t].
+<span class="nb">induction</span> l <span class="k">as</span> [[|n] xs].
++ <span class="nb">induction</span> xs.
+  <span class="bp">exact</span> (pr2 (Gθ_Signature (IdSignature _ _) (proj_functor t))).
++ <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  * <span class="nb">induction</span> xs <span class="k">as</span> [m []].
+    <span class="nb">set</span> (Sig_option_list := θ_from_δ_Signature (DL_option_list (cons m (<span class="mi">0</span>,,tt)))).
+    <span class="bp">exact</span> (pr2 (Gθ_Signature Sig_option_list (proj_functor t))).
+  * <span class="nb">induction</span> xs <span class="k">as</span> [m xs].
+    <span class="nb">set</span> (Sig_option_list := θ_from_δ_Signature (DL_option_list (cons m (S n,,xs)))).
+    <span class="bp">exact</span> (pr2 (Gθ_Signature Sig_option_list (proj_functor t))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">functor_in_Sig_exp_functor_ok</span> (<span class="nv">lt</span> : list sort × sort) :
+  Signature_Functor (Sig_exp_functor lt) = exp_functor lt.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="c">(* The signature for exp_functor_list *)</span>
+<span class="kn">Local Definition</span> <span class="nf">Sig_exp_functor_list</span> (<span class="nv">xs</span> : list (list sort × sort)) :
+  Signature HSET_over_sort HSET HSET_over_sort.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (<span class="nv">exp_functor_list</span> <span class="nv">xs</span>).
+<span class="nb">induction</span> xs <span class="k">as</span> [[|n] xs].
+- <span class="nb">induction</span> xs.
+  <span class="bp">exact</span> (pr2 (ConstConstSignature HSET_over_sort HSET HSET_over_sort TerminalHSET)).
+- <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  + <span class="nb">induction</span> xs <span class="k">as</span> [m []].
+    <span class="bp">exact</span> (pr2 (Sig_exp_functor m)).
+  + <span class="nb">induction</span> xs <span class="k">as</span> [m [k xs]].
+    <span class="bp">exact</span> (pr2 (BinProduct_of_Signatures _ (Sig_exp_functor _) (tpair _ _ (IH (k,,xs))))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">functor_in_Sig_exp_functor_list_ok</span> (<span class="nv">xs</span> : list (list sort × sort)) :
+  Signature_Functor (Sig_exp_functor_list xs) = exp_functor_list xs.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="c">(* the signature for hat_exp_functor_list *)</span>
+<span class="kn">Local Definition</span> <span class="nf">Sig_hat_exp_functor_list</span> (<span class="nv">xst</span> : list (list sort × sort) × sort) :
+  Signature HSET_over_sort HSET_over_sort HSET_over_sort.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (Gθ_Signature (Sig_exp_functor_list (pr1 xst)) (hat_functor (pr2 xst))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">functor_in_Sig_hat_exp_functor_list_ok</span> (<span class="nv">xst</span> : list (list sort × sort) × sort) :
+  Signature_Functor (Sig_hat_exp_functor_list xst) = hat_exp_functor_list xst.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="c">(* The signature for MultiSortedSigToFunctor *)</span>
+<span class="kn">Definition</span> <span class="nf">MultiSortedSigToSignature</span> (<span class="nv">M</span> : MultiSortedSig) : Signature HSET_over_sort HSET_over_sort HSET_over_sort.
+<span class="kn">Proof</span>.
+<span class="nb">set</span> (Hyps := <span class="k">λ</span> (<span class="nv">op</span> : ops M), Sig_hat_exp_functor_list (arity M op)).
+use (Sum_of_Signatures (ops M) _ Hyps).
+<span class="nb">apply</span> Coproducts_slice_precat, CoproductsHSET, setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">functor_in_MultiSortedSigToSignature_ok</span> (<span class="nv">M</span> : MultiSortedSig) :
+  Signature_Functor (MultiSortedSigToSignature M) = MultiSortedSigToFunctor M.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">strength</span>.
+
+
+<span class="sd">(** * Proof that the functor obtained from a multisorted signature is omega-cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">omega_cocont</span>.
+
+<span class="sd">(** The proj functor is naturally isomorphic to the following functor which is a left adjoint: *)</span>
+<span class="kn">Local Definition</span> <span class="nf">proj_functor'</span> (<span class="nv">s</span> : sort) : functor (HSET / sort) HSET :=
+  functor_composite
+     (constprod_functor1 (BinProducts_HSET_slice sort) (constHSET_slice s))
+     (slicecat_to_cat HSET sort).
+
+<span class="kn">Local Lemma</span> <span class="nf">nat_trans_proj_functor</span> (<span class="nv">s</span> : sort) : nat_trans (proj_functor' s) (proj_functor s).
+<span class="kn">Proof</span>.
+use make_nat_trans.
+- <span class="nb">simpl</span>; <span class="nb">intros</span> x H.
+  <span class="k">exists</span> (<span class="nv">pr2</span> (pr1 H)).
+  <span class="nb">apply</span> (!pr2 H).
+- <span class="nb">intros</span> x y f.
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> w.
+  <span class="nb">apply</span> subtypePath; <span class="kp">try</span> <span class="nb">apply</span> idpath.
+  <span class="nb">intro</span> z; <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_z_iso_nat_trans_proj_functor</span> (<span class="nv">s</span> : sort) :
+  @is_z_isomorphism [HSET/sort,HSET] _ _ (nat_trans_proj_functor s).
+<span class="kn">Proof</span>.
+use tpair.
++ use make_nat_trans.
+  - <span class="nb">simpl</span>; <span class="nb">intros</span> x xy.
+    <span class="k">exists</span> (<span class="nv">tt</span>,,<span class="nv">pr1</span> <span class="nv">xy</span>).
+    <span class="nb">apply</span> (!pr2 xy).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f; <span class="nb">apply</span> funextsec; <span class="nb">intros</span> x;
+              <span class="nb">apply</span> subtypePath; <span class="kp">try</span> <span class="nb">apply</span> idpath; <span class="nb">intros</span> w; <span class="nb">apply</span> setproperty).
++ <span class="kp">abstract</span> (<span class="nb">split</span>;
+  [ <span class="nb">apply</span> subtypePath; [<span class="nb">intros</span> x; <span class="nb">apply</span> isaprop_is_nat_trans, has_homsets_HSET|];
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> y; <span class="nb">cbn</span>;
+    <span class="bp">now</span> <span class="nb">rewrite</span> pathsinv0inv0; <span class="nb">induction</span> y <span class="k">as</span> [y' y3]; <span class="nb">induction</span> y' <span class="k">as</span> [y'' y2]; <span class="nb">induction</span> y''
+  | <span class="nb">apply</span> (nat_trans_eq has_homsets_HSET); <span class="nb">simpl</span>; <span class="nb">intros</span> x;
+    <span class="nb">apply</span> funextsec; <span class="nb">intros</span> z; <span class="nb">simpl</span> <span class="k">in</span> *;
+    <span class="bp">now</span> <span class="nb">apply</span> subtypePath; <span class="kp">try</span> <span class="nb">apply</span> idpath; <span class="nb">intros</span> w; <span class="nb">apply</span> setproperty]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_left_adjoint_proj_functor'</span> (<span class="nv">s</span> : sort) : is_left_adjoint (proj_functor' s).
+<span class="kn">Proof</span>.
+use is_left_adjoint_functor_composite.
+- <span class="nb">apply</span> Exponentials_HSET_slice.
+- <span class="nb">apply</span> is_left_adjoint_slicecat_to_cat_HSET.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_left_adjoint_proj_functor</span> (<span class="nv">s</span> : sort) : is_left_adjoint (proj_functor s).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (is_left_adjoint_closed_under_iso _ _ (_,,is_z_iso_nat_trans_proj_functor s)).
+<span class="nb">apply</span> is_left_adjoint_proj_functor'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_omega_cocont_post_comp_proj</span> (<span class="nv">s</span> : sort) :
+  is_omega_cocont (@post_composition_functor (HSET/sort) _ _ (proj_functor s)).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> is_omega_cocont_post_composition_functor.
+<span class="nb">apply</span> is_left_adjoint_proj_functor.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The hat_functor is left adjoint to proj_functor *)</span>
+<span class="kn">Local Lemma</span> <span class="nf">is_left_adjoint_hat</span> (<span class="nv">s</span> : sort) : is_left_adjoint (hat_functor s).
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (<span class="nv">proj_functor</span> <span class="nv">s</span>).
+use make_are_adjoints.
++ use make_nat_trans.
+  - <span class="nb">intros</span> X; <span class="nb">simpl</span>; <span class="nb">intros</span> x; <span class="nb">apply</span> (x,,idpath s).
+  - <span class="nb">intros</span> X Y f; <span class="nb">simpl</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x; <span class="nb">cbn</span>.
+    <span class="bp">now</span> <span class="nb">apply</span> subtypePath; <span class="kp">try</span> <span class="nb">apply</span> idpath; <span class="nb">intros</span> y; <span class="nb">apply</span> setproperty.
++ use make_nat_trans.
+  - <span class="nb">intros</span> X; <span class="nb">simpl</span> <span class="k">in</span> *.
+    use tpair; <span class="nb">simpl</span>.
+    * <span class="nb">intros</span> H; <span class="nb">apply</span> (pr1 H).
+    * <span class="kp">abstract</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span> x; <span class="nb">apply</span> (! pr2 x)).
+  - <span class="bp">now</span> <span class="nb">intros</span> X Y f; <span class="nb">apply</span> eq_mor_slicecat.
++ <span class="nb">split</span>.
+  - <span class="bp">now</span> <span class="nb">intros</span> X; <span class="nb">apply</span> eq_mor_slicecat.
+  - <span class="nb">intros</span> X; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x.
+    <span class="bp">now</span> <span class="nb">apply</span> subtypePath; <span class="kp">try</span> <span class="nb">apply</span> idpath; <span class="nb">intros</span> x'; <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_omega_cocont_exp_functor</span> (<span class="nv">a</span> : list sort × sort)
+  (<span class="nv">H</span> : Colims_of_shape nat_graph HSET_over_sort) :
+  is_omega_cocont (exp_functor a).
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> a <span class="k">as</span> [xs t].
+<span class="nb">induction</span> xs <span class="k">as</span> [[|n] xs].
+- <span class="nb">induction</span> xs.
+  <span class="nb">apply</span> is_omega_cocont_post_comp_proj.
+- <span class="nb">induction</span> n <span class="k">as</span> [|n].
+  + <span class="nb">induction</span> xs <span class="k">as</span> [m []].
+    use is_omega_cocont_functor_composite.
+    * <span class="nb">apply</span> is_omega_cocont_pre_composition_functor, H.
+    * <span class="nb">apply</span> is_omega_cocont_post_comp_proj.
+  + <span class="nb">induction</span> xs <span class="k">as</span> [m k].
+    <span class="nb">apply</span> (@is_omega_cocont_functor_composite _ _ _ (ℓ (option_list _))).
+    * <span class="nb">apply</span> is_omega_cocont_pre_composition_functor, H.
+    * <span class="nb">apply</span> is_omega_cocont_post_comp_proj.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_omega_cocont_exp_functor_list</span> (<span class="nv">xs</span> : list (list sort × sort))
+  (<span class="nv">H</span> : Colims_of_shape nat_graph HSET_over_sort) :
+  is_omega_cocont (exp_functor_list xs).
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> xs <span class="k">as</span> [[|n] xs].
+- <span class="nb">induction</span> xs.
+  <span class="nb">apply</span> is_omega_cocont_constant_functor.
+- <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+  + <span class="nb">induction</span> xs <span class="k">as</span> [m []].
+    <span class="nb">apply</span> is_omega_cocont_exp_functor, H.
+  + <span class="nb">induction</span> xs <span class="k">as</span> [m [k xs]].
+    <span class="nb">apply</span> is_omega_cocont_BinProduct_of_functors.
+    * <span class="nb">apply</span> BinProducts_functor_precat, BinProducts_slice_precat, PullbacksHSET.
+    * <span class="nb">apply</span> is_omega_cocont_constprod_functor1.
+      <span class="nb">apply</span> Exponentials_functor_HSET.
+    * <span class="nb">apply</span> is_omega_cocont_exp_functor, H.
+    * <span class="nb">apply</span> (IHn (k,,xs)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_omega_cocont_post_comp_hat_functor</span> (<span class="nv">s</span> : sort) :
+  is_omega_cocont (@post_composition_functor HSET_over_sort  _ _ (hat_functor s)).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> is_omega_cocont_post_composition_functor, is_left_adjoint_hat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_omega_cocont_hat_exp_functor_list</span> (<span class="nv">xst</span> : list (list sort × sort) × sort)
+  (<span class="nv">H</span> : Colims_of_shape nat_graph HSET_over_sort) :
+  is_omega_cocont (hat_exp_functor_list xst).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_omega_cocont_functor_composite.
+  + <span class="nb">apply</span> is_omega_cocont_exp_functor_list, H.
+  + <span class="nb">apply</span> is_omega_cocont_post_comp_hat_functor.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The functor obtained from a multisorted binding signature is omega-cocontinuous *)</span>
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_MultiSortedSigToFunctor</span> (<span class="nv">M</span> : MultiSortedSig)
+  (<span class="nv">H</span> : Colims_of_shape nat_graph HSET_over_sort) :
+  is_omega_cocont (MultiSortedSigToFunctor M).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_omega_cocont_coproduct_of_functors.
+  <span class="nb">intros</span> op; <span class="nb">apply</span> is_omega_cocont_hat_exp_functor_list, H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_MultiSortedSigToSignature</span>
+  (<span class="nv">M</span> : MultiSortedSig) (<span class="nv">H</span> : Colims_of_shape nat_graph HSET_over_sort) :
+  is_omega_cocont (MultiSortedSigToSignature M).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> is_omega_cocont_MultiSortedSigToFunctor, H.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">omega_cocont</span>.
+
+
+<span class="kn">End</span> <span class="nf">MBindingSig</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/MultiSorted.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Strength calculation added by Ralph Matthes, 2017.
+  &gt;
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

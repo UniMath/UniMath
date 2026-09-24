@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MorphismsInOp1Bicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd"> Morphisms in op1 bicat</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Adjunctions</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpMorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Adjunctions</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">op1_left_adjoint_to_right_adjoint</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">Hf</span> : @left_adjoint (op1_bicat B) _ _ f)
+  : @internal_right_adj B _ _ f.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+  - <span class="bp">exact</span> (left_adjoint_right_adjoint Hf).
+  - <span class="bp">exact</span> (left_adjoint_unit Hf).
+  - <span class="bp">exact</span> (left_adjoint_counit Hf).
+  - <span class="bp">exact</span> (internal_triangle2 Hf).
+  - <span class="bp">exact</span> (internal_triangle1 Hf).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">right_adjoint_to_op1_left_adjoint</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">Hf</span> : @internal_right_adj B _ _ f)
+  : @left_adjoint (op1_bicat B) _ _ f.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+  - <span class="bp">exact</span> (internal_right_adj_left_adjoint Hf).
+  - <span class="bp">exact</span> (internal_right_adj_unit Hf).
+  - <span class="bp">exact</span> (internal_right_adj_counit Hf).
+  - <span class="bp">exact</span> (pr22 Hf).
+  - <span class="bp">exact</span> (pr12 Hf).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">op1_left_adjoint_weq_right_adjoint</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> : x --&gt; y}
+  : @left_adjoint (op1_bicat B) _ _ f ≃ @internal_right_adj B _ _ f.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> op1_left_adjoint_to_right_adjoint.
+  - use isweq_iso.
+    + <span class="bp">exact</span> right_adjoint_to_op1_left_adjoint.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Morphisms/Examples/MorphismsInOp1Bicat.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  Contents
+  &gt;  1. Adjunctions
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

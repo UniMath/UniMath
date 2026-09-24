@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>WellFoundedRelations.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** From Peter Lumsdaine, Aug 29, 2018:</span>
+
+<span class="sd">  Prompted by a question of Dan Grayson:</span>
+
+<span class="sd">  If you assume a relation is a well-order in the sense of having induction into families of propositions,</span>
+<span class="sd">  does it then have induction into arbitrary type families?</span>
+
+<span class="sd">  Answer: yes.  See the theorem below.</span>
+
+<span class="sd">  The result is also Proposition 1.4 of this article:</span>
+
+<span class="sd">        Intuitionistic Sets and Ordinals, by Paul Taylor</span>
+<span class="sd">        The Journal of Symbolic Logic, Vol. 61, No. 3 (Sep., 1996), pp. 705-744</span>
+<span class="sd">        https://www.jstor.org/stable/pdf/2275781.pdf</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Export</span> UniMath.MoreFoundations.Propositions.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Arguments</span> funextsec {_ _ _ _} _.
+
+<span class="c">(* A predicate is called hereditary with respect to a relation if whenever it holds everywhere below</span>
+<span class="c">   some element, it holds at that element.  Hereditariness is the usual hypothesis required for</span>
+<span class="c">   well-founded induction into a predicate. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hereditary</span> {<span class="nv">X</span>} (<span class="nv">lt</span> : X -&gt; X -&gt; <span class="kt">Type</span>) (<span class="nv">P</span> : X -&gt; <span class="kt">Type</span>) : <span class="kt">Type</span>
+  := ∏ x, (∏ y, lt y x -&gt; P y) -&gt; P x.
+
+<span class="kn">Definition</span> <span class="nf">strongly_well_founded</span> {<span class="nv">X</span>} (<span class="nv">lt</span> : X -&gt; X -&gt; <span class="kt">Type</span>)
+  := ∏ (P : X -&gt; <span class="kt">Type</span>) (H : hereditary lt P),
+     ∑ (f : ∏ x, P x), ∏ x, f x = H x (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">_</span>, f y).
+
+<span class="kn">Definition</span> <span class="nf">weakly_well_founded</span> {<span class="nv">X</span>} (<span class="nv">lt</span> : X -&gt; X -&gt; <span class="kt">Type</span>)
+  := ∏ P : X -&gt; hProp, hereditary lt P -&gt; ∏ x, P x.
+
+<span class="kn">Section</span> <span class="nf">Attempts</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span>} (<span class="nv">lt</span> : X -&gt; X -&gt; <span class="kt">Type</span>).
+
+  <span class="kn">Notation</span> <span class="s2">"x &lt; y"</span> := (lt x y).
+
+  <span class="kn">Definition</span> <span class="nf">chain</span> (<span class="nv">n</span> : nat) : ∏ (x y:X), <span class="kt">Type</span>.
+  <span class="c">(* An element of [chain n] will be an ascending sequence [x = s_1 &lt; t_1 = s_2 &lt; t_2 = ... = s_n &lt; t_n = y].</span>
+<span class="c">     We use this to implement the transitive reflexive closure of [lt]. *)</span>
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> n <span class="k">as</span> [|n H].
+    - <span class="nb">intros</span> x y. <span class="bp">exact</span> (x = y).
+    - <span class="nb">intros</span> x y. <span class="bp">exact</span> (∑ s t, H x s × s&lt;t × t=y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">le</span> (<span class="nv">x</span> <span class="nv">y</span> : X) : <span class="kt">Type</span> := ∑ n, chain n x y.
+
+  <span class="kn">Notation</span> <span class="s2">"x ≤ y"</span> := (le x y) (<span class="kn">at level</span> <span class="mi">70</span>).
+
+  <span class="kn">Definition</span> <span class="nf">nil</span> {<span class="nv">x</span>} : x≤x := (<span class="mi">0</span>,,idpath x).
+
+  <span class="kn">Definition</span> <span class="nf">cons'</span> {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">y</span> <span class="nv">z</span>} (<span class="nv">p</span> : z ≤ y) (<span class="nv">l</span> : y &lt; x') (<span class="nv">e</span> : x' = x) : z ≤ x.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p <span class="k">as</span> [n c].
+    <span class="bp">exact</span> (S n,,y,,x',,c,,l,,e).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cons1</span> {<span class="nv">n</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">z'</span>} : ∏ (x : X) (e : z = z') (l : z' &lt; y) (c : chain n y x), chain (S n) z x.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> n <span class="k">as</span> [|n H].
+    - <span class="nb">intros</span> x e l c. <span class="bp">exact</span> (z',,y,,e,,l,,c).
+    - <span class="nb">intros</span> x e l c. <span class="nb">induction</span> c <span class="k">as</span> [s [t [c' [l' e']]]].
+      <span class="bp">exact</span> (s,,t,,H s e l c',,l',,e').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cons</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">z'</span>} (<span class="nv">e</span> : z = z') (<span class="nv">l</span> : z' &lt; y) (<span class="nv">p</span> : y ≤ x) : z ≤ x.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p <span class="k">as</span> [n c]. <span class="k">exists</span> (<span class="nv">S</span> <span class="nv">n</span>). <span class="bp">exact</span> (cons1 x e l c).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Goal</span> ∏ w w' x y z' z (e : w=w') (l : w'&lt;x) (p : x≤y) (m : y&lt;z') (f : z'=z),
+    cons e l (cons' p m f) = cons' (cons e l p) m f.
+  <span class="c">(* This associativity property is used implicitly below, so let's check it.</span>
+<span class="c">     Here we see the advantage of defining [x≤y] the way we did, as it makes some identities judgmental. *)</span>
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> (<span class="nv">P</span> : X -&gt; <span class="kt">Type</span>) (<span class="nv">H</span> : hereditary lt P).
+
+  <span class="c">(* An “attempt” up to x: a partial function into P defined just for all y ≤ x, and guided by the</span>
+<span class="c">     term H witnessing the hereditariness of P.</span>
+
+<span class="c">     Caveat: we should actually have said not “partial function” but “multivalued partial function”,</span>
+<span class="c">     since (y ≤ x) isn’t necessarily an hprop. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">guided_by</span> <span class="nv">x</span> (<span class="nv">f</span> : ∏ y, y ≤ x -&gt; P y) <span class="nv">H</span>
+    := ∏ y pyx, f y pyx = H y (<span class="k">λ</span> <span class="nv">z</span> <span class="nv">l</span>, f z (cons (idpath z) l pyx)).
+
+  <span class="kn">Definition</span> <span class="nf">attempt</span> <span class="nv">x</span> := ∑ f, guided_by x f H.
+
+  <span class="kn">Definition</span> <span class="nf">attempt_fun</span> {<span class="nv">x</span>} : attempt x -&gt; (∏ y _, P y) := pr1.
+  <span class="kn">Coercion</span> <span class="nf">attempt_fun</span> : attempt &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">attempt_comp</span> {<span class="nv">x</span>} : ∏ (f : attempt x), _ := pr2.
+
+  <span class="kn">Definition</span> <span class="nf">disassemble_attempt</span> {<span class="nv">x</span>} : attempt x -&gt; (∏ y w, y&lt;w -&gt; w=x -&gt; attempt y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f y' y l e. <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">t</span> <span class="nv">p</span>, <span class="nv">f</span> <span class="nv">t</span> (cons' p l e)).
+    <span class="nb">intros</span> z p. use attempt_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">assemble_attempt</span> {<span class="nv">x</span>}
+    : (∏ y y', y&lt;y' -&gt; y'=x -&gt; attempt y) -&gt; attempt x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> fs. use tpair.
+    - <span class="nb">intros</span> y [[|n] c].
+      + <span class="nb">apply</span> H. <span class="nb">intros</span> z lzy. <span class="bp">exact</span> (fs z y lzy c z nil).
+      + <span class="nb">induction</span> c <span class="k">as</span> [s [t [c' [l' e']]]]. <span class="bp">exact</span> (fs s t l' e' y (n,,c')).
+    - <span class="nb">intros</span> y [[|n] c].
+      + <span class="bp">reflexivity</span>.
+      + use attempt_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">attempt_lemma</span> {<span class="nv">x</span>} (<span class="nv">f</span> <span class="nv">g</span> : attempt x)
+             (<span class="nv">T</span> : (∏ y (pyx : y ≤ x), f y pyx = g y pyx) -&gt; <span class="kt">Type</span>) :
+    (∏ (e : attempt_fun f = attempt_fun g), T (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">pyx</span>, eqtohomot (eqtohomot e y) pyx))
+    -&gt; ∏ e, T e.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> HT e.
+    <span class="nb">simple refine</span> (transportf _ _ (HT _)).
+    { <span class="nb">apply</span> funextsec; <span class="nb">intros</span> y; <span class="nb">apply</span> funextsec; <span class="nb">intros</span> pyx.
+      <span class="nb">eapply</span> pathscomp0.
+      { <span class="nb">refine</span> (eqtohomot _ _). <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (eqtohomot _ _). <span class="nb">apply</span> toforallpaths_funextsec. }
+      <span class="nb">refine</span> (eqtohomot _ _). <span class="nb">apply</span> toforallpaths_funextsec. }
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">attempt_paths</span> {<span class="nv">x</span>} (<span class="nv">f</span> <span class="nv">g</span> : attempt x) :
+      ∏ (e_fun : ∏ y pyx, f y pyx = g y pyx),
+      (∏ y pyx,
+          attempt_comp f y pyx
+           @ maponpaths (H y) (funextsec (<span class="k">λ</span> <span class="nv">z</span>, funextsec (<span class="k">λ</span> <span class="nv">lzy</span>, e_fun z (cons (idpath z) lzy pyx))))
+          = e_fun y pyx @ attempt_comp g y pyx)
+    -&gt; f = g.
+  <span class="kn">Proof</span>.
+    use attempt_lemma.
+    <span class="nb">intros</span> e. <span class="nb">induction</span> f <span class="k">as</span> [f0 f1], g <span class="k">as</span> [g0 g1]. <span class="nb">cbn</span> <span class="k">in</span> e. <span class="nb">induction</span> e.
+    <span class="nb">cbn</span>.
+    <span class="nb">intros</span> e_comp. <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> funextsec; <span class="nb">intros</span> y; <span class="nb">apply</span> funextsec; <span class="nb">intros</span> pyx.
+    <span class="nb">refine</span> (!_ @ e_comp _ _).
+    <span class="nb">refine</span> (maponpaths _ _ @ pathscomp0rid _).
+    <span class="nb">refine</span> (@maponpaths _ _ _ _ (idpath _) _).
+    <span class="nb">refine</span> (maponpaths funextsec _ @ funextsec_toforallpaths _).
+    <span class="nb">apply</span> funextsec; <span class="nb">intros</span> z.
+    <span class="nb">apply</span> (funextsec_toforallpaths (idpath _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">assemble_disassemble</span> {<span class="nv">x</span>} (<span class="nv">f</span> : attempt x)
+    : assemble_attempt (disassemble_attempt f) = f.
+  <span class="kn">Proof</span>.
+    use attempt_paths.
+    - <span class="nb">intros</span> y [[|n] pyx].
+      + <span class="nb">apply</span> pathsinv0. use attempt_comp.
+      + <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> y [[|n] pyx].
+      + <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (@maponpaths _ _ _ _ (idpath _) _ @ ! pathsinv0l _).
+        <span class="nb">refine</span> (maponpaths _ _ @ funextsec_toforallpaths _).
+        <span class="nb">apply</span> funextsec; <span class="nb">intros</span> z.
+        <span class="nb">apply</span> (funextsec_toforallpaths (idpath _)).
+      + <span class="nb">refine</span> (maponpaths _ _ @ pathscomp0rid _).
+        <span class="nb">refine</span> (@maponpaths _ _ _ _ (idpath _) _).
+        <span class="nb">refine</span> (maponpaths funextsec _ @ funextsec_toforallpaths _).
+        <span class="nb">apply</span> funextsec; <span class="nb">intros</span> w.
+        <span class="nb">apply</span> (funextsec_toforallpaths (idpath _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> (<span class="nv">wwf_lt</span> : weakly_well_founded lt).
+
+  <span class="kn">Definition</span> <span class="nf">iscontr_attempt</span> : ∏ x, iscontr (attempt x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (wwf_lt (<span class="k">λ</span> <span class="nv">x</span>, iscontr_hProp (attempt x))).
+    <span class="nb">intros</span> x IH.
+    <span class="nb">apply</span> (iscontrretract _ _ assemble_disassemble).
+    <span class="nb">apply</span> impred_iscontr; <span class="nb">intro</span> z; <span class="nb">apply</span> impred_iscontr; <span class="nb">intro</span> z';
+      <span class="nb">apply</span> impred_iscontr; <span class="nb">intro</span> l; <span class="nb">apply</span> impred_iscontr; <span class="nb">intro</span> e.
+    <span class="nb">induction</span> e.
+    <span class="bp">exact</span> (IH z l).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">the_attempt</span> <span class="nv">x</span> : attempt x
+    := iscontrpr1 (iscontr_attempt x).
+
+  <span class="kn">Local Definition</span> <span class="nf">the_value</span> <span class="nv">x</span> : P x
+    := the_attempt x x nil.
+
+  <span class="kn">Local Definition</span> <span class="nf">the_comp</span> <span class="nv">x</span> : the_value x = H x (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">l</span>, the_value y).
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (e : the_attempt x = assemble_attempt (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, the_attempt y)).
+    { <span class="nb">apply</span> pathsinv0, iscontr_uniqueness. }
+    <span class="bp">exact</span> (eqtohomot (eqtohomot (maponpaths attempt_fun e) x) nil).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Attempts</span>.
+
+<span class="kn">Arguments</span> le {_ _} _ _.
+
+<span class="c">(* The main theorem of this file, due to Peter Lumsdaine. *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">strongly_from_weakly_well_founded</span> {<span class="nv">X</span>} {<span class="nv">lt</span> : X -&gt; X -&gt; <span class="kt">Type</span>}
+  : weakly_well_founded lt -&gt; strongly_well_founded lt.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> wwf_lt P H_P.
+  <span class="k">exists</span> (<span class="nv">the_value</span> <span class="nv">lt</span> <span class="nv">P</span> <span class="nv">H_P</span> <span class="nv">wwf_lt</span>).
+  <span class="bp">exact</span>  (the_comp  lt P H_P wwf_lt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">OrderedSets</span>.
+
+  <span class="c">(* These facts might be well known. *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">X</span>:UU} (<span class="nv">lt</span> : X -&gt; X -&gt; <span class="kt">Type</span>).
+
+  <span class="kn">Context</span> (<span class="nv">wwf_lt</span> : weakly_well_founded lt).
+
+  <span class="kn">Notation</span> <span class="s2">"x &lt; y"</span> := (lt x y).
+
+  <span class="kn">Lemma</span> <span class="nf">irrefl</span> <span class="nv">z</span> : ¬ (z &lt; z).
+  <span class="kn">Proof</span>.
+    <span class="sd">(** This proof is provided by Marc Bezem.</span>
+
+<span class="sd">        We use the strong version of well foundedness, so we can avoid needing</span>
+<span class="sd">        [funextemptyAxiom] to prove that [¬ (z=t)] is a proposition. *)</span>
+    <span class="nb">intro</span> l.
+    <span class="nb">simple refine</span> (pr1 (strongly_from_weakly_well_founded wwf_lt
+                        (<span class="k">λ</span> <span class="nv">t</span>, ¬ (z=t)) _) z (idpath z)).
+    <span class="nb">intros</span> x h e. <span class="nb">induction</span> e.
+    <span class="bp">exact</span> (h z l (idpath z)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">notboth</span> {<span class="nv">r</span> <span class="nv">s</span>} : (r&lt;s) -&gt; ¬ (s&lt;r).
+  <span class="kn">Proof</span>.
+    <span class="sd">(** This proof is modeled after Marc's proof above. *)</span>
+    <span class="nb">intros</span> l m.
+    <span class="nb">simple refine</span> (pr1 (strongly_from_weakly_well_founded wwf_lt
+                        (<span class="k">λ</span> <span class="nv">t</span>, ¬ ((r=t) ⨿ (s=t))) _) r (ii1 (idpath r))).
+    <span class="nb">intros</span> x h c. <span class="nb">induction</span> c <span class="k">as</span> [e|e].
+    + <span class="nb">induction</span> e. <span class="bp">exact</span> (h s m (ii2 (idpath s))).
+    + <span class="nb">induction</span> e. <span class="bp">exact</span> (h r l (ii1 (idpath r))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">diagRecursion</span>
+        (<span class="nv">f</span> : nat -&gt; nat -&gt; <span class="kt">Type</span>)
+        (<span class="nv">init</span> : ∏ n, f <span class="mi">0</span> n)
+        (<span class="nv">ind</span> : ∏ m n, f m (S n) -&gt; f (S m) n):
+    ∏ m n, f m n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m.
+    <span class="nb">induction</span> m <span class="k">as</span> [|m H].
+    - <span class="bp">exact</span> init.
+    - <span class="nb">intros</span> n. <span class="nb">apply</span> ind. <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">chaintrans</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">m</span> <span class="nv">n</span>} : chain lt m x y -&gt; chain lt n y z -&gt; chain lt (m+n) x z.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> m n y.
+    <span class="nb">apply</span> (diagRecursion (<span class="k">λ</span> <span class="nv">m</span> <span class="nv">n</span>, ∏ y, chain lt m x y → chain lt n y z → chain lt (m + n) x z)).
+    - <span class="nb">intros</span> k y c. <span class="nb">induction</span> c. <span class="bp">exact</span> (idfun _).
+    - <span class="nb">intros</span> r s p y c d.
+      <span class="nb">induction</span> c <span class="k">as</span> [u [t [b [k e]]]].
+      <span class="nb">change</span> ((S r) + s) <span class="k">with</span> (S (r+s)).
+      <span class="nb">rewrite</span> plus_n_Sm.
+      <span class="nb">apply</span> (p u b); <span class="nb">clear</span> p b x r.
+      <span class="nb">induction</span> e.
+      <span class="bp">exact</span> (cons1 lt z (idpath u) k d).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">OrderedSets</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Combinatorics/WellFoundedRelations.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Export UniMath.MoreFoundations.Propositions.
+  &gt; Require Import UniMath.MoreFoundations.Univalence.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

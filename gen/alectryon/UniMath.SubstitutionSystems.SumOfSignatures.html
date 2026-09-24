@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SumOfSignatures.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Anders Mörtberg, 2016</span>
+
+<span class="sd">************************************************************)</span>
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- Definition of the sum of a family of signatures ([Sum_of_Signatures)]</span>
+
+<span class="sd">Adapted from the binary case</span>
+
+<span class="sd">************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctorsComposition.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.<span class="kn">Notation</span>.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subsys.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+
+<span class="kn">Section</span> <span class="nf">sum_of_signatures</span>.
+
+<span class="kn">Context</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">D'</span> : category) (<span class="nv">CD</span> : Coproducts I D).
+
+<span class="kn">Section</span> <span class="nf">construction</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'CCD'"</span> := (Coproducts_functor_precat I C D CD : Coproducts I [C, D]).
+
+<span class="kn">Context</span> (<span class="nv">H1</span> : I -&gt; functor [C, D'] [C, D])
+        (<span class="nv">θ1</span> : ∏ i, θ_source (H1 i) ⟹ θ_target (H1 i)).
+
+<span class="sd">(** * Definition of the data of the sum of signatures *)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">H</span> : functor [C, D'] [C, D] := coproduct_of_functors _ _ _ CCD H1.
+
+<span class="kn">Local Definition</span> <span class="nf">θ_ob_fun</span> (<span class="nv">X</span> : [C, D']) (<span class="nv">Z</span> : category_Ptd C) (<span class="nv">x</span> : C) :
+   D ⟦ coproduct_of_functors_ob _ _ _ CD (<span class="k">λ</span> <span class="nv">i</span>, H1 i X) (pr1 Z x),
+       coproduct_of_functors_ob _ _ _ CD (<span class="k">λ</span> <span class="nv">i</span>, H1 i (functor_composite (pr1 Z) X)) x ⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> CoproductOfArrows; <span class="nb">intro</span> i.
+  <span class="bp">exact</span> (pr1 (θ1 i (X ⊗ Z)) x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_nat_trans_θ_ob_fun</span> (<span class="nv">X</span> : [C, D']) (<span class="nv">Z</span> : category_Ptd C) :
+  is_nat_trans (functor_composite_data (pr1 Z)
+                 (coproduct_of_functors_data _ _ _  CD (<span class="k">λ</span> <span class="nv">i</span>, H1 i X)))
+                 (coproduct_of_functors_data _ _ _ CD (<span class="k">λ</span> <span class="nv">i</span>, H1 i (functor_composite (pr1 Z) X)))
+               (θ_ob_fun X Z).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x x' f.
+  <span class="nb">eapply</span> pathscomp0; [ <span class="nb">apply</span> CoproductOfArrows_comp | ].
+  <span class="nb">eapply</span> pathscomp0; [ | <span class="nb">eapply</span> pathsinv0; <span class="nb">apply</span> CoproductOfArrows_comp].
+  <span class="nb">apply</span> maponpaths, funextsec; <span class="nb">intro</span> i.
+  <span class="nb">apply</span> (nat_trans_ax (θ1 i (X ⊗ Z))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">θ_ob</span> : ∏ XF, θ_source H XF --&gt; θ_target H XF.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [X Z]; <span class="k">exists</span> (<span class="nv">θ_ob_fun</span> <span class="nv">X</span> <span class="nv">Z</span>); <span class="nb">apply</span> is_nat_trans_θ_ob_fun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_nat_trans_θ_ob</span> :
+  is_nat_trans (θ_source H) (θ_target H) θ_ob.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [X Z] [X' Z'] αβ.
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c.
+  <span class="nb">eapply</span> pathscomp0; [ | <span class="nb">eapply</span> pathsinv0, CoproductOfArrows_comp].
+  <span class="nb">eapply</span> pathscomp0; [ <span class="nb">apply</span> cancel_postcomposition, CoproductOfArrows_comp |].
+  <span class="nb">eapply</span> pathscomp0; [ <span class="nb">apply</span> CoproductOfArrows_comp |].
+  <span class="nb">apply</span> maponpaths, funextsec; <span class="nb">intro</span> i.
+  <span class="nb">apply</span> (nat_trans_eq_pointwise (nat_trans_ax (θ1 i) (X,,Z) (X',,Z') αβ) c).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">θ</span> : PrestrengthForSignature H := tpair _ _ is_nat_trans_θ_ob.
+
+<span class="sd">(** * Proof of the strength laws of the sum of two signatures *)</span>
+
+<span class="kn">Context</span> (<span class="nv">S11'</span> : ∏ i, θ_Strength1_int (θ1 i))
+        (<span class="nv">S12'</span> : ∏ i, θ_Strength2_int (θ1 i)).
+
+<span class="kn">Lemma</span> <span class="nf">SumStrength1'</span> : θ_Strength1_int θ.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> x; <span class="nb">simpl</span>.
+  etrans; [<span class="nb">apply</span> CoproductOfArrows_comp|].
+  <span class="nb">apply</span> pathsinv0, Coproduct_endo_is_identity; <span class="nb">intro</span> i.
+  etrans; [ <span class="nb">apply</span> (CoproductOfArrowsIn _ _ (CD (<span class="k">λ</span> <span class="nv">i</span>, pr1 (pr1 (H1 i) X) x))) |].
+  etrans; [| <span class="nb">apply</span> id_left].
+  <span class="nb">apply</span> cancel_postcomposition, (nat_trans_eq_pointwise (S11' i X) x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">SumStrength2'</span> : θ_Strength2_int θ.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Z Z'.
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> x; <span class="nb">simpl</span>; <span class="nb">rewrite</span> id_left.
+  etrans; [<span class="nb">apply</span> CoproductOfArrows_comp|].
+  <span class="nb">apply</span> pathsinv0.
+  etrans; [<span class="nb">apply</span> CoproductOfArrows_comp|].
+  <span class="nb">apply</span> pathsinv0, maponpaths, funextsec; <span class="nb">intro</span> i.
+  <span class="nb">assert</span> (Ha_x := nat_trans_eq_pointwise (S12' i X Z Z') x); <span class="nb">simpl</span> <span class="k">in</span> Ha_x.
+  <span class="nb">rewrite</span> id_left <span class="k">in</span> Ha_x; <span class="nb">apply</span> Ha_x.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">construction</span>.
+
+<span class="kn">Definition</span> <span class="nf">Sum_of_Signatures</span> (<span class="nv">S</span> : I -&gt; Signature C D D') : Signature C D D'.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">apply</span> H; <span class="nb">intro</span> i.
+    <span class="nb">apply</span> (S i).
+  - <span class="k">exists</span> (<span class="nv">θ</span> (<span class="k">λ</span> <span class="nv">i</span>, S i) (<span class="k">λ</span> <span class="nv">i</span>, theta (S i))).
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> SumStrength1'; <span class="nb">intro</span> i; <span class="nb">apply</span> (Sig_strength_law1 (S i)).
+    + <span class="nb">apply</span> SumStrength2'; <span class="nb">intro</span> i; <span class="nb">apply</span> (Sig_strength_law2 (S i)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_Sum_of_Signatures</span> (<span class="nv">S</span> : I -&gt; Signature C D D')
+  (<span class="nv">h</span> : ∏ i, is_omega_cocont (S i)) : is_omega_cocont (Sum_of_Signatures S).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_omega_cocont_coproduct_of_functors; <span class="kp">try</span> <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">sum_of_signatures</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/SumOfSignatures.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; ************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

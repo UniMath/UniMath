@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>IteratedBinaryOperations.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Export</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Export</span> UniMath.Combinatorics.Lists.
+<span class="kn">Require Export</span> UniMath.Combinatorics.FVectors.
+<span class="kn">Require Export</span> UniMath.Combinatorics.FMatrices.
+<span class="kn">Require Export</span> UniMath.Combinatorics.FLists.
+<span class="kn">Require Export</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Export</span> UniMath.Foundations.UnivalenceAxiom.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.NegativePropositions.
+
+<span class="c">(* move upstream *)</span>
+
+<span class="c">(* end of move upstream *)</span>
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[]"</span> := Lists.nil (<span class="kn">at level</span> <span class="mi">0</span>, <span class="kn">format</span> <span class="s2">"[]"</span>).
+<span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"::"</span> := cons.
+
+<span class="sd">(** general associativity for binary operations on types *)</span>
+
+<span class="kn">Section</span> <span class="nf">BinaryOperations</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span>:UU} (<span class="nv">unel</span>:X) (<span class="nv">op</span>:binop X).
+
+  <span class="c">(* we use an extra induction step in each of the following definitions so</span>
+<span class="c">     we don't end up with superfluous unel factors *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">iterop_list</span> : list X → X :=
+    foldr1 op unel.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_fun</span> {<span class="nv">n</span>} (<span class="nv">x</span>:stn n-&gt;X) : X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">induction</span> n <span class="k">as</span> [|n _].
+    { <span class="bp">exact</span> unel. }
+    { <span class="nb">induction</span> n <span class="k">as</span> [|n I].
+      { <span class="bp">exact</span> (x lastelement). }
+      { <span class="bp">exact</span> (op (I (x ∘ dni lastelement)) (x lastelement)). }}
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_seq</span> : Sequence X → X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    <span class="bp">exact</span> (iterop_fun x).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* now define products of products *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">iterop_list_list</span> : list(list X) → X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w.
+    <span class="bp">exact</span> (iterop_list (map iterop_list w)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_fun_fun</span> {<span class="nv">n</span>} {<span class="nv">m</span>:stn n → nat} : (∏ i (j:stn (m i)), X) → X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    <span class="bp">exact</span> (iterop_fun (<span class="k">λ</span> <span class="nv">i</span>, iterop_fun (x i))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_seq_seq</span> : Sequence (Sequence X) → X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    <span class="bp">exact</span> (iterop_fun_fun (<span class="k">λ</span> <span class="nv">i</span> <span class="nv">j</span>, x i j)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isAssociative_list</span> := ∏ (x:list (list X)), iterop_list (Lists.flatten x) = iterop_list_list x.
+
+  <span class="kn">Definition</span> <span class="nf">isAssociative_fun</span> :=
+    ∏ n (m:stn n → nat) (x : ∏ i (j:stn (m i)), X), iterop_fun (StandardFiniteSets.flatten' x) = iterop_fun_fun x.
+
+  <span class="kn">Definition</span> <span class="nf">isAssociative_seq</span> :=
+    ∏ (x : Sequence (Sequence X)), iterop_seq (FLists.flatten x) = iterop_seq_seq x.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+  <span class="kn">Definition</span> <span class="nf">isCommutative_fun</span> :=
+    ∏ n (x:⟦n⟧ → X) (f:⟦n⟧≃⟦n⟧), iterop_fun (x ∘ f) = iterop_fun x.
+
+  <span class="kn">Lemma</span> <span class="nf">assoc_fun_to_seq</span> : isAssociative_fun → isAssociative_seq.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> assoc x.
+    <span class="bp">exact</span> (assoc _ _ (<span class="k">λ</span> <span class="nv">i</span> <span class="nv">j</span>, x i j)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">assoc_seq_to_fun</span> : isAssociative_seq → isAssociative_fun.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> assoc n m x.
+    <span class="bp">exact</span> (assoc (functionToSequence (<span class="k">λ</span> <span class="nv">i</span>, functionToSequence (x i)))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_list_step</span> (<span class="nv">runax</span> : isrunit op unel) (<span class="nv">x</span>:X) (<span class="nv">xs</span>:list X) :
+    iterop_list (x::xs) = op x (iterop_list xs).
+  <span class="kn">Proof</span>.
+    <span class="nb">generalize</span> x; <span class="nb">clear</span> x.
+    <span class="nb">apply</span> (list_ind (<span class="k">λ</span> <span class="nv">xs</span>, ∏ x : X, iterop_list (x :: xs) = op x (iterop_list xs))).
+    { <span class="nb">intro</span> x. <span class="nb">simpl</span>. <span class="nb">apply</span> pathsinv0,runax. }
+    <span class="nb">intros</span> y rest IH x.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_fun_step'</span> (<span class="nv">lunax</span> : islunit op unel) {<span class="nv">m</span>} (<span class="nv">xs</span>:stn m → X) (<span class="nv">x</span>:X) :
+    iterop_fun (append_vec xs x) = op (iterop_fun xs) x.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> iterop_fun <span class="nb">at</span> <span class="mi">1</span>.
+    <span class="nb">simpl</span>.
+    <span class="nb">induction</span> m <span class="k">as</span> [|m _].
+    - <span class="nb">simpl</span>. <span class="nb">rewrite</span> append_vec_compute_2. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> lunax.
+    - <span class="nb">simpl</span>. <span class="nb">rewrite</span> append_vec_compute_2.
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">y</span>, op y x)). <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> append_and_drop_fun.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_fun_step</span> (<span class="nv">lunax</span> : islunit op unel) {<span class="nv">m</span>} (<span class="nv">x</span>:stn(S m) → X) :
+    iterop_fun x = op (iterop_fun (x ∘ dni lastelement)) (x lastelement).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">unfold</span> iterop_fun <span class="nb">at</span> <span class="mi">1</span>.
+    <span class="nb">simpl</span>.
+    <span class="nb">induction</span> m <span class="k">as</span> [|m _].
+    - <span class="nb">simpl</span>. <span class="nb">apply</span> pathsinv0, lunax.
+    - <span class="nb">simpl</span>. <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_fun_append</span> (<span class="nv">lunax</span> : islunit op unel) {<span class="nv">m</span>} (<span class="nv">x</span>:stn m → X) (<span class="nv">y</span>:X) :
+    iterop_fun (append_vec x y) = op (iterop_fun x) y.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> (iterop_fun_step lunax).
+    <span class="nb">rewrite</span> append_vec_compute_2.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, op (iterop_fun x) y)).
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> append_vec_compute_1.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BinaryOperations</span>.
+
+<span class="sd">(** general associativity for monoids *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> multmonoid.
+
+<span class="kn">Section</span> <span class="nf">Monoids</span>.
+
+  <span class="kn">Context</span> {<span class="nv">M</span>:monoid}.
+
+  <span class="kn">Let</span> <span class="nf">oo</span> := @op M.
+
+  <span class="kn">Let</span> <span class="nf">uu</span> := unel M.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_fun_mon</span> {<span class="nv">n</span>} (<span class="nv">x</span>:stn n-&gt;M) : M := iterop_fun uu oo x.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_list_mon</span> : list M → M := iterop_list uu oo.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_seq_mon</span> : Sequence M → M := iterop_seq uu oo.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_seq_seq_mon</span> : Sequence (Sequence M) → M := iterop_seq_seq uu oo.
+
+  <span class="kn">Definition</span> <span class="nf">iterop_list_list_mon</span> : list (list M) → M := iterop_list_list uu oo.
+
+  <span class="c">(* some rewriting rules *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">iterop_seq_mon_len1</span> (<span class="nv">x</span> : stn <span class="mi">1</span> → M) :
+    iterop_seq_mon (functionToSequence x) = x lastelement.
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iterop_seq_mon_step</span> {<span class="nv">n</span>} (<span class="nv">x</span>:stn (S n) → M) :
+    iterop_seq_mon (S n,,x) = iterop_seq_mon (n,,x ∘ dni lastelement) * x lastelement.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [|n _].
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> pathsinv0, lunax.
+    - <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iterop_list_mon_nil</span> : iterop_list_mon [] = <span class="mi">1</span>.
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iterop_list_mon_step</span> (<span class="nv">x</span>:M) (<span class="nv">xs</span>:list M) :
+    iterop_list_mon (x::xs) = x * iterop_list_mon xs.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> iterop_list_step. <span class="nb">apply</span> runax.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iterop_list_mon_singleton</span> (<span class="nv">x</span> : M) : iterop_list_mon (x::[]) = x.
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">iterop_seq_mon_append</span> (<span class="nv">x</span>:Sequence M) (<span class="nv">m</span>:M) :
+    iterop_seq_mon (append x m) = iterop_seq_mon x * m.
+  <span class="kn">Proof</span>.
+     <span class="nb">revert</span> x m.
+     <span class="nb">intros</span> [n x] ?. <span class="nb">unfold</span> append. <span class="nb">rewrite</span> iterop_seq_mon_step.
+     <span class="nb">rewrite</span> append_vec_compute_2.
+     <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">a</span>, a * m)).
+     <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, iterop_seq_mon (n,,x))).
+     <span class="nb">apply</span> funextfun; <span class="nb">intros</span> [i b]; <span class="nb">simpl</span>.
+     <span class="bp">now</span> <span class="nb">rewrite</span> append_vec_compute_1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">iterop_seq_seq_mon_step</span> {<span class="nv">n</span>} (<span class="nv">x</span>:stn (S n) → Sequence M) :
+    iterop_seq_seq_mon (S n,,x) = iterop_seq_seq_mon (n,,x ∘ dni lastelement) * iterop_seq_mon (x lastelement).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">induction</span> n <span class="k">as</span> [|n _].
+    - <span class="nb">simpl</span>. <span class="nb">apply</span> pathsinv0,lunax.
+    - <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iterop_seq_mon_homot</span> {<span class="nv">n</span>} (<span class="nv">x</span> <span class="nv">y</span> : stn n → M) :
+    x ~ y → iterop_seq_mon(n,,x) = iterop_seq_mon(n,,y).
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> x y. <span class="nb">induction</span> n <span class="k">as</span> [|n N].
+    - <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> x y h. <span class="nb">rewrite</span> <span class="mi">2</span> iterop_seq_mon_step.
+      <span class="nb">apply</span> two_arg_paths.
+      + <span class="nb">apply</span> N. <span class="nb">apply</span> funhomot. <span class="bp">exact</span> h.
+      + <span class="nb">apply</span> h.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Monoids</span>.
+
+<span class="kn">Section</span> <span class="nf">Monoids2</span>.
+
+  <span class="kn">Context</span> (<span class="nv">M</span>:monoid).
+
+  <span class="kn">Let</span> <span class="nf">op</span> := @op M.
+
+  <span class="kn">Let</span> <span class="nf">unel</span> := unel M.
+
+  <span class="kn">Definition</span> <span class="nf">isAssociative_list_mon</span> := isAssociative_list unel op.
+
+  <span class="kn">Definition</span> <span class="nf">isAssociative_fun_mon</span> := isAssociative_fun unel op.
+
+  <span class="kn">Definition</span> <span class="nf">isAssociative_seq_mon</span> := isAssociative_seq unel op.
+
+  <span class="kn">Definition</span> <span class="nf">isCommutative_fun_mon</span> := isCommutative_fun unel op.
+
+<span class="kn">End</span> <span class="nf">Monoids2</span>.
+
+<span class="sd">(** The general associativity theorem. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">iterop_list_mon_concatenate</span> {<span class="nv">M</span> : monoid} (<span class="nv">l</span> <span class="nv">s</span> : list M) :
+  iterop_list_mon (Lists.concatenate l s) = iterop_list_mon l * iterop_list_mon s.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l. <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> pathsinv0, lunax.
+  - <span class="nb">intros</span> x xs J. <span class="nb">rewrite</span> Lists.concatenateStep.
+    <span class="nb">unfold</span> iterop_list_mon.
+    <span class="nb">rewrite</span> <span class="mi">2</span> (iterop_list_step _ _ (runax M)).
+    <span class="nb">rewrite</span> assocax. <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> J.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">associativityOfProducts_list</span> (<span class="nv">M</span>:monoid) : isAssociative_list (unel M) (@op M).
+<span class="kn">Proof</span>.
+  <span class="sd">(** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)</span>
+  <span class="c">(* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)</span>
+  <span class="nb">unfold</span> isAssociative_list.
+  <span class="nb">apply</span> list_ind.
+  - <span class="nb">simpl</span>. <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> x xs I. <span class="nb">simpl</span> <span class="k">in</span> I.
+    <span class="nb">rewrite</span> Lists.flattenStep. <span class="nb">refine</span> (iterop_list_mon_concatenate _ _ @ _).
+    <span class="nb">unfold</span> iterop_list_list. <span class="nb">rewrite</span> mapStep.
+    <span class="nb">rewrite</span> (iterop_list_step _ _ (runax M)).
+    + <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ * x)). <span class="bp">exact</span> I.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">associativityOfProducts_seq</span> (<span class="nv">M</span>:monoid) : isAssociative_seq (unel M) (@op M).
+<span class="kn">Proof</span>.
+  <span class="sd">(** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)</span>
+  <span class="c">(* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)</span>
+  <span class="nb">unfold</span> isAssociative_seq; <span class="nb">intros</span>. <span class="nb">induction</span> x <span class="k">as</span> [n x].
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+  { <span class="bp">reflexivity</span>. }
+  <span class="nb">change</span> (flatten _) <span class="k">with</span> (flatten ((n,,x): NonemptySequence _)).
+  <span class="nb">rewrite</span> flattenStep.
+  <span class="nb">change</span> (lastValue _) <span class="k">with</span> (x lastelement).
+  <span class="nb">unfold</span> iterop_seq_seq. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> iterop_fun_fun.
+  <span class="nb">rewrite</span> (iterop_fun_step _ _ (lunax M)).
+  <span class="nb">generalize</span> (x lastelement) <span class="k">as</span> z; <span class="nb">intro</span> z.
+  <span class="nb">unfold</span> iterop_seq.
+  <span class="nb">induction</span> z <span class="k">as</span> [m z].
+  <span class="nb">induction</span> m <span class="k">as</span> [|m IHm].
+  { <span class="nb">simpl</span>. <span class="nb">rewrite</span> runax.
+    <span class="nb">simple refine</span> (_ @ IHn (x ∘ dni lastelement)).
+    <span class="nb">rewrite</span> concatenate'_r0.
+    <span class="bp">now</span> <span class="nb">apply</span> (two_arg_paths_b (natplusr0 (stnsum (length ∘ (x ∘ dni lastelement))))). }
+  <span class="nb">change</span> (length (S m,, z)) <span class="k">with</span> (S m). <span class="nb">change</span> (sequenceToFunction (S m,,z)) <span class="k">with</span> z.
+  <span class="nb">rewrite</span> (iterop_fun_step _ _ (lunax M)). <span class="nb">rewrite</span> concatenateStep.
+  <span class="nb">generalize</span> (z lastelement) <span class="k">as</span> w; <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> &lt;- assocax. <span class="nb">unfold</span> append.
+  <span class="kn">Opaque</span> iterop_fun. <span class="nb">simpl</span>. <span class="kn">Transparent</span> iterop_fun.
+  <span class="nb">rewrite</span> (iterop_fun_append _ _ (lunax M)).
+  <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">u</span>, u*w)). <span class="nb">simpl</span> <span class="k">in</span> IHm. <span class="nb">apply</span> IHm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">associativityOfProducts'</span> {<span class="nv">M</span>:monoid} {<span class="nv">n</span>} (<span class="nv">f</span>:stn n → nat) (<span class="nv">x</span>:stn (stnsum f) → M) :
+  iterop_seq_mon (stnsum f,,x) = iterop_seq_seq_mon (partition f x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">refine</span> (_ @ associativityOfProducts_seq M (partition f x)).
+  <span class="nb">assert</span> (L := flatten_partition f x). <span class="nb">apply</span> pathsinv0. <span class="bp">exact</span> (iterop_seq_mon_homot _ _ L).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** generalized commutativity *)</span>
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"s □ x"</span> := (append s x) (<span class="kn">at level</span> <span class="mi">64</span>, <span class="kn">left associativity</span>).
+
+<span class="kn">Ltac</span> <span class="nf">change_lhs</span> a := <span class="k">match goal with</span> |- @paths <span class="nl">?T</span> <span class="nl">?x</span> <span class="nl">?y</span>
+                                     =&gt; <span class="nb">change</span> (@paths T x y) <span class="k">with</span> (@paths T a y) <span class="k">end</span>.
+<span class="kn">Ltac</span> <span class="nf">change_rhs</span> a := <span class="k">match goal with</span> |- @paths <span class="nl">?T</span> <span class="nl">?x</span> <span class="nl">?y</span>
+                                     =&gt; <span class="nb">change</span> (@paths T x y) <span class="k">with</span> (@paths T x a) <span class="k">end</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+<span class="kn">Lemma</span> <span class="nf">commutativityOfProducts_helper</span> {<span class="nv">M</span>:abmonoid} {<span class="nv">n</span>} (<span class="nv">x</span>:stn (S n) → M) (<span class="nv">j</span>:stn (S n)) :
+  iterop_seq_mon (S n,,x) = iterop_seq_mon (n,,x ∘ dni j) * x j.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> j <span class="k">as</span> [j jlt].
+  <span class="nb">assert</span> (jle := natlthsntoleh _ _ jlt).
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> transport.
+  <span class="nb">set</span> (f := nil □ j □ S O □ n-j : stn <span class="mi">3</span> → nat).
+  <span class="nb">assert</span> (B : stnsum f = S n).
+  { <span class="nb">unfold</span> stnsum, f; <span class="nb">simpl</span>. <span class="kp">repeat</span> <span class="nb">unfold</span> append_vec; <span class="nb">simpl</span>. <span class="nb">rewrite</span> natplusassoc.
+    <span class="nb">rewrite</span> (natpluscomm <span class="mi">1</span>). <span class="nb">rewrite</span> &lt;- natplusassoc.
+    <span class="nb">rewrite</span> natpluscomm. <span class="nb">apply</span> (maponpaths S). <span class="nb">rewrite</span> natpluscomm. <span class="bp">now</span> <span class="nb">apply</span> minusplusnmm. }
+  <span class="nb">set</span> (r := weqfibtototal _ _ (<span class="k">λ</span> <span class="nv">k</span>, eqweqmap (maponpaths (<span class="k">λ</span> <span class="nv">n</span>, k &lt; n : UU) B) ) :
+              stn (stnsum f) ≃ stn (S n)).
+  <span class="nb">set</span> (x' := x ∘ r).
+  intermediate_path (iterop_seq_mon (stnsum f,, x')).
+  { <span class="nb">induction</span> B. <span class="nb">apply</span> iterop_seq_mon_homot. <span class="nb">intros</span> i. <span class="nb">unfold</span> x'.
+    <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> ( invmaponpathsincl _ ( isinclstntonat _ ) _ _).
+    <span class="bp">reflexivity</span>. }
+  <span class="nb">unfold</span> iterop_seq_mon. <span class="nb">unfold</span> iterop_seq.
+  <span class="nb">refine</span> (associativityOfProducts' f x' @ _).
+  <span class="nb">unfold</span> partition.
+  <span class="nb">rewrite</span> <span class="mi">3</span> iterop_seq_seq_mon_step.
+  <span class="nb">change</span> (iterop_seq_seq_mon (<span class="mi">0</span>,,_)) <span class="k">with</span> (unel M); <span class="nb">rewrite</span> lunax.
+  <span class="nb">set</span> (s0 := dni lastelement (dni lastelement (@lastelement <span class="mi">0</span>))).
+  <span class="nb">unfold</span> funcomp <span class="nb">at</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span>.
+  <span class="nb">set</span> (s1 := dni lastelement (@lastelement <span class="mi">1</span>)).
+  <span class="nb">set</span> (s2 := @lastelement <span class="mi">2</span>).
+  <span class="nb">unfold</span> partition'. <span class="nb">unfold</span> inverse_lexicalEnumeration.
+  <span class="nb">change</span> (f s0) <span class="k">with</span> j; <span class="nb">change</span> (f s1) <span class="k">with</span> (S O); <span class="nb">change</span> (f s2) <span class="k">with</span> (n-j).
+  <span class="nb">set</span> (f' := nil □ j □ n-j : stn <span class="mi">2</span> → nat).
+  <span class="nb">assert</span> (B' : stnsum f' = n).
+  { <span class="nb">unfold</span> stnsum, f'; <span class="nb">simpl</span>. <span class="kp">repeat</span> <span class="nb">unfold</span> append_vec; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> natpluscomm. <span class="bp">now</span> <span class="nb">apply</span> minusplusnmm. }
+  <span class="nb">set</span> (r' := weqfibtototal _ _ (<span class="k">λ</span> <span class="nv">k</span>, eqweqmap (maponpaths (<span class="k">λ</span> <span class="nv">n</span>, k &lt; n : UU) B') ) :
+              stn (stnsum f') ≃ stn n).
+  <span class="nb">set</span> (x'' := x ∘ dni (j,, jlt) ∘ r').
+  intermediate_path (iterop_seq_mon (stnsum f',, x'') * x (j,, jlt)).
+  { <span class="nb">assert</span> (L := iterop_seq_mon_len1 (<span class="k">λ</span> <span class="nv">j0</span> : stn <span class="mi">1</span>, x' ((weqstnsum1 f) (s1,, j0)))).
+    <span class="nb">unfold</span> functionToSequence <span class="k">in</span> L.
+    <span class="nb">rewrite</span> L. <span class="nb">rewrite</span> assocax. <span class="nb">refine</span> (transportf (<span class="k">λ</span> <span class="nv">k</span>, _*k=_) (commax _ _ _) _).
+    <span class="nb">rewrite</span> &lt;- assocax.
+    <span class="nb">apply</span> two_arg_paths.
+    { <span class="nb">refine</span> (_ @ !associativityOfProducts' f' x'').
+      <span class="nb">unfold</span> partition.
+      <span class="nb">rewrite</span> <span class="mi">2</span> iterop_seq_seq_mon_step.
+      <span class="nb">change</span> (iterop_seq_seq_mon (<span class="mi">0</span>,,_)) <span class="k">with</span> (unel M); <span class="nb">rewrite</span> lunax.
+      <span class="nb">apply</span> two_arg_paths.
+      { <span class="nb">unfold</span> funcomp. <span class="nb">set</span> (s0' := dni lastelement (@lastelement <span class="mi">0</span>)).
+        <span class="nb">unfold</span> partition'. <span class="nb">change</span> (f' s0') <span class="k">with</span> j.
+        <span class="nb">apply</span> iterop_seq_mon_homot. <span class="nb">intro</span> i. <span class="nb">unfold</span> x', x'', funcomp. <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> subtypePath_prop.
+        change_lhs (stntonat _ i).
+        <span class="nb">unfold</span> dni. <span class="nb">unfold</span> di.
+        <span class="nb">unfold</span> stntonat.
+        <span class="k">match goal with</span> |- <span class="kp">context</span> [ <span class="k">match</span> <span class="nl">?x</span> <span class="k">with</span> _ =&gt; _ <span class="k">end</span> ]
+                        =&gt; <span class="nb">induction</span> x <span class="k">as</span> [c|c] <span class="k">end</span>.
+        { <span class="bp">reflexivity</span>. }
+        { <span class="nb">apply</span> fromempty. <span class="nb">assert</span> (P := c : i ≥ j); <span class="nb">clear</span> c.
+          <span class="bp">exact</span> (natlthtonegnatgeh _ _ (stnlt i) P). } }
+      { <span class="nb">unfold</span> partition'. <span class="nb">change</span> (f' lastelement) <span class="k">with</span> (n-j).
+        <span class="nb">apply</span> iterop_seq_mon_homot. <span class="nb">intro</span> i. <span class="nb">unfold</span> x', x'', funcomp. <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> subtypePath_prop. change_lhs (j+<span class="mi">1</span>+i). <span class="nb">unfold</span> dni, di.
+        <span class="nb">unfold</span> stntonat.
+        <span class="k">match goal with</span> |- <span class="kp">context</span> [ <span class="k">match</span> <span class="nl">?x</span> <span class="k">with</span> _ =&gt; _ <span class="k">end</span> ]
+                        =&gt; <span class="nb">induction</span> x <span class="k">as</span> [c|c] <span class="k">end</span>.
+        { <span class="nb">apply</span> fromempty. <span class="bp">exact</span> (negnatlthplusnmn j i c). }
+        { change_rhs (<span class="mi">1</span> + (j + i)). <span class="nb">rewrite</span> &lt;- natplusassoc. <span class="nb">rewrite</span> (natpluscomm j <span class="mi">1</span>).
+          <span class="bp">reflexivity</span>. } } }
+    <span class="nb">unfold</span> x'; <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> subtypePath_prop. <span class="nb">change</span> (j+<span class="mi">0</span> = j). <span class="nb">apply</span> natplusr0. }
+  { <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, k * _)). <span class="nb">induction</span> (!B').
+    change_rhs (iterop_seq_mon (n,, x ∘ dni (j,, jlt))).
+    <span class="nb">apply</span> iterop_seq_mon_homot; <span class="nb">intros</span> i.
+    <span class="nb">unfold</span> x''; <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> ( invmaponpathsincl _ ( isinclstntonat _ ) _ _).
+    <span class="bp">reflexivity</span>. }
+<span class="kn">Qed</span>.
+
+<span class="kn">Theorem</span> <span class="nf">commutativityOfProducts</span> {<span class="nv">M</span>:abmonoid} {<span class="nv">n</span>} (<span class="nv">x</span>:stn n-&gt;M) (<span class="nv">f</span>:stn n ≃ stn n) :
+  iterop_seq_mon (n,,x) = iterop_seq_mon (n,,x∘f).
+<span class="kn">Proof</span>.
+  <span class="c">(* this proof comes from Bourbaki, Algebra, § 1.5, Theorem 2, page 9 *)</span>
+  <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">set</span> (i := @lastelement n); <span class="nb">set</span> (i' := f i).
+    <span class="nb">rewrite</span> (iterop_seq_mon_step (x ∘ f)).
+    <span class="nb">change</span> ((x ∘ f) lastelement) <span class="k">with</span> (x i').
+    <span class="nb">rewrite</span> (commutativityOfProducts_helper x i').
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, k*_)).
+    <span class="nb">set</span> (f' := weqoncompl_ne f i (stnneq i) (stnneq i') : stn_compl i ≃ stn_compl i').
+    <span class="nb">set</span> (g := weqdnicompl i); <span class="nb">set</span> (g' := weqdnicompl i').
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">set</span> (h := (invweq g' ∘ f' ∘ g)%weq).
+    <span class="nb">assert</span> (L : x ∘ f ∘ dni lastelement ~ x ∘ dni i' ∘ h).
+    { <span class="nb">intro</span> j. <span class="nb">unfold</span> funcomp. <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (invmaponpathsincl _ ( isinclstntonat _ ) _ _).
+      <span class="nb">unfold</span> h. <span class="nb">rewrite</span> <span class="mi">2</span> weqcomp_to_funcomp_app. <span class="nb">rewrite</span> pr1_invweq.
+      <span class="nb">induction</span> j <span class="k">as</span> [j J]. <span class="nb">unfold</span> g, i, f', g', stntonat.
+      <span class="nb">rewrite</span> &lt;- (weqdnicompl_compute i').
+      <span class="nb">unfold</span> pr1compl_ne.
+      <span class="nb">rewrite</span> homotweqinvweq.
+      <span class="nb">rewrite</span> (weqoncompl_ne_compute f i (stnneq i) (stnneq i') _).
+      <span class="nb">apply</span> maponpaths, maponpaths.
+      <span class="nb">apply</span> subtypePath_prop.
+      <span class="nb">unfold</span> stntonat.
+      <span class="bp">now</span> <span class="nb">rewrite</span> weqdnicompl_compute. }
+    <span class="nb">rewrite</span> (IH (x ∘ dni i') h).
+    <span class="bp">now</span> <span class="nb">apply</span> iterop_seq_mon_homot.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** finite products (or sums) in monoids *)</span>
+
+
+  <span class="kn">Require Export</span> UniMath.Combinatorics.FiniteSets.
+  <span class="kn">Require Export</span> UniMath.Foundations.NaturalNumbers.
+
+<span class="kn">Section</span> <span class="nf">NatCard</span>.
+
+  <span class="sd">(** first a toy warm-up with addition in nat, based on cardinalities of standard finite sets *)</span>
+
+  <span class="kn">Theorem</span> <span class="nf">nat_plus_associativity</span> {<span class="nv">n</span>} {<span class="nv">m</span>:stn n-&gt;nat} (<span class="nv">k</span>:∏ (ij : ∑ i, stn (m i)), nat) :
+    stnsum (<span class="k">λ</span> <span class="nv">i</span>, stnsum (curry k i)) = stnsum (k ∘ lexicalEnumeration m).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="nb">apply</span> weqtoeqstn.
+    intermediate_weq (∑ i, stn (stnsum (curry k i))).
+    { <span class="nb">apply</span> invweq. <span class="nb">apply</span> weqstnsum1. }
+    intermediate_weq (∑ i j, stn (curry k i j)).
+    { <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> i. <span class="nb">apply</span> invweq. <span class="nb">apply</span> weqstnsum1. }
+    intermediate_weq (∑ ij, stn (k ij)).
+    { <span class="bp">exact</span> (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
+    intermediate_weq (∑ ij, stn (k (lexicalEnumeration m ij))).
+    { <span class="nb">apply</span> (weqbandf (inverse_lexicalEnumeration m)). <span class="nb">intro</span> ij. <span class="nb">apply</span> eqweqmap.
+      <span class="nb">apply</span> (maponpaths stn), (maponpaths k). <span class="nb">apply</span> pathsinv0, homotinvweqweq. }
+    <span class="nb">apply</span> inverse_lexicalEnumeration.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">nat_plus_associativity'</span> <span class="nv">n</span> (<span class="nv">m</span>:stn n-&gt;nat) (<span class="nv">k</span>:∏ i, stn (m i) → nat) :
+    stnsum (<span class="k">λ</span> <span class="nv">i</span>, stnsum (k i)) = stnsum (uncurry (Z := <span class="k">λ</span> <span class="nv">_</span>,_) k ∘ lexicalEnumeration m).
+  <span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="bp">exact</span> (nat_plus_associativity (uncurry k)). <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iterop_fun_nat</span> {<span class="nv">n</span>:nat} (<span class="nv">x</span>:stn n-&gt;nat) : iterop_fun <span class="mi">0</span> add x = stnsum x.
+  <span class="kn">Proof</span>.
+    <span class="c">(* these are different because iterop_fun is careful to not add 0 in the case where n=1 *)</span>
+    <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [|n I].
+    - <span class="bp">reflexivity</span>.
+    - <span class="nb">induction</span> n <span class="k">as</span> [|n _].
+      + <span class="bp">reflexivity</span>.
+      + <span class="nb">simple refine</span> (iterop_fun_step <span class="mi">0</span> add natplusl0 _ @ _ @ ! stnsum_step _).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">i</span>, i + x lastelement)). <span class="nb">apply</span> I.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">associativityNat</span> : isAssociative_fun <span class="mi">0</span> add.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n m x. <span class="nb">unfold</span> iterop_fun_fun. <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> <span class="mi">2</span> iterop_fun_nat.
+    intermediate_path (stnsum (<span class="k">λ</span> <span class="nv">i</span> : stn n, stnsum (x i))).
+    - <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> funextfun; <span class="nb">intro</span>. <span class="nb">apply</span> iterop_fun_nat.
+    - <span class="bp">now</span> <span class="nb">apply</span> nat_plus_associativity'.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* A shorter definition: *)</span>
+  <span class="kn">Definition</span> <span class="nf">finsum'</span> {<span class="nv">X</span>} (<span class="nv">fin</span> : isfinite X) (<span class="nv">f</span> : X → nat) : nat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="bp">exact</span> (fincard (isfinitetotal2 (stn∘f) fin (<span class="k">λ</span> <span class="nv">i</span>, isfinitestn (f i)))).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* exercise : show finsum = finsum' *)</span>
+
+<span class="kn">End</span> <span class="nf">NatCard</span>.
+
+<span class="kn">Definition</span> <span class="nf">MultipleOperation</span> (<span class="nv">X</span>:UU) : UU := UnorderedSequence X → X.
+
+<span class="kn">Section</span> <span class="nf">Mult</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span>:UU} (<span class="nv">op</span> : MultipleOperation X).
+
+  <span class="kn">Definition</span> <span class="nf">composeMultipleOperation</span> : UnorderedSequence (UnorderedSequence X) → X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> s. <span class="bp">exact</span> (op (composeUnorderedSequence op s)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isAssociativeMultipleOperation</span> := ∏ x, op (flattenUnorderedSequence x) = composeMultipleOperation x.
+
+<span class="kn">End</span> <span class="nf">Mult</span>.
+
+<span class="kn">Definition</span> <span class="nf">AssociativeMultipleOperation</span> {<span class="nv">X</span>} := ∑ op:MultipleOperation X, isAssociativeMultipleOperation op.
+
+<span class="kn">Definition</span> <span class="nf">iterop_unoseq_mon</span> {<span class="nv">M</span>:abmonoid} : MultipleOperation M.
+<span class="c">(* iterate the monoid operation over an unordered finite sequence of elements of M *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> m.
+  <span class="nb">induction</span> m <span class="k">as</span> [J m].
+  <span class="nb">induction</span> J <span class="k">as</span> [I fin].
+  <span class="nb">simpl</span> <span class="k">in</span> m.
+  <span class="nb">unfold</span> isfinite, finstruct <span class="k">in</span> fin.
+  <span class="nb">simple refine</span> (squash_to_set
+                   (setproperty M)
+                   (<span class="k">λ</span> (<span class="nv">g</span> : finstruct I), iterop_fun_mon (m ∘ g : _ → M))
+                   _
+                   fin).
+  <span class="nb">intros</span>. <span class="nb">induction</span> x <span class="k">as</span> [n x]. <span class="nb">induction</span> x' <span class="k">as</span> [n' x'].
+  <span class="nb">assert</span> (p := weqtoeqstn (invweq x' ∘ x)%weq).
+  <span class="nb">induction</span> p.
+  <span class="nb">assert</span> (w := commutativityOfProducts (m ∘ x') (invweq x' ∘ x)%weq).
+  <span class="nb">simple refine</span> (_ @ ! w); <span class="nb">clear</span> w. <span class="nb">unfold</span> iterop_seq_mon, iterop_fun_mon, iterop_seq.
+  <span class="nb">apply</span> maponpaths. <span class="nb">rewrite</span> weqcomp_to_funcomp. <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i.
+  <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (! homotweqinvweq x' (x i)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iterop_unoseq_abgr</span> {<span class="nv">G</span>:abgr} : MultipleOperation G.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (iterop_unoseq_mon (M:=G)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sum_unoseq_ring</span> {<span class="nv">R</span>:<span class="bp">ring</span>} : MultipleOperation R.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (iterop_unoseq_mon (M:=R)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">product_unoseq_ring</span> {<span class="nv">R</span>:commring} : MultipleOperation R.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (iterop_unoseq_mon (M:=ringmultabmonoid R)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iterop_unoseq_unoseq_mon</span> {<span class="nv">M</span>:abmonoid} : UnorderedSequence (UnorderedSequence M) → M.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> s. <span class="bp">exact</span> (composeMultipleOperation iterop_unoseq_mon s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">abmonoidMultipleOperation</span> {<span class="nv">M</span>:abmonoid} (<span class="nv">op</span> := @iterop_unoseq_mon M) : MultipleOperation M
+  := iterop_unoseq_mon.
+
+<span class="kn">Theorem</span> <span class="nf">isAssociativeMultipleOperation_abmonoid</span> {<span class="nv">M</span>:abmonoid}
+  : isAssociativeMultipleOperation (@iterop_unoseq_mon M).
+<span class="kn">Proof</span>.
+
+<span class="kn">Abort</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/IteratedBinaryOperations.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Combinatorics/StandardFiniteSets.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Export UniMath.Combinatorics.StandardFiniteSets.&lt;&lt;&lt;
+  &gt; Require Export UniMath.Combinatorics.Lists.
+  &gt; Require Export UniMath.Combinatorics.FVectors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Exponentials.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Slice.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.PullbackFunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.UniversalArrow.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.ConstProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.PullbackFunctor.
+<span class="kn">Import</span> Products.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">is_cartesian_closed_bicat</span>
+           (<span class="nv">B</span> : bicat_with_binprod)
+  : UU
+  := ∏ (x : B),
+     right_universal_arrow
+       (const_prod_psfunctor B x).
+
+<span class="kn">Definition</span> <span class="nf">make_is_cartesian_closed_bicat</span>
+           (<span class="nv">B</span> : bicat_with_binprod)
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+           (<span class="nv">exp</span> : B -&gt; B → B)
+           (<span class="nv">app</span> : ∏ (x y : B), exp x y ⊗ x --&gt; y)
+           (<span class="nv">app2</span> : ∏ (x y₁ y₂ : B)
+                     (f g : y₁ --&gt; exp x y₂)
+                     (α : f ⊗₁ id₁ x · app x y₂ ==&gt; g ⊗₁ id₁ x · app x y₂),
+                   f ==&gt; g)
+           (<span class="nv">app2_eq</span> : ∏ (x y₁ y₂ : B)
+                        (f g : y₁ --&gt; exp x y₂)
+                        (α : f ⊗₁ id₁ x · app x y₂ ==&gt; g ⊗₁ id₁ x · app x y₂),
+                      app2 x y₁ y₂ f g α ⊗₂ id₂ (id₁ x) ▹ app x y₂ = α)
+           (<span class="nv">H</span> : ∏ (x y₁ y₂ : B)
+                  (f g : y₁ --&gt; exp x y₂)
+                  (α : f ⊗₁ id₁ x · app x y₂ ==&gt; g ⊗₁ id₁ x · app x y₂)
+                  (β₁ β₂ : f ==&gt; g)
+                  (p₁ : β₁ ⊗₂ id₂ (id₁ x) ▹ app x y₂ = α)
+                  (p₂ : β₂ ⊗₂ id₂ (id₁ x) ▹ app x y₂ = α),
+                β₁ = β₂)
+           (<span class="nv">lam</span> : ∏ (x y₁ y₂ : B)
+                    (f : y₁ ⊗ x --&gt; y₂),
+                  y₁ --&gt; exp x y₂)
+           (<span class="nv">app_lam</span> : ∏ (x y₁ y₂ : B)
+                        (f : y₁ ⊗ x --&gt; y₂),
+                      invertible_2cell (lam x y₁ y₂ f ⊗₁ id₁ x · app x y₂) f)
+  : is_cartesian_closed_bicat B.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  use make_right_universal_arrow'.
+  - <span class="bp">exact</span> HB.
+  - <span class="bp">exact</span> (exp x).
+  - <span class="bp">exact</span> (app x).
+  - <span class="nb">intros</span> y₁ y₂ f g α.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (app2 x y₁ y₂ f g α).
+    + <span class="bp">exact</span> (app2_eq x y₁ y₂ f g α).
+  - <span class="bp">exact</span> (H x).
+  - <span class="nb">intros</span> y₁ y₂ f.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (lam x y₁ y₂ f).
+    + <span class="bp">exact</span> (app_lam x y₁ y₂ f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">exponentiable_morphism</span>
+           (<span class="nv">B</span> : bicat_with_pb)
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           (<span class="nv">f</span> : b₁ --&gt; b₂)
+  : UU
+  := right_universal_arrow (pb_psfunctor B f).
+
+<span class="kn">Definition</span> <span class="nf">locally_cartesian_closed_bicat</span>
+           (<span class="nv">B</span> : bicat_with_pb)
+  : UU
+  := ∏ (b₁ b₂ : B)
+       (f : b₁ --&gt; b₂),
+     exponentiable_morphism B f.
+
+<span class="kn">Definition</span> <span class="nf">bicat_has_exponentials</span>
+           (<span class="nv">B</span> : bicat_with_pb)
+  : UU
+  := ∏ (b₁ b₂ : B)
+       (f : b₁ --&gt; b₂),
+     (internal_sfib f → exponentiable_morphism B f)
+     ×
+     (internal_sopfib f → exponentiable_morphism B f).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/OtherStructure/Exponentials.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

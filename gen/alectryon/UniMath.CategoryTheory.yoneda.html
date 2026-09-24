@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>yoneda.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Benedikt Ahrens, Chris Kapulkin, Mike Shulman</span>
+
+<span class="sd">january 2013</span>
+
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents : Definition of the Yoneda functor</span>
+<span class="sd">           [yoneda(C) : [C, [C^op, HSET]]]</span>
+
+<span class="sd">           Proof that [yoneda(C)] is fully faithful</span>
+
+
+<span class="sd">TODO: this file needs cleanup</span>
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'hom' C"</span> := (precategory_morphisms (C := C)) (<span class="kn">at level</span> <span class="mi">2</span>).
+
+<span class="kn">Ltac</span> <span class="nf">unf</span> := <span class="nb">unfold</span> identity,
+                   compose,
+                   precategory_morphisms;
+                   <span class="nb">simpl</span>.
+
+<span class="sd">(** * Yoneda functor *)</span>
+
+<span class="sd">(** ** On objects *)</span>
+
+<span class="kn">Definition</span> <span class="nf">yoneda_objects_ob</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C)
+          (<span class="nv">d</span> : C) := hom C d c.
+
+<span class="kn">Definition</span> <span class="nf">yoneda_objects_mor</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C)
+    (<span class="nv">d</span> <span class="nv">d'</span> : C) (<span class="nv">f</span> : hom C d  d') :
+   yoneda_objects_ob C c d' -&gt; yoneda_objects_ob C c d :=
+    <span class="k">λ</span> <span class="nv">g</span>, f · g.
+
+<span class="kn">Definition</span> <span class="nf">yoneda_ob_functor_data</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C) :
+    functor_data C^op HSET.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c'</span>, <span class="nv">make_hSet</span> (yoneda_objects_ob C c c') (homset_property C _ _ ) ).
+  <span class="nb">intros</span> a b f g. <span class="nb">unfold</span> yoneda_objects_ob <span class="k">in</span> *. <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="bp">exact</span> (f · g).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_yoneda_functor_data</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C) :
+  is_functor (yoneda_ob_functor_data C c).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; unf; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> functor_idax .
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">intro</span> f. unf. <span class="nb">apply</span> id_left.
+  <span class="nb">intros</span> a b d f g.
+  <span class="nb">apply</span> funextsec. <span class="nb">intro</span> h.
+  <span class="nb">apply</span> (! assoc _ _ _ ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">yoneda_objects</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C) :
+             functor C^op HSET :=
+    tpair _ _ (is_functor_yoneda_functor_data C c).
+
+
+<span class="sd">(** ** On morphisms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">yoneda_morphisms_data</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> <span class="nv">c'</span> : C)
+    (<span class="nv">f</span> : hom C c c') : ∏ a : ob C^op,
+         hom _ (yoneda_objects C c a) ( yoneda_objects C c' a) :=
+            <span class="k">λ</span> <span class="nv">a</span> <span class="nv">g</span>, g · f.
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_yoneda_morphisms_data</span> (<span class="nv">C</span> : category)
+     (<span class="nv">c</span> <span class="nv">c'</span> : ob C) (<span class="nv">f</span> : hom C c c') :
+  is_nat_trans (yoneda_objects C c) (yoneda_objects C c')
+    (yoneda_morphisms_data C c c' f).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_nat_trans; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> yoneda_morphisms_data; <span class="nb">simpl</span>.
+  <span class="nb">intros</span> d d' g.
+  <span class="nb">apply</span> funextsec; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">unfold</span> yoneda_objects_ob; <span class="nb">simpl</span>.
+  unf; <span class="nb">intro</span>;
+  <span class="nb">apply</span>  ( ! assoc _ _ _ ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">yoneda_morphisms</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> <span class="nv">c'</span> : C)
+   (<span class="nv">f</span> : hom C c c') : nat_trans (yoneda_objects C c) (yoneda_objects C c') :=
+   tpair _ _ (is_nat_trans_yoneda_morphisms_data C c c' f).
+
+
+<span class="kn">Definition</span> <span class="nf">yoneda_functor_data</span> (<span class="nv">C</span> : category) :
+   functor_data C [C^op , HSET, (has_homsets_HSET) ] :=
+   tpair _ (yoneda_objects C) (yoneda_morphisms C).
+
+
+<span class="sd">(** ** Functorial properties of the yoneda assignments *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_yoneda</span> (<span class="nv">C</span> : category) :
+  is_functor (yoneda_functor_data C).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_functor.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">simpl</span>.
+  <span class="nb">intro</span> a.
+  <span class="nb">set</span> (T:= nat_trans_eq (C:=C^op) (has_homsets_HSET)). <span class="nb">simpl</span>.
+  <span class="nb">apply</span> T.
+  <span class="nb">intro</span> c; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> f.
+  <span class="nb">apply</span> id_right.
+  <span class="nb">intros</span> a b c f g.
+  <span class="nb">set</span> (T:=nat_trans_eq (C:=C^op) (has_homsets_HSET)).
+  <span class="nb">apply</span> T.
+  <span class="nb">simpl</span>; <span class="nb">intro</span> d; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> h.
+  <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">yoneda</span> (<span class="nv">C</span> : category) :
+  functor C (functor_category C^op hset_category) :=
+   tpair _ _ (is_functor_yoneda C).
+
+<span class="c">(* Notation "'ob' F" := (precategory_ob_mor_fun_objects F)(at level 4). *)</span>
+
+<span class="sd">(** ** Yoneda lemma: natural transformations from [yoneda C c] to [F]</span>
+<span class="sd">         are isomorphic to [F c] *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">yoneda_map_1</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C)
+   (<span class="nv">F</span> : functor C^op HSET) :
+       hom _ (yoneda C c) F -&gt; pr1 (F c) :=
+   <span class="k">λ</span> <span class="nv">h</span>,  pr1 h c (identity c).
+
+
+
+<span class="kn">Lemma</span> <span class="nf">yoneda_map_2_ax</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C)
+       (<span class="nv">F</span> : functor C^op HSET) (<span class="nv">x</span> : pr1 (F c)) :
+  is_nat_trans (pr1 (yoneda C c)) F
+         (<span class="k">fun</span> (<span class="nv">d</span> : C) (<span class="nv">f</span> : hom (C ^op) c d) =&gt; #F f x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b f; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">unfold</span> yoneda_objects_ob; <span class="nb">intro</span> g.
+  <span class="nb">set</span> (H:= @functor_comp _ _ F  _ _  b g).
+  <span class="nb">unfold</span> functor_comp <span class="k">in</span> H;
+  <span class="nb">unfold</span> opp_precat_data <span class="k">in</span> H;
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> (toforallpaths _ _ _ (H f) x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">yoneda_map_2</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C)
+   (<span class="nv">F</span> : functor C^op HSET) :
+       pr1 (F c) -&gt; hom _ (yoneda C c) F.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">d</span> : ob C, <span class="k">λ</span> <span class="nv">f</span>, #F f x).
+  <span class="nb">apply</span> yoneda_map_2_ax.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">yoneda_map_1_2</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C)
+  (<span class="nv">F</span> : functor C^op HSET)
+  (<span class="nv">alpha</span> : hom _ (yoneda C c) F) :
+      yoneda_map_2 _ _ _ (yoneda_map_1 _ _ _ alpha) = alpha.
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">set</span> (T:=nat_trans_eq (C:=C^op) (has_homsets_HSET)).
+  <span class="nb">apply</span> T.
+  <span class="nb">intro</span> a'; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> f.
+  <span class="nb">unfold</span> yoneda_map_1.
+  intermediate_path ((alpha c · #F f) (identity c)).
+    <span class="nb">apply</span> idpath.
+  <span class="nb">rewrite</span> &lt;- nat_trans_ax.
+  unf; <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (id_right f ).
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">yoneda_map_2_1</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C)
+   (<span class="nv">F</span> : functor C^op HSET) (<span class="nv">x</span> : pr1 (F c)) :
+   yoneda_map_1 _ _ _ (yoneda_map_2 _  _ _ x) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> (functor_id F).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_nat_trans_yoneda</span> (<span class="nv">C</span>: category) (<span class="nv">c</span> : C)
+  (<span class="nv">F</span> : functor C^op HSET) :
+ isaset (nat_trans (yoneda_ob_functor_data C c) F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaset_nat_trans.
+  <span class="nb">apply</span> (has_homsets_HSET).
+<span class="kn">Qed</span>.
+
+
+
+<span class="kn">Lemma</span> <span class="nf">yoneda_iso_sets</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C)
+   (<span class="nv">F</span> : functor C^op HSET) :
+   is_z_isomorphism (C:=HSET)
+     (a := make_hSet (hom _ ((yoneda C) c) F) (isaset_nat_trans_yoneda C c F))
+     (b := F c)
+     (yoneda_map_1 C c F).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (T:=yoneda_map_2 C c F). <span class="nb">simpl</span> <span class="k">in</span> T.
+  <span class="nb">set</span> (T':= T : hom HSET (F c) (make_hSet (hom _ ((yoneda C) c) F)
+                                  (isaset_nat_trans_yoneda C c F))).
+  <span class="k">exists</span> <span class="nv">T'</span>.
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  - <span class="nb">apply</span> funextsec; <span class="nb">intro</span> alpha.
+    unf; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (yoneda_map_1_2 C c F).
+  - <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x.
+    unf; <span class="nb">rewrite</span> (functor_id F).
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Definition</span> <span class="nf">yoneda_iso_target</span> (<span class="nv">C</span> : category)
+           (<span class="nv">F</span> : [C^op, HSET])
+  : functor C^op HSET.
+<span class="kn">Proof</span>.
+  use (@functor_composite _ [C^op, HSET]^op).
+  - <span class="nb">apply</span> functor_opp.
+    <span class="nb">apply</span> yoneda.
+  - <span class="nb">apply</span> (yoneda _  F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_natural_yoneda_iso</span> (<span class="nv">C</span> : category) (<span class="nv">F</span> : functor C^op HSET):
+  is_nat_trans (yoneda_iso_target C F) F
+  (<span class="k">λ</span> <span class="nv">c</span>, yoneda_map_1 C c F).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_nat_trans.
+  <span class="nb">intros</span> c c' f. <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">unfold</span> yoneda_ob_functor_data. <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> yoneda_morphisms_data.
+  <span class="nb">unfold</span> yoneda_map_1.
+  <span class="nb">intro</span> X.
+  <span class="nb">assert</span> (XH := nat_trans_ax X).
+  <span class="nb">cbn</span> <span class="k">in</span> XH. <span class="nb">unfold</span> yoneda_objects_ob <span class="k">in</span> XH.
+  <span class="nb">assert</span> (XH' := XH c' c' (identity _ )).
+  <span class="nb">assert</span> (XH2 := toforallpaths _ _ _ XH').
+  <span class="nb">rewrite</span> XH2.
+  <span class="nb">rewrite</span> (functor_id F).
+  <span class="nb">cbn</span>.
+  <span class="nb">clear</span> XH2 XH'.
+  <span class="nb">assert</span> (XH' := XH _ _ f).
+  <span class="nb">assert</span> (XH2 := toforallpaths _ _ _ XH').
+  <span class="nb">eapply</span> pathscomp0. <span class="mi">2</span>: <span class="nb">apply</span> XH2.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">natural_trans_yoneda_iso</span> (<span class="nv">C</span> : category)
+  (<span class="nv">F</span> : functor C^op HSET)
+  : nat_trans (yoneda_iso_target C F) F
+  := tpair _ _ (is_natural_yoneda_iso C F).
+
+
+
+<span class="kn">Lemma</span> <span class="nf">is_natural_yoneda_iso_inv</span> (<span class="nv">C</span> : category) (<span class="nv">F</span> : functor C^op HSET):
+  is_nat_trans F (yoneda_iso_target C F)
+  (<span class="k">λ</span> <span class="nv">c</span>, yoneda_map_2 C c F).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_nat_trans.
+  <span class="nb">intros</span> c c' f. <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">unfold</span> yoneda_ob_functor_data. <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> yoneda_map_2.
+  <span class="nb">intro</span> A.
+  <span class="nb">apply</span> nat_trans_eq. { <span class="nb">apply</span> (has_homsets_HSET). }
+  <span class="nb">cbn</span>. <span class="nb">intro</span> d.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">unfold</span> yoneda_objects_ob. <span class="nb">intro</span> g.
+  <span class="nb">unfold</span> yoneda_morphisms_data.
+  <span class="nb">apply</span> (! toforallpaths _ _ _ (functor_comp F _ _ ) A).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">natural_trans_yoneda_iso_inv</span> (<span class="nv">C</span> : category)
+  (<span class="nv">F</span> : functor C^op HSET)
+  : nat_trans (yoneda_iso_target C F) F
+  := tpair _ _ (is_natural_yoneda_iso C F).
+
+
+<span class="kn">Lemma</span> <span class="nf">isweq_yoneda_map_1</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C)
+   (<span class="nv">F</span> : functor C^op HSET) :
+  isweq
+     <span class="c">(*a := make_hSet (hom _ ((yoneda C) hs c) F) (isaset_nat_trans_yoneda C hs c F)*)</span>
+     <span class="c">(*b := F c*)</span>
+     (yoneda_map_1 C c F).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (T:=yoneda_map_2 C c F). <span class="nb">simpl</span> <span class="k">in</span> T.
+  use isweq_iso.
+  - <span class="nb">apply</span> T.
+  - <span class="nb">apply</span> yoneda_map_1_2.
+  - <span class="nb">apply</span> yoneda_map_2_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">yoneda_weq</span> (<span class="nv">C</span> : category) (<span class="nv">c</span> : C)
+   (<span class="nv">F</span> : functor C^op HSET)
+  :  hom [C^op, HSET, has_homsets_HSET] (yoneda C c) F ≃ pr1hSet (F c)
+  := make_weq _ (isweq_yoneda_map_1 C c F).
+
+
+<span class="sd">(** ** The Yoneda embedding is fully faithful *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">yoneda_fully_faithful</span> (<span class="nv">C</span> : category) : fully_faithful (yoneda C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (isweq_iso _
+      (yoneda_map_1 C a (pr1 (yoneda C) b))).
+  - <span class="nb">intro</span>; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">intro</span> gamma.
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> nat_trans_eq. <span class="nb">apply</span> (has_homsets_HSET).
+    <span class="nb">intro</span> x. <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> f.
+    <span class="nb">unfold</span> yoneda_map_1.
+    <span class="nb">unfold</span> yoneda_morphisms_data.
+    <span class="nb">assert</span> (T:= toforallpaths _ _ _ (nat_trans_ax gamma a x f) (identity _ )).
+    <span class="nb">cbn</span> <span class="k">in</span> T.
+    <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> (!T) |].
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> id_right.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Section</span> <span class="nf">yoneda_functor_precomp</span>.
+
+<span class="kn">Variables</span> <span class="nv">C</span> <span class="nv">D</span> : category.
+<span class="kn">Variable</span> <span class="nv">F</span> : functor C D.
+
+<span class="kn">Section</span> <span class="nf">fix_object</span>.
+
+<span class="kn">Variable</span> <span class="nv">c</span> : C.
+
+<span class="kn">Definition</span> <span class="nf">yoneda_functor_precomp'</span> : nat_trans (yoneda_objects C c)
+      (functor_composite (functor_opp F) (yoneda_objects D (F c))).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intros</span> d f ; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (#F f).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> d d' f ;
+              <span class="nb">apply</span> funextsec; <span class="nb">intro</span> t; <span class="nb">simpl</span>;
+              <span class="nb">apply</span> functor_comp).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">yoneda_functor_precomp</span> :  _ ⟦ yoneda C c, functor_composite (functor_opp F) (yoneda_objects D (F c))⟧.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> yoneda_functor_precomp'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Variable</span> <span class="nv">Fff</span> : fully_faithful F.
+
+<span class="kn">Lemma</span> <span class="nf">is_z_iso_yoneda_functor_precomp</span> : is_z_isomorphism yoneda_functor_precomp.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trafo_z_iso_if_pointwise_z_iso.
+  <span class="nb">intro</span> a. <span class="nb">simpl</span>.
+  <span class="nb">set</span> (T:= make_weq _ (Fff a c)).
+  <span class="nb">set</span> (TA := make_hSet (hom C a c) (homset_property C _ _)).
+  <span class="nb">set</span> (TB := make_hSet (hom D (F a) (F c)) (homset_property _ _ _ )).
+  <span class="nb">apply</span> (hset_equiv_is_z_iso TA TB T).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">fix_object</span>.
+
+
+<span class="kn">Let</span> <span class="nf">A</span> : C ⟶ [D^op, HSET] := functor_composite F (yoneda D).
+<span class="kn">Let</span> <span class="nf">B</span> : [D^op, HSET] ⟶ [C^op, HSET]
+    := pre_composition_functor _ _ HSET (functor_opp F : [C^op, D^op]).
+
+<span class="kn">Definition</span> <span class="nf">yoneda_functor_precomp_nat_trans</span> :
+    @nat_trans
+      C
+      [C^op, HSET, (has_homsets_HSET)]
+      (yoneda C)
+      (functor_composite A B).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> yoneda_functor_precomp.
+  - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> c c' f;
+        <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> (has_homsets_HSET) |];
+        <span class="nb">intro</span> d; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> t;
+        <span class="nb">cbn</span>;
+        <span class="nb">apply</span> functor_comp).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">yoneda_functor_precomp</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/yoneda.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; ************************************************************)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

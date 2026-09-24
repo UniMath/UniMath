@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Constant.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Types formers in universes of comprehension categories</span>
+
+<span class="sd"> We defined when a comprehension category is equipped with a universe type, and we constructed</span>
+<span class="sd"> a biequivalence between the bicategory of univalent DFL full comprehension categories with a</span>
+<span class="sd"> universe type and the bicategory of univalent categories with finite limits and a universe</span>
+<span class="sd"> type. Our next goal is to extended this biequivalence to cover universes that are closed under</span>
+<span class="sd"> certain type formers as well. We consider various type formers, and these are given in various</span>
+<span class="sd"> files. In this file, we consider codes for a fixed type in the empty context, and we instantiate</span>
+<span class="sd"> that to the unit type, empty type, natural numbers, and subobject classifier.</span>
+
+<span class="sd"> There are several design decisions in the development. First, to express that a universe has a</span>
+<span class="sd"> code for a certain type former, we assume that the comprehension category supports that type</span>
+<span class="sd"> former and we say that we have codes whose associated type is isomorphic to the given type</span>
+<span class="sd"> former. For instance, to say that we have codes for the propositional truncation, we assume</span>
+<span class="sd"> that the comprehension category is fiberwise a regular category (and that substitution preserves</span>
+<span class="sd"> regular epimorphisms), and then we say that for each small type (i.e., a term in the universe)</span>
+<span class="sd"> there is another term in the universe that is isomorphic to the propositional truncation of</span>
+<span class="sd"> the given type. As a consequence, codes for each type former is expressed using terms of the</span>
+<span class="sd"> universe type and an isomorphism. This isomorphism is required to live in the slice category</span>
+<span class="sd"> of the category of contexts, which is sufficient to obtain an isomorphism betwteen types.</span>
+<span class="sd"> The codes and isomorphism are required to be stable under substitution, which we express</span>
+<span class="sd"> using two equalities. One of them is an equality of codes and the other says that some</span>
+<span class="sd"> diagram commutes. Each of the type formers in this file is expressed this way, and thus</span>
+<span class="sd"> they all are quite similar. Note that we can capture the unit type, empty type, the type of</span>
+<span class="sd"> natural numbers, and the subobject classifier type with a uniform construction. Specifically,</span>
+<span class="sd"> for these types it is sufficient to only require a code in the empty context, and we give a</span>
+<span class="sd"> single generalizing construction for them.</span>
+
+<span class="sd"> Finally, we do not define when a functor preserves codes in this file. Our strategy to define</span>
+<span class="sd"> this is as follows. First we connect type formers in universes for a comprehension category to</span>
+<span class="sd"> type formers in universes for the category of contexts. For instance, we show that whenever a</span>
+<span class="sd"> universe in a comprehension category supports propositional resizing, then the universe in the</span>
+<span class="sd"> category of contexts does so as well. This allows us to express preservation of type formers</span>
+<span class="sd"> in comprehension categories via preservation of type formers in categories, which simplifies</span>
+<span class="sd"> the development.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Codes for a type in the empty context</span>
+<span class="sd"> 2. Codes for the unit type</span>
+<span class="sd"> 3. Codes for the empty type</span>
+<span class="sd"> 4. Codes for the type of natural numbers</span>
+<span class="sd"> 5. Codes for the subobject classifier type</span>
+
+<span class="sd">                                                                                           *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.StrictInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.HPropMono.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.ComprehensionPreservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUnivProps.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatExamples.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="kn">Section</span> <span class="nf">TypesInCompCatUniv</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : dfl_full_comp_cat_with_univ).
+
+  <span class="kn">Let</span> <span class="nf">el</span> : comp_cat_univ_type (dfl_full_comp_cat_ob C)
+    := dfl_full_comp_cat_el C.
+
+  <span class="sd">(** * 1. Codes for a type in the empty context *)</span>
+  <span class="kn">Section</span> <span class="nf">FixAType</span>.
+    <span class="kn">Context</span> {<span class="nv">A</span> : ty ([] : C)}.
+
+    <span class="kn">Definition</span> <span class="nf">type_in_comp_cat_univ</span>
+      : UU
+      := ∑ (a : tm [] (comp_cat_univ [])),
+         z_iso ([] &amp; comp_cat_univ_el el a) ([] &amp; A).
+
+    <span class="kn">Proposition</span> <span class="nf">isaset_type_in_comp_cat_univ</span>
+      : isaset type_in_comp_cat_univ.
+    <span class="kn">Proof</span>.
+      use isaset_total2.
+      - <span class="nb">apply</span> isaset_comp_cat_tm.
+      - <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaset_z_iso.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_type_in_comp_cat_univ</span>
+               (<span class="nv">a</span> : tm [] (comp_cat_univ []))
+               (<span class="nv">f</span> : z_iso ([] &amp; comp_cat_univ_el el a) ([] &amp; A))
+      : type_in_comp_cat_univ
+      := a ,, f.
+
+    <span class="kn">Definition</span> <span class="nf">type_in_comp_cat_univ_code</span>
+               (<span class="nv">a</span> : type_in_comp_cat_univ)
+      : tm [] (comp_cat_univ [])
+      := pr1 a.
+
+    <span class="kn">Definition</span> <span class="nf">type_in_comp_cat_univ_z_iso</span>
+               (<span class="nv">a</span> : type_in_comp_cat_univ)
+      : z_iso ([] &amp; comp_cat_univ_el el (type_in_comp_cat_univ_code a)) ([] &amp; A)
+      := pr2 a.
+
+    <span class="kn">Definition</span> <span class="nf">type_in_comp_cat_univ_z_iso_fiber</span>
+               (<span class="nv">a</span> : type_in_comp_cat_univ)
+      : z_iso
+          (C := fiber_category _ _)
+          (comp_cat_univ_el el (type_in_comp_cat_univ_code a))
+          A.
+    <span class="kn">Proof</span>.
+      use cod_iso_to_type_iso.
+      - <span class="bp">exact</span> (type_in_comp_cat_univ_z_iso a).
+      - <span class="kp">abstract</span>
+          (<span class="nb">apply</span> TerminalArrowEq).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">type_in_comp_cat_univ_eq</span>
+                {<span class="nv">a₁</span> <span class="nv">a₂</span> : type_in_comp_cat_univ}
+                (<span class="nv">p</span> : type_in_comp_cat_univ_code a₁ = type_in_comp_cat_univ_code a₂)
+                (<span class="nv">q</span> : comp_cat_comp_mor (comp_cat_el_map_on_eq el p)
+                     · type_in_comp_cat_univ_z_iso a₂
+                     =
+                     type_in_comp_cat_univ_z_iso a₁)
+      : a₁ = a₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> a₁ <span class="k">as</span> [ a₁ f₁ ].
+      <span class="nb">induction</span> a₂ <span class="k">as</span> [ a₂ f₂ ].
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">induction</span> p.
+      <span class="nb">apply</span> maponpaths.
+      use z_iso_eq.
+      <span class="nb">refine</span> (!q @ _) ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comp_cat_comp_mor_id.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">FixAType</span>.
+
+  <span class="kn">Arguments</span> type_in_comp_cat_univ A : <span class="kn">clear implicits</span>.
+
+  <span class="sd">(** ** 2. Codes for the unit type *)</span>
+  <span class="kn">Definition</span> <span class="nf">unit_in_comp_cat_univ</span>
+    : UU
+    := type_in_comp_cat_univ (dfl_full_comp_cat_unit ([] : C)).
+
+  <span class="kn">Proposition</span> <span class="nf">unit_in_comp_cat_univ_eq</span>
+              {<span class="nv">a₁</span> <span class="nv">a₂</span> : unit_in_comp_cat_univ}
+              (<span class="nv">p</span> : type_in_comp_cat_univ_code a₁ = type_in_comp_cat_univ_code a₂)
+    : a₁ = a₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> a₁ <span class="k">as</span> [ a₁ f₁ ].
+    <span class="nb">induction</span> a₂ <span class="k">as</span> [ a₂ f₂ ].
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> maponpaths.
+    use z_iso_eq.
+    use (cancel_z_iso
+           _ _
+           (dfl_full_comp_cat_extend_unit_z_iso
+              (C := dfl_full_comp_cat_with_univ_types C)
+              [])).
+    <span class="nb">apply</span> TerminalArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** 3. Codes for the empty type *)</span>
+  <span class="kn">Definition</span> <span class="nf">empty_in_comp_cat_univ</span>
+             (<span class="nv">I</span> : fiberwise_cat_property
+                    strict_initial_local_property
+                    (dfl_full_comp_cat_with_univ_types C))
+    : UU
+    := type_in_comp_cat_univ
+         (InitialObject
+            (strict_initial_to_initial
+               (fiberwise_cat_property_ob I []))).
+
+  <span class="kn">Proposition</span> <span class="nf">empty_in_comp_cat_univ_eq</span>
+              {<span class="nv">I</span> : fiberwise_cat_property
+                    strict_initial_local_property
+                    (dfl_full_comp_cat_with_univ_types C)}
+              {<span class="nv">a₁</span> <span class="nv">a₂</span> : empty_in_comp_cat_univ I}
+              (<span class="nv">p</span> : type_in_comp_cat_univ_code a₁ = type_in_comp_cat_univ_code a₂)
+    : a₁ = a₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> a₁ <span class="k">as</span> [ a₁ f₁ ].
+    <span class="nb">induction</span> a₂ <span class="k">as</span> [ a₂ f₂ ].
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> maponpaths.
+    use z_iso_eq_inv.
+    use (InitialArrowEq
+           (O := make_Initial
+                   _
+                   (preserves_initial_dfl_full_comp_cat_adjequiv_base_functor I _ _))).
+    <span class="nb">apply</span> (strict_initial_to_initial (I [])).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** 4. Codes for the type of natural numbers *)</span>
+  <span class="kn">Definition</span> <span class="nf">pnno_in_comp_cat_univ</span>
+             (<span class="nv">N</span> : fiberwise_cat_property
+                    parameterized_NNO_local_property
+                    (dfl_full_comp_cat_with_univ_types C))
+    : UU
+    := type_in_comp_cat_univ
+         (parameterized_NNO_carrier
+            (fiberwise_cat_property_ob N [])).
+
+  <span class="sd">(** ** 5. Codes for the subobject classifier type *)</span>
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_in_comp_cat_univ</span>
+             (<span class="nv">Ω</span> : fiberwise_cat_property
+                    subobject_classifier_local_property
+                    (dfl_full_comp_cat_with_univ_types C))
+    : UU
+    := type_in_comp_cat_univ
+         (subobject_classifier_object
+            (fiberwise_cat_property_ob Ω [])).
+<span class="kn">End</span> <span class="nf">TypesInCompCatUniv</span>.
+
+<span class="kn">Arguments</span> type_in_comp_cat_univ {C} A.
+<span class="kn">Arguments</span> type_in_comp_cat_univ_code {C A} a.
+<span class="kn">Arguments</span> type_in_comp_cat_univ_z_iso {C A} a.
+<span class="kn">Arguments</span> type_in_comp_cat_univ_z_iso_fiber {C A} a.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/CompCatTypes/Constant.v</tt>, line 47)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Codes for the subobject classifier type
+  &gt;
+  &gt;                                                                                            *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Initial.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

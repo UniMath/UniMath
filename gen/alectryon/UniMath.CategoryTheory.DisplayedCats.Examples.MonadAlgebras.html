@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonadAlgebras.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.MonadAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.ComonadCoalgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="kn">Definition</span> <span class="nf">make_Algebra_data</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Monad C) (<span class="nv">X</span> : C) (<span class="nv">α</span> : T X --&gt; X) : Algebra_data T.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> X.
+  - <span class="bp">exact</span> α.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">MonadAlg_disp_ob_mor</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Monad C) : disp_cat_ob_mor C.
+<span class="kn">Proof</span>.
+  use make_disp_cat_ob_mor.
+  - <span class="nb">intro</span> X.
+    <span class="bp">exact</span> (∑ (α : (T X) --&gt; X), Algebra_laws _ (make_Algebra_data T X α)).
+  - <span class="nb">intros</span> X Y αX αY f.
+    <span class="c">(* simpl in αX, αY. *)</span>
+    <span class="nb">set</span> (X' := make_Algebra_data T X (pr1 αX),, pr2 αX : Algebra T).
+    <span class="nb">set</span> (Y' := make_Algebra_data T Y (pr1 αY),, pr2 αY : Algebra T).
+    <span class="bp">exact</span> (is_Algebra_mor T (X:=X') (Y:=Y') f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">Algebra_from_MonadAlg_disp</span> {C : category} {T : Monad C} {x : C}
+    (X : MonadAlg_disp_ob_mor T x) : Algebra T :=
+  (make_Algebra_data T x (pr1 X),, pr2 X).
+
+<span class="kn">Coercion</span> <span class="nf">Algebra_mor_from_Algebra_mor_disp</span> {C : category} {T : Monad C}
+    {x y : C} (X : MonadAlg_disp_ob_mor T x) (Y : MonadAlg_disp_ob_mor T y)
+    {f : x --&gt; y} (F : X --&gt;[f] Y) : Algebra_mor T X Y := (f,, F).
+
+<span class="kn">Definition</span> <span class="nf">MonadAlg_disp_id_comp</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Monad C) : disp_cat_id_comp C (MonadAlg_disp_ob_mor T).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x xx.
+    <span class="kp">abstract</span> (
+      <span class="bp">exact</span> (Algebra_mor_commutes T (Algebra_mor_id T xx))
+    ).
+  - <span class="nb">intros</span> x y z f g xx yy zz ff gg.
+    <span class="kp">abstract</span> (
+      <span class="bp">exact</span> (Algebra_mor_commutes T (Algebra_mor_comp T xx yy zz ff gg))
+    ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">MonadAlg_disp_data</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Monad C) : disp_cat_data C.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (MonadAlg_disp_ob_mor T).
+  - <span class="bp">exact</span> (MonadAlg_disp_id_comp T).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">MonadAlg_disp</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Monad C) : disp_cat C.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (MonadAlg_disp_data T).
+  - <span class="kp">abstract</span> (
+      <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="kp">try</span> (<span class="nb">apply</span> homset_property);
+      <span class="nb">apply</span> isasetaprop;
+      <span class="nb">apply</span> homset_property
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">MonadAlg_tot</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Monad C) : category :=
+    total_category (MonadAlg_disp T).
+
+<span class="kn">Definition</span> <span class="nf">MonadAlg_disp_Algebra_functor</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Monad C) :
+    MonadAlg_tot T ⟶ (MonadAlg T).
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use make_functor_data.
+    * <span class="nb">intro</span> X.
+      <span class="bp">exact</span> (Algebra_from_MonadAlg_disp (pr2 X)).
+    * <span class="nb">intros</span>.
+      <span class="bp">exact</span> (Algebra_mor_from_Algebra_mor_disp (pr2 a) (pr2 b) (pr2 X)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">split</span>; [<span class="nb">intro</span>|<span class="nb">intros</span> a b c f g];
+        (<span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|]; <span class="bp">reflexivity</span>)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">MonadAlg_disp_is_Algebra</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Monad C) :
+    MonadAlg_tot T = MonadAlg T.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> catiso_to_category_path.
+  use tpair.
+  - <span class="bp">exact</span> (MonadAlg_disp_Algebra_functor T).
+  - <span class="nb">split</span>.
+    * <span class="nb">intros</span> a b.
+      use isweq_iso.
+      + <span class="bp">exact</span> (idfun _).
+      + <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+    * use isweq_iso.
+      + <span class="nb">intros</span> [[x α] laws].
+        use tpair.
+        -- <span class="bp">exact</span> x.
+        -- <span class="bp">exact</span> (α,, laws).
+      + <span class="nb">intro</span>. <span class="nb">apply</span> idpath.
+      + <span class="nb">intro</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">make_Coalgebra_data</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Comonad C) (<span class="nv">X</span> : C) (<span class="nv">α</span> : X --&gt; T X) : Coalgebra_data T.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> X.
+  - <span class="bp">exact</span> α.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ComonadCoalg_disp_ob_mor</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Comonad C) : disp_cat_ob_mor C.
+<span class="kn">Proof</span>.
+  use make_disp_cat_ob_mor.
+  - <span class="nb">intro</span> X.
+    <span class="bp">exact</span> (∑ (α : X --&gt; T X), Coalgebra_laws _ (make_Coalgebra_data T X α)).
+  - <span class="nb">intros</span> X Y αX αY f.
+    <span class="c">(* simpl in αX, αY. *)</span>
+    <span class="nb">set</span> (X' := make_Coalgebra_data T X (pr1 αX),, pr2 αX : Coalgebra T).
+    <span class="nb">set</span> (Y' := make_Coalgebra_data T Y (pr1 αY),, pr2 αY : Coalgebra T).
+    <span class="bp">exact</span> (is_Coalgebra_mor T (X:=X') (Y:=Y') f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">Coalgebra_from_ComonadCoalg_disp</span> {C : category} {T : Comonad C} {x : C}
+    (X : ComonadCoalg_disp_ob_mor T x) : Coalgebra T :=
+  (make_Coalgebra_data T x (pr1 X),, pr2 X).
+
+<span class="kn">Coercion</span> <span class="nf">Coalgebra_mor_from_Coalgebra_mor_disp</span> {C : category} {T : Comonad C}
+    {x y : C} (X : ComonadCoalg_disp_ob_mor T x) (Y : ComonadCoalg_disp_ob_mor T y)
+    {f : x --&gt; y} (F : X --&gt;[f] Y) : Coalgebra_mor T X Y := (f,, F).
+
+<span class="kn">Definition</span> <span class="nf">ComonadCoalg_disp_id_comp</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Comonad C) : disp_cat_id_comp C (ComonadCoalg_disp_ob_mor T).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x xx.
+    <span class="kp">abstract</span> (
+      <span class="bp">exact</span> (Coalgebra_mor_commutes T (Coalgebra_mor_id T xx))
+    ).
+  - <span class="nb">intros</span> x y z f g xx yy zz ff gg.
+    <span class="kp">abstract</span> (
+      <span class="bp">exact</span> (Coalgebra_mor_commutes T (Coalgebra_mor_comp T xx yy zz ff gg))
+    ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ComonadCoalg_disp_data</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Comonad C) : disp_cat_data C.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (ComonadCoalg_disp_ob_mor T).
+  - <span class="bp">exact</span> (ComonadCoalg_disp_id_comp T).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ComonadCoalg_disp</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Comonad C) : disp_cat C.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (ComonadCoalg_disp_data T).
+  - <span class="kp">abstract</span> (
+      <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="kp">try</span> (<span class="nb">apply</span> homset_property);
+      <span class="nb">apply</span> isasetaprop;
+      <span class="nb">apply</span> homset_property
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ComonadCoalg_tot</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Comonad C) : category :=
+    total_category (ComonadCoalg_disp T).
+
+<span class="kn">Definition</span> <span class="nf">ComonadCoalg_disp_Coalgebra_functor</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Comonad C) :
+    ComonadCoalg_tot T ⟶ (ComonadCoalg T).
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use make_functor_data.
+    * <span class="nb">intro</span> X.
+      <span class="bp">exact</span> (Coalgebra_from_ComonadCoalg_disp (pr2 X)).
+    * <span class="nb">intros</span>.
+      <span class="bp">exact</span> (Coalgebra_mor_from_Coalgebra_mor_disp (pr2 a) (pr2 b) (pr2 X)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">split</span>; [<span class="nb">intro</span>|<span class="nb">intros</span> a b c f g];
+        (<span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|]; <span class="bp">reflexivity</span>)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ComonadCoalg_disp_is_Coalgebra</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Comonad C) :
+    ComonadCoalg_tot T = ComonadCoalg T.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> catiso_to_category_path.
+  use tpair.
+  - <span class="bp">exact</span> (ComonadCoalg_disp_Coalgebra_functor T).
+  - <span class="nb">split</span>.
+    * <span class="nb">intros</span> a b.
+      use isweq_iso.
+      + <span class="bp">exact</span> (idfun _).
+      + <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+    * use isweq_iso.
+      + <span class="nb">intros</span> [[x α] laws].
+        use tpair.
+        -- <span class="bp">exact</span> x.
+        -- <span class="bp">exact</span> (α,, laws).
+      + <span class="nb">intro</span>. <span class="nb">apply</span> idpath.
+      + <span class="nb">intro</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Examples/MonadAlgebras.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

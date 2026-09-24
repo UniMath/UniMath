@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Chains.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Chains</span>
+
+<span class="sd">Chains are diagrams of the form X₀ → X₁ → ⋯.</span>
+
+<span class="sd">Authors: Anders Mörtberg and Benedikt Ahrens, 2015-2016</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** Define the chain:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">     0 --&gt; 1 --&gt; 2 --&gt; 3 --&gt; ...</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">   with exactly one arrow from n to S n.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">nat_graph</span> : graph := make_graph nat (<span class="k">λ</span> <span class="nv">m</span> <span class="nv">n</span>, <span class="mi">1</span> + m = n).
+
+<span class="kn">Notation</span> <span class="s2">"'chain'"</span> := (diagram nat_graph).
+
+<span class="kn">Definition</span> <span class="nf">mapchain</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+           (<span class="nv">c</span> : chain C) : chain D := mapdiagram F c.
+
+<span class="sd">(** Any i &lt; j gives a morphism in the chain via composition *)</span>
+<span class="kn">Definition</span> <span class="nf">chain_mor</span> {<span class="nv">C</span> : category} (<span class="nv">c</span> : chain C) {<span class="nv">i</span> <span class="nv">j</span>} :
+  i &lt; j -&gt; C⟦dob c i, dob c j⟧.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> j <span class="k">as</span> [|j IHj].
+- <span class="nb">intros</span> Hi0; <span class="nb">destruct</span> (negnatlthn0 <span class="mi">0</span> Hi0).
+- <span class="nb">intros</span> Hij.
+  <span class="nb">destruct</span> (natlehchoice4 _ _ Hij) <span class="k">as</span> [|H].
+  + <span class="nb">apply</span> (IHj h · dmor c (idpath (S j))).
+  + <span class="nb">apply</span> dmor, (maponpaths S H).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** For any cocone `cc` under the chain, the following diagram commutes:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">     c i --&gt; c j</span>
+<span class="sd">      |       |</span>
+<span class="sd">      |       V</span>
+<span class="sd">      +----&gt; cc</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd"> *)</span>
+<span class="kn">Lemma</span> <span class="nf">chain_mor_coconeIn</span> {<span class="nv">C</span> : category} (<span class="nv">c</span> : chain C) (<span class="nv">x</span> : C)
+  (<span class="nv">cc</span> : cocone c x) <span class="nv">i</span> : ∏ j (Hij : i &lt; j),
+  chain_mor c Hij · coconeIn cc j = coconeIn cc i.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> j <span class="k">as</span> [|j IHj].
+- <span class="nb">intros</span> Hi0; <span class="nb">destruct</span> (negnatlthn0 _ Hi0).
+- <span class="nb">intros</span> Hij; <span class="nb">simpl</span>.
+  <span class="nb">destruct</span> (natlehchoice4 _ _ Hij).
+  + <span class="nb">rewrite</span> &lt;- (IHj h), &lt;- assoc.
+    <span class="nb">apply</span> maponpaths, coconeInCommutes.
+  + <span class="nb">destruct</span> p.
+    <span class="nb">apply</span> coconeInCommutes.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** One of the hypotheses of this lemma is redundant, however when stated this way the lemma can be</span>
+<span class="sd">used for any two proofs making it easier to apply. *)</span>
+<span class="kn">Lemma</span> <span class="nf">chain_mor_right</span> {<span class="nv">C</span> : category} {<span class="nv">c</span> : chain C} {<span class="nv">i</span> <span class="nv">j</span>} (<span class="nv">Hij</span> : i &lt; j) (<span class="nv">HSij</span> : S i &lt; j) :
+  dmor c (idpath (S i)) · chain_mor c HSij = chain_mor c Hij.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> j <span class="k">as</span> [|j IHj].
+- <span class="nb">destruct</span> (negnatlthn0 _ Hij).
+- <span class="nb">simpl</span>.
+  <span class="nb">destruct</span> (natlehchoice4 _ _ Hij).
+  + <span class="nb">destruct</span> (natlehchoice4 _ _ HSij).
+    * <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (IHj h h0), assoc.
+    * <span class="nb">destruct</span> p; <span class="nb">simpl</span>.
+      <span class="nb">destruct</span> (natlehchoice4 _ _ h); [<span class="nb">destruct</span> (isirreflnatlth _ h0)|].
+      <span class="nb">apply</span> cancel_postcomposition, maponpaths, isasetnat.
+  + <span class="nb">destruct</span> p, (isirreflnatlth _ HSij).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** See comment for [chain_mor_right] about the redundant hypothesis *)</span>
+<span class="kn">Lemma</span> <span class="nf">chain_mor_left</span> {<span class="nv">C</span> : category} {<span class="nv">c</span> : chain C} {<span class="nv">i</span> <span class="nv">j</span>} (<span class="nv">Hij</span> : i &lt; j) (<span class="nv">HiSj</span> : i &lt; S j) :
+  chain_mor c Hij · dmor c (idpath (S j)) = chain_mor c HiSj.
+<span class="kn">Proof</span>.
+<span class="nb">destruct</span> j.
+- <span class="nb">destruct</span> (negnatlthn0 _ Hij).
+- <span class="nb">simpl</span>; <span class="nb">destruct</span> (natlehchoice4 i (S j) HiSj).
+  + <span class="nb">destruct</span> (natlehchoice4 _ _ h).
+    * <span class="nb">destruct</span> (natlehchoice4 _ _ Hij); [|<span class="nb">destruct</span> p, (isirreflnatlth _ h0)].
+      <span class="nb">apply</span> cancel_postcomposition, cancel_postcomposition, maponpaths, isasetbool.
+    * <span class="nb">destruct</span> p; <span class="nb">simpl</span>.
+      <span class="nb">destruct</span> (natlehchoice4 _ _ Hij); [<span class="nb">destruct</span> (isirreflnatlth _ h0)|].
+      <span class="nb">apply</span> cancel_postcomposition, maponpaths, isasetnat.
+  + <span class="nb">generalize</span> Hij; <span class="nb">rewrite</span> p <span class="k">in</span> Hij.
+    <span class="nb">intros</span> H; <span class="nb">destruct</span>(isirreflnatlth (S j)).
+    <span class="nb">rewrite</span> p <span class="k">in</span> H; <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Construct the chain:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">         !          F!            F^2 !</span>
+<span class="sd">     0 -----&gt; F 0 ------&gt; F^2 0 --------&gt; F^3 0 ---&gt; ...</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">initChain</span> {<span class="nv">C</span> : category} (<span class="nv">InitC</span> : Initial C) (<span class="nv">F</span> : functor C C) : chain C.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">n</span>, <span class="nv">iter_functor</span> <span class="nv">F</span> <span class="nv">n</span> <span class="nv">InitC</span>).
+<span class="nb">intros</span> m n Hmn. <span class="nb">destruct</span> Hmn. <span class="nb">simpl</span>.
+<span class="nb">induction</span> m <span class="k">as</span> [|m IHm]; <span class="nb">simpl</span>.
+- <span class="bp">exact</span> (InitialArrow InitC _).
+- <span class="bp">exact</span> (# F IHm).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Definition of (ω-)cocontinuous functors *)</span>
+
+<span class="kn">Section</span> <span class="nf">cocont</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D).
+
+<span class="kn">Definition</span> <span class="nf">is_cocont</span> : UU :=
+  ∏ (g : graph) (d : diagram g C) (L : C) (cc : cocone d L),
+    preserves_colimit F d L cc.
+
+<span class="kn">Definition</span> <span class="nf">is_omega_cocont</span> : UU :=
+  ∏ (c : chain C) (L : C) (cc : cocone c L),
+    preserves_colimit F c L cc.
+
+<span class="kn">End</span> <span class="nf">cocont</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_functor</span> (<span class="nv">C</span> <span class="nv">D</span> : category) : UU :=
+  ∑ (F : functor C D), is_omega_cocont F.
+
+<span class="kn">Definition</span> <span class="nf">Chains</span> (<span class="nv">C</span> : category) : UU := 
+    ∏ (d : chain C), ColimCocone d.
+
+<span class="kn">Lemma</span> <span class="nf">is_connected_nat_graph</span> :
+    is_connected nat_graph.
+<span class="kn">Proof</span>.
+  use (is_connected_pointed nat_graph <span class="mi">0</span>).
+  <span class="nb">intro</span> v.
+  <span class="nb">induction</span> v <span class="k">as</span> [|v Hv].
+  - <span class="bp">now</span> <span class="k">exists</span> <span class="mi">0</span>.
+  - use (append_graph_zig_zag Hv).
+    <span class="k">exists</span> <span class="mi">1</span>.
+    <span class="k">exists</span> (<span class="nv">S</span> <span class="nv">v</span>).
+    <span class="nb">split</span>.
+    * <span class="bp">now</span> <span class="nb">apply</span> inl.
+    * <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Chains/Chains.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; Authors: Anders Mörtberg and Benedikt Ahrens, 2015-2016
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.NaturalNumbers.
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

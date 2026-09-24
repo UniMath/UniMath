@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Isometry.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************</span>
+<span class="sd">This file defines the auxiliary notions of isometries and coisometries in dagger categories</span>
+
+<span class="sd">* An isometry is a morphism satisfying f · f† = identity</span>
+<span class="sd">* A coisometry is a morphism satisfying f† · f = identity</span>
+
+<span class="sd">A morphism is unitary if and only if it is an isometry and a coisometry</span>
+<span class="sd">**********************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Unitary.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">IsometriesDef</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger_structure C).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f †"</span> := (dag _ _ f).
+
+  <span class="kn">Definition</span> <span class="nf">is_isometry</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) : UU
+    := f · (f †) = identity x.
+
+  <span class="kn">Definition</span> <span class="nf">isometry</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : UU
+    := ∑ f : x --&gt; y, is_isometry f.
+
+  <span class="kn">Definition</span> <span class="nf">make_isometry</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">p</span> : is_isometry f) : isometry x y
+    := f ,, p.
+
+  <span class="kn">Coercion</span> <span class="nf">isometry_to_mor</span> {x y : C} (f : isometry x y) : x --&gt; y 
+    := pr1 f.
+
+  <span class="kn">Proposition</span> <span class="nf">isometry_property</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : isometry x y) : is_isometry f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 f).
+  <span class="kn">Qed</span>. 
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_isometry</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) 
+    : isaprop (is_isometry f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_isometry</span> {<span class="nv">x</span> <span class="nv">y</span> : C} : isaset (isometry x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> isasetaprop ; <span class="nb">apply</span> isaprop_is_isometry.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isometry_ext</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : isometry x y) :
+    pr1 f = pr1 g -&gt; f = g.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    <span class="nb">intro</span> p.
+    <span class="nb">apply</span> isaprop_is_isometry.    
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">IsometriesDef</span>.
+
+<span class="kn">Section</span> <span class="nf">CoisometriesDef</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger_structure C).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f †"</span> := (dag _ _ f).
+
+  <span class="kn">Definition</span> <span class="nf">is_coisometry</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) : UU
+    := (f †) · f = identity y.
+
+  <span class="kn">Definition</span> <span class="nf">coisometry</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : UU
+    := ∑ f : x --&gt; y, is_coisometry f.
+
+  <span class="kn">Definition</span> <span class="nf">make_coisometry</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">p</span> : is_coisometry f) : coisometry x y
+    := f ,, p.
+
+  <span class="kn">Coercion</span> <span class="nf">coisometry_to_mor</span> {x y : C} (f : coisometry x y) : x --&gt; y 
+    := pr1 f.
+
+  <span class="kn">Proposition</span> <span class="nf">coisometry_property</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : coisometry x y) : is_coisometry f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 f).
+  <span class="kn">Qed</span>. 
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_coisometry</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) 
+    : isaprop (is_coisometry f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_coisometry</span> {<span class="nv">x</span> <span class="nv">y</span> : C} : isaset (coisometry x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> isasetaprop ; <span class="nb">apply</span> isaprop_is_coisometry.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">coisometry_ext</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : coisometry x y) :
+    pr1 f = pr1 g -&gt; f = g.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    <span class="nb">intro</span> p.
+    <span class="nb">apply</span> isaprop_is_coisometry.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">CoisometriesDef</span>.
+
+<span class="kn">Arguments</span> isometry_to_mor {C} {dag} {x y}.
+<span class="kn">Arguments</span> coisometry_to_mor {C} {dag} {x y}.
+
+<span class="kn">Section</span> <span class="nf">IsometryCoisometryProperties</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger C).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f †"</span> := (dag _ _ f).
+
+  <span class="c">(* Isometries: Identity and composition *)</span>
+
+  <span class="kn">Proposition</span> <span class="nf">is_isometry_id</span> {<span class="nv">x</span> : C} : is_isometry dag (identity x).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_isometry.
+    <span class="nb">rewrite</span> dagger_to_law_id.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isometry_id</span> (<span class="nv">x</span> : C) : isometry dag x x.
+  <span class="kn">Proof</span>.
+    use make_isometry.
+    - <span class="bp">exact</span> (identity x).
+    - <span class="nb">apply</span> is_isometry_id.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_isometry_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">g</span> : y --&gt; z} 
+    : is_isometry dag f -&gt; is_isometry dag g -&gt; is_isometry dag (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_isometry. 
+    <span class="nb">intros</span> isomf isomg.
+    <span class="nb">rewrite</span> dagger_to_law_comp.
+    <span class="nb">assert</span>(e : f · g · (g † · f †) = f · (g · g †) · f †). { <span class="nb">rewrite</span> !assoc. <span class="bp">reflexivity</span>. }
+    <span class="nb">rewrite</span> e, isomg, id_right, isomf.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isometry_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : isometry dag x y) (<span class="nv">g</span> : isometry dag y z) 
+    : isometry dag x z.
+  <span class="kn">Proof</span>.
+    use make_isometry.
+    - <span class="bp">exact</span> (f · g).
+    - <span class="nb">apply</span> is_isometry_comp; <span class="nb">apply</span> isometry_property.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Coisometries: Identity and composition *)</span>
+  
+  <span class="kn">Proposition</span> <span class="nf">is_coisometry_id</span> {<span class="nv">x</span> : C} : is_coisometry dag (identity x).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_coisometry.
+    <span class="nb">rewrite</span> dagger_to_law_id.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coisometry_id</span> (<span class="nv">x</span> : C) : coisometry dag x x.
+  <span class="kn">Proof</span>.
+    use make_coisometry.
+    - <span class="bp">exact</span> (identity x).
+    - <span class="nb">apply</span> is_coisometry_id.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_coisometry_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">g</span> : y --&gt; z} 
+    : is_coisometry dag f -&gt; is_coisometry dag g -&gt; is_coisometry dag (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_coisometry. 
+    <span class="nb">intros</span> coisomf coisomg.
+    <span class="nb">rewrite</span> dagger_to_law_comp.
+    <span class="nb">assert</span>(e : g † · f † · (f · g) = g † · (f † · f) · g). { <span class="nb">rewrite</span> !assoc. <span class="bp">reflexivity</span>. }
+    <span class="nb">rewrite</span> e, coisomf, id_right, coisomg.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coisometry_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : coisometry dag x y) (<span class="nv">g</span> : coisometry dag y z)
+    : coisometry dag x z.
+  <span class="kn">Proof</span>.
+    use make_coisometry.
+    - <span class="bp">exact</span> (f · g).
+    - <span class="nb">apply</span> is_coisometry_comp; <span class="nb">apply</span> coisometry_property.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Dagger lemmas *)</span>
+
+  <span class="kn">Proposition</span> <span class="nf">isometry_coisometry_dagger</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y}
+    : is_isometry dag f &lt;-&gt; is_coisometry dag (f †).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_isometry, is_coisometry.
+    <span class="nb">split</span> ; (<span class="nb">intros</span> ; <span class="nb">rewrite</span> dagger_to_law_idemp <span class="k">in</span> *; <span class="bp">assumption</span>).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">coisometry_isometry_dagger</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y}
+    : is_coisometry dag f &lt;-&gt; is_isometry dag (f †).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_isometry, is_coisometry.
+    <span class="nb">split</span> ; (<span class="nb">intros</span> ; <span class="nb">rewrite</span> dagger_to_law_idemp <span class="k">in</span> *; <span class="bp">assumption</span>).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isometry_dag</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : isometry dag x y) : coisometry dag y x.
+  <span class="kn">Proof</span>.
+    use make_coisometry.
+    - <span class="bp">exact</span> (f †).
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> isometry_coisometry_dagger; <span class="nb">apply</span> isometry_property).
+  <span class="kn">Defined</span>.  
+
+  <span class="kn">Definition</span> <span class="nf">coisometry_dag</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : coisometry dag x y) : isometry dag y x.
+  <span class="kn">Proof</span>.
+    use make_isometry.
+    - <span class="bp">exact</span> (f †).
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> coisometry_isometry_dagger; <span class="nb">apply</span> coisometry_property).
+  <span class="kn">Defined</span>. 
+
+  <span class="c">(* Relation with unitaries *)</span>
+
+  <span class="kn">Proposition</span> <span class="nf">unitary_isometry_coisometry</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} 
+    : is_unitary dag f &lt;-&gt; (is_isometry dag f) × (is_coisometry dag f).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_unitary, is_inverse_in_precat, is_isometry, is_coisometry.
+    <span class="nb">split</span>; <span class="nb">intros</span> p; <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+  
+  <span class="kn">Definition</span> <span class="nf">unitary_to_isometry</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : unitary dag x y) : isometry dag x y.
+  <span class="kn">Proof</span>.
+    use make_isometry.
+    - <span class="bp">exact</span> f.
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> unitary_isometry_coisometry; <span class="bp">exact</span> (pr2 f)).
+  <span class="kn">Defined</span>.  
+
+  <span class="kn">Definition</span> <span class="nf">unitary_to_coisometry</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : unitary dag x y) : coisometry dag x y.
+  <span class="kn">Proof</span>.
+    use make_coisometry.
+    - <span class="bp">exact</span> f.
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> unitary_isometry_coisometry; <span class="bp">exact</span> (pr2 f)).
+  <span class="kn">Defined</span>.  
+
+  <span class="c">(* If an isomorphism is isometric, then it is unitary *)</span>
+  <span class="kn">Lemma</span> <span class="nf">z_iso_isometry_unitary</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : z_iso x y) 
+    : is_isometry dag f -&gt; is_unitary dag f.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_isometry.
+    <span class="nb">intros</span> isomf.
+    <span class="nb">pose</span> (g := inv_from_z_iso f).
+    <span class="nb">assert</span> (e : f † = g).
+    { 
+      <span class="nb">rewrite</span> &lt;- (id_left (f †)).
+      <span class="nb">rewrite</span> &lt;- z_iso_after_z_iso_inv <span class="k">with</span> f.
+      <span class="nb">rewrite</span> &lt;- assoc, isomf, id_right.
+      <span class="bp">reflexivity</span>.     
+    }
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> isomf.
+    - <span class="nb">rewrite</span> e.
+      <span class="nb">apply</span> z_iso_after_z_iso_inv.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* If an isomorphism is coisometric, then it is unitary *)</span>
+  <span class="kn">Lemma</span> <span class="nf">z_iso_coisometry_unitary</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : z_iso x y) 
+    : is_coisometry dag f -&gt; is_unitary dag f.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_coisometry.
+    <span class="nb">intros</span> coisomf.
+    <span class="nb">pose</span> (g := inv_from_z_iso f).
+    <span class="nb">assert</span> (e : f † = g).
+    { 
+      <span class="nb">rewrite</span> &lt;- (id_right (f †)).
+      <span class="nb">rewrite</span> &lt;- z_iso_inv_after_z_iso <span class="k">with</span> f.
+      <span class="nb">rewrite</span> assoc, coisomf, id_left.
+      <span class="bp">reflexivity</span>.     
+    }
+    <span class="nb">split</span>.
+    - <span class="nb">rewrite</span> e.
+      <span class="nb">apply</span> z_iso_inv_after_z_iso.
+    - <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Cancellation lemmas *)</span>
+
+  <span class="kn">Proposition</span> <span class="nf">coisometry_epi</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : coisometry dag x y) (<span class="nv">g1</span> <span class="nv">g2</span> : y --&gt; z) 
+    : f · g1 = f · g2 -&gt; g1 = g2.
+  <span class="kn">Proof</span>. 
+    <span class="nb">intros</span> e.
+    <span class="nb">rewrite</span> &lt;- (id_left g1), &lt;- (id_left g2).
+    <span class="nb">rewrite</span> &lt;- (coisometry_property dag f).
+    <span class="nb">rewrite</span> &lt;- !assoc.
+    <span class="nb">rewrite</span> e.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isometry_mono</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : isometry dag y z) (<span class="nv">g1</span> <span class="nv">g2</span> : x --&gt; y) 
+    : g1 · f = g2 · f -&gt; g1 = g2.
+  <span class="kn">Proof</span>. 
+    <span class="nb">intros</span> e.
+    <span class="nb">rewrite</span> &lt;- (id_right g1), &lt;- (id_right g2).
+    <span class="nb">rewrite</span> &lt;- (isometry_property dag f).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> e.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">IsometryCoisometryProperties</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DaggerCategories/Isometry.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; A morphism is unitary if and only if it is an isometry and a coisometry
+  &gt; **********************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

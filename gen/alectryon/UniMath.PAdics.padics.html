@@ -1,0 +1,2328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>padics.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** *p adic numbers *)</span>
+
+<span class="sd">(** By Alvaro Pelayo, Vladimir Voevodsky and Michael A. Warren *)</span>
+
+<span class="sd">(** 2012 *)</span>
+
+<span class="sd">(** made compatible with the current UniMath library by Ralph Matthes in October 2017 *)</span>
+
+<span class="sd">(** Imports *)</span>
+
+<span class="kn">Require Import</span> UniMath.PAdics.lemmas.
+<span class="kn">Require Import</span> UniMath.PAdics.fps.
+<span class="kn">Require Import</span> UniMath.PAdics.frac.
+<span class="kn">Require Import</span> UniMath.PAdics.z_mod_p.
+
+<span class="kn">Require Import</span> UniMath.NumberSystems.Integers.
+
+<span class="kn">Unset</span> Kernel Term Sharing. <span class="sd">(** crucial for timely proof-checking, otherwise unbearable *)</span>
+
+<span class="sd">(** * I. Several basic lemmas *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hz_scope.
+
+<span class="kn">Lemma</span> <span class="nf">hzqrandnatsummation0r</span> ( <span class="nv">m</span> : hz ) ( <span class="nv">x</span> : hzneq <span class="mi">0</span> m )
+  ( <span class="nv">a</span> : nat -&gt; hz ) ( <span class="nv">upper</span> : nat ) :
+  hzremaindermod m x ( natsummation0 upper a ) =
+  hzremaindermod m x ( natsummation0 upper ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt; hzremaindermod m x ( a n ) ) ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> upper.
+  - <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> hzremaindermoditerated.
+    <span class="nb">apply</span> idpath.
+    - <span class="nb">change</span> ( hzremaindermod m x ( natsummation0 upper a + a ( S upper ) ) =
+               hzremaindermod m x ( natsummation0 upper
+        ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt;
+          hzremaindermod m x ( a n ) ) + hzremaindermod m x ( a ( S upper ) ) ) ).
+      <span class="nb">rewrite</span> hzremaindermodandplus.
+      <span class="nb">rewrite</span> IHupper.
+      <span class="nb">rewrite</span> &lt;- ( hzremaindermoditerated m x ( a ( S upper ) ) ).
+      <span class="nb">rewrite</span> &lt;- hzremaindermodandplus.
+      <span class="nb">rewrite</span> hzremaindermoditerated.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzqrandnatsummation0q</span> ( <span class="nv">m</span> : hz ) ( <span class="nv">x</span> : hzneq <span class="mi">0</span> m )
+  ( <span class="nv">a</span> : nat -&gt; hz ) ( <span class="nv">upper</span> : nat ) :
+  hzquotientmod m x ( natsummation0 upper a ) =
+  ( natsummation0 upper ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt;
+      hzquotientmod m x ( a n ) ) + hzquotientmod m x
+        ( natsummation0 upper ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt; hzremaindermod m x ( a n ) ) ) ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> upper.
+  - <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> &lt;- hzqrandremainderq.
+    <span class="nb">rewrite</span> hzplusr0.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">change</span> ( natsummation0 ( S upper ) a ) <span class="k">with</span>
+    ( natsummation0 upper a + a ( S upper ) ).
+    <span class="nb">rewrite</span> hzquotientmodandplus.
+    <span class="nb">rewrite</span> IHupper.
+    <span class="nb">rewrite</span> ( hzplusassoc ( natsummation0 upper ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt;
+      hzquotientmod m x ( a n ) ) ) _ ( hzquotientmod m x ( a ( S upper ) ) ) ).
+    <span class="nb">rewrite</span> ( hzpluscomm ( hzquotientmod m x
+      ( natsummation0 upper ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt; hzremaindermod m x ( a n ) ) ) )
+                         ( hzquotientmod m x ( a ( S upper ) ) ) ).
+    <span class="nb">rewrite</span> &lt;- ( hzplusassoc ( natsummation0 upper
+                                 ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt; hzquotientmod m x ( a n ) ) )
+                             ( hzquotientmod m x ( a ( S upper ) ) ) _ ).
+    <span class="nb">change</span> ( natsummation0 upper ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt; hzquotientmod m x ( a n ) ) +
+             hzquotientmod m x ( a ( S upper ) ) ) <span class="k">with</span>
+    ( natsummation0 ( S upper ) ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt; hzquotientmod m x ( a n ) ) ).
+    <span class="nb">rewrite</span> hzqrandnatsummation0r.
+    <span class="nb">rewrite</span> hzquotientmodandplus.
+    <span class="nb">rewrite</span> &lt;- hzqrandremainderq.
+    <span class="nb">rewrite</span> hzplusl0.
+    <span class="nb">rewrite</span> hzremaindermoditerated.
+    <span class="nb">rewrite</span> ( hzplusassoc (natsummation0 ( S upper )
+                             ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt; hzquotientmod m x ( a n ) ) )
+       ( hzquotientmod m x ( natsummation0 upper ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt;
+                                       hzremaindermod m x ( a n ) ) ) ) _ ).
+    <span class="nb">rewrite</span> &lt;- ( hzplusassoc ( hzquotientmod m x
+      ( natsummation0 upper ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt;
+                                     hzremaindermod m x ( a n ) ) ) ) _ _ ).
+    <span class="nb">rewrite</span> &lt;- hzquotientmodandplus.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzquotientandtimesl</span> ( <span class="nv">m</span> : hz ) ( <span class="nv">x</span> : hzneq <span class="mi">0</span> m ) ( <span class="nv">a</span> <span class="nv">b</span> : hz ) :
+  hzquotientmod m x ( a * b ) =
+  ( hzquotientmod m x a ) * b +
+    hzremaindermod m x a * hzquotientmod m x b +
+      hzquotientmod m x ( hzremaindermod m x a * hzremaindermod m x b ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> hzquotientmodandtimes.
+  <span class="nb">rewrite</span> ( hzmultcomm ( hzremaindermod m x b ) ( hzquotientmod m x a ) ).
+  <span class="nb">rewrite</span> hzmultassoc.
+  <span class="nb">rewrite</span> &lt;- ( hzldistr ( hzquotientmod m x b * m ) _ ( hzquotientmod m x a )).
+  <span class="nb">rewrite</span> ( hzmultcomm _ m ).
+  <span class="nb">rewrite</span> &lt;- ( hzdivequationmod m x b ).
+  <span class="nb">rewrite</span> hzplusassoc.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzquotientandfpstimesl</span> ( <span class="nv">m</span> : hz ) ( <span class="nv">x</span> : hzneq <span class="mi">0</span> m )
+   ( <span class="nv">a</span> <span class="nv">b</span> : nat -&gt; hz ) ( <span class="nv">upper</span> : nat ) :
+  hzquotientmod m x ( fpstimes hz a b upper ) =
+  natsummation0 upper ( <span class="k">fun</span> <span class="nv">i</span> : nat =&gt;
+      hzquotientmod m x ( a i ) * b ( sub upper i ) ) +
+    hzquotientmod m x ( natsummation0 upper ( <span class="k">fun</span> <span class="nv">i</span> : nat =&gt;
+      hzremaindermod m x ( a i ) * b ( sub upper i ) ) ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">destruct</span> upper <span class="k">as</span> [ | upper].
+  - <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> fpstimes.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> hzquotientandtimesl.
+    <span class="nb">rewrite</span> hzplusassoc.
+    <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">v</span> : _ =&gt;
+              hzquotientmod m x ( a <span class="mi">0</span>%nat ) * b <span class="mi">0</span>%nat + v ) ).
+    <span class="nb">rewrite</span> ( hzquotientmodandtimes m x
+                ( hzremaindermod m x ( a <span class="mi">0</span>%nat ) ) ( b <span class="mi">0</span>%nat ) ).
+    <span class="nb">rewrite</span> &lt;- hzqrandremainderq.
+    <span class="nb">rewrite</span> hzmultx0.
+    <span class="nb">rewrite</span> <span class="mi">2</span>! hzmult0x.
+    <span class="nb">rewrite</span> hzplusl0.
+    <span class="nb">rewrite</span> hzremaindermoditerated.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">unfold</span> fpstimes.
+    <span class="nb">rewrite</span> hzqrandnatsummation0q.
+    <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">n</span> : nat, hzquotientmod m x (a n * b ( sub ( S upper ) n)%nat) =
+      ( hzquotientmod m x ( a n ) * b ( sub ( S upper ) n ) +
+        hzremaindermod m x ( a n ) * hzquotientmod m x ( b ( sub ( S upper ) n ) ) +
+        hzquotientmod m x ( hzremaindermod m x ( a n ) *
+                            hzremaindermod m x ( b ( sub ( S upper ) n ) ) ) ) ) <span class="k">as</span> f.
+    { <span class="nb">intro</span> k.
+      <span class="nb">rewrite</span> hzquotientandtimesl.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> ( natsummationpathsupperfixed _ _ ( <span class="k">fun</span> <span class="nv">x0</span> <span class="nv">p</span> =&gt; f x0 ) ).
+    <span class="nb">rewrite</span> ( natsummationplusdistr ( S upper ) ( <span class="k">fun</span> <span class="nv">x0</span> : nat =&gt;
+      hzquotientmod m x (a x0) * b ( sub ( S upper ) x0)%nat +
+      hzremaindermod m x (a x0) * hzquotientmod m x (b (S upper - x0)%nat) ) ).
+    <span class="nb">rewrite</span> ( natsummationplusdistr ( S upper ) ( <span class="k">fun</span> <span class="nv">x0</span> : nat =&gt;
+                           hzquotientmod m x (a x0) * b (S upper - x0)%nat ) ).
+    <span class="nb">rewrite</span> <span class="mi">2</span>! hzplusassoc.
+    <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">v</span> =&gt; natsummation0 ( S upper ) ( <span class="k">fun</span> <span class="nv">i</span> : nat =&gt;
+               hzquotientmod m x ( a i ) * b ( sub ( S upper ) i ) ) + v ) ).
+    <span class="nb">rewrite</span> ( hzqrandnatsummation0q m x ( <span class="k">fun</span> <span class="nv">i</span> : nat =&gt;
+                    hzremaindermod m x ( a i ) * b ( sub ( S upper ) i ) ) ).
+    <span class="nb">assert</span> (natsummation0 (S upper) (<span class="k">fun</span> <span class="nv">n</span> : nat =&gt;
+      hzremaindermod m x (hzremaindermod m x (a n) * b (S upper - n)%nat))=
+      natsummation0 ( S upper ) ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt;
+             hzremaindermod m x ( a n * b ( sub ( S upper ) n ) ) ) ) <span class="k">as</span> g.
+    { <span class="nb">apply</span> natsummationpathsupperfixed.
+      <span class="nb">intros</span> j p.
+      <span class="nb">rewrite</span> hzremaindermodandtimes.
+      <span class="nb">rewrite</span> hzremaindermoditerated.
+      <span class="nb">rewrite</span> &lt;- hzremaindermodandtimes.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> g.
+    <span class="nb">rewrite</span> &lt;- hzplusassoc.
+    <span class="nb">assert</span> ( natsummation0 (S upper) (<span class="k">fun</span> <span class="nv">x0</span> : nat =&gt;
+      hzremaindermod m x (a x0) * hzquotientmod m x (b (S upper - x0)%nat)) +
+      natsummation0 (S upper) (<span class="k">fun</span> <span class="nv">x0</span> : nat =&gt;
+         hzquotientmod m x (hzremaindermod m x (a x0) *
+                            hzremaindermod m x (b (S upper - x0)%nat))) =
+            natsummation0 (S upper) (<span class="k">fun</span> <span class="nv">n</span> : nat =&gt;
+      hzquotientmod m x (hzremaindermod m x (a n) * b (S upper - n)%nat)) ) <span class="k">as</span> h.
+    { <span class="nb">rewrite</span> &lt;- ( natsummationplusdistr ( S upper ) ( <span class="k">fun</span> <span class="nv">x0</span> : nat =&gt;
+                     hzremaindermod m x ( a x0 ) *
+                     hzquotientmod m x ( b ( sub ( S upper ) x0 ) ) ) ).
+      <span class="nb">apply</span> natsummationpathsupperfixed.
+      <span class="nb">intros</span> j p.
+      <span class="nb">rewrite</span> ( hzquotientmodandtimes m x ( hzremaindermod m x ( a j ) )
+                                      ( b ( sub ( S upper ) j ) ) ).
+      <span class="nb">rewrite</span> &lt;- hzqrandremainderq.
+      <span class="nb">rewrite</span> <span class="mi">2</span>! hzmult0x.
+      <span class="nb">rewrite</span> hzmultx0.
+      <span class="nb">rewrite</span> hzplusl0.
+      <span class="nb">rewrite</span> hzremaindermoditerated.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> h.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Close Scope</span> hz_scope.
+
+<span class="sd">(** * II. The carrying operation and induced equivalence relation on</span>
+<span class="sd">formal power series *)</span>
+
+<span class="sd">(** A lemma that does not depend on a non-zero integer and that used to</span>
+<span class="sd">    appear where needed below - the point has been marked by a comment. *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> ring_scope.
+
+<span class="kn">Lemma</span> <span class="nf">natsummationplusshift</span> { <span class="nv">R</span> : commring } ( <span class="nv">upper</span> : nat )
+  ( <span class="nv">f</span> <span class="nv">g</span> : nat -&gt; R ) :
+  natsummation0 ( S upper ) f + natsummation0 upper g =
+  f <span class="mi">0</span>%nat + natsummation0 upper ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt; f ( S x ) + g x ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">destruct</span> upper.
+  - <span class="nb">unfold</span> natsummation0.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> ( ringassoc1 R ).
+  - <span class="nb">rewrite</span> (natsummationshift0 ( S upper ) f ).
+    <span class="nb">rewrite</span> ( ringcomm1 R _ ( f <span class="mi">0</span>%nat ) ).
+    <span class="nb">rewrite</span> ( ringassoc1 R ).
+    <span class="nb">rewrite</span> natsummationplusdistr.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Close Scope</span> hz_scope.
+
+<span class="kn">Section</span> <span class="nf">carry</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> ring_scope.
+
+<span class="kn">Variable</span> <span class="nv">m</span> : hz.
+<span class="kn">Variable</span> <span class="nv">isc</span> : hzneq <span class="mi">0</span> m.
+
+<span class="kn">Fixpoint</span> <span class="nf">precarry</span> ( <span class="nv">a</span> : fpscommring hz ) ( <span class="nv">n</span> : nat ) : hz :=
+  <span class="k">match</span> n <span class="k">with</span>
+  | <span class="mi">0</span>%nat =&gt; a <span class="mi">0</span>%nat
+  | S n =&gt; a ( S n ) + hzquotientmod m isc ( precarry a n )
+  <span class="k">end</span>.
+
+<span class="kn">Definition</span> <span class="nf">carry</span> : fpscommring hz -&gt; fpscommring hz :=
+  <span class="k">fun</span> (<span class="nv">a</span> : fpscommring hz) (<span class="nv">n</span> : nat) =&gt;
+    hzremaindermod m isc ( precarry a n ).
+
+<span class="c">(* precarry and carry are as described in the following example:</span>
+
+<span class="c">CASE: mod 3</span>
+
+<span class="c">First we normalize the sequence as we go along:</span>
+
+<span class="c">  5 6 8 4 (13) 2 2 ( remainder 2 mod 3 = 2 ) 4 1 ( remainder 13 mod 3</span>
+<span class="c">               = 1, quotient 13 mod 3 = 4 ) 2 2 ( remainder 8 mod 3 =</span>
+<span class="c">               2, quotient 8 mod 3 = 2 ) 3 1 ( remainder 10 mod 3 = 1,</span>
+<span class="c">               quotient 10 mod 3 = 3 ) 3 0 ( remainder 9 mod 3 = 0,</span>
+<span class="c">               quotient 9 mod 3 = 3 ) 2 2 ( remainder 8 mod 3 = 2,</span>
+<span class="c">               quotient 8 mod 3 = 2 )</span>
+
+<span class="c">2 2 0 1 2 1 2</span>
+
+<span class="c">Next we first precarry and then carry:</span>
+
+<span class="c">  5 6 8 4 (13) 2 2 4 13 2 8 3 (10) 3 9 2 8</span>
+
+<span class="c">2 8 9 (10) 8 (13) 2 &lt;--- precarried sequence</span>
+
+<span class="c">2 2 0 1 2 1 2 &lt;--- carried sequence *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isapropcarryequiv</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) :
+  isaprop ( carry a = carry b ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> ( fps hz ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">carryequiv0</span> : hrel ( fpscommring hz ) :=
+  <span class="k">fun</span> <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz =&gt; make_hProp _ ( isapropcarryequiv a b ).
+
+<span class="kn">Lemma</span> <span class="nf">carryequiviseqrel</span> : iseqrel carryequiv0.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span> a b c i j.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> i.
+      <span class="nb">apply</span> j.
+    + <span class="nb">intros</span> a.
+      <span class="nb">simpl</span>.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> a b i.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> i.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">carryandremainder</span> ( <span class="nv">a</span> : fpscommring hz ) ( <span class="nv">n</span> : nat ) :
+  hzremaindermod m isc ( carry a n ) = carry a n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> carry.
+  <span class="nb">rewrite</span> hzremaindermoditerated.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">carryequiv</span> : eqrel ( fpscommring hz ) :=
+  make_eqrel _ carryequiviseqrel.
+
+<span class="kn">Lemma</span> <span class="nf">precarryandcarry_pointwise</span> ( <span class="nv">a</span> : fpscommring hz ) :
+  <span class="k">forall</span> <span class="nv">n</span> : nat,
+    precarry ( carry a ) n = ( carry a ) n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> n.
+  - <span class="bp">exact</span> (idpath _).
+  - <span class="nb">unfold</span> precarry.
+    <span class="nb">fold</span> precarry.
+    <span class="nb">rewrite</span> IHn.
+    <span class="nb">unfold</span> carry <span class="nb">at</span> <span class="mi">2</span>.
+    <span class="nb">rewrite</span> &lt;- hzqrandremainderq.
+    <span class="nb">apply</span> hzplusr0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">precarryandcarry</span> ( <span class="nv">a</span> : fpscommring hz ) :
+  precarry ( carry a ) = carry a.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> n.
+  <span class="nb">apply</span> precarryandcarry_pointwise.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzqrandcarryeq</span> ( <span class="nv">a</span> : fpscommring hz ) ( <span class="nv">n</span> : nat ) :
+  carry a n = m * <span class="mi">0</span> + carry a n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> hzmultx0.
+  <span class="nb">rewrite</span> hzplusl0.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzqrandcarryineq</span> ( <span class="nv">a</span> : fpscommring hz ) ( <span class="nv">n</span> : nat ) :
+  hzleh <span class="mi">0</span> ( carry a n ) ×
+  hzlth ( carry a n ) ( nattohz ( hzabsval m ) ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">unfold</span> carry.
+    <span class="nb">apply</span> ( pr2 ( pr1 ( divalgorithm ( precarry a n ) m isc ) ) ).
+  - <span class="nb">unfold</span> carry.
+    <span class="nb">apply</span> ( pr2 ( pr1 ( divalgorithm ( precarry a n ) m isc ) ) ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzqrandcarryq</span> ( <span class="nv">a</span> : fpscommring hz ) ( <span class="nv">n</span> : nat ) :
+  <span class="mi">0</span> = hzquotientmod m isc ( carry a n ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> ( hzqrtestq m isc ( carry a n ) <span class="mi">0</span> ( carry a n ) ).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> hzqrandcarryeq.
+  - <span class="nb">apply</span> hzqrandcarryineq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzqrandcarryr</span> ( <span class="nv">a</span> : fpscommring hz ) ( <span class="nv">n</span> : nat ) :
+  carry a n = hzremaindermod m isc ( carry a n ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> ( hzqrtestr m isc ( carry a n ) <span class="mi">0</span> ( carry a n ) ).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> hzqrandcarryeq.
+  - <span class="nb">apply</span> hzqrandcarryineq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">doublecarry</span> ( <span class="nv">a</span> : fpscommring hz ):
+  carry ( carry a ) = carry a.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">n</span> : nat, carry ( carry a ) n =
+                    carry a n ) <span class="k">as</span> f.
+  { <span class="nb">intros</span>.
+    <span class="nb">induction</span> n.
+    - <span class="nb">unfold</span> carry.
+      <span class="nb">simpl</span>.
+      <span class="nb">apply</span> hzremaindermoditerated.
+    - <span class="nb">unfold</span> carry.
+      <span class="nb">simpl</span>.
+      <span class="nb">change</span> (precarry (<span class="k">fun</span> <span class="nv">n0</span> : nat =&gt;
+        hzremaindermod m isc (precarry a n0)) n) <span class="k">with</span>
+      ( precarry ( carry a ) n ).
+      <span class="nb">rewrite</span> precarryandcarry.
+      <span class="nb">rewrite</span> &lt;- hzqrandcarryq.
+      <span class="nb">rewrite</span> hzplusr0.
+      <span class="nb">rewrite</span> hzremaindermoditerated.
+      <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> ( funextfun _ _ f ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">carryandcarryequiv</span> ( <span class="nv">a</span> : fpscommring hz ) :
+  carryequiv ( carry a ) a.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> doublecarry.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">quotientprecarryplus</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) ( <span class="nv">n</span> : nat ) :
+  hzquotientmod m isc ( precarry ( a + b ) n ) =
+  hzquotientmod m isc ( precarry a n ) +
+  hzquotientmod m isc ( precarry b n ) +
+  hzquotientmod m isc ( precarry ( carry a + carry b ) n ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> n.
+  - <span class="nb">simpl</span>.
+    <span class="nb">change</span> ( hzquotientmod m isc ( a <span class="mi">0</span>%nat + b <span class="mi">0</span>%nat ) =
+            hzquotientmod m isc (a <span class="mi">0</span>%nat) +
+            hzquotientmod m isc (b <span class="mi">0</span>%nat) +
+            hzquotientmod m isc ( hzremaindermod m isc ( a <span class="mi">0</span>%nat ) +
+                                 hzremaindermod m isc ( b <span class="mi">0</span>%nat ) ) ).
+    <span class="nb">rewrite</span> hzquotientmodandplus.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">change</span> ( hzquotientmod m isc ( a ( S n ) + b ( S n ) +
+             hzquotientmod m isc ( precarry (a + b) n ) ) =
+             hzquotientmod m isc (precarry a (S n)) +
+             hzquotientmod m isc (precarry b (S n)) +
+             hzquotientmod m isc (carry a ( S n ) +
+                                 carry b ( S n ) +
+                    hzquotientmod m isc ( precarry (carry a +
+                                                   carry b) n)) ).
+    <span class="nb">rewrite</span> IHn.
+    <span class="nb">rewrite</span> ( ringassoc1 hz ( a ( S n ) ) ( b ( S n ) ) _ ).
+    <span class="nb">rewrite</span> &lt;- ( ringassoc1 hz ( b ( S n ) ) ).
+    <span class="nb">rewrite</span> ( ringcomm1 hz ( b ( S n ) ) _ ).
+    <span class="nb">rewrite</span> &lt;- <span class="mi">3</span>! ( ringassoc1 hz ( a ( S n ) ) _ _ ).
+    <span class="nb">change</span> ( a ( S n ) + hzquotientmod m isc ( precarry a n ) ) <span class="k">with</span>
+    ( precarry a ( S n ) ).
+    <span class="nb">set</span> ( pa := precarry a ( S n ) ).
+    <span class="nb">rewrite</span> ( ringassoc1 hz pa _ ( b ( S n ) ) ).
+    <span class="nb">rewrite</span> ( ringcomm1 hz _ ( b ( S n ) ) ).
+    <span class="nb">change</span> ( b ( S n ) + hzquotientmod m isc ( precarry b n ) ) <span class="k">with</span>
+    ( precarry b ( S n ) ).
+    <span class="nb">set</span> ( pb := precarry b ( S n ) ).
+    <span class="nb">set</span> ( ab := precarry ( carry a + carry b ) ).
+    <span class="nb">rewrite</span> ( ringassoc1 hz ( carry a ( S n ) )
+                        ( carry b ( S n ) )
+                        ( hzquotientmod m isc ( ab n ) ) ).
+    <span class="nb">rewrite</span> ( hzquotientmodandplus m isc ( carry a ( S n ) ) _ ).
+    <span class="nb">unfold</span> carry <span class="nb">at</span> <span class="mi">1</span>.
+    <span class="nb">rewrite</span> &lt;- hzqrandremainderq.
+    <span class="nb">rewrite</span> hzplusl0.
+    <span class="nb">rewrite</span> ( hzquotientmodandplus m isc ( carry b ( S n ) ) _ ).
+    <span class="nb">unfold</span> carry <span class="nb">at</span> <span class="mi">1</span>.
+    <span class="nb">rewrite</span> &lt;- hzqrandremainderq.
+    <span class="nb">rewrite</span> hzplusl0.
+    <span class="nb">rewrite</span> ( ringassoc1 hz pa pb _ ).
+    <span class="nb">rewrite</span> ( hzquotientmodandplus m isc pa _ ).
+    <span class="nb">change</span> (pb + hzquotientmod m isc (ab n)) <span class="k">with</span>
+           (pb + hzquotientmod m isc (ab n))%hz.
+    <span class="nb">rewrite</span> ( hzquotientmodandplus m isc pb ( hzquotientmod m isc ( ab n ) ) ).
+    <span class="nb">rewrite</span> &lt;- <span class="mi">2</span>! ( ringassoc1 hz ( hzquotientmod m isc pa ) _ _ ).
+    <span class="nb">rewrite</span> &lt;- <span class="mi">2</span>! ( ringassoc1 hz ( hzquotientmod m isc pa +
+                                   hzquotientmod m isc pb ) _ ).
+    <span class="nb">rewrite</span> <span class="mi">2</span>! ( ringassoc1 hz ( hzquotientmod m isc pa +
+                                hzquotientmod m isc pb +
+                      hzquotientmod m isc (hzquotientmod m isc (ab n)) ) _ _ ).
+    <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">x</span> : hz =&gt;
+                             hzquotientmod m isc pa +
+                             hzquotientmod m isc pb +
+                             hzquotientmod m isc (hzquotientmod m isc (ab n)) +
+                           x ) ).
+    <span class="nb">unfold</span> carry <span class="nb">at</span> <span class="mi">1</span> <span class="mi">2</span>.
+    <span class="nb">rewrite</span> <span class="mi">2</span>! hzremaindermoditerated.
+    <span class="nb">change</span> ( precarry b ( S n ) ) <span class="k">with</span> pb.
+    <span class="nb">change</span> ( precarry a ( S n ) ) <span class="k">with</span> pa.
+    <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">x</span> : hz =&gt;
+                           ( hzquotientmod m isc (hzremaindermod m isc pb +
+                  hzremaindermod m isc (hzquotientmod m isc (ab n)))%hz ) +
+                           x ) ).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">x</span> : hz =&gt; hzremaindermod m isc pa + x ) ).
+    <span class="nb">rewrite</span> ( hzremaindermodandplus m isc ( carry b ( S n ) ) _ ).
+    <span class="nb">unfold</span> carry.
+    <span class="nb">rewrite</span> hzremaindermoditerated.
+    <span class="nb">rewrite</span> &lt;- ( hzremaindermodandplus m isc ( precarry b ( S n ) ) _ ).
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">carryandplus</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) :
+  carry ( a + b ) = carry ( carry a + carry b ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">n</span> : nat, carry ( a + b ) n =
+              ( carry ( carry a + carry b ) n ) ) <span class="k">as</span> f.
+  { <span class="nb">intros</span> n.
+    <span class="nb">destruct</span> n.
+    - <span class="nb">change</span> ( hzremaindermod m isc ( a <span class="mi">0</span>%nat + b <span class="mi">0</span>%nat ) =
+               hzremaindermod m isc ( hzremaindermod m isc ( a <span class="mi">0</span>%nat ) +
+                                     hzremaindermod m isc ( b <span class="mi">0</span>%nat ) ) ).
+      <span class="nb">rewrite</span> hzremaindermodandplus.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">change</span> ( hzremaindermod m isc ( a ( S n ) +
+                                     b ( S n ) +
+        hzquotientmod m isc ( precarry ( a + b ) n ) ) =
+               hzremaindermod m isc ( hzremaindermod m isc ( a ( S n ) +
+                              hzquotientmod m isc ( precarry a n ) ) +
+               hzremaindermod m isc ( b ( S n ) +
+                              hzquotientmod m isc ( precarry b n ) ) +
+               hzquotientmod m isc ( precarry ( carry a +
+                                                    carry b ) n ) ) ).
+      <span class="nb">rewrite</span> quotientprecarryplus.
+      <span class="nb">rewrite</span> ( hzremaindermodandplus m isc
+                                      ( hzremaindermod m isc (a (S n) +
+                                      hzquotientmod m isc (precarry a n)) +
+               hzremaindermod m isc (b (S n) +
+                                    hzquotientmod m isc (precarry b n)) ) _ ).
+      <span class="nb">change</span> (hzremaindermod m isc (a (S n) +
+                                   hzquotientmod m isc (precarry a n)) +
+              hzremaindermod m isc (b (S n) +
+                                   hzquotientmod m isc (precarry b n))) <span class="k">with</span>
+      (hzremaindermod m isc (a (S n) +
+                            hzquotientmod m isc (precarry a n))%<span class="bp">ring</span> +
+       hzremaindermod m isc (b (S n) +
+                            hzquotientmod m isc (precarry b n))%<span class="bp">ring</span>)%hz.
+      + <span class="nb">rewrite</span> &lt;- (hzremaindermodandplus m isc (a (S n) +
+                       hzquotientmod m isc (precarry a n)) (b (S n) +
+                                       hzquotientmod m isc (precarry b n)) ).
+        <span class="nb">rewrite</span> &lt;- hzremaindermodandplus.
+        <span class="nb">change</span> ( ((a (S n) +
+                   hzquotientmod m isc (precarry a n))%<span class="bp">ring</span> +
+                  (b (S n) +
+                   hzquotientmod m isc (precarry b n))%<span class="bp">ring</span> +
+          hzquotientmod m isc (precarry (carry a + carry b)%<span class="bp">ring</span> n))%hz ) <span class="k">with</span>
+                 ((a (S n) +
+                   hzquotientmod m isc (precarry a n))%<span class="bp">ring</span> +
+                  (b (S n) +
+                   hzquotientmod m isc (precarry b n))%<span class="bp">ring</span> +
+          hzquotientmod m isc (precarry (carry a + carry b)%<span class="bp">ring</span> n))%<span class="bp">ring</span>.
+        <span class="nb">rewrite</span> &lt;- ( ringassoc1 hz ( a ( S n ) + hzquotientmod m isc ( precarry a n ) )
+                                  (b (S n) )
+                                  ( hzquotientmod m isc (precarry b n)) ).
+        <span class="nb">rewrite</span> ( ringassoc1 hz ( a ( S n ) )
+                               (hzquotientmod m isc ( precarry a n ) )
+                               ( b ( S n ) ) ).
+        <span class="nb">rewrite</span> ( ringcomm1 hz ( hzquotientmod m isc ( precarry a n ) )
+                           ( b ( S n ) ) ).
+        <span class="nb">rewrite</span> &lt;- <span class="mi">3</span>! ( ringassoc1 hz ).
+        <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> ( funextfun _ _ f ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">quotientprecarry</span> ( <span class="nv">a</span> : fpscommring hz ) : fpscommring hz :=
+  <span class="k">fun</span> <span class="nv">x</span> : nat =&gt; hzquotientmod m isc ( precarry a x ).
+
+<span class="kn">Lemma</span> <span class="nf">quotientandtimesrearrangel</span> ( <span class="nv">x</span> <span class="nv">y</span> : hz ) :
+  hzquotientmod m isc ( x * y ) =
+  ( hzquotientmod m isc x ) * y +
+    hzquotientmod m isc ( ( hzremaindermod m isc x ) * y ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> hzquotientmodandtimes.
+  <span class="nb">change</span> (hzquotientmod m isc x * hzquotientmod m isc y * m +
+          hzremaindermod m isc y * hzquotientmod m isc x +
+          hzremaindermod m isc x * hzquotientmod m isc y +
+          hzquotientmod m isc (hzremaindermod m isc x * hzremaindermod m isc y))%hz <span class="k">with</span>
+  (hzquotientmod m isc x * hzquotientmod m isc y * m +
+   hzremaindermod m isc y * hzquotientmod m isc x +
+   hzremaindermod m isc x * hzquotientmod m isc y +
+   hzquotientmod m isc (hzremaindermod m isc x * hzremaindermod m isc y))%<span class="bp">ring</span>.
+  <span class="nb">rewrite</span> ( ringcomm2 hz ( hzremaindermod m isc y ) ( hzquotientmod m isc x ) ).
+  <span class="nb">rewrite</span> ( ringassoc2 hz ).
+  <span class="nb">rewrite</span> &lt;- ( ringldistr hz ).
+  <span class="nb">rewrite</span> ( ringcomm2 hz ( hzquotientmod m isc y ) m ).
+  <span class="nb">change</span> (m * hzquotientmod m isc y + hzremaindermod m isc y)%<span class="bp">ring</span> <span class="k">with</span>
+         (m * hzquotientmod m isc y + hzremaindermod m isc y)%hz.
+  <span class="nb">rewrite</span> &lt;- ( hzdivequationmod m isc y ).
+  <span class="nb">change</span> (hzremaindermod m isc x * y)%<span class="bp">ring</span> <span class="k">with</span>
+         (hzremaindermod m isc x * y)%hz.
+  <span class="nb">rewrite</span> ( hzquotientmodandtimes m isc ( hzremaindermod m isc x ) y ).
+  <span class="nb">rewrite</span> hzremaindermoditerated.
+  <span class="nb">rewrite</span> &lt;- hzqrandremainderq.
+  <span class="nb">rewrite</span> hzmultx0.
+  <span class="nb">rewrite</span> <span class="mi">2</span>! hzmult0x.
+  <span class="nb">rewrite</span> hzplusl0.
+  <span class="nb">rewrite</span> ( ringassoc1 hz ).
+  <span class="nb">change</span> (hzquotientmod m isc x * y +
+          (hzremaindermod m isc x *
+           hzquotientmod m isc y +
+           hzquotientmod m isc (hzremaindermod m isc x *
+                               hzremaindermod m isc y))%hz) <span class="k">with</span>
+  (hzquotientmod m isc x * y +
+   (hzremaindermod m isc x * hzquotientmod m isc y +
+    hzquotientmod m isc (hzremaindermod m isc x *
+                        hzremaindermod m isc y)))%<span class="bp">ring</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** here used to be shown the lemma [natsummationplusshift] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">precarryandtimesl</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) ( <span class="nv">n</span> : nat ) :
+  hzquotientmod m isc ( precarry ( a * b ) n ) =
+  ( quotientprecarry a * b ) n +
+        hzquotientmod m isc ( precarry ( carry a  * b ) n ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> n.
+  - <span class="nb">unfold</span> precarry.
+    <span class="nb">change</span> ( ( a * b ) <span class="mi">0</span>%nat ) <span class="k">with</span> ( a <span class="mi">0</span>%nat * b <span class="mi">0</span>%nat ).
+    <span class="nb">change</span> ( ( quotientprecarry a * b ) <span class="mi">0</span>%nat ) <span class="k">with</span>
+    ( hzquotientmod m isc ( a <span class="mi">0</span>%nat ) * b <span class="mi">0</span>%nat ).
+    <span class="nb">rewrite</span> quotientandtimesrearrangel.
+    <span class="nb">change</span> ( ( carry a * b ) <span class="mi">0</span>%nat ) <span class="k">with</span>
+    ( hzremaindermod m isc ( a <span class="mi">0</span>%nat ) * b <span class="mi">0</span>%nat ).
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">change</span> ( precarry ( a * b ) ( S n ) ) <span class="k">with</span>
+    ( ( a * b ) ( S n ) +
+      hzquotientmod m isc ( precarry ( a * b ) n ) ).
+    <span class="nb">rewrite</span> IHn.
+    <span class="nb">rewrite</span> &lt;- ( ringassoc1 hz ).
+    <span class="nb">assert</span> ( ( ( a * b ) ( S n ) +
+               ( quotientprecarry a * b ) n ) =
+      ( @op2 ( fpscommring hz ) ( precarry a ) b ) ( S n ) ) <span class="k">as</span> f.
+    { <span class="nb">change</span> ( ( a * b ) ( S n ) )
+     <span class="k">with</span> ( natsummation0 ( S n ) ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt; a x * b ( sub ( S n ) x ) ) ).
+     <span class="nb">change</span> ( ( quotientprecarry a * b ) n ) <span class="k">with</span>
+     ( natsummation0 n ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+         quotientprecarry a x * b ( sub n x ) ) ).
+     <span class="nb">rewrite</span> natsummationplusshift.
+     <span class="nb">change</span> ( ( @op2 ( fpscommring hz ) ( precarry a ) b ) ( S n ) ) <span class="k">with</span>
+     ( natsummation0 ( S n ) ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+         ( precarry a ) x * b ( sub ( S n ) x ) ) ).
+     <span class="nb">rewrite</span> natsummationshift0.
+     <span class="nb">unfold</span> precarry <span class="nb">at</span> <span class="mi">2</span>.
+     <span class="nb">simpl</span>.
+     <span class="nb">rewrite</span> &lt;- ( ringcomm1 hz ( a <span class="mi">0</span>%nat * b ( S n ) ) _ ).
+     <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">x</span> : hz =&gt; a <span class="mi">0</span>%nat * b ( S n ) + x ) ).
+     <span class="nb">apply</span> natsummationpathsupperfixed.
+     <span class="nb">intros</span> k j.
+     <span class="nb">unfold</span> quotientprecarry.
+     <span class="nb">rewrite</span> ( ringrdistr hz ).
+     <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> f.
+    <span class="nb">rewrite</span> hzquotientmodandplus.
+    <span class="nb">change</span> ( @op2 ( fpscommring hz ) ( precarry a ) b ) <span class="k">with</span>
+    ( fpstimes hz ( precarry a ) b ).
+    <span class="nb">rewrite</span> ( hzquotientandfpstimesl m isc ( precarry a ) b ).
+    <span class="nb">change</span> ( @op2 ( fpscommring hz ) ( carry a ) b ) <span class="k">with</span>
+    ( fpstimes hz ( carry a ) b ) <span class="nb">at</span> <span class="mi">1</span>.
+    <span class="nb">unfold</span> fpstimes <span class="nb">at</span> <span class="mi">1</span>.
+    <span class="nb">unfold</span> carry <span class="nb">at</span> <span class="mi">1</span>.
+    <span class="nb">change</span> (<span class="k">fun</span> <span class="nv">n0</span> : nat =&gt;
+              <span class="k">let</span> <span class="nv">t'</span> := <span class="k">fun</span> <span class="nv">m0</span> : nat =&gt;
+                          b (n0 - m0)%nat <span class="k">in</span> natsummation0 n0 (<span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                     (hzremaindermod m isc (precarry a x) * t' x)%<span class="bp">ring</span>)) <span class="k">with</span>
+    ( carry a * b ).
+    <span class="nb">change</span> ( ( quotientprecarry a * b ) ( S n ) ) <span class="k">with</span>
+    ( natsummation0 ( S n ) ( <span class="k">fun</span> <span class="nv">i</span> : nat =&gt;
+        hzquotientmod m isc ( precarry a i ) * b ( S n - i )%nat ) ).
+    <span class="nb">rewrite</span> <span class="mi">2</span>! hzplusassoc.
+    <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">v</span> =&gt; natsummation0 ( S n ) ( <span class="k">fun</span> <span class="nv">i</span> : nat =&gt;
+      hzquotientmod m isc ( precarry a i ) * b ( S n - i )%nat ) + v ) ).
+    <span class="nb">change</span> ( precarry ( carry a * b ) ( S n ) ) <span class="k">with</span>
+    ( ( carry a * b ) ( S n ) +
+      hzquotientmod m isc ( precarry ( carry a * b ) n ) ).
+    <span class="nb">change</span> ((carry a * b) (S n) +
+            hzquotientmod m isc (precarry (carry a * b) n)) <span class="k">with</span>
+    ((carry a * b)%<span class="bp">ring</span> (S n) +
+     hzquotientmod m isc (precarry (carry a * b) n)%<span class="bp">ring</span>)%hz.
+    <span class="nb">rewrite</span> ( hzquotientmodandplus m isc
+                                   ( ( carry a * b ) ( S n ) )
+     ( hzquotientmod m isc ( precarry ( carry a * b ) n ) ) ).
+    <span class="nb">change</span> ( ( carry a * b ) ( S n ) ) <span class="k">with</span>
+    ( natsummation0 ( S n ) ( <span class="k">fun</span> <span class="nv">i</span> : nat =&gt;
+        hzremaindermod m isc ( precarry a i ) * b ( S n  - i )%nat ) ).
+    <span class="nb">rewrite</span> hzplusassoc.
+    <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">v</span> =&gt;
+       ( hzquotientmod m isc ( natsummation0 ( S n ) ( <span class="k">fun</span> <span class="nv">i</span> : nat =&gt;
+            hzremaindermod m isc
+                   ( precarry a i ) * b ( S n - i )%nat ) ) ) + v ) ).
+    <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">v</span> =&gt;
+        hzquotientmod m isc
+           ( hzquotientmod m isc
+              ( precarry ( carry a * b )%<span class="bp">ring</span> n ) ) + v ) ).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">v</span> =&gt;
+                           v + hzremaindermod m isc
+    ( hzquotientmod m isc ( precarry ( carry a * b )%<span class="bp">ring</span> n ) ) ) ).
+    <span class="nb">unfold</span> fpstimes.
+    <span class="nb">rewrite</span> hzqrandnatsummation0r.
+    <span class="nb">rewrite</span> ( hzqrandnatsummation0r m isc ( <span class="k">fun</span> <span class="nv">i</span> : nat =&gt;
+      hzremaindermod m isc ( precarry a i ) * b ( S n - i )%nat ) ).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> natsummationpathsupperfixed.
+    <span class="nb">intros</span> j p.
+    <span class="nb">change</span> ( hzremaindermod m isc
+                            (hzremaindermod m isc (precarry a j) *
+                             b ( sub ( S n ) j)) ) <span class="k">with</span>
+    ( hzremaindermod m isc
+                     (hzremaindermod m isc (precarry a j) *
+                      b (S n - j)%nat)%hz ).
+    <span class="nb">rewrite</span> ( hzremaindermodandtimes m isc
+                ( hzremaindermod m isc ( precarry a j ) )
+                ( b ( sub ( S n ) j ) ) ).
+    <span class="nb">rewrite</span> hzremaindermoditerated.
+    <span class="nb">rewrite</span> &lt;- hzremaindermodandtimes.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">carryandtimesl</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) :
+  carry ( a * b ) = carry ( carry a * b ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">n</span> : nat, carry ( a * b ) n =
+                          carry ( carry a * b ) n ) <span class="k">as</span> f.
+  { <span class="nb">intros</span> n.
+    <span class="nb">destruct</span> n.
+    - <span class="nb">unfold</span> carry <span class="nb">at</span> <span class="mi">1</span> <span class="mi">2</span>.
+      <span class="nb">change</span> ( precarry ( a * b ) <span class="mi">0</span>%nat ) <span class="k">with</span>
+      ( a <span class="mi">0</span>%nat * b <span class="mi">0</span>%nat ).
+      <span class="nb">change</span> ( precarry ( carry a * b ) <span class="mi">0</span>%nat ) <span class="k">with</span>
+      ( carry a <span class="mi">0</span>%nat * b <span class="mi">0</span>%nat ).
+      <span class="nb">unfold</span> carry.
+      <span class="nb">change</span> (hzremaindermod m isc (precarry a <span class="mi">0</span>) * b <span class="mi">0</span>%nat) <span class="k">with</span>
+      (hzremaindermod m isc (precarry a <span class="mi">0</span>) * b <span class="mi">0</span>%nat )%hz.
+      <span class="nb">rewrite</span> ( hzremaindermodandtimes m isc
+        ( hzremaindermod m isc ( precarry a <span class="mi">0</span>%nat ) ) ( b <span class="mi">0</span>%nat ) ).
+      <span class="nb">rewrite</span> hzremaindermoditerated.
+      <span class="nb">rewrite</span> &lt;- hzremaindermodandtimes.
+      <span class="nb">change</span> ( precarry a <span class="mi">0</span>%nat ) <span class="k">with</span> ( a <span class="mi">0</span>%nat ).
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> carry <span class="nb">at</span> <span class="mi">1</span> <span class="mi">2</span>.
+      <span class="nb">change</span> ( precarry ( a * b ) ( S n ) ) <span class="k">with</span>
+      ( ( a * b ) ( S n ) + hzquotientmod m isc ( precarry ( a * b ) n ) ).
+      <span class="nb">rewrite</span> precarryandtimesl.
+      <span class="nb">rewrite</span> &lt;- ( ringassoc1 hz ).
+      <span class="nb">rewrite</span> hzremaindermodandplus.
+      <span class="nb">assert</span> ( hzremaindermod m isc
+          ( ( a * b ) ( S n ) + ( quotientprecarry a * b ) n ) =
+        hzremaindermod m isc ( ( carry a * b ) ( S n ) ) ) <span class="k">as</span> g.
+      { <span class="nb">change</span> ( hzremaindermod m isc ( ( natsummation0 ( S n ) ( <span class="k">fun</span> <span class="nv">u</span> : nat =&gt;
+                                             a u * b ( sub ( S n ) u ) ) ) +
+                                       ( natsummation0 n ( <span class="k">fun</span> <span class="nv">u</span> : nat =&gt;
+                       ( quotientprecarry a ) u * b ( sub n u ) ) ) ) =
+                 hzremaindermod m isc ( natsummation0 ( S n ) ( <span class="k">fun</span> <span class="nv">u</span> : nat =&gt;
+                              ( carry a ) u * b ( sub ( S n ) u ) ) ) ).
+        <span class="nb">rewrite</span> ( natsummationplusshift n ).
+        <span class="nb">rewrite</span> ( natsummationshift0 n ( <span class="k">fun</span> <span class="nv">u</span> : nat =&gt;
+                                    carry a u * b ( sub ( S n ) u ) ) ).
+        <span class="nb">assert</span> ( hzremaindermod m isc ( natsummation0 n ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                              a ( S x ) * b ( sub ( S n ) ( S x ) ) +
+                              quotientprecarry a x * b ( sub n x ) ) ) =
+                 hzremaindermod m isc (natsummation0 n ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                   carry a ( S x ) * b ( sub ( S n ) ( S x ) ) ) ) ) <span class="k">as</span> h.
+        { <span class="nb">rewrite</span> hzqrandnatsummation0r.
+          <span class="nb">rewrite</span> ( hzqrandnatsummation0r m isc ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                          carry a ( S x ) * b ( sub ( S n ) ( S x ) ) ) ).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> natsummationpathsupperfixed.
+          <span class="nb">intros</span> j p.
+          <span class="nb">unfold</span> quotientprecarry.
+          <span class="nb">simpl</span>.
+<span class="c">(* the following command takes overly long on Oct. 30, 2017:</span>
+<span class="c">          change (a (S j) * b ( sub n j) +</span>
+<span class="c">                  hzquotientmod m isc (precarry a j) * b ( sub n j)) with</span>
+<span class="c">                 (a (S j) * b ( sub n j) +</span>
+<span class="c">                  hzquotientmod m isc (precarry a j) * b ( sub n j) )%hz.</span>
+<span class="c"> *)</span>
+          intermediate_path (hzremaindermod m isc ((a (S j) * b ( sub n j) +
+                   hzquotientmod m isc (precarry a j) * b ( sub n j) )%hz)).
+          + <span class="bp">exact</span> (idpath _).
+          + <span class="nb">rewrite</span> &lt;- ( hzrdistr ( a ( S j ) )
+                                 ( hzquotientmod m isc ( precarry a j ) )
+                                 ( b ( sub n j ) ) ).
+            <span class="nb">rewrite</span> hzremaindermodandtimes.
+            <span class="nb">change</span> ( hzremaindermod m isc
+                        (hzremaindermod m isc (a (S j) +
+                         hzquotientmod m isc (precarry a j)) *
+                           hzremaindermod m isc (b ( sub n j))) =
+                     hzremaindermod m isc (carry a (S j) * b(sub n j)) )%<span class="bp">ring</span>.
+            <span class="nb">rewrite</span> &lt;- ( hzremaindermoditerated m isc (a (S j) +
+                                         hzquotientmod m isc (precarry a j)) ).
+            <span class="nb">unfold</span> carry.
+            <span class="nb">rewrite</span> &lt;- hzremaindermodandtimes.
+            <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> hzremaindermodandplus.
+        <span class="nb">rewrite</span> h.
+        <span class="nb">rewrite</span> &lt;- hzremaindermodandplus.
+        <span class="nb">unfold</span> carry <span class="nb">at</span> <span class="mi">3</span>.
+        <span class="nb">rewrite</span> ( hzremaindermodandplus m isc _
+                    ( hzremaindermod m isc ( precarry a <span class="mi">0</span>%nat ) *
+                                            b ( sub ( S n ) <span class="mi">0</span>%nat ) ) ).
+        <span class="nb">rewrite</span> hzremaindermodandtimes.
+        <span class="nb">rewrite</span> hzremaindermoditerated.
+        <span class="nb">rewrite</span> &lt;- hzremaindermodandtimes.
+        <span class="nb">change</span> ( precarry a <span class="mi">0</span>%nat ) <span class="k">with</span> ( a <span class="mi">0</span>%nat ).
+        <span class="nb">rewrite</span> &lt;- hzremaindermodandplus.
+        <span class="nb">rewrite</span> hzpluscomm.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> g.
+      <span class="nb">rewrite</span> &lt;- hzremaindermodandplus.
+      <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> ( funextfun _ _ f ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">carryandtimesr</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) :
+  carry ( a * b ) = carry ( a * carry b ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> ( @ringcomm2 ( fpscommring hz ) ).
+  <span class="nb">rewrite</span> carryandtimesl.
+  <span class="nb">rewrite</span> ( @ringcomm2 ( fpscommring hz ) ).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">carryandtimes</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) :
+  carry ( a * b ) = carry ( carry a * carry b ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> carryandtimesl.
+  <span class="nb">rewrite</span> carryandtimesr.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ringcarryequiv</span> : @ringeqrel ( fpscommring hz ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">split with</span> carryequiv.
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span> a b c q.
+      <span class="nb">simpl</span>.
+      <span class="nb">simpl</span> <span class="k">in</span> q.
+      <span class="nb">rewrite</span> carryandplus.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">rewrite</span> &lt;- carryandplus.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> a b c q.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> carryandplus.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">rewrite</span> &lt;- carryandplus.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span> a b c q.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> carryandtimes.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">rewrite</span> &lt;- carryandtimes.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> a b c q.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> carryandtimes.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">rewrite</span> &lt;- carryandtimes.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">carry</span>.
+
+<span class="sd">(** ** Some preparation for parts III/IV that does not depend on a prime number *)</span>
+<span class="sd">(** Those used to appear where needed below, those points have been marked by comments. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">commringquotprandop1</span> { <span class="nv">A</span> : commring } ( <span class="nv">R</span> : @ringeqrel A ) ( <span class="nv">a</span> <span class="nv">b</span> : A ) :
+  @op1 ( commringquot R ) ( setquotpr ( pr1 R ) a )
+                          ( setquotpr ( pr1 R ) b ) =
+  setquotpr ( pr1 R ) ( a + b ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">change</span> ( @op1 ( commringquot R ) ) <span class="k">with</span>
+  ( setquotfun2 R R ( @op1 A )
+      ( pr1 ( iscomp2binoptransrel ( pr1 R )
+                            ( eqreltrans _ ) ( pr2 R ) ) ) ).
+  <span class="nb">unfold</span> setquotfun2.
+  <span class="nb">rewrite</span> setquotuniv2comm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">commringquotprandop2</span> { <span class="nv">A</span> : commring } ( <span class="nv">R</span> : @ringeqrel A ) ( <span class="nv">a</span> <span class="nv">b</span> : A ) :
+  @op2 ( commringquot R ) ( setquotpr ( pr1 R ) a )
+                          ( setquotpr ( pr1 R ) b ) =
+  setquotpr ( pr1 R ) ( a * b ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">change</span> ( @op2 ( commringquot R ) ) <span class="k">with</span>
+  ( setquotfun2 R R ( @op2 A )
+       ( pr2 ( iscomp2binoptransrel ( pr1 R )
+                             ( eqreltrans _ ) ( pr2 R ) ) ) ).
+  <span class="nb">unfold</span> setquotfun2.
+  <span class="nb">rewrite</span> setquotuniv2comm.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzfpstimesnonzero</span> ( <span class="nv">a</span> : fpscommring hz ) ( <span class="nv">k</span> : nat )
+      ( <span class="nv">isc</span> : neq hz ( a k ) <span class="mi">0</span>%hz ×
+             <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m k -&gt; a m = <span class="mi">0</span>%hz ) :
+  <span class="k">forall</span> <span class="nv">k'</span> : nat, <span class="k">forall</span> <span class="nv">b</span> : fpscommring hz ,
+      <span class="k">forall</span> <span class="nv">is'</span> : neq hz ( b k' ) <span class="mi">0</span>%hz ×
+              <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m k' -&gt; b m = <span class="mi">0</span>%hz,
+        ( a * b ) ( k + k' )%nat = a k * b k'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k'.
+  <span class="nb">induction</span> k'.
+  - <span class="nb">intros</span>.
+    <span class="nb">destruct</span> k.
+    + <span class="nb">simpl</span>.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">rewrite</span> natplusr0.
+      <span class="nb">change</span> ( natsummation0 k ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+               a x * b ( sub ( S k ) x ) ) +
+               a ( S k ) * b ( sub ( S k ) ( S k ) ) =
+      a ( S k ) * b <span class="mi">0</span>%nat ).
+      <span class="nb">assert</span> ( natsummation0 k ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                          a x * b ( sub ( S k ) x ) ) =
+               natsummation0 k ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt; <span class="mi">0</span>%hz ) ) <span class="k">as</span> f.
+      { <span class="nb">apply</span> natsummationpathsupperfixed.
+        <span class="nb">intros</span> m i.
+        <span class="nb">assert</span> ( natlth m ( S k ) ) <span class="k">as</span> i0.
+        * <span class="nb">apply</span> ( natlehlthtrans _ k _ ).
+          -- <span class="bp">assumption</span>.
+          -- <span class="nb">apply</span> natlthnsn.
+        * <span class="nb">rewrite</span> ( pr2 isc m i0 ).
+          <span class="nb">rewrite</span> hzmult0x.
+          <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> f.
+      <span class="nb">rewrite</span> natsummationae0bottom.
+      * <span class="nb">rewrite</span> hzplusl0.
+        <span class="nb">rewrite</span> minusnn0.
+        <span class="nb">apply</span> idpath.
+      * <span class="nb">intros</span> m i.
+        <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> natplusnsm.
+    <span class="nb">change</span> ( natsummation0 ( k + k' )%nat ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+               a x * b ( sub ( S k + k' ) x ) ) +
+               a ( S k + k' )%nat * b ( sub ( S k + k' ) ( S k + k' ) ) =
+             a k * b ( S k' ) ).
+    <span class="nb">set</span> ( b' := fpsshift b ).
+    <span class="nb">rewrite</span> minusnn0.
+    <span class="nb">rewrite</span> ( pr2 is' <span class="mi">0</span>%nat ( natlehlthtrans <span class="mi">0</span> k' ( S k' )
+                               ( natleh0n k' ) ( natlthnsn k' ) ) ).
+    <span class="nb">rewrite</span> hzmultx0.
+    <span class="nb">rewrite</span> hzplusr0.
+    <span class="nb">assert</span> ( natsummation0 ( k + k' )%nat ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                           a x * b ( sub ( S k + k' ) x ) ) =
+            fpstimes hz a b' ( k + k' )%nat ) <span class="k">as</span> f.
+    { <span class="nb">apply</span> natsummationpathsupperfixed.
+      <span class="nb">intros</span> m v.
+      <span class="nb">change</span> ( S k + k' )%nat <span class="k">with</span> ( S ( k + k' ) ).
+      <span class="nb">rewrite</span> &lt;- ( pathssminus ( k + k' )%nat m ).
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> ( natlehlthtrans _ ( k + k' )%nat _ ).
+        * <span class="bp">assumption</span>.
+        * <span class="nb">apply</span> natlthnsn.
+    }
+    <span class="nb">rewrite</span> f.
+    <span class="nb">apply</span> ( IHk' b' ).
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> is'.
+    + <span class="nb">intros</span> m v.
+      <span class="nb">unfold</span> b'.
+      <span class="nb">unfold</span> fpsshift.
+      <span class="nb">apply</span> is'.
+      <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzfpstimeswhenzero</span> ( <span class="nv">a</span> : fpscommring hz ) ( <span class="nv">m</span> <span class="nv">k</span> : nat )
+      ( <span class="nv">isc</span> : ( <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m k -&gt; a m = <span class="mi">0</span>%hz ) ) :
+  <span class="k">forall</span> <span class="nv">b</span> : fpscommring hz, <span class="k">forall</span> <span class="nv">k'</span> : nat,
+      <span class="k">forall</span> <span class="nv">is'</span> : ( <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m k' -&gt; b m = <span class="mi">0</span>%hz ) ,
+        natlth m ( k + k' )%nat -&gt; ( a * b ) m = <span class="mi">0</span>%hz.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> k isc.
+  <span class="nb">induction</span> m.
+  - <span class="nb">intros</span> k.
+    <span class="nb">intros</span> isc b k' is' j.
+    <span class="nb">change</span> ( a <span class="mi">0</span>%nat * b <span class="mi">0</span>%nat = <span class="mi">0</span>%hz ).
+    <span class="nb">destruct</span> k.
+    + <span class="nb">rewrite</span> ( is' <span class="mi">0</span>%nat j ).
+      <span class="nb">rewrite</span> hzmultx0.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">assert</span> ( natlth <span class="mi">0</span> ( S k ) ) <span class="k">as</span> i.
+      { <span class="nb">apply</span> ( natlehlthtrans _ k _ ).
+        * <span class="nb">apply</span> natleh0n.
+        * <span class="nb">apply</span> natlthnsn.
+      }
+      <span class="nb">rewrite</span> ( isc <span class="mi">0</span>%nat i ).
+      <span class="nb">rewrite</span> hzmult0x.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> k isc b k' is' j.
+    <span class="nb">change</span> ( natsummation0 ( S m ) ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                      a x * b ( sub ( S m ) x ) ) =
+            <span class="mi">0</span>%hz ).
+    <span class="nb">change</span> ( natsummation0 m ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+               a x * b ( sub ( S m ) x ) ) +
+               a ( S m ) * b ( sub ( S m ) ( S m ) ) =
+             <span class="mi">0</span>%hz ).
+    <span class="nb">assert</span> ( a ( S m ) * b ( sub ( S m ) ( S m ) ) = <span class="mi">0</span>%hz ) <span class="k">as</span> g.
+    { <span class="nb">destruct</span> k.
+      + <span class="nb">destruct</span> k'.
+        * <span class="nb">apply</span> fromempty.
+          <span class="nb">apply</span> ( negnatgth0n ( S m ) j ).
+        * <span class="nb">rewrite</span> minusnn0.
+          <span class="nb">rewrite</span> ( is' <span class="mi">0</span>%nat ( natlehlthtrans <span class="mi">0</span>%nat k' ( S k' )
+                                             ( natleh0n k' )
+                                             ( natlthnsn k' ) ) ).
+          <span class="nb">rewrite</span> hzmultx0.
+          <span class="nb">apply</span> idpath.
+      + <span class="nb">destruct</span> k'.
+        * <span class="nb">rewrite</span> natplusr0 <span class="k">in</span> j.
+          <span class="nb">rewrite</span> ( isc ( S m ) j ).
+          <span class="nb">rewrite</span> hzmult0x.
+          <span class="nb">apply</span> idpath.
+        * <span class="nb">rewrite</span> minusnn0.
+          <span class="nb">rewrite</span> ( is' <span class="mi">0</span>%nat ( natlehlthtrans <span class="mi">0</span>%nat k' ( S k' )
+                                             ( natleh0n k' )
+                                             ( natlthnsn k' ) ) ).
+          <span class="nb">rewrite</span> hzmultx0.
+          <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> g.
+    <span class="nb">rewrite</span> hzplusr0.
+    <span class="nb">set</span> ( b' := fpsshift b ).
+    <span class="nb">assert</span> ( natsummation0 m ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                                 a x * b ( sub ( S m ) x ) ) =
+             natsummation0 m ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                                 a x * b' ( sub m x ) ) ) <span class="k">as</span> f.
+    { <span class="nb">apply</span> natsummationpathsupperfixed.
+      <span class="nb">intros</span> n i.
+      <span class="nb">unfold</span> b'.
+      <span class="nb">unfold</span> fpsshift.
+      <span class="nb">rewrite</span> pathssminus.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> ( natlehlthtrans _ m _ ).
+        * <span class="bp">assumption</span>.
+        * <span class="nb">apply</span> natlthnsn.
+    }
+    <span class="nb">rewrite</span> f.
+    <span class="nb">change</span> ( ( a * b' ) m = <span class="mi">0</span>%hz ).
+    <span class="nb">assert</span> ( natlth m ( k + k' ) ) <span class="k">as</span> one.
+    { <span class="nb">apply</span> ( istransnatlth _ ( S m ) _ ).
+      + <span class="nb">apply</span> natlthnsn.
+      + <span class="bp">assumption</span>.
+    }
+    <span class="nb">destruct</span> k'.
+    + <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m <span class="mi">0</span>%nat -&gt; b' m = <span class="mi">0</span>%hz ) <span class="k">as</span> two.
+      { <span class="nb">intros</span> m0 j0.
+        <span class="nb">apply</span> fromempty.
+        <span class="nb">apply</span> ( negnatgth0n m0).
+        <span class="bp">assumption</span>.
+      }
+      <span class="nb">apply</span> ( IHm k isc b' <span class="mi">0</span>%nat two one ).
+    + <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m k' -&gt; b' m = <span class="mi">0</span>%hz ) <span class="k">as</span> two.
+      { <span class="nb">intros</span> m0 j0.
+        <span class="nb">change</span> ( b ( S m0 ) = <span class="mi">0</span>%hz ).
+        <span class="nb">apply</span> is'.
+        <span class="bp">assumption</span>.
+      }
+      <span class="nb">assert</span> ( natlth m ( k + k' )%nat ) <span class="k">as</span> three.
+      { <span class="nb">rewrite</span> natplusnsm <span class="k">in</span> j.
+        <span class="nb">apply</span> j.
+      }
+      <span class="nb">apply</span> ( IHm k isc b' k' two three ).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** ** Definition of p-adic integers *)</span>
+
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+<span class="kn">Variable</span> <span class="nv">p</span> : hz.
+<span class="kn">Variable</span> <span class="nv">isc</span> : isaprime p.
+
+<span class="kn">Definition</span> <span class="nf">commringofpadicints</span> :=
+  commringquot ( ringcarryequiv p ( isaprimetoneq0 isc ) ).
+
+<span class="kn">Definition</span> <span class="nf">padicplus</span> := @op1 commringofpadicints.
+
+<span class="kn">Definition</span> <span class="nf">padictimes</span> := @op2 commringofpadicints.
+
+<span class="sd">(** * III. The apartness relation on p-adic integers *)</span>
+
+<span class="kn">Definition</span> <span class="nf">padicapart0</span> :
+  hrel ( fpscommring hz ) := <span class="k">fun</span> <span class="nv">a</span> <span class="nv">b</span> =&gt;
+    <span class="k">∃</span> <span class="nv">n</span> : nat, neq _ ( carry p ( isaprimetoneq0 isc) a n )
+                   ( carry p ( isaprimetoneq0 isc) b n ).
+
+<span class="kn">Lemma</span> <span class="nf">padicapartiscomprel</span> :
+  iscomprelrel ( carryequiv p ( isaprimetoneq0 isc ) ) padicapart0.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a a' b b' i j.
+  <span class="nb">apply</span> hPropUnivalence.
+  - <span class="nb">intro</span> k.
+    use (hinhuniv _ k).
+    <span class="nb">intros</span> u.
+    <span class="nb">destruct</span> u <span class="k">as</span> [ n u ].
+    <span class="nb">apply</span> total2tohexists.
+    <span class="nb">split with</span> n.
+    <span class="nb">rewrite</span> &lt;- i , &lt;- j.
+    <span class="bp">assumption</span>.
+  - <span class="nb">intro</span> k.
+    use (hinhuniv _ k).
+    <span class="nb">intros</span> u.
+    <span class="nb">destruct</span> u <span class="k">as</span> [ n u ].
+    <span class="nb">apply</span> total2tohexists.
+    <span class="nb">split with</span> n.
+    <span class="nb">rewrite</span> i, j.
+    <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">padicapart1</span> : hrel commringofpadicints :=
+  quotrel padicapartiscomprel.
+
+<span class="kn">Lemma</span> <span class="nf">isirreflpadicapart0</span> : isirrefl padicapart0.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a f.
+  <span class="nb">simpl</span> <span class="k">in</span> f.
+  <span class="nb">assert</span> hfalse <span class="k">as</span> x.
+  { <span class="nb">apply</span> f.
+    <span class="nb">intros</span> u.
+    <span class="nb">destruct</span> u <span class="k">as</span> [ n u ].
+    <span class="nb">apply</span> u.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="bp">exact</span> x.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">issymmpadicapart0</span> : issymm padicapart0.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b f.
+  use (hinhuniv _ f).
+  <span class="nb">intros</span> u.
+  <span class="nb">destruct</span> u <span class="k">as</span> [ n u ].
+  <span class="nb">apply</span> total2tohexists.
+  <span class="nb">split with</span> n.
+  <span class="nb">intros</span> g.
+  <span class="nb">unfold</span> neq <span class="k">in</span> u.
+  <span class="nb">apply</span> u.
+  <span class="nb">rewrite</span> g.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscotranspadicapart0</span> : iscotrans padicapart0.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b c f.
+  use (hinhuniv _ f).
+  <span class="nb">intro</span> u.
+  <span class="nb">destruct</span> u <span class="k">as</span> [ n u ].
+  <span class="nb">intros</span> P j.
+  <span class="nb">apply</span> j.
+  <span class="nb">destruct</span> ( isdeceqhz ( carry p ( isaprimetoneq0 isc ) a n )
+                       ( carry p ( isaprimetoneq0 isc ) b n ) )
+    <span class="k">as</span> [ l | r ].
+  - <span class="nb">apply</span> ii2.
+    <span class="nb">intros</span> Q k.
+    <span class="nb">apply</span> k.
+    <span class="nb">split with</span> n.
+    <span class="nb">intros</span> g.
+    <span class="nb">unfold</span> neq <span class="k">in</span> u.
+    <span class="nb">apply</span> u.
+    <span class="nb">rewrite</span> l, g.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> ii1.
+    <span class="nb">intros</span> Q k.
+    <span class="nb">apply</span> k.
+    <span class="nb">split with</span> n.
+    <span class="nb">intros</span> g.
+    <span class="nb">apply</span> r.
+    <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">padicapart</span> : apart commringofpadicints.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">split with</span> padicapart1.
+  <span class="nb">split</span>.
+  - <span class="nb">unfold</span> padicapart1.
+    <span class="nb">apply</span> ( isirreflquotrel padicapartiscomprel
+                            isirreflpadicapart0 ).
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> ( issymmquotrel padicapartiscomprel
+                            issymmpadicapart0 ).
+    + <span class="nb">apply</span> ( iscotransquotrel padicapartiscomprel
+                               iscotranspadicapart0 ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">precarryandzero</span> :
+  precarry p ( isaprimetoneq0 isc ) <span class="mi">0</span> = @ringunel1 ( fpscommring hz ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">n</span> : nat, precarry p ( isaprimetoneq0 isc ) <span class="mi">0</span> n =
+                    @ringunel1 (fpscommring hz ) n ) <span class="k">as</span> f.
+  { <span class="nb">intros</span> n.
+    <span class="nb">induction</span> n.
+    - <span class="nb">unfold</span> precarry.
+      <span class="nb">change</span> ( @ringunel1 ( fpscommring hz ) <span class="mi">0</span>%nat ) <span class="k">with</span> <span class="mi">0</span>%hz.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">change</span> ( ( ( @ringunel1 ( fpscommring hz ) ( S n ) +
+        hzquotientmod p ( isaprimetoneq0 isc )
+           ( precarry p ( isaprimetoneq0 isc )
+               ( @ringunel1 ( fpscommring hz ) ) n ) ) ) = <span class="mi">0</span>%hz ).
+      <span class="nb">rewrite</span> IHn.
+      <span class="nb">change</span> ( @ringunel1 ( fpscommring hz ) n ) <span class="k">with</span> <span class="mi">0</span>%hz.
+      <span class="nb">change</span> ( @ringunel1 ( fpscommring hz ) ( S n ) ) <span class="k">with</span> <span class="mi">0</span>%hz.
+      <span class="nb">rewrite</span> hzqrand0q.
+      <span class="nb">rewrite</span> hzplusl0.
+      <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> ( funextfun _ _ f ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">carryandzero</span> : carry p ( isaprimetoneq0 isc ) <span class="mi">0</span> = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> carry.
+  <span class="nb">rewrite</span> precarryandzero.
+  <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">n</span> : nat, (<span class="k">fun</span> <span class="nv">n</span> : nat =&gt;
+    hzremaindermod p (isaprimetoneq0 isc)
+                     ( @ringunel1 ( fpscommring hz ) n)) n =
+    @ringunel1 ( fpscommring hz ) n ) <span class="k">as</span> f.
+  { <span class="nb">intros</span> n.
+    <span class="nb">rewrite</span> hzqrand0r.
+    <span class="nb">unfold</span> carry.
+    <span class="nb">change</span> ( @ringunel1 ( fpscommring hz)  n ) <span class="k">with</span> <span class="mi">0</span>%hz.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> ( funextfun _ _ f ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">precarryandone</span> :
+  precarry p ( isaprimetoneq0 isc ) <span class="mi">1</span> =
+  @ringunel2 ( fpscommring hz ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">n</span> : nat, precarry p ( isaprimetoneq0 isc ) <span class="mi">1</span> n =
+                    @ringunel2 (fpscommring hz ) n ) <span class="k">as</span> f.
+  { <span class="nb">intros</span> n.
+    <span class="nb">induction</span> n.
+    - <span class="nb">unfold</span> precarry.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> IHn.
+      <span class="nb">destruct</span> n.
+      + <span class="nb">change</span> ( @ringunel2 ( fpscommring hz ) <span class="mi">0</span>%nat ) <span class="k">with</span> <span class="mi">1</span>%hz.
+        <span class="nb">rewrite</span> hzqrand1q.
+        <span class="nb">rewrite</span> hzplusr0.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">change</span> ( @ringunel2 ( fpscommring hz ) ( S n ) ) <span class="k">with</span> <span class="mi">0</span>%hz.
+        <span class="nb">rewrite</span> hzqrand0q.
+        <span class="nb">rewrite</span> hzplusr0.
+        <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> ( funextfun _ _ f ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">carryandone</span> : carry p ( isaprimetoneq0 isc ) <span class="mi">1</span> = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> carry.
+  <span class="nb">rewrite</span> precarryandone.
+  <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">n</span> : nat, (<span class="k">fun</span> <span class="nv">n</span> : nat =&gt;
+    hzremaindermod p (isaprimetoneq0 isc)
+           ( @ringunel2 ( fpscommring hz ) n)) n =
+    @ringunel2 ( fpscommring hz ) n ) <span class="k">as</span> f.
+  { <span class="nb">intros</span> n.
+    <span class="nb">destruct</span> n.
+    - <span class="nb">change</span> ( @ringunel2 ( fpscommring hz ) <span class="mi">0</span>%nat ) <span class="k">with</span> <span class="mi">1</span>%hz.
+      <span class="nb">rewrite</span> hzqrand1r.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">change</span> ( @ringunel2 ( fpscommring hz ) ( S n ) ) <span class="k">with</span> <span class="mi">0</span>%hz.
+      <span class="nb">rewrite</span> hzqrand0r.
+      <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> ( funextfun _ _ f ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">padicapartcomputation</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) :
+    ( pr1 padicapart )
+    ( setquotpr ( carryequiv p ( isaprimetoneq0 isc ) ) a )
+    ( setquotpr ( carryequiv p ( isaprimetoneq0 isc ) ) b ) =
+                              padicapart0 a b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> hPropUnivalence.
+  - <span class="nb">intros</span> i.
+    <span class="nb">apply</span> i.
+  - <span class="nb">intro</span> u.
+    <span class="nb">apply</span> u.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">padicapartandplusprecarryl</span> ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : fpscommring hz ) ( <span class="nv">n</span> : nat )
+  ( <span class="nv">x</span> : neq _ ( precarry p ( isaprimetoneq0 isc )
+                             ( carry p ( isaprimetoneq0 isc ) a +
+                               carry p ( isaprimetoneq0 isc ) b ) n )
+            ( ( precarry p ( isaprimetoneq0 isc )
+                             ( carry p ( isaprimetoneq0 isc ) a +
+                               carry p ( isaprimetoneq0 isc ) c ) ) n ) ) :
+  padicapart0 b c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> ( P := <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+    neq hz (precarry p (isaprimetoneq0 isc) (carry p (isaprimetoneq0 isc) a +
+                                            carry p (isaprimetoneq0 isc) b) x)
+           (precarry p (isaprimetoneq0 isc) (carry p (isaprimetoneq0 isc) a +
+                                            carry p (isaprimetoneq0 isc) c) x) ).
+  <span class="nb">assert</span> ( isdecnatprop P ) <span class="k">as</span> isdec.
+  { <span class="nb">intros</span> m.
+    <span class="nb">destruct</span> ( isdeceqhz (precarry p (isaprimetoneq0 isc)
+                            (carry p (isaprimetoneq0 isc) a +
+                             carry p (isaprimetoneq0 isc) b) m)
+                         (precarry p (isaprimetoneq0 isc)
+                            (carry p (isaprimetoneq0 isc) a +
+                             carry p (isaprimetoneq0 isc) c) m) ) <span class="k">as</span> [ l | r ].
+    - <span class="nb">apply</span> ii2.
+      <span class="nb">intros</span> j.
+      <span class="nb">unfold</span> P <span class="k">in</span> j.
+      <span class="nb">unfold</span> neq <span class="k">in</span> j.
+      <span class="nb">apply</span> j.
+      <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> ii1.
+      <span class="bp">assumption</span>.
+  }
+  <span class="nb">set</span> ( leexists := leastelementprinciple n P isdec x ).
+  use (hinhuniv _ leexists).
+  <span class="nb">intro</span> k.
+  <span class="nb">destruct</span> k <span class="k">as</span> [ k k' ].
+  <span class="nb">destruct</span> k' <span class="k">as</span> [ k' k'' ].
+  <span class="nb">destruct</span> k.
+  - <span class="nb">apply</span> total2tohexists.
+    <span class="nb">split with</span> <span class="mi">0</span>%nat.
+    <span class="nb">intros</span> i.
+    <span class="nb">unfold</span> P <span class="k">in</span> k'. <span class="nb">unfold</span> neq <span class="k">in</span> k'. <span class="c">(* crucial *)</span>
+    <span class="nb">apply</span> k'.
+    <span class="nb">change</span> (carry p (isaprimetoneq0 isc) a <span class="mi">0</span>%nat +
+            carry p (isaprimetoneq0 isc) b <span class="mi">0</span>%nat =
+           (carry p (isaprimetoneq0 isc) a <span class="mi">0</span>%nat +
+            carry p (isaprimetoneq0 isc) c <span class="mi">0</span>%nat) ).
+    <span class="nb">rewrite</span> i.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> total2tohexists.
+    <span class="nb">split with</span> ( S k ).
+    <span class="nb">intro</span> i.
+    <span class="nb">apply</span> ( k'' k ).
+    + <span class="nb">apply</span> natlthnsn.
+    + <span class="nb">intro</span> j.
+      <span class="nb">unfold</span> P <span class="k">in</span> k'. <span class="nb">unfold</span> neq <span class="k">in</span> k'. <span class="c">(* crucial *)</span>
+      <span class="nb">apply</span> k'.
+      <span class="nb">change</span> ( carry p ( isaprimetoneq0 isc ) a ( S k ) +
+               carry p ( isaprimetoneq0 isc ) b ( S k ) +
+               hzquotientmod p ( isaprimetoneq0 isc )
+                     ( precarry p ( isaprimetoneq0 isc )
+                            ( carry p ( isaprimetoneq0 isc ) a +
+                              carry p ( isaprimetoneq0 isc ) b ) k ) =
+      ( carry p ( isaprimetoneq0 isc ) a ( S k ) +
+        carry p ( isaprimetoneq0 isc ) c ( S k ) +
+        hzquotientmod p ( isaprimetoneq0 isc )
+                      ( precarry p ( isaprimetoneq0 isc )
+                             ( carry p ( isaprimetoneq0 isc ) a +
+                               carry p ( isaprimetoneq0 isc ) c ) k ) ) ).
+      <span class="nb">rewrite</span> i.
+      <span class="nb">rewrite</span> j.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">padicapartandplusprecarryr</span> ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : fpscommring hz ) ( <span class="nv">n</span> : nat )
+  ( <span class="nv">x</span> : neq _ ( precarry p ( isaprimetoneq0 isc )
+                         ( carry p ( isaprimetoneq0 isc ) b +
+                           carry p ( isaprimetoneq0 isc ) a ) n )
+            ( ( precarry p ( isaprimetoneq0 isc )
+                         ( carry p ( isaprimetoneq0 isc ) c +
+                           carry p ( isaprimetoneq0 isc ) a ) ) n ) ) :
+  padicapart0 b c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> <span class="mi">2</span>! ( ringcomm1 ( fpscommring hz ) _
+                        ( carry p ( isaprimetoneq0 isc ) a ) ) <span class="k">in</span> x.
+  <span class="nb">apply</span> ( padicapartandplusprecarryl a b c n x ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** here used to be shown the lemmas [commringquotprandop1] and</span>
+<span class="sd">    [commringquotprandop2] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">setquotprandpadicplus</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) :
+  @op1 commringofpadicints
+    ( setquotpr ( carryequiv p ( isaprimetoneq0 isc ) ) a )
+    ( setquotpr ( carryequiv p ( isaprimetoneq0 isc ) ) b ) =
+  setquotpr ( carryequiv p ( isaprimetoneq0 isc ) ) ( a + b ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> commringquotprandop1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">setquotprandpadictimes</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) :
+  @op2 commringofpadicints
+    ( setquotpr ( carryequiv p ( isaprimetoneq0 isc ) ) a )
+    ( setquotpr ( carryequiv p ( isaprimetoneq0 isc ) ) b ) =
+ setquotpr ( carryequiv p ( isaprimetoneq0 isc ) ) ( a * b ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> commringquotprandop2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">padicplusisbinopapart0</span> ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : fpscommring hz )
+  ( <span class="nv">u</span> : padicapart0 ( a + b ) ( a + c ) ) :
+  padicapart0 b c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  use (hinhuniv _ u).
+  <span class="nb">intros</span> n.
+  <span class="nb">destruct</span> n <span class="k">as</span> [ n n' ].
+  <span class="nb">set</span> ( P := <span class="k">fun</span> <span class="nv">x</span> : nat =&gt; neq hz ( carry p ( isaprimetoneq0 isc ) ( a + b) x)
+                           ( carry p ( isaprimetoneq0 isc ) ( a + c) x) ).
+  <span class="nb">assert</span> ( isdecnatprop P ) <span class="k">as</span> isdec.
+  { <span class="nb">intros</span> m.
+    <span class="nb">destruct</span> ( isdeceqhz ( carry p ( isaprimetoneq0 isc ) ( a + b) m)
+                         ( carry p ( isaprimetoneq0 isc ) ( a + c) m) )
+      <span class="k">as</span> [ l | r ].
+    - <span class="nb">apply</span> ii2.
+      <span class="nb">intros</span> j.
+      <span class="nb">unfold</span> P <span class="k">in</span> j. <span class="nb">unfold</span> neq <span class="k">in</span> j. <span class="c">(* crucial *)</span>
+      <span class="nb">apply</span> j.
+      <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> ii1.
+      <span class="bp">assumption</span>.
+  }
+  <span class="nb">set</span> ( le := leastelementprinciple n P isdec n').
+  use (hinhuniv _ le).
+  <span class="nb">intro</span> k.
+  <span class="nb">destruct</span> k <span class="k">as</span> [ k k' ].
+  <span class="nb">destruct</span> k' <span class="k">as</span> [ k' k'' ].
+  <span class="nb">destruct</span> k.
+  - <span class="nb">apply</span> total2tohexists.
+    <span class="nb">split with</span> <span class="mi">0</span>%nat.
+    <span class="nb">intros</span> j.
+    <span class="nb">unfold</span> P <span class="k">in</span> k'. <span class="nb">unfold</span> neq <span class="k">in</span> k'. <span class="c">(* crucial *)</span>
+    <span class="nb">apply</span> k'.
+    <span class="nb">unfold</span> carry.
+    <span class="nb">unfold</span> precarry.
+    <span class="nb">change</span> ( ( a + b ) <span class="mi">0</span>%nat ) <span class="k">with</span> ( a <span class="mi">0</span>%nat + b <span class="mi">0</span>%nat ).
+    <span class="nb">change</span> ( ( a + c ) <span class="mi">0</span>%nat ) <span class="k">with</span> ( a <span class="mi">0</span>%nat + c <span class="mi">0</span>%nat ).
+    <span class="nb">unfold</span> carry <span class="k">in</span> j.
+    <span class="nb">unfold</span> precarry <span class="k">in</span> j.
+    <span class="nb">rewrite</span> hzremaindermodandplus.
+    <span class="nb">rewrite</span> j.
+    <span class="nb">rewrite</span> &lt;- hzremaindermodandplus.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">destruct</span> ( isdeceqhz ( carry p ( isaprimetoneq0 isc ) b ( S k ) )
+                         ( carry p ( isaprimetoneq0 isc ) c ( S k ) ) )
+      <span class="k">as</span> [ l | r ].
+    + <span class="nb">apply</span> ( padicapartandplusprecarryl a b c k ).
+      <span class="nb">intros</span> j.
+      <span class="nb">unfold</span> P <span class="k">in</span> k'. <span class="nb">unfold</span> neq <span class="k">in</span> k'.
+      <span class="nb">apply</span> k'.
+      <span class="nb">rewrite</span> carryandplus.
+      <span class="nb">unfold</span> carry <span class="nb">at</span> <span class="mi">1</span>.
+      <span class="nb">change</span> (hzremaindermod p ( isaprimetoneq0 isc )
+                ( carry p ( isaprimetoneq0 isc ) a ( S k ) +
+                  carry p ( isaprimetoneq0 isc ) b ( S k ) +
+                    hzquotientmod p ( isaprimetoneq0 isc )
+                      ( precarry p ( isaprimetoneq0 isc )
+                           ( carry p ( isaprimetoneq0 isc ) a +
+                             carry p ( isaprimetoneq0 isc ) b ) k ) ) =
+      carry p ( isaprimetoneq0 isc ) ( a + c ) ( S k ) ).
+      <span class="nb">rewrite</span> l.
+      <span class="nb">rewrite</span> j.
+      <span class="nb">rewrite</span> ( carryandplus p ( isaprimetoneq0 isc ) a c ).
+      <span class="nb">unfold</span> carry <span class="nb">at</span> <span class="mi">5</span>.
+      <span class="nb">change</span> ( precarry p ( isaprimetoneq0 isc )
+                        ( carry p ( isaprimetoneq0 isc ) a +
+                          carry p ( isaprimetoneq0 isc ) c ) ( S k ) ) <span class="k">with</span>
+      ( carry p ( isaprimetoneq0 isc ) a ( S k ) +
+        carry p ( isaprimetoneq0 isc ) c ( S k ) +
+        hzquotientmod p ( isaprimetoneq0 isc )
+                      ( precarry p ( isaprimetoneq0 isc )
+                                 ( carry p ( isaprimetoneq0 isc ) a +
+                                   carry p ( isaprimetoneq0 isc ) c ) k ) ).
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> total2tohexists.
+      <span class="nb">split with</span> ( S k ).
+      <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">padicplusisbinopapartl</span> : isbinopapartl padicapart padicplus.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> isbinopapartl.
+  <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">x</span> <span class="nv">x'</span> <span class="nv">x''</span> : commringofpadicints,
+             isaprop ( pr1 padicapart
+                         ( padicplus x x' )
+                         ( padicplus x x'' ) -&gt;
+                       ( pr1 padicapart x' x'' ) ) ) <span class="k">as</span> int.
+  { <span class="nb">intros</span>.
+    <span class="nb">apply</span> impred.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> ( pr1 padicapart ).
+  }
+  <span class="nb">apply</span> ( setquotuniv3prop _ ( <span class="k">fun</span> <span class="nv">x</span> <span class="nv">x'</span> <span class="nv">x''</span> =&gt;
+                                 make_hProp _ ( int x x' x'' ) ) ).
+  <span class="nb">intros</span> a b c.
+  <span class="nb">change</span> (pr1 padicapart
+              (padicplus (setquotpr (ringcarryequiv p (isaprimetoneq0 isc)) a)
+                         (setquotpr (ringcarryequiv p (isaprimetoneq0 isc)) b))
+              (padicplus (setquotpr (ringcarryequiv p (isaprimetoneq0 isc)) a)
+                         (setquotpr (ringcarryequiv p (isaprimetoneq0 isc)) c)) -&gt;
+          pr1 padicapart
+              (setquotpr (ringcarryequiv p (isaprimetoneq0 isc)) b)
+              (setquotpr (ringcarryequiv p (isaprimetoneq0 isc)) c)).
+  <span class="nb">unfold</span> padicplus.
+  <span class="nb">rewrite</span> <span class="mi">2</span>! setquotprandpadicplus.
+  <span class="nb">rewrite</span> <span class="mi">2</span>! padicapartcomputation.
+  <span class="nb">apply</span> padicplusisbinopapart0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">padicplusisbinopapartr</span> : isbinopapartr padicapart padicplus.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> isbinopapartr.
+  <span class="nb">intros</span> a b c.
+  <span class="nb">unfold</span> padicplus.
+  <span class="nb">rewrite</span> ( @ringcomm1 commringofpadicints b a ).
+  <span class="nb">rewrite</span> ( @ringcomm1 commringofpadicints c a ).
+  <span class="nb">apply</span> padicplusisbinopapartl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">padicapartandtimesprecarryl</span> ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : fpscommring hz ) ( <span class="nv">n</span> : nat )
+  ( <span class="nv">x</span> : neq _ ( precarry p ( isaprimetoneq0 isc )
+                         ( carry p ( isaprimetoneq0 isc ) a *
+                           carry p ( isaprimetoneq0 isc ) b ) n )
+            ( ( precarry p ( isaprimetoneq0 isc )
+                         ( carry p ( isaprimetoneq0 isc ) a *
+                           carry p ( isaprimetoneq0 isc ) c ) ) n ) ) :
+  padicapart0 b c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> ( P := <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+               neq hz (precarry p (isaprimetoneq0 isc)
+                                (carry p (isaprimetoneq0 isc) a *
+                                 carry p (isaprimetoneq0 isc) b) x)
+                   (precarry p (isaprimetoneq0 isc)
+                             (carry p (isaprimetoneq0 isc) a *
+                              carry p (isaprimetoneq0 isc) c) x) ).
+  <span class="nb">assert</span> ( isdecnatprop P ) <span class="k">as</span> isdec.
+  { <span class="nb">intros</span> m.
+    <span class="nb">destruct</span> ( isdeceqhz (precarry p (isaprimetoneq0 isc)
+                                   (carry p (isaprimetoneq0 isc) a *
+                                    carry p (isaprimetoneq0 isc) b) m)
+                         (precarry p (isaprimetoneq0 isc)
+                                   (carry p (isaprimetoneq0 isc) a *
+                                    carry p (isaprimetoneq0 isc) c) m) )
+      <span class="k">as</span> [ l | r ].
+    - <span class="nb">apply</span> ii2.
+      <span class="nb">intros</span> j.
+      <span class="nb">unfold</span> P <span class="k">in</span> j. <span class="nb">unfold</span> neq <span class="k">in</span> j.
+      <span class="nb">apply</span> j.
+      <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> ii1.
+      <span class="bp">assumption</span>.
+  }
+  <span class="nb">set</span> ( leexists := leastelementprinciple n P isdec x ).
+  use (hinhuniv _ leexists).
+  <span class="nb">intro</span> k.
+  <span class="nb">destruct</span> k <span class="k">as</span> [ k k' ].
+  <span class="nb">destruct</span> k' <span class="k">as</span> [ k' k'' ].
+  <span class="nb">induction</span> k.
+  - <span class="nb">apply</span> total2tohexists.
+    <span class="nb">split with</span> <span class="mi">0</span>%nat.
+    <span class="nb">intros</span> i.
+    <span class="nb">unfold</span> P <span class="k">in</span> k'. <span class="nb">unfold</span> neq <span class="k">in</span> k'.
+    <span class="nb">apply</span> k'.
+    <span class="nb">change</span> (carry p (isaprimetoneq0 isc) a <span class="mi">0</span>%nat *
+            carry p(isaprimetoneq0 isc) b <span class="mi">0</span>%nat =
+            carry p (isaprimetoneq0 isc) a <span class="mi">0</span>%nat *
+            carry p (isaprimetoneq0 isc) c <span class="mi">0</span>%nat ).
+    <span class="nb">rewrite</span> i.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">set</span> ( Q := ( <span class="k">fun</span> <span class="nv">o</span> : nat =&gt;
+                   make_hProp ( carry p ( isaprimetoneq0 isc ) b o =
+                               carry p ( isaprimetoneq0 isc ) c o )
+                             ( isasethz _ _ ) ) ).
+    <span class="nb">assert</span> ( isdecnatprop Q ) <span class="k">as</span> isdec'.
+    { <span class="nb">intro</span> o.
+      <span class="nb">destruct</span> ( isdeceqhz ( carry p ( isaprimetoneq0 isc ) b o )
+                           ( carry p ( isaprimetoneq0 isc ) c o ) )
+        <span class="k">as</span> [ l | r ].
+      + <span class="nb">apply</span> ii1.
+        <span class="bp">assumption</span>.
+      + <span class="nb">apply</span> ii2.
+        <span class="bp">assumption</span>.
+    }
+    <span class="nb">destruct</span> ( isdecisbndqdec Q isdec' ( S k ) ) <span class="k">as</span> [ l | r ].
+    + <span class="nb">apply</span> fromempty.
+      <span class="nb">apply</span> ( k'' k ).
+      { <span class="nb">apply</span> natlthnsn. }
+      <span class="nb">intro</span> j.
+      <span class="nb">unfold</span> P <span class="k">in</span> k'. <span class="nb">unfold</span> neq <span class="k">in</span> k'.
+      <span class="nb">apply</span> k'.
+      <span class="nb">change</span> ( ( natsummation0 ( S k ) ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                     carry p ( isaprimetoneq0 isc ) a x *
+                     carry p ( isaprimetoneq0 isc ) b ( sub ( S k ) x ) ) ) +
+                 hzquotientmod p ( isaprimetoneq0 isc )
+                               ( precarry p ( isaprimetoneq0 isc )
+                                          ( carry p ( isaprimetoneq0 isc ) a *
+                                            carry p ( isaprimetoneq0 isc ) b ) k ) =
+                (( natsummation0 ( S k ) ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                     carry p ( isaprimetoneq0 isc ) a x *
+                     carry p ( isaprimetoneq0 isc ) c ( sub ( S k ) x ) ) ) +
+                 hzquotientmod p ( isaprimetoneq0 isc )
+                               ( precarry p ( isaprimetoneq0 isc )
+                                          ( carry p ( isaprimetoneq0 isc ) a *
+                                            carry p ( isaprimetoneq0 isc ) c ) k ) ) ).
+      <span class="nb">assert</span> ( natsummation0 ( S k ) (<span class="k">fun</span> <span class="nv">x0</span> : nat =&gt;
+                   carry p (isaprimetoneq0 isc) a x0 *
+                   carry p (isaprimetoneq0 isc) b ( sub ( S k ) x0)) =
+                 natsummation0 ( S k ) (<span class="k">fun</span> <span class="nv">x0</span> : nat =&gt;
+                   carry p (isaprimetoneq0 isc) a x0 *
+                   carry p (isaprimetoneq0 isc) c ( sub ( S k ) x0)) ) <span class="k">as</span> f.
+      { <span class="nb">apply</span> natsummationpathsupperfixed.
+        <span class="nb">intros</span> m y.
+        <span class="nb">rewrite</span> ( l ( sub ( S k ) m ) ).
+        * <span class="nb">apply</span> idpath.
+        * <span class="nb">apply</span> minusleh.
+      }
+      <span class="nb">rewrite</span> f.
+      <span class="nb">rewrite</span> j.
+      <span class="nb">apply</span> idpath.
+    + use (hinhuniv _ r).
+      <span class="nb">intros</span> o.
+      <span class="nb">destruct</span> o <span class="k">as</span> [ o o' ].
+      <span class="nb">apply</span> total2tohexists.
+      <span class="nb">split with</span> o.
+      <span class="nb">apply</span> o'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">padictimesisbinopapart0</span> ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : fpscommring hz )
+  ( <span class="nv">u</span> : padicapart0 ( a * b ) ( a * c ) ) :
+  padicapart0 b c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  use (hinhuniv _ u).
+  <span class="nb">intros</span> n.
+  <span class="nb">destruct</span> n <span class="k">as</span> [ n n' ].
+  <span class="nb">destruct</span> n.
+  - <span class="nb">apply</span> total2tohexists.
+    <span class="nb">split with</span> <span class="mi">0</span>%nat.
+    <span class="nb">intros</span> j.
+    <span class="nb">unfold</span> neq <span class="k">in</span> n'.
+    <span class="nb">apply</span> n'.
+    <span class="nb">rewrite</span> carryandtimes.
+    <span class="nb">rewrite</span> ( carryandtimes p ( isaprimetoneq0 isc ) a c ).
+    <span class="nb">change</span> ( hzremaindermod p ( isaprimetoneq0 isc )
+                            ( carry p ( isaprimetoneq0 isc ) a <span class="mi">0</span>%nat *
+                              carry p ( isaprimetoneq0 isc ) b <span class="mi">0</span>%nat ) =
+                            hzremaindermod p ( isaprimetoneq0 isc )
+                            ( carry p ( isaprimetoneq0 isc ) a <span class="mi">0</span>%nat *
+                              carry p ( isaprimetoneq0 isc ) c <span class="mi">0</span>%nat ) ).
+    <span class="nb">rewrite</span> j.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">set</span> ( Q := ( <span class="k">fun</span> <span class="nv">o</span> : nat =&gt;
+                   make_hProp ( carry p ( isaprimetoneq0 isc ) b o =
+                               carry p ( isaprimetoneq0 isc ) c o )
+                             ( isasethz _ _ ) ) ).
+    <span class="nb">assert</span> ( isdecnatprop Q ) <span class="k">as</span> isdec'.
+    { <span class="nb">intro</span> o.
+      <span class="nb">destruct</span> ( isdeceqhz ( carry p ( isaprimetoneq0 isc ) b o )
+                           ( carry p ( isaprimetoneq0 isc ) c o ) )
+        <span class="k">as</span> [ l | r ].
+      + <span class="nb">apply</span> ii1.
+        <span class="bp">assumption</span>.
+      + <span class="nb">apply</span> ii2.
+        <span class="bp">assumption</span>.
+    }
+    <span class="nb">destruct</span> ( isdecisbndqdec Q isdec'( S n ) ) <span class="k">as</span> [ l | r ].
+    + <span class="nb">apply</span> ( padicapartandtimesprecarryl a b c n ).
+      <span class="nb">intros</span> j.
+      <span class="nb">apply</span> fromempty.
+      <span class="nb">unfold</span> neq <span class="k">in</span> n'.
+      <span class="nb">apply</span> n'.
+      <span class="nb">rewrite</span> carryandtimes.
+      <span class="nb">rewrite</span> ( carryandtimes p ( isaprimetoneq0 isc ) a c ).
+      <span class="nb">change</span> ( hzremaindermod p ( isaprimetoneq0 isc )
+                   ( natsummation0 ( S n ) ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                       carry p ( isaprimetoneq0 isc ) a x *
+                       carry p ( isaprimetoneq0 isc ) b ( sub ( S n ) x ) ) +
+                     hzquotientmod p ( isaprimetoneq0 isc )
+                       ( precarry p ( isaprimetoneq0 isc )
+                                  ( carry p ( isaprimetoneq0 isc ) a *
+                                    carry p ( isaprimetoneq0 isc ) b ) n ) ) =
+               ( hzremaindermod p ( isaprimetoneq0 isc )
+                   ( natsummation0 ( S n ) ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                       carry p ( isaprimetoneq0 isc ) a x *
+                       carry p ( isaprimetoneq0 isc ) c ( sub ( S n ) x ) ) +
+                     hzquotientmod p ( isaprimetoneq0 isc )
+                       ( precarry p ( isaprimetoneq0 isc )
+                                  ( carry p ( isaprimetoneq0 isc ) a *
+                                    carry p ( isaprimetoneq0 isc ) c ) n ) ) ) ).
+      <span class="nb">rewrite</span> j.
+      <span class="nb">assert</span> ( natsummation0 ( S n ) (<span class="k">fun</span> <span class="nv">x0</span> : nat =&gt;
+                   carry p (isaprimetoneq0 isc) a x0 *
+                   carry p (isaprimetoneq0 isc) b ( sub ( S n ) x0)) =
+                 natsummation0 ( S n ) (<span class="k">fun</span> <span class="nv">x0</span> : nat =&gt;
+                   carry p (isaprimetoneq0 isc) a x0 *
+                   carry p (isaprimetoneq0 isc) c ( sub ( S n ) x0)) ) <span class="k">as</span> f.
+      { <span class="nb">apply</span> natsummationpathsupperfixed.
+        <span class="nb">intros</span> m y.
+        <span class="nb">rewrite</span> ( l ( sub ( S n ) m ) ).
+        * <span class="nb">apply</span> idpath.
+        * <span class="nb">apply</span> minusleh.
+      }
+      <span class="nb">rewrite</span> f.
+      <span class="nb">apply</span> idpath.
+    + use (hinhuniv _ r).
+      <span class="nb">intros</span> k.
+      <span class="nb">destruct</span> k <span class="k">as</span> [ k k' ].
+      <span class="nb">apply</span> total2tohexists.
+      <span class="nb">split with</span> k.
+      <span class="nb">apply</span> k'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">padictimesisbinopapartl</span> : isbinopapartl padicapart padictimes.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> isbinopapartl.
+  <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">x</span> <span class="nv">x'</span> <span class="nv">x''</span> : commringofpadicints,
+             isaprop ( pr1 padicapart
+                         ( padictimes x x' )
+                         ( padictimes x x'' ) -&gt;
+          ( pr1 padicapart x' x'' ) ) ) <span class="k">as</span> int.
+  {  <span class="nb">intros</span>.
+     <span class="nb">apply</span> impred.
+     <span class="nb">intros</span>.
+     <span class="nb">apply</span> ( pr1 padicapart ).
+  }
+  <span class="nb">apply</span> ( setquotuniv3prop _ ( <span class="k">fun</span> <span class="nv">x</span> <span class="nv">x'</span> <span class="nv">x''</span> =&gt;
+                                 make_hProp _ ( int x x' x'' ) ) ).
+  <span class="nb">intros</span> a b c.
+  <span class="nb">change</span> (pr1 padicapart
+              (padictimes (setquotpr (carryequiv p (isaprimetoneq0 isc)) a)
+                          (setquotpr (carryequiv p (isaprimetoneq0 isc)) b))
+              (padictimes (setquotpr (carryequiv p (isaprimetoneq0 isc)) a)
+                          (setquotpr (carryequiv p (isaprimetoneq0 isc)) c)) -&gt;
+           pr1 padicapart (setquotpr (carryequiv p (isaprimetoneq0 isc)) b)
+                          (setquotpr (carryequiv p (isaprimetoneq0 isc)) c)).
+  <span class="nb">unfold</span> padictimes.
+  <span class="nb">rewrite</span> <span class="mi">2</span>! setquotprandpadictimes.
+  <span class="nb">rewrite</span> <span class="mi">2</span>! padicapartcomputation.
+  <span class="nb">intros</span> j.
+  <span class="nb">apply</span> ( padictimesisbinopapart0 a b c j ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">padictimesisbinopapartr</span> : isbinopapartr padicapart padictimes.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> isbinopapartr.
+  <span class="nb">intros</span> a b c.
+  <span class="nb">unfold</span> padictimes.
+  <span class="nb">rewrite</span> ( @ringcomm2 commringofpadicints b a ).
+  <span class="nb">rewrite</span> ( @ringcomm2 commringofpadicints c a ).
+  <span class="nb">apply</span> padictimesisbinopapartl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">acommringofpadicints</span> : acommring.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">split with</span> commringofpadicints.
+  <span class="nb">split with</span> padicapart.
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> padicplusisbinopapartl.
+    + <span class="nb">apply</span> padicplusisbinopapartr.
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> padictimesisbinopapartl.
+    + <span class="nb">apply</span> padictimesisbinopapartr.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * IV. The apartness domain of p-adic integers and the Heyting field of p-adic numbers *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">precarryandzeromultl</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) ( <span class="nv">n</span> : nat )
+  ( <span class="nv">x</span> : <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m n -&gt;
+                 carry p ( isaprimetoneq0 isc ) a m = <span class="mi">0</span>%hz ) :
+  <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m n -&gt;
+       precarry p ( isaprimetoneq0 isc )
+                ( fpstimes hz ( carry p ( isaprimetoneq0 isc ) a )
+                              ( carry p ( isaprimetoneq0 isc ) b ) ) m =
+       <span class="mi">0</span>%hz.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> m y.
+  <span class="nb">induction</span> m.
+  - <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> fpstimes.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> ( x <span class="mi">0</span>%nat y ).
+    <span class="nb">rewrite</span> hzmult0x.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">change</span> ( natsummation0 ( S m ) ( <span class="k">fun</span> <span class="nv">z</span> : nat =&gt;
+               ( carry p ( isaprimetoneq0 isc ) a z ) *
+               ( carry p ( isaprimetoneq0 isc ) b ( sub ( S m ) z ) ) ) +
+          hzquotientmod p ( isaprimetoneq0 isc )
+                 ( precarry p ( isaprimetoneq0 isc )
+                    ( fpstimes hz ( carry p ( isaprimetoneq0 isc ) a )
+                                  ( carry p ( isaprimetoneq0 isc ) b ) ) m ) =
+    <span class="mi">0</span>%hz ).
+    <span class="nb">assert</span> ( natlth m n ) <span class="k">as</span> u.
+    + <span class="nb">apply</span> ( istransnatlth _ ( S m ) _ ).
+      { <span class="nb">apply</span> natlthnsn. }
+      <span class="bp">assumption</span>.
+    + <span class="nb">rewrite</span> ( IHm u ).
+      <span class="nb">rewrite</span> hzqrand0q.
+      <span class="nb">rewrite</span> hzplusr0.
+      <span class="nb">assert</span> ( natsummation0 (S m) (<span class="k">fun</span> <span class="nv">z</span> : nat =&gt;
+                 carry p (isaprimetoneq0 isc) a z *
+                 carry p (isaprimetoneq0 isc) b ( sub ( S m ) z)) =
+               natsummation0 ( S m ) ( <span class="k">fun</span> <span class="nv">z</span> : nat =&gt; <span class="mi">0</span>%hz ) ) <span class="k">as</span> f.
+      { <span class="nb">apply</span> natsummationpathsupperfixed.
+        <span class="nb">intros</span> k v.
+        <span class="nb">assert</span> ( natlth k n ) <span class="k">as</span> uu.
+        * <span class="nb">apply</span> ( natlehlthtrans _ ( S m ) _ ); <span class="bp">assumption</span>.
+        * <span class="nb">rewrite</span> ( x k uu ).
+          <span class="nb">rewrite</span> hzmult0x.
+          <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> f.
+      <span class="nb">rewrite</span> natsummationae0bottom.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">intros</span> k l.
+        <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">precarryandzeromultr</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) ( <span class="nv">n</span> : nat )
+  ( <span class="nv">x</span> : <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m n -&gt;
+                 carry p ( isaprimetoneq0 isc ) b m = <span class="mi">0</span>%hz ) :
+  <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m n -&gt;
+           precarry p ( isaprimetoneq0 isc )
+                    ( fpstimes hz ( carry p ( isaprimetoneq0 isc ) a )
+                               ( carry p ( isaprimetoneq0 isc ) b ) ) m =
+           <span class="mi">0</span>%hz.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> m y.
+  <span class="nb">change</span> (fpstimes hz (carry p (isaprimetoneq0 isc) a)
+                   (carry p (isaprimetoneq0 isc) b)) <span class="k">with</span>
+  ( (carry p (isaprimetoneq0 isc) a) *
+    (carry p (isaprimetoneq0 isc) b)).
+  <span class="nb">rewrite</span> ( @ringcomm2 ( fpscommring hz )
+              ( carry p ( isaprimetoneq0 isc ) a )
+              ( carry p ( isaprimetoneq0 isc ) b ) ).
+  <span class="nb">apply</span> ( precarryandzeromultl b a n x m y ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** here used to be shown the lemmas [hzfpstimesnonzero] and</span>
+<span class="sd">    [hzfpstimeswhenzero], now before part III *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">precarryandzeromult</span> ( <span class="nv">a</span> <span class="nv">b</span> : fpscommring hz ) ( <span class="nv">k</span> <span class="nv">k'</span> : nat )
+  ( <span class="nv">x</span> : <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m k -&gt;
+                 carry p ( isaprimetoneq0 isc ) a m = <span class="mi">0</span>%hz )
+  ( <span class="nv">x'</span> : <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m k' -&gt;
+                  carry p ( isaprimetoneq0 isc ) b m = <span class="mi">0</span>%hz ) :
+  <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m ( k + k' )%nat -&gt;
+           precarry p ( isaprimetoneq0 isc )
+                    ( fpstimes hz ( carry p ( isaprimetoneq0 isc ) a )
+                                  ( carry p ( isaprimetoneq0 isc ) b ) ) m =
+  <span class="mi">0</span>%hz.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> m i.
+  <span class="nb">induction</span> m.
+  - <span class="nb">apply</span> ( hzfpstimeswhenzero ( carry p ( isaprimetoneq0 isc ) a ) <span class="mi">0</span>%nat k x
+                               ( carry p ( isaprimetoneq0 isc ) b ) k' x' i ).
+  - <span class="nb">change</span> ( ( ( carry p ( isaprimetoneq0 isc ) a ) *
+               ( carry p ( isaprimetoneq0 isc ) b ) ) ( S m ) +
+      hzquotientmod p ( isaprimetoneq0 isc )
+                ( precarry p ( isaprimetoneq0 isc )
+                     ( fpstimes hz ( carry p ( isaprimetoneq0 isc ) a )
+                                   ( carry p ( isaprimetoneq0 isc ) b ) ) m ) =
+    <span class="mi">0</span>%hz ).
+    <span class="nb">rewrite</span> ( hzfpstimeswhenzero ( carry p ( isaprimetoneq0 isc ) a ) ( S m ) k x
+                                 ( carry p ( isaprimetoneq0 isc ) b ) k' x' i ).
+    <span class="nb">rewrite</span> hzplusl0.
+    <span class="nb">assert</span> ( natlth m ( k + k' )%nat ) <span class="k">as</span> one.
+    { <span class="nb">apply</span> ( istransnatlth _ ( S m ) _ ).
+      + <span class="nb">apply</span> natlthnsn.
+      + <span class="bp">assumption</span>.
+    }
+    <span class="nb">rewrite</span> ( IHm one ).
+    <span class="nb">rewrite</span> hzqrand0q.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">primedivorcoprime</span> ( <span class="nv">a</span> : hz ) :
+  hzdiv p a ∨ gcd p a ( isaprimetoneq0 isc ) = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P i.
+  use (hinhuniv _ ( pr2 isc
+                        ( gcd p a ( isaprimetoneq0 isc ) )
+                        ( pr1 ( gcdiscommondiv p a ( isaprimetoneq0 isc ) ) ) )).
+  <span class="nb">intro</span> t.
+  <span class="nb">apply</span> i.
+  <span class="nb">destruct</span> t <span class="k">as</span> [ t0 | t1 ].
+  - <span class="nb">apply</span> ii2.
+    <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ii1.
+    <span class="nb">rewrite</span> &lt;- t1.
+    <span class="bp">exact</span> ( pr2 ( gcdiscommondiv p a ( isaprimetoneq0 isc ) ) ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">primeandtimes</span> ( <span class="nv">a</span> <span class="nv">b</span> : hz ) ( <span class="nv">x</span> : hzdiv p ( a * b ) ) :
+  hzdiv p a ∨ hzdiv p b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  use (hinhuniv _ ( primedivorcoprime a )).
+  <span class="nb">intros</span> j. <span class="nb">intros</span> P i.
+  <span class="nb">apply</span> i.
+  <span class="nb">destruct</span> j <span class="k">as</span> [ j0 | j1 ].
+  - <span class="nb">apply</span> ii1.
+    <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ii2.
+    use (hinhuniv _ x).
+    <span class="nb">intro</span> u.
+    <span class="nb">destruct</span> u <span class="k">as</span> [ k u ].
+    <span class="nb">unfold</span> hzdiv0 <span class="k">in</span> u.
+    <span class="nb">set</span> ( cd := bezoutstrong a p ( isaprimetoneq0 isc ) ).
+    <span class="nb">destruct</span> cd <span class="k">as</span> [ cd f ].
+    <span class="nb">destruct</span> cd <span class="k">as</span> [ c d ].
+    <span class="nb">rewrite</span> j1 <span class="k">in</span> f.
+    <span class="nb">simpl</span> <span class="k">in</span> f.
+    <span class="nb">assert</span> ( b = ( b * c + d * k ) * p ) <span class="k">as</span> g.
+    { <span class="nb">assert</span> ( b = b * <span class="mi">1</span> ) <span class="k">as</span> g0.
+      { <span class="nb">rewrite</span> hzmultr1.
+        <span class="nb">apply</span> idpath. }
+      <span class="nb">rewrite</span> g0.
+      <span class="nb">rewrite</span> ( ringrdistr hz ( b * <span class="mi">1</span> * c ) ( d * k ) p ).
+      <span class="nb">assert</span> ( b * ( c * p + d * a ) =
+               b * <span class="mi">1</span> * c * p + d * k * p ) <span class="k">as</span> h.
+      { <span class="nb">rewrite</span> ( ringldistr hz ( c * p ) ( d * a ) b ).
+        <span class="nb">rewrite</span> hzmultr1.
+        <span class="nb">rewrite</span> <span class="mi">2</span>! ( @ringassoc2 hz ).
+        <span class="nb">rewrite</span> ( @ringcomm2 hz k p ).
+        <span class="nb">change</span> ( p * k )%hz <span class="k">with</span> ( p * k )%<span class="bp">ring</span> <span class="k">in</span> u.
+        <span class="nb">rewrite</span> u.
+        <span class="nb">rewrite</span> ( @ringcomm2 hz b ( d * a ) ).
+        <span class="nb">rewrite</span> ( @ringassoc2 hz ).
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> &lt;- h.
+      <span class="nb">rewrite</span> f.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">intros</span> Q uu.
+    <span class="nb">apply</span> uu.
+    <span class="nb">split with</span> ( b * c + d * k ).
+    <span class="nb">rewrite</span> ( @ringcomm2 hz _ p ) <span class="k">in</span> g.
+    <span class="nb">unfold</span> hzdiv0.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzremaindermodprimeandtimes</span> ( <span class="nv">a</span> <span class="nv">b</span> : hz )
+  ( <span class="nv">x</span> : hzremaindermod p ( isaprimetoneq0 isc ) ( a * b ) = <span class="mi">0</span> ) :
+  hzremaindermod p ( isaprimetoneq0 isc ) a = <span class="mi">0</span> ∨
+  hzremaindermod p ( isaprimetoneq0 isc ) b = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> ( hzdiv p ( a * b ) ) <span class="k">as</span> i.
+  { <span class="nb">intros</span> P i'.
+    <span class="nb">apply</span> i'.
+    <span class="nb">split with</span> ( hzquotientmod p ( isaprimetoneq0 isc ) ( a * b ) ).
+    <span class="nb">unfold</span> hzdiv0.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">rewrite</span> &lt;- ( hzplusr0 (p *
+      hzquotientmod p (isaprimetoneq0 isc) (a * b)%<span class="bp">ring</span>) )%hz.
+    <span class="nb">change</span> (a * b =
+           (p * hzquotientmod p (isaprimetoneq0 isc) (a * b)%<span class="bp">ring</span> + <span class="mi">0</span>)%<span class="bp">ring</span>).
+    <span class="nb">rewrite</span> &lt;- x.
+    <span class="nb">change</span> (p * hzquotientmod p (isaprimetoneq0 isc) (a * b) +
+                hzremaindermod p (isaprimetoneq0 isc) a * b) <span class="k">with</span>
+    (p * hzquotientmod p (isaprimetoneq0 isc) (a * b)%<span class="bp">ring</span> +
+       ( hzremaindermod p (isaprimetoneq0 isc) a * b )%<span class="bp">ring</span> )%hz.
+    <span class="nb">apply</span> ( hzdivequationmod p ( isaprimetoneq0 isc ) ( a * b ) ).
+  }
+  use (hinhuniv _ ( primeandtimes a b i )).
+  <span class="nb">intro</span> t.
+  <span class="nb">destruct</span> t <span class="k">as</span> [ t0 | t1 ].
+  - use (hinhuniv _ t0).
+    <span class="nb">intros</span> k.
+    <span class="nb">destruct</span> k <span class="k">as</span> [ k k' ].
+    <span class="nb">intros</span> Q j.
+    <span class="nb">apply</span> j.
+    <span class="nb">apply</span> ii1.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> ( hzqrtestr p ( isaprimetoneq0 isc ) a k ).
+    <span class="nb">split</span>.
+    + <span class="nb">rewrite</span> hzplusr0.
+      <span class="nb">unfold</span> hzdiv0 <span class="k">in</span> k'.
+      <span class="nb">rewrite</span> k'.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">split</span>.
+      * <span class="nb">apply</span> isreflhzleh.
+      * <span class="nb">rewrite</span> hzabsvalgth0.
+        -- <span class="nb">apply</span> ( istranshzlth _ <span class="mi">1</span> _ ).
+           ++ <span class="nb">apply</span> hzlthnsn.
+           ++ <span class="nb">apply</span> isc.
+        -- <span class="nb">apply</span> ( istranshzlth _ <span class="mi">1</span> _ ).
+           ++ <span class="nb">apply</span> hzlthnsn.
+           ++ <span class="nb">apply</span> isc.
+  - use (hinhuniv _ t1).
+    <span class="nb">intros</span> k.
+    <span class="nb">destruct</span> k <span class="k">as</span> [ k k' ].
+    <span class="nb">intros</span> Q j.
+    <span class="nb">apply</span> j.
+    <span class="nb">apply</span> ii2.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> ( hzqrtestr p ( isaprimetoneq0 isc ) b k ).
+    <span class="nb">split</span>.
+    + <span class="nb">rewrite</span> hzplusr0.
+      <span class="nb">unfold</span> hzdiv0 <span class="k">in</span> k'.
+      <span class="nb">rewrite</span> k'.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">split</span>.
+      * <span class="nb">apply</span> isreflhzleh.
+      * <span class="nb">rewrite</span> hzabsvalgth0.
+        -- <span class="nb">apply</span> ( istranshzlth _ <span class="mi">1</span> _ ).
+           ++ <span class="nb">apply</span> hzlthnsn.
+           ++ <span class="nb">apply</span> isc.
+        -- <span class="nb">apply</span> ( istranshzlth _ <span class="mi">1</span> _ ).
+           ++ <span class="nb">apply</span> hzlthnsn.
+           ++ <span class="nb">apply</span> isc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">padiczero</span> := @ringunel1 commringofpadicints.
+
+<span class="kn">Definition</span> <span class="nf">padicone</span> := @ringunel2 commringofpadicints.
+
+<span class="kn">Lemma</span> <span class="nf">padiczerocomputation</span> :
+  padiczero =
+  setquotpr ( carryequiv p ( isaprimetoneq0 isc ) )
+            ( @ringunel1 ( fpscommring hz ) ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">padiconecomputation</span> :
+  padicone =
+  setquotpr ( carryequiv p ( isaprimetoneq0 isc ) )
+            ( @ringunel2 ( fpscommring hz ) ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">padicintsareintdom</span> ( <span class="nv">a</span> <span class="nv">b</span> : acommringofpadicints ) :
+  a # <span class="mi">0</span> -&gt; b # <span class="mi">0</span> -&gt; a * b # <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">a</span> <span class="nv">b</span> : commringofpadicints,
+     isaprop ( pr1 padicapart a padiczero -&gt;
+               pr1 padicapart b padiczero -&gt;
+               pr1 padicapart ( padictimes a b )
+                                           padiczero ) ) <span class="k">as</span> int.
+  { <span class="nb">intros</span>.
+    <span class="nb">apply</span> impred.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> impred.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> ( pr1 padicapart ).
+  }
+  <span class="nb">revert</span> a b.
+  <span class="nb">apply</span> ( setquotuniv2prop _ ( <span class="k">fun</span> <span class="nv">x</span> <span class="nv">y</span> =&gt;
+                                 make_hProp _ ( int x y ) ) ).
+  <span class="nb">intros</span> a b.
+  <span class="nb">change</span> (pr1 padicapart
+              (setquotpr (carryequiv p (isaprimetoneq0 isc)) a)
+              padiczero -&gt;
+          pr1 padicapart
+              (setquotpr (carryequiv p (isaprimetoneq0 isc)) b)
+              padiczero -&gt;
+          pr1 padicapart
+              (padictimes
+                  (setquotpr (carryequiv p (isaprimetoneq0 isc)) a)
+                  (setquotpr (carryequiv p (isaprimetoneq0 isc)) b))
+              padiczero).
+  <span class="nb">unfold</span> padictimes.
+  <span class="nb">rewrite</span> padiczerocomputation.
+  <span class="nb">rewrite</span> setquotprandpadictimes.
+  <span class="nb">rewrite</span> <span class="mi">3</span>! padicapartcomputation.
+  <span class="nb">intros</span> i j.
+  use (hinhuniv _ i).
+  <span class="nb">intros</span> i0.
+  <span class="nb">destruct</span> i0 <span class="k">as</span> [ i0 i1 ].
+  use (hinhuniv _ j).
+  <span class="nb">intros</span> j0.
+  <span class="nb">destruct</span> j0 <span class="k">as</span> [ j0 j1 ].
+  <span class="nb">rewrite</span> carryandzero <span class="k">in</span> i1, j1.
+  <span class="nb">change</span> ( ( @ringunel1 ( fpscommring hz ) ) i0 ) <span class="k">with</span> <span class="mi">0</span>%hz <span class="k">in</span> i1.
+  <span class="nb">change</span> ( ( @ringunel1 ( fpscommring hz ) ) j0 ) <span class="k">with</span> <span class="mi">0</span>%hz <span class="k">in</span> j1.
+  <span class="nb">set</span> ( P := <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+               neq hz ( carry p ( isaprimetoneq0 isc ) a x ) <span class="mi">0</span> ).
+  <span class="nb">set</span> ( P' := <span class="k">fun</span> <span class="nv">x</span> : nat =&gt;
+                neq hz ( carry p ( isaprimetoneq0 isc ) b x ) <span class="mi">0</span> ).
+  <span class="nb">assert</span> ( isdecnatprop P ) <span class="k">as</span> isdec1.
+  { <span class="nb">intros</span> m.
+    <span class="nb">destruct</span> ( isdeceqhz ( carry p ( isaprimetoneq0 isc ) a m ) <span class="mi">0</span>%hz )
+      <span class="k">as</span> [ l | r ].
+    - <span class="nb">apply</span> ii2.
+      <span class="nb">intro</span> v.
+      <span class="nb">unfold</span> P <span class="k">in</span> v. <span class="nb">unfold</span> neq <span class="k">in</span> v.
+      <span class="nb">apply</span> v.
+      <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> ii1.
+      <span class="bp">assumption</span>.
+  }
+  <span class="nb">assert</span> ( isdecnatprop P' ) <span class="k">as</span> isdec2.
+  { <span class="nb">intros</span> m.
+    <span class="nb">destruct</span> ( isdeceqhz ( carry p ( isaprimetoneq0 isc ) b m ) <span class="mi">0</span>%hz )
+      <span class="k">as</span> [ l | r ].
+    - <span class="nb">apply</span> ii2.
+      <span class="nb">intro</span> v.
+      <span class="nb">unfold</span> P' <span class="k">in</span> v. <span class="nb">unfold</span> neq <span class="k">in</span> v.
+      <span class="nb">apply</span> v.
+      <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> ii1.
+      <span class="bp">assumption</span>.
+  }
+  <span class="nb">set</span> ( le1 := leastelementprinciple i0 P isdec1 i1 ).
+  <span class="nb">set</span> ( le2 := leastelementprinciple j0 P' isdec2 j1 ).
+  use (hinhuniv _ le1).
+  <span class="nb">intro</span> k.
+  <span class="nb">destruct</span> k <span class="k">as</span> [ k k' ].
+  use (hinhuniv _ le2).
+  <span class="nb">intro</span> o.
+  <span class="nb">destruct</span> o <span class="k">as</span> [ o o' ].
+  <span class="nb">apply</span> total2tohexists.
+  <span class="nb">split with</span> ( k + o )%nat.
+  <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m k -&gt;
+    carry p ( isaprimetoneq0 isc ) a m = <span class="mi">0</span>%hz ) <span class="k">as</span> one.
+  { <span class="nb">intros</span> m m0.
+    <span class="nb">destruct</span> ( isdeceqhz ( carry p ( isaprimetoneq0 isc ) a m ) <span class="mi">0</span>%hz )
+      <span class="k">as</span> [ left0 | right0 ].
+    - <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> fromempty.
+      <span class="nb">apply</span> ( ( pr2 k' ) m m0 ).
+      <span class="bp">assumption</span>.
+  }
+  <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m o -&gt;
+    carry p ( isaprimetoneq0 isc ) b m = <span class="mi">0</span>%hz ) <span class="k">as</span> two.
+  { <span class="nb">intros</span> m m0.
+    <span class="nb">destruct</span> ( isdeceqhz ( carry p ( isaprimetoneq0 isc ) b m ) <span class="mi">0</span>%hz )
+      <span class="k">as</span> [ left0 | right0 ].
+    - <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> fromempty.
+      <span class="nb">apply</span> ( ( pr2 o' ) m m0 ).
+      <span class="bp">assumption</span>.
+  }
+  <span class="nb">assert</span> ( neq hz ( carry p ( isaprimetoneq0 isc ) a k ) <span class="mi">0</span>%hz ×
+           <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m k -&gt;
+                 ( carry p ( isaprimetoneq0 isc ) a m ) = <span class="mi">0</span>%hz ) <span class="k">as</span> three.
+  { <span class="nb">split</span>.
+    - <span class="nb">apply</span> k'.
+    - <span class="bp">assumption</span>.
+  }
+  <span class="nb">assert</span> ( neq hz ( carry p ( isaprimetoneq0 isc ) b o ) <span class="mi">0</span>%hz ×
+           <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m o -&gt;
+                 ( carry p ( isaprimetoneq0 isc ) b m ) = <span class="mi">0</span>%hz ) <span class="k">as</span> four.
+  { <span class="nb">split</span>.
+    - <span class="nb">apply</span> o'.
+    - <span class="bp">assumption</span>.
+  }
+  <span class="nb">set</span> ( f := hzfpstimesnonzero
+               ( carry p ( isaprimetoneq0 isc ) a ) k three o
+               ( carry p ( isaprimetoneq0 isc ) b ) four ).
+  <span class="nb">rewrite</span> carryandzero.
+  <span class="nb">change</span> ( ( @ringunel1 ( fpscommring hz ) ) ( k + o )%nat ) <span class="k">with</span> <span class="mi">0</span>%hz.
+  <span class="nb">rewrite</span> carryandtimes.
+  <span class="nb">destruct</span> k.
+  - <span class="nb">destruct</span> o.
+    + <span class="nb">rewrite</span> &lt;- carryandtimes.
+      <span class="nb">intros</span> v.
+      <span class="nb">change</span> ( hzremaindermod p ( isaprimetoneq0 isc )
+                              ( a <span class="mi">0</span>%nat * b <span class="mi">0</span>%nat ) = <span class="mi">0</span>%hz ) <span class="k">in</span> v.
+      <span class="nb">assert</span> hfalse.
+      { use (hinhuniv _ ( hzremaindermodprimeandtimes
+                                       ( a <span class="mi">0</span>%nat ) ( b <span class="mi">0</span>%nat ) v )).
+        <span class="nb">intros</span> t.
+        <span class="nb">destruct</span> t <span class="k">as</span> [ t0 | t1 ].
+        * <span class="nb">unfold</span> P <span class="k">in</span> k'. <span class="nb">unfold</span> neq <span class="k">in</span> k'.
+          <span class="nb">apply</span> ( pr1 k' ).
+          <span class="nb">apply</span> t0.
+        * <span class="nb">unfold</span> P' <span class="k">in</span> o'. <span class="nb">unfold</span> neq <span class="k">in</span> o'.
+          <span class="nb">apply</span> ( pr1 o' ).
+          <span class="nb">apply</span> t1.
+      }
+      <span class="bp">assumption</span>.
+    + <span class="nb">intros</span> v.
+      <span class="nb">unfold</span> carry <span class="nb">at</span> <span class="mi">1</span> <span class="k">in</span> v.
+      <span class="nb">change</span> ( <span class="mi">0</span> + S o )%nat <span class="k">with</span> ( S o ) <span class="k">in</span> v.
+      <span class="nb">change</span> ( hzremaindermod p
+                ( isaprimetoneq0 isc )
+                  ( ( carry p ( isaprimetoneq0 isc ) a *
+                      carry p ( isaprimetoneq0 isc ) b ) ( S o )
+             + hzquotientmod p ( isaprimetoneq0 isc )
+                           ( precarry p ( isaprimetoneq0 isc )
+                                ( carry p ( isaprimetoneq0 isc ) a *
+                                  carry p ( isaprimetoneq0 isc ) b ) o ) ) =
+      <span class="mi">0</span>%hz ) <span class="k">in</span> v.
+      <span class="nb">change</span> ( <span class="mi">0</span> + S o )%nat <span class="k">with</span> ( S o) <span class="k">in</span> f.
+      <span class="nb">rewrite</span> f <span class="k">in</span> v.
+      <span class="nb">change</span> ( carry p ( isaprimetoneq0 isc ) a *
+               carry p ( isaprimetoneq0 isc ) b ) <span class="k">with</span>
+      ( fpstimes hz ( carry p ( isaprimetoneq0 isc ) a )
+                    ( carry p ( isaprimetoneq0 isc ) b ) ) <span class="k">in</span> v.
+      <span class="nb">rewrite</span> ( precarryandzeromult a b <span class="mi">0</span>%nat ( S o ) ) <span class="k">in</span> v.
+      * <span class="nb">rewrite</span> hzqrand0q <span class="k">in</span> v.
+        <span class="nb">rewrite</span> hzplusr0 <span class="k">in</span> v.
+        <span class="nb">assert</span> hfalse.
+        { <span class="nb">set</span> (aux :=  hzremaindermodprimeandtimes
+                         ( carry p ( isaprimetoneq0 isc ) a <span class="mi">0</span>%nat )
+                         ( carry p ( isaprimetoneq0 isc ) b ( S o ) ) v).
+          use (hinhuniv _ aux).
+          <span class="nb">intros</span> s.
+          <span class="nb">destruct</span> s <span class="k">as</span> [ l | r ].
+          -- <span class="nb">unfold</span> P <span class="k">in</span> k'. <span class="nb">unfold</span> neq <span class="k">in</span> k'.
+             <span class="nb">apply</span> k'.
+             <span class="nb">rewrite</span> hzqrandcarryr.
+             <span class="bp">assumption</span>.
+          -- <span class="nb">unfold</span> P' <span class="k">in</span> o'. <span class="nb">unfold</span> neq <span class="k">in</span> o'.
+             <span class="nb">apply</span> o'.
+             <span class="nb">rewrite</span> hzqrandcarryr.
+             <span class="bp">assumption</span>.
+        }
+        <span class="bp">assumption</span>.
+      * <span class="nb">apply</span> one.
+      * <span class="nb">apply</span> two.
+      * <span class="nb">apply</span> natlthnsn.
+  - <span class="nb">intros</span> v.
+    <span class="nb">unfold</span> carry <span class="nb">at</span> <span class="mi">1</span> <span class="k">in</span> v.
+    <span class="nb">change</span> ( hzremaindermod p ( isaprimetoneq0 isc )
+              ( ( carry p ( isaprimetoneq0 isc ) a *
+                  carry p ( isaprimetoneq0 isc ) b ) ( S k + o )%nat +
+         hzquotientmod p ( isaprimetoneq0 isc )
+                       ( precarry p ( isaprimetoneq0 isc )
+                           ( carry p ( isaprimetoneq0 isc ) a *
+                             carry p ( isaprimetoneq0 isc ) b ) ( k + o )%nat ) ) =
+    <span class="mi">0</span>%hz ) <span class="k">in</span> v.
+    <span class="nb">rewrite</span> f <span class="k">in</span> v.
+    <span class="nb">change</span> ( carry p ( isaprimetoneq0 isc ) a *
+             carry p ( isaprimetoneq0 isc ) b ) <span class="k">with</span>
+    ( fpstimes hz ( carry p ( isaprimetoneq0 isc ) a )
+                  ( carry p ( isaprimetoneq0 isc ) b ) ) <span class="k">in</span> v.
+    <span class="nb">rewrite</span> ( precarryandzeromult a b ( S k ) o ) <span class="k">in</span> v.
+    + <span class="nb">rewrite</span> hzqrand0q <span class="k">in</span> v.
+      <span class="nb">rewrite</span> hzplusr0 <span class="k">in</span> v.
+      <span class="nb">assert</span> hfalse.
+      { <span class="nb">set</span> (aux := hzremaindermodprimeandtimes
+                      ( carry p ( isaprimetoneq0 isc ) a ( S k ) )
+                      ( carry p ( isaprimetoneq0 isc ) b (o ) ) v).
+        use (hinhuniv _ aux).
+        <span class="nb">intros</span> s.
+        <span class="nb">destruct</span> s <span class="k">as</span> [ l | r ].
+        * <span class="nb">unfold</span> P <span class="k">in</span> k'. <span class="nb">unfold</span> neq <span class="k">in</span> k'.
+          <span class="nb">apply</span> k'.
+          <span class="nb">rewrite</span> hzqrandcarryr.
+          <span class="bp">assumption</span>.
+        * <span class="nb">unfold</span> P' <span class="k">in</span> o'. <span class="nb">unfold</span> neq <span class="k">in</span> o'.
+          <span class="nb">apply</span> o'.
+          <span class="nb">rewrite</span> hzqrandcarryr.
+          <span class="bp">assumption</span>.
+      }
+      <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> one.
+    + <span class="nb">apply</span> two.
+    + <span class="nb">apply</span> natlthnsn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">padicintegers</span> : aintdom.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">split with</span> acommringofpadicints.
+  <span class="nb">split</span>.
+  - <span class="nb">change</span> ( pr1 padicapart padicone padiczero ).
+    <span class="nb">rewrite</span> padiczerocomputation.
+    <span class="nb">rewrite</span> padiconecomputation.
+    <span class="nb">rewrite</span> padicapartcomputation.
+    <span class="nb">apply</span> total2tohexists.
+    <span class="nb">split with</span> <span class="mi">0</span>%nat.
+    <span class="nb">unfold</span> carry.
+    <span class="nb">unfold</span> precarry.
+    <span class="nb">rewrite</span> hzqrand1r.
+    <span class="nb">rewrite</span> hzqrand0r.
+    <span class="nb">apply</span> isnonzerorighz.
+  - <span class="nb">apply</span> padicintsareintdom.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">padics</span> : afld := afldfrac padicintegers.
+
+<span class="kn">End</span> <span class="nf">A</span>.
+
+<span class="kn">Close Scope</span> ring_scope.
+<span class="sd">(** END OF FILE*)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/PAdics/padics.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/PAdics/lemmas.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** Imports *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.PAdics.lemmas.&lt;&lt;&lt;
+  &gt; Require Import UniMath.PAdics.fps.
+  &gt; Require Import UniMath.PAdics.frac.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,801 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ParameterizedNNO.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************************</span>
+
+<span class="sd"> Parameterized natural number objects</span>
+
+<span class="sd"> In a category with a terminal object, we can define the notion of a natural numbers object.</span>
+<span class="sd"> Such an object satisfies a universal mapping property that represents the recursion principle</span>
+<span class="sd"> of the natural numbers, and thus this object plays the role of the natural umbers in the</span>
+<span class="sd"> internal language of that category.</span>
+
+<span class="sd"> However, if our category is not Cartesian closed, then it is better to use a slightly stronger</span>
+<span class="sd"> notion, namely that of a parameterized natural numbers object. The definition of a parameterized</span>
+<span class="sd"> natural numbers object is quite similar to that of an ordinary natural numbers object: the only</span>
+<span class="sd"> difference is that we require a slightly stronger recursion principle where one can use an arbitrary</span>
+<span class="sd"> object of parameters (see, for instance, Definition 2.1 in "Joyal's arithmetic universe as</span>
+<span class="sd"> list-arithmetic pretopos" by Maietti). There are various kinds of categories that are not Cartesian</span>
+<span class="sd"> closed but which support such a parameterized natural numbers object, namely list-arithmetic</span>
+<span class="sd"> pretoposes and arithmetical universes. Note that to formulate the notion of a parameterized</span>
+<span class="sd"> natural numbers object we use binary products.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Joyal's arithmetic universe as list-arithmetic pretopos" by Maietti</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Parameterized NNOs</span>
+<span class="sd"> 2. Accessors</span>
+<span class="sd"> 3. Every parameterized NNO is an NNO</span>
+<span class="sd"> 4. Parameterized NNOs are unique up to isomorphism</span>
+<span class="sd"> 5. Uniqueness of parameterized NNOs</span>
+<span class="sd"> 6. Preservation of parameterized NNOs</span>
+<span class="sd"> 7. Examples of functors that preserve parameterized NNOs</span>
+<span class="sd"> 8. Independence of the choice of binary products</span>
+<span class="sd"> 9. Independence of the choice of terminal object</span>
+
+<span class="sd"> **********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.NNO.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ParameterizedNNO</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">T</span> : Terminal C}
+          {<span class="nv">BC</span> : BinProducts C}.
+
+  <span class="sd">(** * 1. Parameterized NNOs *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_parameterized_NNO</span>
+             (<span class="nv">N</span> : C)
+             (<span class="nv">z</span> : T --&gt; N)
+             (<span class="nv">s</span> : N --&gt; N)
+    : UU
+    := ∏ (b y : C)
+         (zy : b --&gt; y)
+         (sy : y --&gt; y),
+       <span class="k">∃</span>! (f : BC b N --&gt; y),
+       (BinProductArrow _ _ (identity _) (TerminalArrow _ _ · z) · f = zy)
+       ×
+       (BinProductOfArrows _ _ _ (identity _) s · f = f · sy).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_parameterized_NNO</span>
+              (<span class="nv">N</span> : C)
+              (<span class="nv">z</span> : T --&gt; N)
+              (<span class="nv">s</span> : N --&gt; N)
+    : isaprop (is_parameterized_NNO N z s).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">4</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">parameterized_NNO</span>
+    : UU
+    := ∑ (N : C)
+         (z : T --&gt; N)
+         (s : N --&gt; N),
+       is_parameterized_NNO N z s.
+
+  <span class="sd">(** * 2. Accessors *)</span>
+  <span class="kn">Coercion</span> <span class="nf">parameterized_NNO_carrier</span>
+           (N : parameterized_NNO)
+    : C
+    := pr1 N.
+
+  <span class="kn">Section</span> <span class="nf">Accessors</span>.
+    <span class="kn">Context</span> (<span class="nv">N</span> : parameterized_NNO).
+
+    <span class="kn">Definition</span> <span class="nf">parameterized_NNO_Z</span>
+      : T --&gt; N
+      := pr12 N.
+
+    <span class="kn">Definition</span> <span class="nf">parameterized_NNO_S</span>
+      : N --&gt; N
+      := pr122 N.
+
+    <span class="kn">Let</span> <span class="nf">H</span> : is_parameterized_NNO N parameterized_NNO_Z parameterized_NNO_S
+      := pr222 N.
+
+    <span class="kn">Definition</span> <span class="nf">parameterized_NNO_mor</span>
+               (<span class="nv">b</span> <span class="nv">y</span> : C)
+               (<span class="nv">zy</span> : b --&gt; y)
+               (<span class="nv">sy</span> : y --&gt; y)
+      : BC b N --&gt; y
+      := pr11 (H b y zy sy).
+
+    <span class="kn">Proposition</span> <span class="nf">parameterized_NNO_mor_Z</span>
+                (<span class="nv">b</span> <span class="nv">y</span> : C)
+                (<span class="nv">zy</span> : b --&gt; y)
+                (<span class="nv">sy</span> : y --&gt; y)
+      : BinProductArrow _ _ (identity _) (TerminalArrow _ _ · parameterized_NNO_Z)
+        · parameterized_NNO_mor b y zy sy
+        =
+        zy.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr121 (H b y zy sy)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">parameterized_NNO_mor_S</span>
+                (<span class="nv">b</span> <span class="nv">y</span> : C)
+                (<span class="nv">zy</span> : b --&gt; y)
+                (<span class="nv">sy</span> : y --&gt; y)
+      : BinProductOfArrows _ _ _ (identity _) parameterized_NNO_S
+        · parameterized_NNO_mor b y zy sy
+        =
+        parameterized_NNO_mor b y zy sy · sy.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr221 (H b y zy sy)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">parameterized_NNO_mor_unique</span>
+                {<span class="nv">b</span> <span class="nv">y</span> : C}
+                {<span class="nv">zy</span> : b --&gt; y}
+                {<span class="nv">sy</span> : y --&gt; y}
+                (<span class="nv">g</span> <span class="nv">g'</span> : BC b N --&gt; y)
+                (<span class="nv">gz</span> : BinProductArrow
+                        _ _
+                        (identity _)
+                        (TerminalArrow T b · parameterized_NNO_Z)
+                      · g
+                      =
+                      zy)
+                (<span class="nv">gs</span> : BinProductOfArrows
+                        _ _ _
+                        (identity b)
+                        parameterized_NNO_S
+                      · g
+                      =
+                      g · sy)
+                (<span class="nv">gz'</span> : BinProductArrow
+                         _ _
+                         (identity _)
+                         (TerminalArrow T b · parameterized_NNO_Z)
+                       · g'
+                       =
+                       zy)
+                (<span class="nv">gs'</span> : BinProductOfArrows
+                         _ _ _
+                         (identity b)
+                         parameterized_NNO_S
+                       · g'
+                       =
+                       g' · sy)
+      : g = g'.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (maponpaths
+                (<span class="k">λ</span> <span class="nv">z</span>, pr1 z)
+                (proofirrelevance
+                   _
+                   (isapropifcontr (H b y zy sy))
+                   (g ,, _ ,, _) (g' ,, _ ,, _))).
+      - <span class="bp">exact</span> gz.
+      - <span class="bp">exact</span> gs.
+      - <span class="bp">exact</span> gz'.
+      - <span class="bp">exact</span> gs'.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Accessors</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">     These are specialized accessors to show that every parameterized NNO is an NNO</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">NNOAccessors</span>.
+    <span class="kn">Context</span> (<span class="nv">N</span> : parameterized_NNO)
+            (<span class="nv">y</span> : C)
+            (<span class="nv">zy</span> : T --&gt; y)
+            (<span class="nv">sy</span> : y --&gt; y).
+
+    <span class="kn">Definition</span> <span class="nf">is_NNO_parameterized_NNO_mor</span>
+      : N --&gt; y
+      := BinProductArrow _ _ (TerminalArrow _ _) (identity _)
+         · parameterized_NNO_mor N T y zy sy.
+
+    <span class="kn">Proposition</span> <span class="nf">is_NNO_parameterized_NNO_mor_Z</span>
+      : parameterized_NNO_Z N · is_NNO_parameterized_NNO_mor = zy.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_NNO_parameterized_NNO_mor ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ parameterized_NNO_mor_Z N T y zy sy).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> precompWithBinProductArrow.
+      <span class="nb">rewrite</span> (TerminalEndo_is_identity (TerminalArrow T T)).
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> TerminalArrowEq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_NNO_parameterized_NNO_mor_S</span>
+      : parameterized_NNO_S N · is_NNO_parameterized_NNO_mor
+        =
+        is_NNO_parameterized_NNO_mor · sy.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_NNO_parameterized_NNO_mor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- parameterized_NNO_mor_S.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> precompWithBinProductArrow.
+      <span class="nb">rewrite</span> postcompWithBinProductArrow.
+      <span class="nb">rewrite</span> id_left, !id_right.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> TerminalArrowEq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_NNO_parameterized_NNO_unique</span>
+                {<span class="nv">g₁</span> <span class="nv">g₂</span> : N --&gt; y}
+                (<span class="nv">zg₁</span> : parameterized_NNO_Z N · g₁ = zy)
+                (<span class="nv">sg₁</span> : parameterized_NNO_S N · g₁ = g₁ · sy)
+                (<span class="nv">zg₂</span> : parameterized_NNO_Z N · g₂ = zy)
+                (<span class="nv">sg₂</span> : parameterized_NNO_S N · g₂ = g₂ · sy)
+      : g₁ = g₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">assert</span> (BinProductPr2 _ (BC T N) · g₁
+              =
+              BinProductPr2 _ (BC T N) · g₂)
+        <span class="k">as</span> p.
+      {
+        use parameterized_NNO_mor_unique.
+        - <span class="bp">exact</span> zy.
+        - <span class="bp">exact</span> sy.
+        - <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">refine</span> (_ @ zg₁).
+          <span class="nb">rewrite</span> (TerminalEndo_is_identity (TerminalArrow T T)).
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        - <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> sg₁.
+        - <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">refine</span> (_ @ zg₂).
+          <span class="nb">rewrite</span> (TerminalEndo_is_identity (TerminalArrow T T)).
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        - <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> sg₂.
+      }
+      <span class="nb">pose proof</span> (maponpaths
+                    (<span class="k">λ</span> <span class="nv">z</span>, BinProductArrow _ _ (TerminalArrow _ _) (identity _) · z)
+                    p)
+        <span class="k">as</span> q.
+      <span class="nb">cbn</span> <span class="k">in</span> q.
+      <span class="nb">refine</span> (_ @ q @ _).
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductPr2Commutes.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductPr2Commutes.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">NNOAccessors</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_parameterized_NNO</span>
+             (<span class="nv">N</span> : C)
+             (<span class="nv">z</span> : T --&gt; N)
+             (<span class="nv">s</span> : N --&gt; N)
+             (<span class="nv">H</span> : is_parameterized_NNO N z s)
+    : parameterized_NNO
+    := N ,, z ,, s ,, H.
+
+  <span class="sd">(** * 3. Every parameterized NNO is an NNO *)</span>
+  <span class="kn">Section</span> <span class="nf">ParameterizedNNOToNNO</span>.
+    <span class="kn">Context</span> (<span class="nv">N</span> : parameterized_NNO).
+
+    <span class="kn">Proposition</span> <span class="nf">is_NNO_parameterized_NNO_isaprop</span>
+                (<span class="nv">y</span> : C)
+                (<span class="nv">zy</span> : T --&gt; y)
+                (<span class="nv">sy</span> : y --&gt; y)
+      : isaprop
+          (∑ (u : N --&gt; y),
+           (parameterized_NNO_Z N · u = zy)
+           ×
+           (parameterized_NNO_S N · u = u · sy)).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> g₁ g₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+      }
+      use is_NNO_parameterized_NNO_unique.
+      - <span class="bp">exact</span> zy.
+      - <span class="bp">exact</span> sy.
+      - <span class="bp">exact</span> (pr12 g₁).
+      - <span class="bp">exact</span> (pr22 g₁).
+      - <span class="bp">exact</span> (pr12 g₂).
+      - <span class="bp">exact</span> (pr22 g₂).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_NNO_parameterized_NNO</span>
+      : isNNO T N (parameterized_NNO_Z N) (parameterized_NNO_S N).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> y zy sy.
+      use iscontraprop1.
+      - <span class="bp">exact</span> (is_NNO_parameterized_NNO_isaprop y zy sy).
+      - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        + <span class="bp">exact</span> (is_NNO_parameterized_NNO_mor N y zy sy).
+        + <span class="bp">exact</span> (is_NNO_parameterized_NNO_mor_Z N y zy sy).
+        + <span class="bp">exact</span> (is_NNO_parameterized_NNO_mor_S N y zy sy).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">parameterized_NNO_to_NNO</span>
+      : NNO T.
+    <span class="kn">Proof</span>.
+      use make_NNO.
+      - <span class="bp">exact</span> N.
+      - <span class="bp">exact</span> (parameterized_NNO_Z N).
+      - <span class="bp">exact</span> (parameterized_NNO_S N).
+      - <span class="nb">apply</span> is_NNO_parameterized_NNO.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ParameterizedNNOToNNO</span>.
+
+  <span class="sd">(** * 4. Parameterized NNOs are unique up to isomorphism *)</span>
+  <span class="kn">Lemma</span> <span class="nf">parameterized_NNO_unique_up_to_iso</span>
+    (<span class="nv">N</span> <span class="nv">M</span> : parameterized_NNO)
+    : z_iso N M.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (iso_between_NNO (parameterized_NNO_to_NNO N) (parameterized_NNO_to_NNO M)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 5. Uniqueness of parameterized NNOs *)</span>
+  <span class="kn">Proposition</span> <span class="nf">parameterized_NNO_eq</span>
+              {<span class="nv">N₁</span> <span class="nv">N₂</span> : parameterized_NNO}
+              (<span class="nv">p</span> : (N₁ : C) = N₂)
+              (<span class="nv">pz</span> : parameterized_NNO_Z N₁ · idtoiso p
+                    =
+                    parameterized_NNO_Z N₂)
+              (<span class="nv">ps</span> : parameterized_NNO_S N₁ · idtoiso p
+                    =
+                    idtoiso p · parameterized_NNO_S N₂)
+    : N₁ = N₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> N₁ <span class="k">as</span> [ N₁ [ z₁ [ s₁ H₁ ] ] ].
+    <span class="nb">induction</span> N₂ <span class="k">as</span> [ N₂ [ z₂ [ s₂ H₂ ] ] ].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> id_right <span class="k">in</span> pz.
+    <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> ps.
+    <span class="nb">induction</span> pz, ps.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> isaprop_is_parameterized_NNO.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">parameterized_NNO_from_iso</span>
+              (<span class="nv">HC</span> : is_univalent C)
+              {<span class="nv">N₁</span> <span class="nv">N₂</span> : parameterized_NNO}
+              (<span class="nv">f</span> : z_iso N₁ N₂)
+              (<span class="nv">pz</span> : parameterized_NNO_Z N₁ · f
+                    =
+                    parameterized_NNO_Z N₂)
+              (<span class="nv">ps</span> : parameterized_NNO_S N₁ · f
+                    =
+                    f · parameterized_NNO_S N₂)
+    : N₁ = N₂.
+  <span class="kn">Proof</span>.
+    use parameterized_NNO_eq.
+    - <span class="bp">exact</span> (isotoid _ HC f).
+    - <span class="nb">rewrite</span> idtoiso_isotoid.
+      <span class="bp">exact</span> pz.
+    - <span class="nb">rewrite</span> !idtoiso_isotoid.
+      <span class="bp">exact</span> ps.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_parameterized_NNO_if_univalent</span>
+              (<span class="nv">HC</span> : is_univalent C)
+    : isaprop parameterized_NNO.
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> N₁ N₂.
+    use (parameterized_NNO_from_iso HC).
+    - <span class="bp">exact</span> (iso_between_NNO (parameterized_NNO_to_NNO N₁) (parameterized_NNO_to_NNO N₂)).
+    - <span class="nb">apply</span> (NNO_mor_Z _ (parameterized_NNO_to_NNO N₁)).
+    - <span class="nb">apply</span> (NNO_mor_S _ (parameterized_NNO_to_NNO N₁)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ParameterizedNNO</span>.
+
+<span class="kn">Arguments</span> is_parameterized_NNO {C} T BC.
+<span class="kn">Arguments</span> parameterized_NNO {C} T BC.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_parameterized_NNO</span>
+            (<span class="nv">C</span> : univalent_category)
+            (<span class="nv">T</span> : Terminal C)
+            (<span class="nv">BC</span> : BinProducts C)
+  : isaprop (parameterized_NNO T BC).
+<span class="kn">Proof</span>.
+  use isaprop_parameterized_NNO_if_univalent.
+  <span class="nb">apply</span> univalent_category_is_univalent.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Preservation of parameterized NNOs *)</span>
+<span class="kn">Section</span> <span class="nf">PreservationNNO</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">T₁</span> : Terminal C₁}
+          {<span class="nv">BC₁</span> : BinProducts C₁}
+          {<span class="nv">T₂</span> : Terminal C₂}
+          {<span class="nv">BC₂</span> : BinProducts C₂}
+          (<span class="nv">N₁</span> : parameterized_NNO T₁ BC₁)
+          (<span class="nv">N₂</span> : parameterized_NNO T₂ BC₂)
+          (<span class="nv">F</span> : C₁ ⟶ C₂)
+          (<span class="nv">HF</span> : preserves_terminal F).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_parameterized_NNO_mor</span>
+    : N₂ --&gt; F N₁.
+  <span class="kn">Proof</span>.
+    use is_NNO_parameterized_NNO_mor.
+    - <span class="bp">exact</span> (TerminalArrow (preserves_terminal_to_terminal F HF T₁) _
+             · #F (parameterized_NNO_Z N₁)).
+    - <span class="bp">exact</span> (#F (parameterized_NNO_S N₁)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">preserves_parameterized_NNO_mor_Z</span>
+    : parameterized_NNO_Z N₂ · preserves_parameterized_NNO_mor
+      =
+      TerminalArrow (preserves_terminal_to_terminal F HF T₁) _
+      · #F (parameterized_NNO_Z N₁).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_NNO_parameterized_NNO_mor_Z.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">preserves_parameterized_NNO_mor_S</span>
+    : parameterized_NNO_S N₂ · preserves_parameterized_NNO_mor
+      =
+      preserves_parameterized_NNO_mor · #F (parameterized_NNO_S N₁).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_NNO_parameterized_NNO_mor_S.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_parameterized_NNO</span>
+    : UU
+    := is_z_isomorphism preserves_parameterized_NNO_mor.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_preserves_parameterized_NNO</span>
+    : isaprop preserves_parameterized_NNO.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_parameterized_NNO_inv_z_iso</span>
+             (<span class="nv">HFN</span> : preserves_parameterized_NNO)
+    : z_iso N₂ (F N₁)
+    := _ ,, HFN.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_parameterized_NNO_z_iso</span>
+             (<span class="nv">HFN</span> : preserves_parameterized_NNO)
+    : z_iso (F N₁) N₂
+    := z_iso_inv (preserves_parameterized_NNO_inv_z_iso HFN).
+<span class="kn">End</span> <span class="nf">PreservationNNO</span>.
+
+<span class="kn">Arguments</span> preserves_parameterized_NNO_z_iso {C₁ C₂ T₁ BC₁ T₂ BC₂ N₁ N₂ F HF} HFN.
+
+<span class="sd">(** * 7. Examples of functors that preserve parameterized NNOs *)</span>
+<span class="kn">Proposition</span> <span class="nf">id_preserves_parameterized_NNO_eq</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">T</span> : Terminal C)
+            (<span class="nv">BC</span> : BinProducts C)
+            (<span class="nv">N</span> : parameterized_NNO T BC)
+  : identity N
+    =
+    preserves_parameterized_NNO_mor N N _ (identity_preserves_terminal C).
+<span class="kn">Proof</span>.
+  use is_NNO_parameterized_NNO_unique.
+  - <span class="bp">exact</span> (parameterized_NNO_Z N).
+  - <span class="bp">exact</span> (parameterized_NNO_S N).
+  - <span class="nb">apply</span> id_right.
+  - <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  - etrans.
+    {
+      <span class="bp">exact</span> (preserves_parameterized_NNO_mor_Z N N _ (identity_preserves_terminal C)).
+    }
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (functor_on_terminal_arrow _ (identity_preserves_terminal _)).
+    }
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (TerminalEndo_is_identity (TerminalArrow T T)).
+    }
+    <span class="nb">apply</span> id_left.
+  - <span class="bp">exact</span> (preserves_parameterized_NNO_mor_S N N _ (identity_preserves_terminal C)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_preserves_parameterized_NNO</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">T</span> : Terminal C)
+            (<span class="nv">BC</span> : BinProducts C)
+            (<span class="nv">N</span> : parameterized_NNO T BC)
+  : preserves_parameterized_NNO
+      N N
+      (functor_identity C)
+      (identity_preserves_terminal _).
+<span class="kn">Proof</span>.
+  use is_z_isomorphism_path.
+  - <span class="nb">apply</span> identity.
+  - <span class="nb">apply</span> id_preserves_parameterized_NNO_eq.
+  - <span class="nb">apply</span> is_z_isomorphism_identity.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">Composition</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+          {<span class="nv">T₁</span> : Terminal C₁}
+          {<span class="nv">BC₁</span> : BinProducts C₁}
+          {<span class="nv">N₁</span> : parameterized_NNO T₁ BC₁}
+          {<span class="nv">T₂</span> : Terminal C₂}
+          {<span class="nv">BC₂</span> : BinProducts C₂}
+          {<span class="nv">N₂</span> : parameterized_NNO T₂ BC₂}
+          {<span class="nv">T₃</span> : Terminal C₃}
+          {<span class="nv">BC₃</span> : BinProducts C₃}
+          {<span class="nv">N₃</span> : parameterized_NNO T₃ BC₃}
+          {<span class="nv">F</span> : C₁ ⟶ C₂}
+          {<span class="nv">HF</span> : preserves_terminal F}
+          (<span class="nv">HFN</span> : preserves_parameterized_NNO N₁ N₂ F HF)
+          {<span class="nv">G</span> : C₂ ⟶ C₃}
+          {<span class="nv">HG</span> : preserves_terminal G}
+          (<span class="nv">HGN</span> : preserves_parameterized_NNO N₂ N₃ G HG).
+
+  <span class="kn">Proposition</span> <span class="nf">comp_preserves_parameterized_NNO_eq</span>
+    : preserves_parameterized_NNO_mor N₂ N₃ G HG
+      · # G (preserves_parameterized_NNO_mor N₁ N₂ F HF)
+      =
+      preserves_parameterized_NNO_mor N₁ N₃ (F ∙ G) (composition_preserves_terminal HF HG).
+  <span class="kn">Proof</span>.
+    use is_NNO_parameterized_NNO_unique.
+    - <span class="bp">exact</span> (TerminalArrow
+               (preserves_terminal_to_terminal
+                  _
+                  (composition_preserves_terminal HF HG)
+                  T₁)
+               _
+             · #G(#F(parameterized_NNO_Z N₁))).
+    - <span class="bp">exact</span> (#G(#F(parameterized_NNO_S N₁))).
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> preserves_parameterized_NNO_mor_Z.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!(functor_comp G _ _)).
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> preserves_parameterized_NNO_mor_Z.
+      }
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (TerminalArrowEq (T := preserves_terminal_to_terminal _ _ _)).
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> preserves_parameterized_NNO_mor_S.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!(functor_comp G _ _)).
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> preserves_parameterized_NNO_mor_S.
+      }
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">apply</span> idpath.
+    - <span class="bp">exact</span> (preserves_parameterized_NNO_mor_Z
+               N₁ N₃
+               _
+               (composition_preserves_terminal HF HG)).
+    - <span class="bp">exact</span> (preserves_parameterized_NNO_mor_S
+               N₁ N₃
+               _
+               (composition_preserves_terminal HF HG)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_preserves_parameterized_NNO</span>
+    : preserves_parameterized_NNO
+        N₁ N₃
+        (F ∙ G)
+        (composition_preserves_terminal HF HG).
+  <span class="kn">Proof</span>.
+    use is_z_isomorphism_path.
+    - <span class="bp">exact</span> (preserves_parameterized_NNO_mor N₂ N₃ G HG
+             · #G (preserves_parameterized_NNO_mor N₁ N₂ F HF)).
+    - <span class="bp">exact</span> comp_preserves_parameterized_NNO_eq.
+    - use is_z_isomorphism_comp.
+      + <span class="bp">exact</span> HGN.
+      + use functor_on_is_z_isomorphism.
+        <span class="bp">exact</span> HFN.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Composition</span>.
+
+<span class="sd">(** * 8. Independence of the choice of binary products *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_parameterized_NNO_prod_independent</span>
+            {<span class="nv">C</span> : univalent_category}
+            {<span class="nv">T</span> : Terminal C}
+            {<span class="nv">BC₁</span> : BinProducts C}
+            (<span class="nv">BC₂</span> : BinProducts C)
+            (<span class="nv">N</span> : parameterized_NNO T BC₁)
+  : is_parameterized_NNO T BC₂ N (parameterized_NNO_Z N) (parameterized_NNO_S N).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (transportf (<span class="k">λ</span> <span class="nv">z</span>, is_parameterized_NNO _ z _ _ _) _ (pr222 N)).
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intro</span> y.
+  <span class="nb">apply</span> isaprop_BinProduct.
+  <span class="nb">apply</span> univalent_category_is_univalent.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">parameterized_NNO_prod_independent</span>
+           {<span class="nv">C</span> : univalent_category}
+           {<span class="nv">T</span> : Terminal C}
+           {<span class="nv">BC₁</span> : BinProducts C}
+           (<span class="nv">BC₂</span> : BinProducts C)
+           (<span class="nv">N</span> : parameterized_NNO T BC₁)
+  : parameterized_NNO T BC₂.
+<span class="kn">Proof</span>.
+  use make_parameterized_NNO.
+  - <span class="bp">exact</span> N.
+  - <span class="bp">exact</span> (parameterized_NNO_Z N).
+  - <span class="bp">exact</span> (parameterized_NNO_S N).
+  - <span class="nb">apply</span> is_parameterized_NNO_prod_independent.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_parameterized_NNO_prod_independent</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+           {<span class="nv">T₁</span> : Terminal C₁}
+           {<span class="nv">BC₁</span> <span class="nv">BC₁'</span> : BinProducts C₁}
+           {<span class="nv">T₂</span> : Terminal C₂}
+           {<span class="nv">BC₂</span> <span class="nv">BC₂'</span> : BinProducts C₂}
+           {<span class="nv">N₁</span> : parameterized_NNO T₁ BC₁}
+           {<span class="nv">N₂</span> : parameterized_NNO T₂ BC₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">HF</span> : preserves_terminal F}
+           (<span class="nv">HFN</span> : preserves_parameterized_NNO N₁ N₂ F HF)
+  : preserves_parameterized_NNO
+      (parameterized_NNO_prod_independent BC₁' N₁)
+      (parameterized_NNO_prod_independent BC₂' N₂)
+      F HF.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (is_z_isomorphism_path _ HFN).
+  <span class="nb">assert</span> (BC₂ = BC₂') <span class="k">as</span> p.
+  {
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    <span class="nb">apply</span> isaprop_BinProduct.
+    <span class="nb">apply</span> univalent_category_is_univalent.
+  }
+  <span class="nb">induction</span> p.
+  use is_NNO_parameterized_NNO_unique.
+  - <span class="bp">exact</span> (TerminalArrow (preserves_terminal_to_terminal F HF T₁) T₂
+           · # F (parameterized_NNO_Z N₁)).
+  - <span class="bp">exact</span> (#F (parameterized_NNO_S N₁)).
+  - <span class="nb">rewrite</span> preserves_parameterized_NNO_mor_Z.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> preserves_parameterized_NNO_mor_S.
+    <span class="nb">apply</span> idpath.
+  - etrans.
+    {
+      <span class="nb">apply</span> (preserves_parameterized_NNO_mor_Z
+               (parameterized_NNO_prod_independent BC₁' N₁)
+               (parameterized_NNO_prod_independent BC₂ N₂)).
+    }
+    <span class="nb">apply</span> idpath.
+  - etrans.
+    {
+      <span class="nb">apply</span> (preserves_parameterized_NNO_mor_S
+               (parameterized_NNO_prod_independent BC₁' N₁)
+               (parameterized_NNO_prod_independent BC₂ N₂)).
+    }
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 9. Independence of the choice of terminal *)</span>
+<span class="kn">Lemma</span> <span class="nf">parameterized_NNO_independent_of_terminal_is_parameterized_NNO</span>
+  {<span class="nv">C</span> : category} {<span class="nv">T</span> : Terminal C} {<span class="nv">P</span> : BinProducts C} (<span class="nv">N</span> : parameterized_NNO T P) (<span class="nv">T'</span> : Terminal C)
+  : is_parameterized_NNO T' P N (TerminalArrow T T' · parameterized_NNO_Z N) (parameterized_NNO_S N).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> b y z s.
+  use (iscontrweqb' (pr222 N b y z s)).
+  use weqfibtototal.
+  <span class="nb">intro</span> f.
+  <span class="nb">simpl</span>.
+  use weqdirprodf.
+  - <span class="nb">rewrite</span> assoc.
+    <span class="nb">assert</span> (pf : TerminalArrow T' b · TerminalArrow T T' = TerminalArrow T b).
+    { use TerminalArrowUnique. }
+    <span class="nb">rewrite</span> pf.
+    <span class="nb">apply</span> idweq.
+  - <span class="nb">apply</span> idweq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">parameterized_NNO_independent_of_terminal</span>
+  {<span class="nv">C</span> : category} {<span class="nv">T</span> : Terminal C} {<span class="nv">P</span> : BinProducts C} (<span class="nv">N</span> : parameterized_NNO T P) (<span class="nv">T'</span> : Terminal C)
+  : parameterized_NNO T' P.
+<span class="kn">Proof</span>.
+  use make_parameterized_NNO.
+  - <span class="bp">exact</span> N.
+  - <span class="nb">refine</span> (_ · parameterized_NNO_Z N).
+    <span class="nb">apply</span> z_iso_Terminals.
+  - <span class="bp">exact</span> (parameterized_NNO_S N).
+  - <span class="nb">apply</span> parameterized_NNO_independent_of_terminal_is_parameterized_NNO.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">parameterized_NNO_independence_NNO</span>
+           {<span class="nv">C</span> : univalent_category}
+           {<span class="nv">T</span> <span class="nv">T'</span> : Terminal C}
+           {<span class="nv">P</span> <span class="nv">P'</span> : BinProducts C}
+           (<span class="nv">N</span> : parameterized_NNO T' P')
+  : parameterized_NNO T P.
+<span class="kn">Proof</span>.
+  use parameterized_NNO_independent_of_terminal.
+  {
+    <span class="bp">exact</span> T'.
+  }
+  use parameterized_NNO_prod_independent.
+  {
+    <span class="bp">exact</span> P'.
+  }
+  <span class="bp">exact</span> N.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">parameterized_NNO_independence_z_iso</span>
+           {<span class="nv">C</span> : univalent_category}
+           {<span class="nv">T</span> <span class="nv">T'</span> : Terminal C}
+           {<span class="nv">P</span> <span class="nv">P'</span> : BinProducts C}
+           (<span class="nv">N</span> : parameterized_NNO T P)
+           (<span class="nv">N'</span> : parameterized_NNO T' P')
+  : z_iso N N'.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (parameterized_NNO_unique_up_to_iso
+           N
+           (parameterized_NNO_independence_NNO N')).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Arithmetic/ParameterizedNNO.v</tt>, line 35)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  9. Independence of the choice of terminal object
+  &gt;
+  &gt;  **********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Terminal.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

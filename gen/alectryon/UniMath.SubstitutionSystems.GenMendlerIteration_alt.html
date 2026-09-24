@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>GenMendlerIteration_alt.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents:</span>
+
+<span class="sd">- Derivation of Generalized Iteration in Mendler-style</span>
+<span class="sd">  Instantiation to a special case, Specialized</span>
+<span class="sd">- Mendler Iteration Proof of a fusion law à la Bird-Paterson</span>
+<span class="sd">  (Generalised folds for nested datatypes, theorem 1) for</span>
+<span class="sd">  Generalized Iteration in Mendler-style</span>
+
+<span class="sd">This file differs from GenMendlerIteration.v in the hypotheses.</span>
+<span class="sd">Here we use omega cocontinuity instead of Kan extensions.</span>
+
+<span class="sd">Written by: Anders Mörtberg, 2016.</span>
+<span class="sd">Based on a note by Ralph Matthes.</span>
+
+<span class="sd">************************************************************)</span>
+
+<span class="kn">Require Export</span> UniMath.Tactics.EnsureStructuredProofs.
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Adamek.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.yoneda.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Arguments</span> functor_composite {_ _ _} _ _ .
+<span class="kn">Arguments</span> nat_trans_comp {_ _ _ _ _} _ _ .
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"G ∙ F"</span> := (functor_composite F G : [ _ , _ , _ ]) (<span class="kn">at level</span> <span class="mi">35</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C '^op'"</span> := (opp_precat C) (<span class="kn">format</span> <span class="s2">"C ^op"</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"↓ f"</span> := (mor_from_algebra_mor _ _ _ f) (<span class="kn">at level</span> <span class="mi">3</span>, <span class="kn">format</span> <span class="s2">"↓ f"</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'chain'"</span> := (diagram nat_graph).
+
+<span class="sd">(** Goal: derive Generalized Iteration in Mendler-style and a fusion law *)</span>
+
+<span class="sd">(** * Generalized Iteration in Mendler-style *)</span>
+<span class="kn">Section</span> <span class="nf">GenMenIt</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">IC</span> : Initial C)
+        (<span class="nv">CC</span> : Colims_of_shape nat_graph C) (<span class="nv">F</span> : functor C C)
+        (<span class="nv">HF</span> : is_omega_cocont F).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"0"</span> := (InitialObject IC).
+
+<span class="kn">Let</span> <span class="nf">AF</span> : category := FunctorAlg F.
+<span class="kn">Let</span> <span class="nf">chnF</span> : chain C := initChain IC F.
+<span class="kn">Let</span> <span class="nf">μF_Initial</span> : Initial AF := colimAlgInitial IC HF (CC chnF).
+<span class="kn">Let</span> <span class="nf">μF</span> : C := alg_carrier _ (InitialObject μF_Initial).
+<span class="kn">Let</span> <span class="nf">inF</span> : C⟦F μF,μF⟧ := alg_map _ (InitialObject μF_Initial).
+<span class="kn">Let</span> <span class="nf">e</span> : ∏ (n : nat), C⟦iter_functor F n IC,μF⟧ := colimIn (CC chnF).
+<span class="kn">Let</span> <span class="nf">cocone_μF</span> : cocone chnF μF := colimCocone (CC chnF).
+
+<span class="kn">Local Lemma</span> <span class="nf">e_comm</span> (<span class="nv">n</span> : nat) : e (S n) = # F (e n) · inF.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> pathsinv0,
+      (colimArrowCommutes (make_ColimCocone _ _ _ (HF _ _ _
+                          (isColimCocone_from_ColimCocone (CC chnF))))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Context</span> {<span class="nv">D</span> : category}.
+
+<span class="kn">Section</span> <span class="nf">the_iteration_principle</span>.
+
+<span class="kn">Context</span> (<span class="nv">X</span> : D) (<span class="nv">L</span> : functor C D) (<span class="nv">IL</span> : isInitial D (L <span class="mi">0</span>)) (<span class="nv">HL</span> : is_omega_cocont L).
+
+<span class="kn">Let</span> <span class="nf">ILD</span> : Initial D := tpair _ _ IL.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'L0'"</span> := (InitialObject ILD).
+
+<span class="kn">Let</span> <span class="nf">Yon</span> : functor D^op HSET := yoneda_objects D X.
+
+<span class="kn">Definition</span> <span class="nf">ψ_source</span> : functor C^op HSET := functor_composite (functor_opp L) Yon.
+<span class="kn">Definition</span> <span class="nf">ψ_target</span> : functor C^op HSET := functor_composite (functor_opp F) ψ_source.
+
+<span class="kn">Section</span> <span class="nf">general_case</span>.
+
+<span class="kn">Context</span> (<span class="nv">ψ</span> : ψ_source ⟹ ψ_target).
+
+<span class="kn">Let</span> <span class="nf">LchnF</span> : chain D := mapchain L chnF.
+<span class="kn">Let</span> <span class="nf">z</span> : D⟦L0,X⟧ := InitialArrow ILD X.
+
+<span class="kn">Local Definition</span> <span class="nf">Pow_source</span> : functor C^op HSET := ψ_source.
+<span class="kn">Local Definition</span> <span class="nf">Pow_target</span> (<span class="nv">n</span> : nat) : functor C^op HSET :=
+  functor_composite (functor_opp (iter_functor F n)) ψ_source.
+
+<span class="kn">Local Definition</span> <span class="nf">Pow</span> (<span class="nv">n</span> : nat) : Pow_source ⟹ Pow_target n.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> n <span class="k">as</span> [|n Pown].
+- <span class="nb">apply</span> nat_trans_id.
+- <span class="nb">apply</span> (nat_trans_comp Pown (pre_whisker (functor_opp (iter_functor F n)) ψ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">Pow_cocone_subproof</span> <span class="nv">n</span> :
+  dmor LchnF (idpath (S n)) · pr1 (Pow (S n)) IC z = pr1 (Pow n) IC z.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
++ <span class="nb">cbn</span>.
+  <span class="nb">apply</span> (InitialArrowUnique ILD).
++ <span class="nb">change</span> (pr1 (Pow (S (S n))) _ z) <span class="k">with</span> (ψ (iter_functor F (S n) <span class="mi">0</span>) (Pow (S n) _ z)).
+  <span class="nb">assert</span> (H : dmor LchnF (idpath (S (S n))) · ψ ((iter_functor F (S n)) IC) ((Pow (S n)) IC z) =
+              ψ (iter_functor F n <span class="mi">0</span>) (dmor LchnF (idpath (S n)) · pr1 (Pow (S n)) _ z)).
+  { <span class="nb">apply</span> pathsinv0, (eqtohomot (nat_trans_ax ψ _ _ (dmor chnF (idpath (S n))))). }
+  <span class="bp">now</span> <span class="nb">rewrite</span> H, IHn.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">Pow_cocone</span> : cocone LchnF X.
+<span class="kn">Proof</span>.
+use make_cocone.
+- <span class="nb">intro</span> n.
+  <span class="nb">apply</span> (pr1 (Pow n) _ z).
+- <span class="kp">abstract</span> (<span class="nb">intros</span> n m k; <span class="nb">induction</span> k; <span class="nb">apply</span> Pow_cocone_subproof).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">CC_LchnF</span> : ColimCocone LchnF.
+<span class="kn">Proof</span>.
+use make_ColimCocone.
+- <span class="nb">apply</span> (L μF).
+- <span class="nb">apply</span> (mapcocone L _ cocone_μF).
+- <span class="nb">apply</span> HL, (isColimCocone_from_ColimCocone (CC chnF)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preIt</span> : D⟦L μF,X⟧ := colimArrow CC_LchnF X Pow_cocone.
+
+<span class="kn">Local Lemma</span> <span class="nf">eqSS</span> <span class="nv">n</span> : # L (e n) · preIt = Pow n IC z.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (colimArrowCommutes CC_LchnF).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_z_iso_inF</span> : is_z_isomorphism inF.
+<span class="kn">Proof</span>.
+<span class="c">(* Use Lambek's lemma, this could be extracted from the concrete proof as well *)</span>
+<span class="nb">apply</span> initialAlg_is_z_iso, pr2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Let</span> <span class="nf">inF_z_iso</span> : z_iso (F μF) μF := make_z_iso' _ is_z_iso_inF.
+<span class="kn">Let</span> <span class="nf">inF_inv</span> : C⟦μF,F μF⟧ := inv_from_z_iso inF_z_iso.
+
+<span class="c">(* The direction * -&gt; ** *)</span>
+<span class="kn">Lemma</span> <span class="nf">S_imp_SS</span> <span class="nv">h</span> <span class="nv">n</span> : # L inF · h = ψ μF h → # L (e n) · h = Pow n IC z.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> Hh.
+<span class="nb">induction</span> n.
+- <span class="nb">cbn</span>.
+  <span class="nb">apply</span> (InitialArrowUnique ILD).
+- <span class="nb">rewrite</span> e_comm, functor_comp, &lt;- assoc, Hh.
+  <span class="nb">assert</span> (H : # L (# F (e n)) · ψ μF h = ψ (iter_functor F n <span class="mi">0</span>) (# L (e n) · h)).
+  { <span class="nb">apply</span> pathsinv0, (eqtohomot (nat_trans_ax ψ _ _ (e n))). }
+  <span class="bp">now</span> <span class="nb">rewrite</span> H, IHn.
+<span class="kn">Qed</span>.
+
+<span class="c">(* The direction ** -&gt; * *)</span>
+<span class="kn">Local Lemma</span> <span class="nf">SS_imp_S</span> (<span class="nv">H</span> : ∏ n, # L (e n) · preIt = Pow n IC z) : # L inF · preIt = ψ μF preIt.
+<span class="kn">Proof</span>.
+<span class="nb">assert</span> (H'' : # L inF · # L inF_inv = identity _).
+{ <span class="nb">rewrite</span> &lt;- functor_comp,  &lt;- functor_id.
+   <span class="nb">apply</span> maponpaths, (z_iso_inv_after_z_iso inF_z_iso). }
+<span class="nb">assert</span> (H' : ∏ n, # L (e (S n)) · # L inF_inv · ψ μF preIt = pr1 (Pow (S n)) _ z).
+{ <span class="nb">intro</span> n.
+  <span class="nb">rewrite</span> e_comm, functor_comp.
+  etrans;
+   [<span class="nb">apply</span> cancel_postcomposition; <span class="nb">rewrite</span> &lt;-assoc;  <span class="nb">apply</span> maponpaths, H''|].
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">assert</span> (H1 : # L (# F (e n)) · ψ μF preIt = ψ (iter_functor F n <span class="mi">0</span>) (# L (e n) · preIt)).
+  { <span class="nb">apply</span> pathsinv0, (eqtohomot (nat_trans_ax ψ _ _ (e n))). }
+  etrans; [ <span class="nb">apply</span> H1|].
+  <span class="bp">now</span> <span class="nb">rewrite</span> H.
+}
+<span class="nb">assert</span> (HH : preIt = # L inF_inv · ψ μF preIt).
+{ <span class="nb">apply</span> pathsinv0, (colimArrowUnique CC_LchnF); <span class="nb">simpl</span>; <span class="nb">intro</span> n.
+  <span class="nb">destruct</span> n.
+  - <span class="nb">apply</span> (InitialArrowUnique ILD).
+  - <span class="nb">simpl</span>; etrans; [| <span class="nb">apply</span> H'].
+    <span class="bp">now</span> <span class="nb">apply</span> assoc.
+}
+etrans; [ <span class="nb">apply</span> maponpaths, HH|].
+<span class="bp">now</span> <span class="nb">rewrite</span> assoc, H'', id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">preIt_ok</span> : # L inF · preIt = ψ μF preIt.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> SS_imp_S; <span class="nb">intro</span> n; <span class="nb">apply</span> eqSS.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">preIt_uniq</span> (<span class="nv">t</span> : ∑ h, # L inF · h = ψ μF h) : t = (preIt,,preIt_ok).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> subtypePath; [<span class="nb">intros</span> f; <span class="nb">apply</span> homset_property|]; <span class="nb">simpl</span>.
+<span class="nb">destruct</span> t <span class="k">as</span> [f Hf]; <span class="nb">simpl</span>.
+<span class="nb">apply</span> (colimArrowUnique CC_LchnF); <span class="nb">intro</span> n.
+<span class="bp">now</span> <span class="nb">apply</span> S_imp_SS, Hf.
+<span class="kn">Qed</span>.
+
+<span class="kn">Theorem</span> <span class="nf">GenMendlerIteration</span> : <span class="k">∃</span>! (h : L μF --&gt; X), #L inF · h = ψ μF h.
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">apply</span> (preIt,,preIt_ok).
+- <span class="bp">exact</span> preIt_uniq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">It</span> : L μF --&gt; X := pr1 (pr1 GenMendlerIteration).
+
+<span class="kn">Lemma</span> <span class="nf">It_is_preIt</span> : It = preIt.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">general_case</span>.
+
+<span class="sd">(** * Specialized Mendler Iteration *)</span>
+<span class="kn">Section</span> <span class="nf">special_case</span>.
+
+<span class="kn">Context</span> (<span class="nv">G</span> : functor D D) (<span class="nv">ρ</span> : G X --&gt; X)
+        (<span class="nv">θ</span> : functor_composite F L ⟹ functor_composite L G).
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_ψ_from_comps</span> :
+        is_nat_trans ψ_source ψ_target
+          (<span class="k">λ</span> <span class="nv">A</span> (<span class="nv">f</span> : yoneda_objects_ob D X (L A)), θ A · # G f · ρ).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> A B h; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> f; <span class="nb">cbn</span>.
+<span class="nb">rewrite</span> functor_comp, !assoc.
+<span class="nb">assert</span> (θ_nat_trans_ax := nat_trans_ax θ); <span class="nb">simpl</span> <span class="k">in</span> θ_nat_trans_ax.
+<span class="bp">now</span> <span class="nb">rewrite</span> &lt;- θ_nat_trans_ax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ψ_from_comps</span> : ψ_source ⟹ ψ_target.
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intros</span> A f.
+  <span class="bp">exact</span> (θ A · #G f · ρ).
+- <span class="nb">apply</span> is_nat_trans_ψ_from_comps.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">SpecialGenMendlerIteration</span> :
+  <span class="k">∃</span>! (h : L μF --&gt; X), # L inF · h = θ μF · #G h · ρ
+    := GenMendlerIteration ψ_from_comps.
+
+<span class="kn">End</span> <span class="nf">special_case</span>.
+<span class="kn">End</span> <span class="nf">the_iteration_principle</span>.
+
+<span class="sd">(** * Fusion law for Generalized Iteration in Mendler-style *)</span>
+<span class="kn">Section</span> <span class="nf">fusion_law</span>.
+
+<span class="kn">Context</span> (<span class="nv">X</span> <span class="nv">X'</span> : D).
+
+<span class="kn">Let</span> <span class="nf">Yon</span> : functor D^op HSET := yoneda_objects D X.
+<span class="kn">Let</span> <span class="nf">Yon'</span> : functor D^op HSET := yoneda_objects D X'.
+
+<span class="kn">Context</span> (<span class="nv">L</span> : functor C D) (<span class="nv">HL</span> : is_omega_cocont L) (<span class="nv">IL</span> : isInitial D (L <span class="mi">0</span>))
+        (<span class="nv">ψ</span> : ψ_source X L ⟹ ψ_target X L).
+
+<span class="kn">Context</span> (<span class="nv">L'</span> : functor C D) (<span class="nv">HL'</span> : is_omega_cocont L') (<span class="nv">IL'</span> : isInitial D (L' <span class="mi">0</span>))
+        (<span class="nv">ψ'</span> : ψ_source X' L' ⟹ ψ_target X' L').
+
+<span class="kn">Context</span> (<span class="nv">Φ</span> : functor_composite (functor_opp L) Yon ⟹ functor_composite (functor_opp L') Yon').
+
+<span class="kn">Context</span> (<span class="nv">H</span> : ψ μF · Φ (F μF) = Φ μF · ψ' μF).
+
+<span class="kn">Theorem</span> <span class="nf">fusion_law</span> : Φ μF (It X L IL HL ψ) = It X' L' IL' HL' ψ'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> path_to_ctr.
+  etrans; [|use (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, f _) H)].
+  etrans; [use (!maponpaths (<span class="k">λ</span> <span class="nv">f</span>, f _) (nat_trans_ax Φ _ _ _))|].
+  <span class="nb">cbn</span>; use maponpaths; use preIt_ok.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">fusion_law</span>.
+<span class="kn">End</span> <span class="nf">GenMenIt</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/GenMendlerIteration_alt.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Tactics/EnsureStructuredProofs.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; ************************************************************)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Tactics.EnsureStructuredProofs.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.PartD.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

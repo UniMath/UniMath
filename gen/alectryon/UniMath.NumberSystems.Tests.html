@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Tests.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require</span> UniMath.MoreFoundations.DecidablePropositions.
+<span class="kn">Require</span> UniMath.MoreFoundations.NegativePropositions.
+
+<span class="kn">Module</span> <span class="nf">Test_nat</span>.
+
+  <span class="kn">Import</span> UniMath.Foundations.NaturalNumbers.
+  <span class="kn">Import</span> UniMath.MoreFoundations.DecidablePropositions.
+  <span class="kn">Import</span> UniMath.MoreFoundations.NegativePropositions.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> nat_scope.
+
+  <span class="kn">Goal</span> <span class="mi">3</span> ≠ <span class="mi">5</span>. <span class="kn">Proof</span>. <span class="bp">exact</span> tt. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> ¬ (<span class="mi">3</span> ≠ <span class="mi">3</span>). <span class="kn">Proof</span>. <span class="nb">intro</span> n. <span class="nb">apply</span> n. <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">Test_A</span>.
+    <span class="kn">Let</span> <span class="nf">C</span>  := compl nat <span class="mi">0</span>.
+    <span class="kn">Let</span> <span class="nf">C'</span> := compl_ne nat <span class="mi">0</span> (<span class="k">λ</span> <span class="nv">m</span>, <span class="mi">0</span> ≠ m).
+    <span class="kn">Let</span> <span class="nf">w</span> := compl_ne_weq_compl nat <span class="mi">0</span> (<span class="k">λ</span> <span class="nv">m</span>, <span class="mi">0</span> ≠ m) : C ≃ C'.
+    <span class="kn">Let</span> <span class="nf">cn</span> : C := (<span class="mi">3</span>,,negpaths0sx _).
+    <span class="kn">Let</span> <span class="nf">cn'</span> : C' := (<span class="mi">3</span>,,tt).
+    <span class="kn">Goal</span> w cn = cn'. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap w cn' = cn. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq w cn = idpath _. <span class="kn">Proof</span>. <span class="kp">try</span> <span class="bp">reflexivity</span>. <span class="kn">Abort</span>. <span class="c">(* prevented by funextfun *)</span>
+    <span class="kn">Goal</span> homotweqinvweq w cn' = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>. <span class="c">(* 2 seconds *)</span>
+    <span class="kn">Let</span> <span class="nf">f</span> := weqrecompl nat <span class="mi">0</span> (isdeceqnat <span class="mi">0</span>).
+    <span class="kn">Let</span> <span class="nf">f'</span> := weqrecompl_ne nat <span class="mi">0</span> (isdeceqnat <span class="mi">0</span>) (<span class="k">λ</span> <span class="nv">m</span>, <span class="mi">0</span> ≠ m).
+    <span class="kn">Goal</span> f (ii1 cn) = <span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f' (ii1 cn') = <span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap f <span class="mi">3</span> = (ii1 cn). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap f' <span class="mi">3</span> = (ii1 cn'). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq f <span class="mi">3</span> = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq f' <span class="mi">3</span> = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq f (ii1 cn) = idpath _. <span class="kn">Proof</span>. <span class="kp">try</span> <span class="bp">reflexivity</span>. <span class="kn">Abort</span>. <span class="c">(* prevented by funextfun *)</span>
+    <span class="kn">Goal</span> homotinvweqweq f' (ii1 cn') = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>. <span class="c">(* succeeds by avoiding funextfun *)</span>
+  <span class="kn">End</span> <span class="nf">Test_A</span>.
+
+  <span class="kn">Goal</span> choice (<span class="mi">3</span> &lt; <span class="mi">4</span>)%dnat true false = true. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> choice (<span class="mi">3</span> &lt; <span class="mi">4</span> ∧ <span class="mi">4</span> &lt; <span class="mi">5</span>)%dnat%declog true false = true. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> choice (¬ (<span class="mi">3</span> &lt; <span class="mi">4</span>))%dnat%declog true false = false. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> choice (<span class="mi">3</span> &lt; <span class="mi">4</span> ∨ <span class="mi">4</span> &lt; <span class="mi">3</span>)%dnat%declog true false = true. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> choice (<span class="mi">4</span> &lt; <span class="mi">3</span> ∨ <span class="mi">2</span> &lt; <span class="mi">1</span>)%dnat%declog true false = false. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Goal</span> si <span class="mi">3</span> (di <span class="mi">3</span> <span class="mi">2</span>) = <span class="mi">2</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> si <span class="mi">3</span> (di <span class="mi">3</span> <span class="mi">3</span>) = <span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> si <span class="mi">3</span> (di <span class="mi">3</span> <span class="mi">4</span>) = <span class="mi">4</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Goal</span> si <span class="mi">3</span> <span class="mi">2</span> = <span class="mi">2</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> si <span class="mi">3</span> <span class="mi">3</span> = <span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> si <span class="mi">3</span> <span class="mi">4</span> = <span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> si <span class="mi">3</span> <span class="mi">5</span> = <span class="mi">4</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">Test_weqdicompl</span>.
+
+    <span class="kn">Let</span> <span class="nf">w</span> := weqdicompl <span class="mi">3</span> : nat ≃ nat_compl <span class="mi">3</span>.
+    <span class="kn">Goal</span> w <span class="mi">2</span> = (<span class="mi">2</span>,,tt). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> w <span class="mi">3</span> = (<span class="mi">4</span>,,tt). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap w (<span class="mi">2</span>,,tt) = <span class="mi">2</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap w (<span class="mi">4</span>,,tt) = <span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq w (<span class="mi">2</span>,,tt) = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq w (<span class="mi">4</span>,,tt) = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq w <span class="mi">2</span> = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq w <span class="mi">4</span> = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweqweq w <span class="mi">2</span> = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweqweq w <span class="mi">4</span> = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">Test_weqdicompl</span>.
+
+<span class="kn">End</span> <span class="nf">Test_nat</span>.
+
+
+<span class="kn">Require</span> UniMath.Algebra.IteratedBinaryOperations.
+<span class="kn">Require</span> UniMath.Combinatorics.FiniteSets.
+<span class="kn">Require</span> UniMath.NumberSystems.NaturalNumbersAlgebra.
+
+<span class="kn">Module</span> <span class="nf">Test_finsum</span>.
+
+  <span class="kn">Import</span> UniMath.Algebra.IteratedBinaryOperations.
+  <span class="kn">Import</span> UniMath.Combinatorics.FiniteSets.
+  <span class="kn">Import</span> UniMath.NumberSystems.NaturalNumbersAlgebra.
+
+  <span class="kn">Goal</span> ∏ X (fin : finstruct X) (f : X -&gt; nat),
+    finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    intermediate_path (iterop_fun_mon (M := nataddabmonoid) (f ∘ pr1weq (pr2 fin))).
+    - <span class="bp">reflexivity</span>.
+    - <span class="nb">apply</span> iterop_fun_nat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> <span class="mi">15</span> = finsum (isfinitestn _) (<span class="k">λ</span> <span class="nv">i</span>:stn <span class="mi">6</span>, i). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> <span class="mi">20</span> = finsum isfinitebool (<span class="k">λ</span> <span class="nv">i</span>:bool, <span class="mi">10</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> <span class="mi">21</span> = finsum (isfinitecoprod isfinitebool isfinitebool)
+                   (coprod_rect (<span class="k">λ</span> <span class="nv">_</span>, nat) (bool_rect _ <span class="mi">10</span> <span class="mi">4</span>) (bool_rect _  <span class="mi">6</span> <span class="mi">1</span>)).
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.            <span class="c">(* fixed *)</span>
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> <span class="mi">10</span> = finsum' (isfinitestn _) (<span class="k">λ</span> <span class="nv">i</span>:stn <span class="mi">5</span>, i). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>. <span class="c">(* fixed! *)</span>
+  <span class="kn">Goal</span> <span class="mi">20</span> = finsum' isfinitebool (<span class="k">λ</span> <span class="nv">i</span>:bool, <span class="mi">10</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> <span class="mi">21</span> = finsum' (isfinitecoprod isfinitebool isfinitebool)
+              (coprod_rect (<span class="k">λ</span> <span class="nv">_</span>, nat) (bool_rect _ <span class="mi">10</span> <span class="mi">4</span>) (bool_rect _  <span class="mi">6</span> <span class="mi">1</span>)).
+  <span class="kn">Proof</span>.
+    <span class="kp">try</span> <span class="bp">reflexivity</span>.            <span class="c">(* fails, for some reason *)</span>
+  <span class="kn">Abort</span>.
+
+  <span class="kn">Section</span> <span class="nf">Iteration</span>.
+    <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"s □ x"</span> := (append s x) (<span class="kn">at level</span> <span class="mi">64</span>, <span class="kn">left associativity</span>).
+    <span class="kn">Context</span> (<span class="nv">G</span>:abgr) (<span class="nv">R</span>:<span class="bp">ring</span>) (<span class="nv">S</span>:commring) (<span class="nv">g</span> <span class="nv">g'</span> <span class="nv">g''</span>:G) (<span class="nv">r</span> <span class="nv">r'</span> <span class="nv">r''</span>:R) (<span class="nv">s</span> <span class="nv">s'</span> <span class="nv">s''</span>:S).
+    <span class="kn">Local</span> <span class="kn">Open Scope</span> multmonoid.
+    <span class="kn">Goal</span> iterop_unoseq_abgr (nil : Sequence G) = <span class="mi">1</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+    <span class="kn">Goal</span> iterop_unoseq_abgr (nil □ g □ g') = g*g'. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+    <span class="kn">Goal</span> iterop_unoseq_abgr (nil □ g □ g' □ g'') = g*g'*g''. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+    <span class="kn">Goal</span> iterop_unoseq_unoseq_mon (M:=G) (sequenceToUnorderedSequence(nil □ sequenceToUnorderedSequence(nil □ g □ g') □ sequenceToUnorderedSequence(nil □ g □ g' □ g''))) = (g*g') * (g*g'*g''). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+    <span class="kn">Goal</span> iterop_unoseq_unoseq_mon (M:=G) (sequenceToUnorderedSequence(nil □ sequenceToUnorderedSequence(nil □ g) □ sequenceToUnorderedSequence(nil))) = g * <span class="mi">1</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+    <span class="kn">Goal</span> iterop_unoseq_unoseq_mon (M:=G) (sequenceToUnorderedSequence(nil □ sequenceToUnorderedSequence(nil) □ sequenceToUnorderedSequence(nil □ g))) = <span class="mi">1</span> * g. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+    <span class="kn">Close Scope</span> multmonoid.
+
+    <span class="kn">Local</span> <span class="kn">Open Scope</span> <span class="bp">ring</span>.
+    <span class="kn">Goal</span> sum_unoseq_ring (nil : Sequence R) = <span class="mi">0</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+    <span class="kn">Goal</span> sum_unoseq_ring (nil □ r □ r') = r+r'. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+    <span class="kn">Goal</span> sum_unoseq_ring (nil □ r □ r' □ r'') = r+r'+r''. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+    <span class="kn">Goal</span> product_unoseq_ring (nil : Sequence S) = <span class="mi">1</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+    <span class="kn">Goal</span> product_unoseq_ring (nil □ s □ s') = s*s'. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+    <span class="kn">Goal</span> product_unoseq_ring (nil □ s □ s' □ s'') = s*s'*s''. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Iteration</span>.
+
+<span class="kn">End</span> <span class="nf">Test_finsum</span>.
+
+
+<span class="kn">Require</span> UniMath.NumberSystems.Integers.
+
+<span class="kn">Module</span> <span class="nf">Test_int</span>.
+
+  <span class="kn">Import</span> UniMath.NumberSystems.Integers.
+
+  <span class="kn">Goal</span> true = (hzbooleq (natnattohz <span class="mi">3</span> <span class="mi">4</span>) (natnattohz <span class="mi">17</span> <span class="mi">18</span>)) . <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> false = (hzbooleq (natnattohz <span class="mi">3</span> <span class="mi">4</span>) (natnattohz <span class="mi">17</span> <span class="mi">19</span>)) . <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> <span class="mi">2</span> * <span class="mi">100</span> + <span class="mi">7</span> * <span class="mi">10</span> + <span class="mi">4</span> = (hzabsval (natnattohz (<span class="mi">5</span> * <span class="mi">10</span> + <span class="mi">8</span>) (<span class="mi">3</span> * <span class="mi">100</span> + <span class="mi">3</span> * <span class="mi">10</span> + <span class="mi">2</span>))) . <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> O = (hzabsval (hzplus (natnattohz <span class="mi">2</span> <span class="mi">3</span>) (natnattohz <span class="mi">3</span> <span class="mi">2</span>))) . <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> <span class="mi">2</span> = (hzabsval (hzminus (natnattohz <span class="mi">2</span> <span class="mi">3</span>) (natnattohz <span class="mi">3</span> <span class="mi">2</span>))) . <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> <span class="mi">3</span> * <span class="mi">100</span> =  (hzabsval (hzmult (natnattohz (<span class="mi">2</span> * <span class="mi">10</span>) (<span class="mi">5</span> * <span class="mi">10</span>)) (natnattohz (<span class="mi">3</span> * <span class="mi">10</span>) (<span class="mi">2</span> * <span class="mi">10</span>)))) . <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Test_int</span>.
+
+<span class="kn">Require</span> UniMath.NumberSystems.RationalNumbers.
+
+<span class="kn">Module</span> <span class="nf">Test_rat</span>.
+
+  <span class="kn">Import</span> UniMath.NumberSystems.RationalNumbers.
+
+  <span class="kn">Open Scope</span> hz_scope .
+
+  <span class="kn">Open Scope</span> hq_scope .
+
+  <span class="kn">Transparent</span> hz .
+
+  <span class="kn">Goal</span> true = ( hqbooleq ( hzhztohq ( natnattohz <span class="mi">4</span> <span class="mi">0</span> ) ( tpair _ ( natnattohz <span class="mi">3</span> <span class="mi">0</span> ) ( ct ( hzneq , isdecrelhzneq, ( natnattohz <span class="mi">3</span> <span class="mi">0</span> ) , <span class="mi">0</span> %hz ) ) ) )  ( hzhztohq ( natnattohz <span class="mi">13</span> <span class="mi">1</span> ) ( tpair _ ( natnattohz <span class="mi">11</span> <span class="mi">2</span> ) ( ct ( hzneq , isdecrelhzneq , ( natnattohz <span class="mi">11</span> <span class="mi">2</span> ) , <span class="mi">0</span> %hz ) ) ) ) ) .
+  <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> true = ( decreltobrel hqgthdec ( hzhztohq ( natnattohz <span class="mi">5</span> <span class="mi">0</span> ) ( tpair _ ( natnattohz <span class="mi">3</span> <span class="mi">0</span> ) ( ct ( hzneq , isdecrelhzneq , ( natnattohz <span class="mi">3</span> <span class="mi">0</span> ) , hzzero ) ) ) )  ( hzhztohq ( natnattohz <span class="mi">13</span> <span class="mi">1</span> ) ( tpair _ ( natnattohz <span class="mi">11</span> <span class="mi">2</span> ) ( ct ( hzneq , isdecrelhzneq , ( natnattohz <span class="mi">11</span> <span class="mi">2</span> ) , hzzero ) ) ) ) ) .
+  <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> <span class="mi">4</span> = ( hzabsval ( intpart ( hqdiv ( hztohq ( nattohz ( <span class="mi">10</span> ) ) )  ( - ( <span class="mi">1</span> + <span class="mi">1</span> + <span class="mi">1</span> ) ) ) ) ) .
+  <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+
+
+
+<span class="kn">End</span> <span class="nf">Test_rat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/NumberSystems/Tests.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/NaturalNumbers.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require UniMath.Foundations.NaturalNumbers.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Algebra.Groups.
+  &gt; Require UniMath.MoreFoundations.DecidablePropositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

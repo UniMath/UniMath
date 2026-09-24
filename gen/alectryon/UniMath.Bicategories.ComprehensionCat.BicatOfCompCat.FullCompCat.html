@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FullCompCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> The bicategory of full comprehension categories</span>
+
+<span class="sd"> Our goal is to construct the bicategory of full comprehension categories, and to do so, we</span>
+<span class="sd"> use displayed bicategories. Starting with the bicategory of univalent categories, we add the</span>
+<span class="sd"> following structure to it in the following order.</span>
+<span class="sd"> 1. A displayed category and a terminal object.</span>
+<span class="sd"> 2. A cleaving for the displayed category.</span>
+<span class="sd"> 3. A comprehension functor.</span>
+<span class="sd"> 4. A proof that this comprehension functor is fully faithful.</span>
+<span class="sd"> In this file, we look at the last of these.</span>
+
+<span class="sd"> Before we explain the construction, we discuss what the 1-cells of this bicategory should be.</span>
+<span class="sd"> While we used lax morphisms in the bicategory of comprehension categories, we use pseudo</span>
+<span class="sd"> morphisms for this one. If we have two comprehension categories `C₁` and `C₂` whose</span>
+<span class="sd"> comprehension functors are given by `χ₁ : D₁ ⟶ Arr(C₁)` and `χ₂ : D₂ ⟶ Arr(C₂)`, then</span>
+<span class="sd"> a morphisms between them will have functors `FF : D₁ ⟶ D₂` and `Arr(F) : Arr(C₁) ⟶ Arr(C₂)`</span>
+<span class="sd"> (where `F` is the functor between the base categories of `C₁` and `C₂`). This gives us two</span>
+<span class="sd"> functors  `D₁ ⟶ Arr(C₂)`, namely `χ₁ · Arr(F)` and `FF · χ₂`. For a pseudo morphism, we</span>
+<span class="sd"> require a natural isomorphism between these two functors.</span>
+
+<span class="sd"> As such, our construction of the bicategory of full comprehension category restricts the</span>
+<span class="sd"> objects to the full ones (i.e., the comprehension functor is fully faithful), and it restricts</span>
+<span class="sd"> the morphisms to the pseudo ones (i.e., the natural isomorphisms). For this reason, we define</span>
+<span class="sd"> the bicategory of full comprehension categories as a subbicategory of the bicategory of</span>
+<span class="sd"> comprehension categories (and not as a full subbicategory). The univalence of the constructed</span>
+<span class="sd"> bicategory follows almost directly from the construction.</span>
+
+<span class="sd"> References:</span>
+<span class="sd"> - 'Categorical structures for deduction' by Coraglia (https://etagreta.github.io/docs/coraglia_phdthesis-oneside2023.pdf)</span>
+<span class="sd"> - 'Categorical Logic and Type Theory' by Jacobs</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The bicategory of full comprehension categories</span>
+<span class="sd"> 2. The univalence of the bicategory of full comprehension categories</span>
+<span class="sd"> 3. Builders and accessors</span>
+<span class="sd"> 4. Adjoint equivalences</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Equivalences.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.DisplayedFunctorEq.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The bicategory of full comprehension categories *)</span>
+<span class="kn">Definition</span> <span class="nf">is_full_comp_cat</span>
+           (<span class="nv">C</span> : comp_cat)
+  : UU
+  := disp_functor_ff (comp_cat_comprehension C).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_full_comp_cat</span>
+            (<span class="nv">C</span> : comp_cat)
+  : isaprop (is_full_comp_cat C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaprop_disp_functor_ff.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_full_comp_cat</span>
+  : disp_bicat bicat_comp_cat.
+<span class="kn">Proof</span>.
+  use disp_subbicat.
+  - <span class="bp">exact</span> is_full_comp_cat.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat)
+             (<span class="nv">P₁</span> : is_full_comp_cat C₁)
+             (<span class="nv">P₂</span> : is_full_comp_cat C₂)
+             (<span class="nv">F</span> : comp_cat_functor C₁ C₂),
+            ∏ (x : C₁)
+              (xx : disp_cat_of_types C₁ x),
+            is_z_isomorphism
+              (comprehension_nat_trans_mor (comp_cat_functor_comprehension F) xx)).
+  - <span class="nb">intros</span> C P x xx.
+    <span class="nb">apply</span> identity_is_z_iso.
+  - <span class="nb">intros</span> C₁ C₂ C₃ P₁ P₂ P₃ F G H₁ H₂ x xx.
+    <span class="nb">cbn</span>.
+    use is_z_isomorphism_comp.
+    + <span class="nb">apply</span> (functor_on_z_iso _ (_ ,, H₁ x xx)).
+    + <span class="nb">apply</span> H₂.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_full_comp_cat</span>
+  : bicat
+  := total_bicat disp_bicat_full_comp_cat.
+
+<span class="sd">(** * 2. The univalence of the bicategory of full comprehension categories *)</span>
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_full_comp_cat</span>
+  : disp_univalent_2_1 disp_bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_subbicat_univalent_2_1.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_disp_bicat_full_comp_cat</span>
+  : disp_univalent_2_0 disp_bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_0.
+  - <span class="bp">exact</span> is_univalent_2_bicat_comp_cat.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_full_comp_cat.
+  - <span class="nb">intros</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_1_bicat_full_comp_cat</span>
+  : is_univalent_2_1 bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_1.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_comp_cat.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_0_bicat_full_comp_cat</span>
+  : is_univalent_2_0 bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_comp_cat.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_2_bicat_full_comp_cat</span>
+  : is_univalent_2 bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_full_comp_cat.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Builders and accessors *)</span>
+<span class="kn">Definition</span> <span class="nf">full_comp_cat</span>
+  : UU
+  := bicat_full_comp_cat.
+
+<span class="kn">Definition</span> <span class="nf">make_full_comp_cat</span>
+           (<span class="nv">C</span> : comp_cat)
+           (<span class="nv">H</span> : disp_functor_ff (comp_cat_comprehension C))
+  : full_comp_cat
+  := C ,, H ,, tt.
+
+<span class="kn">Coercion</span> <span class="nf">full_comp_cat_to_comp_cat</span>
+         (C : full_comp_cat)
+  : comp_cat
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">full_comp_cat_comprehension_fully_faithful</span>
+           (<span class="nv">C</span> : full_comp_cat)
+  : disp_functor_ff (comp_cat_comprehension C)
+  := pr12 C.
+
+<span class="kn">Definition</span> <span class="nf">full_comp_cat_comprehension_fiber_fully_faithful</span>
+           {<span class="nv">C</span> : full_comp_cat}
+           (<span class="nv">x</span> : C)
+  : fully_faithful (fiber_functor (comp_cat_comprehension C) x).
+<span class="kn">Proof</span>.
+  use fiber_functor_ff.
+  <span class="bp">exact</span> (full_comp_cat_comprehension_fully_faithful C).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_comp_cat_functor</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat)
+  : UU
+  := C₁ --&gt; C₂.
+
+<span class="kn">Definition</span> <span class="nf">make_full_comp_cat_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : comp_cat_functor C₁ C₂)
+           (<span class="nv">HF</span> : ∏ (x : C₁)
+                   (xx : disp_cat_of_types C₁ x),
+                 is_z_isomorphism
+                   (comprehension_nat_trans_mor (comp_cat_functor_comprehension F) xx))
+  : full_comp_cat_functor C₁ C₂
+  := F ,, tt ,, HF.
+
+<span class="kn">Coercion</span> <span class="nf">full_comp_cat_functor_to_comp_cat_functor</span>
+         {C₁ C₂ : full_comp_cat}
+         (F : full_comp_cat_functor C₁ C₂)
+  : comp_cat_functor C₁ C₂
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">full_comp_cat_functor_is_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           {<span class="nv">x</span> : C₁}
+           (<span class="nv">xx</span> : disp_cat_of_types C₁ x)
+  : is_z_isomorphism
+      (comprehension_nat_trans_mor (comp_cat_functor_comprehension F) xx)
+  := pr22 F x xx.
+
+<span class="kn">Definition</span> <span class="nf">full_comp_cat_functor_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           {<span class="nv">x</span> : C₁}
+           (<span class="nv">xx</span> : disp_cat_of_types C₁ x)
+  : z_iso (F (comprehension_functor_ob (comp_cat_comprehension C₁) xx))
+          (comprehension_functor_ob (comp_cat_comprehension C₂) (comp_cat_type_functor F x xx))
+  := _ ,, full_comp_cat_functor_is_z_iso F xx.
+
+<span class="kn">Proposition</span> <span class="nf">full_comp_cat_fiber_nat_trans_ax</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+            (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+            (<span class="nv">x</span> : C₁)
+  : is_nat_trans
+      (fiber_functor (comp_cat_comprehension C₁) x
+       ∙ fiber_functor (disp_codomain_functor F) x)
+      (fiber_functor (comp_cat_type_functor F) x
+       ∙ fiber_functor (comp_cat_comprehension C₂) (F x))
+      (comp_cat_functor_comprehension F x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> xx xx' f.
+  use eq_mor_cod_fib.
+  <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _ @ !(comp_in_cod_fib _ _)).
+  <span class="nb">cbn</span> -[fiber_functor].
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> disp_codomain_fiber_functor_mor.
+  }
+  <span class="nb">pose</span> (disp_nat_trans_ax
+          (comp_cat_functor_comprehension F)
+          (f := identity x)
+          (xx := xx')
+          (xx' := xx)
+          f)
+    <span class="k">as</span> p.
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr1 z) p @ _).
+  <span class="nb">refine</span> (transportb_cod_disp _ _ _ @ _).
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> comprehension_functor_mor_transportf.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_comp_cat_fiber_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           (<span class="nv">x</span> : C₁)
+  : fiber_functor (comp_cat_comprehension C₁) x
+    ∙ fiber_functor (disp_codomain_functor F) x
+    ⟹
+    fiber_functor (comp_cat_type_functor F) x
+    ∙ fiber_functor (comp_cat_comprehension C₂) (F x).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (comp_cat_functor_comprehension F x).
+  - <span class="bp">exact</span> (full_comp_cat_fiber_nat_trans_ax F x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_comp_cat_fiber_nat_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           (<span class="nv">x</span> : C₁)
+  : nat_z_iso
+      (fiber_functor (comp_cat_comprehension C₁) x
+       ∙ fiber_functor (disp_codomain_functor F) x)
+      (fiber_functor (comp_cat_type_functor F) x
+       ∙ fiber_functor (comp_cat_comprehension C₂) (F x)).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> (full_comp_cat_fiber_nat_trans F x).
+  - <span class="nb">intro</span> xx.
+    use is_z_iso_fiber_from_is_z_iso_disp.
+    use is_z_iso_disp_codomain.
+    <span class="nb">apply</span> full_comp_cat_functor_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_comp_cat_fiber_nat_z_iso_inv</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           (<span class="nv">x</span> : C₁)
+  : nat_z_iso
+      (fiber_functor (comp_cat_type_functor F) x
+       ∙ fiber_functor (comp_cat_comprehension C₂) (F x))
+      (fiber_functor (comp_cat_comprehension C₁) x
+       ∙ fiber_functor (disp_codomain_functor F) x)
+  := nat_z_iso_inv (full_comp_cat_fiber_nat_z_iso F x).
+
+<span class="kn">Definition</span> <span class="nf">full_comp_cat_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> <span class="nv">G</span> : full_comp_cat_functor C₁ C₂)
+  : UU
+  := F ==&gt; G.
+
+<span class="kn">Coercion</span> <span class="nf">full_comp_cat_nat_trans_to_comp_cat_nat_trans</span>
+         {C₁ C₂ : full_comp_cat}
+         {F G : full_comp_cat_functor C₁ C₂}
+         (τ : full_comp_cat_nat_trans F G)
+  : comp_cat_nat_trans F G
+  := pr1 τ.
+
+<span class="kn">Definition</span> <span class="nf">make_full_comp_cat_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : full_comp_cat_functor C₁ C₂}
+           (<span class="nv">τ</span> : comp_cat_nat_trans F G)
+  : full_comp_cat_nat_trans F G
+  := τ ,, tt ,, tt.
+
+<span class="kn">Proposition</span> <span class="nf">full_comp_nat_trans_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : full_comp_cat_functor C₁ C₂}
+            {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : full_comp_cat_nat_trans F G}
+            (<span class="nv">p</span> : ∏ (x : C₁), τ₁ x = τ₂ x)
+            (<span class="nv">p'</span> := nat_trans_eq (homset_property _) _ _ _ _ p)
+            (<span class="nv">pp</span> : ∏ (x : C₁)
+                    (xx : disp_cat_of_types C₁ x),
+                  transportf
+                    _
+                    (nat_trans_eq_pointwise p' x)
+                    (comp_cat_type_nat_trans τ₁ x xx)
+                  =
+                  comp_cat_type_nat_trans τ₂ x xx)
+  : τ₁ = τ₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    use isapropdirprod ; <span class="nb">apply</span> isapropunit.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_comprehension_nat_trans_eq.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    use isapropdirprod ; <span class="nb">apply</span> isapropunit.
+  }
+  use total2_paths_f.
+  - use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="bp">exact</span> p.
+  - etrans.
+    {
+      use transportf_dirprod.
+    }
+    use dirprodeq.
+    + <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> transportf_const.
+      <span class="nb">apply</span> (proofirrelevance _ (isapropdirprod _ _ isapropunit isapropunit)).
+    + <span class="nb">simpl</span>.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx.
+      etrans.
+      {
+        use disp_nat_trans_transportf.
+      }
+      <span class="nb">apply</span> pp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Adjoint equivalences *)</span>
+<span class="kn">Definition</span> <span class="nf">full_comp_cat_left_adjoint_equivalence_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat}
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+           (<span class="nv">x</span> : C₁)
+           (<span class="nv">xx</span> : disp_cat_of_types C₁ x)
+  : is_z_isomorphism
+      (comprehension_nat_trans_mor
+         (comp_cat_functor_comprehension (pr1 F))
+         xx).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> C₁ C₂ F x xx.
+  use J_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_comp_cat.
+  - <span class="nb">intros</span> C x xx ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> is_z_isomorphism_identity.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_comp_cat_left_adjoint_equivalence</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           (<span class="nv">HF</span> : left_adjoint_equivalence (pr1 F))
+  : left_adjoint_equivalence F.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (left_adjoint_equivalence_subbicat _ _ _ _ _ _ HF).
+  <span class="nb">clear</span> C₁ C₂ F HF.
+  <span class="nb">intros</span> C₁ C₂ HC₁ HC₂ F HF x xx.
+  <span class="bp">exact</span> (full_comp_cat_left_adjoint_equivalence_help (F ,, HF) x xx).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/BicatOfCompCat/FullCompCat.v</tt>, line 41)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Adjoint equivalences
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

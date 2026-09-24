@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PropositionalLogic.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">This file contains a formalization of the syntax of propositional logic as the initial algebra of a</span>
+<span class="sd">functor.</span>
+
+<span class="sd">Following Goldblatt's 'Topoi', all of the connectives are treated as primitive. As stated there,</span>
+<span class="sd">they are _a priori_ distinct; their interdefinability is naturally propositional, not definitional.</span>
+
+<span class="sd">Written by: Langston Barrett, 2019</span>
+
+<span class="sd">*)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">  - Definition of PL syntax as an initial algebra</span>
+<span class="sd">  - Definition of a PL valuation in [bool]</span>
+<span class="sd">  - TODO: Definition of a PL valuation in an (order-theoretic) algebra</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Bool.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Adamek.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cocont_functor_hset_scope.
+
+<span class="kn">Section</span> <span class="nf">PL</span>.
+
+<span class="kn">Let</span> <span class="nf">times</span> <span class="nv">x</span> <span class="nv">y</span> := BinProductObject _ (BinProductsHSET x y).
+<span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"⊗"</span> := times.
+
+<span class="kn">Variable</span> (<span class="nv">vars</span> : hSet).
+
+<span class="sd">(**</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">    PL_functor Var Rec :=</span>
+<span class="sd">        Var            (* -- arity 1, sentences *)</span>
+<span class="sd">      + Rec            (* -- arity 1, ¬ (not) *)</span>
+<span class="sd">      + (Rec × Rec)    (* -- arity 2, ∧ (and) *)</span>
+<span class="sd">      + (Rec × Rec)    (* -- arity 2, ∨ (or) *)</span>
+<span class="sd">      + (Rec × Rec)    (* -- arity 2, → (implies) *)</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">PL_functor</span> : omega_cocont_functor HSET HSET :=
+  (omega_cocont_constant_functor (vars : HSET)) + Id + (Id * Id) + (Id * Id) + (Id * Id).
+
+<span class="c">(*</span>
+<span class="c">Definition PL_functor : omega_cocont_functor HSET HSET :=</span>
+<span class="c">  ' vars + Id + (Id * Id) + (Id * Id) + (Id * Id).</span>
+<span class="c"> *)</span>
+
+<span class="sd">(** The following three statements are crucial for performance. *)</span>
+<span class="kn">Definition</span> <span class="nf">PL_functor'</span> : functor HSET HSET := pr1 PL_functor.
+<span class="kn">Let</span> <span class="nf">is_omega_cocont_PL_functor'</span> : is_omega_cocont PL_functor' := pr2 PL_functor.
+<span class="kn">Opaque</span> is_omega_cocont_PL_functor'.
+
+<span class="kn">Lemma</span> <span class="nf">PL_functor_initial</span> :
+  Initial (category_FunctorAlg PL_functor').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (colimAlgInitial InitialHSET is_omega_cocont_PL_functor' (ColimCoconeHSET _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Let</span> <span class="nf">PL_alg</span> : algebra_ob PL_functor' := InitialObject PL_functor_initial.
+
+<span class="sd">(** The underlying set of the initial algebra *)</span>
+<span class="kn">Definition</span> <span class="nf">PL</span> : hSet := alg_carrier _ PL_alg.
+
+<span class="kn">Definition</span> <span class="nf">PL_type</span> : UU := pr1hSet PL.
+
+<span class="kn">Definition</span> <span class="nf">PL_var</span> : HSET⟦vars, PL⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ · alg_map _ PL_alg).
+  <span class="nb">intro</span> v; <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> inl; <span class="bp">exact</span> v.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PL_not</span> : HSET⟦PL, PL⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ · alg_map _ PL_alg).
+  <span class="nb">intro</span> s; <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> inl; <span class="nb">apply</span> inr; <span class="bp">exact</span> s.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PL_and</span> : HSET⟦PL ⊗ PL, PL⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ · alg_map _ PL_alg).
+  <span class="nb">intro</span> s; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> inl; <span class="nb">apply</span> inr; <span class="bp">exact</span> s.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PL_and_fun</span> (<span class="nv">x</span> : PL_type) (<span class="nv">y</span> : PL_type) : PL_type :=
+  PL_and (make_dirprod x y).
+
+<span class="kn">Definition</span> <span class="nf">PL_or</span> : HSET⟦PL ⊗ PL, PL⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ · alg_map _ PL_alg).
+  <span class="nb">intro</span> s; <span class="kp">do</span> <span class="mi">1</span> <span class="nb">apply</span> inl; <span class="nb">apply</span> inr; <span class="bp">exact</span> s.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PL_or_fun</span> (<span class="nv">x</span> : PL_type) (<span class="nv">y</span> : PL_type) : PL_type :=
+  PL_or (make_dirprod x y).
+
+<span class="kn">Definition</span> <span class="nf">PL_impl</span> : HSET⟦PL ⊗ PL, PL⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ · alg_map _ PL_alg).
+  <span class="nb">intro</span> s; <span class="nb">apply</span> inr; <span class="bp">exact</span> s.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PL_impl_fun</span> (<span class="nv">x</span> : PL_type) (<span class="nv">y</span> : PL_type) : PL_type :=
+  PL_impl (make_dirprod x y).
+
+<span class="kn">Definition</span> <span class="nf">PL_iff_fun</span> (<span class="nv">x</span> : PL_type) (<span class="nv">y</span> : PL_type) : PL_type :=
+  PL_and_fun (PL_impl (make_dirprod x y)) (PL_impl (make_dirprod y x)).
+
+<span class="kn">Declare Scope</span> PL.
+<span class="kn">Delimit Scope</span> PL <span class="k">with</span> PL.
+<span class="kn">Notation</span> <span class="s2">"¬"</span> := (PL_not) : PL.
+<span class="kn">Infix</span> <span class="s2">"∧"</span> := (PL_and) : PL.
+<span class="kn">Infix</span> <span class="s2">"∨"</span> := (PL_or) : PL.
+<span class="kn">Infix</span> <span class="s2">"⇒"</span> := (PL_impl) : PL.
+<span class="kn">Infix</span> <span class="s2">"⇔"</span> := (PL_iff_fun) (<span class="kn">at level</span> <span class="mi">90</span>) : PL.
+
+<span class="kn">Definition</span> <span class="nf">make_PL_algebra</span> (<span class="nv">X</span> : hSet) (<span class="nv">vs</span> : vars -&gt; X) (<span class="nv">not</span> : X -&gt; X)
+           (<span class="nv">and</span> : X -&gt; X -&gt; X) (<span class="nv">or</span> : X -&gt; X -&gt; X) (<span class="nv">impl</span> : X -&gt; X -&gt; X) :
+  algebra_ob PL_functor'.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">X</span>.
+  <span class="nb">cbn</span>; <span class="kp">do</span> <span class="mi">5</span> (<span class="kp">try</span> (<span class="nb">apply</span> sumofmaps)).
+  - <span class="bp">assumption</span>. <span class="c">(* vs *)</span>
+  - <span class="bp">exact</span> not.
+  - <span class="nb">apply</span> (invweq (weqfunfromdirprod _ _ _)); <span class="bp">exact</span> <span class="kn">and</span>.
+  - <span class="nb">apply</span> (invweq (weqfunfromdirprod _ _ _)); <span class="bp">exact</span> or.
+  - <span class="nb">apply</span> (invweq (weqfunfromdirprod _ _ _)); <span class="bp">exact</span> impl.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** The fold, or catamorphism: given the same structure of operations on any</span>
+<span class="sd">    other set, we can construct an interpretation of PL in that set. *)</span>
+<span class="kn">Definition</span> <span class="nf">PL_fold_alg_mor</span> {<span class="nv">X</span> : hSet} (<span class="nv">vs</span> : vars -&gt; X)
+           (<span class="nv">not</span> : X -&gt; X) (<span class="nv">and</span> : X -&gt; X -&gt; X) (<span class="nv">or</span> : X -&gt; X -&gt; X) (<span class="nv">impl</span> : X -&gt; X -&gt; X) :
+  algebra_mor PL_functor' PL_alg (make_PL_algebra X vs not <span class="kn">and</span> or impl).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (InitialArrow PL_functor_initial (make_PL_algebra X vs not <span class="kn">and</span> or impl)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PL_fold</span> {<span class="nv">X</span> : hSet} (<span class="nv">vs</span> : vars -&gt; X)
+           (<span class="nv">not</span> : X -&gt; X) (<span class="nv">and</span> : X -&gt; X -&gt; X) (<span class="nv">or</span> : X -&gt; X -&gt; X) (<span class="nv">impl</span> : X -&gt; X -&gt; X) :
+  PL -&gt; X := mor_from_algebra_mor _ (PL_fold_alg_mor vs not <span class="kn">and</span> or impl).
+
+<span class="sd">(** Some lemmas expressing the computational behavior of [PL_fold] *)</span>
+<span class="kn">Section</span> <span class="nf">FoldComputationLemmas</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : hSet} (<span class="nv">vs</span> : vars -&gt; X)
+          (<span class="nv">not</span> : X -&gt; X) (<span class="nv">and</span> : X -&gt; X -&gt; X) (<span class="nv">or</span> : X -&gt; X -&gt; X) (<span class="nv">impl</span> : X -&gt; X -&gt; X).
+
+  <span class="kn">Let</span> <span class="nf">fold</span> := PL_fold vs not <span class="kn">and</span> or impl.
+  <span class="kn">Let</span> <span class="nf">mor</span> := PL_fold_alg_mor vs not <span class="kn">and</span> or impl.
+  <span class="kn">Let</span> <span class="nf">comm</span> := algebra_mor_commutes _ _ _ mor.
+
+  <span class="kn">Lemma</span> <span class="nf">PL_fold_var</span> : ∏ z, <span class="nb">fold</span> (PL_var z) = vs z.
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PL_fold_not</span> : ∏ p, <span class="nb">fold</span> (PL_not p) = not (<span class="nb">fold</span> p).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (inl : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) <span class="k">in</span> comm.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (inr : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) <span class="k">in</span> comm.
+    <span class="nb">apply</span> eqtohomot <span class="k">in</span> comm.
+    <span class="nb">specialize</span> (comm p).
+    <span class="bp">exact</span> comm.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PL_fold_and</span> : ∏ p q, <span class="nb">fold</span> (PL_and (make_dirprod p q)) = <span class="kn">and</span> (<span class="nb">fold</span> p) (<span class="nb">fold</span> q).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p q.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (inl : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) <span class="k">in</span> comm.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (inr : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) <span class="k">in</span> comm.
+    <span class="nb">apply</span> eqtohomot <span class="k">in</span> comm.
+    <span class="nb">specialize</span> (comm (make_dirprod p q)).
+    <span class="bp">exact</span> comm.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PL_fold_or</span> : ∏ p q, <span class="nb">fold</span> (PL_or (make_dirprod p q)) = or (<span class="nb">fold</span> p) (<span class="nb">fold</span> q).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p q.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (inl : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) <span class="k">in</span> comm.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (inr : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) <span class="k">in</span> comm.
+    <span class="nb">apply</span> eqtohomot <span class="k">in</span> comm.
+    <span class="nb">specialize</span> (comm (make_dirprod p q)).
+    <span class="bp">exact</span> comm.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PL_fold_impl</span> : ∏ p q, <span class="nb">fold</span> (PL_impl (make_dirprod p q)) = impl (<span class="nb">fold</span> p) (<span class="nb">fold</span> q).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p q.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (inr : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) <span class="k">in</span> comm.
+    <span class="nb">apply</span> eqtohomot <span class="k">in</span> comm.
+    <span class="nb">specialize</span> (comm (make_dirprod p q)).
+    <span class="nb">apply</span> comm.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">FoldComputationLemmas</span>.
+
+
+<span class="sd">(** The induction principle.</span>
+
+<span class="sd">    Mirrors the proof for lists.</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">PL_ind</span>.
+
+<span class="kn">Context</span> {<span class="nv">P</span> : PL -&gt; UU} (<span class="nv">PhSet</span> : ∏ l, isaset (P l)).
+<span class="kn">Context</span> (<span class="nv">P_vars</span> : ∏ v : vars, P (PL_var v))
+        (<span class="nv">P_not</span> : ∏ pl, P pl -&gt; P (PL_not pl))
+        (<span class="nv">P_and</span> : ∏ pl1 pl2, P pl1 -&gt; P pl2 -&gt; P (PL_and (make_dirprod pl1 pl2)))
+        (<span class="nv">P_or</span> : ∏ pl1 pl2, P pl1 -&gt; P pl2 -&gt; P (PL_or (make_dirprod pl1 pl2)))
+        (<span class="nv">P_impl</span> : ∏ pl1 pl2, P pl1 -&gt; P pl2 -&gt; P (PL_impl (make_dirprod pl1 pl2))).
+
+<span class="kn">Let</span> <span class="nf">P'</span> : UU := ∑ pl : PL, P pl.
+<span class="kn">Let</span> <span class="nf">P'_vars</span> (<span class="nv">v</span> : vars) : P' := (PL_var v,, P_vars v).
+<span class="kn">Let</span> <span class="nf">P'_not</span> (<span class="nv">pl</span> : P') : P' := (PL_not (pr1 pl),, P_not _ (pr2 pl)).
+<span class="kn">Let</span> <span class="nf">P'_and</span> (<span class="nv">pl1</span> <span class="nv">pl2</span> : P') : P' :=
+  (PL_and (make_dirprod (pr1 pl1) (pr1 pl2)),,
+   P_and _ _ (pr2 pl1) (pr2 pl2)).
+<span class="kn">Let</span> <span class="nf">P'_or</span> (<span class="nv">pl1</span> <span class="nv">pl2</span> : P') : P' :=
+  (PL_or (make_dirprod (pr1 pl1) (pr1 pl2)),,
+   P_or _ _ (pr2 pl1) (pr2 pl2)).
+<span class="kn">Let</span> <span class="nf">P'_impl</span> (<span class="nv">pl1</span> <span class="nv">pl2</span> : P') : P' :=
+  (PL_impl (make_dirprod (pr1 pl1) (pr1 pl2)),,
+   P_impl _ _ (pr2 pl1) (pr2 pl2)).
+
+<span class="kn">Definition</span> <span class="nf">P'HSET</span> : HSET.
+<span class="kn">Proof</span>.
+  use make_hSet.
+  - <span class="bp">exact</span> P'.
+  - <span class="kp">abstract</span> (<span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>); [ <span class="nb">apply</span> setproperty | <span class="nb">intro</span> x; <span class="nb">apply</span> PhSet ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Opaque</span> is_omega_cocont_PL_functor'.
+
+<span class="kn">Lemma</span> <span class="nf">is_algebra_morphism_pr1_PL_fold</span> :
+  is_algebra_mor _ PL_alg PL_alg (<span class="k">λ</span> <span class="nv">l</span>, pr1 (@PL_fold P'HSET P'_vars P'_not P'_and P'_or P'_impl l)).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (BinCoproductArrow_eq_cor _ BinCoproductsHSET).
+- <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x; <span class="nb">induction</span> x <span class="k">as</span> [x2 | x3].
+  + <span class="nb">induction</span> x2 <span class="k">as</span> [x4 | x5].
+    * <span class="nb">induction</span> x4 <span class="k">as</span> [x6 | x7].
+      -- <span class="nb">cbn</span> <span class="k">in</span> x6.
+         <span class="c">(* This line takes forever, more performance work to be done. *)</span>
+         <span class="c">(* apply (maponpaths pr1 (@PL_fold_var P'HSET P'_vars P'_not P'_and P'_or P'_impl x6)). *)</span>
+<span class="kn">Abort</span>.
+
+<span class="kn">End</span> <span class="nf">PL_ind</span>.
+
+<span class="kn">End</span> <span class="nf">PL</span>.
+
+<span class="sd">(** A valuation for atomic sentences can be extended to one for all sentences. *)</span>
+<span class="kn">Definition</span> <span class="nf">bool_valuation</span> {<span class="nv">vars</span> : hSet} (<span class="nv">V</span> : vars -&gt; bool) : PL vars -&gt; bool.
+<span class="kn">Proof</span>.
+  use (@PL_fold vars boolset).
+  - <span class="bp">assumption</span>. <span class="c">(* V *)</span>
+  - <span class="bp">exact</span> negb.
+  - <span class="bp">exact</span> andb.
+  - <span class="bp">exact</span> orb.
+  - <span class="bp">exact</span> implb.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Inductives/PropositionalLogic.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   - TODO: Definition of a PL valuation in an (order-theoretic) algebra
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

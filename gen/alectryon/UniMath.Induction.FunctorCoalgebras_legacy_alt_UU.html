@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FunctorCoalgebras_legacy_alt_UU.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">    An alternative definition of coalgebra in type_precat that</span>
+<span class="sd">    gives a precategory, so that an adjunction can be shown</span>
+<span class="sd">    in MWithSets</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Coalgebra_Definition</span>.
+
+<span class="kn">Context</span> (<span class="nv">F</span> : functor type_precat type_precat).
+
+<span class="kn">Definition</span> <span class="nf">coalgebra</span> : UU := ∑ X : type_precat, X --&gt; F X.
+
+<span class="kn">Definition</span> <span class="nf">coalgebra_ob</span> (<span class="nv">X</span> : coalgebra) : type_precat := pr1 X.
+<span class="kn">Local Coercion</span> <span class="nf">coalgebra_ob</span> : coalgebra &gt;-&gt; ob.
+
+<span class="kn">Definition</span> <span class="nf">coalgebra_mor</span> (<span class="nv">X</span> : coalgebra) : type_precat ⟦X, F X ⟧ := pr2 X.
+
+<span class="sd">(** A homomorphism of F-coalgebras (F A, α : C ⟦A, F A⟧) and (F B, β : C ⟦B, F B⟧)</span>
+<span class="sd">    is a morphism f : C ⟦A, B⟧ s.t. the below diagram commutes in a sense of pointwise propositionally truncated equality.</span>
+
+<span class="sd">  &lt;&lt;</span>
+<span class="sd">         f</span>
+<span class="sd">     A -----&gt; B</span>
+<span class="sd">     |        |</span>
+<span class="sd">     | α      | β</span>
+<span class="sd">     |        |</span>
+<span class="sd">     V        V</span>
+<span class="sd">    F A ---&gt; F B</span>
+<span class="sd">        F f</span>
+<span class="sd">  &gt;&gt;</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_coalgebra_homo</span> {<span class="nv">X</span> <span class="nv">Y</span> : coalgebra} (<span class="nv">f</span> : type_precat ⟦X, Y⟧) (<span class="nv">x</span> : coalgebra_ob X) : UU
+  := ((coalgebra_mor X) · #F f) x = (f · (coalgebra_mor Y)) x.
+
+<span class="kn">Definition</span> <span class="nf">coalgebra_homo</span> (<span class="nv">X</span> <span class="nv">Y</span> : coalgebra) := ∑ f : type_precat ⟦X, Y⟧, ∏ x : coalgebra_ob X, ∥ is_coalgebra_homo f x ∥.
+
+<span class="kn">Definition</span> <span class="nf">mor_from_coalgebra_homo</span> (<span class="nv">X</span> <span class="nv">Y</span> : coalgebra) (<span class="nv">f</span> : coalgebra_homo X Y)
+  : type_precat ⟦X, Y⟧ := pr1 f.
+<span class="kn">Coercion</span> <span class="nf">mor_from_coalgebra_homo</span> : coalgebra_homo &gt;-&gt; precategory_morphisms.
+
+<span class="kn">Lemma</span> <span class="nf">coalgebra_homo_commutes</span> {<span class="nv">X</span> <span class="nv">Y</span> : coalgebra} (<span class="nv">f</span> : coalgebra_homo X Y) (<span class="nv">x</span> : coalgebra_ob X) (<span class="nv">P</span> : hProp) :
+  (((coalgebra_mor X) · #F f) x = (f · (coalgebra_mor Y)) x -&gt; P) -&gt; P.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Hyp.
+  <span class="nb">apply</span> (factor_through_squash (pr2 P) Hyp).
+  <span class="bp">exact</span> (pr2 f x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">coalgebra_homo_id</span> (<span class="nv">X</span> : coalgebra) : coalgebra_homo X X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+  <span class="nb">intro</span> x.
+  <span class="nb">unfold</span> is_coalgebra_homo.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> functor_id.
+  <span class="nb">rewrite</span> id_right.
+  <span class="bp">exact</span> (hinhpr (idpath (coalgebra_mor X x))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">coalgebra_homo_comp</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : coalgebra) (<span class="nv">f</span> : coalgebra_homo X Y)
+           (<span class="nv">g</span> : coalgebra_homo Y Z) : coalgebra_homo X Z.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">f</span> · g).
+  <span class="nb">intro</span> x.
+  <span class="nb">unfold</span> is_coalgebra_homo.
+  <span class="nb">rewrite</span> functor_comp.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> (coalgebra_homo_commutes f x).
+  <span class="nb">intro</span> Hypf.
+  <span class="nb">assert</span> (p1 : (coalgebra_mor X · # F f · # F g) x = (# F g) ((coalgebra_mor X · # F f) x)) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+  <span class="nb">rewrite</span> p1.
+  <span class="nb">rewrite</span> Hypf.
+  <span class="nb">assert</span> (p2 : # F g ((f · coalgebra_mor Y) x) = (f · coalgebra_mor Y · # F g) x) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+  <span class="nb">rewrite</span> p2.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">apply</span> (coalgebra_homo_commutes g (pr1 f x)).
+  <span class="nb">intro</span> Hypg.
+  <span class="nb">assert</span> (p3 : (f · (coalgebra_mor Y · # F g)) x = (coalgebra_mor Y · # F g) (pr1 f x)) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+  <span class="nb">rewrite</span> p3.
+  <span class="nb">rewrite</span> Hypg.
+  <span class="nb">assert</span> (p4 : (g · coalgebra_mor Z) (pr1 f x) = (f · (g · coalgebra_mor Z)) x) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+  <span class="nb">rewrite</span> p4.
+  <span class="nb">rewrite</span> assoc.
+  <span class="bp">exact</span> (hinhpr (idpath _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">CoAlg_precategory_ob_mor</span> : precategory_ob_mor :=
+  make_precategory_ob_mor coalgebra coalgebra_homo.
+
+<span class="kn">Definition</span> <span class="nf">CoAlg_precategory_data</span>: precategory_data :=
+  make_precategory_data CoAlg_precategory_ob_mor
+                        coalgebra_homo_id
+                        coalgebra_homo_comp.
+
+<span class="kn">End</span> <span class="nf">Coalgebra_Definition</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoAlg_is_precategory</span> (<span class="nv">F</span> : functor type_precat type_precat)
+  : is_precategory (CoAlg_precategory_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span>.
+      use total2_paths_f.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> funextsec.
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropishinh.
+    + <span class="nb">intros</span>.
+      use total2_paths_f.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> funextsec.
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropishinh.
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span>.
+      use total2_paths_f.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> funextsec.
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropishinh.
+    + <span class="nb">intros</span>.
+      use total2_paths_f.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> funextsec.
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropishinh.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">CoAlg_precategory</span> (<span class="nv">F</span> : functor type_precat type_precat) : precategory
+  := make_precategory (CoAlg_precategory_data F) (CoAlg_is_precategory F).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Induction/FunctorCoalgebras_legacy_alt_UU.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Propositions.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     in MWithSets
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Propositions.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Isos.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

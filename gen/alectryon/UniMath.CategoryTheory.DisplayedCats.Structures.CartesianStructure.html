@@ -1,0 +1,881 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CartesianStructure.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Structures on sets</span>
+
+<span class="sd"> In this file, we look at a particular class of structures on the</span>
+<span class="sd"> category of set that is closed under products and the terminal</span>
+<span class="sd"> object. Key in this development are displayed categories and the</span>
+<span class="sd"> structure identity principle.</span>
+
+<span class="sd"> The notion of structure that we consider, consists of:</span>
+<span class="sd"> - For every hSet, a set of structures on that set</span>
+<span class="sd"> - For every function, a proposition that represents wheter this</span>
+<span class="sd">   function preserves the structure.</span>
+<span class="sd"> The notion of structure must be closed under product and there</span>
+<span class="sd"> must be a structure for the unit set. We also require that</span>
+<span class="sd"> structure-preserving maps are closed under identity, composition,</span>
+<span class="sd"> constant functions, and pairing. We also require that projections</span>
+<span class="sd"> and the map to the unit set are structure preserving. The final</span>
+<span class="sd"> requirement is the notion of 'standardness' (see the HoTT book),</span>
+<span class="sd"> from which we conclude the univalence of the category of</span>
+<span class="sd"> structured sets.</span>
+
+<span class="sd"> We also give conditions that guarantee the category of structures</span>
+<span class="sd"> is a cartesian category.</span>
+
+<span class="sd"> Finally, we look at structures for which we have a section on the</span>
+<span class="sd"> corresponding displayed category. This gives the following</span>
+<span class="sd"> requirements:</span>
+<span class="sd"> - For every set `X`, we have a structure `PX` on `X`</span>
+<span class="sd"> - Every map `f : X → Y` is a structure preserving map from `PX`</span>
+<span class="sd">   to `PY`</span>
+<span class="sd"> - If we have a set `X` with a structure `S` on it, then the</span>
+<span class="sd">   identity is a structure preserving map from `PX` to `S`.</span>
+<span class="sd"> This gives a left adjoint of the forgetful functor.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Definition of the structures</span>
+<span class="sd"> 2. The corresponding displayed category</span>
+<span class="sd"> 3. The total category</span>
+<span class="sd"> 4. Transporting structures</span>
+<span class="sd"> 5. Cartesian structures</span>
+<span class="sd"> 6. Transport laws for cartesian structures</span>
+<span class="sd"> 7. Terminal object and products from cartesian structures</span>
+<span class="sd"> 8. Sections of structures</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.SIP.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Binproducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Definition of the structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">hset_struct_data</span>
+  : UU
+  := ∑ (P : hSet → UU),
+     (∏ (X Y : hSet), P X → P Y → (X → Y) → UU).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_data_to_fam</span> (<span class="nv">P</span> : hset_struct_data) : hSet → UU
+  := pr1 P.
+
+<span class="kn">Coercion</span> <span class="nf">hset_struct_data_to_fam</span> : hset_struct_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">mor_hset_struct</span>
+           (<span class="nv">P</span> : hset_struct_data)
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">PX</span> : P X)
+           (<span class="nv">PY</span> : P Y)
+           (<span class="nv">f</span> : X → Y)
+  : UU
+  := pr2 P X Y PX PY f.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_laws</span>
+           (<span class="nv">P</span> : hset_struct_data)
+  : UU
+  := (∏ (X : hSet),
+      isaset (P X))
+     ×
+     (∏ (X Y : hSet)
+        (PX : P X) (PY : P Y)
+        (f : X → Y),
+      isaprop (mor_hset_struct P PX PY f))
+     ×
+     (∏ (X : hSet)
+        (PX : P X),
+      mor_hset_struct P PX PX (<span class="k">λ</span> <span class="nv">x</span>, x))
+     ×
+     (∏ (X Y Z : hSet)
+        (PX : P X)
+        (PY : P Y)
+        (PZ : P Z)
+        (f : X → Y)
+        (g : Y → Z)
+        (Mf : mor_hset_struct P PX PY f)
+        (Mg : mor_hset_struct P PY PZ g),
+      mor_hset_struct P PX PZ (<span class="k">λ</span> <span class="nv">x</span>, g(f x)))
+     ×
+     (∏ (X : hSet)
+        (PX PX' : P X),
+      mor_hset_struct P PX PX' (<span class="k">λ</span> <span class="nv">x</span>, x)
+      → mor_hset_struct P PX' PX (<span class="k">λ</span> <span class="nv">x</span>, x)
+      → PX = PX').
+
+<span class="kn">Definition</span> <span class="nf">hset_struct</span>
+  : UU
+  := ∑ (P : hset_struct_data), hset_struct_laws P.
+
+<span class="kn">Coercion</span> <span class="nf">hset_struct_to_data</span>
+         (P : hset_struct)
+  : hset_struct_data
+  := pr1 P.
+
+<span class="kn">Section</span> <span class="nf">Projections</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : hset_struct).
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_hset_struct_on_set</span>
+              (<span class="nv">X</span> : hSet)
+    : isaset (P X).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 P X).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_hset_struct_on_mor</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">PX</span> : P X) (<span class="nv">PY</span> : P Y)
+              (<span class="nv">f</span> : X → Y)
+    : isaprop (mor_hset_struct P PX PY f).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 P X Y PX PY f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_id</span>
+              {<span class="nv">X</span> : hSet}
+              (<span class="nv">PX</span> : P X)
+    : mor_hset_struct P PX PX (<span class="k">λ</span> <span class="nv">x</span>, x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr222 P) X PX).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_comp</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+              {<span class="nv">PX</span> : P X}
+              {<span class="nv">PY</span> : P Y}
+              {<span class="nv">PZ</span> : P Z}
+              {<span class="nv">f</span> : X → Y}
+              {<span class="nv">g</span> : Y → Z}
+              (<span class="nv">Mf</span> : mor_hset_struct P PX PY f)
+              (<span class="nv">Mg</span> : mor_hset_struct P PY PZ g)
+    : mor_hset_struct P PX PZ (<span class="k">λ</span> <span class="nv">x</span>, g(f x)).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 (pr222 P) X Y Z PX PY PZ f g Mf Mg).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_standard</span>
+              {<span class="nv">X</span> : hSet}
+              {<span class="nv">PX</span> <span class="nv">PX'</span> : P X}
+              (<span class="nv">Mf</span> : mor_hset_struct P PX PX' (<span class="k">λ</span> <span class="nv">x</span>, x))
+              (<span class="nv">Mf'</span> : mor_hset_struct P PX' PX (<span class="k">λ</span> <span class="nv">x</span>, x))
+    : PX = PX'.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 (pr222 P) X PX PX' Mf Mf').
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Projections</span>.
+
+<span class="kn">Section</span> <span class="nf">SetStructure</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : hset_struct).
+
+  <span class="sd">(**</span>
+<span class="sd">   2. The corresponding displayed category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">hset_struct_disp_cat</span>
+    : disp_cat SET
+    := disp_struct
+         SET
+         P
+         (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">f</span>, mor_hset_struct P PX PY f)
+         (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">f</span>, isaprop_hset_struct_on_mor P PX PY f)
+         (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">PX</span>, hset_struct_id P PX)
+         (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">PZ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">Mf</span> <span class="nv">Mg</span>, hset_struct_comp P Mf Mg).
+
+  <span class="kn">Proposition</span> <span class="nf">is_univalent_disp_hset_struct_disp_cat</span>
+    : is_univalent_disp hset_struct_disp_cat.
+  <span class="kn">Proof</span>.
+    use is_univalent_disp_from_SIP_data.
+    - <span class="bp">exact</span> (isaset_hset_struct_on_set P).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">PX</span> <span class="nv">PX'</span> <span class="nv">Mf</span> <span class="nv">Mf'</span>, hset_struct_standard P Mf Mf').
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. The total category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">category_of_hset_struct</span>
+    : category
+    := total_category hset_struct_disp_cat.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_mor_hset_struct</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : category_of_hset_struct}
+              {<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}
+              (<span class="nv">p</span> : ∏ (x : pr11 X), pr1 f x = pr1 g x)
+    : f = g.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+    }
+    use funextsec.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">underlying_of_hset_struct</span>
+    : category_of_hset_struct ⟶ HSET
+    := pr1_category _.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_category_of_hset_struct</span>
+    : is_univalent category_of_hset_struct.
+  <span class="kn">Proof</span>.
+    use is_univalent_total_category.
+    - <span class="bp">exact</span> is_univalent_HSET.
+    - <span class="bp">exact</span> is_univalent_disp_hset_struct_disp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">univalent_category_of_hset_struct</span>
+    : univalent_category.
+  <span class="kn">Proof</span>.
+    use make_univalent_category.
+    - <span class="bp">exact</span> category_of_hset_struct.
+    - <span class="bp">exact</span> is_univalent_category_of_hset_struct.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Transporting structures</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">transportf_struct_weq</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             (<span class="nv">w</span> : X ≃ Y)
+             (<span class="nv">PX</span> : P X)
+    : P Y
+    := transportf P (univalence_hSet w) PX.
+
+  <span class="kn">Proposition</span> <span class="nf">transportf_struct_idweq</span>
+              (<span class="nv">X</span> : hSet)
+              (<span class="nv">PX</span> : P X)
+    : transportf_struct_weq (idweq X) PX = PX.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ idpath_transportf _ _).
+    <span class="nb">unfold</span> transportf_struct_weq.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> univalence_hSet_idweq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportf_mor_weq</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : hSet}
+             (<span class="nv">w₁</span> : X₁ ≃ Y₁)
+             (<span class="nv">w₂</span> : X₂ ≃ Y₂)
+             (<span class="nv">f</span> : X₁ → X₂)
+    : Y₁ → Y₂
+    := <span class="k">λ</span> <span class="nv">y</span>, w₂ (f (invmap w₁ y)).
+
+  <span class="kn">Definition</span> <span class="nf">transportf_struct_mor_via_transportf</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : hSet}
+             (<span class="nv">p₁</span> : X₁ = Y₁)
+             (<span class="nv">PX₁</span> : P X₁)
+             (<span class="nv">p₂</span> : X₂ = Y₂)
+             (<span class="nv">PX₂</span> : P X₂)
+             (<span class="nv">f</span> : X₁ → X₂)
+             (<span class="nv">Hf</span> : mor_hset_struct P PX₁ PX₂ f)
+    : mor_hset_struct
+        P
+        (transportf P p₁ PX₁)
+        (transportf P p₂ PX₂)
+        (transportf_mor_weq
+           (hSet_univalence_map _ _ p₁)
+           (hSet_univalence_map _ _ p₂)
+           f).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p₁, p₂ ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> Hf.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportf_struct_mor</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : hSet}
+             (<span class="nv">w₁</span> : X₁ ≃ Y₁)
+             (<span class="nv">PX₁</span> : P X₁)
+             (<span class="nv">w₂</span> : X₂ ≃ Y₂)
+             (<span class="nv">PX₂</span> : P X₂)
+             (<span class="nv">f</span> : X₁ → X₂)
+             (<span class="nv">Hf</span> : mor_hset_struct P PX₁ PX₂ f)
+    : mor_hset_struct
+        P
+        (transportf_struct_weq w₁ PX₁)
+        (transportf_struct_weq w₂ PX₂)
+        (transportf_mor_weq w₁ w₂ f).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (transportf_struct_mor_via_transportf
+            (univalence_hSet w₁)
+            PX₁
+            (univalence_hSet w₂)
+            PX₂
+            f
+            Hf)
+      <span class="k">as</span> H.
+    <span class="nb">rewrite</span> !hSet_univalence_map_univalence_hSet <span class="k">in</span> H.
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportf_struct_mor_via_eq</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : hSet}
+             (<span class="nv">w₁</span> : X₁ ≃ Y₁)
+             (<span class="nv">PX₁</span> : P X₁)
+             (<span class="nv">w₂</span> : X₂ ≃ Y₂)
+             (<span class="nv">PX₂</span> : P X₂)
+             (<span class="nv">f</span> : X₁ → X₂)
+             (<span class="nv">Hf</span> : mor_hset_struct P PX₁ PX₂ f)
+             (<span class="nv">g</span> : Y₁ → Y₂)
+             (<span class="nv">p</span> : ∏ (y : Y₁), g y = transportf_mor_weq w₁ w₂ f y)
+    : mor_hset_struct
+        P
+        (transportf_struct_weq w₁ PX₁)
+        (transportf_struct_weq w₂ PX₂)
+        g.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (transportf
+              _
+              _
+              (transportf_struct_mor w₁ PX₁ w₂ PX₂ f Hf)).
+    use funextsec.
+    <span class="nb">intro</span> y.
+    <span class="bp">exact</span> (!(p y)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportf_mor_weq_prod</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">Y₃</span> : hSet}
+             (<span class="nv">w₁</span> : X₁ ≃ Y₁)
+             (<span class="nv">w₂</span> : X₂ ≃ Y₂)
+             (<span class="nv">w₃</span> : X₃ ≃ Y₃)
+             (<span class="nv">f</span> : X₁ × X₂ → X₃)
+    : Y₁ × Y₂ → Y₃
+    := <span class="k">λ</span> <span class="nv">y</span>, w₃ (f (invmap w₁ (pr1 y) ,, invmap w₂ (pr2 y))).
+<span class="kn">End</span> <span class="nf">SetStructure</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Cartesian structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">hset_cartesian_struct_data</span>
+  : UU
+  := ∑ (P : hset_struct),
+     P unitHSET
+     ×
+     (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+     P (X × Y)%<span class="nb">set</span>).
+
+<span class="kn">Coercion</span> <span class="nf">hset_cartesian_struct_datat_to_struct</span>
+         (P : hset_cartesian_struct_data)
+  : hset_struct
+  := pr1 P.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_unit</span>
+           (<span class="nv">P</span> : hset_cartesian_struct_data)
+  : P unitHSET
+  := pr12 P.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_unit_ob</span>
+           (<span class="nv">P</span> : hset_cartesian_struct_data)
+  : category_of_hset_struct P
+  := _ ,, hset_struct_unit P.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_prod</span>
+           (<span class="nv">P</span> : hset_cartesian_struct_data)
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">PX</span> : P X)
+           (<span class="nv">PY</span> : P Y)
+  : P (X × Y)%<span class="nb">set</span>
+  := pr22 P X Y PX PY.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_prod_ob</span>
+           {<span class="nv">P</span> : hset_cartesian_struct_data}
+           (<span class="nv">PX</span> <span class="nv">PY</span> : category_of_hset_struct P)
+  : category_of_hset_struct P
+  := _ ,, hset_struct_prod P (pr2 PX) (pr2 PY).
+
+<span class="kn">Definition</span> <span class="nf">hset_cartesian_struct_laws</span>
+           (<span class="nv">P</span> : hset_cartesian_struct_data)
+  : UU
+  := (∏ (X : hSet)
+        (PX : P X),
+      mor_hset_struct P PX (hset_struct_unit P) (<span class="k">λ</span> <span class="nv">_</span> : X, tt))
+     ×
+     (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      mor_hset_struct P (hset_struct_prod P PX PY) PX dirprod_pr1)
+     ×
+     (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      mor_hset_struct P (hset_struct_prod P PX PY) PY dirprod_pr2)
+     ×
+     (∏ (W X Y : hSet)
+        (PW : P W)
+        (PX : P X)
+        (PY : P Y)
+        (f : W → X)
+        (g : W → Y)
+        (Mf : mor_hset_struct P PW PX f)
+        (Mg : mor_hset_struct P PW PY g),
+       mor_hset_struct P PW (hset_struct_prod P PX PY) (prodtofuntoprod (f ,, g))).
+
+<span class="kn">Definition</span> <span class="nf">hset_cartesian_struct</span>
+  : UU
+  := ∑ (P : hset_cartesian_struct_data), hset_cartesian_struct_laws P.
+
+<span class="kn">Coercion</span> <span class="nf">hset_cartesian_struct_to_data</span>
+         (P : hset_cartesian_struct)
+  : hset_cartesian_struct_data
+  := pr1 P.
+
+<span class="kn">Section</span> <span class="nf">Projections</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : hset_cartesian_struct).
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_to_unit</span>
+              {<span class="nv">X</span> : hSet}
+              (<span class="nv">PX</span> : P X)
+    : mor_hset_struct P PX (hset_struct_unit P) (<span class="k">λ</span> <span class="nv">_</span> : X, tt).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 P X PX).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_pr1</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">PX</span> : P X)
+              (<span class="nv">PY</span> : P Y)
+    : mor_hset_struct P (hset_struct_prod P PX PY) PX dirprod_pr1.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 P X Y PX PY).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_pr2</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">PX</span> : P X)
+              (<span class="nv">PY</span> : P Y)
+    : mor_hset_struct P (hset_struct_prod P PX PY) PY dirprod_pr2.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr222 P) X Y PX PY).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_pair</span>
+              {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">PW</span> : P W}
+              {<span class="nv">PX</span> : P X}
+              {<span class="nv">PY</span> : P Y}
+              {<span class="nv">f</span> : W → X}
+              {<span class="nv">g</span> : W → Y}
+              (<span class="nv">Mf</span> : mor_hset_struct P PW PX f)
+              (<span class="nv">Mg</span> : mor_hset_struct P PW PY g)
+    : mor_hset_struct P PW (hset_struct_prod P PX PY) (prodtofuntoprod (f ,, g)).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (pr222 P) W X Y PW PX PY f g Mf Mg).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Projections</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Transport laws for cartesian structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">TransportCartesian</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : hset_cartesian_struct).
+
+  <span class="kn">Definition</span> <span class="nf">transportf_struct_mor_prod_via_transportf</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">Y₃</span> : hSet}
+             (<span class="nv">p₁</span> : X₁ = Y₁)
+             (<span class="nv">PX₁</span> : P X₁)
+             (<span class="nv">p₂</span> : X₂ = Y₂)
+             (<span class="nv">PX₂</span> : P X₂)
+             (<span class="nv">p₃</span> : X₃ = Y₃)
+             (<span class="nv">PX₃</span> : P X₃)
+             (<span class="nv">f</span> : X₁ × X₂ → X₃)
+             (<span class="nv">Hf</span> : mor_hset_struct P (hset_struct_prod P PX₁ PX₂) PX₃ f)
+    : mor_hset_struct
+        P
+        (hset_struct_prod
+           P
+           (transportf P p₁ PX₁)
+           (transportf P p₂ PX₂))
+        (transportf P p₃ PX₃)
+        (transportf_mor_weq_prod
+           (hSet_univalence_map _ _ p₁)
+           (hSet_univalence_map _ _ p₂)
+           (hSet_univalence_map _ _ p₃)
+           f).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p₁, p₂, p₃.
+    <span class="bp">exact</span> Hf.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportf_struct_mor_prod</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">Y₃</span> : hSet}
+             (<span class="nv">w₁</span> : X₁ ≃ Y₁)
+             (<span class="nv">PX₁</span> : P X₁)
+             (<span class="nv">w₂</span> : X₂ ≃ Y₂)
+             (<span class="nv">PX₂</span> : P X₂)
+             (<span class="nv">w₃</span> : X₃ ≃ Y₃)
+             (<span class="nv">PX₃</span> : P X₃)
+             (<span class="nv">f</span> : X₁ × X₂ → X₃)
+             (<span class="nv">Hf</span> : mor_hset_struct P (hset_struct_prod P PX₁ PX₂) PX₃ f)
+    : mor_hset_struct
+        P
+        (hset_struct_prod
+           P
+           (transportf_struct_weq P w₁ PX₁)
+           (transportf_struct_weq P w₂ PX₂))
+        (transportf_struct_weq P w₃ PX₃)
+        (transportf_mor_weq_prod w₁ w₂ w₃ f).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (transportf_struct_mor_prod_via_transportf
+            (univalence_hSet w₁)
+            PX₁
+            (univalence_hSet w₂)
+            PX₂
+            (univalence_hSet w₃)
+            PX₃
+            f
+            Hf)
+      <span class="k">as</span> H.
+    <span class="nb">rewrite</span> !hSet_univalence_map_univalence_hSet <span class="k">in</span> H.
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportf_struct_mor_prod_via_eq</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">Y₃</span> : hSet}
+             (<span class="nv">w₁</span> : X₁ ≃ Y₁)
+             (<span class="nv">PX₁</span> : P X₁)
+             (<span class="nv">w₂</span> : X₂ ≃ Y₂)
+             (<span class="nv">PX₂</span> : P X₂)
+             (<span class="nv">w₃</span> : X₃ ≃ Y₃)
+             (<span class="nv">PX₃</span> : P X₃)
+             (<span class="nv">f</span> : X₁ × X₂ → X₃)
+             (<span class="nv">Hf</span> : mor_hset_struct P (hset_struct_prod P PX₁ PX₂) PX₃ f)
+             (<span class="nv">g</span> : Y₁ × Y₂ → Y₃)
+             (<span class="nv">p</span> : ∏ (y : Y₁ × Y₂), g y = transportf_mor_weq_prod w₁ w₂ w₃ f y)
+    : mor_hset_struct
+        P
+        (hset_struct_prod
+           P
+           (transportf_struct_weq P w₁ PX₁)
+           (transportf_struct_weq P w₂ PX₂))
+        (transportf_struct_weq P w₃ PX₃)
+        g.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (transportf
+              _
+              _
+              (transportf_struct_mor_prod w₁ PX₁ w₂ PX₂ w₃ PX₃ f Hf)).
+    use funextsec.
+    <span class="nb">intro</span> y.
+    <span class="bp">exact</span> (!(p y)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportf_struct_weq_on_weq_transportf</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             (<span class="nv">p</span> : X = Y)
+             (<span class="nv">PX</span> : P X)
+    : mor_hset_struct
+        P
+        PX
+        (transportf P p PX)
+        (hSet_univalence_map _ _ p).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> hset_struct_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportf_struct_weq_on_weq</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             (<span class="nv">w</span> : X ≃ Y)
+             (<span class="nv">PX</span> : P X)
+    : mor_hset_struct
+        P
+        PX
+        (transportf_struct_weq P w PX)
+        w.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (transportf_struct_weq_on_weq_transportf
+            (univalence_hSet w)
+            PX)
+      <span class="k">as</span> H.
+    <span class="nb">rewrite</span> hSet_univalence_map_univalence_hSet <span class="k">in</span> H.
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportf_struct_weq_on_invweq_transportf</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             (<span class="nv">p</span> : X = Y)
+             (<span class="nv">PX</span> : P X)
+    : mor_hset_struct
+        P
+        (transportf P p PX)
+        PX
+        (hSet_univalence_map _ _ (!p)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> hset_struct_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportf_struct_weq_on_invweq</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             (<span class="nv">w</span> : X ≃ Y)
+             (<span class="nv">PX</span> : P X)
+    : mor_hset_struct
+        P
+        (transportf_struct_weq P w PX)
+        PX
+        (invmap w).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (transportf_struct_weq_on_invweq_transportf
+            (univalence_hSet w)
+            PX)
+      <span class="k">as</span> H.
+    <span class="nb">rewrite</span> univalence_hSet_inv <span class="k">in</span> H.
+    <span class="nb">rewrite</span> hSet_univalence_map_univalence_hSet <span class="k">in</span> H.
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">TransportCartesian</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Terminal object and products from cartesian structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">TerminalAndProductCartesian</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : hset_cartesian_struct).
+
+  <span class="kn">Definition</span> <span class="nf">dispTerminal_hset_disp_struct</span>
+    : dispTerminal (hset_struct_disp_cat P) TerminalHSET.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (hset_struct_unit P ,, _).
+    <span class="nb">intros</span> X PX.
+    use iscontraprop1.
+    - <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+    - <span class="bp">exact</span> (hset_struct_to_unit P PX).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dispBinProducts_hset_disp_struct</span>
+    : dispBinProducts (hset_struct_disp_cat P) BinProductsHSET.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y PX PY.
+    <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, _).
+    - <span class="bp">exact</span> (hset_struct_prod P PX PY).
+    - <span class="bp">exact</span> (hset_struct_pr1 P PX PY).
+    - <span class="bp">exact</span> (hset_struct_pr2 P PX PY).
+    - <span class="nb">intros</span> W f g PW Mf Mg ; <span class="nb">cbn</span>.
+      use iscontraprop1.
+      + <span class="kp">abstract</span>
+          (use isaproptotal2 ;
+           [ <span class="nb">intro</span> ;
+            <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> hset_struct_disp_cat
+           | ] ;
+           <span class="nb">intros</span> ;
+           <span class="nb">apply</span> isaprop_hset_struct_on_mor).
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (hset_struct_pair P Mf Mg).
+        * <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+        * <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Terminal_category_of_hset_struct</span>
+    : Terminal (category_of_hset_struct P).
+  <span class="kn">Proof</span>.
+    use total_category_Terminal.
+    - <span class="bp">exact</span> TerminalHSET.
+    - <span class="bp">exact</span> dispTerminal_hset_disp_struct.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">BinProducts_category_of_hset_struct</span>
+    : BinProducts (category_of_hset_struct P).
+  <span class="kn">Proof</span>.
+    use total_category_Binproducts.
+    - <span class="bp">exact</span> BinProductsHSET.
+    - <span class="bp">exact</span> dispBinProducts_hset_disp_struct.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">TerminalAndProductCartesian</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 8. Sections of structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">discrete_hset_struct_data</span>
+           (<span class="nv">P</span> : hset_struct)
+  : UU
+  := ∑ (PX : ∏ (X : hSet), P X),
+     ∏ (X Y : hSet)
+       (f : X → Y),
+     mor_hset_struct P (PX X) (PX Y) f.
+
+<span class="kn">Definition</span> <span class="nf">discrete_hset_struct_data_ob</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">PX</span> : discrete_hset_struct_data P)
+           (<span class="nv">X</span> : hSet)
+  : P X
+  := pr1 PX X.
+
+<span class="kn">Coercion</span> <span class="nf">discrete_hset_struct_data_ob</span> : discrete_hset_struct_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Proposition</span> <span class="nf">discrete_hset_struct_data_mor</span>
+            {<span class="nv">P</span> : hset_struct}
+            (<span class="nv">PX</span> : discrete_hset_struct_data P)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">f</span> : X → Y)
+  : mor_hset_struct P (PX X) (PX Y) f.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 PX X Y f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">discrete_hset_struct_laws</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">PX</span> : discrete_hset_struct_data P)
+  : UU
+  := ∏ (Z : hSet)
+       (PZ : P Z),
+     mor_hset_struct P (PX Z) PZ (<span class="k">λ</span> <span class="nv">z</span>, z).
+
+<span class="kn">Definition</span> <span class="nf">discrete_hset_struct</span>
+           (<span class="nv">P</span> : hset_struct)
+  : UU
+  := ∑ (PX : discrete_hset_struct_data P),
+     discrete_hset_struct_laws PX.
+
+<span class="kn">Coercion</span> <span class="nf">discrete_hset_struct_to_data</span>
+         {P : hset_struct}
+         (PX : discrete_hset_struct P)
+  : discrete_hset_struct_data P
+  := pr1 PX.
+
+<span class="kn">Definition</span> <span class="nf">discrete_hset_struct_counit</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">PX</span> : discrete_hset_struct P)
+           {<span class="nv">Z</span> : hSet}
+           (<span class="nv">PZ</span> : P Z)
+  : mor_hset_struct P (PX Z) PZ (<span class="k">λ</span> <span class="nv">z</span>, z)
+  := pr2 PX Z PZ.
+
+<span class="kn">Definition</span> <span class="nf">make_discrete_hset_struct</span>
+           (<span class="nv">P</span> : hset_struct)
+           (<span class="nv">PX</span> : ∏ (X : hSet), P X)
+           (<span class="nv">Pf</span> : ∏ (X Y : hSet)
+                   (f : X → Y),
+                 mor_hset_struct P (PX X) (PX Y) f)
+           (<span class="nv">Pη</span> : ∏ (Z : hSet)
+                   (PZ : P Z),
+                 mor_hset_struct P (PX Z) PZ (<span class="k">λ</span> <span class="nv">z</span>, z))
+  : discrete_hset_struct P
+  := (PX ,, Pf) ,, Pη.
+
+<span class="kn">Section</span> <span class="nf">DiscreteHSetStructSection</span>.
+  <span class="kn">Context</span> {<span class="nv">P</span> : hset_struct}
+          (<span class="nv">PX</span> : discrete_hset_struct P).
+
+  <span class="kn">Definition</span> <span class="nf">discrete_hset_struct_section_data</span>
+    : section_disp_data (hset_struct_disp_cat P).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> ((<span class="k">λ</span> <span class="nv">X</span>, PX X) ,, <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, _).
+    <span class="bp">exact</span> (discrete_hset_struct_data_mor PX f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">discrete_hset_struct_section_axioms</span>
+    : section_disp_axioms discrete_hset_struct_section_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+    - <span class="nb">intros</span> X Y Z f g ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_hset_struct_section</span>
+    : section_disp (hset_struct_disp_cat P).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> discrete_hset_struct_section_data.
+    - <span class="bp">exact</span> discrete_hset_struct_section_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_hset_struct_to_are_adjoint_unit</span>
+    : functor_identity _
+      ⟹
+      section_functor discrete_hset_struct_section ∙ underlying_of_hset_struct P.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, identity _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y f ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_hset_struct_to_are_adjoint_counit</span>
+    : underlying_of_hset_struct P ∙ section_functor discrete_hset_struct_section
+      ⟹
+      functor_identity _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, identity _ ,, discrete_hset_struct_counit PX (pr2 X)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y f ;
+         use eq_mor_hset_struct ;
+         <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_hset_struct_to_are_adjoint</span>
+    : are_adjoints
+        (section_functor discrete_hset_struct_section)
+        (underlying_of_hset_struct P).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, _) ,, (_ ,, _)).
+    - <span class="bp">exact</span> discrete_hset_struct_to_are_adjoint_unit.
+    - <span class="bp">exact</span> discrete_hset_struct_to_are_adjoint_counit.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> X ;
+         use eq_mor_hset_struct ;
+         <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_hset_struct_to_is_right_adjoint</span>
+    : is_right_adjoint (underlying_of_hset_struct P)
+    := section_functor discrete_hset_struct_section
+       ,,
+       discrete_hset_struct_to_are_adjoint.
+<span class="kn">End</span> <span class="nf">DiscreteHSetStructSection</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Structures/CartesianStructure.v</tt>, line 47)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Sections of structures
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

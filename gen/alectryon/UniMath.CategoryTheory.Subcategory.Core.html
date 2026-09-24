@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Core.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ** Sub(pre)categories</span>
+
+<span class="sd">Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)</span>
+<span class="sd">Reorganized and expanded: Langston Barrett (@siddharthist) (March 2018)</span>
+
+<span class="sd">*)</span>
+
+
+<span class="sd">(** ** Contents :</span>
+
+<span class="sd">- Subprecategories</span>
+<span class="sd">  - A sub-precategory forms a precategory ([carrier_of_sub_precategory])</span>
+<span class="sd">  - (Inclusion) functor from a sub-precategory to the ambient precategory</span>
+<span class="sd">    ([sub_precategory_inclusion])</span>
+<span class="sd">- Subcategories ([subcategory])</span>
+<span class="sd">- Restriction of a functor to a subcategory</span>
+<span class="sd">*)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Definitions *)</span>
+
+<span class="sd">(** A sub-precategory is specified through a predicate on objects</span>
+<span class="sd">    and a dependent predicate on morphisms</span>
+<span class="sd">    which is compatible with identity and composition</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_sub_precategory</span> {<span class="nv">C</span> : category}
+    (<span class="nv">C'</span> : hsubtype C)
+    (<span class="nv">Cmor'</span> : ∏ a b : C, hsubtype (a --&gt; b)) :=
+  (∏ a : C, C' a -&gt;  Cmor' _ _ (identity a)) ×
+  (∏ (a b c : C) (f: a --&gt; b) (g : b --&gt; c),
+            Cmor' _ _ f -&gt; Cmor' _ _  g -&gt; Cmor' _ _  (f · g)).
+
+<span class="kn">Definition</span> <span class="nf">sub_precategories</span> (<span class="nv">C</span> : category) :=
+  total2 (<span class="k">fun</span> <span class="nv">C'</span> : (hsubtype (ob C)) × (∏ a b:ob C, hsubtype (a --&gt; b)) =&gt;
+           is_sub_precategory (pr1 C') (pr2 C')).
+
+<span class="sd">(** We have a coercion [carrier] turning every predicate [P] on a type [A] into the</span>
+<span class="sd">     total space [ { a : A &amp; P a} ].</span>
+
+<span class="sd">   For later, we define some projections with the appropriate type, also to</span>
+<span class="sd">   avoid confusion with the aforementioned coercion.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">sub_precategory_predicate_objects</span> {<span class="nv">C</span> : category}
+     (<span class="nv">C'</span>: sub_precategories C):
+       hsubtype (ob C) := pr1 (pr1 C').
+
+<span class="kn">Definition</span> <span class="nf">sub_ob</span> {<span class="nv">C</span> : category}(<span class="nv">C'</span>: sub_precategories C): UU :=
+     <span class="c">(*carrier*)</span> (sub_precategory_predicate_objects C').
+
+
+<span class="kn">Definition</span> <span class="nf">sub_precategory_predicate_morphisms</span> {<span class="nv">C</span> : category}
+        (<span class="nv">C'</span>:sub_precategories C) (<span class="nv">a</span> <span class="nv">b</span> : C) : hsubtype (a --&gt; b) := pr2 (pr1 C') a b.
+
+<span class="kn">Definition</span> <span class="nf">sub_precategory_morphisms</span> {<span class="nv">C</span> : category}(<span class="nv">C'</span>:sub_precategories C)
+      (<span class="nv">a</span> <span class="nv">b</span> : C) : UU :=  sub_precategory_predicate_morphisms C' a b.
+
+<span class="sd">(** Projections for compatibility of the predicate with identity and</span>
+<span class="sd">    composition.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">sub_precategory_id</span> (<span class="nv">C</span> : category) (<span class="nv">C'</span>:sub_precategories C) :
+   ∏ a : ob C,
+       sub_precategory_predicate_objects C' a -&gt;
+       sub_precategory_predicate_morphisms  C' _ _ (identity a) :=
+         dirprod_pr1 (pr2 C').
+
+<span class="kn">Definition</span> <span class="nf">sub_precategory_comp</span> (<span class="nv">C</span> : category) (<span class="nv">C'</span>:sub_precategories C) :
+   ∏ (a b c: ob C) (f: a --&gt; b) (g : b --&gt; c),
+          sub_precategory_predicate_morphisms C' _ _ f -&gt;
+          sub_precategory_predicate_morphisms C' _ _ g -&gt;
+          sub_precategory_predicate_morphisms C' _ _  (f · g) :=
+        dirprod_pr2 (pr2 C').
+
+<span class="sd">(** An object of a subprecategory is an object of the original precategory. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">precategory_object_from_sub_precategory_object</span> (<span class="nv">C</span>:category)
+         (<span class="nv">C'</span>:sub_precategories C) (<span class="nv">a</span> : sub_ob C') :
+    ob C := pr1 a.
+<span class="kn">Coercion</span> <span class="nf">precategory_object_from_sub_precategory_object</span> :
+     sub_ob &gt;-&gt; ob.
+
+<span class="sd">(** A morphism of a subprecategory is also a morphism of the original precategory. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">precategory_morphism_from_sub_precategory_morphism</span> (<span class="nv">C</span>:category)
+          (<span class="nv">C'</span>:sub_precategories C) (<span class="nv">a</span> <span class="nv">b</span> : ob C)
+           (<span class="nv">f</span> : sub_precategory_morphisms C' a b) : a --&gt; b := pr1 f .
+<span class="kn">Coercion</span> <span class="nf">precategory_morphism_from_sub_precategory_morphism</span> :
+         sub_precategory_morphisms &gt;-&gt; precategory_morphisms.
+
+<span class="sd">(** *** A sub-precategory forms a precategory. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">sub_precategory_ob_mor</span> (<span class="nv">C</span> : category)(<span class="nv">C'</span>:sub_precategories C) :
+     precategory_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">sub_ob</span> <span class="nv">C'</span>).
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, @sub_precategory_morphisms _ C' a b).
+<span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">Coercion sub_precategory_ob_mor : sub_precategories &gt;-&gt; precategory_ob_mor.</span>
+<span class="c">*)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">sub_precategory_data</span> (<span class="nv">C</span> : category)(<span class="nv">C'</span>:sub_precategories C) :
+      precategory_data.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">sub_precategory_ob_mor</span> <span class="nv">C</span> <span class="nv">C'</span>).
+  <span class="nb">split</span>.
+    <span class="nb">intro</span> c.
+    <span class="k">exists</span> (<span class="nv">identity</span> (C:=C) (pr1 c)).
+    <span class="nb">apply</span> sub_precategory_id.
+    <span class="nb">apply</span> (pr2 c).
+  <span class="nb">intros</span> a b c f g.
+  <span class="k">exists</span> (<span class="nv">compose</span> (pr1 f) (pr1 g)).
+  <span class="nb">apply</span> sub_precategory_comp.
+  <span class="nb">apply</span> (pr2 f). <span class="nb">apply</span> (pr2 g).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A useful lemma for equality in the sub-precategory. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">eq_in_sub_precategory</span> (<span class="nv">C</span> : category)(<span class="nv">C'</span>:sub_precategories C)
+      (<span class="nv">a</span> <span class="nv">b</span> : sub_ob C') (<span class="nv">f</span> <span class="nv">g</span> : sub_precategory_morphisms C' a b) :
+          pr1 f = pr1 g -&gt; f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> (total2_paths_f H).
+  <span class="nb">apply</span> proofirrelevance.
+  <span class="nb">apply</span> pr2.
+<span class="kn">Qed</span>.
+
+<span class="c">(*</span>
+<span class="c">Lemma eq_in_sub_precategory2 (C : precategory)(C':sub_precategories C)</span>
+<span class="c">     (a b : sub_ob C') (f g : a --&gt; b)</span>
+<span class="c"> (pf : sub_precategory_predicate_morphisms C' _ _ f)</span>
+<span class="c"> (pg : sub_precategory_predicate_morphisms C' _ _ g):</span>
+<span class="c">  f = g -&gt; (tpair (λ f, sub_precategory_predicate_morphisms _ _ _ f) f pf) =</span>
+<span class="c">      (tpair (λ f, sub_precategory_predicate_morphisms _ _ _ f) g pg).</span>
+<span class="c">Proof.</span>
+<span class="c">  intro H.</span>
+<span class="c">  apply (two_arg_paths_f H).</span>
+<span class="c">  destruct H.</span>
+<span class="c">  apply (two_arg_paths_f (idpath _ )).</span>
+<span class="c">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_precategory_sub_precategory</span> (<span class="nv">C</span> : category)(<span class="nv">C'</span>:sub_precategories C) :
+    is_precategory (sub_precategory_data C C').
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>;
+  <span class="nb">simpl</span>; <span class="nb">intros</span>.
+  <span class="nb">unfold</span> sub_precategory_comp;
+  <span class="nb">apply</span> eq_in_sub_precategory; <span class="nb">simpl</span>;
+  <span class="nb">apply</span> id_left.
+  <span class="nb">apply</span> eq_in_sub_precategory. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> id_right.
+  <span class="nb">apply</span> eq_in_sub_precategory.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> eq_in_sub_precategory.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> assoc'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">carrier_of_sub_precategory</span> (<span class="nv">C</span> : category)(<span class="nv">C'</span>:sub_precategories C) :
+   precategory := tpair _ _ (is_precategory_sub_precategory C C').
+
+<span class="kn">Definition</span> <span class="nf">has_homsets_carrier_of_subcategory</span> (<span class="nv">C</span> : category) (<span class="nv">C'</span> : sub_precategories C)
+  : has_homsets (carrier_of_sub_precategory C C').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>).
+  - <span class="nb">apply</span> C.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> hlevelntosn.
+    <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">carrier_of_sub_category</span> (<span class="nv">C</span> : category) (<span class="nv">C'</span> : sub_precategories C)
+  : category
+  := make_category _ (has_homsets_carrier_of_subcategory C C').
+
+<span class="kn">Coercion</span> <span class="nf">carrier_of_sub_category</span> : sub_precategories &gt;-&gt; category.
+
+<span class="sd">(** An object satisfying the predicate is an object of the subprecategory *)</span>
+<span class="kn">Definition</span> <span class="nf">precategory_object_in_subcat</span> {<span class="nv">C</span> : category} {<span class="nv">C'</span>:sub_precategories C}
+   (<span class="nv">a</span> : ob C) (<span class="nv">p</span> : sub_precategory_predicate_objects C' a) :
+       ob C' := tpair _ a p.
+
+<span class="sd">(** A morphism satisfying the predicate is a morphism of the subprecategory *)</span>
+<span class="kn">Definition</span> <span class="nf">precategory_morphisms_in_subcat</span> {<span class="nv">C</span> : category} {<span class="nv">C'</span>:sub_precategories C}
+   {<span class="nv">a</span> <span class="nv">b</span> : ob C'}(<span class="nv">f</span> : pr1 a --&gt; pr1 b)
+   (<span class="nv">p</span> : sub_precategory_predicate_morphisms C' (pr1 a) (pr1 b) (f)) :
+       precategory_morphisms (C:=C') a b := tpair _ f p.
+
+<span class="sd">(** A (z-)isomorphism of a subprecategory is also a (z-)isomorphism of the original precategory. *)</span>
+<span class="kn">Lemma</span> <span class="nf">is_z_iso_from_is_z_iso_in_subcategory</span> (<span class="nv">C</span>:category) (<span class="nv">C'</span>:sub_precategories C)
+  (<span class="nv">a</span> <span class="nv">b</span> : C') (<span class="nv">f</span> : C'⟦ a , b ⟧)
+  (<span class="nv">H</span>: is_z_isomorphism f)
+  : is_z_isomorphism 
+    (precategory_morphism_from_sub_precategory_morphism _ _ _ _ f).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> H <span class="k">as</span> (g,(gl,gr)).
+  <span class="nb">induction</span> g <span class="k">as</span> (g_und,?).
+  use make_is_z_isomorphism.
+  + <span class="bp">exact</span> g_und.
+  + <span class="nb">split</span>.
+    - <span class="bp">exact</span> (maponpaths pr1 gl).
+    - <span class="bp">exact</span> (maponpaths pr1 gr).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** (Inclusion) functor from a sub-precategory to the ambient precategory *)</span>
+
+<span class="kn">Definition</span> <span class="nf">sub_precategory_inclusion_data</span> (<span class="nv">C</span> : category) (<span class="nv">C'</span>:sub_precategories C):
+  functor_data C' C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (@pr1 _ _ ).
+  <span class="nb">intros</span> a b.
+  <span class="bp">exact</span> (@pr1 _ _ ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_functor_sub_precategory_inclusion</span> (<span class="nv">C</span> : category)
+         (<span class="nv">C'</span>:sub_precategories C) :
+    is_functor  (sub_precategory_inclusion_data C C').
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> functor_idax . <span class="nb">intros</span>.  <span class="nb">apply</span> (idpath _ ).
+  <span class="nb">unfold</span> functor_compax . <span class="nb">intros</span>.  <span class="nb">apply</span> (idpath _ ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">sub_precategory_inclusion</span> (<span class="nv">C</span> : category) (<span class="nv">C'</span> : sub_precategories C) :
+    functor C' C := tpair _ _ (is_functor_sub_precategory_inclusion C C').
+
+<span class="sd">(** ** Subcategories *)</span>
+
+<span class="sd">(** The hom-types of a subprecategory are sets if the hom-types of the original</span>
+<span class="sd">    category are. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_set_sub_precategory_morphisms</span> {<span class="nv">C</span> : category}
+                                       (<span class="nv">C'</span> : sub_precategories C) (<span class="nv">a</span> <span class="nv">b</span> : ob C) :
+  isaset (sub_precategory_morphisms C' a b).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isofhlevel_hsubtype, C.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sub_precategory_morphisms_set</span> {<span class="nv">C</span> : category}
+  (<span class="nv">C'</span>:sub_precategories C) (<span class="nv">a</span> <span class="nv">b</span> : ob C) : hSet :=
+    tpair _ (sub_precategory_morphisms C' a b)
+        (is_set_sub_precategory_morphisms C' a b).
+
+<span class="kn">Definition</span> <span class="nf">subcategory</span> (<span class="nv">C</span> : category) (<span class="nv">C'</span> : sub_precategories C) : category.
+<span class="kn">Proof</span>.
+  use make_category.
+  - <span class="bp">exact</span> (carrier_of_sub_precategory C C').
+  - <span class="nb">intros</span> ? ?.
+    <span class="nb">apply</span> is_set_sub_precategory_morphisms.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Restriction of a functor to a subcategory *)</span>
+
+<span class="kn">Definition</span> <span class="nf">restrict_functor_to_sub_precategory</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+           (<span class="nv">C'</span> : sub_precategories C) (<span class="nv">F</span> : functor C D) : functor C' D.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use make_functor_data.
+    + <span class="bp">exact</span> (F ∘ precategory_object_from_sub_precategory_object _ C')%functions.
+    + <span class="nb">intros</span> ? ?.
+      <span class="nb">apply</span> (# F ∘ precategory_morphism_from_sub_precategory_morphism _ C' _ _)%functions.
+  - use make_dirprod.
+    + <span class="nb">intro</span>; <span class="nb">apply</span> (functor_id F).
+    + <span class="nb">intros</span> ? ? ? ? ?; <span class="nb">apply</span> (functor_comp F).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Subcategory/Core.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

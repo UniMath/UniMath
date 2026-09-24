@@ -1,0 +1,1644 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Binproducts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Ralph Matthes</span>
+
+<span class="sd">2022</span>
+<span class="sd">*)</span>
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- defines a notion of binary products for displayed categories that gives binary products on its total category</span>
+<span class="sd">- same programme for terminal objects</span>
+
+<span class="sd"> ************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="kn">Section</span> <span class="nf">FixDispCat</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">D</span> : disp_cat C).
+
+  <span class="kn">Definition</span> <span class="nf">is_dispBinProduct_naive</span> (<span class="nv">c</span> <span class="nv">d</span> <span class="nv">p</span> : C) (<span class="nv">p1</span> : p --&gt; c) (<span class="nv">p2</span> : p --&gt; d) (<span class="nv">cc</span> : D c)
+    (<span class="nv">dd</span> : D d) (<span class="nv">pp</span> : D p) (<span class="nv">pp1</span> : pp --&gt;[p1] cc) (<span class="nv">pp2</span> : pp --&gt;[p2] dd) : UU :=
+    ∏ (a : C) (f : a --&gt; c) (g : a --&gt; d) (aa : D a) (ff : aa --&gt;[f] cc) (gg : aa --&gt;[g] dd),
+      <span class="k">∃</span>! (fg : a --&gt; p) (fgfg : aa --&gt;[fg] pp),
+      ∑ fgok : ((fg · p1 = f) × (fg · p2 = g)),
+        (fgfg ;; pp1 = transportb _ (pr1 fgok) ff) × (fgfg ;; pp2 = transportb _ (pr2 fgok) gg).
+
+  <span class="kn">Definition</span> <span class="nf">is_dispBinProduct</span> (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">P</span> : BinProduct C c d)
+    (<span class="nv">cc</span> : D c) (<span class="nv">dd</span> : D d) (<span class="nv">pp</span> : D (BinProductObject _ P))
+    (<span class="nv">pp1</span> : pp --&gt;[BinProductPr1 _ P] cc) (<span class="nv">pp2</span> : pp --&gt;[BinProductPr2 _ P] dd) : UU :=
+    ∏ (a : C) (f : a --&gt; c) (g : a --&gt; d) (aa : D a) (ff : aa --&gt;[f] cc) (gg : aa --&gt;[g] dd),
+      <span class="k">∃</span>! (fgfg : aa --&gt;[BinProductArrow _ P f g] pp),
+      (fgfg ;; pp1 = transportb _ (BinProductPr1Commutes _ _ _ P _ f g) ff) ×
+      (fgfg ;; pp2 = transportb _ (BinProductPr2Commutes _ _ _ P _ f g) gg).
+
+  <span class="kn">Definition</span> <span class="nf">dispBinProduct</span> (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">P</span> : BinProduct C c d) (<span class="nv">cc</span> : D c) (<span class="nv">dd</span> : D d) : UU :=
+    ∑ pppp1pp2 : (∑ pp : D (BinProductObject _ P),
+                     (pp --&gt;[BinProductPr1 _ P] cc) × (pp --&gt;[BinProductPr2 _ P] dd)),
+        is_dispBinProduct c d P cc dd (pr1 pppp1pp2) (pr1 (pr2 pppp1pp2)) (pr2 (pr2 pppp1pp2)).
+
+  <span class="kn">Definition</span> <span class="nf">make_dispBinProduct_locally_prop</span> (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">P</span> : BinProduct C c d) (<span class="nv">cc</span> : D c) (<span class="nv">dd</span> : D d)
+    (<span class="nv">LP</span> : locally_propositional D)
+    (<span class="nv">dBP_data</span> : ∑ pp : D (BinProductObject _ P),
+          (pp --&gt;[BinProductPr1 _ P] cc) × (pp --&gt;[BinProductPr2 _ P] dd))
+    (<span class="nv">mediating</span> : ∏ (a : C) (f : a --&gt; c) (g : a --&gt; d) (aa : D a)
+                   (ff : aa --&gt;[f] cc) (gg : aa --&gt;[g] dd),
+        aa --&gt;[ BinProductArrow C P f g] pr1 dBP_data)
+    : dispBinProduct c d P cc dd.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">dBP_data</span>.
+    <span class="nb">intro</span>; <span class="nb">intros</span>.
+    use tpair.
+    - <span class="k">exists</span> (<span class="nv">mediating</span> <span class="nv">a</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">aa</span> <span class="nv">ff</span> <span class="nv">gg</span>).
+      <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">apply</span> LP).
+    - <span class="kp">abstract</span> (<span class="nb">intro</span> t; <span class="nb">apply</span> subtypePath;
+                [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homsets_disp | <span class="nb">apply</span> LP]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dispBinProductObject</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct C c d) {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+    (<span class="nv">dP</span> : dispBinProduct c d P cc dd) : D (BinProductObject _ P) := pr1 (pr1 dP).
+
+  <span class="kn">Definition</span> <span class="nf">dispBinProductPr1</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct C c d) {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+    (<span class="nv">dP</span> : dispBinProduct c d P cc dd) : dispBinProductObject P dP --&gt;[BinProductPr1 _ P] cc :=
+    pr1 (pr2 (pr1 dP)).
+
+  <span class="kn">Definition</span> <span class="nf">dispBinProductPr2</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct C c d) {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+    (<span class="nv">dP</span> : dispBinProduct c d P cc dd) : dispBinProductObject P dP --&gt;[BinProductPr2 _ P] dd :=
+    pr2 (pr2 (pr1 dP)).
+
+  <span class="kn">Definition</span> <span class="nf">is_dispBinProduct_dispBinProduct</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct C c d) {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+    (<span class="nv">dP</span> : dispBinProduct c d P cc dd) :
+    is_dispBinProduct c d P cc dd (dispBinProductObject P dP) (dispBinProductPr1 P dP) (dispBinProductPr2 P dP).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 dP).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dispBinProductArrow</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct C c d) {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+    (<span class="nv">dP</span> : dispBinProduct c d P cc dd) {<span class="nv">a</span> : C} {<span class="nv">f</span> : a --&gt; c} {<span class="nv">g</span> : a --&gt; d} {<span class="nv">aa</span> : D a} (<span class="nv">ff</span> : aa --&gt;[f] cc) (<span class="nv">gg</span> : aa --&gt;[g] dd) :
+       aa --&gt;[BinProductArrow _ P f g] dispBinProductObject P dP.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr1 (is_dispBinProduct_dispBinProduct P dP _ _ _ _ ff gg))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dispBinProductPr1Commutes</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct C c d) (<span class="nv">cc</span> : D c) (<span class="nv">dd</span> : D d) (<span class="nv">dP</span> : dispBinProduct c d P cc dd):
+    ∏ (a : C) (f : a --&gt; c) (g : a --&gt; d) (aa : D a) (ff : aa --&gt;[f] cc) (gg : aa --&gt;[g] dd),
+      dispBinProductArrow P dP ff gg ;; dispBinProductPr1 P dP = transportb _ (BinProductPr1Commutes _ _ _ P _ f g) ff.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a f g aa ff gg.
+    <span class="bp">exact</span> (pr1 (pr2 (pr1 (is_dispBinProduct_dispBinProduct P dP _ _ _ _ ff gg)))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dispBinProductPr2Commutes</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct C c d) (<span class="nv">cc</span> : D c) (<span class="nv">dd</span> : D d) (<span class="nv">dP</span> : dispBinProduct c d P cc dd):
+    ∏ (a : C) (f : a --&gt; c) (g : a --&gt; d) (aa : D a) (ff : aa --&gt;[f] cc) (gg : aa --&gt;[g] dd),
+      dispBinProductArrow P dP ff gg ;; dispBinProductPr2 P dP = transportb _ (BinProductPr2Commutes _ _ _ P _ f g) gg.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a f g aa ff gg.
+    <span class="bp">exact</span> (pr2 (pr2 (pr1 (is_dispBinProduct_dispBinProduct P dP _ _ _ _ ff gg)))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dispBinProductArrowUnique</span>  {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct C c d) (<span class="nv">cc</span> : D c) (<span class="nv">dd</span> : D d)
+    (<span class="nv">dP</span> : dispBinProduct c d P cc dd) {<span class="nv">x</span> : C} (<span class="nv">xx</span> : D x) (<span class="nv">f</span> : x --&gt; c) (<span class="nv">g</span> : x --&gt; d) (<span class="nv">ff</span> : xx --&gt;[f] cc) (<span class="nv">gg</span> : xx --&gt;[g] dd)
+    (<span class="nv">kk</span> : xx --&gt;[BinProductArrow _ P f g] dispBinProductObject P dP) :
+    kk ;; dispBinProductPr1 P dP = transportb _ (BinProductPr1Commutes _ _ _ P _ f g) ff -&gt;
+    kk ;; dispBinProductPr2 P dP = transportb _ (BinProductPr2Commutes _ _ _ P _ f g) gg -&gt;
+    kk = dispBinProductArrow P dP ff gg.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H1 H2.
+    <span class="nb">apply</span> path_to_ctr; <span class="nb">split</span>; <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+
+  <span class="c">(* transparent proofs for the standard binary products -- upstream?</span>
+<span class="c">  Definition BinProductArrowUnique' (c d : C) (P : BinProduct C c d) (x : C)</span>
+<span class="c">    (f : x --&gt; c) (g : x --&gt; d) (k : x --&gt; BinProductObject C P) :</span>
+<span class="c">    k · BinProductPr1 C P = f -&gt; k · BinProductPr2 C P = g -&gt;</span>
+<span class="c">    k = BinProductArrow C P f g.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros; apply path_to_ctr; split; assumption.</span>
+<span class="c">  Defined.</span>
+
+<span class="c">  Definition BinProductArrowEta' (c d : C) (P : BinProduct C c d) (x : C)</span>
+<span class="c">    (f : x --&gt; BinProductObject C P) :</span>
+<span class="c">    f = BinProductArrow C P (f · BinProductPr1 C P) (f · BinProductPr2 C P).</span>
+<span class="c">  Proof.</span>
+<span class="c">    apply BinProductArrowUnique'; apply idpath.</span>
+<span class="c">  Defined.</span>
+<span class="c">*)</span>
+
+
+  <span class="kn">Lemma</span> <span class="nf">dispBinProductArrowEta</span> {<span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">P</span> : BinProduct C c d) (<span class="nv">cc</span> : D c) (<span class="nv">dd</span> : D d)
+    (<span class="nv">dP</span> : dispBinProduct c d P cc dd) {<span class="nv">x</span> : C} (<span class="nv">xx</span> : D x) {<span class="nv">fg</span> : x --&gt; BinProductObject C P }
+    (<span class="nv">fgfg</span> : xx --&gt;[ fg] dispBinProductObject P dP) :
+    fgfg =
+      transportb (mor_disp xx (dispBinProductObject P dP)) (BinProductArrowEta C c d P x fg)
+        (dispBinProductArrow P dP (fgfg ;; dispBinProductPr1 P dP) (fgfg ;; dispBinProductPr2 P dP)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> transportf_transpose_right.
+    <span class="nb">apply</span> dispBinProductArrowUnique.
+    - etrans.
+      { <span class="nb">apply</span> mor_disp_transportf_postwhisker. }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; transportf (mor_disp xx cc) z (fgfg ;; dispBinProductPr1 P dP))).
+      <span class="nb">apply</span> C.
+    - etrans.
+      { <span class="nb">apply</span> mor_disp_transportf_postwhisker. }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; transportf (mor_disp xx dd) z (fgfg ;; dispBinProductPr2 P dP))).
+      <span class="nb">apply</span> C.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dispBinProduct_endo_is_identity</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">aa</span> : D a) (<span class="nv">bb</span> : D b)
+    (<span class="nv">P</span> : BinProduct _ a b) (<span class="nv">dP</span> : dispBinProduct a b P aa bb)
+    {<span class="nv">k</span> : BinProductObject _ P --&gt; BinProductObject _ P} (<span class="nv">kk</span>: dispBinProductObject P dP --&gt;[k] dispBinProductObject P dP)
+    (<span class="nv">H1</span> : k · BinProductPr1 _ P = BinProductPr1 _ P) (<span class="nv">dH1</span> : kk ;; dispBinProductPr1 P dP = transportb _ H1 (dispBinProductPr1 P dP))
+    (<span class="nv">H2</span> : k · BinProductPr2 _ P = BinProductPr2 _ P) (<span class="nv">dH2</span> : kk ;; dispBinProductPr2 P dP = transportb _ H2 (dispBinProductPr2 P dP))
+    : transportf _ (BinProduct_endo_is_identity C a b P k H1 H2) (id_disp (dispBinProductObject P dP)) = kk.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    etrans.
+    { <span class="nb">apply</span> dispBinProductArrowEta. }
+    <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+    <span class="nb">apply</span> dispBinProductArrowUnique.
+    - etrans.
+      { <span class="nb">apply</span> mor_disp_transportf_postwhisker. }
+      <span class="nb">rewrite</span> id_left_disp.
+      <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0; <span class="bp">exact</span> dH1. }
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset;
+        <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - etrans.
+      { <span class="nb">apply</span> mor_disp_transportf_postwhisker. }
+      <span class="nb">rewrite</span> id_left_disp.
+      <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0; <span class="bp">exact</span> dH2. }
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset;
+        <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dispBinProductOfArrows</span> {<span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">Pcd</span> : BinProduct C c d}
+    {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+    (<span class="nv">dPcd</span> : dispBinProduct c d Pcd cc dd)
+    {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">Pab</span> : BinProduct C a b}
+    {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+    (<span class="nv">dPab</span> : dispBinProduct a b Pab aa bb)
+    {<span class="nv">f</span> : a --&gt; c} {<span class="nv">g</span> : b --&gt; d}
+    (<span class="nv">ff</span> : aa --&gt;[f] cc) (<span class="nv">gg</span> : bb --&gt;[g] dd)
+    : dispBinProductObject Pab dPab --&gt;[BinProductOfArrows C Pcd Pab f g] dispBinProductObject Pcd dPcd :=
+    dispBinProductArrow Pcd dPcd (dispBinProductPr1 Pab dPab ;; ff) (dispBinProductPr2 Pab dPab ;; gg).
+
+  <span class="kn">Lemma</span> <span class="nf">dispBinProductOfArrowsPr1</span> {<span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">Pcd</span> : BinProduct C c d}
+    {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+    (<span class="nv">dPcd</span> : dispBinProduct c d Pcd cc dd)
+    {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">Pab</span> : BinProduct C a b}
+    {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+    (<span class="nv">dPab</span> : dispBinProduct a b Pab aa bb)
+    {<span class="nv">f</span> : a --&gt; c} {<span class="nv">g</span> : b --&gt; d}
+    (<span class="nv">ff</span> : aa --&gt;[f] cc) (<span class="nv">gg</span> : bb --&gt;[g] dd) :
+    dispBinProductOfArrows dPcd dPab ff gg ;; dispBinProductPr1 Pcd dPcd =
+      transportb _ (BinProductOfArrowsPr1 _ Pcd Pab f g) (dispBinProductPr1 Pab dPab ;; ff).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> dispBinProductOfArrows.
+    etrans.
+    { <span class="nb">apply</span> dispBinProductPr1Commutes. }
+    <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; transportb (mor_disp (dispBinProductObject Pab dPab) cc) z (dispBinProductPr1 Pab dPab ;; ff))).
+    <span class="nb">apply</span> C.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dispBinProductOfArrowsPr2</span> {<span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">Pcd</span> : BinProduct C c d}
+    {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+    (<span class="nv">dPcd</span> : dispBinProduct c d Pcd cc dd)
+    {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">Pab</span> : BinProduct C a b}
+    {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+    (<span class="nv">dPab</span> : dispBinProduct a b Pab aa bb)
+    {<span class="nv">f</span> : a --&gt; c} {<span class="nv">g</span> : b --&gt; d}
+    (<span class="nv">ff</span> : aa --&gt;[f] cc) (<span class="nv">gg</span> : bb --&gt;[g] dd) :
+    dispBinProductOfArrows dPcd dPab ff gg ;; dispBinProductPr2 Pcd dPcd =
+      transportb _ (BinProductOfArrowsPr2 _ Pcd Pab f g) (dispBinProductPr2 Pab dPab ;; gg).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> dispBinProductOfArrows.
+    etrans.
+    { <span class="nb">apply</span> dispBinProductPr2Commutes. }
+    <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; transportb (mor_disp (dispBinProductObject Pab dPab) dd) z (dispBinProductPr2 Pab dPab ;; gg))).
+    <span class="nb">apply</span> C.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dispPostcompWithBinProductArrow</span> {<span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">Pcd</span> : BinProduct C c d} {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d} (<span class="nv">dPcd</span> : dispBinProduct c d Pcd cc dd)
+    {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">Pab</span> : BinProduct C a b} {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b} (<span class="nv">dPab</span> : dispBinProduct a b Pab aa bb)
+    {<span class="nv">f</span> : a --&gt; c} {<span class="nv">g</span> : b --&gt; d} (<span class="nv">ff</span> : aa --&gt;[f] cc) (<span class="nv">gg</span> : bb --&gt;[g] dd)
+    {<span class="nv">x</span> : C} {<span class="nv">xx</span> : D x} {<span class="nv">k</span> : x --&gt; a} {<span class="nv">h</span> : x --&gt; b} (<span class="nv">kk</span>: xx --&gt;[k] aa) (<span class="nv">hh</span>: xx --&gt;[h] bb) :
+    dispBinProductArrow Pab dPab kk hh ;; dispBinProductOfArrows dPcd dPab ff gg =
+      transportb _ (postcompWithBinProductArrow C Pcd Pab f g k h) (dispBinProductArrow Pcd dPcd (kk ;; ff) (hh ;; gg)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> transportb_transpose_right.
+    <span class="nb">apply</span> dispBinProductArrowUnique.
+    - etrans.
+      { <span class="nb">apply</span> mor_disp_transportf_postwhisker. }
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker. }
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+      <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">unfold</span> transportb.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, mor_disp_transportf_postwhisker. }
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset;
+        <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - etrans.
+      { <span class="nb">apply</span> mor_disp_transportf_postwhisker. }
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> dispBinProductOfArrowsPr2.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker. }
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+      <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">unfold</span> transportb.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, mor_disp_transportf_postwhisker. }
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset;
+        <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dispPrecompWithBinProductArrow</span> {<span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">Pcd</span> : BinProduct C c d}
+    {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d} (<span class="nv">dPcd</span> : dispBinProduct c d Pcd cc dd)
+    {<span class="nv">a</span> : C} {<span class="nv">aa</span> : D a}
+    {<span class="nv">f</span> : a --&gt; c} {<span class="nv">g</span> : a --&gt; d} (<span class="nv">ff</span>: aa --&gt;[f] cc) (<span class="nv">gg</span>: aa --&gt;[g] dd)
+    {<span class="nv">x</span> : C} {<span class="nv">xx</span> : D x} {<span class="nv">k</span> : x --&gt; a} (<span class="nv">kk</span>: xx --&gt;[k] aa) :
+    kk ;; dispBinProductArrow Pcd dPcd ff gg  =
+      transportb _ (precompWithBinProductArrow C Pcd f g k) (dispBinProductArrow Pcd dPcd (kk ;; ff) (kk ;; gg)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> transportb_transpose_right.
+    <span class="nb">apply</span> dispBinProductArrowUnique.
+    - <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> dispBinProductPr1Commutes.
+      <span class="nb">rewrite</span> transport_f_f.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> mor_disp_transportf_prewhisker. }
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset;
+        <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> dispBinProductPr2Commutes.
+      <span class="nb">rewrite</span> transport_f_f.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> mor_disp_transportf_prewhisker. }
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> transportf_comp_lemma.
+      <span class="nb">apply</span> transportf_comp_lemma_hset;
+        <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">dispBinProducts</span> (<span class="nv">Ps</span> : BinProducts C)  : UU := ∏ (c d : C) (cc : D c) (dd : D d),
+      dispBinProduct c d (Ps c d) cc dd.
+
+
+  <span class="kn">Lemma</span> <span class="nf">dispBinProductOfArrows_comp</span> { <span class="nv">Ps</span> : BinProducts C } (<span class="nv">dPs</span> : dispBinProducts Ps) {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+    {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b} {<span class="nv">cc</span> : D c} {<span class="nv">dd</span>: D d} {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y}
+    {<span class="nv">f</span> : a --&gt; c} {<span class="nv">f'</span> : b --&gt; d} {<span class="nv">g</span> : c --&gt; x} {<span class="nv">g'</span> : d --&gt; y}
+    (<span class="nv">ff</span> : aa --&gt;[f] cc) (<span class="nv">ff'</span> : bb --&gt;[f'] dd) (<span class="nv">gg</span> : cc --&gt;[g] xx) (<span class="nv">gg'</span> : dd --&gt;[g'] yy) :
+    dispBinProductOfArrows (dPs _ _ _ _) (dPs _ _ _ _) ff ff' ;; dispBinProductOfArrows (dPs _ _ _ _) (dPs _ _ _ _) gg gg' =
+      transportb _ (BinProductOfArrows_comp _ _ _ _ _ _ _ _ f f' g g') (dispBinProductOfArrows (dPs _ _ _ _) (dPs _ _ _ _) (ff;;gg) (ff';;gg')).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> transportb_transpose_right.
+    <span class="nb">apply</span> dispBinProductArrowUnique.
+    - etrans.
+      { <span class="nb">apply</span> mor_disp_transportf_postwhisker. }
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker. }
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">rewrite</span> dispBinProductOfArrowsPr1.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> mor_disp_transportf_postwhisker. }
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> transportf_comp_lemma_hset;
+        <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+    - etrans.
+      { <span class="nb">apply</span> mor_disp_transportf_postwhisker. }
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> dispBinProductOfArrowsPr2.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, mor_disp_transportf_prewhisker. }
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">rewrite</span> dispBinProductOfArrowsPr2.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> transport_f_b.
+      <span class="nb">apply</span> pathsinv0, transportf_comp_lemma.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> mor_disp_transportf_postwhisker. }
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> transportf_comp_lemma_hset;
+        <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">total_category_Binproducts_data</span> (<span class="nv">Ps</span> : BinProducts C) (<span class="nv">dPs</span> : dispBinProducts Ps) (<span class="nv">ccc</span> <span class="nv">ddd</span> : total_category D) :
+    ∑ p : total_category D, total_category D ⟦ p, ccc ⟧ × total_category D ⟦ p, ddd ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> ccc <span class="k">as</span> [c cc].
+    <span class="nb">induction</span> ddd <span class="k">as</span> [d dd].
+    - <span class="k">exists</span> (<span class="nv">BinProductObject</span> <span class="nv">_</span> (Ps c d) ,, dispBinProductObject (Ps c d) (dPs c d cc dd)).
+      <span class="nb">split</span>.
+      + use tpair.
+        * <span class="nb">apply</span> BinProductPr1.
+        * <span class="nb">apply</span> dispBinProductPr1.
+      + use tpair.
+        * <span class="nb">apply</span> BinProductPr2.
+        * <span class="nb">apply</span> dispBinProductPr2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_category_Binproducts_mediating_morphism</span> (<span class="nv">Ps</span> : BinProducts C) (<span class="nv">dPs</span> : dispBinProducts Ps)
+    {<span class="nv">c</span> <span class="nv">d</span> <span class="nv">x</span> : C} {<span class="nv">cc</span> : D c} {<span class="nv">dd</span>: D d} {<span class="nv">xx</span> : D x} {<span class="nv">f</span> : x --&gt; c} (<span class="nv">ff</span>: xx --&gt;[f] cc) {<span class="nv">g</span> : x --&gt; d} (<span class="nv">gg</span>: xx --&gt;[g] dd) :
+     ∑ h : x --&gt; BinProductObject C (Ps c d), xx --&gt;[h] dispBinProductObject (Ps c d) (dPs c d cc dd).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> BinProductArrow; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> dispBinProductArrow; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">total_category_Binproducts_mediating_morphism_ok</span> (<span class="nv">Ps</span> : BinProducts C) (<span class="nv">dPs</span> : dispBinProducts Ps)
+    {<span class="nv">c</span> <span class="nv">d</span> <span class="nv">x</span> : C} {<span class="nv">cc</span> : D c} {<span class="nv">dd</span>: D d} {<span class="nv">xx</span> : D x} {<span class="nv">f</span> : x --&gt; c} (<span class="nv">ff</span>: xx --&gt;[f] cc) {<span class="nv">g</span> : x --&gt; d} (<span class="nv">gg</span>: xx --&gt;[g] dd) :
+    BinProductArrow C (Ps c d) f g · BinProductPr1 C (Ps c d),, dispBinProductArrow (Ps c d) (dPs c d cc dd) ff gg ;; dispBinProductPr1 (Ps c d) (dPs c d cc dd) = f,, ff ×
+    BinProductArrow C (Ps c d) f g · BinProductPr2 C (Ps c d),, dispBinProductArrow (Ps c d) (dPs c d cc dd) ff gg ;; dispBinProductPr2 (Ps c d) (dPs c d cc dd) = g,, gg.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use total2_paths_f; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> BinProductPr1Commutes.
+      + <span class="nb">apply</span> transportf_pathsinv0.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> dispBinProductPr1Commutes.
+    - use total2_paths_f; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> BinProductPr2Commutes.
+      + <span class="nb">apply</span> transportf_pathsinv0.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> dispBinProductPr2Commutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">total_category_Binproducts_mediating_morphism_unique</span> (<span class="nv">Ps</span> : BinProducts C) (<span class="nv">dPs</span> : dispBinProducts Ps)
+    {<span class="nv">c</span> <span class="nv">d</span> <span class="nv">x</span> : C} {<span class="nv">cc</span> : D c} {<span class="nv">dd</span>: D d} {<span class="nv">xx</span> : D x} {<span class="nv">f</span> : x --&gt; c} (<span class="nv">ff</span>: xx --&gt;[f] cc) {<span class="nv">g</span> : x --&gt; d} (<span class="nv">gg</span>: xx --&gt;[g] dd)
+    {<span class="nv">fg</span> : x --&gt; BinProductObject C (Ps c d)} (<span class="nv">fgfg</span> : xx --&gt;[fg] dispBinProductObject (Ps c d) (dPs c d cc dd)) :
+    fg · BinProductPr1 C (Ps c d),, fgfg ;; dispBinProductPr1 (Ps c d) (dPs c d cc dd) = f,, ff ×
+    fg · BinProductPr2 C (Ps c d),, fgfg ;; dispBinProductPr2 (Ps c d) (dPs c d cc dd) = g,, gg →
+    fg,, fgfg = total_category_Binproducts_mediating_morphism Ps dPs ff gg.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [H1 H2].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> (total2_paths_equiv _ _ _ H1) <span class="k">as</span> [H1l H1r].
+    <span class="nb">induction</span> (total2_paths_equiv _ _ _ H2) <span class="k">as</span> [H2l H2r].
+    <span class="nb">clear</span> H1 H2.
+    use total2_paths_f; <span class="nb">cbn</span>.
+    - use path_to_ctr; <span class="nb">split</span>; <span class="bp">assumption</span>.
+    - <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> &lt;- H1r, &lt;- H2r.
+      <span class="nb">clear</span> H1r H2r ff gg.
+      <span class="nb">induction</span> H1l.
+      <span class="nb">induction</span> H2l.
+      <span class="c">(* apply dispBinProductArrowEta. would work with [BinProductArrowEta'] *)</span>
+      <span class="c">(* we proceed as follows: *)</span>
+      <span class="nb">cbn</span>.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">assert</span> (aux := dispBinProductArrowEta (Ps c d) cc dd (dPs _ _ cc dd) xx fgfg).
+           <span class="nb">apply</span> transportf_transpose_left <span class="k">in</span> aux.
+           <span class="bp">exact</span> aux. }
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; transportf (mor_disp xx (dispBinProductObject (Ps c d) (dPs c d cc dd))) z fgfg)).
+      <span class="nb">apply</span> C.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_category_Binproducts</span> (<span class="nv">Ps</span> : BinProducts C) (<span class="nv">dPs</span> : dispBinProducts Ps) : BinProducts (total_category D).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ccc ddd.
+    use tpair.
+    - <span class="nb">apply</span> (total_category_Binproducts_data Ps dPs).
+    - <span class="nb">induction</span> ccc <span class="k">as</span> [c cc].
+      <span class="nb">induction</span> ddd <span class="k">as</span> [d dd].
+      <span class="nb">intros</span> aaa fff ggg.
+      <span class="nb">destruct</span> aaa <span class="k">as</span> [a aa]; <span class="nb">destruct</span> fff <span class="k">as</span> [f ff]; <span class="nb">destruct</span> ggg <span class="k">as</span> [g gg].
+      <span class="nb">cbn</span>.
+      use unique_exists.
+      + <span class="bp">exact</span> (total_category_Binproducts_mediating_morphism Ps dPs ff gg).
+      + <span class="bp">exact</span> (total_category_Binproducts_mediating_morphism_ok Ps dPs ff gg).
+      + <span class="nb">intro</span> y.
+        <span class="nb">apply</span> isapropdirprod.
+        * <span class="nb">apply</span> (homset_property (total_category D) (a ,, aa) (c ,, cc)).
+        * <span class="nb">apply</span> (homset_property (total_category D) (a ,, aa) (d ,, dd)).
+      + <span class="nb">intro</span> fgfgfg.
+        <span class="nb">induction</span> fgfgfg <span class="k">as</span> [fg fgfg].
+        <span class="bp">exact</span> (total_category_Binproducts_mediating_morphism_unique Ps dPs ff gg fgfg).
+  <span class="kn">Defined</span>.
+
+
+<span class="sd">(** ** analogously for terminal objects *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_dispTerminal</span> (<span class="nv">P</span> : Terminal C) (<span class="nv">pp</span> : D (TerminalObject P)) : UU :=
+    ∏ (a : C) (aa : D a), iscontr (aa --&gt;[TerminalArrow P a] pp).
+
+  <span class="kn">Definition</span> <span class="nf">dispTerminal</span> (<span class="nv">P</span> : Terminal C) : UU :=
+    ∑ pp :  D (TerminalObject P), is_dispTerminal P pp.
+
+  <span class="kn">Definition</span> <span class="nf">make_dispTerminal_locally_prop</span> (<span class="nv">P</span> : Terminal C)
+    (<span class="nv">LP</span> : locally_propositional D) (<span class="nv">dTO_data</span> : D (TerminalObject P))
+    (<span class="nv">mediating</span> : ∏ (a : C) (aa : D a), aa --&gt;[TerminalArrow P a] dTO_data)
+    : dispTerminal P.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">dTO_data</span>.
+    <span class="nb">intro</span>; <span class="nb">intros</span>.
+    use tpair.
+    - <span class="bp">exact</span> (mediating a aa).
+    - <span class="nb">intro</span>; <span class="nb">apply</span> LP.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dispTerminalObject</span> {<span class="nv">P</span> : Terminal C} (<span class="nv">dP</span> : dispTerminal P) : D (TerminalObject P) := pr1 dP.
+
+  <span class="kn">Definition</span> <span class="nf">is_dispTerminal_dispTerminal</span> (<span class="nv">P</span> : Terminal C) (<span class="nv">dP</span> : dispTerminal P) :
+    is_dispTerminal P (dispTerminalObject dP) := pr2 dP.
+
+  <span class="kn">Definition</span> <span class="nf">dispTerminalArrow</span> (<span class="nv">P</span> : Terminal C) (<span class="nv">dP</span> : dispTerminal P) {<span class="nv">a</span> : C} (<span class="nv">aa</span> : D a) :
+    aa --&gt;[TerminalArrow P a] dispTerminalObject dP := pr1 (is_dispTerminal_dispTerminal P dP a aa).
+
+  <span class="kn">Lemma</span> <span class="nf">dispTerminalArrowUnique</span>  (<span class="nv">P</span> : Terminal C)
+    (<span class="nv">dP</span> : dispTerminal P) {<span class="nv">x</span> : C} (<span class="nv">xx</span> : D x)
+    (<span class="nv">kk</span> : xx --&gt;[TerminalArrow P x] dispTerminalObject dP) :
+    kk = dispTerminalArrow P dP xx.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (pr2 (pr2 dP x xx)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dispTerminalArrowUnique'</span>  (<span class="nv">P</span> : Terminal C)
+    (<span class="nv">dP</span> : dispTerminal P) {<span class="nv">x</span> : C} (<span class="nv">xx</span> : D x) (<span class="nv">f</span>: x --&gt; TerminalObject P)
+    (<span class="nv">kk</span> : xx --&gt;[f] dispTerminalObject dP) :
+    kk = transportb _ (TerminalArrowUnique P x f) (dispTerminalArrow P dP xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> transportf_transpose_right.
+    <span class="nb">apply</span> dispTerminalArrowUnique.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dispTerminalArrowEq</span> {<span class="nv">T</span> : Terminal C} {<span class="nv">TT</span>: dispTerminal T} {<span class="nv">a</span> : C} {<span class="nv">aa</span> : D a} {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; T}
+    (<span class="nv">ff</span>: aa --&gt;[f] dispTerminalObject TT) (<span class="nv">gg</span>: aa --&gt;[g] dispTerminalObject TT) :
+    ff = transportb _ (TerminalArrowEq f g) gg.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> (TerminalArrowEq f g).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (dispTerminalArrowUnique' _ _ _ _ ff).
+    <span class="nb">rewrite</span> (dispTerminalArrowUnique' _ _ _ _ gg).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">total_category_Terminal</span> (<span class="nv">P</span> : Terminal C) (<span class="nv">dP</span> : dispTerminal P) : Terminal (total_category D).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="k">exists</span> (<span class="nv">TerminalObject</span> <span class="nv">P</span>).
+      <span class="bp">exact</span> (dispTerminalObject dP).
+    - <span class="nb">intros</span> aaa.
+      <span class="nb">destruct</span> aaa <span class="k">as</span> [a aa].
+      <span class="nb">cbn</span>.
+      use tpair.
+      + <span class="bp">exact</span> (TerminalArrow P a,, dispTerminalArrow P dP aa).
+      + <span class="nb">intro</span> fff.
+        <span class="nb">induction</span> fff <span class="k">as</span> [f ff].
+        use total2_paths_f; <span class="nb">cbn</span>.
+        * <span class="nb">apply</span> TerminalArrowUnique.
+        * <span class="nb">apply</span> dispTerminalArrowUnique.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   Displayed equalizers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_disp_Equalizer</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">e</span> : Equalizer f g)
+             {<span class="nv">xx</span> : D x}
+             {<span class="nv">yy</span> : D y}
+             {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+             {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+             (<span class="nv">ee</span> : D e)
+             (<span class="nv">ar_e</span> : ee --&gt;[ EqualizerArrow e ] xx)
+             (<span class="nv">pp</span> : transportf
+                     (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                     (EqualizerEqAr e)
+                     (ar_e ;; ff)
+                   =
+                   ar_e ;; gg)
+    : UU
+    := ∏ (w : C)
+         (ww : D w)
+         (h : w --&gt; x)
+         (hh : ww --&gt;[ h ] xx)
+         (q : h · f = h · g)
+         (qq : transportf
+                 (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                 q
+                 (hh ;; ff)
+               =
+               hh ;; gg),
+       <span class="k">∃</span>! (ii : ww --&gt;[ EqualizerIn e w h q ] ee),
+       transportf
+         (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+         (EqualizerCommutes e w h q)
+         (ii ;; ar_e)
+       =
+       hh.
+
+  <span class="kn">Definition</span> <span class="nf">disp_Equalizer</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">xx</span> : D x}
+             {<span class="nv">yy</span> : D y}
+             (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+             (<span class="nv">gg</span> : xx --&gt;[ g ] yy)
+             (<span class="nv">e</span> : Equalizer f g)
+    : UU
+    := ∑ (ee : D e)
+         (ar_e : ee --&gt;[ EqualizerArrow e ] xx)
+         (pp : transportf
+                 (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                 (EqualizerEqAr e)
+                 (ar_e ;; ff)
+               =
+               ar_e ;; gg),
+       is_disp_Equalizer e ee ar_e pp.
+
+  <span class="kn">Definition</span> <span class="nf">disp_Equalizers</span>
+             (<span class="nv">EC</span> : Equalizers C)
+    : UU
+    := ∏ (x y : C)
+         (f g : x --&gt; y)
+         (xx : D x)
+         (yy : D y)
+         (ff : xx --&gt;[ f ] yy)
+         (gg : xx --&gt;[ g ] yy),
+       disp_Equalizer ff gg (EC x y f g).
+
+  <span class="kn">Section</span> <span class="nf">TotalEqualizer</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+            {<span class="nv">xx</span> : D x}
+            {<span class="nv">yy</span> : D y}
+            (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+            (<span class="nv">gg</span> : xx --&gt;[ g ] yy)
+            (<span class="nv">e</span> : Equalizer f g)
+            (<span class="nv">ee</span> : disp_Equalizer ff gg e).
+
+    <span class="kn">Let</span> <span class="nf">t_x</span> : total_category D
+      := x ,, xx.
+
+    <span class="kn">Let</span> <span class="nf">t_y</span> : total_category D
+      := y ,, yy.
+
+    <span class="kn">Let</span> <span class="nf">t_f</span> : t_x --&gt; t_y
+      := f ,, ff.
+
+    <span class="kn">Let</span> <span class="nf">t_g</span> : t_x --&gt; t_y
+      := g ,, gg.
+
+    <span class="kn">Let</span> <span class="nf">t_e</span> : total_category D
+      := _ ,, pr1 ee.
+
+    <span class="kn">Let</span> <span class="nf">t_i</span> : t_e --&gt; t_x
+      := _ ,, pr12 ee.
+
+    <span class="kn">Proposition</span> <span class="nf">total_Equalizer_path</span>
+      : t_i · t_f = t_i · t_g.
+    <span class="kn">Proof</span>.
+      use total2_paths_f.
+      - <span class="nb">apply</span> EqualizerEqAr.
+      - <span class="nb">apply</span> (pr122 ee).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">TotalEqualizerUMP</span>.
+      <span class="kn">Context</span> {<span class="nv">w</span> : C}
+              {<span class="nv">ww</span> : D w}
+              {<span class="nv">h</span> : w --&gt; x}
+              (<span class="nv">hh</span> : ww --&gt;[ h ] xx).
+
+      <span class="kn">Let</span> <span class="nf">t_w</span> : total_category D
+        := w ,, ww.
+
+      <span class="kn">Let</span> <span class="nf">t_h</span> : t_w --&gt; t_x
+        := h ,, hh.
+
+      <span class="kn">Context</span> (<span class="nv">t_q</span> : t_h · t_f = t_h · t_g).
+
+      <span class="kn">Let</span> <span class="nf">q</span> : h · f = h · g
+        := base_paths _ _ t_q.
+
+      <span class="kn">Let</span> <span class="nf">qq</span>
+        : transportf
+            (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+            q
+            (hh ;; ff)
+          = hh ;; gg
+       := fiber_paths t_q.
+
+      <span class="kn">Proposition</span> <span class="nf">total_Equalizer_unique</span>
+        : isaprop
+            (∑ (φ : t_w --&gt; t_e), φ · t_i = t_h).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> φ₁ φ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> homset_property.
+        }
+        use total2_paths_f.
+        - use EqualizerInsEq.
+          <span class="bp">exact</span> (maponpaths pr1 (pr2 φ₁ @ !(pr2 φ₂))).
+        - <span class="nb">assert</span> (r : pr11 φ₂ = EqualizerIn e w h q).
+          {
+            <span class="bp">exact</span> (isEqualizerInUnique
+                     _ _ _ _
+                     (pr22 e)
+                     _ _ _
+                     (pr11 φ₂)
+                     (maponpaths pr1 (pr2 φ₂))).
+          }
+          <span class="nb">rewrite</span> &lt;- (transportbfinv
+                        (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                        r
+                        (pr21 φ₂)).
+          <span class="nb">rewrite</span> &lt;- (transportbfinv
+                        (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                        r
+                        (transportf _ _ _)).
+          <span class="nb">apply</span> maponpaths.
+          use (maponpaths
+                 pr1
+                 (proofirrelevance
+                    _
+                    (isapropifcontr
+                       (pr222 ee w ww h hh q qq))
+                    (transportf _ _ _ ,, _)
+                    (transportf _ _ _ ,, _))).
+          + <span class="nb">cbn</span>.
+            <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+            <span class="nb">rewrite</span> !transport_f_f.
+            <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+            <span class="nb">rewrite</span> !transport_f_f.
+            <span class="nb">refine</span> (_ @ fiber_paths (pr2 φ₁)).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> homset_property.
+          + <span class="nb">cbn</span>.
+            <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+            <span class="nb">rewrite</span> transport_f_f.
+            <span class="nb">refine</span> (_ @ fiber_paths (pr2 φ₂)).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> homset_property.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">total_EqualizerIn</span>
+        : t_w --&gt; t_e.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (EqualizerIn e w h q ,, _).
+        <span class="bp">exact</span> (pr11 (pr222 ee w ww h hh q qq)).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">total_EqualizerIn_commutes</span>
+        : total_EqualizerIn · t_i = t_h.
+      <span class="kn">Proof</span>.
+        use total2_paths_f.
+        - <span class="nb">apply</span> EqualizerCommutes.
+        - <span class="bp">exact</span> (pr21 (pr222 ee w ww h hh q qq)).
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">TotalEqualizerUMP</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_Equalizer</span>
+      : @Equalizer
+          (total_category D)
+          t_x t_y
+          t_f t_g.
+    <span class="kn">Proof</span>.
+      use make_Equalizer.
+      - <span class="bp">exact</span> t_e.
+      - <span class="bp">exact</span> t_i.
+      - <span class="bp">exact</span> total_Equalizer_path.
+      - <span class="nb">intros</span> w h q.
+        use iscontraprop1.
+        + <span class="nb">apply</span> total_Equalizer_unique.
+          <span class="bp">exact</span> q.
+        + <span class="nb">simple refine</span> (_ ,, _).
+          * <span class="bp">exact</span> (total_EqualizerIn (pr2 h) q).
+          * <span class="bp">exact</span> (total_EqualizerIn_commutes (pr2 h) q).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">TotalEqualizer</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_Equalizers</span>
+             (<span class="nv">EC</span> : Equalizers C)
+             (<span class="nv">DC</span> : disp_Equalizers EC)
+    : Equalizers (total_category D).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g.
+    <span class="bp">exact</span> (total_Equalizer
+             (pr2 f)
+             (pr2 g)
+             (EC _ _ (pr1 f) (pr1 g))
+             (DC _ _ _ _ _ _ (pr2 f) (pr2 g))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   Displayed coequalizers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_disp_Coequalizer</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">e</span> : Coequalizer f g)
+             {<span class="nv">xx</span> : D x}
+             {<span class="nv">yy</span> : D y}
+             {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+             {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+             (<span class="nv">ee</span> : D e)
+             (<span class="nv">ar_e</span> : yy --&gt;[ CoequalizerArrow e ] ee)
+             (<span class="nv">pp</span> : transportf
+                     (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                     (CoequalizerEqAr e)
+                     (ff ;; ar_e)
+                   =
+                   gg ;; ar_e)
+    : UU
+    := ∏ (w : C)
+         (ww : D w)
+         (h : y --&gt; w)
+         (hh : yy --&gt;[ h ] ww)
+         (q : f · h = g · h)
+         (qq : transportf
+                 (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                 q
+                 (ff ;; hh)
+               =
+               gg ;; hh),
+       <span class="k">∃</span>! (ii : ee --&gt;[ CoequalizerOut e w h q ] ww),
+       transportf
+         (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+         (CoequalizerCommutes e w h q)
+         (ar_e ;; ii)
+       =
+       hh.
+
+  <span class="kn">Definition</span> <span class="nf">disp_Coequalizer</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">xx</span> : D x}
+             {<span class="nv">yy</span> : D y}
+             (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+             (<span class="nv">gg</span> : xx --&gt;[ g ] yy)
+             (<span class="nv">e</span> : Coequalizer f g)
+    : UU
+    := ∑ (ee : D e)
+         (ar_e : yy --&gt;[ CoequalizerArrow e ] ee)
+         (pp : transportf
+                 (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                 (CoequalizerEqAr e)
+                 (ff ;; ar_e)
+               =
+               gg ;; ar_e),
+       is_disp_Coequalizer e ee ar_e pp.
+
+  <span class="kn">Definition</span> <span class="nf">disp_Coequalizers</span>
+             (<span class="nv">DC</span> : Coequalizers C)
+    : UU
+    := ∏ (x y : C)
+         (f g : x --&gt; y)
+         (xx : D x)
+         (yy : D y)
+         (ff : xx --&gt;[ f ] yy)
+         (gg : xx --&gt;[ g ] yy),
+       disp_Coequalizer ff gg (DC x y f g).
+
+  <span class="kn">Section</span> <span class="nf">TotalCoequalizer</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+            {<span class="nv">xx</span> : D x}
+            {<span class="nv">yy</span> : D y}
+            (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+            (<span class="nv">gg</span> : xx --&gt;[ g ] yy)
+            (<span class="nv">e</span> : Coequalizer f g)
+            (<span class="nv">ee</span> : disp_Coequalizer ff gg e).
+
+    <span class="kn">Let</span> <span class="nf">t_x</span> : total_category D
+      := x ,, xx.
+
+    <span class="kn">Let</span> <span class="nf">t_y</span> : total_category D
+      := y ,, yy.
+
+    <span class="kn">Let</span> <span class="nf">t_f</span> : t_x --&gt; t_y
+      := f ,, ff.
+
+    <span class="kn">Let</span> <span class="nf">t_g</span> : t_x --&gt; t_y
+      := g ,, gg.
+
+    <span class="kn">Let</span> <span class="nf">t_e</span> : total_category D
+      := _ ,, pr1 ee.
+
+    <span class="kn">Let</span> <span class="nf">t_i</span> : t_y --&gt; t_e
+      := _ ,, pr12 ee.
+
+    <span class="kn">Proposition</span> <span class="nf">total_Coequalizer_path</span>
+      : t_f · t_i = t_g · t_i.
+    <span class="kn">Proof</span>.
+      use total2_paths_f.
+      - <span class="nb">apply</span> CoequalizerEqAr.
+      - <span class="nb">apply</span> (pr122 ee).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">TotalCoequalizerUMP</span>.
+      <span class="kn">Context</span> {<span class="nv">w</span> : C}
+              {<span class="nv">ww</span> : D w}
+              {<span class="nv">h</span> : y --&gt; w}
+              (<span class="nv">hh</span> : yy --&gt;[ h ] ww).
+
+      <span class="kn">Let</span> <span class="nf">t_w</span> : total_category D
+        := w ,, ww.
+
+      <span class="kn">Let</span> <span class="nf">t_h</span> : t_y --&gt; t_w
+        := h ,, hh.
+
+      <span class="kn">Context</span> (<span class="nv">t_q</span> : t_f · t_h = t_g · t_h).
+
+      <span class="kn">Let</span> <span class="nf">q</span> : f · h = g · h
+        := base_paths _ _ t_q.
+
+      <span class="kn">Let</span> <span class="nf">qq</span>
+        : transportf
+            (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+            q
+            (ff ;; hh)
+          = gg ;; hh
+       := fiber_paths t_q.
+
+      <span class="kn">Proposition</span> <span class="nf">total_Coequalizer_unique</span>
+        : isaprop
+            (∑ (φ : t_e --&gt; t_w), t_i · φ = t_h).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> φ₁ φ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> homset_property.
+        }
+        use total2_paths_f.
+        - use CoequalizerOutsEq.
+          <span class="bp">exact</span> (maponpaths pr1 (pr2 φ₁ @ !(pr2 φ₂))).
+        - <span class="nb">assert</span> (r : pr11 φ₂ = CoequalizerOut e w h q).
+          {
+            <span class="bp">exact</span> (isCoequalizerOutUnique
+                     _ _ _ _
+                     (pr22 e)
+                     _ _ _
+                     (pr11 φ₂)
+                     (maponpaths pr1 (pr2 φ₂))).
+          }
+          <span class="nb">rewrite</span> &lt;- (transportbfinv
+                        (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                        r
+                        (pr21 φ₂)).
+          <span class="nb">rewrite</span> &lt;- (transportbfinv
+                        (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                        r
+                        (transportf _ _ _)).
+          <span class="nb">apply</span> maponpaths.
+          use (maponpaths
+                 pr1
+                 (proofirrelevance
+                    _
+                    (isapropifcontr
+                       (pr222 ee w ww h hh q qq))
+                    (transportf _ _ _ ,, _)
+                    (transportf _ _ _ ,, _))).
+          + <span class="nb">cbn</span>.
+            <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+            <span class="nb">rewrite</span> !transport_f_f.
+            <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+            <span class="nb">rewrite</span> !transport_f_f.
+            <span class="nb">refine</span> (_ @ fiber_paths (pr2 φ₁)).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> homset_property.
+          + <span class="nb">cbn</span>.
+            <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+            <span class="nb">rewrite</span> transport_f_f.
+            <span class="nb">refine</span> (_ @ fiber_paths (pr2 φ₂)).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> homset_property.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">total_CoequalizerOut</span>
+        : t_e --&gt; t_w.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (CoequalizerOut e w h q ,, _).
+        <span class="bp">exact</span> (pr11 (pr222 ee w ww h hh q qq)).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">total_CoequalizerOut_commutes</span>
+        : t_i · total_CoequalizerOut = t_h.
+      <span class="kn">Proof</span>.
+        use total2_paths_f.
+        - <span class="nb">apply</span> CoequalizerCommutes.
+        - <span class="bp">exact</span> (pr21 (pr222 ee w ww h hh q qq)).
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">TotalCoequalizerUMP</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_Coequalizer</span>
+      : @Coequalizer
+          (total_category D)
+          t_x t_y
+          t_f t_g.
+    <span class="kn">Proof</span>.
+      use make_Coequalizer.
+      - <span class="bp">exact</span> t_e.
+      - <span class="bp">exact</span> t_i.
+      - <span class="bp">exact</span> total_Coequalizer_path.
+      - <span class="nb">intros</span> w h q.
+        use iscontraprop1.
+        + <span class="nb">apply</span> total_Coequalizer_unique.
+          <span class="bp">exact</span> q.
+        + <span class="nb">simple refine</span> (_ ,, _).
+          * <span class="bp">exact</span> (total_CoequalizerOut (pr2 h) q).
+          * <span class="bp">exact</span> (total_CoequalizerOut_commutes (pr2 h) q).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">TotalCoequalizer</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_Coequalizers</span>
+             (<span class="nv">EC</span> : Coequalizers C)
+             (<span class="nv">DC</span> : disp_Coequalizers EC)
+    : Coequalizers (total_category D).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g.
+    <span class="bp">exact</span> (total_Coequalizer
+             (pr2 f)
+             (pr2 g)
+             (EC _ _ (pr1 f) (pr1 g))
+             (DC _ _ _ _ _ _ (pr2 f) (pr2 g))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   Type-indexed products</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">FixType</span>.
+    <span class="kn">Context</span> (<span class="nv">I</span> : UU).
+
+    <span class="kn">Definition</span> <span class="nf">disp_isProduct</span>
+               {<span class="nv">d</span> : I → C}
+               (<span class="nv">dd</span> : ∏ (i : I), D (d i))
+               (<span class="nv">p</span> : Product I C d)
+               (<span class="nv">pp</span> : D p)
+               (<span class="nv">ππ</span> : ∏ (i : I), pp --&gt;[ ProductPr _ _ p i ] dd i)
+      : UU
+      := ∏ (w : C)
+           (ww : D w)
+           (f : ∏ (i : I), w --&gt; d i)
+           (ff : ∏ (i : I), ww --&gt;[ f i ] dd i),
+         <span class="k">∃</span>! (hh : ww --&gt;[ ProductArrow _ _ p f ] pp),
+         ∏ (i : I),
+         transportf
+           (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+           (ProductPrCommutes _ _ _ p _ f i)
+           (hh ;; ππ i)
+         =
+         ff i.
+
+    <span class="kn">Definition</span> <span class="nf">disp_Product</span>
+               {<span class="nv">d</span> : I → C}
+               (<span class="nv">dd</span> : ∏ (i : I), D (d i))
+               (<span class="nv">p</span> : Product I C d)
+      : UU
+      := ∑ (pp : D p)
+           (ππ : ∏ (i : I), pp --&gt;[ ProductPr _ _ p i ] dd i),
+         disp_isProduct dd p pp ππ.
+
+    <span class="kn">Definition</span> <span class="nf">disp_Products</span>
+               (<span class="nv">PC</span> : Products I C)
+      : UU
+      := ∏ (d : I → C)
+           (dd : ∏ (i : I), D (d i)),
+         disp_Product dd (PC d).
+
+    <span class="kn">Section</span> <span class="nf">TotalProduct</span>.
+      <span class="kn">Context</span> (<span class="nv">d_dd</span> : I → total_category D).
+
+      <span class="kn">Let</span> <span class="nf">d</span> : I → C
+        := <span class="k">λ</span> <span class="nv">i</span>, pr1 (d_dd i).
+
+      <span class="kn">Let</span> <span class="nf">dd</span> : ∏ (i : I), D (d i)
+        := <span class="k">λ</span> <span class="nv">i</span>, pr2 (d_dd i).
+
+      <span class="kn">Context</span> (<span class="nv">p</span> : Product I C d)
+              (<span class="nv">pp</span> : disp_Product dd p).
+
+      <span class="kn">Definition</span> <span class="nf">total_category_Product</span>
+        : total_category D
+        := _ ,, pr1 pp.
+
+      <span class="kn">Definition</span> <span class="nf">total_category_ProductPr</span>
+                 (<span class="nv">i</span> : I)
+        : total_category_Product --&gt; d_dd i
+        := _ ,, pr12 pp i.
+
+      <span class="kn">Section</span> <span class="nf">TotalProductUMP</span>.
+        <span class="kn">Context</span> {<span class="nv">w</span> : C}
+                (<span class="nv">ww</span> : D w)
+                {<span class="nv">f</span> : ∏ (i : I), w --&gt; d i}
+                (<span class="nv">ff</span> : ∏ (i : I), ww --&gt;[ f i ] dd i).
+
+        <span class="kn">Let</span> <span class="nf">t_w</span> : total_category D
+          := w ,, ww.
+
+        <span class="kn">Let</span> <span class="nf">t_f</span> : ∏ (i : I), t_w --&gt; d_dd i
+          := <span class="k">λ</span> <span class="nv">i</span>, f i ,, ff i.
+
+        <span class="kn">Proposition</span> <span class="nf">total_category_ProductUnique</span>
+          : isaprop
+              (∑ (φ : t_w --&gt; total_category_Product),
+               ∏ (i : I), φ · total_category_ProductPr i = t_f i).
+        <span class="kn">Proof</span>.
+          use invproofirrelevance.
+          <span class="nb">intros</span> φ₁ φ₂.
+          use subtypePath.
+          {
+            <span class="nb">intro</span>.
+            use impred ; <span class="nb">intro</span>.
+            <span class="nb">apply</span> homset_property.
+          }
+          use total2_paths_f.
+          - use ProductArrow_eq.
+            <span class="nb">intro</span> i.
+            <span class="bp">exact</span> (maponpaths pr1 (pr2 φ₁ i @ !(pr2 φ₂ i))).
+          - <span class="nb">assert</span> (r : pr11 φ₂ = ProductArrow _ _ p f).
+            {
+              use ProductArrow_eq.
+              <span class="nb">intro</span> i.
+              <span class="nb">refine</span> (maponpaths pr1 (pr2 φ₂ i) @ _).
+              <span class="nb">cbn</span>.
+              <span class="nb">rewrite</span> ProductPrCommutes.
+              <span class="nb">apply</span> idpath.
+            }
+            <span class="nb">rewrite</span> &lt;- (transportbfinv
+                          (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                          r
+                          (pr21 φ₂)).
+            <span class="nb">rewrite</span> &lt;- (transportbfinv
+                          (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                          r
+                          (transportf _ _ _)).
+            <span class="nb">apply</span> maponpaths.
+            use (maponpaths
+                   pr1
+                   (proofirrelevance
+                      _
+                      (isapropifcontr
+                         (pr22 pp w ww f ff))
+                      (transportf _ _ _ ,, _)
+                      (transportf _ _ _ ,, _))).
+            + <span class="nb">cbn</span>.
+              <span class="nb">intro</span> i.
+              <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+              <span class="nb">rewrite</span> !transport_f_f.
+              <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+              <span class="nb">rewrite</span> !transport_f_f.
+              <span class="nb">refine</span> (_ @ fiber_paths (pr2 φ₁ i)).
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> homset_property.
+            + <span class="nb">cbn</span>.
+              <span class="nb">intro</span> i.
+              <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+              <span class="nb">rewrite</span> transport_f_f.
+              <span class="nb">refine</span> (_ @ fiber_paths (pr2 φ₂ i)).
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> homset_property.
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">total_category_ProductArrow</span>
+          : t_w --&gt; total_category_Product
+          := _ ,, pr11 (pr22 pp w ww f ff).
+
+        <span class="kn">Proposition</span> <span class="nf">total_category_ProductPrCommutes</span>
+                    (<span class="nv">i</span> : I)
+          : total_category_ProductArrow · total_category_ProductPr i
+            =
+            t_f i.
+        <span class="kn">Proof</span>.
+          use total2_paths_f.
+          - <span class="bp">exact</span> (ProductPrCommutes _ _ _ p _ _ i).
+          - <span class="bp">exact</span> (pr21 (pr22 pp w ww f ff) i).
+        <span class="kn">Qed</span>.
+      <span class="kn">End</span> <span class="nf">TotalProductUMP</span>.
+
+      <span class="kn">Definition</span> <span class="nf">total_category_isProduct</span>
+        : isProduct
+            _ _ _
+            total_category_Product
+            total_category_ProductPr.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> w f.
+        use iscontraprop1.
+        - <span class="nb">apply</span> total_category_ProductUnique.
+        - <span class="nb">simple refine</span> (_ ,, _).
+          + <span class="bp">exact</span> (total_category_ProductArrow (pr2 w) (<span class="k">λ</span> <span class="nv">i</span>, pr2 (f i))).
+          + <span class="bp">exact</span> (total_category_ProductPrCommutes (pr2 w) (<span class="k">λ</span> <span class="nv">i</span>, pr2 (f i))).
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">TotalProduct</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_Products</span>
+               (<span class="nv">PC</span> : Products I C)
+               (<span class="nv">DC</span> : disp_Products PC)
+      : Products I (total_category D).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> d.
+      use make_Product.
+      - <span class="bp">exact</span> (total_category_Product d _ (DC _ _)).
+      - <span class="bp">exact</span> (total_category_ProductPr d _ (DC _ _)).
+      - <span class="nb">apply</span> total_category_isProduct.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FixType</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   Displayed binary coproducts</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_isBinCoproduct</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             {<span class="nv">xx</span> : D x}
+             {<span class="nv">yy</span> : D y}
+             (<span class="nv">p</span> : BinCoproduct x y)
+             (<span class="nv">pp</span> : D p)
+             (<span class="nv">ιι₁</span> : xx --&gt;[ BinCoproductIn1 p ] pp)
+             (<span class="nv">ιι₂</span> : yy --&gt;[ BinCoproductIn2 p ] pp)
+    : UU
+    := ∏ (w : C)
+         (ww : D w)
+         (f : x --&gt; w)
+         (ff : xx --&gt;[ f ] ww)
+         (g : y --&gt; w)
+         (gg : yy --&gt;[ g ] ww),
+       <span class="k">∃</span>! (hh : pp --&gt;[ BinCoproductArrow p f g ] ww),
+       (transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+          (BinCoproductIn1Commutes _ _ _ p _ f g)
+          (ιι₁ ;; hh)
+        =
+        ff)
+       ×
+       (transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+          (BinCoproductIn2Commutes _ _ _ p _ f g)
+          (ιι₂ ;; hh)
+        =
+        gg).
+
+  <span class="kn">Definition</span> <span class="nf">disp_BinCoproduct</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">xx</span> : D x)
+             (<span class="nv">yy</span> : D y)
+             (<span class="nv">p</span> : BinCoproduct x y)
+    : UU
+    := ∑ (pp : D p)
+         (ιι₁ : xx --&gt;[ BinCoproductIn1 p ] pp)
+         (ιι₂ : yy --&gt;[ BinCoproductIn2 p ] pp),
+       disp_isBinCoproduct p pp ιι₁ ιι₂.
+
+    <span class="kn">Definition</span> <span class="nf">disp_BinCoproducts</span>
+               (<span class="nv">PC</span> : BinCoproducts C)
+      : UU
+      := ∏ (x y : C)
+           (xx : D x)
+           (yy : D y),
+         disp_BinCoproduct xx yy (PC x y).
+
+    <span class="kn">Section</span> <span class="nf">TotalBinCoproduct</span>.
+      <span class="kn">Context</span> (<span class="nv">x_xx</span> <span class="nv">y_yy</span> : total_category D).
+
+      <span class="kn">Let</span> <span class="nf">x</span> : C := pr1 x_xx.
+      <span class="kn">Let</span> <span class="nf">y</span> : C := pr1 y_yy.
+      <span class="kn">Let</span> <span class="nf">xx</span> : D x := pr2 x_xx.
+      <span class="kn">Let</span> <span class="nf">yy</span> : D y := pr2 y_yy.
+
+      <span class="kn">Context</span> (<span class="nv">p</span> : BinCoproduct x y)
+              (<span class="nv">pp</span> : disp_BinCoproduct xx yy p).
+
+      <span class="kn">Definition</span> <span class="nf">total_category_BinCoproduct</span>
+        : total_category D
+        := _ ,, pr1 pp.
+
+      <span class="kn">Definition</span> <span class="nf">total_category_BinCoproductIn1</span>
+        : x_xx --&gt; total_category_BinCoproduct
+        := _ ,, pr12 pp.
+
+      <span class="kn">Definition</span> <span class="nf">total_category_BinCoproductIn2</span>
+        : y_yy --&gt; total_category_BinCoproduct
+        := _ ,, pr122 pp.
+
+      <span class="kn">Section</span> <span class="nf">TotalBinCoproductUMP</span>.
+        <span class="kn">Context</span> {<span class="nv">w</span> : C}
+                (<span class="nv">ww</span> : D w)
+                {<span class="nv">f</span> : x --&gt; w}
+                (<span class="nv">ff</span> : xx --&gt;[ f ] ww)
+                {<span class="nv">g</span> : y --&gt; w}
+                (<span class="nv">gg</span> : yy --&gt;[ g ] ww).
+
+        <span class="kn">Let</span> <span class="nf">t_w</span> : total_category D
+          := w ,, ww.
+        <span class="kn">Let</span> <span class="nf">t_f</span> : x_xx --&gt; t_w
+          := f ,, ff.
+        <span class="kn">Let</span> <span class="nf">t_g</span> : y_yy --&gt; t_w
+          := g ,, gg.
+
+        <span class="kn">Proposition</span> <span class="nf">total_category_BinCoproductUnique</span>
+          : isaprop
+              (∑ (fg : total_category_BinCoproduct --&gt; t_w),
+               (total_category_BinCoproductIn1 · fg = t_f)
+               ×
+               (total_category_BinCoproductIn2 · fg = t_g)).
+        <span class="kn">Proof</span>.
+          use invproofirrelevance.
+          <span class="nb">intros</span> φ₁ φ₂.
+          use subtypePath.
+          {
+            <span class="nb">intro</span>.
+            use isapropdirprod ; <span class="nb">apply</span> homset_property.
+          }
+          use total2_paths_f.
+          - use BinCoproductArrowsEq.
+            + <span class="bp">exact</span> (maponpaths pr1 (pr12 φ₁ @ !(pr12 φ₂))).
+            + <span class="bp">exact</span> (maponpaths pr1 (pr22 φ₁ @ !(pr22 φ₂))).
+          - <span class="nb">assert</span> (r : pr11 φ₂ = BinCoproductArrow p f g).
+            {
+              use BinCoproductArrowsEq.
+              + <span class="nb">refine</span> (maponpaths pr1 (pr12 φ₂) @ _).
+                <span class="nb">cbn</span>.
+                <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+                <span class="nb">apply</span> idpath.
+              + <span class="nb">refine</span> (maponpaths pr1 (pr22 φ₂) @ _).
+                <span class="nb">cbn</span>.
+                <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+                <span class="nb">apply</span> idpath.
+            }
+            <span class="nb">rewrite</span> &lt;- (transportbfinv
+                          (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                          r
+                          (pr21 φ₂)).
+            <span class="nb">rewrite</span> &lt;- (transportbfinv
+                          (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                          r
+                          (transportf _ _ _)).
+            <span class="nb">apply</span> maponpaths.
+            use (maponpaths
+                   pr1
+                   (proofirrelevance
+                      _
+                      (isapropifcontr
+                         (pr222 pp w ww f ff g gg))
+                      (transportf _ _ _ ,, _)
+                      (transportf _ _ _ ,, _))).
+            + <span class="nb">cbn</span>.
+              <span class="nb">split</span>.
+              * <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+                <span class="nb">rewrite</span> !transport_f_f.
+                <span class="nb">refine</span> (_ @ fiber_paths (pr12 φ₁)).
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">apply</span> homset_property.
+              * <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+                <span class="nb">rewrite</span> !transport_f_f.
+                <span class="nb">refine</span> (_ @ fiber_paths (pr22 φ₁)).
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">apply</span> homset_property.
+            + <span class="nb">cbn</span>.
+              <span class="nb">split</span>.
+              * <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+                <span class="nb">rewrite</span> !transport_f_f.
+                <span class="nb">refine</span> (_ @ fiber_paths (pr12 φ₂)).
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">apply</span> homset_property.
+              * <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+                <span class="nb">rewrite</span> !transport_f_f.
+                <span class="nb">refine</span> (_ @ fiber_paths (pr22 φ₂)).
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">apply</span> homset_property.
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">total_category_BinCoproductArrow</span>
+          : total_category_BinCoproduct --&gt; t_w
+          := _ ,, pr11 (pr222 pp w ww f ff g gg).
+
+        <span class="kn">Proposition</span> <span class="nf">total_category_BinCoproductArrowIn1</span>
+          : total_category_BinCoproductIn1 · total_category_BinCoproductArrow = t_f.
+        <span class="kn">Proof</span>.
+          use total2_paths_f.
+          - <span class="nb">apply</span> BinCoproductIn1Commutes.
+          - <span class="bp">exact</span> (pr121 (pr222 pp w ww f ff g gg)).
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Proposition</span> <span class="nf">total_category_BinCoproductArrowIn2</span>
+          : total_category_BinCoproductIn2 · total_category_BinCoproductArrow = t_g.
+        <span class="kn">Proof</span>.
+          use total2_paths_f.
+          - <span class="nb">apply</span> BinCoproductIn2Commutes.
+          - <span class="bp">exact</span> (pr221 (pr222 pp w ww f ff g gg)).
+        <span class="kn">Qed</span>.
+      <span class="kn">End</span> <span class="nf">TotalBinCoproductUMP</span>.
+
+      <span class="kn">Definition</span> <span class="nf">total_category_isBinCoproduct</span>
+        : isBinCoproduct
+            _ _ _
+            total_category_BinCoproduct
+            total_category_BinCoproductIn1
+            total_category_BinCoproductIn2.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> w f g.
+        use iscontraprop1.
+        - <span class="nb">apply</span> total_category_BinCoproductUnique.
+        - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+          + <span class="bp">exact</span> (total_category_BinCoproductArrow (pr2 w) (pr2 f) (pr2 g)).
+          + <span class="nb">apply</span> total_category_BinCoproductArrowIn1.
+          + <span class="nb">apply</span> total_category_BinCoproductArrowIn2.
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">TotalBinCoproduct</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_BinCoproducts</span>
+               (<span class="nv">PC</span> : BinCoproducts C)
+               (<span class="nv">DC</span> : disp_BinCoproducts PC)
+      : BinCoproducts (total_category D).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y.
+      use make_BinCoproduct.
+      - <span class="bp">exact</span> (total_category_BinCoproduct
+                 x y
+                 (PC (pr1 x) (pr1 y))
+                 (DC _ _ (pr2 x) (pr2 y))).
+      - <span class="bp">exact</span> (total_category_BinCoproductIn1
+                 x y
+                 (PC (pr1 x) (pr1 y))
+                 (DC _ _ (pr2 x) (pr2 y))).
+      - <span class="bp">exact</span> (total_category_BinCoproductIn2
+                 x y
+                 (PC (pr1 x) (pr1 y))
+                 (DC _ _ (pr2 x) (pr2 y))).
+      - <span class="bp">exact</span> (total_category_isBinCoproduct
+                 x y
+                 (PC (pr1 x) (pr1 y))
+                 (DC _ _ (pr2 x) (pr2 y))).
+    <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   Displayed coproducts indexed over arbitrary types</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">FixType</span>.
+    <span class="kn">Context</span> (<span class="nv">I</span> : UU).
+
+    <span class="kn">Definition</span> <span class="nf">disp_isCoproduct</span>
+               {<span class="nv">d</span> : I → C}
+               (<span class="nv">dd</span> : ∏ (i : I), D (d i))
+               (<span class="nv">p</span> : Coproduct I C d)
+               (<span class="nv">pp</span> : D p)
+               (<span class="nv">ππ</span> : ∏ (i : I), dd i --&gt;[ CoproductIn _ _ p i ] pp)
+      : UU
+      := ∏ (w : C)
+           (ww : D w)
+           (f : ∏ (i : I), d i --&gt; w)
+           (ff : ∏ (i : I), dd i --&gt;[ f i ] ww),
+         <span class="k">∃</span>! (hh : pp --&gt;[ CoproductArrow _ _ p f ] ww),
+         ∏ (i : I),
+         transportf
+           (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+           (CoproductInCommutes _ _ _ p _ f i)
+           (ππ i ;; hh)
+         =
+         ff i.
+
+    <span class="kn">Definition</span> <span class="nf">disp_Coproduct</span>
+               {<span class="nv">d</span> : I → C}
+               (<span class="nv">dd</span> : ∏ (i : I), D (d i))
+               (<span class="nv">p</span> : Coproduct I C d)
+      : UU
+      := ∑ (pp : D p)
+           (ππ : ∏ (i : I), dd i --&gt;[ CoproductIn _ _ p i ] pp),
+         disp_isCoproduct dd p pp ππ.
+
+    <span class="kn">Definition</span> <span class="nf">disp_Coproducts</span>
+               (<span class="nv">PC</span> : Coproducts I C)
+      : UU
+      := ∏ (d : I → C)
+           (dd : ∏ (i : I), D (d i)),
+         disp_Coproduct dd (PC d).
+
+    <span class="kn">Section</span> <span class="nf">TotalCoproduct</span>.
+      <span class="kn">Context</span> (<span class="nv">d_dd</span> : I → total_category D).
+
+      <span class="kn">Let</span> <span class="nf">d</span> : I → C
+        := <span class="k">λ</span> <span class="nv">i</span>, pr1 (d_dd i).
+
+      <span class="kn">Let</span> <span class="nf">dd</span> : ∏ (i : I), D (d i)
+        := <span class="k">λ</span> <span class="nv">i</span>, pr2 (d_dd i).
+
+      <span class="kn">Context</span> (<span class="nv">p</span> : Coproduct I C d)
+              (<span class="nv">pp</span> : disp_Coproduct dd p).
+
+      <span class="kn">Definition</span> <span class="nf">total_category_Coproduct</span>
+        : total_category D
+        := _ ,, pr1 pp.
+
+      <span class="kn">Definition</span> <span class="nf">total_category_CoproductIn</span>
+                 (<span class="nv">i</span> : I)
+        : d_dd i --&gt; total_category_Coproduct
+        := _ ,, pr12 pp i.
+
+      <span class="kn">Section</span> <span class="nf">TotalCoproductUMP</span>.
+        <span class="kn">Context</span> {<span class="nv">w</span> : C}
+                (<span class="nv">ww</span> : D w)
+                {<span class="nv">f</span> : ∏ (i : I), d i --&gt; w}
+                (<span class="nv">ff</span> : ∏ (i : I), dd i --&gt;[ f i ] ww).
+
+        <span class="kn">Let</span> <span class="nf">t_w</span> : total_category D
+          := w ,, ww.
+
+        <span class="kn">Let</span> <span class="nf">t_f</span> : ∏ (i : I), d_dd i --&gt; t_w
+          := <span class="k">λ</span> <span class="nv">i</span>, f i ,, ff i.
+
+        <span class="kn">Proposition</span> <span class="nf">total_category_CoproductUnique</span>
+          : isaprop
+              (∑ (φ : total_category_Coproduct --&gt; t_w),
+               ∏ (i : I), total_category_CoproductIn i · φ = t_f i).
+        <span class="kn">Proof</span>.
+          use invproofirrelevance.
+          <span class="nb">intros</span> φ₁ φ₂.
+          use subtypePath.
+          {
+            <span class="nb">intro</span>.
+            use impred ; <span class="nb">intro</span>.
+            <span class="nb">apply</span> homset_property.
+          }
+          use total2_paths_f.
+          - use CoproductArrow_eq.
+            <span class="nb">intro</span> i.
+            <span class="bp">exact</span> (maponpaths pr1 (pr2 φ₁ i @ !(pr2 φ₂ i))).
+          - <span class="nb">assert</span> (r : pr11 φ₂ = CoproductArrow _ _ p f).
+            {
+              use CoproductArrow_eq.
+              <span class="nb">intro</span> i.
+              <span class="nb">refine</span> (maponpaths pr1 (pr2 φ₂ i) @ _).
+              <span class="nb">cbn</span>.
+              <span class="nb">rewrite</span> CoproductInCommutes.
+              <span class="nb">apply</span> idpath.
+            }
+            <span class="nb">rewrite</span> &lt;- (transportbfinv
+                          (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                          r
+                          (pr21 φ₂)).
+            <span class="nb">rewrite</span> &lt;- (transportbfinv
+                          (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                          r
+                          (transportf _ _ _)).
+            <span class="nb">apply</span> maponpaths.
+            use (maponpaths
+                   pr1
+                   (proofirrelevance
+                      _
+                      (isapropifcontr
+                         (pr22 pp w ww f ff))
+                      (transportf _ _ _ ,, _)
+                      (transportf _ _ _ ,, _))).
+            + <span class="nb">cbn</span>.
+              <span class="nb">intro</span> i.
+              <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+              <span class="nb">rewrite</span> !transport_f_f.
+              <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+              <span class="nb">rewrite</span> !transport_f_f.
+              <span class="nb">refine</span> (_ @ fiber_paths (pr2 φ₁ i)).
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> homset_property.
+            + <span class="nb">cbn</span>.
+              <span class="nb">intro</span> i.
+              <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+              <span class="nb">rewrite</span> transport_f_f.
+              <span class="nb">refine</span> (_ @ fiber_paths (pr2 φ₂ i)).
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> homset_property.
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">total_category_CoproductArrow</span>
+          : total_category_Coproduct --&gt; t_w
+          := _ ,, pr11 (pr22 pp w ww f ff).
+
+        <span class="kn">Proposition</span> <span class="nf">total_category_CoproductInCommutes</span>
+                    (<span class="nv">i</span> : I)
+          : total_category_CoproductIn i · total_category_CoproductArrow
+            =
+            t_f i.
+        <span class="kn">Proof</span>.
+          use total2_paths_f.
+          - <span class="bp">exact</span> (CoproductInCommutes _ _ _ p _ _ i).
+          - <span class="bp">exact</span> (pr21 (pr22 pp w ww f ff) i).
+        <span class="kn">Qed</span>.
+      <span class="kn">End</span> <span class="nf">TotalCoproductUMP</span>.
+
+      <span class="kn">Definition</span> <span class="nf">total_category_isCoproduct</span>
+        : isCoproduct
+            _ _ _
+            total_category_Coproduct
+            total_category_CoproductIn.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> w f.
+        use iscontraprop1.
+        - <span class="nb">apply</span> total_category_CoproductUnique.
+        - <span class="nb">simple refine</span> (_ ,, _).
+          + <span class="bp">exact</span> (total_category_CoproductArrow (pr2 w) (<span class="k">λ</span> <span class="nv">i</span>, pr2 (f i))).
+          + <span class="bp">exact</span> (total_category_CoproductInCommutes (pr2 w) (<span class="k">λ</span> <span class="nv">i</span>, pr2 (f i))).
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">TotalCoproduct</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_Coproducts</span>
+               (<span class="nv">PC</span> : Coproducts I C)
+               (<span class="nv">DC</span> : disp_Coproducts PC)
+      : Coproducts I (total_category D).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> d.
+      use make_Coproduct.
+      - <span class="bp">exact</span> (total_category_Coproduct d _ (DC _ _)).
+      - <span class="bp">exact</span> (total_category_CoproductIn d _ (DC _ _)).
+      - <span class="nb">apply</span> total_category_isCoproduct.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FixType</span>.
+<span class="kn">End</span> <span class="nf">FixDispCat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Binproducts.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

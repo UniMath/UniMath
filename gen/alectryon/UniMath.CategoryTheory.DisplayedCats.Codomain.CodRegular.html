@@ -1,0 +1,804 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CodRegular.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************************</span>
+
+<span class="sd"> The slice category is regular and exact</span>
+
+<span class="sd"> One key theorem about regular categories is that they are closed under slicing.</span>
+
+<span class="sd"> To prove this theorem, we characterize regular epimorphisms in the slice category `C/x` as</span>
+<span class="sd"> regular epimorphisms in  `C`. Note that for this characterization we use that `C` is regular,</span>
+<span class="sd"> because that allows us to characterize regular epimorphisms as extremal epimorphisms. With</span>
+<span class="sd"> this in place, we can directly prove that the slice category is regular. In addition, we</span>
+<span class="sd"> prove that the pullback functor and the codomain functor preserve regular epimorphisms under</span>
+<span class="sd"> suitable assumptions.</span>
+
+<span class="sd"> We also show that exact categories are closed under slicing. This proofs boils down to</span>
+<span class="sd"> showing that every internal equivalence relation in `C/x` gives rise to one in `C`.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Regular epimorphisms in the slice category</span>
+<span class="sd"> 2. Regular categories are closed under slicing</span>
+<span class="sd"> 3. Preservation of regular epimorphisms by the pullback functor</span>
+<span class="sd"> 4. Preservation of regular epimorphisms by the codomain functor</span>
+<span class="sd"> 5. Exact category</span>
+
+<span class="sd"> ********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EpiFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpiFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.ExactCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Regular epimorphisms in the slice category *)</span>
+<span class="kn">Definition</span> <span class="nf">to_regular_epi_in_slice</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">yg₁</span> <span class="nv">zg₂</span> : C/x}
+           {<span class="nv">hp</span> : yg₁ --&gt; zg₂}
+           (<span class="nv">H</span> : is_regular_epi (dom_mor hp))
+  : is_regular_epi hp.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> H.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> isaprop_is_regular_epi.
+  }
+  <span class="nb">intros</span> H.
+  <span class="nb">induction</span> H <span class="k">as</span> ( w &amp; g₁ &amp; g₂ &amp; p &amp; H ).
+  use hinhpr.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (make_cod_fib_ob (g₁ · cod_mor yg₁)).
+  - use make_cod_fib_mor.
+    + <span class="bp">exact</span> g₁.
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  - use make_cod_fib_mor.
+    + <span class="bp">exact</span> g₂.
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> &lt;- (mor_eq hp) ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="bp">exact</span> (!p)).
+  - <span class="kp">abstract</span>
+      (use eq_mor_cod_fib ;
+       <span class="nb">rewrite</span> !comp_in_cod_fib ; <span class="nb">cbn</span> ;
+       <span class="bp">exact</span> p).
+  - use is_coequalizer_cod_fib.
+    + <span class="bp">exact</span> p.
+    + <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">from_regular_epi_in_slice</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           (<span class="nv">EC</span> : coeqs_of_kernel_pair C)
+           (<span class="nv">HC</span> : regular_epi_pb_stable C)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">yg₁</span> <span class="nv">zg₂</span> : C/x}
+           {<span class="nv">hp</span> : yg₁ --&gt; zg₂}
+           (<span class="nv">H</span> : is_regular_epi hp)
+  : is_regular_epi (dom_mor hp).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (is_regular_epi_strong_epi PB EC HC).
+  <span class="nb">apply</span> (is_strong_epi_extremal_epi PB).
+  <span class="nb">intros</span> z f g p Hg.
+  <span class="nb">pose</span> (wh := (make_cod_fib_ob (g · cod_mor zg₂)) : C/x).
+  <span class="nb">assert</span> (f · (g · cod_mor zg₂) = cod_mor yg₁) <span class="k">as</span> q₁.
+  {
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- p.
+    <span class="bp">exact</span> (mor_eq hp).
+  }
+  <span class="nb">pose</span> (φ := @make_cod_fib_mor _ _ yg₁ wh f q₁).
+  <span class="nb">assert</span> (g · cod_mor zg₂ = cod_mor wh) <span class="k">as</span> q₂.
+  {
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">pose</span> (ψ := @make_cod_fib_mor _ _ wh zg₂ g q₂).
+  <span class="nb">assert</span> (hp = φ · ψ) <span class="k">as</span> q₃.
+  {
+    use eq_mor_cod_fib.
+    <span class="nb">rewrite</span> comp_in_cod_fib.
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> p.
+  }
+  <span class="nb">assert</span> (isMonic ψ) <span class="k">as</span> Hψ.
+  {
+    use is_monic_cod_fib.
+    <span class="bp">exact</span> Hg.
+  }
+  <span class="nb">pose</span> (is_extremal_epi_strong_epi (is_strong_epi_regular_epi H) wh φ ψ q₃ Hψ) <span class="k">as</span> H'.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> (pr11 H').
+  - <span class="nb">split</span>.
+    + <span class="nb">refine</span> (_ @ maponpaths dom_mor (pr12 H')).
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">refine</span> (_ @ maponpaths dom_mor (pr22 H')).
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_epi_in_slice_weq</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           (<span class="nv">EC</span> : coeqs_of_kernel_pair C)
+           (<span class="nv">HC</span> : regular_epi_pb_stable C)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">yg₁</span> <span class="nv">zg₂</span> : C/x}
+           (<span class="nv">hp</span> : yg₁ --&gt; zg₂)
+  : is_regular_epi hp ≃ is_regular_epi (pr1 hp).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">apply</span> (from_regular_epi_in_slice PB EC HC).
+  - <span class="nb">apply</span> to_regular_epi_in_slice.
+  - <span class="nb">apply</span> isaprop_is_regular_epi.
+  - <span class="nb">apply</span> isaprop_is_regular_epi.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Regular categories are closed under slicing *)</span>
+<span class="kn">Section</span> <span class="nf">SliceRegular</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">PB</span> : Pullbacks C)
+          (<span class="nv">EC</span> : coeqs_of_kernel_pair C)
+          (<span class="nv">HC</span> : regular_epi_pb_stable C)
+          (<span class="nv">x</span> : C).
+
+  <span class="kn">Section</span> <span class="nf">CoeqSlice</span>.
+    <span class="kn">Context</span> {<span class="nv">yf</span> <span class="nv">zg</span> : C/x}
+            (<span class="nv">hp</span> : yf --&gt; zg)
+            (<span class="nv">K</span> : kernel_pair hp).
+
+    <span class="kn">Let</span> <span class="nf">y</span> : C := cod_dom yf.
+    <span class="kn">Let</span> <span class="nf">z</span> : C := cod_dom zg.
+    <span class="kn">Let</span> <span class="nf">f</span> : y --&gt; x := cod_mor yf.
+    <span class="kn">Let</span> <span class="nf">g</span> : z --&gt; x := cod_mor zg.
+    <span class="kn">Let</span> <span class="nf">h</span> : y --&gt; z := dom_mor hp.
+
+    <span class="kn">Let</span> <span class="nf">pk</span> : C/x := PullbackObject K.
+    <span class="kn">Let</span> <span class="nf">p</span> : C := cod_dom pk.
+    <span class="kn">Let</span> <span class="nf">k</span> : p --&gt; x := cod_mor pk.
+
+    <span class="kn">Let</span> <span class="nf">qπ₁</span> : pk --&gt; yf := PullbackPr1 K.
+    <span class="kn">Let</span> <span class="nf">π₁</span> : p --&gt; y := dom_mor qπ₁.
+    <span class="kn">Let</span> <span class="nf">qπ₂</span> : pk --&gt; yf := PullbackPr2 K.
+    <span class="kn">Let</span> <span class="nf">π₂</span> : p --&gt; y := dom_mor qπ₂.
+
+    <span class="kn">Proposition</span> <span class="nf">to_kernel_pair_slice_eq</span>
+      : π₁ · h = π₂ · h.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (_ @ maponpaths dom_mor (PullbackSqrCommutes K) @ _).
+      - <span class="nb">rewrite</span> comp_in_cod_fib.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> comp_in_cod_fib.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">to_kernel_pair_slice</span>
+      : kernel_pair h.
+    <span class="kn">Proof</span>.
+      use make_Pullback.
+      - <span class="bp">exact</span> p.
+      - <span class="bp">exact</span> π₁.
+      - <span class="bp">exact</span> π₂.
+      - <span class="bp">exact</span> to_kernel_pair_slice_eq.
+      - use from_is_pullback_slice.
+        + <span class="kp">abstract</span>
+            (<span class="bp">exact</span> (PullbackSqrCommutes K)).
+        + <span class="bp">exact</span> (isPullback_Pullback K).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">Coeq</span> : Coequalizer π₁ π₂ := EC y z h to_kernel_pair_slice.
+
+    <span class="kn">Definition</span> <span class="nf">coeq_of_kernel_pair_slice_ob_mor</span>
+      : Coeq --&gt; x.
+    <span class="kn">Proof</span>.
+      use CoequalizerOut.
+      - <span class="bp">exact</span> f.
+      - <span class="kp">abstract</span>
+          (<span class="bp">exact</span> (mor_eq qπ₁ @ !(mor_eq qπ₂))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">coeq_of_kernel_pair_slice_ob</span>
+      : C/x.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_ob.
+      - <span class="bp">exact</span> Coeq.
+      - <span class="bp">exact</span> coeq_of_kernel_pair_slice_ob_mor.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">coeq_of_kernel_pair_slice_coeq_arr</span>
+      : yf --&gt; coeq_of_kernel_pair_slice_ob.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_mor.
+      - <span class="nb">apply</span> CoequalizerArrow.
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ; <span class="nb">unfold</span> coeq_of_kernel_pair_slice_ob_mor ;
+           <span class="nb">rewrite</span> CoequalizerCommutes ;
+           <span class="nb">apply</span> idpath ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">coeq_of_kernel_pair_slice_coeq_arr_eq</span>
+      : PullbackPr1 K · coeq_of_kernel_pair_slice_coeq_arr
+        =
+        PullbackPr2 K · coeq_of_kernel_pair_slice_coeq_arr.
+    <span class="kn">Proof</span>.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> !comp_in_cod_fib.
+      <span class="nb">apply</span> CoequalizerEqAr.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">coeq_of_kernel_pair_slice</span>
+      : Coequalizer (PullbackPr1 K) (PullbackPr2 K).
+    <span class="kn">Proof</span>.
+      use make_Coequalizer.
+      - <span class="bp">exact</span> coeq_of_kernel_pair_slice_ob.
+      - <span class="bp">exact</span> coeq_of_kernel_pair_slice_coeq_arr.
+      - <span class="bp">exact</span> coeq_of_kernel_pair_slice_coeq_arr_eq.
+      - use is_coequalizer_cod_fib.
+        + <span class="nb">apply</span> (CoequalizerEqAr Coeq).
+        + <span class="bp">exact</span> (isCoequalizer_Coequalizer Coeq).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">CoeqSlice</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_fib_coeqs_of_kernel_pair</span>
+    : coeqs_of_kernel_pair (C/x)
+    := <span class="k">λ</span> <span class="nv">yf</span> <span class="nv">zg</span> <span class="nv">hp</span> <span class="nv">K</span>, coeq_of_kernel_pair_slice hp K.
+
+  <span class="kn">Definition</span> <span class="nf">cod_fib_regular_epi_pb_stable</span>
+    : regular_epi_pb_stable (C/x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b c d f g π₁ π₂ p H Hf.
+    use to_regular_epi_in_slice.
+    <span class="nb">apply</span> (from_regular_epi_in_slice PB EC HC) <span class="k">in</span> Hf.
+    <span class="nb">assert</span> (dom_mor π₁ · dom_mor f = dom_mor π₂ · dom_mor g) <span class="k">as</span> q.
+    {
+      <span class="nb">rewrite</span> &lt;- !comp_in_cod_fib.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> p.
+    }
+    <span class="nb">pose</span> (from_is_pullback_slice _ _ _ _ q _ H) <span class="k">as</span> H'.
+    use (HC _ _ _ _ _ _ _ _ _ H').
+    <span class="bp">exact</span> Hf.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_regular_category_cod_fib</span>
+    : is_regular_category (C/x).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">apply</span> codomain_fib_terminal.
+    - <span class="nb">apply</span> codomain_fiberwise_pullbacks.
+      <span class="bp">exact</span> PB.
+    - <span class="bp">exact</span> cod_fib_coeqs_of_kernel_pair.
+    - <span class="bp">exact</span> cod_fib_regular_epi_pb_stable.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SliceRegular</span>.
+
+<span class="sd">(** * 3. Preservation of regular epimorphisms by the pullback functor *)</span>
+<span class="kn">Section</span> <span class="nf">PullbackStable</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">PB</span> : Pullbacks C)
+          (<span class="nv">EC</span> : coeqs_of_kernel_pair C)
+          (<span class="nv">HC</span> : regular_epi_pb_stable C).
+
+  <span class="kn">Section</span> <span class="nf">PreservesFromStable</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+            {<span class="nv">zg₁</span> <span class="nv">zg₂</span> : C/y}
+            (<span class="nv">hp</span> : zg₁ --&gt; zg₂).
+
+    <span class="kn">Let</span> <span class="nf">z₁</span> : C := cod_dom zg₁.
+    <span class="kn">Let</span> <span class="nf">z₂</span> : C := cod_dom zg₂.
+    <span class="kn">Let</span> <span class="nf">g₁</span> : z₁ --&gt; y := cod_mor zg₁.
+    <span class="kn">Let</span> <span class="nf">g₂</span> : z₂ --&gt; y := cod_mor zg₂.
+    <span class="kn">Let</span> <span class="nf">h</span> : z₁ --&gt; z₂ := dom_mor hp.
+
+    <span class="kn">Let</span> <span class="nf">P₁</span> : Pullback g₁ f := PB _ _ _ g₁ f.
+    <span class="kn">Let</span> <span class="nf">π₁</span> : P₁ --&gt; z₁ := PullbackPr1 P₁.
+    <span class="kn">Let</span> <span class="nf">π₂</span> : P₁ --&gt; x := PullbackPr2 P₁.
+
+    <span class="kn">Let</span> <span class="nf">P₂</span> : Pullback g₂ f := PB _ _ _ g₂ f.
+    <span class="kn">Let</span> <span class="nf">ρ₁</span> : P₂ --&gt; z₂ := PullbackPr1 P₂.
+    <span class="kn">Let</span> <span class="nf">ρ₂</span> : P₂ --&gt; x := PullbackPr2 P₂.
+
+    <span class="kn">Context</span> (<span class="nv">r</span> : π₁ · h · g₂ = π₂ · f).
+
+    <span class="kn">Let</span> <span class="nf">k</span> : P₁ --&gt; P₂
+      := PullbackArrow P₂ P₁ (π₁ · h) π₂ r.
+
+    <span class="kn">Lemma</span> <span class="nf">regular_epi_pb_stable_to_pb_preserves_pb_sqr_eq</span>
+      : π₁ · h = k · ρ₁.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">regular_epi_pb_stable_to_pb_preserves_pb_sqr</span>
+      : isPullback regular_epi_pb_stable_to_pb_preserves_pb_sqr_eq.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w l l' q.
+      use iscontraprop1.
+      - use invproofirrelevance.
+        <span class="nb">intros</span> ζ₁ ζ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+        }
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback P₁)).
+        + <span class="bp">exact</span> (pr12 ζ₁ @ !(pr12 ζ₂)).
+        + <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · PullbackPr2 P₂) (pr22 ζ₁ @ !(pr22 ζ₂))) <span class="k">as</span> qr.
+          <span class="nb">cbn</span> <span class="k">in</span> qr.
+          <span class="nb">rewrite</span> !assoc' <span class="k">in</span> qr.
+          <span class="nb">unfold</span> k <span class="k">in</span> qr.
+          <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2 <span class="k">in</span> qr.
+          <span class="bp">exact</span> qr.
+      - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        + use PullbackArrow.
+          * <span class="bp">exact</span> l.
+          * <span class="bp">exact</span> (l' · ρ₂).
+          * <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (!(mor_eq hp)) @ _).
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) q @ _).
+            <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> PullbackSqrCommutes.
+        + <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+        + use (MorphismsIntoPullbackEqual (isPullback_Pullback P₂)).
+          * <span class="nb">unfold</span> k.
+            <span class="nb">refine</span> (assoc' _ _ _ @ _).
+            <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+            <span class="bp">exact</span> q.
+          * <span class="nb">unfold</span> k.
+            <span class="nb">refine</span> (assoc' _ _ _ @ _).
+            <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+            <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">HP'</span> := regular_epi_pb_stable_to_pb_preserves_pb_sqr.
+    <span class="kn">Let</span> <span class="nf">P'</span> := make_Pullback _ HP'.
+
+    <span class="kn">Lemma</span> <span class="nf">regular_epi_pb_stable_to_pb_preserves_lem</span>
+          (<span class="nv">Hp</span> : is_regular_epi hp)
+      : is_regular_epi k.
+    <span class="kn">Proof</span>.
+      use (HC _ _ _ _ _ _ _ _ _ HP').
+      <span class="nb">apply</span> (from_regular_epi_in_slice PB EC HC).
+      <span class="bp">exact</span> Hp.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">PreservesFromStable</span>.
+
+  <span class="kn">Definition</span> <span class="nf">regular_epi_pb_stable_to_pb_preserves</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+    : preserves_regular_epi (cod_pb PB f).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> g h p Hp.
+    use to_regular_epi_in_slice.
+    <span class="nb">rewrite</span> cod_fiber_functor_on_mor.
+    <span class="bp">exact</span> (regular_epi_pb_stable_to_pb_preserves_lem f p _ Hp).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PullbackStable</span>.
+
+<span class="sd">(** * 4. Preservation of regular epimorphisms by the codomain functor *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_regular_epi_fiber_disp_cod</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C₁)
+           (<span class="nv">EC</span> : coeqs_of_kernel_pair C₁)
+           (<span class="nv">HC</span> : regular_epi_pb_stable C₁)
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">HF</span> : preserves_regular_epi F)
+           (<span class="nv">x</span> : C₁)
+  : preserves_regular_epi (fiber_functor (disp_codomain_functor F) x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> fy gz hp Hf.
+  use to_regular_epi_in_slice.
+  <span class="nb">rewrite</span> disp_codomain_fiber_functor_mor.
+  <span class="nb">apply</span> HF.
+  <span class="bp">exact</span> (from_regular_epi_in_slice PB EC HC Hf).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Exactness of the slice category *)</span>
+<span class="kn">Proposition</span> <span class="nf">from_internal_relation_slice_monic</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">zf</span> : C/x}
+            (<span class="nv">R</span> : internal_relation zf)
+            (<span class="nv">w</span> : C)
+            (<span class="nv">f</span> <span class="nv">g</span> : w --&gt; cod_dom R)
+            (<span class="nv">p</span> : f · dom_mor (internal_relation_src R)
+                 =
+                 g · dom_mor (internal_relation_src R))
+            (<span class="nv">q</span> : f · dom_mor (internal_relation_tar R)
+                 =
+                 g · dom_mor (internal_relation_tar R))
+  : f = g.
+<span class="kn">Proof</span>.
+  use (maponpaths
+         dom_mor
+         (@internal_relation_monic
+             _ _
+             R
+             (make_cod_fib_ob (f · cod_mor R))
+             (make_cod_fib_mor _ _)
+             (make_cod_fib_mor _ _)
+             _ _)).
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- !(mor_eq (internal_relation_src R)).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> (!p).
+  - use eq_mor_cod_fib.
+    <span class="nb">rewrite</span> !comp_in_cod_fib.
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> p.
+  - use eq_mor_cod_fib.
+    <span class="nb">rewrite</span> !comp_in_cod_fib.
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">from_internal_relation_slice</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">zf</span> : C/x}
+           (<span class="nv">R</span> : internal_relation zf)
+  : internal_relation (cod_dom zf).
+<span class="kn">Proof</span>.
+  use make_internal_relation.
+  - <span class="bp">exact</span> (cod_dom R).
+  - <span class="bp">exact</span> (dom_mor (internal_relation_src R)).
+  - <span class="bp">exact</span> (dom_mor (internal_relation_tar R)).
+  - <span class="bp">exact</span> (from_internal_relation_slice_monic R).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isrefl_from_internal_is_eqrel_slice</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">zf</span> : C/x}
+            (<span class="nv">R</span> : internal_eqrel zf)
+  : internal_isrefl (from_internal_relation_slice R).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w g.
+  <span class="nb">pose</span> (w' := make_cod_fib_ob (g · cod_mor zf)).
+  <span class="nb">assert</span> (g · cod_mor zf = cod_mor w') <span class="k">as</span> p.
+  {
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">pose</span> (g' := @make_cod_fib_mor _ _ w' zf g p).
+  <span class="nb">pose</span> (r := isrefl_internal_eqrel R w' g' : internal_relation_to_arr_relation _ _ _).
+  use make_internal_relation_to_arr_relation.
+  - <span class="bp">exact</span> (dom_mor r).
+  - <span class="nb">refine</span> (!(comp_in_cod_fib r _) @ _).
+    <span class="nb">rewrite</span> (internal_relation_to_arr_relation_src r).
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">refine</span> (!(comp_in_cod_fib r _) @ _).
+    <span class="nb">rewrite</span> (internal_relation_to_arr_relation_tar r).
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">issymm_from_internal_is_eqrel_slice</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">zf</span> : C/x}
+            (<span class="nv">R</span> : internal_eqrel zf)
+  : internal_issymm (from_internal_relation_slice R).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w g₁ g₂ p.
+  <span class="nb">pose</span> (w' := make_cod_fib_ob (g₁ · cod_mor zf)).
+  <span class="nb">induction</span> p <span class="k">as</span> [ h [ p₁ p₂ ]].
+  <span class="nb">cbn</span> <span class="k">in</span> h, p₁, p₂.
+  <span class="nb">assert</span> (g₁ · cod_mor zf = cod_mor w') <span class="k">as</span> q₁.
+  {
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">pose</span> (g₁' := @make_cod_fib_mor _ _ w' zf g₁ q₁).
+  <span class="nb">assert</span> (g₂ · cod_mor zf = cod_mor w') <span class="k">as</span> q₂.
+  {
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- p₁, &lt;- p₂.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> (mor_eq (internal_relation_src R)).
+    <span class="nb">rewrite</span> (mor_eq (internal_relation_tar R)).
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">pose</span> (g₂' := @make_cod_fib_mor _ _ w' zf g₂ q₂).
+  <span class="nb">assert</span> (internal_relation_to_arr_hrel R w' g₁' g₂') <span class="k">as</span> H.
+  {
+    use make_internal_relation_to_arr_relation.
+    - use make_cod_fib_mor.
+      + <span class="bp">exact</span> h.
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- p₁.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> (mor_eq (internal_relation_src R)).
+        <span class="nb">apply</span> idpath.
+    - use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">cbn</span>.
+      <span class="bp">exact</span> p₁.
+    - use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">cbn</span>.
+      <span class="bp">exact</span> p₂.
+  }
+  <span class="nb">pose</span> (r := issymm_internal_eqrel R w' g₁' g₂' H : internal_relation_to_arr_relation _ _ _).
+  use make_internal_relation_to_arr_relation.
+  - <span class="bp">exact</span> (dom_mor r).
+  - <span class="nb">refine</span> (!(comp_in_cod_fib r _) @ _).
+    <span class="nb">rewrite</span> (internal_relation_to_arr_relation_src r).
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">refine</span> (!(comp_in_cod_fib r _) @ _).
+    <span class="nb">rewrite</span> (internal_relation_to_arr_relation_tar r).
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">istrans_from_internal_is_eqrel_slice</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">zf</span> : C/x}
+            (<span class="nv">R</span> : internal_eqrel zf)
+  : internal_istrans (from_internal_relation_slice R).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w g₁ g₂ g₃ p q.
+  <span class="nb">pose</span> (w' := make_cod_fib_ob (g₁ · cod_mor zf)).
+  <span class="nb">induction</span> p <span class="k">as</span> [ h [ p₁ p₂ ]].
+  <span class="nb">induction</span> q <span class="k">as</span> [ k [ q₁ q₂ ]].
+  <span class="nb">cbn</span> <span class="k">in</span> h, p₁, p₂, k, q₁, q₂.
+  <span class="nb">assert</span> (g₁ · cod_mor zf = cod_mor w') <span class="k">as</span> r₁.
+  {
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">pose</span> (g₁' := @make_cod_fib_mor _ _ w' zf g₁ r₁).
+  <span class="nb">assert</span> (g₂ · cod_mor zf = cod_mor w') <span class="k">as</span> r₂.
+  {
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- p₁, &lt;- p₂.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> (mor_eq (internal_relation_src R)).
+    <span class="nb">rewrite</span> (mor_eq (internal_relation_tar R)).
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">pose</span> (g₂' := @make_cod_fib_mor _ _ w' zf g₂ r₂).
+  <span class="nb">assert</span> (k · cod_mor R = h · cod_mor R) <span class="k">as</span> lem.
+  {
+    etrans.
+    {
+      <span class="nb">rewrite</span> &lt;- (mor_eq (internal_relation_src R)).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> q₁.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> &lt;- (mor_eq (internal_relation_tar R)).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> p₂.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">assert</span> (g₃ · cod_mor zf = cod_mor w') <span class="k">as</span> r₃.
+  {
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- p₁, &lt;- q₂.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> (mor_eq (internal_relation_src R)).
+    <span class="nb">rewrite</span> (mor_eq (internal_relation_tar R)).
+    <span class="bp">exact</span> lem.
+  }
+  <span class="nb">pose</span> (g₃' := @make_cod_fib_mor _ _ w' zf g₃ r₃).
+  <span class="nb">assert</span> (internal_relation_to_arr_hrel R w' g₁' g₂') <span class="k">as</span> H₁.
+  {
+    use make_internal_relation_to_arr_relation.
+    - use make_cod_fib_mor.
+      + <span class="bp">exact</span> h.
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- p₁.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> (mor_eq (internal_relation_src R)).
+        <span class="nb">apply</span> idpath.
+    - use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> p₁.
+    - use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> p₂.
+  }
+  <span class="nb">assert</span> (internal_relation_to_arr_hrel R w' g₂' g₃') <span class="k">as</span> H₂.
+  {
+    use make_internal_relation_to_arr_relation.
+    - use make_cod_fib_mor.
+      + <span class="bp">exact</span> k.
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- p₁.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> (mor_eq (internal_relation_src R)).
+        <span class="bp">exact</span> lem.
+    - use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> q₁.
+    - use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> q₂.
+  }
+  <span class="nb">pose</span> (r := istrans_internal_eqrel R w' g₁' g₂' g₃' H₁ H₂).
+  <span class="nb">cbn</span> <span class="k">in</span> r.
+  use make_internal_relation_to_arr_relation.
+  - <span class="bp">exact</span> (dom_mor r).
+  - <span class="nb">refine</span> (!(comp_in_cod_fib r _) @ _).
+    <span class="nb">rewrite</span> (internal_relation_to_arr_relation_src r).
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">refine</span> (!(comp_in_cod_fib r _) @ _).
+    <span class="nb">rewrite</span> (internal_relation_to_arr_relation_tar r).
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">from_internal_is_eqrel_slice</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">zf</span> : C/x}
+            (<span class="nv">R</span> : internal_eqrel zf)
+  : internal_iseqrel (from_internal_relation_slice R).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">exact</span> (isrefl_from_internal_is_eqrel_slice R).
+  - <span class="bp">exact</span> (issymm_from_internal_is_eqrel_slice R).
+  - <span class="bp">exact</span> (istrans_from_internal_is_eqrel_slice R).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">from_internal_eqrel_slice</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">zf</span> : C/x}
+           (<span class="nv">R</span> : internal_eqrel zf)
+  : internal_eqrel (cod_dom zf).
+<span class="kn">Proof</span>.
+  use make_internal_eqrel.
+  - <span class="bp">exact</span> (from_internal_relation_slice R).
+  - <span class="bp">exact</span> (from_internal_is_eqrel_slice R).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">Exactness</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">x</span> : C}
+          {<span class="nv">zf</span> : C/x}
+          (<span class="nv">R</span> : internal_eqrel zf)
+          (<span class="nv">Coeq</span> : Coequalizer
+                    (dom_mor (internal_relation_src R))
+                    (dom_mor (internal_relation_tar R))).
+
+  <span class="kn">Definition</span> <span class="nf">internal_eqrel_coequalizer_ob</span>
+    : C/x.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_ob.
+    - <span class="bp">exact</span> Coeq.
+    - use CoequalizerOut.
+      + <span class="bp">exact</span> (cod_mor zf).
+      + <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> (mor_eq (internal_relation_src R)) ;
+           <span class="nb">rewrite</span> (mor_eq (internal_relation_tar R)) ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_eqrel_coequalizer_arr</span>
+    : zf --&gt; internal_eqrel_coequalizer_ob.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - <span class="bp">exact</span> (CoequalizerArrow Coeq).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> CoequalizerCommutes ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">internal_eqrel_coequalizer_eq</span>
+    : internal_relation_src R · internal_eqrel_coequalizer_arr
+      =
+      internal_relation_tar R · internal_eqrel_coequalizer_arr.
+  <span class="kn">Proof</span>.
+    use eq_mor_cod_fib.
+    <span class="nb">rewrite</span> !comp_in_cod_fib.
+    <span class="nb">apply</span> CoequalizerEqAr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_eqrel_coequalizer</span>
+    : Coequalizer (internal_relation_src R) (internal_relation_tar R).
+  <span class="kn">Proof</span>.
+    use make_Coequalizer.
+    - <span class="bp">exact</span> internal_eqrel_coequalizer_ob.
+    - <span class="bp">exact</span> internal_eqrel_coequalizer_arr.
+    - <span class="bp">exact</span> internal_eqrel_coequalizer_eq.
+    - use is_coequalizer_cod_fib.
+      + <span class="nb">apply</span> CoequalizerEqAr.
+      + <span class="bp">exact</span> (isCoequalizer_Coequalizer Coeq).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Exactness</span>.
+
+<span class="kn">Definition</span> <span class="nf">all_internal_eqrel_effective_fiber_disp_cod</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">H</span> : all_internal_eqrel_effective C)
+           (<span class="nv">x</span> : C)
+  : all_internal_eqrel_effective (C/x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> zf R.
+  <span class="nb">pose</span> (HE := H _ (from_internal_eqrel_slice R)).
+  <span class="nb">pose</span> (Coeq := pr1 HE).
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (internal_eqrel_coequalizer R Coeq).
+  - <span class="kp">abstract</span>
+      (use to_is_pullback_slice ; [ | <span class="nb">apply</span> HE ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_exact_disp_cod</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">H</span> : is_exact C)
+           (<span class="nv">x</span> : C)
+  : is_exact (C/x).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (H' := is_exact_to_is_regular H).
+  <span class="nb">split</span>.
+  - use is_regular_category_cod_fib.
+    + <span class="bp">exact</span> (is_regular_category_pullbacks H').
+    + <span class="bp">exact</span> (is_regular_category_coeqs_of_kernel_pair H').
+    + <span class="bp">exact</span> (is_regular_category_regular_epi_pb_stable H').
+  - use all_internal_eqrel_effective_fiber_disp_cod.
+    <span class="bp">exact</span> (is_exact_to_all_internal_eqrel_effective H).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Codomain/CodRegular.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Exact category
+  &gt;
+  &gt;  ********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

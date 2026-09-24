@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ElementaryTopos.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **</span>
+<span class="sd">  Following Saunders Mac Lane &amp; Ieke Moerdijk</span>
+<span class="sd">  Sheaves in Geometry and Logic - A First Introduction to Topos theory.</span>
+<span class="sd">  Chapter IV.1 and IV.2</span>
+
+<span class="sd">  Contents :</span>
+<span class="sd">  - definition of elementary topos ([Topos]) as a category which has:</span>
+<span class="sd">    -) finite limits meaning:</span>
+<span class="sd">      --) Terminal Object</span>
+<span class="sd">      --) Binary Pullbacks</span>
+<span class="sd">    -) Power Object</span>
+<span class="sd">    -) Subobject Classifier</span>
+<span class="sd">  - definition of the [KroneckerDelta] predicate and the [SingletonArrow]</span>
+<span class="sd">  - proof that [SingletonArrow] is monic ([SingletonArrow_isMonic])</span>
+<span class="sd">  - derivation of exponentials [Exponentials_from_Topos]</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PowerObject.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subobjects.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="c">(*</span>
+<span class="c">An elementary topos is a category which has:</span>
+<span class="c">  -) finite limits meaning:</span>
+<span class="c">    --) Terminal Object</span>
+<span class="c">    --) Binary Pullbacks</span>
+<span class="c">  -) Power Object</span>
+<span class="c">  -) Subobject Classifier</span>
+<span class="c">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">Topos_Structure</span> (<span class="nv">C</span> : category) :=
+  ∑ (PB : Pullbacks C) (T : Terminal C) (Ω : subobject_classifier T),
+    (PowerObject (BinProductsFromPullbacks PB T) Ω).
+
+<span class="kn">Definition</span> <span class="nf">Topos</span> := ∑ (C:category), Topos_Structure C.
+
+<span class="kn">Definition</span> <span class="nf">make_Topos_Structure</span> {<span class="nv">C</span>:category} (<span class="nv">PB</span> : Pullbacks C) (<span class="nv">T</span> : Terminal C)
+  (<span class="nv">Ω</span>: subobject_classifier T) (<span class="nv">P</span>: PowerObject (BinProductsFromPullbacks PB T) Ω)
+  : Topos_Structure C.
+<span class="kn">Proof</span>.
+  <span class="nb">split with</span> PB.
+  <span class="nb">split with</span> T.
+  <span class="nb">split with</span> Ω.
+  <span class="bp">exact</span> P.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_Topos</span> {<span class="nv">C</span>:category} (<span class="nv">str</span>: Topos_Structure C)
+  : Topos.
+<span class="kn">Proof</span>.
+  <span class="nb">split with</span> C.
+  <span class="bp">exact</span> str.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">ToposAccessor</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : Topos).
+
+<span class="kn">Definition</span> <span class="nf">Topos_category</span> : category := pr1 C.
+<span class="kn">Definition</span> <span class="nf">Topos_Pullbacks</span> : Pullbacks Topos_category := pr1 (pr2 C).
+<span class="kn">Definition</span> <span class="nf">Topos_Terminal</span> : Terminal Topos_category := pr1 (pr2 (pr2 C)).
+<span class="kn">Definition</span> <span class="nf">Topos_SubobjectClassifier</span> : subobject_classifier (Topos_Terminal) := pr1 (pr2 (pr2 (pr2 C))).
+<span class="kn">Definition</span> <span class="nf">Topos_BinProducts</span> : BinProducts Topos_category := BinProductsFromPullbacks (Topos_Pullbacks) (Topos_Terminal).
+<span class="kn">Definition</span> <span class="nf">Topos_PowerObject</span> : PowerObject (Topos_BinProducts) (Topos_SubobjectClassifier) := pr2 (pr2 (pr2 (pr2 C))).
+
+<span class="kn">End</span> <span class="nf">ToposAccessor</span>.
+
+<span class="kn">Coercion</span> <span class="nf">Topos_category</span> : Topos &gt;-&gt;category.
+
+<span class="kn">Section</span> <span class="nf">Topos</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span>:Topos}.
+<span class="kn">Let</span> <span class="nf">T</span> := Topos_Terminal C.
+<span class="kn">Let</span> <span class="nf">PB</span> := Topos_Pullbacks C.
+<span class="kn">Let</span> <span class="nf">BinProd</span> := Topos_BinProducts C.
+<span class="kn">Let</span> <span class="nf">P</span> := Topos_PowerObject C.
+<span class="kn">Let</span> <span class="nf">Ω</span> := Topos_SubobjectClassifier C.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"c ⨉ d"</span>
+  := (BinProductObject C (BinProd c d))(<span class="kn">at level</span> <span class="mi">5</span>).
+  <span class="c">(*\bigtimes*)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f ⨱ g"</span>
+  := (BinProductOfArrows _ (BinProd _ _) (BinProd _ _) f g) (<span class="kn">at level</span> <span class="mi">10</span>).
+  <span class="c">(*\timesbar*)</span>
+
+<span class="kn">Section</span> <span class="nf">KroneckerDelta</span>.
+<span class="c">(*The [KroneckerDelta] predicate is defined as</span>
+<span class="c">the chraracteristic morphis of the [diagonalMap],</span>
+<span class="c">The [SingletonArrow] is defined as</span>
+<span class="c">the [PowerObject_transpose] of the [KroneckerDelta]*)</span>
+
+<span class="kn">Definition</span> <span class="nf">KroneckerDelta</span> (<span class="nv">B</span> : C) : C⟦ B ⨉ B , Ω⟧.
+<span class="kn">Proof</span>.
+  use characteristic_morphism.
+  + <span class="bp">exact</span> B.
+  + use diagonalMap.
+<span class="kn">Defined</span>.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'δ' B"</span> := (KroneckerDelta B)(<span class="kn">at level</span> <span class="mi">8</span>).
+
+<span class="kn">Definition</span> <span class="nf">SingletonArrow</span> (<span class="nv">B</span> : C) : C⟦ B , (PowerObject_on_ob P) B⟧.
+<span class="kn">Proof</span>.
+  use PowerObject_transpose.
+  use KroneckerDelta.
+<span class="kn">Defined</span>.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'{⋅}' B"</span> := (SingletonArrow B)(<span class="kn">at level</span> <span class="mi">8</span>).
+
+<span class="c">(*Proof that [SingletonArrow] is Monic and</span>
+<span class="c">  definition of his characteristic map [SingletonPred]*)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">auxpb</span> {<span class="nv">X</span> <span class="nv">B</span>: C} (<span class="nv">b</span>: C⟦ X , B⟧) : Pullback (identity B ⨱ b) (diagonalMap BinProd B).
+<span class="kn">Proof</span>.
+  use make_Pullback.
+  + <span class="bp">exact</span> X.
+  + use BinProductArrow.
+    - <span class="bp">exact</span> b.
+    - <span class="bp">exact</span> (identity X).
+  + <span class="bp">exact</span> b.
+  + <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> postcompWithBinProductArrow.
+    use pathsinv0.
+    use BinProductArrowUnique.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">unfold</span> diagonalMap'.
+      <span class="bp">now</span> <span class="nb">rewrite</span> BinProductPr1Commutes.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">unfold</span> diagonalMap'.
+      <span class="bp">now</span> <span class="nb">rewrite</span> BinProductPr2Commutes, id_left, id_right.
+  + use make_isPullback.
+    <span class="nb">intros</span> Y y1 y2 r.
+    <span class="nb">set</span> (y11 := (y1 · (BinProductPr1 _ (BinProd B X)))).
+    <span class="nb">set</span> (y12 := (y1 · (BinProductPr2 _ (BinProd B X)))).
+    <span class="c">(* rewrite (BinProductArrowEta _ _ _ _ _ y1). *)</span>
+    <span class="nb">assert</span> (r1 := maponpaths (<span class="k">λ</span> <span class="nv">f</span>, compose f (BinProductPr1 C (BinProd B B))) r).
+    <span class="nb">assert</span> (r2 := maponpaths (<span class="k">λ</span> <span class="nv">f</span>, compose f (BinProductPr2 C (BinProd B B))) r).
+    <span class="nb">simpl</span> <span class="k">in</span> r1, r2.
+    <span class="nb">unfold</span> diagonalMap' <span class="k">in</span> r1, r2.
+    <span class="nb">rewrite</span>
+      !assoc',
+      BinProductOfArrowsPr1,
+      BinProductPr1Commutes,
+      !id_right
+      <span class="k">in</span> r1.
+    <span class="nb">rewrite</span>
+      !assoc',
+      BinProductOfArrowsPr2,
+      BinProductPr2Commutes,
+      !id_right,
+      assoc <span class="k">in</span> r2.
+    <span class="nb">fold</span> y11 <span class="k">in</span> r1.
+    <span class="nb">fold</span> y12 <span class="k">in</span> r2.
+    use make_iscontr.
+    - <span class="nb">split with</span> y12.
+      use (tpair _ _ r2).
+      <span class="nb">rewrite</span> precompWithBinProductArrow.
+      use pathsinv0.
+      use BinProductArrowUnique.
+      * <span class="bp">now</span> <span class="nb">rewrite</span> r2, &lt;-r1.
+      * <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+    - <span class="nb">intro</span> t.
+      <span class="nb">induction</span> t <span class="k">as</span> (t,(tri1,tri2)).
+      use subtypePath.
+      * <span class="nb">unfold</span> isPredicate.
+        <span class="nb">intro</span>.
+        use isofhleveldirprod.
+        ++ use homset_property. ++ use homset_property.
+      * <span class="nb">cbn</span>.
+        <span class="nb">assert</span> (Ts := maponpaths (<span class="k">λ</span> <span class="nv">f</span>, compose f (BinProductPr2 C (BinProd B X))) tri1).
+        <span class="nb">simpl</span> <span class="k">in</span> Ts.
+        <span class="nb">rewrite</span> assoc', BinProductPr2Commutes, id_right <span class="k">in</span> Ts.
+        <span class="bp">exact</span> Ts.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">SingletonArrow_isMonic</span> (<span class="nv">B</span>: C) : isMonic ({⋅} B).
+<span class="kn">Proof</span>.
+  use make_isMonic.
+  <span class="nb">intros</span> X b b' p.
+  <span class="nb">assert</span> (q : (((identity B) ⨱ b) · (δ B) = ((identity B) ⨱ b') · (δ B))). {
+    <span class="nb">rewrite</span> (PowerObject_transpose_tri P (δ B)).
+    <span class="nb">fold</span> BinProd.
+    <span class="nb">rewrite</span> !assoc, !BinProductOfArrows_idxcomp.
+    use (maponpaths (( nat_z_iso_inv
+    (PowerObject_nat_z_iso P)) (X,,B))).
+    <span class="bp">exact</span> p.
+  }
+  <span class="sd">(** Consider this diagram</span>
+<span class="sd">    &lt;&lt;</span>
+<span class="sd">                        b               !</span>
+<span class="sd">                X   --------&gt;   B   --------&gt; T</span>
+<span class="sd">                |               |             |</span>
+<span class="sd">         b x id |    diagonalMap|             | true</span>
+<span class="sd">                v               v             v</span>
+<span class="sd">              B x X --------&gt; B x B --------&gt; Ω</span>
+<span class="sd">                    id x b              δB</span>
+<span class="sd">    &gt;&gt;</span>
+<span class="sd">    We prove the left-hand square is a pullback</span>
+<span class="sd">      (even when we substitue b with b') in [pbl] and [pbl'],</span>
+<span class="sd">    the right-hand square is the definition of [KroneckerDelta]</span>
+<span class="sd">      and it is a Pullback,</span>
+<span class="sd">    so the whole rectangle is a pullback ([pb] [pb'])</span>
+
+<span class="sd">    using [q] we note b x id and b' x id are [pullbackPr1]</span>
+<span class="sd">    of the same diagram, thus they differ by an isomorphism [h]</span>
+<span class="sd">  *)</span>
+  <span class="nb">set</span> (pbr := subobject_classifier_pullback Ω (diagonalMap BinProd B)).
+  <span class="nb">set</span> (pbl := auxpb b).
+  <span class="nb">set</span> (pbl' := auxpb b').
+  <span class="nb">set</span> (pb := pullback_glue_pullback C pbr pbl).
+  <span class="nb">set</span> (pb' := pullback_glue_pullback C pbr pbl').
+  <span class="nb">fold</span> δ B <span class="k">in</span> pb, pb'.
+  transparent <span class="nb">assert</span> (pb'' : (Pullback ((identity B) ⨱ b' · δ B) Ω)). {
+    use (Pullback_mor_paths q (idpath _)).
+    <span class="bp">exact</span> pb.
+  }
+  <span class="nb">induction</span> (pullbackiso _ pb' pb'') <span class="k">as</span> (h,(h_tri1,h_tri2)).
+  <span class="nb">cbn</span> - [BinProd] <span class="k">in</span> h, h_tri1.
+  <span class="nb">rewrite</span> (precompWithBinProductArrow _ (BinProd B X)) <span class="k">in</span> h_tri1.
+  <span class="nb">assert</span> (h_tri11 := (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, compose f (BinProductPr1 C (BinProd B X))) h_tri1)).
+  <span class="nb">cbn</span> beta <span class="k">in</span> h_tri11.
+  <span class="nb">rewrite</span> !BinProductPr1Commutes <span class="k">in</span> h_tri11.
+  <span class="nb">assert</span> (h_tri12 := (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, compose f (BinProductPr2 C (BinProd B X))) h_tri1)).
+  <span class="nb">cbn</span> beta <span class="k">in</span> h_tri12.
+  <span class="nb">rewrite</span> !BinProductPr2Commutes, id_right <span class="k">in</span> h_tri12.
+  <span class="nb">rewrite</span> h_tri12, id_left <span class="k">in</span> h_tri11.
+  <span class="bp">exact</span> h_tri11.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">SingletonArrow_Monic</span> (<span class="nv">B</span>: C) := make_Monic C (SingletonArrow B) (SingletonArrow_isMonic B).
+
+<span class="kn">Definition</span> <span class="nf">SingletonPred</span> (<span class="nv">B</span>: C) : C ⟦ PowerObject_on_ob P B , Ω ⟧.
+<span class="kn">Proof</span>.
+  use characteristic_morphism.
+  { <span class="bp">exact</span> B. }
+  use SingletonArrow_Monic.
+<span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">KroneckerDelta</span>.
+
+<span class="c">(*In this section we show that an elementary topos has exponentials*)</span>
+<span class="kn">Section</span> <span class="nf">Exponentials</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'δ' B"</span> := (KroneckerDelta B)(<span class="kn">at level</span> <span class="mi">8</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'{⋅}' B"</span> := (SingletonArrow B)(<span class="kn">at level</span> <span class="mi">8</span>).
+
+<span class="c">(*[v b c] in Sets would be, given an element x of b and a relation as a subset of c x b, the subset of c of all the element in relation with x*)</span>
+<span class="kn">Let</span> <span class="nf">v</span> (<span class="nv">b</span> <span class="nv">c</span> : C)
+  : C ⟦ (b ⨉ (PowerObject_on_ob P (c ⨉ b))) , (PowerObject_on_ob P c) ⟧.
+<span class="kn">Proof</span>.
+  use (PowerObject_transpose).
+  use (compose (BinProduct_assoc BinProd c b (PowerObject_on_ob P (c ⨉ b)))).
+  use PowerObject_inPred.
+<span class="kn">Defined</span>.
+
+<span class="c">(*[u b c] in Sets would be, given a relation as a subset of c x b, the subset of b of all the element x such that (v b c) x is a Singleton*)</span>
+<span class="kn">Let</span> <span class="nf">u</span> (<span class="nv">b</span> <span class="nv">c</span> : C)
+  : C ⟦ PowerObject_on_ob P (c ⨉ b) , (PowerObject_on_ob P b) ⟧.
+<span class="kn">Proof</span>.
+  use (PowerObject_transpose).
+  use (compose (b:= (PowerObject_on_ob P c))).
+  - use v.
+  - use SingletonPred.
+<span class="kn">Defined</span>.
+
+<span class="kn">Let</span> <span class="nf">name_true</span> (<span class="nv">b</span> : C) : C ⟦ T, PowerObject_on_ob P b ⟧.
+<span class="kn">Proof</span>.
+  use (PowerObject_charname_nat_z_iso P).
+  <span class="bp">exact</span> (TerminalArrow T b · true Ω).
+<span class="kn">Defined</span>.
+
+<span class="c">(*we are going to use [coreflections_to_is_left_adjoint], so, given (b c : C) we set up:</span>
+<span class="c">  Subobject_dom G0  (the object c^b : C)</span>
+<span class="c">  ev                (the evaluation morphism : C ⟦ b x c^b , c ⟧</span>
+<span class="c">  universality      (a proof which show e b c is universal)</span>
+<span class="c">*)</span>
+
+<span class="c">(*G0 is defined as the pullback of name_true through u*)</span>
+<span class="kn">Let</span> <span class="nf">G0</span> (<span class="nv">b</span> <span class="nv">c</span> : C) : Subobjectscategory
+  (PowerObject_on_ob P (c ⨉ b)).
+<span class="kn">Proof</span>.
+  use (PullbackSubobject PB).
+  { <span class="bp">exact</span> (PowerObject_on_ob P b). }
+  { use Subobjectscategory_ob.
+    - <span class="bp">exact</span> T.
+    - <span class="bp">exact</span> (name_true b).
+    - use global_element_isMonic.
+  }
+  - use u.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">G0_Sqr</span> (<span class="nv">b</span> <span class="nv">c</span> : C) : (Subobject_mor (G0 b c) · (u b c) = (TerminalArrow T _ ) · (name_true b)).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> PullbackSqrCommutes.
+  <span class="kp">repeat</span> use cancel_postcomposition.
+  use TerminalArrowUnique.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Consider this diagram</span>
+<span class="sd">  &lt;&lt;</span>
+<span class="sd">                                      ev</span>
+<span class="sd">              ----------------------------------------------------</span>
+<span class="sd">              |                                                  |</span>
+<span class="sd">              |      id x G0                  v           {·}    v</span>
+<span class="sd">            b x c^b --------&gt; b x P(c x b) ------&gt; Pc &lt;--------- C</span>
+<span class="sd">              |                 |                   |            |</span>
+<span class="sd">       id x ! |          id x u |      SingletonPred|            |!</span>
+<span class="sd">              v                 v                   v            v</span>
+<span class="sd">            b x T   --------&gt;   b x Pb -----------&gt; Ω &lt;--------- T</span>
+<span class="sd">              |   id x name_true            inmap          true  ʌ</span>
+<span class="sd">              |                                                  |</span>
+<span class="sd">              ----------------------------------------------------</span>
+<span class="sd">                                    !</span>
+<span class="sd">  &gt;&gt;</span>
+<span class="sd">  The left-hand square is b x (def of c^b),</span>
+<span class="sd">  the middle square is the definition of v from u,</span>
+<span class="sd">  the right-hand square is the definition of SingletonPred and it is a Pullback,</span>
+<span class="sd">  the bottom distorted square is the definition of name_true.</span>
+<span class="sd">  Every square commutes.</span>
+<span class="sd">  We define [ev] as the [PullbackArrow] of the right-hand square</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">ev_aux</span> (<span class="nv">b</span> <span class="nv">c</span>: C) :
+  (identity b) ⨱ (Subobject_mor (G0 b c)) · v b c · characteristic_morphism Ω (SingletonArrow_Monic c) =
+  (identity b) ⨱ (TerminalArrow T (Subobject_dom (G0 b c))) · TerminalArrow T (BinProd b T) · Ω.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> assoc'.
+    <span class="nb">assert</span> (p :
+      (identity b) ⨱ (u b c) · PowerObject_inPred P b =
+      v b c · characteristic_morphism Ω (SingletonArrow_Monic c)).
+    { use pathsinv0.
+      use (PowerObject_transpose_tri P). }
+    <span class="nb">induction</span> p.
+    <span class="nb">rewrite</span> assoc, BinProductOfArrows_idxcomp.
+    <span class="nb">rewrite</span> G0_Sqr.
+    <span class="nb">rewrite</span> !assoc', &lt;-BinProductOfArrows_idxcomp, !assoc'.
+    use cancel_precomposition.
+    <span class="nb">unfold</span> name_true.
+    <span class="nb">rewrite</span> (PowerObject_charname_nat_z_iso_tri(b:=b) P).
+    <span class="nb">rewrite</span> !assoc.
+    use cancel_postcomposition.
+    use TerminalArrowUnique.
+<span class="kn">Qed</span>.
+
+<span class="kn">Let</span> <span class="nf">ev</span> (<span class="nv">b</span> <span class="nv">c</span>: C) : C ⟦ b ⨉ (Subobject_dom (G0 b c)), c ⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (p : PullbackObject (subobject_classifier_pullback Ω (SingletonArrow_Monic c)) = c).
+  { <span class="nb">apply</span> idpath. }
+  <span class="nb">induction</span> p.
+  use PullbackArrow.
+  - <span class="bp">exact</span> ((identity _) ⨱ (Subobject_mor (G0 b c)) · (v b c)).
+  - <span class="bp">exact</span> ((identity b) ⨱ (TerminalArrow T (Subobject_dom (G0 b c)))·
+      (TerminalArrow T _)).
+  - <span class="nb">apply</span> ev_aux.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">ev_tri</span> (<span class="nv">b</span> <span class="nv">c</span> : C) : ev b c · SingletonArrow_Monic c =
+                                 (identity _) ⨱ ( Subobject_mor (G0 b c)) · (v b c).
+<span class="kn">Proof</span>.
+  use (PullbackArrow_PullbackPr1 (subobject_classifier_pullback Ω (SingletonArrow_Monic c))).
+<span class="kn">Qed</span>.
+
+<span class="c">(*UNIVERSALITY</span>
+<span class="c">  Given f : C ⟦ b x a , c ⟧ we need to show</span>
+<span class="c">  there is a unique g : C ⟦ a , c^b ⟧ such that f = (id x g)·ev</span>
+
+<span class="c">  we define such g as the [PullbackArrow] the following diagram</span>
+<span class="c">  &lt;&lt;</span>
+<span class="c">                          !</span>
+<span class="c">                c^b -------------&gt; T</span>
+<span class="c">                 |                 |</span>
+<span class="c">              G0 |                 | name_true</span>
+<span class="c">         h       v                 v</span>
+<span class="c">      a ---&gt;P (c x b) ----------&gt; Pb</span>
+<span class="c">                        u b c</span>
+<span class="c">  &gt;&gt;</span>
+<span class="c">  where h is the transpose of ((id c) x f)·(δ c)</span>
+<span class="c">    but as a morphism C ⟦ (c x b) x a , Ω ⟧</span>
+<span class="c">    (so we need to precompose [BinProduct_assoc])</span>
+<span class="c">*)</span>
+<span class="kn">Let</span> <span class="nf">h</span> {<span class="nv">c</span> <span class="nv">b</span> <span class="nv">a</span> : C} (<span class="nv">f</span>: C ⟦ b ⨉ a, c ⟧)
+    := PowerObject_transpose P ((z_iso_inv (BinProduct_assoc BinProd c b a)) ·
+                                  (identity c) ⨱ f · (δ c)).
+
+<span class="kn">Local Lemma</span> <span class="nf">h_sq</span> {<span class="nv">c</span> <span class="nv">b</span> <span class="nv">a</span> : C} (<span class="nv">f</span>: C ⟦ b ⨉ a, c ⟧) :
+  f · SingletonArrow_Monic c = (identity b) ⨱ (h f) · v b c.
+<span class="kn">Proof</span>.
+  use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (b ⨉ a,,c)))).
+  <span class="nb">simpl</span>. <span class="nb">fold</span> BinProd.
+  <span class="nb">rewrite</span> &lt;-!BinProductOfArrows_idxcomp, !assoc'.
+  intermediate_path ((identity c) ⨱ f · KroneckerDelta c).
+  { use cancel_precomposition.
+    <span class="nb">apply</span> pathsinv0.
+    use PowerObject_transpose_tri. }
+  use pathsinv0.
+  intermediate_path (
+    (identity c) ⨱ ((identity b) ⨱ (h f)) ·
+    ((BinProduct_assoc BinProd c b (PowerObject_on_ob P c ⨉ b)) ·
+    PowerObject_inPred P c ⨉ b)).
+  { use cancel_precomposition.
+    use pathsinv0.
+    use (PowerObject_transpose_tri P). }
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> BinProduct_OfArrows_assoc.
+  use pathsinv0.
+  <span class="nb">rewrite</span> !assoc'.
+  use z_iso_inv_to_left.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> BinProductOfArrows_id.
+  use PowerObject_transpose_tri.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">g_aux</span> (<span class="nv">c</span> <span class="nv">b</span> <span class="nv">a</span> : C) (<span class="nv">f</span>: C ⟦ constprod_functor1 BinProd b a, c ⟧) : h f · u b c =
+  TerminalArrow T a
+  · Subobject_mor
+      (Subobjectscategory_ob (name_true b)
+         (global_element_isMonic T (PowerObject_on_ob P b) (name_true b))).
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (p : name_true b = Subobject_mor
+    (Subobjectscategory_ob (name_true b)
+        (global_element_isMonic T (PowerObject_on_ob P b) (name_true b)))). { <span class="nb">apply</span> idpath. }
+    <span class="nb">induction</span> p.
+    use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (a,,b)))).
+    <span class="nb">simpl</span>.
+    <span class="nb">fold</span> BinProd.
+    <span class="nb">rewrite</span> &lt;-!BinProductOfArrows_idxcomp, !assoc'.
+    intermediate_path ((identity b) ⨱ (h f) ·
+    (v b c · SingletonPred c)).
+    { use cancel_precomposition.
+      use pathsinv0.
+      use PowerObject_transpose_tri. }
+    use pathsinv0.
+    intermediate_path ((identity b) ⨱ (TerminalArrow T a)
+    · (BinProductPr1 C (BinProd b T) · ((TerminalArrow T b · Ω)))).
+    { use cancel_precomposition.
+      use PowerObject_charname_nat_z_iso_tri. }
+    intermediate_path (f · SingletonArrow_Monic c · SingletonPred c).
+    {
+      <span class="nb">rewrite</span> !assoc', subobject_classifier_square_commutes, !assoc.
+      use cancel_postcomposition.
+      use TerminalArrowEq. }
+    <span class="nb">rewrite</span> !assoc.
+    use cancel_postcomposition.
+    use h_sq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Let</span> <span class="nf">g</span> (<span class="nv">c</span> <span class="nv">b</span> <span class="nv">a</span> : C) (<span class="nv">f</span>: C ⟦ constprod_functor1 BinProd b a, c ⟧) : C ⟦ a, Subobject_dom (G0 b c) ⟧.
+<span class="kn">Proof</span>.
+  use PullbackArrow.
+  + <span class="bp">exact</span> (h f).
+  + use TerminalArrow.
+  + <span class="nb">apply</span> g_aux.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">h_tri</span> {<span class="nv">c</span> <span class="nv">b</span> <span class="nv">a</span> : C} (<span class="nv">f</span>: C ⟦ b ⨉ a, c ⟧): (g c b a f
+· Subobject_mor (G0 b c) = h f).
+<span class="kn">Proof</span>.
+  use PullbackArrow_PullbackPr1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">g_tri</span> {<span class="nv">c</span> <span class="nv">b</span> <span class="nv">a</span> : C} (<span class="nv">f</span>: C ⟦ b ⨉ a, c ⟧) :
+  f = (identity b) ⨱ (g c b a f) · ev b c.
+<span class="kn">Proof</span>.
+  use (MonicisMonic _ (SingletonArrow_Monic c)).
+  <span class="bp">now</span> <span class="nb">rewrite</span> !assoc',
+    ev_tri,
+    !assoc,
+    BinProductOfArrows_idxcomp,
+    h_tri,
+    h_sq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">exp_coreflection_data</span>
+  (<span class="nv">b</span> <span class="nv">c</span> : C)
+  : coreflection_data c (constprod_functor1 BinProd b).
+<span class="kn">Proof</span>.
+  use make_coreflection_data.
+  - <span class="bp">exact</span> (Subobject_dom (G0 b c)).
+  - <span class="bp">exact</span> (ev b c).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">universality</span> (<span class="nv">b</span> <span class="nv">c</span> : C)
+  : is_coreflection (exp_coreflection_data b c).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f.
+  use make_coreflection_arrow.
+  + <span class="bp">exact</span> (g c b _ f).
+  + use g_tri.
+  + <span class="nb">intros</span> g' g_tri'.
+    <span class="nb">simpl</span> <span class="k">in</span> g_tri'.
+    <span class="nb">unfold</span> BinProduct_of_functors_mor <span class="k">in</span> g_tri'.
+    <span class="nb">simpl</span> <span class="k">in</span> g_tri'.
+    use (MonicisMonic _ (Subobject_Monic (G0 b c))).
+    use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (coreflection_data_object f ,,c ⨉ b)))).
+    <span class="nb">unfold</span> hset_z_iso_equiv.
+    <span class="nb">cbn</span> - [BinProd G0 Subobject_mor isBinProduct_Pullback].
+    <span class="nb">fold</span> BinProd.
+    <span class="nb">rewrite</span> &lt;-BinProductOfArrows_id.
+    use (cancel_z_iso' (BinProduct_assoc BinProd _ _ _)).
+    <span class="nb">rewrite</span> !assoc.
+    intermediate_path (
+      (identity c) ⨱ ((identity b) ⨱ (g' · Subobject_mor (G0 b c)))·
+      BinProduct_assoc BinProd _ _ _ · PowerObject_inPred _ _).
+    { use cancel_postcomposition.
+      use pathsinv0.
+      use (BinProduct_OfArrows_assoc BinProd). }
+    use pathsinv0.
+    intermediate_path (
+      (identity c) ⨱ ((identity b) ⨱ ((g c b _ f) · Subobject_mor (G0 b c)))·
+      BinProduct_assoc BinProd _ _ _ · PowerObject_inPred _ _).
+    { use cancel_postcomposition.
+      use pathsinv0.
+      use (BinProduct_OfArrows_assoc BinProd). }
+    <span class="nb">rewrite</span> !assoc'.
+    use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  ( (PowerObject_nat_z_iso P)) (b⨉ (coreflection_data_object f) ,,c)))).
+    <span class="nb">unfold</span> hset_z_iso_equiv.
+    <span class="nb">cbn</span> - [BinProd G0 Subobject_mor BinProduct_assoc].
+    <span class="nb">unfold</span> PowerObject_nt_data.
+    <span class="nb">rewrite</span> !PowerObject_transpose_precomp.
+    <span class="nb">fold</span> (v b c).
+    <span class="nb">rewrite</span> &lt;-!(BinProductOfArrows_idxcomp _ BinProd _ (Subobject_mor _)).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;-!ev_tri.
+    <span class="nb">rewrite</span> !assoc.
+    use cancel_postcomposition.
+    <span class="nb">rewrite</span> &lt;-g_tri.
+    use g_tri'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">exp_coreflection</span>
+  (<span class="nv">b</span> <span class="nv">c</span> : C)
+  : coreflection c (constprod_functor1 BinProd b)
+  := make_coreflection _ (universality b c).
+
+<span class="kn">Definition</span> <span class="nf">Exponentials_from_Topos</span> : Exponentials (BinProd).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> b.
+  <span class="nb">apply</span> coreflections_to_is_left_adjoint.
+  <span class="bp">exact</span> (exp_coreflection b).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Exponentials</span>.
+
+<span class="kn">End</span> <span class="nf">Topos</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/ElementaryTopos.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   - derivation of exponentials [Exponentials_from_Topos]
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

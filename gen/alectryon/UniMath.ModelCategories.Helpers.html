@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Helpers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Three.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="c">(* useful lemma in a lot of proofs where we transport</span>
+<span class="c">   arrows / three morphisms *)</span>
+<span class="kn">Lemma</span> <span class="nf">pr1_transportf_const</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : UU} {<span class="nv">P</span> : ∏ (a : A), B -&gt; UU}
+    {<span class="nv">a</span> <span class="nv">a'</span> : A} (<span class="nv">e</span> : a = a') (<span class="nv">xs</span> : ∑ b : B, P a b) :
+    pr1 (transportf (<span class="k">λ</span> <span class="nv">x</span>, ∑ b : B, P _ b) e xs) = pr1 xs.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> pr1_transportf.
+  <span class="nb">rewrite</span> transportf_const.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="c">(* helper for showing section_disp_axioms *)</span>
+<span class="kn">Lemma</span> <span class="nf">section_disp_on_eq_morphisms</span> {<span class="nv">C</span> : category}
+    (<span class="nv">F</span> : section_disp (three_disp C))
+    {<span class="nv">f</span> <span class="nv">f'</span> : arrow C} {<span class="nv">γ</span> <span class="nv">γ'</span>: f --&gt; f'}
+    (<span class="nv">H00</span> : arrow_mor00 γ = arrow_mor00 γ')
+    (<span class="nv">H11</span> : arrow_mor11 γ = arrow_mor11 γ') :
+  pr1 (section_disp_on_morphisms F γ) =
+    pr1 (section_disp_on_morphisms F γ').
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (Heq : γ = γ').
+  {
+    use arrow_mor_eq; <span class="bp">assumption</span>.
+  }
+  <span class="nb">induction</span> Heq.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">section_disp_on_eq_morphisms'</span> {<span class="nv">C</span> : category}
+    (<span class="nv">F</span> : section_disp (three_disp C)) {<span class="nv">f</span> <span class="nv">f'</span> : arrow C} {<span class="nv">γ</span> : f --&gt; f'}
+    (<span class="nv">H</span> : arrow_mor00 γ · f' = f · arrow_mor11 γ) :
+  <span class="k">let</span> <span class="nv">alternate</span> := ((arrow_mor00 γ,, arrow_mor11 γ),, H) : f --&gt; f' <span class="k">in</span>
+  pr1 (section_disp_on_morphisms F alternate) =
+    pr1 (section_disp_on_morphisms F γ).
+<span class="kn">Proof</span>.
+  use section_disp_on_eq_morphisms; <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pr1_section_disp_on_morphisms_comp</span> {<span class="nv">C</span> : category}
+    (<span class="nv">F</span> : section_disp (three_disp C))
+    {<span class="nv">f</span> <span class="nv">f'</span> <span class="nv">f''</span> : arrow C}
+    (<span class="nv">γ</span> : f --&gt; f') (<span class="nv">γ'</span> : f' --&gt; f'') :
+  pr1 (section_disp_on_morphisms F γ) · pr1 (section_disp_on_morphisms F γ') =
+      pr1 (section_disp_on_morphisms F (γ · γ')).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (section_disp_comp F).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">eq_section_disp_on_morphism</span> {<span class="nv">C</span> : category}
+    {<span class="nv">F</span> <span class="nv">F'</span> : section_disp (three_disp C)} :
+  F = F' -&gt; ∏ f, F f = F' f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="bp">now</span> <span class="nb">induction</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">eq_section_nat_trans_disp_on_morphism</span> {<span class="nv">C</span> : category}
+    {<span class="nv">F</span> <span class="nv">F'</span> : section_disp (three_disp C)}
+    {<span class="nv">γ</span> <span class="nv">γ'</span> : section_nat_trans_disp F F'} :
+  γ = γ' -&gt; ∏ f, γ f = γ' f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="bp">now</span> <span class="nb">induction</span> H.
+<span class="kn">Qed</span>.
+
+<span class="c">(* double pathscomp0 for rewriting equalities on either side *)</span>
+<span class="kn">Definition</span> <span class="nf">pathscomp1</span> {<span class="nv">X</span> : UU} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">x</span> <span class="nv">y</span> : X} (<span class="nv">e1</span> : a = b) (<span class="nv">e2</span> : a = x) (<span class="nv">e3</span> : b = y) : x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e1. <span class="nb">induction</span> e2. <span class="nb">apply</span> e3.
+<span class="kn">Qed</span>.
+
+<span class="c">(* composition of morphisms equality *)</span>
+<span class="kn">Lemma</span> <span class="nf">compeq</span> {<span class="nv">C</span> : category} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+    {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} {<span class="nv">g</span> <span class="nv">g'</span> : y --&gt; z} :
+  f = f' -&gt; g = g' -&gt; f · g = f' · g'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf Hg.
+  <span class="nb">induction</span> Hf.
+  <span class="nb">induction</span> Hg.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">funeq</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} {<span class="nv">f</span> <span class="nv">g</span> : A -&gt; B}
+    (<span class="nv">H</span> : f = g) :
+  ∏ (a : A), f a = g a.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> H.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/Helpers.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

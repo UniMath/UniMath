@@ -1,0 +1,1740 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DispBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** * Displayed bicategories</span>
+<span class="sd">    Benedikt Ahrens, Marco Maggesi</span>
+<span class="sd">    February 2018</span>
+
+<span class="sd">  This file develops displayed bicategories analogous to</span>
+<span class="sd">  displayed (1-)categories as presented in</span>
+<span class="sd">  Benedikt Ahrens and Peter LeFanu Lumsdaine, Displayed categories</span>
+<span class="sd">  http://dx.doi.org/10.4230/LIPIcs.FSCD.2017.5</span>
+
+<span class="sd"> ********************************************************************************* *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="c">(* =================================================================================== *)</span>
+<span class="sd">(** ** Displayed bicategories.                                                         *)</span>
+<span class="c">(* =================================================================================== *)</span>
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Transport of displayed cells.</span>
+
+<span class="sd">    Transport of displayed cells is used pervasively, to make the code more terse</span>
+<span class="sd">    and ease certain proofs we define some ad hoc functions and theorems.</span>
+
+<span class="sd">    TODO: These definitions are not used yet.                                          *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Definition of displayed bicategories.                                           *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">disp_2cell_struct</span> {<span class="nv">C</span> : prebicat_1_id_comp_cells} (<span class="nv">D</span> : disp_cat_ob_mor C) : UU
+  := ∏ (c c' : C) (f g : C⟦c,c'⟧) (x : f ==&gt; g)
+       (d : D c) (d' : D c') (f' : d --&gt;[f] d') (g' : d --&gt;[g] d'), UU.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_1_id_comp_cells</span> (<span class="nv">C</span> : prebicat_1_id_comp_cells) : UU
+  := ∑ D : disp_cat_data C, disp_2cell_struct D.
+
+<span class="kn">Coercion</span> <span class="nf">disp_cat_data_from_disp_prebicat_1_id_comp_cells</span>
+         {C : prebicat_1_id_comp_cells} (D : disp_prebicat_1_id_comp_cells C)
+  : disp_cat_data C
+  := pr1 D.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells</span> {<span class="nv">C</span> : prebicat_1_id_comp_cells}
+           {<span class="nv">D</span> : disp_prebicat_1_id_comp_cells C}
+           {<span class="nv">c</span> <span class="nv">c'</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦c,c'⟧} (<span class="nv">x</span> : f ==&gt; g)
+           {<span class="nv">d</span> : D c} {<span class="nv">d'</span> : D c'} (<span class="nv">f'</span> : d --&gt;[f] d') (<span class="nv">g'</span> : d --&gt;[g] d')
+  : UU
+  := pr2 D c c' f g x d d' f' g'.
+
+<span class="kn">Section</span> <span class="nf">Cell_Transport</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat} {<span class="nv">D</span> : disp_prebicat_1_id_comp_cells C}.
+
+<span class="kn">Notation</span> <span class="s2">"f' ==&gt;[ x ] g'"</span> := (disp_2cells x f' g') (<span class="kn">at level</span> <span class="mi">60</span>).
+
+<span class="kn">Definition</span> <span class="nf">cell_transportf</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧}
+           {<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g}
+           (<span class="nv">e</span> : α = β)
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+           {<span class="nv">ff</span> : aa --&gt;[f] bb}
+           {<span class="nv">gg</span> : aa --&gt;[g] bb}
+           (<span class="nv">αα</span> : ff ==&gt;[α] gg)
+  : ff ==&gt;[β] gg
+  := transportf (<span class="k">λ</span> <span class="nv">x</span> : f ==&gt; g, ff ==&gt;[x] gg) e αα.
+
+<span class="kn">Definition</span> <span class="nf">cell_transportb</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧}
+           {<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g}
+           (<span class="nv">e</span> : α = β)
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+           {<span class="nv">ff</span> : aa --&gt;[f] bb}
+           {<span class="nv">gg</span> : aa --&gt;[g] bb}
+           (<span class="nv">ββ</span> : ff ==&gt;[β] gg)
+  : ff ==&gt;[α] gg
+  := transportb (<span class="k">λ</span> <span class="nv">x</span> : f ==&gt; g, ff ==&gt;[x] gg) e ββ.
+
+<span class="kn">Lemma</span> <span class="nf">cell_transportf_pathsinv0</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧}
+      {<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g}
+      (<span class="nv">e</span> : α = β)
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      {<span class="nv">gg</span> : aa --&gt;[g] bb}
+      {<span class="nv">αα</span> : ff ==&gt;[α] gg}
+      {<span class="nv">ββ</span> : ff ==&gt;[β] gg}
+      (<span class="nv">ee</span> : cell_transportf (!e) ββ = αα)
+  : cell_transportf e αα = ββ.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> cell_transportf.
+  <span class="nb">apply</span> (transportf_pathsinv0 (<span class="k">λ</span> <span class="nv">x</span> : f ==&gt; g, ff ==&gt;[x] gg)).
+  <span class="bp">exact</span> ee.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cell_transportb_to_f</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧}
+      {<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g}
+      {<span class="nv">e</span> : α = β}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      {<span class="nv">gg</span> : aa --&gt;[g] bb}
+      {<span class="nv">αα</span> : ff ==&gt;[α] gg}
+      {<span class="nv">ββ</span> : ff ==&gt;[β] gg}
+      (<span class="nv">ee</span> : αα = cell_transportb e ββ)
+  : cell_transportf e αα = ββ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> cell_transportf_pathsinv0.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">exact</span> ee.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cell_transportf_to_b</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧}
+      {<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g}
+      {<span class="nv">e</span> : α = β}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      {<span class="nv">gg</span> : aa --&gt;[g] bb}
+      {<span class="nv">αα</span> : ff ==&gt;[α] gg}
+      {<span class="nv">ββ</span> : ff ==&gt;[β] gg}
+      (<span class="nv">ee</span> : cell_transportf e αα = ββ)
+  :  αα = cell_transportb e ββ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (transportf_pathsinv0 (<span class="k">λ</span> <span class="nv">x</span> : f ==&gt; g, ff ==&gt;[ x] gg)).
+  etrans.
+  { <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> pathsinv0inv0. }
+  <span class="bp">exact</span> ee.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Cell_Transport</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Operations on bicategories                                                      *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">disp_prebicat</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f' ==&gt;[ x ] g'"</span> := (disp_2cells x f' g') (<span class="kn">at level</span> <span class="mi">60</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f' &lt;==[ x ] g'"</span> := (disp_2cells x g' f') (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">only parsing</span>).
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_ops</span> (<span class="nv">D</span> : disp_prebicat_1_id_comp_cells C) : UU
+  :=   (∏ (a b : C) (f : C⟦a,b⟧) (x : D a) (y : D b) (f' : x --&gt;[f] y),
+        f' ==&gt;[id2 _] f')
+     × (∏ (a b : C) (f : C⟦a,b⟧) (x : D a) (y : D b) (f' : x --&gt;[f] y),
+        id_disp x ;; f' ==&gt;[lunitor _] f')
+     × (∏ (a b : C) (f : C⟦a,b⟧) (x : D a) (y : D b) (f' : x --&gt;[f] y),
+        f' ;; id_disp y ==&gt;[runitor _] f')
+     × (∏ (a b : C) (f : C⟦a,b⟧) (x : D a) (y : D b) (f' : x --&gt;[f] y),
+        id_disp x ;; f' &lt;==[linvunitor _] f')
+     × (∏ (a b : C) (f : C⟦a,b⟧) (x : D a) (y : D b) (f' : x --&gt;[f] y),
+        f' ;; id_disp y &lt;==[rinvunitor _] f')
+     × (∏ (a b c d : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : C⟦c,d⟧)
+          (w : D a) (x : D b) (y : D c) (z : D d)
+          (ff : w --&gt;[f] x) (gg : x --&gt;[g] y) (hh : y --&gt;[h] z),
+        (ff ;; gg) ;; hh ==&gt;[rassociator _ _ _] ff ;; (gg ;; hh))
+     × (∏ (a b c d : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : C⟦c,d⟧)
+          (w : D a) (x : D b) (y : D c) (z : D d)
+          (ff : w --&gt;[f] x) (gg : x --&gt;[g] y) (hh : y --&gt;[h] z),
+        ff ;; (gg ;; hh) ==&gt;[lassociator _ _ _] (ff ;; gg) ;; hh)
+     × (∏ (a b : C) (f g h : C⟦a,b⟧) (r : f ==&gt; g) (s : g ==&gt; h)
+          (x : D a) (y : D b) (ff : x --&gt;[f] y) (gg : x --&gt;[g] y) (hh : x --&gt;[h] y),
+        ff ==&gt;[r] gg  →  gg ==&gt;[s] hh  →  ff ==&gt;[r • s] hh)
+     × (∏ (a b c : C) (f : C⟦a,b⟧) (g1 g2 : C⟦b,c⟧)
+          (r : g1 ==&gt; g2) (x : D a) (y : D b) (z : D c)
+          (ff : x --&gt;[f] y) (gg1 : y --&gt;[g1] z) (gg2 : y --&gt;[g2] z),
+        gg1 ==&gt;[r] gg2  →  ff ;; gg1  ==&gt;[f ◃ r] ff ;; gg2)
+     × (∏ (a b c : C) (f1 f2 : C⟦a,b⟧) (g : C⟦b,c⟧)
+          (r : f1 ==&gt; f2) (x : D a) (y : D b) (z : D c)
+          (ff1 : x --&gt;[f1] y) (ff2 : x --&gt;[f2] y) (gg : y --&gt;[g] z),
+        ff1 ==&gt;[r] ff2 → ff1 ;; gg ==&gt;[r ▹ g] ff2 ;; gg).
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_data</span> : UU
+  := ∑ D : disp_prebicat_1_id_comp_cells C, disp_prebicat_ops D.
+
+<span class="kn">Coercion</span> <span class="nf">disp_prebicat_ob_mor_cells_1_id_comp_from_disp_prebicat_data</span>
+         (D : disp_prebicat_data)
+  : disp_prebicat_1_id_comp_cells C
+  := pr1 D.
+
+<span class="kn">Coercion</span> <span class="nf">disp_prebicat_ops_from_disp_prebicat_data</span> (D : disp_prebicat_data)
+  : disp_prebicat_ops D
+  := pr2 D.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Data projections                                                                *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">disp_prebicat_ops_projections</span>.
+
+<span class="kn">Context</span> {<span class="nv">D</span> : disp_prebicat_data}.
+
+<span class="kn">Definition</span> <span class="nf">disp_id2</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} (<span class="nv">f'</span> : x --&gt;[f] y)
+  : f' ==&gt;[id2 _] f'
+  := pr1 (pr2 D) a b f x y f'.
+
+<span class="kn">Definition</span> <span class="nf">disp_lunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} (<span class="nv">f'</span> : x --&gt;[f] y)
+  : id_disp x ;; f' ==&gt;[lunitor _] f'
+  := pr1 (pr2 (pr2 D)) a b f x y f'.
+
+<span class="kn">Definition</span> <span class="nf">disp_runitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} (<span class="nv">f'</span> : x --&gt;[f] y)
+  : f' ;; id_disp y ==&gt;[runitor _] f'
+  := pr1 (pr2 (pr2 (pr2 D))) _ _ f _ _ f'.
+
+<span class="kn">Definition</span> <span class="nf">disp_linvunitor</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} (<span class="nv">f'</span> : x --&gt;[f] y)
+  : id_disp x ;; f' &lt;==[linvunitor _] f'
+  := pr1 (pr2 (pr2 (pr2 (pr2 D)))) _ _ f _ _ f'.
+
+<span class="kn">Definition</span> <span class="nf">disp_rinvunitor</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} (<span class="nv">f'</span> : x --&gt;[f] y)
+  : f' ;; id_disp y &lt;==[rinvunitor _] f'
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 D))))) _ _ f _ _ f'.
+
+<span class="kn">Definition</span> <span class="nf">disp_rassociator</span>
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧} {<span class="nv">h</span> : C⟦c,d⟧}
+       {<span class="nv">w</span> : D a} {<span class="nv">x</span> : D b} {<span class="nv">y</span> : D c} {<span class="nv">z</span> : D d}
+       (<span class="nv">ff</span> : w --&gt;[f] x) (<span class="nv">gg</span> : x --&gt;[g] y) (<span class="nv">hh</span> : y --&gt;[h] z)
+  : (ff ;; gg) ;; hh ==&gt;[rassociator _ _ _] ff ;; (gg ;; hh)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))) _ _ _ _ _ _ _ w _ _ _ ff gg hh.
+
+<span class="kn">Definition</span> <span class="nf">disp_lassociator</span>
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧} {<span class="nv">h</span> : C⟦c,d⟧}
+           {<span class="nv">w</span> : D a} {<span class="nv">x</span> : D b} {<span class="nv">y</span> : D c} {<span class="nv">z</span> : D d}
+           (<span class="nv">ff</span> : w --&gt;[f] x) (<span class="nv">gg</span> : x --&gt;[g] y) (<span class="nv">hh</span> : y --&gt;[h] z)
+  : ff ;; (gg ;; hh) ==&gt;[lassociator _ _ _] (ff ;; gg) ;; hh
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))) _ _ _ _ _ _ _ w _ _ _ ff gg hh.
+
+<span class="kn">Definition</span> <span class="nf">disp_vcomp2</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : C⟦a,b⟧}
+           {<span class="nv">r</span> : f ==&gt; g} {<span class="nv">s</span> : g ==&gt; h}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b}
+           {<span class="nv">ff</span> : x --&gt;[f] y} {<span class="nv">gg</span> : x --&gt;[g] y} {<span class="nv">hh</span> : x --&gt;[h] y}
+  : ff ==&gt;[r] gg  →  gg ==&gt;[s] hh  →  ff ==&gt;[r • s] hh
+  := <span class="k">λ</span> <span class="nv">rr</span> <span class="nv">ss</span>,  pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))
+                   _ _ _ _ _ _ _ _ _ _ _ _ rr ss.
+
+<span class="kn">Definition</span> <span class="nf">disp_lwhisker</span>
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g1</span> <span class="nv">g2</span> : C⟦b,c⟧}
+           {<span class="nv">r</span> : g1 ==&gt; g2}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">z</span> : D c}
+           (<span class="nv">ff</span> : x --&gt;[f] y) {<span class="nv">gg1</span> : y --&gt;[g1] z} {<span class="nv">gg2</span> : y --&gt;[g2] z}
+  : gg1 ==&gt;[r] gg2  →  ff ;; gg1  ==&gt;[f ◃ r] ff ;; gg2
+  := <span class="k">λ</span> <span class="nv">rr</span>, pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))
+               _ _ _ _ _ _ _ _ _ _ _ _ _ rr.
+
+<span class="kn">Definition</span> <span class="nf">disp_rwhisker</span>
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f1</span> <span class="nv">f2</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧}
+           {<span class="nv">r</span> : f1 ==&gt; f2}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">z</span> : D c}
+           {<span class="nv">ff1</span> : x --&gt;[f1] y} {<span class="nv">ff2</span> : x --&gt;[f2] y} (<span class="nv">gg</span> : y --&gt;[g] z)
+  : ff1 ==&gt;[r] ff2 → ff1 ;; gg ==&gt;[r ▹ g] ff2 ;; gg
+  := <span class="k">λ</span> <span class="nv">rr</span>, pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))
+               _ _ _ _ _ _ _ _ _ _ _ _ _ rr.
+
+<span class="kn">End</span> <span class="nf">disp_prebicat_ops_projections</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"rr •• ss"</span> := (disp_vcomp2 rr ss) (<span class="kn">at level</span> <span class="mi">60</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"ff ◃◃ rr"</span> := (disp_lwhisker ff rr) (<span class="kn">at level</span> <span class="mi">60</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"rr ▹▹ gg"</span> := (disp_rwhisker gg rr) (<span class="kn">at level</span> <span class="mi">60</span>).
+
+<span class="kn">Section</span> <span class="nf">disp_prebicat_laws</span>.
+
+<span class="kn">Context</span> (<span class="nv">D</span> : disp_prebicat_data).
+
+<span class="kn">Definition</span> <span class="nf">disp_id2_left_law</span> : UU
+  := ∏ (a b : C) (f g : C⟦a,b⟧) (η : f ==&gt; g)
+       (x : D a) (y : D b) (ff : x --&gt;[f] y) (gg : x --&gt;[g] y)
+       (ηη : ff ==&gt;[η] gg),
+     disp_id2 _ •• ηη = transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (id2_left _) ηη.
+
+<span class="kn">Definition</span> <span class="nf">disp_id2_right_law</span> : UU
+  := ∏ (a b : C) (f g : C⟦a,b⟧) (η : f ==&gt; g)
+       (x : D a) (y : D b) (ff : x --&gt;[f] y) (gg : x --&gt;[g] y)
+       (ηη : ff ==&gt;[η] gg),
+     ηη •• disp_id2 _ = transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (id2_right _) ηη.
+
+<span class="kn">Definition</span> <span class="nf">disp_vassocr_law</span> : UU
+  := ∏ (a b : C) (f g h k : C⟦a,b⟧) (η : f ==&gt; g) (φ : g ==&gt; h) (ψ : h ==&gt; k)
+       (x : D a) (y : D b)
+       (ff : x --&gt;[f] y) (gg : x --&gt;[g] y) (hh : x --&gt;[h] y) (kk : x --&gt;[k] y)
+       (ηη : ff ==&gt;[η] gg) (φφ : gg ==&gt;[φ] hh) (ψψ : hh ==&gt;[ψ] kk),
+     ηη •• (φφ •• ψψ) =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vassocr _ _ _) ((ηη •• φφ) •• ψψ).
+
+<span class="kn">Definition</span> <span class="nf">disp_lwhisker_id2_law</span> : UU
+  := ∏ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧)
+       (x : D a) (y : D b) (z : D c) (ff : x --&gt;[f] y) (gg : y --&gt;[g] z),
+     ff ◃◃ disp_id2 gg =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lwhisker_id2 _ _) (disp_id2 (ff ;; gg)).
+
+<span class="kn">Definition</span> <span class="nf">disp_id2_rwhisker_law</span> : UU
+  := ∏ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧)
+       (x : D a) (y : D b) (z : D c) (ff : x --&gt;[f] y) (gg : y --&gt;[g] z),
+     disp_id2 ff ▹▹ gg =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (id2_rwhisker _ _) (disp_id2 (ff ;; gg)).
+
+<span class="kn">Definition</span> <span class="nf">disp_lwhisker_vcomp_law</span> : UU
+  := ∏ (a b c : C) (f : C⟦a,b⟧) (g h i : C⟦b,c⟧)
+      (η : g ==&gt; h) (φ : h ==&gt; i)
+      (x : D a) (y : D b) (z : D c) (ff : x --&gt;[f] y)
+      (gg : y --&gt;[g] z) (hh : y --&gt;[h] z) (ii : y --&gt;[i] z)
+      (ηη : gg ==&gt;[η] hh) (φφ : hh ==&gt;[φ] ii),
+     (ff ◃◃ ηη) •• (ff ◃◃ φφ) =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lwhisker_vcomp _ _ _) (ff ◃◃ (ηη •• φφ)).
+
+<span class="kn">Definition</span> <span class="nf">disp_rwhisker_vcomp_law</span> : UU
+  := ∏ (a b c : C) (f g h : C⟦a,b⟧) (i : C⟦b,c⟧) (η : f ==&gt; g) (φ : g ==&gt; h)
+       (x : D a) (y : D b) (z : D c)
+       (ff : x --&gt;[f] y) (gg : x --&gt;[g] y) (hh : x --&gt;[h] y)
+       (ii : y --&gt;[i] z)
+       (ηη : ff ==&gt;[η] gg) (φφ : gg ==&gt;[φ] hh),
+     (ηη ▹▹ ii) •• (φφ ▹▹ ii) =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (rwhisker_vcomp _ _ _) ((ηη •• φφ) ▹▹ ii).
+
+<span class="kn">Definition</span> <span class="nf">disp_vcomp_lunitor_law</span> : UU
+  := ∏ (a b : C) (f g : C⟦a,b⟧) (η : f ==&gt; g)
+       (x : D a) (y : D b) (ff : x --&gt;[f] y) (gg : x --&gt;[g] y)
+       (ηη : ff ==&gt;[η] gg),
+     (id_disp _ ◃◃ ηη) •• disp_lunitor gg =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_lunitor _ _ _) (disp_lunitor ff •• ηη).
+
+<span class="kn">Definition</span> <span class="nf">disp_vcomp_runitor_law</span> : UU
+  := ∏ (a b : C) (f g : C⟦a,b⟧) (η : f ==&gt; g)
+       (x : D a) (y : D b) (ff : x --&gt;[f] y) (gg : x --&gt;[g] y)
+       (ηη : ff ==&gt;[η] gg),
+     (ηη ▹▹ id_disp _) •• disp_runitor gg =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_runitor _ _ _) (disp_runitor ff •• ηη).
+
+<span class="kn">Definition</span> <span class="nf">disp_lwhisker_lwhisker_law</span> : UU
+  := ∏ (a b c d : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h i : c --&gt; d) (η : h ==&gt; i)
+       (w : D a) (x : D b) (y : D c) (z : D d)
+       (ff : w --&gt;[f] x) (gg : x --&gt;[g] y) (hh : y --&gt;[h] z) (ii : y --&gt;[i] z)
+       (ηη : hh ==&gt;[η] ii),
+     ff ◃◃ (gg ◃◃ ηη) •• disp_lassociator _ _ _ =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lwhisker_lwhisker _ _ _)
+                (disp_lassociator _ _ _ •• (ff ;; gg ◃◃ ηη)).
+
+<span class="kn">Definition</span> <span class="nf">disp_rwhisker_lwhisker_law</span> : UU
+  := ∏ (a b c d : C) (f : C⟦a,b⟧) (g h : C⟦b,c⟧) (i : c --&gt; d) (η : g ==&gt; h)
+       (w : D a) (x : D b) (y : D c) (z : D d)
+       (ff : w --&gt;[f] x) (gg : x --&gt;[g] y) (hh : x --&gt;[h] y) (ii : y --&gt;[i] z)
+       (ηη : gg ==&gt;[η] hh),
+     (ff ◃◃ (ηη ▹▹ ii)) •• disp_lassociator _ _ _ =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (rwhisker_lwhisker _ _ _)
+                (disp_lassociator _ _ _ •• ((ff ◃◃ ηη) ▹▹ ii)).
+
+<span class="kn">Definition</span> <span class="nf">disp_rwhisker_rwhisker_law</span> : UU
+  := ∏ (a b c d : C) (f g : C⟦a,b⟧) (h : C⟦b,c⟧) (i : c --&gt; d) (η : f ==&gt; g)
+       (w : D a) (x : D b) (y : D c) (z : D d)
+       (ff : w --&gt;[f] x) (gg : w --&gt;[g] x) (hh : x --&gt;[h] y) (ii : y --&gt;[i] z)
+       (ηη : ff ==&gt;[η] gg),
+     disp_lassociator _ _ _ •• ((ηη ▹▹ hh) ▹▹ ii) =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (rwhisker_rwhisker _ _ _)
+                ((ηη ▹▹ hh ;; ii) •• disp_lassociator _ _ _).
+
+<span class="kn">Definition</span> <span class="nf">disp_vcomp_whisker_law</span> : UU
+  := ∏ (a b c : C) (f g : C⟦a,b⟧) (h i : C⟦b,c⟧)
+       (η : f ==&gt; g) (φ : h ==&gt; i)
+       (x : D a) (y : D b) (z : D c)
+       (ff : x --&gt;[f] y) (gg : x --&gt;[g] y)
+       (hh : y --&gt;[h] z) (ii : y --&gt;[i] z)
+       (ηη : ff ==&gt;[η] gg) (φφ : hh ==&gt;[φ] ii),
+     (ηη ▹▹ hh) •• (gg ◃◃ φφ) =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_whisker _ _) ((ff ◃◃ φφ) •• (ηη ▹▹ ii)).
+
+<span class="kn">Definition</span> <span class="nf">disp_lunitor_linvunitor_law</span> : UU
+  := ∏ (a b : C) (f : C⟦a,b⟧)
+       (x : D a) (y : D b) (ff : x --&gt;[f] y),
+     disp_lunitor ff •• disp_linvunitor _ =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lunitor_linvunitor _) (disp_id2 (id_disp _ ;; ff)).
+
+<span class="kn">Definition</span> <span class="nf">disp_linvunitor_lunitor_law</span> : UU
+  := ∏ (a b : C) (f : C⟦a,b⟧)
+       (x : D a) (y : D b) (ff : x --&gt;[f] y),
+     disp_linvunitor ff •• disp_lunitor _ =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (linvunitor_lunitor _) (disp_id2 _).
+
+<span class="kn">Definition</span> <span class="nf">disp_runitor_rinvunitor_law</span> : UU
+  := ∏ (a b : C) (f : C⟦a,b⟧)
+       (x : D a) (y : D b) (ff : x --&gt;[f] y),
+     disp_runitor ff •• disp_rinvunitor _ =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (runitor_rinvunitor _) (disp_id2 _).
+
+<span class="kn">Definition</span> <span class="nf">disp_rinvunitor_runitor_law</span> : UU
+  := ∏ (a b : C) (f : C⟦a,b⟧)
+       (x : D a) (y : D b) (ff : x --&gt;[f] y),
+     disp_rinvunitor ff •• disp_runitor _ =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (rinvunitor_runitor _) (disp_id2 _).
+
+<span class="kn">Definition</span> <span class="nf">disp_lassociator_rassociator_law</span> : UU
+  := ∏ (a b c d : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : c --&gt; d)
+       (w : D a) (x : D b) (y : D c) (z : D d)
+       (ff : w --&gt;[f] x) (gg : x --&gt;[g] y)
+       (hh : y --&gt;[h] z),
+     disp_lassociator ff gg hh •• disp_rassociator _ _ _ =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lassociator_rassociator _ _ _ ) (disp_id2  _).
+
+<span class="kn">Definition</span> <span class="nf">disp_rassociator_lassociator_law</span> : UU
+  := ∏ (a b c d : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : c --&gt; d)
+       (w : D a) (x : D b) (y : D c) (z : D d)
+       (ff : w --&gt;[f] x) (gg : x --&gt;[g] y)
+       (hh : y --&gt;[h] z),
+     disp_rassociator ff gg hh •• disp_lassociator _ _ _ =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (rassociator_lassociator _ _ _ ) (disp_id2 _).
+
+<span class="kn">Definition</span> <span class="nf">disp_runitor_rwhisker_law</span> : UU
+  := ∏ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧)
+       (x : D a) (y : D b) (z : D c)
+       (ff : x --&gt;[f] y) (gg : y --&gt;[g] z),
+     disp_lassociator _ _ _ •• (disp_runitor ff ▹▹ gg) =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (runitor_rwhisker _ _) (ff ◃◃ disp_lunitor gg).
+
+<span class="kn">Definition</span> <span class="nf">disp_lassociator_lassociator_law</span> : UU
+  := ∏ (a b c d e: C) (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : c --&gt; d) (i : C⟦d,e⟧)
+       (v : D a) (w : D b) (x : D c) (y : D d) (z : D e)
+       (ff : v --&gt;[f] w) (gg : w --&gt;[g] x)
+       (hh : x --&gt;[h] y) (ii : y --&gt;[i] z),
+
+     (ff ◃◃ disp_lassociator gg hh ii) •• disp_lassociator _ _ _ ••
+     (disp_lassociator _ _ _ ▹▹ ii) =
+     transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lassociator_lassociator _ _ _ _)
+                (disp_lassociator ff gg _ •• disp_lassociator _ _ _).
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Laws                                                                            *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_laws</span> : UU
+  :=   disp_id2_left_law
+     × disp_id2_right_law
+     × disp_vassocr_law
+     × disp_lwhisker_id2_law
+     × disp_id2_rwhisker_law
+     × disp_lwhisker_vcomp_law
+     × disp_rwhisker_vcomp_law
+     × disp_vcomp_lunitor_law
+     × disp_vcomp_runitor_law
+     × disp_lwhisker_lwhisker_law
+     × disp_rwhisker_lwhisker_law
+     × disp_rwhisker_rwhisker_law
+     × disp_vcomp_whisker_law
+     × disp_lunitor_linvunitor_law
+     × disp_linvunitor_lunitor_law
+     × disp_runitor_rinvunitor_law
+     × disp_rinvunitor_runitor_law
+     × disp_lassociator_rassociator_law
+     × disp_rassociator_lassociator_law
+     × disp_runitor_rwhisker_law
+     × disp_lassociator_lassociator_law.
+
+<span class="kn">End</span> <span class="nf">disp_prebicat_laws</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** Laws projections                                                                   *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat</span> : UU
+  := ∑ D : disp_prebicat_data, disp_prebicat_laws D.
+
+<span class="kn">Coercion</span> <span class="nf">disp_prebicat_data_from_disp_prebicat</span> (D : disp_prebicat)
+  : disp_prebicat_data
+  := pr1 D.
+
+<span class="kn">Section</span> <span class="nf">disp_prebicat_law_projections</span>.
+
+<span class="kn">Context</span> {<span class="nv">D</span> : disp_prebicat}.
+
+<span class="kn">Definition</span> <span class="nf">disp_id2_left</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧} {<span class="nv">η</span> : f ==&gt; g}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">ff</span> : x --&gt;[f] y} {<span class="nv">gg</span> : x --&gt;[g] y}
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg)
+  : disp_id2 _ •• ηη = transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (id2_left _) ηη
+  := pr1 (pr2 D) _ _ _ _ _ x y ff gg ηη.
+
+<span class="kn">Definition</span> <span class="nf">disp_id2_right</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧} {<span class="nv">η</span> : f ==&gt; g}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">ff</span> : x --&gt;[f] y} {<span class="nv">gg</span> : x --&gt;[g] y}
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg)
+  : ηη •• disp_id2 _ = transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (id2_right _) ηη
+  := pr1 (pr2 (pr2 D)) _ _ _ _ _ _ _ _ _ ηη.
+
+<span class="kn">Definition</span> <span class="nf">disp_vassocr</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">k</span> : C⟦a,b⟧}
+           {<span class="nv">η</span> : f ==&gt; g} {<span class="nv">φ</span> : g ==&gt; h} {<span class="nv">ψ</span> : h ==&gt; k}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b}
+           {<span class="nv">ff</span> : x --&gt;[f] y} {<span class="nv">gg</span> : x --&gt;[g] y} {<span class="nv">hh</span> : x --&gt;[h] y} {<span class="nv">kk</span> : x --&gt;[k] y}
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg) (<span class="nv">φφ</span> : gg ==&gt;[φ] hh) (<span class="nv">ψψ</span> : hh ==&gt;[ψ] kk)
+  : ηη •• (φφ •• ψψ) =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vassocr _ _ _) ((ηη •• φφ) •• ψψ)
+  := pr1 (pr2 (pr2 (pr2 D))) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ηη φφ ψψ .
+
+<span class="kn">Definition</span> <span class="nf">disp_vassocr'</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">k</span> : C⟦a,b⟧}
+           {<span class="nv">η</span> : f ==&gt; g} {<span class="nv">φ</span> : g ==&gt; h} {<span class="nv">ψ</span> : h ==&gt; k}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b}
+           {<span class="nv">ff</span> : x --&gt;[f] y} {<span class="nv">gg</span> : x --&gt;[g] y} {<span class="nv">hh</span> : x --&gt;[h] y} {<span class="nv">kk</span> : x --&gt;[k] y}
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg) (<span class="nv">φφ</span> : gg ==&gt;[φ] hh) (<span class="nv">ψψ</span> : hh ==&gt;[ψ] kk)
+  : transportf (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vassocr _ _ _) (ηη •• (φφ •• ψψ)) =
+    ((ηη •• φφ) •• ψψ).
+<span class="kn">Proof</span>.
+  use (transportf_transpose_left (P := <span class="k">λ</span> <span class="nv">x'</span> : f ==&gt; k, ff ==&gt;[x'] kk)).
+  <span class="nb">apply</span> disp_vassocr.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_lwhisker_id2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">z</span> : D c} (<span class="nv">ff</span> : x --&gt;[f] y) (<span class="nv">gg</span> : y --&gt;[g] z)
+  : ff ◃◃ disp_id2 gg =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lwhisker_id2 _ _) (disp_id2 (ff ;; gg))
+  := pr1 (pr2 (pr2 (pr2 (pr2 D)))) _ _ _ _ _ _ _ _ ff gg.
+
+<span class="kn">Definition</span> <span class="nf">disp_id2_rwhisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">z</span> : D c}
+           (<span class="nv">ff</span> : x --&gt;[f] y) (<span class="nv">gg</span> : y --&gt;[g] z)
+  : disp_id2 ff ▹▹ gg =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (id2_rwhisker _ _) (disp_id2 (ff ;; gg))
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 D))))) _ _ _ _ _ _ _ _ ff gg.
+
+<span class="kn">Definition</span> <span class="nf">disp_lwhisker_vcomp</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> <span class="nv">h</span> <span class="nv">i</span> : C⟦b,c⟧}
+           {<span class="nv">η</span> : g ==&gt; h} {<span class="nv">φ</span> : h ==&gt; i}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">z</span> : D c} {<span class="nv">ff</span> : x --&gt;[f] y}
+           {<span class="nv">gg</span> : y --&gt;[g] z} {<span class="nv">hh</span> : y --&gt;[h] z} {<span class="nv">ii</span> : y --&gt;[i] z}
+           (<span class="nv">ηη</span> : gg ==&gt;[η] hh) (<span class="nv">φφ</span> : hh ==&gt;[φ] ii)
+  : (ff ◃◃ ηη) •• (ff ◃◃ φφ) =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lwhisker_vcomp _ _ _) (ff ◃◃ (ηη •• φφ))
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ηη φφ.
+
+<span class="kn">Definition</span> <span class="nf">disp_rwhisker_vcomp</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : C⟦a,b⟧} {<span class="nv">i</span> : C⟦b,c⟧}
+           {<span class="nv">η</span> : f ==&gt; g} {<span class="nv">φ</span> : g ==&gt; h}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">z</span> : D c}
+           {<span class="nv">ff</span> : x --&gt;[f] y} {<span class="nv">gg</span> : x --&gt;[g] y} {<span class="nv">hh</span> : x --&gt;[h] y} {<span class="nv">ii</span> : y --&gt;[i] z}
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg) (<span class="nv">φφ</span> : gg ==&gt;[φ] hh)
+  : (ηη ▹▹ ii) •• (φφ ▹▹ ii) =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (rwhisker_vcomp _ _ _) ((ηη •• φφ) ▹▹ ii)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))
+         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ηη φφ.
+
+<span class="kn">Definition</span> <span class="nf">disp_vcomp_lunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧} {<span class="nv">η</span> : f ==&gt; g}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">ff</span> : x --&gt;[f] y} {<span class="nv">gg</span> : x --&gt;[g] y}
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg)
+  : (id_disp _ ◃◃ ηη) •• disp_lunitor gg =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_lunitor _ _ _) (disp_lunitor ff •• ηη)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))) _ _ _ _ _ _ _ _ _  ηη.
+
+<span class="kn">Definition</span> <span class="nf">disp_vcomp_runitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧} {<span class="nv">η</span> : f ==&gt; g}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">ff</span> : x --&gt;[f] y} {<span class="nv">gg</span> : x --&gt;[g] y}
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg)
+  : (ηη ▹▹ id_disp _) •• disp_runitor gg =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_runitor _ _ _) (disp_runitor ff •• ηη)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))) _ _ _ _ _ _ _ _ _  ηη.
+
+<span class="kn">Definition</span> <span class="nf">disp_lwhisker_lwhisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧}
+           {<span class="nv">h</span> <span class="nv">i</span> : c --&gt; d} {<span class="nv">η</span> : h ==&gt; i}
+           {<span class="nv">w</span> : D a} {<span class="nv">x</span> : D b} {<span class="nv">y</span> : D c} {<span class="nv">z</span> : D d}
+           (<span class="nv">ff</span> : w --&gt;[f] x) (<span class="nv">gg</span> : x --&gt;[g] y) {<span class="nv">hh</span> : y --&gt;[h] z} {<span class="nv">ii</span> : y --&gt;[i] z}
+           (<span class="nv">ηη</span> : hh ==&gt;[η] ii)
+  : ff ◃◃ (gg ◃◃ ηη) •• disp_lassociator _ _ _ =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lwhisker_lwhisker _ _ _)
+               (disp_lassociator _ _ _ •• (ff ;; gg ◃◃ ηη))
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))
+         _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ ηη.
+
+<span class="kn">Definition</span> <span class="nf">disp_rwhisker_lwhisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> <span class="nv">h</span> : C⟦b,c⟧}
+           {<span class="nv">i</span> : c --&gt; d} {<span class="nv">η</span> : g ==&gt; h}
+           {<span class="nv">w</span> : D a} {<span class="nv">x</span> : D b} {<span class="nv">y</span> : D c} {<span class="nv">z</span> : D d}
+           (<span class="nv">ff</span> : w --&gt;[f] x) {<span class="nv">gg</span> : x --&gt;[g] y} {<span class="nv">hh</span> : x --&gt;[h] y} (<span class="nv">ii</span> : y --&gt;[i] z)
+           (<span class="nv">ηη</span> : gg ==&gt;[η] hh)
+  : (ff ◃◃ (ηη ▹▹ ii)) •• disp_lassociator _ _ _ =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (rwhisker_lwhisker _ _ _)
+               (disp_lassociator _ _ _ •• ((ff ◃◃ ηη) ▹▹ ii))
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))
+         _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ ηη.
+
+<span class="kn">Definition</span> <span class="nf">disp_rwhisker_rwhisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧} {<span class="nv">h</span> : C⟦b,c⟧}
+           (<span class="nv">i</span> : c --&gt; d) (<span class="nv">η</span> : f ==&gt; g)
+           {<span class="nv">w</span> : D a} {<span class="nv">x</span> : D b} {<span class="nv">y</span> : D c} {<span class="nv">z</span> : D d}
+           {<span class="nv">ff</span> : w --&gt;[f] x} {<span class="nv">gg</span> : w --&gt;[g] x} (<span class="nv">hh</span> : x --&gt;[h] y) (<span class="nv">ii</span> : y --&gt;[i] z)
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg)
+  : disp_lassociator _ _ _ •• ((ηη ▹▹ hh) ▹▹ ii) =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (rwhisker_rwhisker _ _ _)
+               ((ηη ▹▹ hh ;; ii) •• disp_lassociator _ _ _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))
+         _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ ηη.
+
+<span class="kn">Definition</span> <span class="nf">disp_vcomp_whisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧} {<span class="nv">h</span> <span class="nv">i</span> : C⟦b,c⟧}
+           (<span class="nv">η</span> : f ==&gt; g) (<span class="nv">φ</span> : h ==&gt; i)
+           (<span class="nv">x</span> : D a) (<span class="nv">y</span> : D b) (<span class="nv">z</span> : D c)
+           (<span class="nv">ff</span> : x --&gt;[f] y) (<span class="nv">gg</span> : x --&gt;[g] y) (<span class="nv">hh</span> : y --&gt;[h] z) (<span class="nv">ii</span> : y --&gt;[i] z)
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg) (<span class="nv">φφ</span> : hh ==&gt;[φ] ii)
+  : (ηη ▹▹ hh) •• (gg ◃◃ φφ) =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_whisker _ _) ((ff ◃◃ φφ) •• (ηη ▹▹ ii))
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))
+         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ηη φφ.
+
+<span class="kn">Definition</span> <span class="nf">disp_lunitor_linvunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a,b⟧}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} (<span class="nv">ff</span> : x --&gt;[f] y)
+  : disp_lunitor ff •• disp_linvunitor _ =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lunitor_linvunitor _) (disp_id2 (id_disp _ ;; ff))
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))
+         _ _ _ _ _ ff.
+
+<span class="kn">Definition</span> <span class="nf">disp_linvunitor_lunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a,b⟧}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} (<span class="nv">ff</span> : x --&gt;[f] y)
+  : disp_linvunitor ff •• disp_lunitor _ =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (linvunitor_lunitor _) (disp_id2 _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))) _ _ _ _ _ ff.
+
+<span class="kn">Definition</span> <span class="nf">disp_runitor_rinvunitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a,b⟧}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} (<span class="nv">ff</span> : x --&gt;[f] y)
+  : disp_runitor ff •• disp_rinvunitor _ =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (runitor_rinvunitor _) (disp_id2 _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))) _ _ _ _ _ ff.
+
+<span class="kn">Definition</span> <span class="nf">disp_rinvunitor_runitor</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a,b⟧}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} (<span class="nv">ff</span> : x --&gt;[f] y)
+  : disp_rinvunitor ff •• disp_runitor _ =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (rinvunitor_runitor _) (disp_id2 _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))) _ _ _ _ _ ff.
+
+<span class="kn">Definition</span> <span class="nf">disp_lassociator_rassociator</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧}
+           {<span class="nv">h</span> : c --&gt; d} {<span class="nv">w</span> : D a} {<span class="nv">x</span> : D b} {<span class="nv">y</span> : D c} {<span class="nv">z</span> : D d}
+           (<span class="nv">ff</span> : w --&gt;[f] x) (<span class="nv">gg</span> : x --&gt;[g] y) (<span class="nv">hh</span> : y --&gt;[h] z)
+  : disp_lassociator ff gg hh •• disp_rassociator _ _ _ =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lassociator_rassociator _ _ _ ) (disp_id2  _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))))
+         _ _ _ _ _ _ _ _ _ _ _ ff gg hh.
+
+<span class="kn">Definition</span> <span class="nf">disp_rassociator_lassociator</span>
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C⟦a,b⟧) {<span class="nv">g</span> : C⟦b,c⟧} {<span class="nv">h</span> : c --&gt; d}
+           {<span class="nv">w</span> : D a} {<span class="nv">x</span> : D b} {<span class="nv">y</span> : D c} {<span class="nv">z</span> : D d}
+           (<span class="nv">ff</span> : w --&gt;[f] x) (<span class="nv">gg</span> : x --&gt;[g] y)
+           (<span class="nv">hh</span> : y --&gt;[h] z)
+  : disp_rassociator ff gg hh •• disp_lassociator _ _ _ =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (rassociator_lassociator _ _ _ ) (disp_id2 _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))))))
+         _ _ _ _ _ _ _ _ _ _ _ ff gg hh.
+
+<span class="kn">Definition</span> <span class="nf">disp_runitor_rwhisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">z</span> : D c} (<span class="nv">ff</span> : x --&gt;[f] y) (<span class="nv">gg</span> : y --&gt;[g] z)
+  : disp_lassociator _ _ _ •• (disp_runitor ff ▹▹ gg) =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (runitor_rwhisker _ _) (ff ◃◃ disp_lunitor gg)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))))))
+         _ _ _ _ _ _ _ _ ff gg.
+
+<span class="kn">Definition</span> <span class="nf">disp_lassociator_lassociator</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span>: C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧}
+           {<span class="nv">h</span> : c --&gt; d} {<span class="nv">i</span> : C⟦d,e⟧}
+           {<span class="nv">v</span> : D a} {<span class="nv">w</span> : D b} {<span class="nv">x</span> : D c} {<span class="nv">y</span> : D d} {<span class="nv">z</span> : D e}
+           (<span class="nv">ff</span> : v --&gt;[f] w) (<span class="nv">gg</span> : w --&gt;[g] x) (<span class="nv">hh</span> : x --&gt;[h] y) (<span class="nv">ii</span> : y --&gt;[i] z)
+  : (ff ◃◃ disp_lassociator gg hh ii) •• disp_lassociator _ _ _ ••
+    (disp_lassociator _ _ _ ▹▹ ii) =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lassociator_lassociator _ _ _ _)
+               (disp_lassociator ff gg _ •• disp_lassociator _ _ _)
+  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))))))
+         _ _ _ _ _ _ _ _ _ _ _ _ _ _ ff gg hh ii.
+
+<span class="kn">End</span> <span class="nf">disp_prebicat_law_projections</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_hcomp</span>
+           {<span class="nv">D</span> : disp_prebicat}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">b₃</span> : C}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : b₁ --&gt; b₂}
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : b₂ --&gt; b₃}
+           {<span class="nv">α</span> : f₁ ==&gt; f₂}
+           {<span class="nv">β</span> : g₁ ==&gt; g₂}
+           {<span class="nv">bb₁</span> : D b₁}
+           {<span class="nv">bb₂</span> : D b₂}
+           {<span class="nv">bb₃</span> : D b₃}
+           {<span class="nv">ff₁</span> : bb₁ --&gt;[ f₁ ] bb₂}
+           {<span class="nv">ff₂</span> : bb₁ --&gt;[ f₂ ] bb₂}
+           {<span class="nv">gg₁</span> : bb₂ --&gt;[ g₁ ] bb₃}
+           {<span class="nv">gg₂</span> : bb₂ --&gt;[ g₂ ] bb₃}
+           (<span class="nv">αα</span> : ff₁ ==&gt;[ α ] ff₂)
+           (<span class="nv">ββ</span> : gg₁ ==&gt;[ β ] gg₂)
+  : ff₁ ;; gg₁ ==&gt;[ β ⋆⋆ α ] ff₂ ;; gg₂
+  := (αα ▹▹ gg₁) •• (ff₂ ◃◃ ββ).
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Invertible displayed 2-cells.                                                   *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">disp_vassocl</span> {<span class="nv">D</span> : disp_prebicat} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">k</span> : C⟦a,b⟧}
+      {<span class="nv">η</span> : f ==&gt; g} {<span class="nv">φ</span> : g ==&gt; h} {<span class="nv">ψ</span> : h ==&gt; k} {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b}
+      {<span class="nv">ff</span> : x --&gt;[f] y} {<span class="nv">gg</span> : x --&gt;[g] y} {<span class="nv">hh</span> : x --&gt;[h] y} {<span class="nv">kk</span> : x --&gt;[k] y}
+      (<span class="nv">ηη</span> : ff ==&gt;[η] gg) (<span class="nv">φφ</span> : gg ==&gt;[φ] hh) (<span class="nv">ψψ</span> : hh ==&gt;[ψ] kk)
+  : (ηη •• φφ) •• ψψ
+    = transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vassocl _ _ _) (ηη •• (φφ •• ψψ)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (transportf_transpose_right (P := <span class="k">λ</span> <span class="nv">x'</span>, _ ==&gt;[x'] _)).
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  { <span class="nb">apply</span> disp_vassocr. }
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">unfold</span> vassocl.
+  <span class="nb">apply</span> pathsinv0, pathsinv0inv0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">Display_Invertible_2cell</span>.
+  <span class="kn">Context</span> {<span class="nv">D</span> : disp_prebicat}.
+
+  <span class="kn">Section</span> <span class="nf">Def_inv_2cell</span>.
+
+  <span class="kn">Context</span> {<span class="nv">c</span> <span class="nv">c'</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : C⟦c,c'⟧} {<span class="nv">d</span> : D c} {<span class="nv">d'</span> : D c'}.
+
+  <span class="kn">Definition</span> <span class="nf">is_disp_invertible_2cell'</span> {<span class="nv">α</span> : invertible_2cell f f'}
+             {<span class="nv">ff</span> : d --&gt;[f] d'} {<span class="nv">ff'</span> : d --&gt;[f'] d'} (<span class="nv">x</span> : ff ==&gt;[α] ff')
+    : UU
+    := ∑ (y : ff' ==&gt;[α^-<span class="mi">1</span>] ff),
+         (x •• y =
+          transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_rinv α)
+                     (disp_id2 ff))
+       × (y •• x =
+          transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_linv α)
+                     (disp_id2 ff')).
+
+  <span class="kn">Definition</span> <span class="nf">is_disp_invertible_2cell</span> {<span class="nv">α</span> : f ==&gt; f'} (<span class="nv">inv_α</span> : is_invertible_2cell α)
+             {<span class="nv">ff</span> : d --&gt;[f] d'} {<span class="nv">ff'</span> : d --&gt;[f'] d'} (<span class="nv">x</span> : ff ==&gt;[α] ff')
+    : UU
+    := ∑ (y : ff' ==&gt;[inv_α^-<span class="mi">1</span>] ff),
+         (x •• y =
+          transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_rinv inv_α)
+                     (disp_id2 ff))
+       × (y •• x =
+          transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_linv inv_α)
+                     (disp_id2 ff')).
+
+  <span class="kn">Definition</span> <span class="nf">disp_invertible_2cell</span> (<span class="nv">α</span> : invertible_2cell f f')
+             (<span class="nv">ff</span> : d --&gt;[f] d') (<span class="nv">ff'</span> : d --&gt;[f'] d')
+    : UU
+    := ∑ (x : ff ==&gt;[α] ff'), is_disp_invertible_2cell α x.
+
+  <span class="kn">Coercion</span> <span class="nf">disp_cell_from_invertible_2cell</span> {α : invertible_2cell f f'}
+           {ff : d --&gt;[f] d'} {ff' : d --&gt;[f'] d'}
+           (e : disp_invertible_2cell α ff ff')
+    : ff ==&gt;[α] ff'
+    := pr1 e.
+
+  <span class="kn">Definition</span> <span class="nf">disp_inv_cell</span> {<span class="nv">α</span> : invertible_2cell f f'}
+             {<span class="nv">ff</span> : d --&gt;[f] d'} {<span class="nv">ff'</span> : d --&gt;[f'] d'}
+             (<span class="nv">e</span> : disp_invertible_2cell α ff ff')
+    : ff' ==&gt;[α^-<span class="mi">1</span>] ff
+    := pr1 (pr2 e).
+
+  <span class="kn">Definition</span> <span class="nf">disp_vcomp_rinv</span> {<span class="nv">α</span> : invertible_2cell f f'}
+             {<span class="nv">ff</span> : d --&gt;[f] d'} {<span class="nv">ff'</span> : d --&gt;[f'] d'}
+             (<span class="nv">e</span> : disp_invertible_2cell α ff ff')
+    : e •• disp_inv_cell e =
+      transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_rinv α) (disp_id2 ff)
+    := pr1 (pr2 (pr2 e)).
+
+  <span class="kn">Definition</span> <span class="nf">disp_vcomp_linv</span> {<span class="nv">α</span> : invertible_2cell f f'}
+             {<span class="nv">ff</span> : d --&gt;[f] d'} {<span class="nv">ff'</span> : d --&gt;[f'] d'}
+             (<span class="nv">e</span> : disp_invertible_2cell α ff ff')
+    : disp_inv_cell e •• e =
+      transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_linv α) (disp_id2 ff')
+    := pr2 (pr2 (pr2 e)).
+
+  <span class="kn">End</span> <span class="nf">Def_inv_2cell</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_mor_transportf_postwhisker</span> (<span class="nv">a</span> <span class="nv">b</span> : C) {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C⟦a,b⟧} {<span class="nv">f</span> <span class="nv">f'</span> : x ==&gt; y}
+        (<span class="nv">ef</span> : f = f') {<span class="nv">g</span> : y ==&gt; z} {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+        {<span class="nv">xx</span> : aa --&gt;[x] bb} {<span class="nv">yy</span>} {<span class="nv">zz</span>} (<span class="nv">ff</span> : xx ==&gt;[f] yy) (<span class="nv">gg</span> : yy ==&gt;[g] zz)
+    : (transportf (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) ef ff) •• gg
+      = transportf (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) (maponpaths (<span class="k">λ</span> <span class="nv">h</span>, h • g) ef) (ff •• gg).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> ef; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_mor_transportf_prewhisker</span> (<span class="nv">a</span> <span class="nv">b</span> : C) {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C⟦a,b⟧}
+        {<span class="nv">f</span> : x ==&gt; y} {<span class="nv">g</span> <span class="nv">g'</span> : y ==&gt; z} (<span class="nv">ef</span> : g = g')
+        {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+        {<span class="nv">xx</span> : aa --&gt;[x] bb} {<span class="nv">yy</span>} {<span class="nv">zz</span>} (<span class="nv">ff</span> : xx ==&gt;[f] yy) (<span class="nv">gg</span> : yy ==&gt;[g] zz)
+    : ff •• (transportf (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) ef gg)
+      = transportf (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) (maponpaths (<span class="k">λ</span> <span class="nv">h</span>, f • h) ef) (ff •• gg).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> ef; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_mor_transportf_prewhisker_gen</span> (<span class="nv">a</span> <span class="nv">b</span> : C) {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C⟦a,b⟧} {<span class="nv">f</span> : x ==&gt; y}
+        {<span class="nv">A</span> : UU} {<span class="nv">t</span> : A → y ==&gt; z} {<span class="nv">g</span> <span class="nv">g'</span> : A} (<span class="nv">ef</span> : g = g')
+        {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+        {<span class="nv">xx</span> : aa --&gt;[x] bb} {<span class="nv">yy</span>} {<span class="nv">zz</span>} (<span class="nv">ff</span> : xx ==&gt;[f] yy) (<span class="nv">gg</span> : yy ==&gt;[t g] zz)
+    : ff •• (transportf (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[t x] _) ef gg)
+      = transportf (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) (maponpaths (<span class="k">λ</span> <span class="nv">h</span>, f • t h) ef) (ff •• gg).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> ef; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_lhs_right_invert_cell'</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : a --&gt; b}
+        {<span class="nv">x</span> : f ==&gt; g} {<span class="nv">y</span> : invertible_2cell g h} {<span class="nv">z</span> : f ==&gt; h}
+        {<span class="nv">p</span> : x = z • y^-<span class="mi">1</span>}
+        {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+        {<span class="nv">ff</span> : aa --&gt;[f] bb}
+        {<span class="nv">gg</span> : aa --&gt;[g] bb}
+        {<span class="nv">hh</span> : aa --&gt;[h] bb}
+        (<span class="nv">xx</span> : ff ==&gt;[x] gg)
+        (<span class="nv">yy</span> : gg ==&gt;[y] hh)
+        (<span class="nv">zz</span> : ff ==&gt;[z] hh)
+        (<span class="nv">H</span> : is_disp_invertible_2cell y yy)
+        (<span class="nv">q</span> := lhs_right_invert_cell _ _ _ _ p)
+        (<span class="nv">pp</span> : xx = transportb (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) p (zz •• disp_inv_cell (yy,,H)))
+    : xx •• yy = transportb (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) q zz.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (yy' := (yy,,H) : disp_invertible_2cell _ _ _).
+    etrans. { <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> pp. }
+    etrans. { <span class="nb">apply</span> disp_mor_transportf_postwhisker. }
+    etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> disp_vassocl. }
+    etrans. { <span class="nb">unfold</span> transportb. <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x'</span> : f ==&gt; h, ff ==&gt;[x'] hh)). }
+    etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> disp_vcomp_linv. }
+    etrans. { <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> disp_mor_transportf_prewhisker. }
+    etrans. { <span class="nb">unfold</span> transportb. <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x'</span> : f ==&gt; h, ff ==&gt;[x'] hh)). }
+    etrans. { <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> disp_id2_right. }
+    etrans. { <span class="nb">unfold</span> transportb. <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x'</span> : f ==&gt; h, ff ==&gt;[x'] hh)). }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_lhs_right_invert_cell</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : a --&gt; b}
+        {<span class="nv">x</span> : f ==&gt; g} {<span class="nv">y</span> : g ==&gt; h} {<span class="nv">z</span> : f ==&gt; h}
+        (<span class="nv">inv_y</span> : is_invertible_2cell y)
+        {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+        {<span class="nv">ff</span> : aa --&gt;[f] bb}
+        {<span class="nv">gg</span> : aa --&gt;[g] bb}
+        {<span class="nv">hh</span> : aa --&gt;[h] bb}
+        (<span class="nv">xx</span> : ff ==&gt;[x] gg)
+        (<span class="nv">yy</span> : gg ==&gt;[y] hh)
+        (<span class="nv">zz</span> : ff ==&gt;[z] hh)
+        (<span class="nv">H</span> : is_disp_invertible_2cell inv_y yy)
+        (<span class="nv">q</span> : x • y = z)
+        (<span class="nv">p</span>  := rhs_right_inv_cell _ _ _ inv_y q : x = z • inv_y^-<span class="mi">1</span>)
+        (<span class="nv">pp</span> : xx =
+              transportb
+                (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) p
+                (zz •• disp_inv_cell ((yy,,H):disp_invertible_2cell (y,,inv_y) gg hh)))
+    : xx •• yy = transportb (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) q zz.
+  <span class="kn">Proof</span>.
+    etrans.
+    { use (disp_lhs_right_invert_cell' _ _ _ _ pp). }
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_lhs_left_invert_cell</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : a --&gt; b}
+        {<span class="nv">x</span> : f ==&gt; g} {<span class="nv">y</span> : g ==&gt; h} {<span class="nv">z</span> : f ==&gt; h} {<span class="nv">inv_x</span> : is_invertible_2cell x}
+        {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+        {<span class="nv">ff</span> : aa --&gt;[f] bb}
+        {<span class="nv">gg</span> : aa --&gt;[g] bb}
+        {<span class="nv">hh</span> : aa --&gt;[h] bb}
+        (<span class="nv">xx</span> : ff ==&gt;[x] gg)
+        (<span class="nv">yy</span> : gg ==&gt;[y] hh)
+        (<span class="nv">zz</span> : ff ==&gt;[z] hh)
+        (<span class="nv">inv_xx</span> : is_disp_invertible_2cell inv_x xx)
+        (<span class="nv">q</span> :  x • y = z)
+        (<span class="nv">p</span> := rhs_left_inv_cell _ _ _ inv_x q : y = inv_x^-<span class="mi">1</span> • z)
+        (<span class="nv">pp</span> : yy =
+              transportb
+                (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) p
+                (disp_inv_cell ((xx,,inv_xx):disp_invertible_2cell (x,,inv_x) ff gg) •• zz))
+    : xx •• yy = transportb (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) q zz.
+  <span class="kn">Proof</span>.
+    etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> pp. }
+    etrans.
+    { <span class="nb">apply</span> disp_mor_transportf_prewhisker. }
+    etrans. { <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> disp_vassocr. }
+    etrans. { <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)). }
+    etrans. { <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> (disp_vcomp_rinv
+                       ((xx,,inv_xx):disp_invertible_2cell (x,,inv_x) _ _)). }
+    etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> disp_mor_transportf_postwhisker. }
+    etrans. { <span class="nb">unfold</span> transportb. <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)). }
+    etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> disp_id2_left. }
+    etrans. { <span class="nb">unfold</span> transportb. <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)). }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Display_Invertible_2cell</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Derived laws                                                                    *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">Derived_Laws</span>.
+
+<span class="kn">Context</span> {<span class="nv">D</span> : disp_prebicat}.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_invertible_2cell_lassociator</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+           {<span class="nv">f1</span> : C⟦a,b⟧} {<span class="nv">f2</span> : C⟦b,c⟧} {<span class="nv">f3</span> : C⟦c,d⟧}
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b} {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+           (<span class="nv">ff1</span> : aa --&gt;[f1] bb)
+           (<span class="nv">ff2</span> : bb --&gt;[f2] cc)
+           (<span class="nv">ff3</span> : cc --&gt;[f3] dd)
+  : is_disp_invertible_2cell (is_invertible_2cell_lassociator _ _ _)
+                             (disp_lassociator ff1 ff2 ff3).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">disp_rassociator</span> <span class="nv">ff1</span> <span class="nv">ff2</span> <span class="nv">ff3</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> disp_lassociator_rassociator.
+  - <span class="nb">apply</span> disp_rassociator_lassociator.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_invertible_2cell_rassociator</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+           {<span class="nv">f1</span> : C⟦a,b⟧} {<span class="nv">f2</span> : C⟦b,c⟧} {<span class="nv">f3</span> : C⟦c,d⟧}
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b} {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+           (<span class="nv">ff1</span> : aa --&gt;[f1] bb)
+           (<span class="nv">ff2</span> : bb --&gt;[f2] cc)
+           (<span class="nv">ff3</span> : cc --&gt;[f3] dd)
+  : is_disp_invertible_2cell (is_invertible_2cell_rassociator _ _ _)
+                             (disp_rassociator ff1 ff2 ff3).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">disp_lassociator</span> <span class="nv">ff1</span> <span class="nv">ff2</span> <span class="nv">ff3</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> disp_rassociator_lassociator.
+  - <span class="nb">apply</span> disp_lassociator_rassociator.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_lassociator_to_rassociator_post'</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧} {<span class="nv">h</span> : C⟦c,d⟧} {<span class="nv">k</span> : C⟦a,d⟧}
+      {<span class="nv">x</span> : k ==&gt; (f · g) · h}
+      {<span class="nv">y</span> : k ==&gt; f · (g · h)}
+      (<span class="nv">p</span> : x = y • lassociator f g h)
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b} {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      {<span class="nv">gg</span> : bb --&gt;[g] cc}
+      {<span class="nv">hh</span> : cc --&gt;[h] dd}
+      {<span class="nv">kk</span> : aa --&gt;[k] dd}
+      (<span class="nv">xx</span> : kk ==&gt;[x] (ff ;; gg) ;; hh)
+      (<span class="nv">yy</span> : kk ==&gt;[y] ff ;; (gg ;; hh))
+      (<span class="nv">q</span> := lassociator_to_rassociator_post x y p)
+      (<span class="nv">pp</span> : xx = transportb (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) p (yy •• disp_lassociator ff gg hh))
+  : xx •• disp_rassociator ff gg hh = transportb (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) q (yy).
+<span class="kn">Proof</span>.
+  etrans.
+  { use disp_lhs_right_invert_cell.
+    - <span class="bp">exact</span> y.
+    - <span class="nb">apply</span> is_invertible_2cell_rassociator.
+    - <span class="bp">exact</span> yy.
+    - <span class="nb">apply</span> is_disp_invertible_2cell_rassociator.
+    - <span class="nb">apply</span> lassociator_to_rassociator_post. <span class="bp">exact</span> p.
+    - <span class="nb">cbn</span>. etrans. { <span class="nb">apply</span> pp. }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+  }
+  <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> cellset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_lassociator_to_rassociator_post</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧} {<span class="nv">h</span> : C⟦c,d⟧} {<span class="nv">k</span> : C⟦a,d⟧}
+      {<span class="nv">x</span> : k ==&gt; (f · g) · h}
+      {<span class="nv">y</span> : k ==&gt; f · (g · h)}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b} {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      {<span class="nv">gg</span> : bb --&gt;[g] cc}
+      {<span class="nv">hh</span> : cc --&gt;[h] dd}
+      {<span class="nv">kk</span> : aa --&gt;[k] dd}
+      (<span class="nv">xx</span> : kk ==&gt;[x] (ff ;; gg) ;; hh)
+      (<span class="nv">yy</span> : kk ==&gt;[y] ff ;; (gg ;; hh))
+      (<span class="nv">q</span> : x • rassociator f g h = y)
+      (<span class="nv">p</span> := rassociator_to_lassociator_post _ _ q : x = y • lassociator f g h)
+      (<span class="nv">pp</span> : xx = transportb (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) p (yy •• disp_lassociator ff gg hh))
+  : xx •• disp_rassociator ff gg hh = transportb (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) q (yy).
+<span class="kn">Proof</span>.
+  etrans.
+  { use disp_lassociator_to_rassociator_post'.
+    - <span class="bp">exact</span> y.
+    - <span class="bp">exact</span> p.
+    - <span class="bp">exact</span> yy.
+    - <span class="bp">exact</span> pp.
+  }
+  <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> cellset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_lassociator_to_rassociator_pre</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧} {<span class="nv">h</span> : C⟦c, d⟧} {<span class="nv">k</span> : C⟦a,d⟧}
+      {<span class="nv">x</span> : f · (g · h) ==&gt; k}
+      {<span class="nv">y</span> : (f · g) · h ==&gt; k}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b} {<span class="nv">cc</span> : D c} {<span class="nv">dd</span> : D d}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      {<span class="nv">gg</span> : bb --&gt;[g] cc}
+      {<span class="nv">hh</span> : cc --&gt;[h] dd}
+      {<span class="nv">kk</span> : aa --&gt;[k] dd}
+      (<span class="nv">xx</span> : ff ;; (gg ;; hh) ==&gt;[x] kk)
+      (<span class="nv">yy</span> : (ff ;; gg) ;; hh ==&gt;[y] kk)
+      (<span class="nv">q</span> : rassociator f g h • x = y)
+      (<span class="nv">p</span> := rassociator_to_lassociator_pre _ _ q : x = lassociator f g h • y)
+      (<span class="nv">pp</span> : xx = transportb (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) p (disp_lassociator ff gg hh •• yy))
+  : disp_rassociator ff gg hh •• xx = transportb (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) q (yy).
+<span class="kn">Proof</span>.
+  etrans.
+  { use disp_lhs_left_invert_cell.
+    - <span class="bp">exact</span> y.
+    - <span class="nb">apply</span> is_invertible_2cell_rassociator.
+    - <span class="bp">exact</span> yy.
+    - <span class="nb">apply</span> is_disp_invertible_2cell_rassociator.
+    - <span class="nb">apply</span> lassociator_to_rassociator_pre. <span class="bp">exact</span> p.
+    - <span class="nb">cbn</span>. etrans. { <span class="nb">apply</span> pp. }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+  }
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> cellset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_lunitor_lwhisker</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b} {<span class="nv">cc</span> : D c}
+      (<span class="nv">ff</span> : aa --&gt;[f] bb)
+      (<span class="nv">gg</span> : bb --&gt;[g] cc)
+  : (disp_rassociator _ _ _ •• (ff ◃◃ disp_lunitor gg)) =
+    transportb (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lunitor_lwhisker _ _)
+               (disp_runitor ff ▹▹ gg).
+<span class="kn">Proof</span>.
+  etrans.
+  { use disp_lassociator_to_rassociator_pre.
+    - <span class="bp">exact</span> (runitor f ▹ g).
+    - <span class="bp">exact</span> (disp_runitor ff ▹▹ gg).
+    - <span class="nb">apply</span> lunitor_lwhisker.
+    - <span class="nb">apply</span> pathsinv0.
+      etrans.
+      { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> disp_runitor_rwhisker. }
+      etrans.
+      { <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)). }
+      <span class="nb">apply</span> (transportf_set (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)).
+      <span class="nb">apply</span> cellset_property.
+  }
+  <span class="nb">apply</span> maponpaths_2, cellset_property.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">disp_rwhisker_transport_left</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+      {<span class="nv">f1</span> <span class="nv">f2</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧}
+      {<span class="nv">x</span> <span class="nv">x'</span> : f1 ==&gt; f2} (<span class="nv">p</span> : x = x')
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b} {<span class="nv">cc</span> : D c}
+      {<span class="nv">ff1</span> : aa --&gt;[f1] bb}
+      {<span class="nv">ff2</span> : aa --&gt;[f2] bb}
+      (<span class="nv">xx</span> : ff1 ==&gt;[x] ff2)
+      (<span class="nv">gg</span> : bb --&gt;[g] cc)
+  : (transportf (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) p xx) ▹▹ gg =
+    transportf (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x ▹ g] _) p (xx ▹▹ gg).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_rwhisker_transport_left_new</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+      {<span class="nv">f1</span> <span class="nv">f2</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧}
+      {<span class="nv">x</span> <span class="nv">x'</span> : f1 ==&gt; f2} (<span class="nv">p</span> : x = x')
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b} {<span class="nv">cc</span> : D c}
+      {<span class="nv">ff1</span> : aa --&gt;[f1] bb}
+      {<span class="nv">ff2</span> : aa --&gt;[f2] bb}
+      (<span class="nv">xx</span> : ff1 ==&gt;[x] ff2)
+      (<span class="nv">gg</span> : bb --&gt;[g] cc)
+  : (transportf (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) p xx) ▹▹ gg =
+    transportf (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ▹ g) p) (xx ▹▹ gg).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_rwhisker_transport_right</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+      {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g1</span> <span class="nv">g2</span> : C⟦b,c⟧}
+      {<span class="nv">x</span> <span class="nv">x'</span> : g1 ==&gt; g2} (<span class="nv">p</span> : x = x')
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b} {<span class="nv">cc</span> : D c}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      (<span class="nv">gg1</span> : bb --&gt;[g1] cc)
+      (<span class="nv">gg2</span> : bb --&gt;[g2] cc)
+      (<span class="nv">xx</span> : gg1 ==&gt;[x] gg2)
+  : ff ◃◃ (transportf (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) p xx) =
+    transportf (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, f ◃ x) p) (ff ◃◃ xx).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">disp_lwhisker_vcomp_alt</span>
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> <span class="nv">h</span> <span class="nv">i</span> : C⟦b,c⟧}
+           {<span class="nv">η</span> : g ==&gt; h} {<span class="nv">φ</span> : h ==&gt; i}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">z</span> : D c} {<span class="nv">ff</span> : x --&gt;[f] y}
+           {<span class="nv">gg</span> : y --&gt;[g] z} {<span class="nv">hh</span> : y --&gt;[h] z} {<span class="nv">ii</span> : y --&gt;[i] z}
+           (<span class="nv">ηη</span> : gg ==&gt;[η] hh) (<span class="nv">φφ</span> : hh ==&gt;[φ] ii)
+  : ff ◃◃ (ηη •• φφ)
+    =
+    transportf (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (lwhisker_vcomp _ _ _) ((ff ◃◃ ηη) •• (ff ◃◃ φφ)).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> (@transportf_transpose_left _ (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)).
+  <span class="nb">apply</span> disp_lwhisker_vcomp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_rwhisker_vcomp_alt</span>
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : C⟦a,b⟧} {<span class="nv">i</span> : C⟦b,c⟧}
+           {<span class="nv">η</span> : f ==&gt; g} {<span class="nv">φ</span> : g ==&gt; h}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">z</span> : D c}
+           {<span class="nv">ff</span> : x --&gt;[f] y} {<span class="nv">gg</span> : x --&gt;[g] y} {<span class="nv">hh</span> : x --&gt;[h] y} {<span class="nv">ii</span> : y --&gt;[i] z}
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg) (<span class="nv">φφ</span> : gg ==&gt;[φ] hh)
+  : (ηη •• φφ) ▹▹ ii
+    =
+    transportf (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (rwhisker_vcomp _ _ _) ((ηη ▹▹ ii) •• (φφ ▹▹ ii)).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> (@transportf_transpose_left _ (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)).
+  <span class="nb">apply</span> disp_rwhisker_vcomp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_vcomp_whisker_alt</span>
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧} {<span class="nv">h</span> <span class="nv">i</span> : C⟦b,c⟧}
+           (<span class="nv">η</span> : f ==&gt; g) (<span class="nv">φ</span> : h ==&gt; i)
+           (<span class="nv">x</span> : D a) (<span class="nv">y</span> : D b) (<span class="nv">z</span> : D c)
+           (<span class="nv">ff</span> : x --&gt;[f] y) (<span class="nv">gg</span> : x --&gt;[g] y) (<span class="nv">hh</span> : y --&gt;[h] z) (<span class="nv">ii</span> : y --&gt;[i] z)
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg) (<span class="nv">φφ</span> : hh ==&gt;[φ] ii)
+  : (ff ◃◃ φφ) •• (ηη ▹▹ ii)
+    =
+    transportf (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (vcomp_whisker _ _) ((ηη ▹▹ hh) •• (gg ◃◃ φφ)).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> (@transportf_transpose_left _ (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)).
+  <span class="nb">apply</span> disp_vcomp_whisker.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_id2_rwhisker_alt</span>
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a,b⟧} {<span class="nv">g</span> : C⟦b,c⟧}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">z</span> : D c}
+           (<span class="nv">ff</span> : x --&gt;[f] y) (<span class="nv">gg</span> : y --&gt;[g] z)
+  : transportf (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _) (id2_rwhisker _ _) (disp_id2 ff ▹▹ gg)
+    =
+    disp_id2 (ff ;; gg).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@transportf_transpose_left _ (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)).
+  <span class="nb">apply</span> disp_id2_rwhisker.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_vcomp_runitor_alt</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧} {<span class="nv">η</span> : f ==&gt; g}
+           {<span class="nv">x</span> : D a} {<span class="nv">y</span> : D b} {<span class="nv">ff</span> : x --&gt;[f] y} {<span class="nv">gg</span> : x --&gt;[g] y}
+           (<span class="nv">ηη</span> : ff ==&gt;[η] gg)
+  : disp_runitor ff •• ηη
+    =
+    transportf
+      (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+      (vcomp_runitor _ _ _)
+      ((ηη ▹▹ id_disp _) •• disp_runitor gg).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> disp_vcomp_runitor.
+  }
+  <span class="nb">apply</span> (transportfbinv (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _) _ _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_vcomp_lcancel</span>
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : b₁ --&gt; b₂}
+           {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">β</span> : g ==&gt; h}
+           (<span class="nv">Hα</span> : is_invertible_2cell α)
+           {<span class="nv">bb₁</span> : D b₁}
+           {<span class="nv">bb₂</span> : D b₂}
+           {<span class="nv">ff</span> : bb₁ --&gt;[ f ] bb₂}
+           {<span class="nv">gg</span> : bb₁ --&gt;[ g ] bb₂}
+           {<span class="nv">hh</span> : bb₁ --&gt;[ h ] bb₂}
+           {<span class="nv">αα</span> : ff ==&gt;[ α ] gg}
+           {<span class="nv">ββ₁</span> <span class="nv">ββ₂</span> : gg ==&gt;[ β ] hh}
+           (<span class="nv">Hαα</span> : is_disp_invertible_2cell Hα αα)
+           (<span class="nv">p</span> : αα •• ββ₁ = αα •• ββ₂)
+  : ββ₁ = ββ₂.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (αα_cell := (αα ,, Hαα) : disp_invertible_2cell (make_invertible_2cell Hα) ff gg).
+  <span class="nb">assert</span> (q := maponpaths (<span class="k">λ</span> <span class="nv">z</span>, disp_inv_cell αα_cell •• z) p).
+  <span class="nb">cbn</span> <span class="k">in</span> q.
+  <span class="nb">rewrite</span> !disp_vassocr <span class="k">in</span> q.
+  <span class="nb">pose</span> (disp_vcomp_linv αα_cell) <span class="k">as</span> z.
+  <span class="nb">cbn</span> <span class="k">in</span> z.
+  <span class="nb">rewrite</span> !z <span class="k">in</span> q.
+  <span class="nb">unfold</span> transportb <span class="k">in</span> q.
+  <span class="nb">rewrite</span> !disp_mor_transportf_postwhisker <span class="k">in</span> q.
+  <span class="nb">rewrite</span> !transport_f_f <span class="k">in</span> q.
+  <span class="nb">rewrite</span> !disp_id2_left <span class="k">in</span> q.
+  <span class="nb">unfold</span> transportb <span class="k">in</span> q.
+  <span class="nb">rewrite</span> !transport_f_f <span class="k">in</span> q.
+  <span class="nb">pose</span> (q' := @transportb_transpose_right
+                _
+                (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                _ _ _ _ _
+                q).
+  <span class="nb">rewrite</span> transportbfinv <span class="k">in</span> q'.
+  <span class="bp">exact</span> q'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_vcomp_rcancel</span>
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : b₁ --&gt; b₂}
+           {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">β</span> : g ==&gt; h}
+           (<span class="nv">Hβ</span> : is_invertible_2cell β)
+           {<span class="nv">bb₁</span> : D b₁}
+           {<span class="nv">bb₂</span> : D b₂}
+           {<span class="nv">ff</span> : bb₁ --&gt;[ f ] bb₂}
+           {<span class="nv">gg</span> : bb₁ --&gt;[ g ] bb₂}
+           {<span class="nv">hh</span> : bb₁ --&gt;[ h ] bb₂}
+           {<span class="nv">αα₁</span> : ff ==&gt;[ α ] gg}
+           {<span class="nv">αα₂</span> : ff ==&gt;[ α ] gg}
+           {<span class="nv">ββ</span> : gg ==&gt;[ β ] hh}
+           (<span class="nv">Hββ</span> : is_disp_invertible_2cell Hβ ββ)
+           (<span class="nv">p</span> : αα₁ •• ββ = αα₂ •• ββ)
+  : αα₁ = αα₂.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (q := maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z •• pr1 Hββ) p).
+  <span class="nb">cbn</span> <span class="k">in</span> q.
+  <span class="nb">rewrite</span> !disp_vassocl <span class="k">in</span> q.
+  <span class="nb">rewrite</span> !(pr12 Hββ) <span class="k">in</span> q.
+  <span class="nb">unfold</span> transportb <span class="k">in</span> q.
+  <span class="nb">rewrite</span> !disp_mor_transportf_prewhisker <span class="k">in</span> q.
+  <span class="nb">rewrite</span> !transport_f_f <span class="k">in</span> q.
+  <span class="nb">rewrite</span> !disp_id2_right <span class="k">in</span> q.
+  <span class="nb">unfold</span> transportb <span class="k">in</span> q.
+  <span class="nb">rewrite</span> !transport_f_f <span class="k">in</span> q.
+  <span class="nb">pose</span> (q' := @transportb_transpose_right
+                _
+                (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                _ _ _ _ _
+                q).
+  <span class="nb">rewrite</span> transportbfinv <span class="k">in</span> q'.
+  <span class="bp">exact</span> q'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_id2_left_alt</span>
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">η</span> : f ==&gt; g}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           (<span class="nv">ηη</span> : ff ==&gt;[ η ] gg)
+  : ηη
+    =
+    transportf (<span class="k">λ</span> <span class="nv">z</span>, ff ==&gt;[ z ] gg) (id2_left η) (disp_id2 ff •• ηη).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (!(@transportf_transpose_left
+             _
+             (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+             _ _
+             _
+             _ _
+             (disp_id2_left ηη))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_rwhisker_rwhisker_rassociator</span>
+           {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : w --&gt; x}
+           {<span class="nv">α</span> : f₁ ==&gt; f₂}
+           {<span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">h</span> : y --&gt; z}
+           {<span class="nv">ww</span> : D w}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">zz</span> : D z}
+           {<span class="nv">ff₁</span> : ww --&gt;[ f₁ ] xx}
+           {<span class="nv">ff₂</span> : ww --&gt;[ f₂ ] xx}
+           (<span class="nv">αα</span> : ff₁ ==&gt;[ α ] ff₂)
+           (<span class="nv">gg</span> : xx --&gt;[ g ] yy)
+           (<span class="nv">hh</span> : yy --&gt;[ h ] zz)
+  : transportb
+      (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+      (rwhisker_rwhisker_alt h g α)
+      (disp_rassociator ff₁ gg hh •• (αα ▹▹ (gg ;; hh)))
+    =
+    (αα ▹▹ gg ▹▹ hh) •• disp_rassociator ff₂ gg hh.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">refine</span> (disp_id2_left_alt _ @ _).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> (!(@transportf_transpose_left
+               _
+               (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+               _ _
+               _
+               _ _
+               (disp_rassociator_lassociator _ ff₁ gg hh))).
+  }
+  <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> !disp_vassocl.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> disp_vassocr.
+    <span class="nb">rewrite</span> disp_rwhisker_rwhisker.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> !disp_vassocl.
+    <span class="nb">rewrite</span> disp_lassociator_rassociator.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+    <span class="nb">rewrite</span> disp_id2_right.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> cellset_property.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">End</span> <span class="nf">Derived_Laws</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Total bicategory of a displayed bicategory                                      *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">total_prebicat</span>.
+
+<span class="kn">Variable</span> <span class="nv">D</span> : disp_prebicat.
+
+<span class="kn">Definition</span> <span class="nf">total_prebicat_1_data</span> : precategory_data
+  := total_category_ob_mor D ,, total_category_id_comp D.
+
+<span class="kn">Definition</span> <span class="nf">total_prebicat_cell_struct</span> : prebicat_2cell_struct (total_category_ob_mor D)
+  := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span> <span class="nv">g</span>, ∑ η : pr1 f ==&gt; pr1 g, pr2 f ==&gt;[η] pr2 g.
+
+<span class="kn">Definition</span> <span class="nf">total_prebicat_1_id_comp_cells</span> : prebicat_1_id_comp_cells
+  := (total_prebicat_1_data,, total_prebicat_cell_struct).
+
+<span class="kn">Definition</span> <span class="nf">total_prebicat_2_id_comp_struct</span>
+  : prebicat_2_id_comp_struct total_prebicat_1_id_comp_cells.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">cbn</span>; <span class="nb">unfold</span> total_prebicat_cell_struct.
+  - <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">id2</span> <span class="nv">_</span>). <span class="bp">exact</span> (disp_id2 _).
+  - <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">lunitor</span> <span class="nv">_</span>). <span class="bp">exact</span> (disp_lunitor _).
+  - <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">runitor</span> <span class="nv">_</span>). <span class="bp">exact</span> (disp_runitor _).
+  - <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">linvunitor</span> <span class="nv">_</span>). <span class="bp">exact</span> (disp_linvunitor _).
+  - <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">rinvunitor</span> <span class="nv">_</span>). <span class="bp">exact</span> (disp_rinvunitor _).
+  - <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">rassociator</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>).
+    <span class="bp">exact</span> (disp_rassociator _ _ _).
+  - <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">lassociator</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>).
+    <span class="bp">exact</span> (disp_lassociator _ _ _).
+  - <span class="nb">intros</span> a b f g h r s. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">r</span> • pr1 s).
+    <span class="bp">exact</span> (pr2 r •• pr2 s).
+  - <span class="nb">intros</span> a b d f g1 g2 r. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">f</span> ◃ pr1 r).
+    <span class="bp">exact</span> (pr2 f ◃◃ pr2 r).
+  - <span class="nb">intros</span> a b c f1 f2 g r. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">r</span> ▹ pr1 g).
+    <span class="bp">exact</span> (pr2 r ▹▹ pr2 g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">total_prebicat_data</span> : prebicat_data
+  := _ ,, total_prebicat_2_id_comp_struct.
+
+<span class="kn">Lemma</span> <span class="nf">total_prebicat_laws</span> : prebicat_laws total_prebicat_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> id2_left.
+    + <span class="nb">apply</span> disp_id2_left.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> id2_right.
+    + <span class="nb">apply</span> disp_id2_right.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> vassocr.
+    + <span class="nb">apply</span> disp_vassocr.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> lwhisker_id2.
+    + <span class="nb">apply</span> disp_lwhisker_id2.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> id2_rwhisker.
+    + <span class="nb">apply</span> disp_id2_rwhisker.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> lwhisker_vcomp.
+    + <span class="nb">apply</span> disp_lwhisker_vcomp.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> rwhisker_vcomp.
+    + <span class="nb">apply</span> disp_rwhisker_vcomp.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> vcomp_lunitor.
+    + <span class="nb">apply</span> disp_vcomp_lunitor.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> vcomp_runitor.
+    + <span class="nb">apply</span> disp_vcomp_runitor.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> lwhisker_lwhisker.
+    + <span class="nb">apply</span> disp_lwhisker_lwhisker.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> rwhisker_lwhisker.
+    + <span class="nb">apply</span> disp_rwhisker_lwhisker.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> rwhisker_rwhisker.
+    + <span class="nb">apply</span> disp_rwhisker_rwhisker.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> vcomp_whisker.
+    + <span class="nb">apply</span> disp_vcomp_whisker.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> lunitor_linvunitor.
+    + <span class="nb">apply</span> disp_lunitor_linvunitor.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> linvunitor_lunitor.
+    + <span class="nb">apply</span> disp_linvunitor_lunitor.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> runitor_rinvunitor.
+    + <span class="nb">apply</span> disp_runitor_rinvunitor.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> rinvunitor_runitor.
+    + <span class="nb">apply</span> disp_rinvunitor_runitor.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> lassociator_rassociator.
+    + <span class="nb">apply</span> disp_lassociator_rassociator.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> rassociator_lassociator.
+    + <span class="nb">apply</span> disp_rassociator_lassociator.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> runitor_rwhisker.
+    + <span class="nb">apply</span> disp_runitor_rwhisker.
+  - use total2_paths_b.
+    + <span class="nb">apply</span> lassociator_lassociator.
+    + <span class="nb">apply</span> disp_lassociator_lassociator.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">total_prebicat</span> : prebicat := _ ,, total_prebicat_laws.
+<span class="kn">End</span> <span class="nf">total_prebicat</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_disp_cellset</span> (<span class="nv">D</span> : disp_prebicat) : UU
+  := ∏ (a b : C) (f g : C⟦a,b⟧) (x : f ==&gt; g)
+       (aa : D a) (bb : D b)
+       (ff : aa --&gt;[f] bb)
+       (gg : aa --&gt;[g] bb),
+     isaset (ff ==&gt;[x] gg).
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat</span> : UU
+  := ∑ D : disp_prebicat, has_disp_cellset D.
+
+<span class="kn">Coercion</span> <span class="nf">disp_prebicat_of_disp_bicat</span> (D : disp_bicat)
+  : disp_prebicat
+  := pr1 D.
+
+<span class="kn">Definition</span> <span class="nf">disp_cellset_property</span> (<span class="nv">D</span> : disp_bicat)
+  : has_disp_cellset D
+  := pr2 D.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_cells_total_prebicat</span> (<span class="nv">D</span> : disp_bicat)
+  : isaset_cells (total_prebicat D).
+<span class="kn">Proof</span>.
+<span class="nb">red</span>.
+<span class="nb">cbn</span>.
+<span class="nb">intros</span>.
+<span class="nb">unfold</span> total_prebicat_cell_struct.
+<span class="nb">apply</span> isaset_total2.
+- <span class="nb">apply</span> cellset_property.
+- <span class="nb">intros</span>.
+  <span class="nb">apply</span> disp_cellset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">total_bicat</span> (<span class="nv">D</span> : disp_bicat) : bicat
+  := total_prebicat D,, isaset_cells_total_prebicat D.
+
+<span class="kn">End</span> <span class="nf">disp_prebicat</span>.
+
+<span class="kn">Arguments</span> disp_prebicat_1_id_comp_cells _ : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> disp_prebicat_data _ : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> disp_prebicat _ : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> disp_bicat _ : <span class="kn">clear implicits</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Displayed left and right unitors coincide on the identity                       *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">disp_lunitor_runitor_identity</span> {<span class="nv">C</span> : bicat} {<span class="nv">D</span> : disp_bicat C} (<span class="nv">a</span> : C) (<span class="nv">aa</span> : D a)
+  : disp_lunitor (id_disp aa) =
+    cell_transportb (lunitor_runitor_identity a) (disp_runitor (id_disp aa)).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (TT := fiber_paths (lunitor_runitor_identity (C := total_bicat D) (a ,, aa))).
+  <span class="nb">cbn</span> <span class="k">in</span> TT.
+  <span class="nb">apply</span> cell_transportf_to_b.
+  etrans.
+  <span class="mi">2</span>: <span class="bp">now</span> <span class="nb">apply</span> TT.
+  <span class="nb">unfold</span> cell_transportf.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> cellset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Theorem</span> <span class="nf">disp_runitor_lunitor_identity</span> {<span class="nv">C</span> : bicat} {<span class="nv">D</span> : disp_bicat C} {<span class="nv">a</span> : C} (<span class="nv">aa</span> : D a)
+  : disp_runitor (id_disp aa) =
+    transportb (<span class="k">λ</span> <span class="nv">x</span>, disp_2cells x _ _) (runitor_lunitor_identity a)
+               (disp_lunitor (id_disp aa)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (transportf_transpose_right (P := (<span class="k">λ</span> <span class="nv">x</span>, disp_2cells x _ _))).
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  <span class="mi">1</span>: <span class="bp">now</span> <span class="nb">apply</span> disp_lunitor_runitor_identity.
+  <span class="nb">unfold</span> cell_transportb.
+  <span class="nb">apply</span> maponpaths_2, cellset_property.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">adjequiv_base_adjequiv_tot</span>
+      {<span class="nv">B</span> : bicat}
+      (<span class="nv">HB</span> : is_univalent_2_0 B)
+      {<span class="nv">D</span> : disp_bicat B}
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+  : adjoint_equivalence a b → ∏ (aa : D a), ∑ (bb : D b), @adjoint_equivalence (total_bicat D) (a ,, aa) (b ,, bb).
+<span class="kn">Proof</span>.
+  use (J_2_0 HB (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, _)).
+  <span class="nb">intros</span> c aa.
+  <span class="bp">exact</span> (aa ,, internal_adjoint_equivalence_identity _).
+<span class="kn">Defined</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Useful properties                                                               *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop</span>
+           {<span class="nv">B</span> : bicat} (<span class="nv">D</span> : disp_prebicat_1_id_comp_cells B)
+  := ∏ (a b : B) (f g : a --&gt; b) (x : f ==&gt; g)
+       (aa : D a) (bb : D b) (ff : aa --&gt;[f] bb) (gg : aa --&gt;[g] bb),
+    isaprop (disp_2cells x ff gg).
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_iscontr</span>
+           {<span class="nv">B</span> : bicat} (<span class="nv">D</span> : disp_prebicat_1_id_comp_cells B)
+  := ∏ (a b : B) (f g : a --&gt; b) (x : f ==&gt; g)
+       (aa : D a) (bb : D b) (ff : aa --&gt;[f] bb) (gg : aa --&gt;[g] bb),
+     iscontr (disp_2cells x ff gg).
+
+<span class="kn">Definition</span> <span class="nf">disp_locally_groupoid</span>
+           {<span class="nv">B</span> : bicat} (<span class="nv">D</span> : disp_bicat B)
+  := ∏ (a b : B) (f g : a --&gt; b) (x : invertible_2cell f g)
+       (aa : D a) (bb : D b) (ff : aa --&gt;[f] bb) (gg : aa --&gt;[g] bb)
+       (xx : disp_2cells x ff gg), is_disp_invertible_2cell x xx.
+
+<span class="kn">Definition</span> <span class="nf">disp_locally_sym</span>
+           {<span class="nv">B</span> : bicat} (<span class="nv">D</span> : disp_bicat B)
+  := ∏ (a b : B) (f g : a --&gt; b) (x : invertible_2cell f g)
+       (aa : D a) (bb : D b) (ff : aa --&gt;[f] bb) (gg : aa --&gt;[g] bb)
+       (xx : disp_2cells x ff gg), disp_2cells x^-<span class="mi">1</span> gg ff.
+
+<span class="kn">Definition</span> <span class="nf">make_disp_locally_groupoid</span>
+           {<span class="nv">B</span> : bicat} (<span class="nv">D</span> : disp_bicat B)
+           (<span class="nv">H</span> : disp_locally_sym D)
+           (<span class="nv">HD</span> : disp_2cells_isaprop D)
+  : disp_locally_groupoid D.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b f g x aa bb ff gg xx.
+  use tpair.
+  - <span class="nb">apply</span> H.
+    <span class="bp">exact</span> xx.
+  - <span class="nb">split</span>; <span class="nb">apply</span> HD.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_over_id</span>
+           {<span class="nv">B</span> : bicat} (<span class="nv">D</span> : disp_bicat B)
+  : UU
+  := ∏ (a b : B)
+       (f : B ⟦ a, b ⟧)
+       (aa : D a)
+       (bb : D b)
+       (ff gg : aa --&gt;[ f] bb)
+       (xx : disp_2cells (id2_invertible_2cell f) ff gg),
+     is_disp_invertible_2cell (is_invertible_2cell_id₂ f) xx.
+
+<span class="kn">Definition</span> <span class="nf">make_disp_locally_groupoid_univalent_2_1</span>
+           {<span class="nv">B</span> : bicat} (<span class="nv">D</span> : disp_bicat B)
+           (<span class="nv">HD</span> : disp_locally_groupoid_over_id D)
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+  : disp_locally_groupoid D.
+<span class="kn">Proof</span>.
+  use (J_2_1 HB).
+  <span class="bp">exact</span> HD.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_from_disp_2cells_iscontr</span>
+  {<span class="nv">B</span> : bicat} (<span class="nv">D</span> : disp_prebicat_1_id_comp_cells B)
+  : disp_2cells_iscontr D -&gt; disp_2cells_isaprop D.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c ; <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> isapropifcontr.
+  <span class="nb">apply</span> c.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_isgroupoid_from_disp_2cells_iscontr</span>
+  {<span class="nv">B</span> : bicat} (<span class="nv">D</span> : disp_bicat B)
+  : disp_2cells_iscontr D -&gt; disp_locally_groupoid D.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c ; <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">apply</span> c.
+  - <span class="nb">split</span>; <span class="nb">apply</span> isapropifcontr, c.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">HomDisplayedCategory</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">D</span> : disp_bicat B}.
+
+  <span class="kn">Notation</span> <span class="s2">"f' ==&gt;[ x ] g'"</span> := (disp_2cells x f' g') (<span class="kn">at level</span> <span class="mi">60</span>).
+  <span class="kn">Notation</span> <span class="s2">"rr •• ss"</span> := (disp_vcomp2 rr ss) (<span class="kn">at level</span> <span class="mi">60</span>).
+
+  <span class="kn">Definition</span> <span class="nf">disp_hom_ob_mor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">xx</span> : D x)
+             (<span class="nv">yy</span> : D y)
+  : disp_cat_ob_mor (hom x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, xx --&gt;[ f ] yy).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">ff</span> <span class="nv">gg</span> <span class="nv">α</span>, ff ==&gt;[ α ] gg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_hom_id_comp</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">xx</span> : D x)
+             (<span class="nv">yy</span> : D y)
+    : disp_cat_id_comp _ (disp_hom_ob_mor xx yy).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">ff</span>, disp_id2 ff).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">α</span> <span class="nv">β</span> <span class="nv">ff</span> <span class="nv">gg</span> <span class="nv">hh</span> <span class="nv">αα</span> <span class="nv">ββ</span>, αα •• ββ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_hom_data</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">xx</span> : D x)
+             (<span class="nv">yy</span> : D y)
+    : disp_cat_data (hom x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (disp_hom_ob_mor xx yy).
+    - <span class="bp">exact</span> (disp_hom_id_comp xx yy).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_hom_laws</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">xx</span> : D x)
+             (<span class="nv">yy</span> : D y)
+    : disp_cat_axioms _ (disp_hom_data xx yy).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> disp_id2_left.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">rewrite</span> disp_id2_right.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">rewrite</span> disp_vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">apply</span> D.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_hom</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">xx</span> : D x)
+             (<span class="nv">yy</span> : D y)
+    : disp_cat (hom x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (disp_hom_data xx yy).
+    - <span class="bp">exact</span> (disp_hom_laws xx yy).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">HomDisplayedCategory</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Notations.                                                                      *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Module</span> <span class="nf">Notations</span>.
+
+<span class="kn">Export</span> Bicat.Notations.
+
+<span class="kn">Notation</span> <span class="s2">"f' ==&gt;[ x ] g'"</span> := (disp_2cells x f' g') (<span class="kn">at level</span> <span class="mi">60</span>).
+<span class="kn">Notation</span> <span class="s2">"f' &lt;==[ x ] g'"</span> := (disp_2cells x g' f') (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">only parsing</span>).
+<span class="kn">Notation</span> <span class="s2">"rr •• ss"</span> := (disp_vcomp2 rr ss) (<span class="kn">at level</span> <span class="mi">60</span>).
+<span class="kn">Notation</span> <span class="s2">"ff ◃◃ rr"</span> := (disp_lwhisker ff rr) (<span class="kn">at level</span> <span class="mi">60</span>).
+<span class="kn">Notation</span> <span class="s2">"rr ▹▹ gg"</span> := (disp_rwhisker gg rr) (<span class="kn">at level</span> <span class="mi">60</span>).
+
+<span class="kn">End</span> <span class="nf">Notations</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/DispBicat.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************* *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

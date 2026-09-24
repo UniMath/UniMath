@@ -1,0 +1,723 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CompCatTypeFormers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Type Formers in Comprehension Categories. This file contains sigma, pi and unit types.</span>
+
+<span class="sd">  This developement follows "From Semantics to Syntax: A Type Theory for Comprehension</span>
+<span class="sd">  Categories" by Najmaei, Van der Weide, Ahrens, and North</span>
+
+<span class="sd">  Identity types can also be added similarly from Figure 3 of "From Semantics to Syntax" but</span>
+<span class="sd">  this has not been done yet.</span>
+
+<span class="sd">  Contents</span>
+
+<span class="sd">  1. Sigma Types</span>
+<span class="sd">  2. Pi Types</span>
+<span class="sd">  3. Unit Types</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ComprehensionCats.CompCats.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="sd">(** * 1. Sigma-types for comprehension categories *)</span>
+
+<span class="sd">(**</span>
+<span class="sd">  The rules are from Figure 2 of</span>
+<span class="sd">  "From Semantics to Syntax: A Type Theory for Comprehension Categories".</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Section</span> <span class="nf">Sigma_For_Comp_Cat</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : comp_cat).
+
+  <span class="c">(* Formation: Γ ⊢ A type,  Γ.A ⊢ B type  ⟹  Γ ⊢ Σ(A,B) type *)</span>
+  <span class="kn">Definition</span> <span class="nf">sigma_form</span> : UU :=
+    ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A)),
+      comp_cat_ty Γ.
+
+  <span class="c">(* Introduction: pairing map  pair : Γ.A.B → Γ.Σ(A,B) *)</span>
+  <span class="kn">Definition</span> <span class="nf">sigma_pair_data</span> (<span class="nv">Σty</span> : sigma_form) : UU :=
+    ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A)),
+      ((Γ &amp; A) &amp; B) --&gt; (Γ &amp; (Σty _ A B)).
+
+  <span class="c">(* Law: πΣ ∘ pair = πB ∘ πA *)</span>
+  <span class="kn">Definition</span> <span class="nf">sigma_pair_law</span>
+    (<span class="nv">Σty</span> : sigma_form)
+    (<span class="nv">pair</span> : sigma_pair_data Σty) : UU :=
+    ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A)),
+      pair Γ A B · π (Σty Γ A B) = π B · π A.
+
+  <span class="c">(* Elimination: projΣ : Γ.Σ(A,B) → Γ.A.B *)</span>
+  <span class="kn">Definition</span> <span class="nf">sigma_proj_data</span> (<span class="nv">Σty</span> : sigma_form) : UU :=
+    ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A)),
+      (Γ &amp; (Σty Γ A B)) --&gt; ((Γ &amp; A) &amp; B).
+
+  <span class="c">(* β-rule: proj ∘ pair = id *)</span>
+  <span class="kn">Definition</span> <span class="nf">sigma_beta_law</span>
+    (<span class="nv">Σty</span> : sigma_form)
+    (<span class="nv">pair</span> : sigma_pair_data Σty)
+    (<span class="nv">proj</span> : sigma_proj_data Σty) : UU :=
+    ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A)),
+      pair Γ A B · proj Γ A B = identity _.
+
+  <span class="c">(* η-rule: pair ∘ proj = id *)</span>
+  <span class="kn">Definition</span> <span class="nf">sigma_eta_law</span>
+    (<span class="nv">Σty</span> : sigma_form)
+    (<span class="nv">pair</span> : sigma_pair_data Σty)
+    (<span class="nv">proj</span> : sigma_proj_data Σty) : UU :=
+    ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A)),
+      proj Γ A B · pair Γ A B = identity _.
+
+  <span class="c">(* Stability under substitution: Σ(A,B)[s] ≃ Σ(A[s], B[s.A]) *)</span>
+  <span class="kn">Definition</span> <span class="nf">sigma_sub_iso</span> (<span class="nv">Σty</span> : sigma_form) : UU :=
+    ∏ (Γ Δ : C) (s : Δ --&gt; Γ)
+      (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A)),
+      z_iso (C := fiber_category _ _)
+        ((Σty Γ A B) [[ s ]])
+        (Σty Δ (A [[ s ]]) (B [[ comp_cat_ext_subst s A ]])).
+
+  <span class="c">(* Stability of pairing under substitution *)</span>
+  <span class="kn">Definition</span> <span class="nf">sigma_sub_pair_law</span>
+    (<span class="nv">Σty</span> : sigma_form)
+    (<span class="nv">pair</span> : sigma_pair_data Σty)
+    (<span class="nv">σiso</span> : sigma_sub_iso Σty) : UU :=
+    ∏ (Γ Δ : C) (s : Δ --&gt; Γ)
+      (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A)),
+      pair Δ (A [[ s ]]) (B [[ (comp_cat_ext_subst s A) ]]) ·
+        comp_cat_comp_mor (inv_from_z_iso (σiso _ _ _ _ _)) ·
+        comp_cat_ext_subst s (Σty Γ A B)
+      = (comp_cat_ext_subst (comp_cat_ext_subst _ _) B) · pair Γ A B .
+
+  <span class="kn">Definition</span> <span class="nf">comp_cat_sigma</span> : UU :=
+    ∑ (Σty    : sigma_form),
+      ∑ (pair   : sigma_pair_data Σty),
+      ∑ (pair_π : sigma_pair_law Σty pair),
+      ∑ (proj   : sigma_proj_data Σty),
+      sigma_beta_law Σty pair proj
+        × sigma_eta_law Σty pair proj
+        × ∑ (σiso : sigma_sub_iso Σty),
+      sigma_sub_pair_law Σty pair σiso.
+
+  <span class="kn">Coercion</span> <span class="nf">sigma_ty_from_sigma</span> (Σ : comp_cat_sigma) : sigma_form := pr1 Σ.
+
+<span class="kn">End</span> <span class="nf">Sigma_For_Comp_Cat</span>.
+
+<span class="sd">(** Accessors for comp_cat_sigma *)</span>
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_sigma_pair</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> : C} (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  : ((Γ &amp; A) &amp; B) --&gt; Γ &amp; ((pr1 Σ) Γ A B)
+  := pr12 Σ Γ A B.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_sigma_pair_π</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> : C} (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  : comp_cat_sigma_pair A B · π ((pr1 Σ) Γ A B) = π B · π A
+  := pr122 Σ Γ A B.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_sigma_proj</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> : C} (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  : Γ &amp; ((pr1 Σ) Γ A B) --&gt; (Γ &amp; A) &amp; B
+  := pr1 (pr222 Σ) Γ A B.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_sigma_beta</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> : C} (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  : comp_cat_sigma_pair A B · comp_cat_sigma_proj A B = identity _
+  := pr12 (pr222 Σ) Γ A B.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_sigma_eta</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> : C} (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  : comp_cat_sigma_proj A B · comp_cat_sigma_pair A B = identity _
+  := pr122 (pr222 Σ) Γ A B.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_sigma_sub_iso</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> <span class="nv">Δ</span> : C} (<span class="nv">s</span> : Δ --&gt; Γ) (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  : z_iso (C := fiber_category _ _)
+      (((pr1 Σ) Γ A B) [[ s ]])
+      ((pr1 Σ) Δ (A [[ s ]]) (B [[ comp_cat_ext_subst s A ]]))
+  := pr1 (pr222 (pr222 Σ)) Γ Δ s A B.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_sigma_sub_pair</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> <span class="nv">Δ</span> : C} (<span class="nv">s</span> : Δ --&gt; Γ) (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  : comp_cat_sigma_pair (A [[ s ]]) (B [[ (comp_cat_ext_subst s A ) ]]) ·
+      comp_cat_comp_mor (inv_from_z_iso (comp_cat_sigma_sub_iso _ _ _ )) ·
+      comp_cat_ext_subst s ((pr1 Σ) Γ A B)
+    = comp_cat_ext_subst (comp_cat_ext_subst _ _) B
+        · comp_cat_sigma_pair A B
+  := pr2 (pr222 (pr222 Σ)) Γ Δ s A B.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_sigma_pair_proj_iso</span>
+  { <span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C} {<span class="nv">Γ</span> : C} (<span class="nv">A</span> : comp_cat_ty Γ)
+  (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  :  z_iso (Γ &amp; ((pr1 Σ) _ A B)) ((Γ &amp; A) &amp; B).
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - <span class="nb">apply</span> comp_cat_sigma_proj.
+  - <span class="nb">apply</span> comp_cat_sigma_pair.
+  - use tpair.
+    + <span class="nb">apply</span> comp_cat_sigma_eta.
+    + <span class="nb">apply</span> comp_cat_sigma_beta.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** First projection, derived from the eliminator *)</span>
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_sigma_proj_1</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> : C} (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  : C ⟦ Γ &amp; ((pr1 Σ) Γ A B), Γ &amp; A ⟧
+  := comp_cat_sigma_proj A B · π B.
+
+<span class="kn">Lemma</span> <span class="nf">comp_cat_sigma_proj_1_law</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> : C} (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  : comp_cat_sigma_proj_1 A B · π A = π ((pr1 Σ) Γ A B).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> comp_cat_sigma_proj_1.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">rewrite</span> &lt;- (@comp_cat_sigma_pair_π _ Σ).
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> comp_cat_sigma_eta.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comp_cat_sigma_proj_law</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> : C} (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  : comp_cat_sigma_proj A B · π _ · π A = π ((pr1 Σ) Γ A B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> comp_cat_sigma_proj_1_law.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Useful isomorphisms for Sigma  *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_sigma_iso_2</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Sig</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> : C} {<span class="nv">A</span> : comp_cat_ty Γ} {<span class="nv">B</span> <span class="nv">B'</span> : comp_cat_ty (Γ &amp; A)}
+  (<span class="nv">i</span> : z_iso ((Γ &amp; A) &amp; B) ((Γ &amp; A) &amp; B'))
+  : z_iso (Γ &amp; (pr1 Sig) Γ A B) (Γ &amp; (pr1 Sig) Γ A B')
+  := z_iso_comp (comp_cat_sigma_pair_proj_iso A B)
+       (z_iso_comp i
+          (z_iso_inv (comp_cat_sigma_pair_proj_iso A B'))).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_sigma_iso_1</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Sig</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> : C} {<span class="nv">A</span> <span class="nv">A'</span> : comp_cat_ty Γ} {<span class="nv">B</span> : comp_cat_ty (Γ &amp; A)}
+  (<span class="nv">i</span> : z_iso (Γ &amp; A) (Γ &amp; A'))
+  : z_iso (Γ &amp; (pr1 Sig) Γ A B)
+      (Γ &amp; (pr1 Sig) Γ A' (B [[ inv_from_z_iso i ]]))
+  := z_iso_comp (comp_cat_sigma_pair_proj_iso A B)
+       (z_iso_comp
+          (z_iso_inv (comp_cat_ext_subst_z_iso (z_iso_inv i) B))
+          (z_iso_inv (comp_cat_sigma_pair_proj_iso A' _))).
+
+<span class="kn">Lemma</span> <span class="nf">comp_cat_sigma_iso_2_id</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Sig</span> : comp_cat_sigma C} {<span class="nv">Γ</span> : C}
+  (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  : comp_cat_sigma_iso_2 (Sig:=Sig) (identity_z_iso ((Γ &amp; A) &amp; B))
+    = identity_z_iso (Γ &amp; (pr1 Sig) Γ A B).
+<span class="kn">Proof</span>.
+  use z_iso_eq.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">apply</span> comp_cat_sigma_eta.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comp_cat_sigma_iso_2_comp</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Sig</span> : comp_cat_sigma C} {<span class="nv">Γ</span> : C}
+  {<span class="nv">A</span> : comp_cat_ty Γ} {<span class="nv">B</span> <span class="nv">B'</span> <span class="nv">B''</span> : comp_cat_ty (Γ &amp; A)}
+  (<span class="nv">i</span> : z_iso ((Γ &amp; A) &amp; B) ((Γ &amp; A) &amp; B'))
+  (<span class="nv">i'</span> : z_iso ((Γ &amp; A) &amp; B') ((Γ &amp; A) &amp; B''))
+  : comp_cat_sigma_iso_2 (Sig:=Sig) (z_iso_comp i i')
+    = z_iso_comp (comp_cat_sigma_iso_2 i) (comp_cat_sigma_iso_2 i').
+<span class="kn">Proof</span>.
+  use z_iso_eq.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> comp_cat_sigma_beta.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comp_cat_sigma_iso_2_comp'</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Sig</span> : comp_cat_sigma C} {<span class="nv">Γ</span> : C}
+  {<span class="nv">A</span> : comp_cat_ty Γ} {<span class="nv">B</span> <span class="nv">B'</span> <span class="nv">B''</span> : comp_cat_ty (Γ &amp; A)}
+  (<span class="nv">i</span> : z_iso ((Γ &amp; A) &amp; B) ((Γ &amp; A) &amp; B'))
+  (<span class="nv">i'</span> : z_iso ((Γ &amp; A) &amp; B') ((Γ &amp; A) &amp; B''))
+  : morphism_from_z_iso _ _ (comp_cat_sigma_iso_2 (Sig:=Sig) (z_iso_comp i i'))
+    = (comp_cat_sigma_iso_2 i) · (comp_cat_sigma_iso_2 i').
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> comp_cat_sigma_iso_2_comp.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comp_cat_sigma_iso_2_proj</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Sig</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> : C} {<span class="nv">A</span> : comp_cat_ty Γ} {<span class="nv">B</span> <span class="nv">B'</span> : comp_cat_ty (Γ &amp; A)}
+  (<span class="nv">i</span> : z_iso ((Γ &amp; A) &amp; B) ((Γ &amp; A) &amp; B'))
+  (<span class="nv">p</span> : i · π B' = π B)
+  : comp_cat_sigma_iso_2 (Sig:=Sig) i · comp_cat_sigma_proj_1 A B'
+    = comp_cat_sigma_proj_1 A B.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> comp_cat_sigma_proj_1.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  { <span class="nb">apply</span> maponpaths.
+    etrans. { <span class="nb">apply</span> assoc. }
+    etrans. { <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> comp_cat_sigma_beta. }
+    <span class="nb">apply</span> id_left. }
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comp_cat_sigma_iso_1_proj</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Sig</span> : comp_cat_sigma C}
+  {<span class="nv">Γ</span> : C} {<span class="nv">A</span> <span class="nv">A'</span> : comp_cat_ty Γ} {<span class="nv">B</span> : comp_cat_ty (Γ &amp; A)}
+  (<span class="nv">i</span> : z_iso (Γ &amp; A) (Γ &amp; A'))
+  : comp_cat_sigma_iso_1 (Sig:=Sig) i
+      · comp_cat_sigma_proj_1 A' (B [[ inv_from_z_iso i ]])
+    = comp_cat_sigma_proj_1 A B · i.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> comp_cat_sigma_proj_1.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  { <span class="nb">apply</span> maponpaths.
+    etrans. { <span class="nb">apply</span> assoc. }
+    etrans. { <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> comp_cat_sigma_beta. }
+    <span class="nb">apply</span> id_left. }
+  <span class="bp">exact</span> (PullbackArrow_PullbackPr2 (comp_cat_pullback _ _) _ _ _ _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_sigma_assoc</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C} {<span class="nv">Γ</span> : C}
+  (<span class="nv">A</span> : comp_cat_ty Γ)
+  (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  (<span class="nv">D</span> : comp_cat_ty ((Γ &amp; A) &amp; B))
+  : z_iso
+      (Γ &amp; ((pr1 Σ) Γ ((pr1 Σ) Γ A B) (D [[ comp_cat_sigma_proj A B ]])))
+      (Γ &amp; ((pr1 Σ) Γ A ((pr1 Σ) (Γ &amp; A) B D))).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (z_iso_comp (comp_cat_sigma_pair_proj_iso _ _) _).
+  <span class="nb">refine</span> (z_iso_comp (comp_cat_ext_subst_z_iso
+                        (comp_cat_sigma_pair_proj_iso A B) D) _).
+  <span class="nb">refine</span> (z_iso_comp (z_iso_inv (comp_cat_sigma_pair_proj_iso B D)) _).
+  <span class="bp">exact</span> (z_iso_inv (comp_cat_sigma_pair_proj_iso A _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comp_cat_sigma_assoc_proj_1</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Σ</span> : comp_cat_sigma C} {<span class="nv">Γ</span> : C}
+  (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A)) (<span class="nv">D</span> : comp_cat_ty ((Γ &amp; A) &amp; B))
+  : comp_cat_sigma_assoc A B D
+      · comp_cat_sigma_proj_1 A ((pr1 Σ) (Γ &amp; A) B D)
+    = comp_cat_sigma_proj_1 ((pr1 Σ) Γ A B) (D [[ comp_cat_sigma_proj A B ]])
+        · comp_cat_sigma_proj_1 A B.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> comp_cat_sigma_assoc, comp_cat_sigma_proj_1.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    etrans. { <span class="nb">apply</span> assoc. }
+    etrans. { <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> comp_cat_sigma_beta. }
+    <span class="nb">apply</span> id_left. }
+  <span class="nb">rewrite</span> comp_cat_sigma_pair_π.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> comp_cat_ext_subst_commute.
+  <span class="nb">apply</span> assoc'.
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** * 2. Pi-types for comprehension categories *)</span>
+
+<span class="c">(*</span>
+<span class="c">  The rules are from Figure 1 of</span>
+<span class="c">  "From Semantics to Syntax: A Type Theory for Comprehension Categories".</span>
+<span class="c"> *)</span>
+
+<span class="kn">Section</span> <span class="nf">Pi_For_Comp_Cat</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : comp_cat).
+
+  <span class="c">(* Formation: Γ ⊢ A type,  Γ.A ⊢ B type  ⟹  Γ ⊢ Π(A,B) type *)</span>
+  <span class="kn">Definition</span> <span class="nf">pi_form</span> : UU :=
+    ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A)),
+      comp_cat_ty Γ.
+
+  <span class="c">(* Introduction: lambda abstraction  Γ.A ⊢ b : B  ⟹  Γ ⊢ λb : Π(A,B) *)</span>
+  <span class="kn">Definition</span> <span class="nf">pi_lam_data</span> (<span class="nv">Πty</span> : pi_form) : UU :=
+    ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A)),
+      comp_cat_tm B -&gt; comp_cat_tm (Πty Γ A B).
+
+  <span class="c">(* Elimination: application  Γ ⊢ f : Π(A,B)  ⟹  Γ.A ⊢ app(f) : B *)</span>
+  <span class="kn">Definition</span> <span class="nf">pi_app_data</span> (<span class="nv">Πty</span> : pi_form) : UU :=
+    ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A)),
+      comp_cat_tm (Πty Γ A B) -&gt; comp_cat_tm B.
+
+  <span class="c">(* β-rule: app(λb) = b *)</span>
+  <span class="kn">Definition</span> <span class="nf">pi_beta_law</span>
+    (<span class="nv">Πty</span> : pi_form)
+    (<span class="nv">lam</span> : pi_lam_data Πty)
+    (<span class="nv">app</span> : pi_app_data Πty) : UU :=
+    ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A))
+      (b : comp_cat_tm B),
+      app Γ A B (lam Γ A B b) = b.
+
+  <span class="c">(* η-rule: λ(app f) = f *)</span>
+  <span class="kn">Definition</span> <span class="nf">pi_eta_law</span>
+    (<span class="nv">Πty</span> : pi_form)
+    (<span class="nv">lam</span> : pi_lam_data Πty)
+    (<span class="nv">app</span> : pi_app_data Πty) : UU :=
+    ∏ (Γ : C) (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A))
+      (f : comp_cat_tm (Πty Γ A B)),
+      lam Γ A B (app Γ A B f) = f.
+
+  <span class="c">(* Stability under substitution: Π(A,B)[s] ≃ Π(A[s], B[s.A]) *)</span>
+  <span class="kn">Definition</span> <span class="nf">pi_sub_iso</span> (<span class="nv">Πty</span> : pi_form) : UU :=
+    ∏ (Γ Δ : C) (s : Δ --&gt; Γ)
+      (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A)),
+      z_iso (C := fiber_category _ _)
+        ((Πty Γ A B) [[ s ]])
+        (Πty Δ (A [[ s ]]) (B [[ comp_cat_ext_subst s A ]])).
+
+  <span class="c">(* Stability of lambda under substitution *)</span>
+  <span class="kn">Definition</span> <span class="nf">pi_sub_lam</span>
+    (<span class="nv">Πty</span> : pi_form)
+    (<span class="nv">lam</span> : pi_lam_data Πty)
+    (<span class="nv">πiso</span> : pi_sub_iso Πty) : UU :=
+    ∏ (Γ Δ : C) (s : Δ --&gt; Γ)
+      (A : comp_cat_ty Γ) (B : comp_cat_ty (Γ &amp; A))
+      (b : comp_cat_tm B),
+      lam Δ (A [[ s ]]) (B [[ (comp_cat_ext_subst s A ) ]]) (b [[ (comp_cat_ext_subst s A ) ]]tm) ↑ inv_from_z_iso (πiso _ _ _ _ _)
+      = (lam Γ A B b) [[ s ]]tm.
+
+  <span class="kn">Definition</span> <span class="nf">comp_cat_pi</span> : UU :=
+    ∑ (Πty  : pi_form),
+      ∑ (lam  : pi_lam_data Πty),
+      ∑ (app  : pi_app_data Πty),
+      pi_beta_law Πty lam app
+        × pi_eta_law Πty lam app
+        × ∑ (πiso : pi_sub_iso Πty),
+      pi_sub_lam Πty lam πiso.
+
+  <span class="kn">Coercion</span> <span class="nf">pi_ty_from_pi</span> (Π : comp_cat_pi) : pi_form := pr1 Π.
+
+<span class="kn">End</span> <span class="nf">Pi_For_Comp_Cat</span>.
+
+<span class="sd">(** Accessors for comp_cat_pi *)</span>
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_pi_lam</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Π</span> : comp_cat_pi C}
+  {<span class="nv">Γ</span> : C} {<span class="nv">A</span> : comp_cat_ty Γ} {<span class="nv">B</span> : comp_cat_ty (Γ &amp; A)}
+  (<span class="nv">b</span> : comp_cat_tm B)
+  : comp_cat_tm ((pr1 Π) Γ A B)
+  := pr12 Π Γ A B b.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_pi_app</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Π</span> : comp_cat_pi C}
+  {<span class="nv">Γ</span> : C} {<span class="nv">A</span> : comp_cat_ty Γ} {<span class="nv">B</span> : comp_cat_ty (Γ &amp; A)}
+  (<span class="nv">f</span> : comp_cat_tm ((pr1  Π) Γ A B))
+  : comp_cat_tm B
+  := pr122 Π Γ A B f.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_pi_beta</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Π</span> : comp_cat_pi C}
+  {<span class="nv">Γ</span> : C} {<span class="nv">A</span> : comp_cat_ty Γ} {<span class="nv">B</span> : comp_cat_ty (Γ &amp; A)}
+  (<span class="nv">b</span> : comp_cat_tm B)
+  : comp_cat_pi_app (comp_cat_pi_lam b) = b
+  := pr1 (pr222 Π) Γ A B b.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_pi_eta</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Π</span> : comp_cat_pi C}
+  {<span class="nv">Γ</span> : C} {<span class="nv">A</span> : comp_cat_ty Γ} {<span class="nv">B</span> : comp_cat_ty (Γ &amp; A)}
+  (<span class="nv">f</span> : comp_cat_tm ((pr1 Π) Γ A B))
+  : comp_cat_pi_lam (comp_cat_pi_app f) = f
+  := pr12 (pr222 Π) Γ A B f.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_pi_sub_iso</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Π</span> : comp_cat_pi C}
+  {<span class="nv">Γ</span> <span class="nv">Δ</span> : C} (<span class="nv">s</span> : Δ --&gt; Γ) (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  : z_iso (C := fiber_category _ _)
+      (((pr1 Π) Γ A B) [[ s ]])
+      ((pr1 Π) Δ (A [[ s ]]) (B [[ comp_cat_ext_subst s A ]]))
+  := pr1 (pr22 (pr222 Π)) Γ Δ s A B.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_pi_sub_lam</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Π</span> : comp_cat_pi C}
+  {<span class="nv">Γ</span> <span class="nv">Δ</span> : C} (<span class="nv">s</span> : Δ --&gt; Γ) (<span class="nv">A</span> : comp_cat_ty Γ) (<span class="nv">B</span> : comp_cat_ty (Γ &amp; A))
+  (<span class="nv">b</span> : comp_cat_tm B)
+  (<span class="nv">sA</span> := comp_cat_ext_subst s A)
+  (<span class="nv">i</span>  := comp_cat_pi_sub_iso s A B)
+  : comp_cat_pi_lam (b [[ sA ]]tm) ↑ inv_from_z_iso i
+    = (comp_cat_pi_lam b) [[ s ]]tm
+  := pr2 (pr22 (pr222 Π)) Γ Δ s A B b.
+
+
+<span class="sd">(** * 3. Unit types for comprehension categories *)</span>
+
+<span class="kn">Section</span> <span class="nf">Unit_For_Comp_Cat</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : comp_cat).
+
+  <span class="c">(* Formation: Γ ⊢ 1 type *)</span>
+  <span class="kn">Definition</span> <span class="nf">unit_form</span> : UU :=
+    ∏ (Γ : C), comp_cat_ty Γ.
+
+  <span class="c">(* Introduction: Γ ⊢ tt : 1 *)</span>
+  <span class="kn">Definition</span> <span class="nf">unit_intro_data</span> (<span class="nv">One</span> : unit_form) : UU :=
+    ∏ (Γ : C), comp_cat_tm (One Γ).
+
+  <span class="c">(* Uniqueness of tt *)</span>
+  <span class="kn">Definition</span> <span class="nf">unit_uniqueness</span>
+    (<span class="nv">One</span> : unit_form)
+    (<span class="nv">tt</span>  : unit_intro_data One) : UU :=
+    ∏ (Γ : C) (u : comp_cat_tm (One Γ)), u = tt Γ.
+
+  <span class="c">(* Stability under reindexing: 1[s] ≃ 1 *)</span>
+  <span class="kn">Definition</span> <span class="nf">unit_sub_iso</span> (<span class="nv">One</span> : unit_form) : UU :=
+    ∏ (Γ Δ : C) (s : Γ --&gt; Δ),
+      z_iso (C := fiber_category _ _) ((One Δ) [[ s ]]) (One Γ).
+
+  <span class="kn">Definition</span> <span class="nf">comp_cat_unit</span> : UU :=
+    ∑ (One    : unit_form),
+      ∑ (tt     : unit_intro_data One),
+      ∑ (uniq   : unit_uniqueness One tt),
+      unit_sub_iso One.
+
+  <span class="kn">Coercion</span> <span class="nf">unit_ty_from_unit</span> (Unit : comp_cat_unit) : unit_form := pr1 Unit.
+
+<span class="kn">End</span> <span class="nf">Unit_For_Comp_Cat</span>.
+
+<span class="sd">(** Accessors for comp_cat_unit *)</span>
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_unit_tt</span>
+  {<span class="nv">C</span> : comp_cat} (<span class="nv">Unit</span> : comp_cat_unit C)
+  (<span class="nv">Γ</span> : C)
+  : comp_cat_tm ((pr1 Unit) Γ)
+  := pr12 Unit Γ.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_unit_unique</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Unit</span> : comp_cat_unit C}
+  {<span class="nv">Γ</span> : C} (<span class="nv">u</span> : comp_cat_tm ((pr1 Unit) Γ))
+  : u = comp_cat_unit_tt _ Γ
+  := pr122 Unit Γ u.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_unit_sub_iso</span>
+  {<span class="nv">C</span> : comp_cat} (<span class="nv">Unit</span> : comp_cat_unit C)
+  {<span class="nv">Γ</span> <span class="nv">Δ</span> : C} (<span class="nv">s</span> : Γ --&gt; Δ)
+  : z_iso (C := fiber_category _ _) (((pr1 Unit) Δ) [[ s ]]) ((pr1 Unit) Γ)
+  := pr222 Unit Γ Δ s.
+
+<span class="sd">(** deriving elimination, computation and stabilities under substitution  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_tt_is_iso</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Unit</span> : comp_cat_unit C}
+  (<span class="nv">Γ</span> : C):
+  π _ · comp_cat_unit_tt Unit Γ = identity _.
+<span class="kn">Proof</span>.
+  use comp_cat_mor_into_ext_eq.
+  - <span class="kp">abstract</span> (<span class="nb">rewrite</span> assoc';
+              etrans; [ <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> (pr2 (comp_cat_unit_tt _ Γ)) | ];
+              <span class="nb">rewrite</span> id_right, id_left;
+              <span class="nb">apply</span> idpath).
+  - use (iscontr_tm_of_iso _ (z_iso_inv (comp_cat_unit_sub_iso _ _))).
+    use tpair.
+    + <span class="bp">exact</span> (comp_cat_unit_tt _ (Γ &amp; (pr1 Unit) Γ)).
+    + <span class="nb">intro</span> u. <span class="bp">exact</span> (comp_cat_unit_unique u).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_unit_unique_mor</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Unit</span> : comp_cat_unit C}
+  {<span class="nv">Γ</span> : C} (<span class="nv">u</span> : Γ --&gt; Γ &amp; _)
+  ( <span class="nv">p</span> : u · π _ = identity _)
+  : u = comp_cat_unit_tt Unit Γ
+  := maponpaths pr1 (comp_cat_unit_unique (u ,, p)).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_unit_ind</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Unit</span> : comp_cat_unit C}
+  {<span class="nv">Γ</span> : C} (<span class="nv">Cty</span> : comp_cat_ty (Γ &amp; ((pr1 Unit) Γ)))
+  (<span class="nv">c</span> : comp_cat_tm (Cty [[ comp_cat_unit_tt _ Γ ]]))
+  : comp_cat_tm Cty.
+<span class="kn">Proof</span>.
+  use make_comp_cat_tm.
+  - <span class="bp">exact</span> (π _ · c · comp_cat_ext_subst (comp_cat_unit_tt _ _) Cty).
+  - <span class="kp">abstract</span> (<span class="nb">rewrite</span> assoc';
+              <span class="nb">rewrite</span> comp_cat_ext_subst_commute;
+              <span class="nb">rewrite</span> assoc;
+              <span class="nb">rewrite</span> assoc4;
+              etrans; [ <span class="nb">apply</span> maponpaths_2; <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> (pr2 c) | ];
+              <span class="nb">rewrite</span> id_right;
+              <span class="nb">apply</span> comp_cat_tt_is_iso).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_unit_comp</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Unit</span> : comp_cat_unit C}
+  {<span class="nv">Γ</span> : C} (<span class="nv">Cty</span> : comp_cat_ty (Γ &amp; ((pr1 Unit) Γ)))
+  (<span class="nv">c</span> : comp_cat_tm (Cty [[ comp_cat_unit_tt _ Γ ]]))
+  : comp_cat_unit_ind Cty c [[ comp_cat_unit_tt _ Γ ]]tm = c.
+<span class="kn">Proof</span>.
+  use comp_cat_tm_eq.
+  <span class="nb">refine</span> (!_).
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
+  - <span class="nb">unfold</span> comp_cat_unit_ind.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span>  <span class="nb">apply</span> maponpaths_2.
+         <span class="nb">refine</span> (!_).
+         <span class="nb">apply</span> (pr2 (comp_cat_unit_tt _ Γ)). }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> (pr2 c).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_unit_sub_tt</span>
+  {<span class="nv">C</span> : comp_cat} (<span class="nv">Unit</span> : comp_cat_unit C)
+  {<span class="nv">Γ</span> <span class="nv">Δ</span> : C} (<span class="nv">s</span> : Γ --&gt; Δ)
+  : comp_cat_unit_tt Unit Δ [[ s ]]tm · comp_cat_comp_mor (⌈comp_cat_unit_sub_iso _ s⌉) =
+      comp_cat_unit_tt _ Γ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (comp_cat_unit_unique_mor _ _).
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">rewrite</span> comp_cat_comp_mor_law.
+  <span class="bp">exact</span> (pr2 ((comp_cat_unit_tt _ Δ) [[s]]tm)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comp_cat_unit_tt_ext_path</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Unit</span> : comp_cat_unit C}
+  {<span class="nv">Γ</span> <span class="nv">Δ</span> : C} (<span class="nv">s</span> : Γ --&gt; Δ)
+  (<span class="nv">ttΔ</span> := comp_cat_unit_tt Unit Δ)
+  (<span class="nv">usubtt</span> := comp_cat_unit_sub_tt Unit s)
+  (<span class="nv">uiso</span> := comp_cat_unit_sub_iso Unit s)
+  : s · comp_cat_unit_tt _ Δ =
+      comp_cat_unit_tt _ Γ
+        · comp_cat_comp_mor (⌈comp_cat_unit_sub_iso Unit s⌉⁻¹)
+        · comp_cat_ext_subst s ((pr1 Unit) Δ).
+<span class="kn">Proof</span>.
+  etrans. { <span class="nb">refine</span> (!_). <span class="nb">apply</span> (comp_cat_ext_subst_term_commute s _ (ttΔ)). }
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> &lt;- usubtt.
+  <span class="nb">rewrite</span> assoc'.
+  etrans. <span class="mi">2</span> : { <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> (comp_cat_comp_mor_z_iso_inv_after_z_iso uiso). }
+        <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_unit_sub_elim</span>
+  {<span class="nv">C</span> : comp_cat} {<span class="nv">Unit</span> : comp_cat_unit C}
+  {<span class="nv">Γ</span> <span class="nv">Δ</span> : C} (<span class="nv">s</span> : Γ --&gt; Δ)
+  (<span class="nv">Cty</span> : comp_cat_ty (Δ &amp; ((pr1 Unit) Δ)))
+  (<span class="nv">d</span> : comp_cat_tm (Cty [[ comp_cat_unit_tt _ Δ ]]))
+  (<span class="nv">s1</span> := comp_cat_comp_mor (⌈comp_cat_unit_sub_iso _ s⌉⁻¹)
+           · comp_cat_ext_subst s ((pr1 Unit) Δ))
+  (<span class="nv">p</span> := pathscomp0 (comp_cat_unit_tt_ext_path s)
+          (! assoc (comp_cat_unit_tt _ Γ) _ _))
+  (<span class="nv">icompiso</span> := comp_cat_subst_ty_eq_comp_iso Cty p)
+  : comp_cat_unit_ind Cty d [[ s1 ]]tm =
+      comp_cat_unit_ind (Cty [[ s1 ]]) (d [[ s ]]tm ↑ ⌈icompiso⌉).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> comp_cat_unit_ind.
+  use comp_cat_tm_eq.
+  <span class="nb">refine</span> (!_).
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
+  - <span class="nb">cbn</span> -[ <span class="s2">"_ [[ _ ]]tm"</span> comp_cat_ext_subst comp_cat_subst_ty_eq_comp_iso].
+    <span class="nb">unfold</span> s1.
+    <span class="nb">set</span> (q := comp_cat_comp_mor (⌈comp_cat_unit_sub_iso _ s⌉⁻¹)
+                · comp_cat_ext_subst s (pr1 Unit Δ)).
+    <span class="nb">change</span> (comprehension_functor_mor q
+              (mor_disp_of_cartesian_lift _ _ (cleaving_of_types C _ _ q Cty)))
+      <span class="k">with</span> (comp_cat_ext_subst q Cty).
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> &lt;- (comp_cat_ext_subst_comp' Cty (comp_cat_unit_tt _ Γ) q).
+    <span class="nb">unfold</span> icompiso.
+    <span class="nb">assert</span> (h : q · π (pr1 Unit Δ) = π (pr1 Unit Γ) · s).
+    { <span class="nb">unfold</span> q.
+      <span class="nb">rewrite</span> assoc'.
+      etrans.
+      { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> comp_cat_ext_subst_commute. }
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comp_cat_comp_mor_law. }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2. <span class="nb">refine</span> (!_). <span class="bp">exact</span> h. }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (_ @ ! comp_cat_extend_subst_subst s (comp_cat_unit_tt _ Δ) d).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> assoc4.
+    <span class="nb">rewrite</span> &lt;- comp_cat_comp_mor_comp'.
+    <span class="nb">rewrite</span> comp_cat_subst_ty_eq_comp_iso_comp.
+    <span class="nb">rewrite</span> comp_cat_comp_mor_comp'.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">refine</span> (! comp_cat_extend_subst_eq p
+              (d [[s]]tm ↑ ⌈comp_cat_subst_ty_comp_iso Cty (comp_cat_unit_tt _ Δ) s⌉)).
+  - <span class="bp">exact</span> (pr2 (make_comp_cat_tm (π (pr1 Unit Γ) · d [[s ]]tm ↑ ⌈ icompiso ⌉ · comp_cat_ext_subst (comp_cat_unit_tt _ Γ) (Cty [[s1]]))
+                  (comp_cat_unit_ind_subproof C Unit Γ (Cty [[s1]]) (d [[s ]]tm ↑ ⌈ icompiso ⌉)))).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/ComprehensionCats/CompCatTypeFormers.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

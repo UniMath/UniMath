@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UnitLayer.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">This is the first of a sequence of files with the purpose of showing that the bicategory of univalent monoidal categories is again univalent.</span>
+<span class="c">In this file we construct one side of the first displayed layer above the bicategory of univalent categories, more precisely:</span>
+<span class="c">The total category corresponding to this displayed layer is the univalent bicategory defined as followed:</span>
+<span class="c">- The objects are categories together with a fixed object (which will be the unit for the monoidal structure).</span>
+<span class="c">- The morphisms are functors which preserve the unit in a lax/weak sense (i.e. a non-necessarily isomorphic morphism).</span>
+<span class="c">- The 2-cells are natural transformations which (at the unit) preserve the morphisms for source and target functor.</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Section</span> <span class="nf">UnitLayer</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_unit_disp_ob_mor</span> : disp_cat_ob_mor bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">C</span>, <span class="nv">ob</span> (C : univalent_category)).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">IC</span> <span class="nv">ID</span> <span class="nv">F</span>, (D : univalent_category)⟦ID, (pr1 F) IC⟧).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_unit_disp_cat_data</span> : disp_cat_data bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">disp_unit_disp_ob_mor</span>.
+    use tpair.
+    - <span class="nb">intros</span> C I.
+      <span class="nb">apply</span> identityfunctor_preserves_unit.
+    - <span class="nb">intros</span> C D E F G IC ID IE puF puG.
+      <span class="nb">apply</span> (composition_preserves_unit puF puG).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_unit_disp_2cell_struct</span> : disp_2cell_struct disp_unit_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C D F G α IC ID puF puG.
+    <span class="nb">apply</span> (preservesunit_commutes puF puG α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_bidisp_unit_disp_2cell_struct</span>
+        {<span class="nv">C</span> <span class="nv">D</span> : bicat_of_univ_cats}
+        {<span class="nv">F</span> <span class="nv">G</span> : bicat_of_univ_cats ⟦C,D⟧ }
+        {<span class="nv">α</span> : prebicat_cells bicat_of_univ_cats F G}
+        {<span class="nv">IC</span> : disp_unit_disp_cat_data C}
+        {<span class="nv">ID</span> : disp_unit_disp_cat_data D}
+        (<span class="nv">puF</span> : IC --&gt;[ F] ID)
+        (<span class="nv">puG</span> : IC --&gt;[ G] ID)
+    : isaprop (bidisp_unit_disp_2cell_struct C D F G α IC ID puF puG).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_preservesunit_commutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_unit_disp_prebicat_1_id_comp_cells</span> : disp_prebicat_1_id_comp_cells bicat_of_univ_cats
+    := (disp_unit_disp_cat_data,, bidisp_unit_disp_2cell_struct).
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_unit_disp_prebicat_ops</span> : disp_prebicat_ops bidisp_unit_disp_prebicat_1_id_comp_cells.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">cbn</span>; <span class="nb">unfold</span> bidisp_unit_disp_2cell_struct.
+    - <span class="nb">intros</span> C D F IC ID puF.
+      <span class="nb">apply</span> identitynattrans_preservesunit_commutes.
+    - <span class="nb">intros</span> C D F IC ID puF.
+      etrans. { <span class="nb">apply</span> id_right. }
+      etrans. {
+        <span class="nb">unfold</span> composition_preserves_unit.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> functor_id.
+      }
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">intros</span> C D F IC ID puF.
+          etrans. { <span class="nb">apply</span> id_right. }
+          <span class="nb">apply</span> id_left.
+    - <span class="nb">intros</span> C D F IC ID puF.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> functor_id.
+    - <span class="nb">intros</span> C D F IC ID puF.
+      etrans. { <span class="nb">apply</span> id_right. }
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">intros</span> C D E W F G H IC ID IE IW puF puG puH.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> bidisp_unit_disp_2cell_struct.
+      <span class="nb">cbn</span>.
+      etrans. { <span class="nb">apply</span> id_right. }
+      etrans. {
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">apply</span> functor_comp.
+      }
+      etrans. { <span class="nb">apply</span> assoc. }
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> C D E W F G H IC ID IE IW puF puG puH.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> bidisp_unit_disp_2cell_struct.
+      <span class="nb">cbn</span>.
+      etrans.  { <span class="nb">apply</span> id_right. }
+      etrans. { <span class="nb">apply</span> assoc'. }
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> functor_comp.
+    - <span class="nb">intros</span> C D F G H α β IC ID puF puG puH pucα pucβ.
+      etrans. { <span class="nb">apply</span> assoc. }
+      etrans. {
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> pucα.
+      }
+      <span class="nb">apply</span> pucβ.
+    - <span class="nb">intros</span> C D E F G H α IC ID IE puF puG puH pucα.
+      etrans. { <span class="nb">apply</span> assoc'. }
+      etrans. {
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">apply</span> (pr2 α).
+      }
+      etrans. { <span class="nb">apply</span> assoc. }
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> pucα.
+    - <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">intros</span> C D E F G H α IC ID IE puF puG puH pucα.
+      etrans. { <span class="nb">apply</span> assoc'. }
+      etrans. {
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (pathsinv0 (functor_comp _ _ _)).
+      }
+      <span class="nb">unfold</span> composition_preserves_unit.
+      <span class="nb">unfold</span> preservesunit_commutes <span class="k">in</span> pucα.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pucα.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_unit_disp_prebicat_data</span> : disp_prebicat_data bicat_of_univ_cats
+    := (bidisp_unit_disp_prebicat_1_id_comp_cells,, bidisp_unit_disp_prebicat_ops).
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_unit_disp_prebicat_laws</span> : disp_prebicat_laws bidisp_unit_disp_prebicat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> isaprop_bidisp_unit_disp_2cell_struct.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_unit_disp_prebicat</span> : disp_prebicat bicat_of_univ_cats
+    := (bidisp_unit_disp_prebicat_data,,bidisp_unit_disp_prebicat_laws).
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_unit_disp_bicat</span> : disp_bicat bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (bidisp_unit_disp_prebicat,, _).
+    <span class="nb">intros</span> C D F G α IC ID puF puG.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> univalent_category_has_homsets.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">bidisp_unit_disp_prebicat_is_locally_univalent</span> : disp_univalent_2_1 bidisp_unit_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fiberwise_local_univalent_is_univalent_2_1.
+    <span class="nb">intros</span> C D F IC ID puF puG.
+    <span class="nb">apply</span> isweqimplimpl.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> α.
+      <span class="nb">pose</span> (pr1 α) <span class="k">as</span> d.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">unfold</span> bidisp_unit_disp_2cell_struct <span class="k">in</span> *.
+      <span class="nb">unfold</span> preservesunit_commutes <span class="k">in</span> d.
+      <span class="nb">rewrite</span> id_right <span class="k">in</span> d.
+      <span class="bp">exact</span> d.
+    - <span class="nb">apply</span> univalent_category_has_homsets.
+    - <span class="nb">apply</span> invproofirrelevance.
+      <span class="nb">intro</span> ; <span class="nb">intro</span>.
+      use subtypePath.
+      + <span class="nb">intro</span> x0.
+        <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+      + <span class="nb">apply</span> univalent_category_has_homsets.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dispadjequiv_to_iso</span> (<span class="nv">C</span> : bicat_of_univ_cats) (<span class="nv">IC</span> <span class="nv">ID</span> : bidisp_unit_disp_bicat C) :
+       disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) IC ID -&gt; z_iso IC ID.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> equalunits.
+    <span class="nb">induction</span> equalunits <span class="k">as</span> [f adj].
+    <span class="nb">induction</span> adj <span class="k">as</span> [data [ladj_ax weq_ax]].
+    <span class="nb">induction</span> data <span class="k">as</span> [finv [dunit dcounit]].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> functor_identity <span class="k">in</span> dunit.
+    <span class="nb">unfold</span> nat_trans_id <span class="k">in</span> dunit.
+    <span class="nb">cbn</span> <span class="k">in</span> dunit.
+
+    <span class="k">exists</span> <span class="nv">finv</span>.
+    <span class="k">exists</span> <span class="nv">f</span>.
+    <span class="nb">split</span>.
+    - etrans. { <span class="nb">apply</span> (pathsinv0 dunit). }
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> pathsinv0.
+      etrans. { <span class="nb">apply</span> (pathsinv0 dcounit). }
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iso_to_dispadjequiv</span> (<span class="nv">C</span> : bicat_of_univ_cats) (<span class="nv">IC</span> <span class="nv">ID</span> : bidisp_unit_disp_bicat C) :
+    z_iso IC ID -&gt; disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) IC ID.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> i.
+    <span class="nb">induction</span> i <span class="k">as</span> [finv [f [li ri]]].
+    <span class="nb">split with</span> f.
+    <span class="nb">unfold</span> disp_left_adjoint_equivalence.
+    <span class="kp">repeat</span> (use tpair); <span class="kp">try</span> <span class="nb">apply</span> univalent_category_has_homsets.
+    - <span class="bp">exact</span> finv.
+    - etrans. { <span class="nb">apply</span> id_left. }
+      <span class="bp">exact</span> (! li).
+    - etrans. {
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> ri.
+      }
+      <span class="nb">apply</span> id_right.
+    - etrans. {
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> li.
+      }
+      <span class="nb">apply</span> id_left.
+    - etrans. { <span class="nb">apply</span> id_left. }
+      <span class="bp">exact</span> (! ri).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iso_dispadjequiv_equivalence</span> (<span class="nv">C</span> : bicat_of_univ_cats) (<span class="nv">IC</span> <span class="nv">ID</span> : bidisp_unit_disp_bicat C) :
+    z_iso IC ID ≃ disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) IC ID.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="nb">apply</span> iso_to_dispadjequiv.
+    - use isweq_iso.
+      + <span class="nb">apply</span> dispadjequiv_to_iso.
+      + <span class="nb">intro</span> i.
+        <span class="nb">induction</span> i.
+        use subtypePath.
+        * <span class="nb">intro</span> f.
+          <span class="nb">apply</span> isaprop_is_z_isomorphism.
+        * <span class="nb">apply</span> idpath.
+      + <span class="nb">intro</span> adjequiv.
+        <span class="nb">induction</span> adjequiv.
+        use subtypePath.
+        * <span class="nb">intro</span> f.
+          <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence.
+          -- <span class="nb">apply</span> univalent_cat_is_univalent_2_1.
+          -- <span class="nb">apply</span> bidisp_unit_disp_prebicat_is_locally_univalent.
+        * <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">bidisp_unit_disp_prebicat_is_globally_univalent</span> : disp_univalent_2_0 bidisp_unit_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C D equalcats IC ID.
+    <span class="nb">induction</span> equalcats.
+    use weqhomot.
+    - <span class="nb">set</span> (i1 := iso_dispadjequiv_equivalence C IC ID).
+      <span class="nb">set</span> (i3 := (_ ,, (pr2 C) IC ID)).
+      <span class="bp">exact</span> (i1 ∘ i3)%weq.
+    - <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p; <span class="nb">cbn</span>.
+      use subtypePath.
+      + <span class="nb">intro</span>; <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (@isaprop_disp_left_adjoint_equivalence bicat_of_univ_cats  bidisp_unit_disp_bicat).
+        * <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+        * <span class="bp">exact</span> bidisp_unit_disp_prebicat_is_locally_univalent.
+      + <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">bidisp_unit_disp_prebicat_is_univalent_2</span> : disp_univalent_2 bidisp_unit_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_disp_univalent_2.
+    - <span class="nb">apply</span> bidisp_unit_disp_prebicat_is_globally_univalent.
+    - <span class="nb">apply</span> bidisp_unit_disp_prebicat_is_locally_univalent.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_unit_disp_2cells_isaprop</span> : disp_2cells_isaprop bidisp_unit_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C D F G α IC ID puC puD.
+    <span class="nb">apply</span> isaprop_bidisp_unit_disp_2cell_struct.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_unit_disp_locally_groupoid</span> : disp_locally_groupoid bidisp_unit_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C D F G α IC ID puC puD puc.
+    use tpair.
+    - <span class="nb">set</span> (α_natiso := invertible_2cell_to_nat_z_iso F G α).
+      <span class="nb">set</span> (α_natisoIC := nat_z_iso_pointwise_z_iso α_natiso IC : z_iso (pr1 F IC) (pr1 G IC)).
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> bidisp_unit_disp_2cell_struct.
+      <span class="nb">red</span>.
+      <span class="nb">apply</span> pathsinv0, (z_iso_inv_on_left _ _ _ _ α_natisoIC).
+      <span class="bp">exact</span> (! puc).
+    - <span class="nb">split</span>; <span class="nb">apply</span> isaprop_bidisp_unit_disp_2cell_struct.
+  <span class="kn">Qed</span>.
+
+
+<span class="kn">End</span> <span class="nf">UnitLayer</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/UnivalenceMonCat/UnitLayer.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - The 2-cells are natural transformations which (at the unit) preserve the morphisms for source and target functor.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

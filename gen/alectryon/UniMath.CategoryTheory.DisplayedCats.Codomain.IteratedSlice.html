@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>IteratedSlice.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***********************************************************************************</span>
+
+<span class="sd"> Iterated slice categories</span>
+
+<span class="sd"> The slice construction can be iterated. More specifically, if we have a category `C`,</span>
+<span class="sd"> an object `y : C`, and a morphism `f : x --&gt; y`, then we can consider the slice</span>
+<span class="sd"> category `C/y/f`. This slice category is equivalent to a simpler one, namely `C/x`.</span>
+<span class="sd"> In this file, we construct this equivalence. In addition, if `C` has pullbacks, then</span>
+<span class="sd"> we characterize the fiber functor of the iterated slice category via the fiber functor</span>
+<span class="sd"> of the ordinary slice category. This allows us to conclude that preservation of colimits</span>
+<span class="sd"> for the pullback functor of the iterated slice category follows from preservation of</span>
+<span class="sd"> colimits for the pullback functor of ordinary slice categories</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Iterated slice categories</span>
+<span class="sd"> 2. Pullbacks in iterated slice categories</span>
+<span class="sd"> 3. Preservation of colimits by pullback in the iterated slice</span>
+
+<span class="sd"> ***********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.PreservationProperties.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Iterated slice categories *)</span>
+<span class="kn">Section</span> <span class="nf">IteratedSlice</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">y</span> : C}
+          (<span class="nv">xf</span> : C/y).
+
+  <span class="kn">Let</span> <span class="nf">x</span> : C := cod_dom xf.
+  <span class="kn">Let</span> <span class="nf">f</span> : x --&gt; y := cod_mor xf.
+
+  <span class="kn">Definition</span> <span class="nf">from_iterated_slice_data</span>
+    : functor_data (C/y/xf) (C/x).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">h</span>, make_cod_fib_ob (dom_mor (cod_mor h))).
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">h₁</span> <span class="nv">h₂</span> <span class="nv">p</span>, make_cod_fib_mor _ _).
+      + <span class="bp">exact</span> (dom_mor (dom_mor p)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">pose</span> (maponpaths pr1 (mor_eq p)) <span class="k">as</span> q ;
+           <span class="nb">cbn</span> <span class="k">in</span> q ;
+           <span class="nb">rewrite</span> transportf_cod_disp <span class="k">in</span> q ;
+           <span class="bp">exact</span> q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_functor_from_iterated_slice_data</span>
+    : is_functor from_iterated_slice_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> h.
+      use eq_mor_cod_fib ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> h₁ h₂ h₃ p q.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">simpl</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> comp_in_cod_fib.
+      }
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_iterated_slice</span>
+    : (C/y/xf) ⟶ (C/x).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> from_iterated_slice_data.
+    - <span class="bp">exact</span> is_functor_from_iterated_slice_data.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_iterated_slice_data</span>
+    : functor_data (C / x) (C / y / xf).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">h</span>, make_cod_fib_ob _).
+      + use make_cod_fib_ob.
+        * <span class="bp">exact</span> (cod_dom h).
+        * <span class="bp">exact</span> (cod_mor h · f).
+      + use make_cod_fib_mor.
+        * <span class="bp">exact</span> (cod_mor h).
+        * <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">apply</span> idpath).
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">h₁</span> <span class="nv">h₂</span> <span class="nv">p</span>, make_cod_fib_mor _ _).
+      + use make_cod_fib_mor.
+        * <span class="bp">exact</span> (dom_mor p).
+        * <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> (mor_eq p) ;
+             <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (use eq_mor_cod_fib ;
+           <span class="nb">rewrite</span> comp_in_cod_fib ;
+           <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (mor_eq p)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_functor_to_iterated_slice_data</span>
+    : is_functor to_iterated_slice_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> h.
+      use eq_mor_cod_fib.
+      use eq_mor_cod_fib ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> h₁ h₂ h₃ p q.
+      use eq_mor_cod_fib.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      etrans.
+      {
+        <span class="nb">simpl</span>.
+        <span class="nb">apply</span> comp_in_cod_fib.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> comp_in_cod_fib.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_iterated_slice</span>
+    : (C/x) ⟶ (C/y/xf).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> to_iterated_slice_data.
+    - <span class="bp">exact</span> is_functor_to_iterated_slice_data.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iterated_slice_unit</span>
+    : functor_identity _
+      ⟹
+      from_iterated_slice ∙ to_iterated_slice.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">h</span>, make_cod_fib_mor _ _).
+      + use make_cod_fib_mor.
+        * <span class="nb">apply</span> identity.
+        * <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> id_left ;
+             <span class="bp">exact</span> (mor_eq (cod_mor h))).
+      + <span class="kp">abstract</span>
+          (use eq_mor_cod_fib ;
+           <span class="nb">rewrite</span> comp_in_cod_fib ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> id_left).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> h₁ h₂ p ;
+         use eq_mor_cod_fib ;
+         use eq_mor_cod_fib ;
+         <span class="nb">rewrite</span> !comp_in_cod_fib ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_left, id_right ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iterated_slice_counit</span>
+    : to_iterated_slice ∙ from_iterated_slice
+      ⟹
+      functor_identity _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">h</span>, make_cod_fib_mor _ _).
+      + <span class="nb">apply</span> identity.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">apply</span> id_left).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> h₁ h₂ p ;
+         use eq_mor_cod_fib ;
+         <span class="nb">rewrite</span> !comp_in_cod_fib ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_left, id_right ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iterated_slice_equivalence_of_cats</span>
+    : equivalence_of_cats (C/y/xf) (C/x).
+  <span class="kn">Proof</span>.
+    use make_equivalence_of_cats.
+    - use make_adjunction_data.
+      + <span class="bp">exact</span> from_iterated_slice.
+      + <span class="bp">exact</span> to_iterated_slice.
+      + <span class="bp">exact</span> iterated_slice_unit.
+      + <span class="bp">exact</span> iterated_slice_counit.
+    - use make_forms_equivalence.
+      + <span class="nb">intro</span> h.
+        use is_z_iso_fiber_from_is_z_iso_disp.
+        use is_z_iso_disp_codomain.
+        use is_z_iso_fiber_from_is_z_iso_disp.
+        use is_z_iso_disp_codomain.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> is_z_isomorphism_identity.
+      + <span class="nb">intro</span> h.
+        use is_z_iso_fiber_from_is_z_iso_disp.
+        use is_z_iso_disp_codomain.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> is_z_isomorphism_identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_iterated_slice_adj_equivalence_of_cats</span>
+    : adj_equivalence_of_cats from_iterated_slice
+    := adjointification iterated_slice_equivalence_of_cats.
+<span class="kn">End</span> <span class="nf">IteratedSlice</span>.
+
+<span class="sd">(** * 2. Pullbacks in iterated slice categories *)</span>
+<span class="kn">Section</span> <span class="nf">IteratedSlicePB</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">PB</span> : Pullbacks C)
+          {<span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+          {<span class="nv">xf₁</span> <span class="nv">xf₂</span> : C/y₁}
+          (<span class="nv">h</span> : xf₁ --&gt; xf₂).
+
+  <span class="kn">Let</span> <span class="nf">PB₁</span> : Pullbacks (C/y₁) := codomain_fiberwise_pullbacks PB _.
+
+  <span class="kn">Definition</span> <span class="nf">iterated_slice_pb_nat_trans_data</span>
+    : nat_trans_data
+        (cod_pb PB₁ h ∙ from_iterated_slice xf₁)
+        (from_iterated_slice xf₂ ∙ cod_pb PB (dom_mor h)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> g.
+    use make_cod_fib_mor.
+    - <span class="nb">apply</span> identity.
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> id_left).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">iterated_slice_pb_nat_trans_laws</span>
+    : is_nat_trans _ _ iterated_slice_pb_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> g₁ g₂ p.
+    use eq_mor_cod_fib.
+    <span class="nb">rewrite</span> !comp_in_cod_fib.
+    <span class="nb">refine</span> (id_right _ @ _ @ !(id_left _)).
+    <span class="nb">cbn</span> -[cod_pb].
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (maponpaths dom_mor (cod_fiber_functor_on_mor PB₁ h p)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (cod_fiber_functor_on_mor PB (dom_mor h) _).
+    }
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - <span class="nb">refine</span> (PullbackArrow_PullbackPr1 _ _ _ _ _ @ _ @ !(PullbackArrow_PullbackPr1 _ _ _ _ _)).
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="bp">exact</span> (PullbackArrow_PullbackPr2 _ _ _ _ _ @ !(PullbackArrow_PullbackPr2 _ _ _ _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iterated_slice_pb_nat_trans</span>
+    : cod_pb PB₁ h ∙ from_iterated_slice xf₁
+      ⟹
+      from_iterated_slice xf₂ ∙ cod_pb PB (dom_mor h).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> iterated_slice_pb_nat_trans_data.
+    - <span class="bp">exact</span> iterated_slice_pb_nat_trans_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iterated_slice_pb_nat_z_iso</span>
+    : nat_z_iso
+        (cod_pb PB₁ h ∙ from_iterated_slice xf₁)
+        (from_iterated_slice xf₂ ∙ cod_pb PB (dom_mor h)).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - <span class="bp">exact</span> iterated_slice_pb_nat_trans.
+    - <span class="nb">intro</span> k.
+      use is_z_iso_fiber_from_is_z_iso_disp.
+      use is_z_iso_disp_codomain.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> is_z_isomorphism_identity.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. Preservation of colimits by pullback in the iterated slice *)</span>
+  <span class="kn">Definition</span> <span class="nf">preserves_initial_cod_pb_iterated</span>
+             (<span class="nv">H</span> : preserves_initial (cod_pb PB (dom_mor h)))
+    : preserves_initial (cod_pb PB₁ h)
+    := preserves_initial_equivalence_b
+         _ _
+         (from_iterated_slice_adj_equivalence_of_cats _)
+         (from_iterated_slice_adj_equivalence_of_cats _)
+         (cod_pb PB₁ h)
+         (cod_pb PB (dom_mor h))
+         iterated_slice_pb_nat_z_iso
+         H.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_bincoproduct_cod_pb_iterated</span>
+             (<span class="nv">H</span> : preserves_bincoproduct (cod_pb PB (dom_mor h)))
+    : preserves_bincoproduct (cod_pb PB₁ h)
+    := preserves_bincoproduct_equivalence_b
+         _ _
+         (from_iterated_slice_adj_equivalence_of_cats _)
+         (from_iterated_slice_adj_equivalence_of_cats _)
+         (cod_pb PB₁ h)
+         (cod_pb PB (dom_mor h))
+         iterated_slice_pb_nat_z_iso
+         H.
+<span class="kn">End</span> <span class="nf">IteratedSlicePB</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Codomain/IteratedSlice.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Preservation of colimits by pullback in the iterated slice
+  &gt;
+  &gt;  ***********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

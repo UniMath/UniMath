@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>GeneralizedSubstitutionSystems.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** a generalization of heterogeneous substitution systems to monoidal categories in place of endofunctor categories</span>
+
+<span class="sd">author: Ralph Matthes 2022</span>
+
+<span class="sd">Update in 2023: Instead of speaking about generalized heterogeneous substitution systems (short ghss), it seems better to call them monoidal heterogeneous substitution systems (short mhss). The name of the file stays the same.</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Actegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.CoproductsInActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.coslicecat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
+
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+<span class="c">(* Import ActegoryNotations. *)</span>
+
+<span class="kn">Section</span> <span class="nf">hss</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V).
+
+  <span class="kn">Local Definition</span> <span class="nf">PtdV</span> : category := coslice_cat_total V I_{Mon_V}.
+  <span class="kn">Local Definition</span> <span class="nf">Mon_PtdV</span> : monoidal PtdV := monoidal_pointed_objects Mon_V.
+  <span class="kn">Local Definition</span> <span class="nf">Act</span> : actegory Mon_PtdV V := actegory_with_canonical_pointed_action Mon_V.
+
+  <span class="kn">Context</span> (<span class="nv">H</span> : V ⟶ V).
+  <span class="kn">Context</span> (<span class="nv">θ</span> : pointedtensorialstrength Mon_V H).
+
+  <span class="kn">Section</span> <span class="nf">TheProperty</span>.
+
+    <span class="kn">Context</span> (<span class="nv">t</span> : V) (<span class="nv">η</span> : I_{Mon_V} --&gt; t) (<span class="nv">τ</span> : H t --&gt; t).
+
+  <span class="kn">Definition</span> <span class="nf">mbracket_property_parts</span> {<span class="nv">z</span> : V} (<span class="nv">e</span> : I_{Mon_V} --&gt; z) (<span class="nv">f</span> : z --&gt; t) (<span class="nv">h</span> : z ⊗_{Mon_V} t --&gt; t) : UU :=
+    (ru^{Mon_V}_{z} · f = z ⊗^{Mon_V}_{l} η · h) ×
+      (θ (z,,e) t · #H h · τ =  z ⊗^{Mon_V}_{l} τ · h).
+
+  <span class="kn">Definition</span> <span class="nf">mbracket_parts_at</span> {<span class="nv">z</span> : V} (<span class="nv">e</span> : I_{Mon_V} --&gt; z) (<span class="nv">f</span> : z --&gt; t) : UU :=
+    <span class="k">∃</span>! h : z ⊗_{Mon_V} t --&gt; t, mbracket_property_parts e f h.
+
+  <span class="kn">Definition</span> <span class="nf">mbracket</span> : UU :=
+    ∏ (Z : PtdV) (f : pr1 Z --&gt; t), mbracket_parts_at (pr2 Z) f.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_mbracket_property_parts</span> {<span class="nv">z</span> : V} (<span class="nv">e</span> : I_{Mon_V} --&gt; z) (<span class="nv">f</span> : z --&gt; t) (<span class="nv">h</span> : z ⊗_{Mon_V} t --&gt; t) :
+    isaprop (mbracket_property_parts e f h).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> V.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_mbracket</span> : isaprop mbracket.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> Z.
+    <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">PropertyAsOneEquation</span>.
+
+    <span class="kn">Context</span> (<span class="nv">CP</span> : BinCoproducts V).
+
+  <span class="kn">Definition</span> <span class="nf">Const_plus_H</span> (<span class="nv">v</span> : V) : functor V V := BinCoproduct_of_functors _ _ CP (constant_functor _ _ v) H.
+
+  <span class="kn">Definition</span> <span class="nf">mbracket_property_single</span> {<span class="nv">z</span> : V} (<span class="nv">e</span> : I_{Mon_V} --&gt; z) (<span class="nv">f</span> : z --&gt; t) (<span class="nv">h</span> : z ⊗_{Mon_V} t --&gt; t) : UU :=
+    actegory_bincoprod_antidistributor Mon_PtdV CP Act (z,,e) I_{Mon_V} (H t) ·
+      (z,,e) ⊗^{Act}_{l} (BinCoproductArrow (CP _ _) η τ) · h =
+    BinCoproductOfArrows _ (CP _ _) (CP _ _) (ru_{Mon_V} z) (θ (z,,e) t) ·
+      #(Const_plus_H z) h · BinCoproductArrow (CP _ _) f τ.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_mbracket_property_single</span> {<span class="nv">z</span> : V} (<span class="nv">e</span> : I_{Mon_V} --&gt; z) (<span class="nv">f</span> : z --&gt; t) (<span class="nv">h</span> : z ⊗_{Mon_V} t --&gt; t) :
+    isaprop (mbracket_property_single e f h).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> V.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">mbracket_property_single_equivalent</span> {<span class="nv">z</span> : V} (<span class="nv">e</span> : I_{Mon_V} --&gt; z) (<span class="nv">f</span> : z --&gt; t) (<span class="nv">h</span> : z ⊗_{Mon_V} t --&gt; t) :
+    mbracket_property_parts e f h &lt;-&gt; mbracket_property_single e f h.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> [Hη Hτ].
+      use BinCoproductArrowsEq.
+      + etrans.
+        { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> BinCoproductIn1Commutes. }
+        etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> pathsinv0, (functor_comp (leftwhiskering_functor Act (z,,e))). }
+        <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+        etrans.
+        <span class="mi">2</span>: { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+             <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+             <span class="nb">apply</span> pathsinv0, BinCoproductOfArrowsIn1. }
+        etrans.
+        { <span class="nb">apply</span> pathsinv0, Hη. }
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+             <span class="nb">apply</span> pathsinv0, BinCoproductOfArrowsIn1. }
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> pathsinv0, BinCoproductIn1Commutes.
+      + etrans.
+        { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> BinCoproductIn2Commutes. }
+        etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> pathsinv0, (functor_comp (leftwhiskering_functor Act (z,,e))). }
+        <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+        etrans.
+        <span class="mi">2</span>: { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+             <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+             <span class="nb">apply</span> pathsinv0, BinCoproductOfArrowsIn2. }
+        etrans.
+        { <span class="nb">apply</span> pathsinv0, Hτ. }
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+             <span class="nb">apply</span> pathsinv0, BinCoproductOfArrowsIn2. }
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, BinCoproductIn2Commutes.
+    - <span class="nb">intro</span> H1.
+      <span class="nb">split</span>.
+      + <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">m</span> =&gt; BinCoproductIn1 (CP _ _) · m)) <span class="k">in</span> H1.
+        <span class="nb">unfold</span> actegory_bincoprod_antidistributor, bifunctor_bincoprod_antidistributor, bincoprod_antidistributor <span class="k">in</span> H1.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> H1.
+        <span class="nb">rewrite</span> BinCoproductIn1Commutes <span class="k">in</span> H1.
+        <span class="nb">assert</span> (aux := functor_comp (leftwhiskering_functor Act (z,,e))
+                         (BinCoproductIn1 (CP I_{ Mon_V} (H t)))
+                         (BinCoproductArrow (CP I_{ Mon_V} (H t)) η τ)).
+        <span class="nb">cbn</span> <span class="k">in</span> aux.
+        <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">m</span> =&gt; m · h)) <span class="k">in</span> aux.
+        <span class="nb">assert</span> (H1' := aux @ H1).
+        <span class="nb">clear</span> H1 aux.
+        <span class="nb">rewrite</span> BinCoproductIn1Commutes <span class="k">in</span> H1'.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, H1'. }
+        <span class="nb">clear</span> H1'.
+        etrans.
+        <span class="mi">2</span>: { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+             <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+             <span class="nb">apply</span> pathsinv0, BinCoproductOfArrowsIn1. }
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+             <span class="nb">apply</span> pathsinv0, BinCoproductOfArrowsIn1. }
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> pathsinv0, BinCoproductIn1Commutes.
+      + <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">m</span> =&gt; BinCoproductIn2 (CP _ _) · m)) <span class="k">in</span> H1.
+        <span class="nb">unfold</span> actegory_bincoprod_antidistributor, bifunctor_bincoprod_antidistributor, bincoprod_antidistributor <span class="k">in</span> H1.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> H1.
+        <span class="nb">rewrite</span> BinCoproductIn2Commutes <span class="k">in</span> H1.
+        <span class="nb">assert</span> (aux := functor_comp (leftwhiskering_functor Act (z,,e))
+                         (BinCoproductIn2 (CP I_{ Mon_V} (H t)))
+                         (BinCoproductArrow (CP I_{ Mon_V} (H t)) η τ)).
+        <span class="nb">cbn</span> <span class="k">in</span> aux.
+        <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">m</span> =&gt; m · h)) <span class="k">in</span> aux.
+        <span class="nb">assert</span> (H1' := aux @ H1).
+        <span class="nb">clear</span> H1 aux.
+        <span class="nb">rewrite</span> BinCoproductIn2Commutes <span class="k">in</span> H1'.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, H1'. }
+        <span class="nb">clear</span> H1'.
+        etrans.
+        <span class="mi">2</span>: { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+             <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+             <span class="nb">apply</span> pathsinv0, BinCoproductOfArrowsIn2. }
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+             <span class="nb">apply</span> pathsinv0, BinCoproductOfArrowsIn2. }
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, BinCoproductIn2Commutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">PropertyAsOneEquation</span>.
+
+  <span class="kn">End</span> <span class="nf">TheProperty</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mhss</span> : UU := ∑ (t : V) (η : I_{Mon_V} --&gt; t) (τ : H t --&gt; t), mbracket t η τ.
+  <span class="kn">Coercion</span> <span class="nf">carriermhss</span> (t : mhss) : V := pr1 t.
+
+  <span class="kn">Section</span> <span class="nf">FixAMhss</span>.
+
+  <span class="kn">Context</span> (<span class="nv">gh</span> : mhss).
+
+  <span class="kn">Definition</span> <span class="nf">eta_from_alg</span> : I_{Mon_V} --&gt; gh := pr12 gh.
+  <span class="kn">Definition</span> <span class="nf">tau_from_alg</span> : H gh --&gt; gh := pr122 gh.
+
+  <span class="kn">Local Notation</span> <span class="nf">η</span> := eta_from_alg.
+  <span class="kn">Local Notation</span> <span class="nf">τ</span> := tau_from_alg.
+
+  <span class="kn">Definition</span> <span class="nf">Ptd_from_mhss</span> : PtdV := (pr1 gh,,η).
+
+  <span class="kn">Definition</span> <span class="nf">mfbracket</span> (<span class="nv">Z</span> : PtdV) (<span class="nv">f</span> : pr1 Z --&gt; gh) : pr1 Z ⊗_{Mon_V} gh --&gt; gh :=
+    pr1 (pr1 (pr222 gh Z f)).
+
+  <span class="kn">Notation</span> <span class="s2">"⦃ f ⦄_{ Z }"</span> := (mfbracket Z f)(<span class="kn">at level</span> <span class="mi">0</span>).
+
+  <span class="kn">Lemma</span> <span class="nf">mfbracket_unique</span> {<span class="nv">Z</span> : PtdV} (<span class="nv">f</span> : pr1 Z --&gt; gh)
+    : ∏ α : pr1 Z ⊗_{Mon_V} gh --&gt; gh, mbracket_property_parts gh η τ (pr2 Z) f α
+   → α = ⦃f⦄_{Z}.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> α Hyp.
+    <span class="nb">apply</span> path_to_ctr.
+    <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">mfbracket_η</span> {<span class="nv">Z</span> : PtdV} (<span class="nv">f</span> : pr1 Z --&gt; gh) :
+    ru^{Mon_V}_{pr1 Z} · f = pr1 Z ⊗^{Mon_V}_{l} η · ⦃f⦄_{Z}.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 ((pr2 (pr1 (pr222 gh Z f))))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">mfbracket_τ</span> {<span class="nv">Z</span> : PtdV} (<span class="nv">f</span> : pr1 Z --&gt; gh) :
+    θ Z gh · #H ⦃f⦄_{Z} · τ =  pr1 Z ⊗^{Mon_V}_{l} τ · ⦃f⦄_{Z}.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 ((pr2 (pr1 (pr222 gh Z f))))).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** there is a restricted form of naturality in the [f] argument, only for pointed [f] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">mfbracket_natural</span> {<span class="nv">Z</span> <span class="nv">Z'</span> : PtdV} (<span class="nv">f</span> : Z --&gt; Z') (<span class="nv">g</span> : pr1 Z' --&gt; gh) :
+    pr1 f ⊗^{ Mon_V}_{r} gh · ⦃g⦄_{Z'} = ⦃pr1 f · g⦄_{Z}.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> mfbracket_unique.
+    <span class="nb">split</span>.
+    - etrans.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc.
+           <span class="nb">apply</span> cancel_postcomposition.
+           <span class="nb">apply</span> (bifunctor_equalwhiskers Mon_V). }
+      <span class="nb">unfold</span> functoronmorphisms1.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc'.
+           <span class="nb">apply</span> maponpaths.
+           <span class="nb">apply</span> mfbracket_η. }
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> pathsinv0, monoidal_rightunitornat.
+    - etrans.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc.
+           <span class="nb">apply</span> cancel_postcomposition.
+           <span class="nb">apply</span> (bifunctor_equalwhiskers Mon_V). }
+      <span class="nb">unfold</span> functoronmorphisms1.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc'.
+           <span class="nb">apply</span> maponpaths.
+           <span class="nb">apply</span> mfbracket_τ. }
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> pathsinv0, (lineator_linnatright Mon_PtdV Act Act).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** As a consequence of naturality, we can compute [mfbracket f] from [mfbracket identity] for</span>
+<span class="sd">      pointed morphisms [f] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">compute_mfbracket</span> {<span class="nv">Z</span> : PtdV} (<span class="nv">f</span> : Z --&gt; Ptd_from_mhss) :
+    ⦃pr1 f⦄_{Z} = pr1 f ⊗^{ Mon_V}_{r} gh · ⦃identity gh⦄_{Ptd_from_mhss}.
+  <span class="kn">Proof</span>.
+    etrans.
+    { <span class="nb">rewrite</span> &lt;- (id_right (pr1 f)).
+      <span class="nb">apply</span> pathsinv0, mfbracket_natural. }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** we are constructing a monoid in the monoidal base category *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">mu_from_mhss</span> : gh ⊗_{Mon_V} gh --&gt; gh := ⦃identity gh⦄_{Ptd_from_mhss}.
+
+  <span class="kn">Local Notation</span> <span class="nf">μ</span> := mu_from_mhss.
+
+  <span class="kn">Definition</span> <span class="nf">μ_0</span> : I_{Mon_V} --&gt; gh := η.
+
+  <span class="kn">Definition</span> <span class="nf">μ_0_Ptd</span> : I_{Mon_PtdV} --&gt; Ptd_from_mhss.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">μ_0</span>.
+    <span class="nb">cbn</span>. <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">μ_1</span> : I_{Mon_V} ⊗_{Mon_V} gh --&gt; gh := ⦃μ_0⦄_{I_{Mon_PtdV}}.
+
+  <span class="kn">Lemma</span> <span class="nf">μ_1_is_instance_of_left_unitor</span> : μ_1 = lu^{Mon_V}_{gh}.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0, (mfbracket_unique(Z:=I_{Mon_PtdV})).
+    <span class="nb">split</span>.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> monoidal_leftunitornat.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> pathsinv0, unitors_coincide_on_unit.
+    - <span class="nb">rewrite</span> monoidal_leftunitornat.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> pointedtensorialstrength_preserves_unitor.
+      <span class="nb">apply</span> lineator_preservesunitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mhss_monoid_data</span> : monoid_data Mon_V gh := μ,,μ_0.
+
+  <span class="kn">Lemma</span> <span class="nf">mhss_monoid_unit_right</span> : monoid_laws_unit_right Mon_V mhss_monoid_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- id_right.
+    <span class="nb">apply</span> (! mfbracket_η (Z:=Ptd_from_mhss) _).
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">mhss_monoid_unit_left_aux</span> :
+    ru^{Mon_V}_{I_{Mon_V}} · η = I_{Mon_V} ⊗^{Mon_V}_{l} η · (η ⊗^{Mon_V}_{r} gh · μ).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc, &lt;- monoidal_rightunitornat, &lt;- mhss_monoid_unit_right, assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> (bifunctor_equalwhiskers Mon_V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">mhss_monoid_unit_left</span> : monoid_laws_unit_left Mon_V mhss_monoid_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- μ_1_is_instance_of_left_unitor.
+    <span class="nb">apply</span> (mfbracket_unique(Z:=I_{Mon_PtdV})).
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> mhss_monoid_unit_left_aux.
+    - <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">transitivity</span> (μ_0 ⊗^{ Mon_V}_{r} H (pr1 gh) · θ Ptd_from_mhss (pr1 gh) · # H μ · τ). <span class="c">(* give this term due to efficiency problems *)</span>
+      { <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> (!lineator_linnatright _ _ _ _ θ _ _ _ μ_0_Ptd).
+      }
+      etrans.
+      { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> (mfbracket_τ(Z:=Ptd_from_mhss)).
+      }
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> (bifunctor_equalwhiskers Mon_V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mh_squared</span> : PtdV := Ptd_from_mhss ⊗_{Mon_PtdV} Ptd_from_mhss.
+
+  <span class="kn">Definition</span> <span class="nf">μ_2</span> : gh ⊗_{Mon_V} gh --&gt; gh := μ.
+
+  <span class="kn">Lemma</span> <span class="nf">μ_2_is_Ptd_mor</span> : luinv^{Mon_V}_{I_{Mon_V}} · η ⊗^{Mon_V} η · μ_2 = η.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (nat_z_iso_pointwise_z_iso (leftunitor_nat_z_iso Mon_V) I_{ Mon_V})).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> unitors_coincide_on_unit.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, mhss_monoid_unit_left_aux. }
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> (bifunctor_equalwhiskers Mon_V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">μ_2_Ptd</span> : mh_squared --&gt; Ptd_from_mhss := μ_2,,μ_2_is_Ptd_mor.
+
+  <span class="kn">Definition</span> <span class="nf">μ_3</span> : (gh ⊗_{Mon_V} gh) ⊗_{Mon_V} gh --&gt; gh := ⦃μ_2⦄_{mh_squared}.
+
+  <span class="kn">Lemma</span> <span class="nf">mhss_monoid_assoc_aux</span> : θ (pr1 mh_squared,, pr2 mh_squared) gh · # H (μ ⊗^{Mon_V}_{r} gh) =
+                                     μ_2 ⊗^{Mon_V}_{r} H gh · θ Ptd_from_mhss gh.
+  <span class="kn">Proof</span>.
+    use (!lineator_linnatright _ _ _ _ θ _ _ _ μ_2_Ptd).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">mhss_monoid_assoc</span> : monoid_laws_assoc Mon_V mhss_monoid_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">apply</span> pathsinv0.
+    <span class="nb">transitivity</span> μ_3.
+    - <span class="sd">(** this case is the monoidal generalization of the second item on p.168 of Matthes &amp; Uustalu, TCS 2004 *)</span>
+      <span class="nb">apply</span> (mfbracket_unique(Z:=mh_squared)).
+      <span class="nb">split</span>.
+      + <span class="nb">cbn</span>.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc.
+             <span class="nb">apply</span> cancel_postcomposition.
+             <span class="nb">apply</span> (bifunctor_equalwhiskers Mon_V). }
+        <span class="nb">unfold</span> functoronmorphisms1.
+        <span class="nb">rewrite</span> &lt;- monoidal_rightunitornat.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (!mhss_monoid_unit_right).
+      + etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> mhss_monoid_assoc_aux.
+        }
+        etrans.
+        { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> (mfbracket_τ(Z:=Ptd_from_mhss)).
+        }
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> (bifunctor_equalwhiskers Mon_V).
+    - <span class="sd">(** this case is the monoidal generalization of the first item on p.168 of Matthes &amp; Uustalu, TCS 2004 *)</span>
+      <span class="nb">apply</span> pathsinv0, (mfbracket_unique(Z:=mh_squared)).
+      <span class="nb">split</span>.
+      + <span class="nb">cbn</span>.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc.
+             <span class="nb">apply</span> cancel_postcomposition.
+             <span class="nb">rewrite</span> assoc.
+             <span class="nb">rewrite</span> &lt;- monoidal_associatornatleft.
+             <span class="nb">rewrite</span> assoc'.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">apply</span> (bifunctor_leftcomp Mon_V). }
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+             <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+             use (!mhss_monoid_unit_right). }
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> pathsinv0, left_whisker_with_runitor.
+      + etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">rewrite</span> assoc'.
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> pointedtensorialstrength_preserves_actor.
+          <span class="nb">apply</span> lineator_preservesactor. }
+        <span class="nb">cbn</span>.
+        etrans.
+        { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          etrans.
+          { <span class="nb">rewrite</span> assoc.
+            <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">rewrite</span> functor_comp.
+            <span class="nb">rewrite</span> assoc.
+            <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (!lineator_linnatleft _ _ _ _ θ Ptd_from_mhss _ _ μ).
+          }
+          <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> (mfbracket_τ(Z:=Ptd_from_mhss)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        etrans.
+        { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp Mon_V).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> (mfbracket_τ(Z:=Ptd_from_mhss)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> (bifunctor_leftcomp Mon_V).
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        <span class="bp">now</span> <span class="nb">rewrite</span> monoidal_associatornatleft.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mhss_monoid</span> : monoid Mon_V gh.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">mhss_monoid_data</span>.
+    <span class="bp">exact</span> (mhss_monoid_unit_left,,mhss_monoid_unit_right,,mhss_monoid_assoc).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">FixAMhss</span>.
+
+<span class="kn">End</span> <span class="nf">hss</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/GeneralizedSubstitutionSystems.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

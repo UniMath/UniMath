@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ProbabilitySpaces.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************</span>
+<span class="sd">Probability Spaces</span>
+
+<span class="sd">We define the categories of probability spaces over a causal Markov category C.</span>
+<span class="sd">- the objects are states (X,p) (i.e. objects equipped with a probability distribution)</span>
+<span class="sd">  * this is definitionally the same as the type [state C] of `State.v`</span>
+<span class="sd">  * it is also definitionally the same as the type of objects of the slice category I/C</span>
+<span class="sd">- morphisms f : (X,p) --&gt; (Y,q) are p-almost sure equivalence classes of morphisms f : X --&gt; Y</span>
+<span class="sd">  which preserve the state (i.e. p · f = q)</span>
+
+<span class="sd">To construct this category, we use the quotient construction [mor_quot_category] of</span>
+<span class="sd">the slice category I/C under the congruence relation given by almost-sure equality.</span>
+
+<span class="sd">Table of Contents</span>
+<span class="sd">1. Definition of the Category of Probability Spaces</span>
+<span class="sd">2. Definition of the Dagger Structure on Probability Spaces, given by Bayesian Inversion</span>
+<span class="sd">3. Defining an Isomorphism of Dagger Categories between Probability Spaces and Couplings</span>
+<span class="sd">  3.1 Defining the Dagger Functor from Probability Spaces to Couplings</span>
+<span class="sd">  3.2 Defining the Dagger Functor from Couplings to Probability Spaces</span>
+<span class="sd">  3.3 Proof that the Functors are Inverses</span>
+<span class="sd">  3.4 Deriving the equality between dagger categories of Probability Spaces and Couplings</span>
+
+<span class="sd">References</span>
+<span class="sd">- T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' </span>
+<span class="sd">**********************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.coslicecat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoryEquality.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Quotient.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.Determinism.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.State.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.InformationFlowAxioms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.AlmostSurely.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.Conditionals.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.Couplings.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.CatIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Unitary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Univalence.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> markov.
+
+<span class="sd">(** 1. Definition of the Category of Probability Spaces *)</span>
+
+<span class="kn">Section</span> <span class="nf">ProbabilitySpaces</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category}
+          (<span class="nv">causality</span> : is_causal C).
+  
+  <span class="kn">Definition</span> <span class="nf">states_cat</span> : category.
+  <span class="kn">Proof</span>.
+    use coslice_cat.
+    + <span class="bp">exact</span> C.
+    + <span class="bp">exact</span> I_{C}.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">  In the next definition we use that states are definitionally the same as objects of states_cat.</span>
+<span class="sd">  If that was not the case, that definition would not type check.</span>
+<span class="sd">  *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">state_mor</span> (<span class="nv">p</span> <span class="nv">q</span> : state C) : UU := states_cat ⟦ p, q ⟧ .
+
+  <span class="kn">Coercion</span> <span class="nf">state_mor_to_mor</span> {p q : state C} (f : state_mor p q)
+    : C ⟦ state_ob p , state_ob q ⟧ := pr1 f.
+
+  <span class="kn">Proposition</span> <span class="nf">state_mor_eq</span> {<span class="nv">p</span> <span class="nv">q</span> : state C} (<span class="nv">f</span> : state_mor p q) : p · f = q.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ase_states</span> (<span class="nv">p</span> <span class="nv">q</span> : state C) : hrel (state_mor p q).
+  <span class="kn">Proof</span>. 
+    <span class="nb">intros</span> f g.
+    use make_hProp.
+    - <span class="bp">exact</span> (f =_{p} g).
+    - <span class="nb">apply</span> isaprop_ase.
+   <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_eqrel_ase_states</span> (<span class="nv">p</span> <span class="nv">q</span> : state C) : iseqrel (ase_states p q).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> f g h.
+      <span class="nb">apply</span> ase_trans.
+    - <span class="nb">intros</span> f g.
+      <span class="nb">apply</span> ase_symm.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ase_states_cong</span>
+              {<span class="nv">p</span> <span class="nv">q</span> <span class="nv">r</span> : state C}
+              {<span class="nv">f</span> <span class="nv">f'</span> : state_mor p q}
+              {<span class="nv">g</span> <span class="nv">g'</span> : state_mor q r}
+              (<span class="nv">e₁</span> : ase_states _ _ f f')
+              (<span class="nv">e₂</span> : ase_states _ _ g g')
+    : ase_states _ _ (f · g) (f' · g').
+  <span class="kn">Proof</span>.
+    use ase_congruence.
+    - <span class="bp">exact</span> causality.
+    - <span class="bp">exact</span> q.
+    - <span class="bp">exact</span> e₁.
+    - <span class="bp">exact</span> e₂.
+    - <span class="bp">exact</span> (!(state_mor_eq f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ase_cong</span> : mor_cong_rel states_cat.
+  <span class="kn">Proof</span>.
+    use make_mor_cong_rel.
+    - <span class="nb">intros</span> p q.
+      use make_eqrel.
+      + <span class="nb">apply</span> ase_states.
+      + <span class="nb">apply</span> is_eqrel_ase_states.
+    - <span class="nb">intros</span> p q r f f' g g'. 
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> ase_states_cong.
+  <span class="kn">Defined</span>.   
+    
+  <span class="kn">Definition</span> <span class="nf">prob_space</span> : category.
+  <span class="kn">Proof</span>.
+    use mor_quot_category.
+    - <span class="bp">exact</span> states_cat.
+    - <span class="bp">exact</span> ase_cong.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ProbabilitySpaces</span>.
+
+<span class="sd">(** 2. Definition of the Dagger Structure on Probability Spaces, given by Bayesian Inversion *)</span>
+
+<span class="kn">Section</span> <span class="nf">ProbabilitySpacesDagger</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : markov_category_with_conditionals).
+  
+  <span class="kn">Let</span> <span class="nf">C_is_causal</span> : is_causal C := conditionals_imply_causality.
+
+  <span class="kn">Definition</span> <span class="nf">prob_space_dagger_structure</span> : dagger_structure (prob_space C_is_causal).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [x p] [y q].
+    use setquotfun.
+    - <span class="c">(* Use [bayesian_inverse] as the dagger *)</span>
+      <span class="nb">intros</span> [f e].
+      <span class="nb">simple refine</span> (bayesian_inverse p f ,, _).
+      + <span class="kp">abstract</span> (<span class="nb">rewrite</span> &lt;- e; <span class="nb">apply</span> bayesian_inverse_state_preservation).   
+ 
+    - <span class="c">(* bayesian inverse is compatible with almost sure equality *)</span>
+      <span class="nb">intros</span> [f fpres] [g gpres].
+      <span class="nb">intros</span> e.
+      <span class="nb">cbn</span>. <span class="nb">cbn</span> <span class="k">in</span> *.
+      use bayesian_inverse_ase_unique'.
+      + <span class="bp">exact</span> p. 
+      + <span class="bp">exact</span> f.
+      + <span class="bp">assumption</span>.
+      + <span class="nb">apply</span> bayesian_inverse_eq.
+      + use is_bayesian_inverse_ase_cong.
+        * <span class="bp">exact</span> g.  
+        * <span class="bp">exact</span> (bayesian_inverse p g).
+        * <span class="nb">apply</span> ase_symm; <span class="bp">assumption</span>.
+        * <span class="nb">apply</span> ase_refl.
+        * <span class="nb">apply</span> bayesian_inverse_eq.    
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prob_space_dagger_laws</span> : dagger_laws prob_space_dagger_structure.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="c">(* Identity *)</span>
+      <span class="nb">intros</span> [x p].
+      <span class="nb">apply</span> iscompsetquotpr.
+      use bayesian_inverse_ase_unique'.
+      + <span class="bp">exact</span> p.
+      + <span class="bp">exact</span> (identity x).
+      + <span class="nb">rewrite</span> id_right. <span class="bp">reflexivity</span>.
+      + <span class="nb">apply</span> bayesian_inverse_eq.
+      + <span class="nb">apply</span> bayesian_inverse_identity. 
+
+    - <span class="c">(* Composition *)</span>
+      <span class="nb">intros</span> [x p] [y q] [z r].
+      use setquotunivprop'.
+      { 
+        <span class="nb">intro</span>.
+        use impred. <span class="c">(* TODO this line is very slow *)</span>
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intros</span> [f e]. 
+      use setquotunivprop'. { <span class="nb">intro</span>. <span class="nb">apply</span> homset_property. }   
+      <span class="nb">intros</span> [g h].
+      <span class="nb">apply</span> iscompsetquotpr.
+      <span class="nb">cbn</span>. <span class="nb">cbn</span> <span class="k">in</span> *.
+      use bayesian_inverse_ase_unique'.
+      + <span class="bp">exact</span> p.
+      + <span class="bp">exact</span> (f · g).
+      + <span class="nb">rewrite</span> assoc, e, h. <span class="bp">reflexivity</span>.
+      + <span class="nb">apply</span> bayesian_inverse_eq.
+      + <span class="nb">apply</span> bayesian_inverse_comp.
+        * <span class="nb">apply</span> bayesian_inverse_eq.
+        * <span class="nb">rewrite</span> e; <span class="nb">apply</span> bayesian_inverse_eq.
+                
+    - <span class="c">(* Idempotence *)</span> 
+      <span class="nb">intros</span> [x p] [y q].
+      use setquotunivprop'. { <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property. }
+      <span class="nb">intros</span> [f e].
+      <span class="nb">apply</span> iscompsetquotpr.
+      <span class="nb">cbn</span>. <span class="nb">cbn</span> <span class="k">in</span> e.
+      <span class="nb">rewrite</span> &lt;- e.
+      use bayesian_inverse_ase_unique'.
+      + <span class="bp">exact</span> (p · f).
+      + <span class="bp">exact</span> (bayesian_inverse p f).
+      + <span class="nb">apply</span> bayesian_inverse_state_preservation.
+      + <span class="nb">apply</span> bayesian_inverse_eq.
+      + <span class="nb">apply</span> bayesian_inverse_idempotent.
+        <span class="nb">apply</span> bayesian_inverse_eq. 
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prob_space_dagger</span> : dagger (prob_space C_is_causal)
+    := _ ,, prob_space_dagger_laws.
+
+  <span class="kn">Definition</span> <span class="nf">prob_space_dagger_cat</span> : dagger_category.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">prob_space</span> <span class="nv">C_is_causal</span>).
+    <span class="bp">exact</span> prob_space_dagger.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ProbabilitySpacesDagger</span>.
+
+
+<span class="sd">(** * 3. Defining an Isomorphism of Dagger Categories between Probability Spaces and Couplings *)</span>
+
+<span class="sd">(** ** 3.1 Defining the Dagger Functor from Probability Spaces to Couplings *)</span>
+
+<span class="kn">Section</span> <span class="nf">ProbabilitySpacesToCouplings</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category_with_conditionals}.
+
+  <span class="kn">Let</span> <span class="nf">C_is_causal</span> : is_causal C := conditionals_imply_causality. 
+  <span class="kn">Let</span> <span class="nf">PS</span> := prob_space (C_is_causal).
+
+  <span class="kn">Let</span> <span class="nf">dag</span> : dagger PS := prob_space_dagger C.
+
+  <span class="c">(* Extract the bloom couplings from a PS-morphism *)</span>
+  <span class="kn">Definition</span> <span class="nf">ps_bloom</span> {<span class="nv">p</span> <span class="nv">q</span> : PS} (<span class="nv">f</span> : p --&gt; q) : homset I_{C} ((pr1 p) ⊗ (pr1 q)).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> p <span class="k">as</span> [x p].
+    <span class="nb">destruct</span> q <span class="k">as</span> [y q].
+    <span class="nb">revert</span> f.
+    use setquotuniv.
+    { 
+      <span class="nb">intros</span> [f e].
+      <span class="nb">apply</span> (bloom_coupling p f). 
+    }
+    <span class="kp">abstract</span> (<span class="nb">intros</span> [f e] [g h] ase; <span class="nb">apply</span> equal_almost_surely_r; <span class="bp">exact</span> ase).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ps_bloom_dom</span> {<span class="nv">p</span> <span class="nv">q</span> : PS} {<span class="nv">f</span> : p --&gt; q} : ps_bloom f · proj1 = pr2 p.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> ps_bloom.
+    <span class="nb">revert</span> f.
+    <span class="nb">apply</span> setquotunivprop'. { <span class="nb">intros</span>. <span class="nb">apply</span> homset_property. } 
+    <span class="nb">intros</span> [f e].
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> bloom_coupling_dom.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ps_bloom_cod</span> {<span class="nv">p</span> <span class="nv">q</span> : PS} {<span class="nv">f</span> : p --&gt; q} : ps_bloom f · proj2 = pr2 q.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> ps_bloom.
+    <span class="nb">revert</span> f.
+    <span class="nb">apply</span> setquotunivprop'. { <span class="nb">intros</span>. <span class="nb">apply</span> homset_property. } 
+    <span class="nb">intros</span> [f e].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> &lt;- e.
+    <span class="nb">apply</span> bloom_coupling_cod.
+  <span class="kn">Qed</span>.  
+  
+  <span class="kn">Definition</span> <span class="nf">ps_to_coupling</span> {<span class="nv">p</span> <span class="nv">q</span> : PS} (<span class="nv">f</span> : p --&gt; q) : coupling (pr2 p) (pr2 q).
+  <span class="kn">Proof</span>.
+    use make_coupling.
+    - <span class="bp">exact</span> (ps_bloom f).
+    - <span class="nb">apply</span> ps_bloom_dom.
+    - <span class="nb">apply</span> ps_bloom_cod.
+  <span class="kn">Defined</span>.  
+
+  <span class="kn">Definition</span> <span class="nf">ps_to_couplings_data</span> : functor_data PS (couplings C).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span>, p).
+    - <span class="nb">intros</span> [x p] [y q] f.
+      <span class="bp">exact</span> (ps_to_coupling f).
+  <span class="kn">Defined</span>.  
+
+  <span class="c">(* The functor from probability spaces to couplings *)</span>
+  <span class="kn">Definition</span> <span class="nf">ps_to_couplings</span> : functor PS (couplings C).
+  <span class="kn">Proof</span>.
+    use make_functor. { <span class="bp">exact</span> ps_to_couplings_data. }
+    <span class="nb">split</span>.
+    - <span class="c">(* Identity law *)</span>
+      <span class="nb">intros</span> [x p].
+      <span class="nb">apply</span> coupling_ext.
+      <span class="nb">apply</span> bloom_coupling_id.
+      
+    - <span class="c">(* Composition law *)</span>
+      <span class="nb">intros</span> [x p] [y q] [z r].
+      use setquotunivprop'. { <span class="nb">intro</span>. use impred. <span class="nb">intro</span>. <span class="nb">apply</span> homset_property. }
+      <span class="nb">intros</span> [f e].
+      use setquotunivprop'. { <span class="nb">intro</span>. <span class="nb">apply</span> homset_property. }
+      <span class="nb">intros</span> [g h].
+      <span class="nb">apply</span> coupling_ext.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> &lt;- e.
+      <span class="nb">symmetry</span>.
+      <span class="nb">apply</span> bloom_coupling_composition.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ps_to_couplings_is_dagger</span> : 
+    is_dagger_functor (prob_space_dagger C) (couplings_dagger C) ps_to_couplings.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [x p] [y q].
+    <span class="nb">apply</span> setquotunivprop'. { <span class="nb">intros</span>. <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [f e].
+    <span class="nb">apply</span> coupling_ext.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> &lt;- e.
+    <span class="nb">apply</span> bloom_coupling_bayesian_inverse.
+    <span class="nb">apply</span> bayesian_inverse_eq.
+  <span class="kn">Qed</span>.
+    
+<span class="kn">End</span> <span class="nf">ProbabilitySpacesToCouplings</span>.
+
+
+<span class="sd">(** ** 3.2 Defining the Dagger Functor from Couplings to Probability Spaces *)</span>
+
+<span class="kn">Section</span> <span class="nf">CouplingsToProbabilitySpaces</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category_with_conditionals}.
+
+  <span class="kn">Let</span> <span class="nf">C_is_causal</span> : is_causal C := conditionals_imply_causality. 
+  <span class="kn">Let</span> <span class="nf">PS</span> := prob_space (C_is_causal).
+
+  <span class="kn">Let</span> <span class="nf">dag</span> : dagger PS := prob_space_dagger C.
+
+  <span class="kn">Definition</span> <span class="nf">coupling_cond</span> {<span class="nv">p</span> <span class="nv">q</span> : couplings C} (<span class="nv">γ</span> : p --&gt; q) : (pr1 p) --&gt; (pr1 q)
+    := ((coupling_to_state γ) |<span class="mi">1</span>).
+
+  <span class="kn">Proposition</span> <span class="nf">coupling_is_bloom_cond</span> {<span class="nv">p</span> <span class="nv">q</span> : state C} (<span class="nv">γ</span> : coupling p q) :
+    coupling_to_state γ = bloom_coupling p (coupling_cond γ).
+  <span class="kn">Proof</span>.    
+    <span class="nb">rewrite</span> (coupling_is_bloom_coupling (coupling_to_state γ)).
+    <span class="nb">rewrite</span> coupling_dom.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">coupling_cond_state_preservation</span> {<span class="nv">p</span> <span class="nv">q</span> : couplings C} (<span class="nv">γ</span> : p --&gt; q) 
+    : (state_dist p) · coupling_cond γ = state_dist q.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> p <span class="k">as</span> [x p], q <span class="k">as</span> [y q], γ <span class="k">as</span> [γ [dom cod]].
+    <span class="nb">unfold</span> coupling_cond.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">assert</span>(E : p · γ |<span class="mi">1</span> = (γ · proj1) · ⟨identity _, γ |<span class="mi">1</span>⟩ · proj2).
+    { 
+      <span class="nb">rewrite</span> dom. 
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> pairing_proj2.
+      <span class="bp">reflexivity</span>. 
+    }  
+    <span class="nb">rewrite</span> E.
+    <span class="nb">rewrite</span> &lt;- conditional_distribution_1_eq.
+    <span class="bp">exact</span> cod.
+  <span class="kn">Qed</span>.
+    
+  <span class="kn">Definition</span> <span class="nf">coupling_to_ps</span> {<span class="nv">p</span> <span class="nv">q</span> : couplings C} (<span class="nv">γ</span> : p --&gt; q) : PS ⟦ p,  q ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> setquotpr.
+    <span class="k">exists</span> (<span class="nv">coupling_cond</span> <span class="nv">γ</span>).
+    <span class="nb">apply</span> coupling_cond_state_preservation.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">couplings_to_ps_data</span> : functor_data (couplings C) PS.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span>, p).
+    - <span class="nb">intros</span> [x p] [y q] γ.
+      <span class="bp">exact</span> (coupling_to_ps γ).
+  <span class="kn">Defined</span>.
+  
+  <span class="kn">Definition</span> <span class="nf">couplings_to_ps</span> : functor (couplings C) PS.
+  <span class="kn">Proof</span>.
+    use make_functor. { <span class="bp">exact</span> couplings_to_ps_data. }
+    <span class="nb">split</span>.
+    - <span class="c">(* Identity law *)</span>
+      <span class="nb">intros</span> [x p].
+      <span class="nb">apply</span> iscompsetquotpr.
+      <span class="nb">unfold</span> coupling_cond.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> ase_symm.
+      use conditional_distribution_1_ase_unique'. { <span class="nb">apply</span> identity_coupling_dom. }
+      <span class="nb">unfold</span> identity_coupling.
+      <span class="nb">rewrite</span> pairing_id.
+      <span class="bp">reflexivity</span>.
+    
+    - <span class="c">(* Composition law *)</span>
+      <span class="nb">intros</span> [x p] [y q] [z r] [β [domβ codβ]] [γ [domγ codγ]].
+      <span class="nb">apply</span> iscompsetquotpr.
+      <span class="nb">unfold</span> coupling_cond.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">assert</span>(compat : β · proj2 = γ · proj1). { <span class="nb">rewrite</span> codβ, domγ. <span class="bp">reflexivity</span>. }
+      <span class="nb">apply</span> ase_symm.
+      use conditional_distribution_1_ase_unique'. {
+        <span class="nb">rewrite</span> coupling_composition_dom; <span class="bp">assumption</span>.
+      }
+      <span class="nb">rewrite</span> &lt;- domβ.
+      <span class="nb">apply</span> coupling_composition_eq_4; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.      
+
+  <span class="kn">Proposition</span> <span class="nf">couplings_to_ps_is_dagger</span> : 
+    is_dagger_functor (couplings_dagger C) (prob_space_dagger C) couplings_to_ps.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [x p] [y q] [γ [domγ codγ]].
+    <span class="nb">apply</span> iscompsetquotpr.
+    <span class="nb">unfold</span> coupling_cond, couplings_dagger_structure.  
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    use conditional_distribution_1_ase_unique'.
+    - <span class="nb">rewrite</span> &lt;- sym_mon_braiding_proj2.
+      <span class="nb">rewrite</span> assoc.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">rewrite</span> pairing_sym_mon_braiding.
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="nb">rewrite</span> &lt;- domγ.
+      <span class="nb">rewrite</span> &lt;- conditional_distribution_1_eq.
+      <span class="bp">exact</span> codγ.
+    - <span class="nb">rewrite</span> &lt;- domγ.
+      <span class="nb">apply</span> pairing_flip.
+      <span class="nb">rewrite</span> &lt;- conditional_distribution_1_eq.
+      <span class="nb">unfold</span> coupling_dagger.
+      <span class="nb">apply</span> cancel_braiding.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> pairing_sym_mon_braiding.
+      <span class="nb">pose</span>(γ' := γ · sym_mon_braiding C x y).
+      <span class="nb">assert</span>(D : γ' = γ · sym_mon_braiding C x y) <span class="bp">by</span> <span class="bp">reflexivity</span>.
+      <span class="nb">rewrite</span> &lt;- D.
+      <span class="nb">assert</span>(E : q = γ' · proj1). {
+       <span class="nb">unfold</span>  γ'.
+       <span class="nb">rewrite</span> &lt;- assoc.
+       <span class="nb">rewrite</span> sym_mon_braiding_proj1.
+       <span class="bp">exact</span> (!codγ).
+      }
+      <span class="nb">rewrite</span> E.
+      <span class="nb">apply</span> conditional_distribution_1_eq.
+  <span class="kn">Qed</span>.    
+
+<span class="kn">End</span> <span class="nf">CouplingsToProbabilitySpaces</span>.
+
+<span class="sd">(** ** 3.3 Proof that the Functors are Inverses *)</span>
+
+<span class="kn">Section</span> <span class="nf">EquivalenceProof</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category_with_conditionals}.
+
+  <span class="kn">Let</span> <span class="nf">C_is_causal</span> : is_causal C := conditionals_imply_causality. 
+  <span class="kn">Let</span> <span class="nf">PS</span> := prob_space (C_is_causal).
+
+  <span class="kn">Let</span> <span class="nf">dag</span> : dagger PS := prob_space_dagger C.
+
+  <span class="kn">Proposition</span> <span class="nf">couplings_ps_couplings_id</span> {<span class="nv">p</span> <span class="nv">q</span> : couplings C} (<span class="nv">γ</span> : p --&gt; q) 
+    : # ps_to_couplings (# couplings_to_ps γ) = γ.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> p <span class="k">as</span> [x p], q <span class="k">as</span> [y q], γ <span class="k">as</span> [γ [domγ codγ]].
+    <span class="nb">apply</span> coupling_ext.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> ps_to_couplings, bloom_coupling, coupling_cond.
+    <span class="nb">rewrite</span> &lt;- domγ.
+    <span class="nb">rewrite</span> &lt;- conditional_distribution_1_eq.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ps_couplings_ps_id</span> {<span class="nv">p</span> <span class="nv">q</span> : PS} (<span class="nv">f</span> : p --&gt; q)
+    : # couplings_to_ps (ps_to_coupling f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> p <span class="k">as</span> [x p], q <span class="k">as</span> [y q].
+    <span class="nb">revert</span> f.
+    <span class="nb">apply</span> setquotunivprop'. { <span class="nb">intro</span>. <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [f e].
+    <span class="nb">apply</span> iscompsetquotpr.
+    <span class="nb">unfold</span> coupling_cond, ps_to_coupling.
+    <span class="nb">apply</span> ase_symm.
+    use conditional_distribution_1_ase_unique'.
+    - <span class="nb">apply</span> bloom_coupling_dom.
+    - <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>. 
+
+  <span class="sd">(** ** 3.4 Deriving the equality [couplings = prob_space] *)</span>
+
+  <span class="kn">Proposition</span> <span class="nf">couplings_to_ps_fully_faithful</span> : fully_faithful (@couplings_to_ps C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p q.
+    use isweq_iso.
+    + <span class="bp">exact</span> # ps_to_couplings.
+    + <span class="bp">exact</span> couplings_ps_couplings_id.
+    + <span class="bp">exact</span> ps_couplings_ps_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">couplings_to_ps_catiso</span> : catiso (couplings C) PS.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">couplings_to_ps</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> couplings_to_ps_fully_faithful.
+    - <span class="nb">apply</span> idisweq.
+  <span class="kn">Defined</span>. 
+
+  <span class="kn">Definition</span> <span class="nf">couplings_equals_ps</span> : couplings C = PS.
+  <span class="kn">Proof</span>.
+    use (invweq _). 
+    - <span class="nb">apply</span> catiso_is_path_cat.
+    - <span class="bp">exact</span> couplings_to_ps_catiso. 
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Extending this to an equality of dagger categories *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">couplings_to_ps_daggercatiso</span> : daggercatiso (couplings_dagger_cat C) (prob_space_dagger_cat C).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">couplings_to_ps_catiso</span>.
+    <span class="bp">exact</span> couplings_to_ps_is_dagger.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">couplings_equals_ps_dagger</span> : couplings_dagger_cat C = prob_space_dagger_cat C.
+  <span class="kn">Proof</span>.
+    use (invweq _).
+    - <span class="nb">apply</span> daggercatiso_is_path_cat.
+    - <span class="bp">exact</span> couplings_to_ps_daggercatiso.
+  <span class="kn">Defined</span>. 
+
+<span class="kn">End</span> <span class="nf">EquivalenceProof</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/MarkovCategories/ProbabilitySpaces.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
+  &gt; **********************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

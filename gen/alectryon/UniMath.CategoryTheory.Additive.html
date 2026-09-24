@@ -1,0 +1,653 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Additive.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Additive categories. *)</span>
+<span class="sd">(** * Contents</span>
+<span class="sd">- Definition of additive categories</span>
+<span class="sd">- Quotient of an additive category is additive</span>
+<span class="sd">- Kernels, Equalizers, Cokernels, and Coequalizers in CategoryWithAdditiveStructure categories</span>
+<span class="sd">- Monics and Epis in an additive category</span>
+<span class="sd">- Miscellaneous results about pre- and postcomposition in an additive category</span>
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.AbelianGroups.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PreAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Opp.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Kernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cokernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinDirectSums.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of additive categories *)</span>
+<span class="kn">Section</span> <span class="nf">def_additive</span>.
+
+  <span class="sd">(** A preadditive category has an additive structure if it is given a zero object and a binary direct sum operation. *)</span>
+  <span class="kn">Definition</span> <span class="nf">AdditiveStructure</span> (<span class="nv">PA</span> : PreAdditive) : UU := (Zero PA) × (BinDirectSums PA).
+
+  <span class="kn">Definition</span> <span class="nf">make_AdditiveStructure</span> (<span class="nv">PA</span> : PreAdditive) (<span class="nv">H1</span> : Zero PA) (<span class="nv">H2</span> : BinDirectSums PA) :
+    AdditiveStructure PA.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (H1,,H2).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Definition of categories with an additive structure *)</span>
+  <span class="kn">Definition</span> <span class="nf">CategoryWithAdditiveStructure</span> : UU := ∑ PA : PreAdditive, AdditiveStructure PA.
+
+  <span class="kn">Definition</span> <span class="nf">Additive_PreAdditive</span> (<span class="nv">A</span> : CategoryWithAdditiveStructure) : PreAdditive := pr1 A.
+  <span class="kn">Coercion</span> <span class="nf">Additive_PreAdditive</span> : CategoryWithAdditiveStructure &gt;-&gt; PreAdditive.
+
+  <span class="kn">Definition</span> <span class="nf">make_Additive</span> (<span class="nv">PA</span> : PreAdditive) (<span class="nv">H</span> : AdditiveStructure PA) : CategoryWithAdditiveStructure.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (tpair _ PA H).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** A preadditive category is additive if it has a zero object and binary direct sums. *)</span>
+  <span class="kn">Definition</span> <span class="nf">isAdditive</span> (<span class="nv">PA</span> : PreAdditive) : hProp := hasZero PA ∧ hasBinDirectSums PA.
+
+  <span class="kn">Definition</span> <span class="nf">make_isAdditive</span> (<span class="nv">PA</span> : PreAdditive) (<span class="nv">H1</span> : hasZero PA) (<span class="nv">H2</span> : hasBinDirectSums PA) : isAdditive PA := H1,,H2.
+
+  <span class="sd">(** Definition of additive categories *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">AdditiveCategory</span> : UU := ∑ PA : PreAdditive, isAdditive PA.
+
+  <span class="kn">Coercion</span> <span class="nf">Additive_to_PreAdditive</span> (A : AdditiveCategory) : PreAdditive := pr1 A.
+
+  <span class="sd">(** Accessor functions. *)</span>
+  <span class="kn">Definition</span> <span class="nf">to_AdditiveStructure</span> (<span class="nv">A</span> : CategoryWithAdditiveStructure) : AdditiveStructure A := pr2 A.
+
+  <span class="kn">Definition</span> <span class="nf">to_Zero</span> (<span class="nv">A</span> : CategoryWithAdditiveStructure) : Zero A := dirprod_pr1 (to_AdditiveStructure A).
+
+  <span class="kn">Definition</span> <span class="nf">to_BinDirectSums</span> (<span class="nv">A</span> : CategoryWithAdditiveStructure) : BinDirectSums A := dirprod_pr2 (to_AdditiveStructure A).
+
+  <span class="kn">Definition</span> <span class="nf">to_BinCoproducts</span> (<span class="nv">A</span> : CategoryWithAdditiveStructure) : BinCoproducts A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y.
+    <span class="bp">exact</span> (BinDirectSum_BinCoproduct A (to_BinDirectSums A X Y)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_BinProducts</span> (<span class="nv">A</span> : CategoryWithAdditiveStructure) : BinProducts A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y.
+    <span class="bp">exact</span> (BinDirectSum_BinProduct A (to_BinDirectSums A X Y)).
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">to_Unel1'</span> {<span class="nv">A</span> : CategoryWithAdditiveStructure} {<span class="nv">a</span> <span class="nv">b</span> : A} (<span class="nv">BS</span> : BinDirectSum a b) :
+    to_In1 BS · to_Pr2 BS = ZeroArrow (to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> (to_Unel1 BS). <span class="nb">apply</span> PreAdditive_unel_zero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_Unel2'</span> {<span class="nv">A</span> : CategoryWithAdditiveStructure} {<span class="nv">a</span> <span class="nv">b</span> : A} (<span class="nv">BS</span> : BinDirectSum a b) :
+    to_In2 BS · to_Pr1 BS = ZeroArrow (to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> (to_Unel2 BS). <span class="nb">apply</span> PreAdditive_unel_zero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_hasZero</span> (<span class="nv">A</span> : AdditiveCategory) : hasZero A := pr1 (pr2 A).
+
+  <span class="kn">Definition</span> <span class="nf">to_hasBinDirectSums</span> {<span class="nv">A</span> : AdditiveCategory} : hasBinDirectSums A := pr2 (pr2 A).
+
+  <span class="kn">Definition</span> <span class="nf">AdditiveZeroArrow</span> {<span class="nv">A</span> : CategoryWithAdditiveStructure} (<span class="nv">x</span> <span class="nv">y</span> : ob A) : A⟦x, y⟧ :=
+    ZeroArrow (to_Zero A) x y.
+
+  <span class="kn">Definition</span> <span class="nf">oppositeAdditiveCategory</span> : AdditiveCategory -&gt; AdditiveCategory.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> M.
+    <span class="k">exists</span> (<span class="nv">oppositePreAdditive</span> <span class="nv">M</span>). <span class="nb">split</span>.
+    - use (hinhfun _ (to_hasZero M)). <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Z</span>, pr1 Z,, pr2 (pr2 Z),, pr1 (pr2 Z)).
+    - <span class="nb">intros</span> A B. <span class="bp">exact</span> (hinhfun oppositeBinDirectSum (to_hasBinDirectSums A B)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sums_lift</span> (<span class="nv">M</span>:AdditiveCategory) {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob M) : hProp :=
+    zero_lifts M j ∧
+    <span class="k">∀</span> <span class="nv">a</span> <span class="nv">b</span> (<span class="nv">S</span> : BinDirectSum (j a) (j b)), <span class="k">∃</span> <span class="nv">x</span>, z_iso (j x) (BinDirectSumOb S).
+
+  <span class="kn">Definition</span> <span class="nf">opp_sums_lift</span> (<span class="nv">M</span>:AdditiveCategory) {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob M) :
+    sums_lift M j -&gt; sums_lift (oppositeAdditiveCategory M) j.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [hz su]. <span class="k">exists</span> (<span class="nv">opp_zero_lifts</span> <span class="nv">j</span> <span class="nv">hz</span>).
+    <span class="nb">intros</span> a b S. <span class="nb">generalize</span> (su a b (oppositeBinDirectSum S)). <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> [s t]. <span class="k">exists</span> <span class="nv">s</span>. <span class="bp">exact</span> (z_iso_inv (opp_z_iso t)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">induced_Additive</span> (<span class="nv">M</span> : AdditiveCategory)
+             {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob M) (<span class="nv">sum</span> : sums_lift M j) : AdditiveCategory.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">induced_PreAdditive</span> <span class="nv">M</span> <span class="nv">j</span>). <span class="nb">induction</span> sum <span class="k">as</span> [hz sum]. <span class="nb">split</span>.
+    - use (hinhfun _ hz). <span class="nb">intros</span> [z iz]. <span class="k">exists</span> <span class="nv">z</span>. <span class="nb">split</span>.
+      + <span class="nb">intros</span> a. <span class="nb">apply</span> iz.
+      + <span class="nb">intros</span> b. <span class="nb">apply</span> iz.
+    - <span class="nb">clear</span> hz. <span class="nb">intros</span> a b. <span class="nb">apply</span> (squash_to_hProp (to_hasBinDirectSums (j a) (j b))); <span class="nb">intros</span> S.
+      use (hinhfun _ (sum a b S)); <span class="nb">intros</span> [c t]; <span class="nb">clear</span> sum. <span class="nb">set</span> (S' := replaceSum S t).
+      use tpair.
+      + <span class="k">exists</span> <span class="nv">c</span>. <span class="bp">exact</span> (pr21 S').
+      + <span class="nb">cbn</span>. <span class="bp">exact</span> (pr2 S').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">induced_opposite_Additive</span> {<span class="nv">M</span>:AdditiveCategory}
+        {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob M) (<span class="nv">su</span> : sums_lift M j) :
+    oppositeAdditiveCategory (induced_Additive M j su) =
+    induced_Additive (oppositeAdditiveCategory M) j (opp_sums_lift M j su).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> (total2_paths2_f (induced_opposite_PreAdditive j)).
+    <span class="nb">apply</span> propproperty.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">def_additive</span>.
+
+
+<span class="sd">(** * Quotient is additive</span>
+<span class="sd">    We show that quotient of an additive category by certain subgroups is additive. In particular,</span>
+<span class="sd">    this is used to show that the naive homotopy category of the category of chain complexes is an</span>
+<span class="sd">    CategoryWithAdditiveStructure precategory. *)</span>
+<span class="kn">Section</span> <span class="nf">additive_quot_additive</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : CategoryWithAdditiveStructure.
+  <span class="kn">Hypothesis</span> <span class="nv">PAS</span> : PreAdditiveSubabgrs A.
+  <span class="kn">Hypothesis</span> <span class="nv">PAC</span> : PreAdditiveComps A PAS.
+
+  <span class="kn">Definition</span> <span class="nf">Quotcategory_Additive</span> : CategoryWithAdditiveStructure.
+  <span class="kn">Proof</span>.
+    use make_Additive.
+    - <span class="bp">exact</span> (Quotcategory_PreAdditive A PAS PAC).
+    - use make_AdditiveStructure.
+      + <span class="bp">exact</span> (Quotcategory_Zero A PAS PAC (to_Zero A)).
+      + <span class="bp">exact</span> (Quotcategory_BinDirectSums A (to_BinDirectSums A) PAS PAC).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">additive_quot_additive</span>.
+
+
+<span class="sd">(** * Kernels, Equalizers, Cokernels, and Coequalizers in CategoryWithAdditiveStructure categories *)</span>
+<span class="sd">(** ** Introduction</span>
+<span class="sd">Let f g : X --&gt; Y be morphisms in an additive category. In this section we show that a</span>
+<span class="sd">Cokernel of f - g is the Coequalizer of f and g, and vice versa. Similarly for Kernels</span>
+<span class="sd">and equalizers.</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">additive_kernel_equalizers</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : CategoryWithAdditiveStructure.
+
+  <span class="kn">Lemma</span> <span class="nf">AdditiveKernelToEqualizer_eq1</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+        (<span class="nv">K</span> : Kernel (to_Zero A) (to_binop _ _ f (to_inv g))) :
+    KernelArrow K · f = KernelArrow K · g.
+  <span class="kn">Proof</span>.
+    use (to_rcan A (KernelArrow K · (to_inv g))).
+    <span class="nb">rewrite</span> &lt;- to_premor_linear'. <span class="nb">rewrite</span> &lt;- to_premor_linear'.
+    <span class="nb">rewrite</span> KernelCompZero.
+    <span class="nb">rewrite</span> (@to_rinvax' A (to_Zero A)). <span class="nb">rewrite</span> ZeroArrow_comp_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AdditiveKernelToEqualizer_isEqualizer</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+             (<span class="nv">K</span> : Kernel (to_Zero A) (to_binop _ _ f (to_inv g))) :
+    isEqualizer <span class="c">(*C:= categoryWithAbgrops_category _ *)</span>f g (KernelArrow K) (AdditiveKernelToEqualizer_eq1 f g K).
+  <span class="kn">Proof</span>.
+    use make_isEqualizer.
+    <span class="nb">intros</span> w h H'.
+    use unique_exists.
+    - use KernelIn.
+      + <span class="bp">exact</span> h.
+      + <span class="nb">set</span> (X := @to_premor_linear' A).
+        <span class="nb">rewrite</span> X.
+        etrans.
+        { <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> H'. }
+
+        <span class="nb">rewrite</span> &lt;- to_premor_linear'.
+        <span class="nb">rewrite</span> (@to_rinvax' A (to_Zero A)). <span class="nb">apply</span> ZeroArrow_comp_right.
+    - <span class="nb">cbn</span>. use KernelCommutes.
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> to_has_homsets.
+    - <span class="nb">intros</span> y0 X. <span class="nb">cbn</span> <span class="k">in</span> X.
+      use (KernelArrowisMonic _ K).
+      etrans.
+        <span class="mi">2</span> : { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> KernelCommutes.
+        }
+        <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AdditiveKernelToEqualizer</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+             (<span class="nv">K</span> : Kernel (to_Zero A) (to_binop _ _ f (to_inv g))) : Equalizer f g.
+  <span class="kn">Proof</span>.
+    use make_Equalizer.
+    - <span class="bp">exact</span> K.
+    - use (KernelArrow K).
+    - <span class="bp">exact</span> (AdditiveKernelToEqualizer_eq1 f g K).
+    - <span class="bp">exact</span> (AdditiveKernelToEqualizer_isEqualizer f g K).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AdditiveEqualizerToKernel_eq1</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) (<span class="nv">E</span> : Equalizer f g) :
+    EqualizerArrow E · to_binop x y f (to_inv g) = ZeroArrow (to_Zero A) E y.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (X:= @to_premor_linear' A).
+    <span class="nb">rewrite</span> X.
+    use (to_rcan A (EqualizerArrow E · g)). <span class="nb">rewrite</span> to_assoc.
+    <span class="nb">rewrite</span> to_lunax''. <span class="nb">rewrite</span> &lt;- to_premor_linear'. <span class="nb">rewrite</span> (@to_linvax' A (to_Zero A)).
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> to_runax''. <span class="nb">apply</span> (EqualizerEqAr E).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AdditiveEqualizerToKernel_isKernel</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) (<span class="nv">E</span> : Equalizer f g) :
+    isKernel (to_Zero A) (EqualizerArrow E) (to_binop x y f (to_inv g))
+             (AdditiveEqualizerToKernel_eq1 f g E).
+  <span class="kn">Proof</span>.
+    use make_isKernel.
+    - <span class="nb">intros</span> w h H'.
+      use unique_exists.
+      + use (EqualizerIn E).
+        * <span class="bp">exact</span> h.
+        * use (to_rcan A (h · to_inv g)). <span class="nb">rewrite</span> &lt;- to_premor_linear'.
+          <span class="nb">rewrite</span> &lt;- to_premor_linear'. <span class="nb">rewrite</span> (@to_rinvax' A (to_Zero A)).
+          <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="bp">exact</span> H'.
+      + <span class="nb">cbn</span>. use EqualizerCommutes.
+      + <span class="nb">intros</span> y0. <span class="nb">apply</span> to_has_homsets.
+      + <span class="nb">intros</span> y0 X. <span class="nb">cbn</span> <span class="k">in</span> X.
+        use (EqualizerArrowisMonic E).
+        <span class="nb">rewrite</span> EqualizerCommutes.
+        <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AdditiveEqualizerToKernel</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) (<span class="nv">E</span> : Equalizer f g) :
+    Kernel (to_Zero A) (to_binop _ _ f (to_inv g)).
+  <span class="kn">Proof</span>.
+    use make_Kernel.
+    - <span class="bp">exact</span> E.
+    - use (EqualizerArrow E).
+    - <span class="bp">exact</span> (AdditiveEqualizerToKernel_eq1 f g E).
+    - <span class="bp">exact</span> (AdditiveEqualizerToKernel_isKernel f g E).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** Correspondence between Cokernels and Coeqalizers *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">AdditiveCokernelToCoequalizer_eq1</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+             (<span class="nv">CK</span> : Cokernel (to_Zero A) (to_binop _ _ f (to_inv g))) :
+    f · CokernelArrow CK = g · CokernelArrow CK.
+  <span class="kn">Proof</span>.
+    use to_rcan.
+    - <span class="bp">exact</span> (to_inv g · CokernelArrow CK).
+    - <span class="nb">rewrite</span> &lt;- to_postmor_linear'. <span class="nb">rewrite</span> &lt;- to_postmor_linear'.
+      <span class="nb">rewrite</span> (CokernelCompZero (to_Zero A) CK). <span class="nb">apply</span> pathsinv0.
+      <span class="nb">rewrite</span> (@to_rinvax' A (to_Zero A)). <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AdditiveCokernelToCoequalizer_isCoequalizer</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+             (<span class="nv">CK</span> : Cokernel (to_Zero A) (to_binop _ _ f (to_inv g))) :
+    isCoequalizer f g (CokernelArrow CK) (AdditiveCokernelToCoequalizer_eq1 f g CK).
+  <span class="kn">Proof</span>.
+    use make_isCoequalizer.
+    <span class="nb">intros</span> w0 h H'.
+    use unique_exists.
+    - use CokernelOut.
+      + <span class="bp">exact</span> h.
+      + use to_rcan.
+        * <span class="bp">exact</span> (g · h).
+        * <span class="nb">rewrite</span> to_lunax''. <span class="nb">rewrite</span> &lt;- to_postmor_linear'. <span class="nb">rewrite</span> to_assoc.
+          <span class="nb">rewrite</span> (@to_linvax' A (to_Zero A)). <span class="nb">rewrite</span> to_runax''. <span class="nb">apply</span> H'.
+    - <span class="nb">cbn</span>. use CokernelCommutes.
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> to_has_homsets.
+    - <span class="nb">intros</span> y0 X. <span class="nb">cbn</span> <span class="k">in</span> X. <span class="nb">cbn</span>.
+      use (CokernelArrowisEpi _ CK).
+      <span class="nb">rewrite</span> CokernelCommutes.
+      <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AdditiveCokernelToCoequalizer</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+             (<span class="nv">CK</span> : Cokernel (to_Zero A) (to_binop _ _ f (to_inv g))) : Coequalizer f g.
+  <span class="kn">Proof</span>.
+    use make_Coequalizer.
+    - <span class="bp">exact</span> CK.
+    - use (CokernelArrow CK).
+    - <span class="bp">exact</span> (AdditiveCokernelToCoequalizer_eq1 f g CK).
+    - <span class="bp">exact</span> (AdditiveCokernelToCoequalizer_isCoequalizer f g CK).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AdditiveCoequalizerToCokernel_eq1</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+             (<span class="nv">CE</span> : Coequalizer f g) :
+    to_binop x y f (to_inv g) · CoequalizerArrow CE = ZeroArrow (to_Zero A) x CE.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> CoequalizerEqAr. <span class="nb">rewrite</span> &lt;- to_postmor_linear'.
+    <span class="nb">rewrite</span> (@to_rinvax' A (to_Zero A)). <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AdditiveCoequalizerToCokernel_isCokernel</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+        (<span class="nv">CE</span> : Coequalizer f g) :
+    isCokernel (to_Zero A) (to_binop x y f (to_inv g)) (CoequalizerArrow CE)
+               (AdditiveCoequalizerToCokernel_eq1 f g CE).
+  <span class="kn">Proof</span>.
+    use make_isCokernel.
+    - <span class="nb">intros</span> w h H'.
+      use unique_exists.
+      + use CoequalizerOut.
+        * <span class="bp">exact</span> h.
+        * use (to_rcan A (to_inv g · h)). <span class="nb">rewrite</span> &lt;- to_postmor_linear'.
+          <span class="nb">rewrite</span> &lt;- to_postmor_linear'. <span class="nb">rewrite</span> (@to_rinvax' A (to_Zero A)).
+          <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="bp">exact</span> H'.
+      + <span class="nb">cbn</span>. use CoequalizerCommutes.
+      + <span class="nb">intros</span> y0. <span class="nb">apply</span> to_has_homsets.
+      + <span class="nb">intros</span> y0 X. <span class="nb">cbn</span> <span class="k">in</span> X.
+        use (CoequalizerArrowisEpi CE).
+        <span class="nb">rewrite</span> CoequalizerCommutes.
+        <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AdditiveCoequalizerToCokernel</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+             (<span class="nv">CE</span> : Coequalizer f g) : Cokernel (to_Zero A) (to_binop _ _ f (to_inv g)).
+  <span class="kn">Proof</span>.
+    use make_Cokernel.
+    - <span class="bp">exact</span> CE.
+    - use CoequalizerArrow.
+    - <span class="bp">exact</span> (AdditiveCoequalizerToCokernel_eq1 f g CE).
+    - <span class="bp">exact</span> (AdditiveCoequalizerToCokernel_isCokernel f g CE).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">additive_kernel_equalizers</span>.
+
+
+<span class="sd">(** * Sum and in to BinDirectSum is Monic *)</span>
+<span class="kn">Section</span> <span class="nf">additive_minus_monic</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : CategoryWithAdditiveStructure.
+
+
+  <span class="kn">Lemma</span> <span class="nf">isMonic_to_binop_BinDirectSum1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : Monic A x y) (<span class="nv">g</span> : x --&gt; z)
+        (<span class="nv">DS</span> : BinDirectSum y z) :
+    isMonic (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
+  <span class="kn">Proof</span>.
+    use make_isMonic.
+    <span class="nb">intros</span> x0 g0 h X.
+    <span class="nb">assert</span> (e : g0 · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr1 DS =
+                h · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr1 DS).
+    {
+      etrans. <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> X.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> e. <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> e.
+    <span class="nb">rewrite</span> (@to_postmor_linear' A) <span class="k">in</span> e.
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> e. <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> e.
+    <span class="nb">rewrite</span> (to_IdIn1 DS) <span class="k">in</span> e.
+    <span class="nb">rewrite</span> (to_Unel2' DS) <span class="k">in</span> e. <span class="nb">rewrite</span> ZeroArrow_comp_right <span class="k">in</span> e.
+    <span class="nb">rewrite</span> id_right <span class="k">in</span> e. use (MonicisMonic A f).
+    <span class="nb">rewrite</span> to_runax'' <span class="k">in</span> e. <span class="bp">exact</span> e.
+  <span class="kn">Qed</span>.
+
+
+
+
+  <span class="sd">(** This version is used in AbelianPushoutPullback *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isMonic_to_binop_BinDirectSum1'</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : Monic A x y) (<span class="nv">g</span> : x --&gt; z)
+        (<span class="nv">DS</span> : BinDirectSum y z) :
+    isMonic (to_binop _ _ (f · to_In1 DS) (to_inv (g · to_In2 DS))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> PreAdditive_invlcomp. use isMonic_to_binop_BinDirectSum1.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">isMonic_to_binop_BinDirectSum2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : Monic A x z)
+        (<span class="nv">DS</span> : BinDirectSum y z) :
+    isMonic (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
+  <span class="kn">Proof</span>.
+    use make_isMonic.
+    <span class="nb">intros</span> x0 g0 h X.
+    <span class="nb">assert</span> (e : g0 · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr2 DS =
+                h · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr2 DS).
+    {
+      <span class="nb">rewrite</span> X. <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> e. <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> e.
+    <span class="nb">rewrite</span> (@to_postmor_linear' A) <span class="k">in</span> e.
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> e. <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> e. <span class="nb">rewrite</span> (@to_IdIn2 A _ _ _ _ _ _ _ DS) <span class="k">in</span> e.
+    <span class="nb">rewrite</span> (to_Unel1' DS) <span class="k">in</span> e. <span class="nb">rewrite</span> ZeroArrow_comp_right <span class="k">in</span> e.
+    <span class="nb">rewrite</span> id_right <span class="k">in</span> e. use (MonicisMonic A g).
+    <span class="nb">rewrite</span> to_lunax'' <span class="k">in</span> e. <span class="bp">exact</span> e.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">isEpi_to_binop_BinDirectSum1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : Epi A y x) (<span class="nv">g</span> : z --&gt; x)
+        (<span class="nv">DS</span> : BinDirectSum y z) :
+    isEpi (to_binop _ _ (to_Pr1 DS · f) (to_Pr2 DS · g)).
+  <span class="kn">Proof</span>.
+    use make_isEpi.
+    <span class="nb">intros</span> z0 g0 h X.
+    use (EpiisEpi A f).
+    <span class="nb">assert</span> (e : to_In1 DS · to_binop DS x (to_Pr1 DS · f) (to_Pr2 DS · g) · g0 =
+                to_In1 DS · to_binop DS x (to_Pr1 DS · f) (to_Pr2 DS · g) · h).
+    {
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> X. <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> to_premor_linear' <span class="k">in</span> e. <span class="nb">rewrite</span> assoc <span class="k">in</span> e. <span class="nb">rewrite</span> assoc <span class="k">in</span> e.
+    <span class="nb">rewrite</span> to_Unel1' <span class="k">in</span> e. <span class="nb">rewrite</span> ZeroArrow_comp_left <span class="k">in</span> e. <span class="nb">rewrite</span> to_runax'' <span class="k">in</span> e.
+    <span class="nb">rewrite</span> (to_IdIn1 DS) <span class="k">in</span> e. <span class="nb">rewrite</span> id_left <span class="k">in</span> e. <span class="nb">apply</span> e.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** This version is used in AbelianPushoutPullback *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isEpi_to_binop_BinDirectSum1'</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : Epi A x z) (<span class="nv">g</span> : y --&gt; z)
+        (<span class="nv">DS</span> : BinDirectSum x y) :
+    isEpi (to_binop _ _ (to_Pr1 DS · f) (to_inv (to_Pr2 DS · g))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> PreAdditive_invrcomp. use isEpi_to_binop_BinDirectSum1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isEpi_to_binop_BinDirectSum2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : y --&gt; x) (<span class="nv">g</span> : Epi A z x)
+        (<span class="nv">DS</span> : BinDirectSum y z) :
+    isEpi (to_binop _ _ (to_Pr1 DS · f) (to_Pr2 DS · g)).
+  <span class="kn">Proof</span>.
+    use make_isEpi.
+    <span class="nb">intros</span> z0 g0 h X.
+    use (EpiisEpi A g).
+    <span class="nb">assert</span> (e : to_In2 DS · to_binop DS x (to_Pr1 DS · f) (to_Pr2 DS · g) · g0 =
+                to_In2 DS · to_binop DS x (to_Pr1 DS · f) (to_Pr2 DS · g) · h).
+    {
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> X. <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> to_premor_linear' <span class="k">in</span> e. <span class="nb">rewrite</span> assoc <span class="k">in</span> e. <span class="nb">rewrite</span> assoc <span class="k">in</span> e.
+    <span class="nb">rewrite</span> to_Unel2' <span class="k">in</span> e. <span class="nb">rewrite</span> ZeroArrow_comp_left <span class="k">in</span> e. <span class="nb">rewrite</span> to_lunax'' <span class="k">in</span> e.
+    <span class="nb">rewrite</span> (to_IdIn2 DS) <span class="k">in</span> e. <span class="nb">rewrite</span> id_left <span class="k">in</span> e. <span class="nb">apply</span> e.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">additive_minus_monic</span>.
+
+
+<span class="sd">(** * Monics and Epis in an additive category *)</span>
+<span class="kn">Section</span> <span class="nf">monics_and_epis_in_additive</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : CategoryWithAdditiveStructure.
+
+  <span class="kn">Lemma</span> <span class="nf">to_isMonic</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> : x --&gt; y)
+        (<span class="nv">H</span> : ∏ (z : ob A) (g : z --&gt; x) (H : g · f = ZeroArrow (to_Zero A) _ _),
+             g = ZeroArrow (to_Zero A) _ _ ) : isMonic f.
+  <span class="kn">Proof</span>.
+    use make_isMonic.
+    <span class="nb">intros</span> x0 g h X.
+    <span class="nb">set</span> (tmp := H x0 (to_binop _ _ g (to_inv h))).
+    use (to_rcan A (to_inv h)). <span class="nb">rewrite</span> (@to_rinvax' A (to_Zero A)). <span class="nb">apply</span> tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> to_postmor_linear'.
+    use (to_rcan A (h · f)). <span class="nb">rewrite</span> to_assoc. <span class="nb">rewrite</span> &lt;- to_postmor_linear'.
+    <span class="nb">rewrite</span> (@to_linvax' A (to_Zero A)). <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">rewrite</span> to_runax''. <span class="nb">rewrite</span> to_lunax''. <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_isEpi</span> {<span class="nv">x</span> <span class="nv">y</span> : ob A} (<span class="nv">f</span> : x --&gt; y)
+        (<span class="nv">H</span> : ∏ (z : ob A) (g : y --&gt; z) (H : f · g = ZeroArrow (to_Zero A) _ _),
+             g = ZeroArrow (to_Zero A) _ _ ) : isEpi f.
+  <span class="kn">Proof</span>.
+    use make_isEpi.
+    <span class="nb">intros</span> x0 g h X.
+    <span class="nb">set</span> (tmp := H x0 (to_binop _ _ g (to_inv h))).
+    use (to_rcan A (to_inv h)). <span class="nb">rewrite</span> (@to_rinvax' A (to_Zero A)). <span class="nb">apply</span> tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> to_premor_linear'.
+    use (to_rcan A (f · h)). <span class="nb">rewrite</span> to_assoc. <span class="nb">rewrite</span> &lt;- to_premor_linear'.
+    <span class="nb">rewrite</span> (@to_linvax' A (to_Zero A)). <span class="nb">rewrite</span> ZeroArrow_comp_right.
+    <span class="nb">rewrite</span> to_runax''. <span class="nb">rewrite</span> to_lunax''. <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">monics_and_epis_in_additive</span>.
+
+<span class="sd">(** * Miscellaneous results about pre- and postcomposition in an additive category *)</span>
+
+<span class="kn">Section</span> <span class="nf">Misc</span>.
+
+  <span class="kn">Context</span> {<span class="nv">Add</span> : CategoryWithAdditiveStructure}.
+  <span class="kn">Context</span> (<span class="nv">x</span> <span class="nv">y</span> : Add).
+
+  <span class="sd">(** (_ · ZeroArrow) = ZeroArrow = (ZeroArrow · _) *)</span>
+  <span class="kn">Section</span> <span class="nf">ZeroComposition</span>.
+
+    <span class="kn">Context</span> (<span class="nv">z</span> : Add).
+
+    <span class="kn">Lemma</span> <span class="nf">AdditiveZeroArrow_postmor_Abelian</span> :
+      to_postmor_abelian_group_morphism <span class="kn">Add</span> x y z (ZeroArrow (to_Zero <span class="kn">Add</span>) y z) =
+      unel_abelian_group_morphism (x --&gt; y)%abgrcat (x --&gt; z)%abgrcat.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> &lt;- PreAdditive_unel_zero.
+      <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> f. <span class="bp">exact</span> (to_premor_unel <span class="kn">Add</span> z f).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">AdditiveZeroArrow_premor_Abelian</span> :
+      to_premor_abelian_group_morphism <span class="kn">Add</span> x y z (ZeroArrow (to_Zero <span class="kn">Add</span>) x y) =
+      unel_abelian_group_morphism (y --&gt; z)%abgrcat (x --&gt; z)%abgrcat.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> &lt;- PreAdditive_unel_zero.
+      <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> f. <span class="bp">exact</span> (to_postmor_unel <span class="kn">Add</span> x f).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">ZeroComposition</span>.
+
+  <span class="sd">(** if f is an  isomorphism, then (f · _) and (_ · f) are isomorphisms as well *)</span>
+  <span class="kn">Section</span> <span class="nf">IsoComposition</span>.
+
+    <span class="kn">Context</span> (<span class="nv">z</span> : Add).
+
+    <span class="kn">Local Lemma</span> <span class="nf">abgr_Additive_is_iso_premor_inverses</span> {<span class="nv">f</span> : x --&gt; y} (<span class="nv">H</span> : is_z_isomorphism f) :
+      is_inverse_in_precat
+        (to_premor_abelian_group_morphism <span class="kn">Add</span> x y z f)
+        (to_premor_abelian_group_morphism <span class="kn">Add</span> y x z (is_z_isomorphism_mor H)).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> make_is_inverse_in_precat.
+      - <span class="nb">apply</span> abelian_group_morphism_eq.
+        <span class="nb">intros</span> x0. <span class="nb">cbn</span>. <span class="nb">unfold</span> to_premor. <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> (is_inverse_in_precat2 H). <span class="nb">apply</span> id_left.
+      - <span class="nb">apply</span> abelian_group_morphism_eq.
+        <span class="nb">intros</span> x0. <span class="nb">cbn</span>. <span class="nb">unfold</span> to_premor. <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> (is_inverse_in_precat1 H). <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">abgr_Additive_is_iso_premor</span> {<span class="nv">f</span> : x --&gt; y} (<span class="nv">H</span> : is_z_isomorphism f) :
+      is_z_isomorphism (to_premor_abelian_group_morphism <span class="kn">Add</span> x y z f)
+      := make_is_z_isomorphism _ _ (abgr_Additive_is_iso_premor_inverses H).
+
+    <span class="kn">Local Lemma</span> <span class="nf">abgr_Additive_is_iso_postmor_inverses</span> {<span class="nv">f</span> : y --&gt; z} (<span class="nv">H</span> : is_z_isomorphism f) :
+      is_inverse_in_precat
+        (to_postmor_abelian_group_morphism <span class="kn">Add</span> x y z f)
+        (to_postmor_abelian_group_morphism <span class="kn">Add</span> x z y (is_z_isomorphism_mor H)).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> make_is_inverse_in_precat.
+      - <span class="nb">apply</span> abelian_group_morphism_eq.
+        <span class="nb">intros</span> x0. <span class="nb">cbn</span>. <span class="nb">unfold</span> to_postmor. <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">rewrite</span> (is_inverse_in_precat1 H). <span class="nb">apply</span> id_right.
+      - <span class="nb">apply</span> abelian_group_morphism_eq.
+        <span class="nb">intros</span> x0. <span class="nb">cbn</span>. <span class="nb">unfold</span> to_postmor. <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">rewrite</span> (is_inverse_in_precat2 H). <span class="nb">apply</span> id_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">abgr_Additive_is_iso_postmor</span> {<span class="nv">f</span> : y --&gt; z} (<span class="nv">H</span> : is_z_isomorphism f) :
+      is_z_isomorphism (to_postmor_abelian_group_morphism <span class="kn">Add</span> x y z f)
+      := make_is_z_isomorphism _ _ (abgr_Additive_is_iso_postmor_inverses H).
+
+  <span class="kn">End</span> <span class="nf">IsoComposition</span>.
+
+  <span class="sd">(** If (f · _) and (_ · f) are isomorphisms, then f is an isomorphism as well *)</span>
+  <span class="kn">Section</span> <span class="nf">IsoFromComposition</span>.
+
+    <span class="kn">Context</span> {<span class="nv">f</span> : x --&gt; y}.
+    <span class="kn">Context</span> (<span class="nv">H1</span> : is_z_isomorphism (to_premor_abelian_group_morphism Add x y x f)).
+    <span class="kn">Context</span> (<span class="nv">H2</span> : is_z_isomorphism (to_postmor_abelian_group_morphism Add y x y f)).
+
+    <span class="kn">Local Lemma</span> <span class="nf">abgr_Additive_premor_postmor_is_iso_inverses</span> :
+      is_inverse_in_precat f ((is_z_isomorphism_mor H1 : abelian_group_morphism _ _) (identity x)).
+    <span class="kn">Proof</span>.
+      <span class="nb">set</span> (mor1 := (is_z_isomorphism_mor H1 : abelian_group_morphism _ _) (identity x)).
+      <span class="nb">set</span> (mor2 := (is_z_isomorphism_mor H2 : abelian_group_morphism _ _) (identity y)).
+      <span class="nb">assert</span> (Hx := abelian_group_morphism_eq (is_inverse_in_precat2 H1) (identity x) : f · mor1 = identity x).
+      <span class="nb">assert</span> (Hy := abelian_group_morphism_eq (is_inverse_in_precat2 H2) (identity y) :  mor2 · f = identity y).
+      <span class="nb">assert</span> (H : mor1 = mor2).
+      {
+        <span class="nb">rewrite</span> &lt;- (id_right mor2).
+        <span class="nb">rewrite</span> &lt;- Hx.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> Hy.
+        <span class="nb">rewrite</span> id_left.
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="nb">apply</span> make_is_inverse_in_precat.
+      - <span class="bp">exact</span> Hx.
+      - <span class="nb">rewrite</span> H. <span class="bp">exact</span> Hy.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">abgr_Additive_premor_postmor_is_iso</span> :
+      is_z_isomorphism f.
+    <span class="kn">Proof</span>.
+      use make_is_z_isomorphism.
+      - <span class="bp">exact</span> ((is_z_isomorphism_mor H1 : abelian_group_morphism _ _) (identity x)).
+      - <span class="bp">exact</span> abgr_Additive_premor_postmor_is_iso_inverses.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">IsoFromComposition</span>.
+
+<span class="kn">End</span> <span class="nf">Misc</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Additive.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Monics and Epis in an additive category
+  &gt; - Miscellaneous results about pre- and postcomposition in an additive category
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.MoreFoundations.Propositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

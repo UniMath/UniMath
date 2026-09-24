@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DCPOStructures.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> DCPOs</span>
+
+<span class="sd"> In this file, we define the category of DCPOs and Scott</span>
+<span class="sd"> continuous functions as a category of structured sets. We show</span>
+<span class="sd"> that this category has the following structure:</span>
+<span class="sd"> - A terminal object ([Terminal_DCPO])</span>
+<span class="sd"> - Binary products ([BinProducts_DCPO])</span>
+<span class="sd"> - Products indexed by types ([Products_DCPO])</span>
+<span class="sd"> - Equalizers ([Equalizers_DCPO])</span>
+<span class="sd"> - Exponentials ([Exponentials_DCPO])</span>
+<span class="sd"> - Binary coproducts ([BinCoproducts_DCPO])</span>
+<span class="sd"> - Coproducts indexed by sets ([Coproducts_DCPO])</span>
+<span class="sd"> We also show that the underlying functor going from DCPOs to sets</span>
+<span class="sd"> has a left adjoint ([is_right_adjoint_DCPO_underlying]).</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. DCPO structures</span>
+<span class="sd"> 2. Cartesian structure of DCPOs</span>
+<span class="sd"> 3. Function spaces of DCPOs</span>
+<span class="sd"> 4. Limits of DCPOs</span>
+<span class="sd"> 5. Binary coproducts of DCPOs</span>
+<span class="sd"> 6. Set-indexed coproducts of DCPOs</span>
+<span class="sd"> 7. The adjunction coming from discrete DCPOs</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. DCPO structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">struct_dcpo_data</span>
+  : hset_struct_data.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, dcpo_struct X).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">f</span>, is_scott_continuous PX PY f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_dcpo_laws</span>
+  : hset_struct_laws struct_dcpo_data.
+<span class="kn">Proof</span>.
+  split5.
+  - <span class="nb">intro</span> X.
+    <span class="nb">apply</span> isaset_dcpo_struct.
+  - <span class="nb">intros</span> X Y px py f.
+    <span class="nb">apply</span> isaprop_is_scott_continuous.
+  - <span class="nb">intros</span> X PX ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> id_is_scott_continuous.
+  - <span class="nb">intros</span> X Y Z PX PY PZ f g Pf Pg.
+    <span class="bp">exact</span> (comp_is_scott_continuous Pf Pg).
+  - <span class="nb">intros</span> X PX PX' p q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (eq_dcpo_struct _ _ p q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_dcpo</span>
+  : hset_struct
+  := struct_dcpo_data ,, struct_dcpo_laws.
+
+<span class="kn">Definition</span> <span class="nf">DCPO</span>
+  : univalent_category
+  := univalent_category_of_hset_struct struct_dcpo.
+
+<span class="kn">Definition</span> <span class="nf">DCPO_underlying</span>
+  : DCPO ⟶ SET
+  := underlying_of_hset_struct struct_dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Cartesian structure of DCPOs</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">cartesian_struct_dcpo_data</span>
+  : hset_cartesian_struct_data
+  := struct_dcpo
+     ,,
+     unit_dcpo_struct
+     ,,
+     <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">DX</span> <span class="nv">DY</span>, prod_dcpo_struct DX DY.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_struct_dcpo_laws</span>
+  : hset_cartesian_struct_laws cartesian_struct_dcpo_data.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ ,, _ ,, _ ,, _).
+  - <span class="nb">intros</span> X DX.
+    <span class="bp">exact</span> (is_scott_continuous_to_unit DX).
+  - <span class="nb">intros</span> X Y DX DY.
+    <span class="bp">exact</span> (is_scott_continuous_dirprod_pr1 DX DY).
+  - <span class="nb">intros</span> X Y DX DY ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (is_scott_continuous_dirprod_pr2 DX DY).
+  - <span class="nb">intros</span> W X Y DW DY DZ f g Df Dg ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (is_scott_continuous_prodtofun Df Dg).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Function spaces of DCPOs</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">cartesian_struct_dcpo</span>
+  : hset_cartesian_struct
+  := cartesian_struct_dcpo_data ,, cartesian_struct_dcpo_laws.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_closed_struct_dcpo_data</span>
+  : hset_cartesian_closed_struct_data.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (cartesian_struct_dcpo ,, _ ,, _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X Y DX DY y ;
+       <span class="bp">exact</span> (is_scott_continuous_constant DX DY y)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">DX</span> <span class="nv">DY</span>, dcpo_struct_funspace DX DY).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cartesian_closed_struct_dcpo_laws</span>
+  : closed_under_fun_laws cartesian_closed_struct_dcpo_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y DX DY ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (is_scott_continuous_eval (X ,, DX) (Y ,, DY)).
+  - <span class="nb">intros</span> X Y Z DX DY DZ f Df ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> (@is_scott_continuous_lam (X ,, DX) (Y ,, DY) (Z ,, DZ) (f ,, Df)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_closed_struct_dcpo</span>
+  : hset_cartesian_closed_struct
+  := cartesian_closed_struct_dcpo_data
+     ,,
+     cartesian_closed_struct_dcpo_laws.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Limits of DCPOs</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">equalizers_struct_dcpo</span>
+  : hset_equalizer_struct struct_dcpo.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">intros</span> X Y f g DX DY Df Dg.
+    <span class="bp">exact</span> (@equalizer_dcpo_struct (X ,, DX) (Y ,, DY) (f ,, Df) (g ,, Dg)).
+  - <span class="nb">refine</span> (_ ,, _).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y f g DX DY Df Dg ;
+         <span class="bp">exact</span> (@is_scott_continuous_equalizer_pr1
+                  (X ,, DX) (Y ,, DY)
+                  (f ,, Df) (g ,, Dg))).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y f g DX DY Df Dg W DW h Dh q ;
+         <span class="bp">exact</span> (@is_scott_continuous_equalizer_map
+                  (X ,, DX) (Y ,, DY)
+                  (f ,, Df) (g ,, Dg)
+                  (W ,, DW) (h ,, Dh)
+                  q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">type_products_struct_dcpo</span>
+           (<span class="nv">I</span> : UU)
+  : hset_struct_type_prod struct_dcpo I.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D</span> <span class="nv">DD</span>, @depfunction_dcpo_struct I (<span class="k">λ</span> <span class="nv">i</span>, D i ,, DD i)).
+  - <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> D DD i ;
+         <span class="bp">exact</span> (is_scott_continuous_depfunction_pr (<span class="k">λ</span> <span class="nv">i</span>, D i ,, DD i) i)).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> D DD W DW fs Hfs ;
+         <span class="bp">exact</span> (@is_scott_continuous_depfunction_map
+                  _
+                  (<span class="k">λ</span> <span class="nv">i</span>, D i ,, DD i)
+                  (W ,, DW)
+                  (<span class="k">λ</span> <span class="nv">i</span>, fs i ,, Hfs i))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Terminal_DCPO</span>
+  : Terminal DCPO
+  := Terminal_category_of_hset_struct cartesian_struct_dcpo.
+
+<span class="kn">Definition</span> <span class="nf">BinProducts_DCPO</span>
+  : BinProducts DCPO
+  := BinProducts_category_of_hset_struct cartesian_struct_dcpo.
+
+<span class="kn">Definition</span> <span class="nf">Products_DCPO</span>
+           (<span class="nv">I</span> : UU)
+  : Products I DCPO
+  := Products_category_of_hset_struct_type_prod (type_products_struct_dcpo I).
+
+<span class="kn">Definition</span> <span class="nf">Equalizers_DCPO</span>
+  : Equalizers DCPO
+  := Equalizers_category_of_hset_struct equalizers_struct_dcpo.
+
+<span class="kn">Definition</span> <span class="nf">Exponentials_DCPO</span>
+  : Exponentials BinProducts_DCPO
+  := Exponentials_struct cartesian_closed_struct_dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Binary coproducts of DCPOs</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">binary_coproducts_struct_dcpo</span>
+  : hset_binary_coprod_struct struct_dcpo.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">PX</span> <span class="nv">PY</span>, coproduct_dcpo_struct (X ,, PX) (Y ,, PY)).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _) ; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y PX PY ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (is_scott_continuous_inl (X ,, PX) (Y ,, PY))).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y PX PY ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (is_scott_continuous_inr (X ,, PX) (Y ,, PY))).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y Z PX PY PZ f g Pf Pg ;
+         <span class="bp">exact</span> (@is_scott_continuous_sumofmaps
+                  (X ,, PX)
+                  (Y ,, PY)
+                  (Z ,, PZ)
+                  f Pf
+                  g Pg)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">BinCoproducts_DCPO</span>
+  : BinCoproducts DCPO
+  := BinCoproducts_category_of_hset_struct binary_coproducts_struct_dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Set-indexed coproducts of DCPOs</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">set_coproducts_struct_dcpo</span>
+           (<span class="nv">I</span> : hSet)
+  : hset_struct_set_coprod struct_dcpo I.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Y</span> <span class="nv">PY</span>, coproduct_set_dcpo_struct (<span class="k">λ</span> <span class="nv">i</span>, Y i ,, PY i)).
+  - <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Y PY ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (is_scott_continuous_incl (<span class="k">λ</span> <span class="nv">i</span>, Y i ,, PY i))).
+    + <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">Y</span> <span class="nv">PY</span> <span class="nv">W</span> <span class="nv">PW</span> <span class="nv">f</span> <span class="nv">Pf</span>, _) ;
+         <span class="bp">exact</span> (@is_scott_continuous_set_coproduct_map
+                  I
+                  (<span class="k">λ</span> <span class="nv">i</span>, Y i ,, PY i)
+                  (W ,, PW)
+                  f
+                  Pf)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Coproducts_DCPO</span>
+           (<span class="nv">I</span> : hSet)
+  : Coproducts I DCPO
+  := Coproducts_category_of_hset_struct_set_coprod (set_coproducts_struct_dcpo I).
+
+<span class="sd">(**</span>
+<span class="sd"> 7. The adjunction coming from discrete DCPOs</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">discrete_dcpo_struct</span>
+  : discrete_hset_struct struct_dcpo.
+<span class="kn">Proof</span>.
+  use make_discrete_hset_struct.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, discrete_dcpo_struct X).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, discrete_dcpo_mor f).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">PX</span>, discrete_dcpo_counit (X ,, PX)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_right_adjoint_DCPO_underlying</span>
+  : is_right_adjoint DCPO_underlying
+  := discrete_hset_struct_to_is_right_adjoint discrete_dcpo_struct.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Examples/DCPOStructures.v</tt>, line 28)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. The adjunction coming from discrete DCPOs
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.DCPOs.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

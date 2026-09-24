@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>QuantaleEnriched.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Categories enriched over quantales</span>
+
+<span class="sd"> Categories enriched over quantales give a simpler class of enriched categories. In essence,</span>
+<span class="sd"> these are more like generalized posets: their types of objects are a set and there is at</span>
+<span class="sd"> most one morphism between any two objects. This is caused by the fact that quantales are</span>
+<span class="sd"> posets, and thus there is at most one morphism from the unit to any object. In this file,</span>
+<span class="sd"> we give specialized builders for quantale enriched categories, quantale enriched functors,</span>
+<span class="sd"> and quantale enriched profunctors. We also give specialized equality principles.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Builder for categories enriched over quantales</span>
+<span class="sd"> 2. The objects in a quantale enriched univalent category form a set</span>
+<span class="sd"> 3. Builder for functors of categories enriched over quantales</span>
+<span class="sd"> 4. Properties of quantale enriched functors</span>
+<span class="sd"> 5. Equality of natural transformation for quantale enriched categories</span>
+<span class="sd"> 6. Builder for quantale enriched profunctors</span>
+<span class="sd"> 7. Properties of quantale enriched profunctors</span>
+<span class="sd"> 8. Properties of quantale enriched transformations</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.PosetCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Profunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.ProfunctorTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">QuantaleEnriched</span>.
+  <span class="kn">Context</span> (<span class="nv">V</span> : quantale_cosmos).
+
+  <span class="kn">Definition</span> <span class="nf">quantale_faithful</span>
+    : faithful_moncat V.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> is_poset_category_quantale_cosmos.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 1. Builder for categories enriched over quantales *)</span>
+  <span class="kn">Section</span> <span class="nf">QuantaleEnrichmentBuilder</span>.
+    <span class="kn">Context</span> (<span class="nv">X</span> : hSet)
+            (<span class="nv">R</span> : X → X → V)
+            (<span class="nv">Ri</span> : ∏ (x : X), I_{V} --&gt; R x x)
+            (<span class="nv">Rc</span> : ∏ (x y z : X), R y z ⊗ R x y --&gt; R x z)
+            (<span class="nv">Rp</span> : ∏ (x y : X), I_{V} --&gt; R x y → I_{V} --&gt; R y x → x = y).
+
+    <span class="kn">Definition</span> <span class="nf">make_quantale_enrichment_precategory_ob_mor</span>
+      : precategory_ob_mor.
+    <span class="kn">Proof</span>.
+      use make_precategory_ob_mor.
+      - <span class="bp">exact</span> X.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, I_{V} --&gt; R x y).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_quantale_enrichment_precategory_data</span>
+      : precategory_data.
+    <span class="kn">Proof</span>.
+      use make_precategory_data.
+      - <span class="bp">exact</span> make_quantale_enrichment_precategory_ob_mor.
+      - <span class="bp">exact</span> Ri.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, mon_linvunitor _ · g #⊗ f · Rc x y z).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">make_quantale_enrichment_precategory_laws</span>
+      : is_precategory make_quantale_enrichment_precategory_data.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; <span class="nb">apply</span> is_poset_category_quantale_cosmos.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_quantale_enrichment_precategory</span>
+      : precategory.
+    <span class="kn">Proof</span>.
+      use make_precategory.
+      - <span class="bp">exact</span> make_quantale_enrichment_precategory_data.
+      - <span class="bp">exact</span> make_quantale_enrichment_precategory_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_quantale_enrichment_category</span>
+      : category.
+    <span class="kn">Proof</span>.
+      use make_category.
+      - <span class="bp">exact</span> make_quantale_enrichment_precategory.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y ;
+           <span class="nb">apply</span> isasetaprop ;
+           <span class="nb">apply</span> is_poset_category_quantale_cosmos).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_univalent_make_quantale_enrichment_category</span>
+      : is_univalent make_quantale_enrichment_category.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y.
+      use isweqimplimpl.
+      - <span class="nb">intro</span> f.
+        use Rp.
+        + <span class="bp">exact</span> f.
+        + <span class="bp">exact</span> (inv_from_z_iso f).
+      - <span class="nb">apply</span> setproperty.
+      - use isaproptotal2.
+        + <span class="nb">intro</span>.
+          <span class="nb">apply</span> isaprop_is_z_isomorphism.
+        + <span class="nb">intros</span>.
+          <span class="nb">apply</span> is_poset_category_quantale_cosmos.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_quantale_enrichment_univalent_category</span>
+      : univalent_category.
+    <span class="kn">Proof</span>.
+      use make_univalent_category.
+      - <span class="bp">exact</span> make_quantale_enrichment_category.
+      - <span class="bp">exact</span> is_univalent_make_quantale_enrichment_category.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_poset_quantale_enrichment_univalent_category</span>
+      : is_poset_category make_quantale_enrichment_univalent_category.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y.
+      <span class="nb">apply</span> is_poset_category_quantale_cosmos.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_quantale_enrichment_data</span>
+      : enrichment_data make_quantale_enrichment_category V
+      := R ,, Ri ,, Rc ,, (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, f) ,, (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, f).
+
+    <span class="kn">Proposition</span> <span class="nf">make_quantale_enrichment_laws</span>
+      : enrichment_laws make_quantale_enrichment_data.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; <span class="nb">apply</span> is_poset_category_quantale_cosmos.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_quantale_enrichment</span>
+      : enrichment make_quantale_enrichment_category V
+      := make_quantale_enrichment_data ,, make_quantale_enrichment_laws.
+  <span class="kn">End</span> <span class="nf">QuantaleEnrichmentBuilder</span>.
+
+  <span class="sd">(** * 2. The objects in a quantale enriched univalent category form a set *)</span>
+  <span class="kn">Proposition</span> <span class="nf">isaprop_mor_quantale_enrichment_univalent_cat</span>
+              {<span class="nv">C</span> : category}
+              (<span class="nv">E</span> : enrichment C V)
+              (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : isaprop (x --&gt; y).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> f g.
+    <span class="nb">refine</span> (pr1 (isofhlevelweqf <span class="mi">1</span> (make_weq _ (isweq_enriched_to_arr E x y)) _ f g)).
+    <span class="nb">apply</span> is_poset_category_quantale_cosmos.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_ob_quantale_enrichment_univalent_cat</span>
+              {<span class="nv">C</span> : univalent_category}
+              (<span class="nv">E</span> : enrichment C V)
+    : isaset C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use (isofhlevelweqb <span class="mi">1</span> (make_weq _ (univalent_category_is_univalent C x y))).
+    use isaproptotal2.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_z_isomorphism.
+    - <span class="nb">intros</span> f g Hf Hg.
+      <span class="nb">apply</span> (isaprop_mor_quantale_enrichment_univalent_cat E).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. Builder for functors of categories enriched over quantales *)</span>
+  <span class="kn">Section</span> <span class="nf">QuantaleEnrichmentFunctorBuilder</span>.
+    <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            (<span class="nv">F</span> : C₁ → C₂)
+            (<span class="nv">Fm</span> : ∏ (x y : C₁), E₁ ⦃ x, y ⦄ --&gt; E₂ ⦃ F x, F y ⦄).
+
+    <span class="kn">Definition</span> <span class="nf">make_functor_quantale_enrichment_data</span>
+      : functor_data C₁ C₂.
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> F.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, enriched_to_arr E₂ (enriched_from_arr E₁ f · Fm x y)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">make_functor_quantale_enrichment_laws</span>
+      : is_functor make_functor_quantale_enrichment_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (isaprop_mor_quantale_enrichment_univalent_cat E₂).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_functor_quantale_enrichment</span>
+      : C₁ ⟶ C₂.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> make_functor_quantale_enrichment_data.
+      - <span class="bp">exact</span> make_functor_quantale_enrichment_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_functor_enrichment_quantale_enrichment</span>
+      : functor_enrichment
+          make_functor_quantale_enrichment
+          E₁
+          E₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> Fm.
+      - <span class="kp">abstract</span>
+          (<span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> is_poset_category_quantale_cosmos).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">QuantaleEnrichmentFunctorBuilder</span>.
+
+  <span class="sd">(** * 4. Properties of quantale enriched functors *)</span>
+  <span class="kn">Proposition</span> <span class="nf">isaset_functor_quantale_enrichment</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+              (<span class="nv">E₂</span> : enrichment C₂ V)
+    : isaset (C₁ ⟶ C₂).
+  <span class="kn">Proof</span>.
+    use isaset_total2.
+    - use isaset_total2.
+      + use funspace_isaset.
+        use isaset_ob_quantale_enrichment_univalent_cat.
+        <span class="bp">exact</span> E₂.
+      + <span class="nb">intro</span> F.
+        use impred_isaset ; <span class="nb">intro</span> x.
+        use impred_isaset ; <span class="nb">intro</span> y.
+        use impred_isaset ; <span class="nb">intro</span> f.
+        <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isaprop_is_functor.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_functor_quantale_enrichment</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+              (<span class="nv">E₂</span> : enrichment C₂ V)
+              {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+              (<span class="nv">p</span> : ∏ (x : C₁), F x = G x)
+    : F = G.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_functor.
+      <span class="nb">apply</span> homset_property.
+    }
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaprop_mor_quantale_enrichment_univalent_cat.
+      <span class="bp">exact</span> E₂.
+    }
+    use funextsec.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. Equality of natural transformation for quantale enriched categories *)</span>
+  <span class="kn">Proposition</span> <span class="nf">nat_trans_eq_quantale_enrichment</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+              {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+              (<span class="nv">τ</span> <span class="nv">θ</span> : F ⟹ G)
+              (<span class="nv">E₂</span> : enrichment C₂ V)
+    : τ = θ.
+  <span class="kn">Proof</span>.
+    use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_mor_quantale_enrichment_univalent_cat.
+    <span class="bp">exact</span> E₂.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 6. Builder for quantale enriched profunctors *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_quantale_enriched_profunctor_data</span>
+             {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+             {<span class="nv">E₁</span> : enrichment C₁ V}
+             {<span class="nv">E₂</span> : enrichment C₂ V}
+             (<span class="nv">P</span> : C₂ → C₁ → V)
+             (<span class="nv">Pl</span> : ∏ (x₁ x₂ : C₂)
+                     (y : C₁),
+                   E₂ ⦃ x₂, x₁ ⦄ ⊗ P x₁ y --&gt; P x₂ y)
+             (<span class="nv">Pr</span> : ∏ (x : C₂)
+                     (y₁ y₂ : C₁),
+                   E₁ ⦃ y₁, y₂ ⦄ ⊗ P x y₁ --&gt; P x y₂)
+    : enriched_profunctor_data E₁ E₂.
+  <span class="kn">Proof</span>.
+    use make_enriched_profunctor_data.
+    - <span class="bp">exact</span> P.
+    - <span class="bp">exact</span> Pl.
+    - <span class="bp">exact</span> Pr.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_quantale_enriched_profunctor</span>
+             {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+             {<span class="nv">E₁</span> : enrichment C₁ V}
+             {<span class="nv">E₂</span> : enrichment C₂ V}
+             (<span class="nv">P</span> : C₂ → C₁ → V)
+             (<span class="nv">Pl</span> : ∏ (x₁ x₂ : C₂)
+                     (y : C₁),
+                   E₂ ⦃ x₂, x₁ ⦄ ⊗ P x₁ y --&gt; P x₂ y)
+             (<span class="nv">Pr</span> : ∏ (x : C₂)
+                     (y₁ y₂ : C₁),
+                   E₁ ⦃ y₁, y₂ ⦄ ⊗ P x y₁ --&gt; P x y₂)
+    : E₁ ↛e E₂.
+  <span class="kn">Proof</span>.
+    use make_enriched_profunctor.
+    - <span class="bp">exact</span> (make_quantale_enriched_profunctor_data P Pl Pr).
+    - <span class="kp">abstract</span>
+        (<span class="kp">repeat</span> <span class="nb">split</span> ;
+         <span class="nb">intros</span> ;
+         <span class="nb">apply</span> (isaprop_mor_quantale_enrichment_univalent_cat (self_enrichment V))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 7. Properties of quantale enriched profunctors *)</span>
+  <span class="kn">Proposition</span> <span class="nf">isaset_profunctor_quantale_enrichment</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+              (<span class="nv">E₁</span> : enrichment C₁ V)
+              (<span class="nv">E₂</span> : enrichment C₂ V)
+    : isaset (E₁ ↛e E₂).
+  <span class="kn">Proof</span>.
+    use isaset_total2.
+    - use isaset_total2.
+      + use funspace_isaset.
+        use funspace_isaset.
+        <span class="bp">exact</span> (@isaset_ob_quantale_enrichment_univalent_cat
+                 (univalent_category_of_quantale_cosmos V)
+                 (self_enrichment V)).
+      + <span class="nb">intro</span> F.
+        use isasetdirprod.
+        * use impred_isaset ; <span class="nb">intro</span> x₁.
+          use impred_isaset ; <span class="nb">intro</span> x₂.
+          use impred_isaset ; <span class="nb">intro</span> y.
+          <span class="nb">apply</span> homset_property.
+        * use impred_isaset ; <span class="nb">intro</span> x.
+          use impred_isaset ; <span class="nb">intro</span> y₁.
+          use impred_isaset ; <span class="nb">intro</span> y₂.
+          <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isaprop_enriched_profunctor_laws.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_profunctor_quantale_enrichment</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+              {<span class="nv">E₁</span> : enrichment C₁ V}
+              {<span class="nv">E₂</span> : enrichment C₂ V}
+              (<span class="nv">P</span> <span class="nv">Q</span> : E₁ ↛e E₂)
+              (<span class="nv">p</span> : ∏ (y : C₂) (x : C₁), P y x = Q y x)
+    : P = Q.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_enriched_profunctor_laws.
+    }
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      use isapropdirprod ;
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ;
+      <span class="nb">apply</span> (isaprop_mor_quantale_enrichment_univalent_cat (self_enrichment V)).
+    }
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (p y x).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 8. Properties of quantale enriched transformations *)</span>
+  <span class="kn">Proposition</span> <span class="nf">eq_quantale_enriched_profunctor_transformation</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+              {<span class="nv">E₁</span> : enrichment C₁ V}
+              {<span class="nv">E₂</span> : enrichment C₂ V}
+              {<span class="nv">P</span> <span class="nv">Q</span> : E₁ ↛e E₂}
+              (<span class="nv">τ</span> <span class="nv">θ</span> : enriched_profunctor_transformation P Q)
+    : τ = θ.
+  <span class="kn">Proof</span>.
+    use eq_enriched_profunctor_transformation.
+    <span class="nb">intros</span> y x.
+    <span class="nb">apply</span> (isaprop_mor_quantale_enrichment_univalent_cat (self_enrichment V)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_quantale_enriched_profunctor_transformation</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+              {<span class="nv">E₁</span> : enrichment C₁ V}
+              {<span class="nv">E₂</span> : enrichment C₂ V}
+              (<span class="nv">P</span> <span class="nv">Q</span> : E₁ ↛e E₂)
+    : isaprop (enriched_profunctor_transformation P Q).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> τ θ.
+    <span class="nb">apply</span> eq_quantale_enriched_profunctor_transformation.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">QuantaleEnriched</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Examples/QuantaleEnriched.v</tt>, line 23)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Properties of quantale enriched transformations
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OpIndexedCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************</span>
+
+<span class="sd"> The fiberwise opposite of an indexed category</span>
+
+<span class="sd"> In this file, we define the fiberwise opposite of indexed categories.</span>
+<span class="sd"> More specifically, if we have a category `Φ` indexed over `C`, then</span>
+<span class="sd"> the fiberwise opposite of `Φ` is defined to be the opposite of `Φ x`</span>
+<span class="sd"> on every object `x`.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The data</span>
+<span class="sd"> 2. The laws</span>
+<span class="sd"> 3. The fiberwise core</span>
+
+<span class="sd"> *********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">FiberwiseOp</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">Φ</span> : indexed_cat C).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. The data</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">op_indexed_cat_data</span>
+    : indexed_cat_data C.
+  <span class="kn">Proof</span>.
+    use make_indexed_cat_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, op_unicat (Φ x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, functor_opp (Φ $ f)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>,
+             nat_trans_comp
+               _ _ _
+               (functor_identity_op _)
+               (op_nt (nat_z_iso_inv (indexed_cat_id_nat_z_iso Φ x)))).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>,
+             nat_trans_comp
+               _ _ _
+               (functor_comp_op_nat_z_iso _ _)
+               (op_nt (nat_z_iso_inv (indexed_cat_comp_nat_z_iso Φ f g)))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op_indexed_cat_isos</span>
+    : indexed_cat_isos op_indexed_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x xx.
+      use opp_is_z_isomorphism.
+      use is_z_isomorphism_comp.
+      + <span class="nb">apply</span> (is_z_iso_inv_from_z_iso (indexed_cat_id_z_iso Φ xx)).
+      + <span class="nb">cbn</span>.
+        <span class="nb">apply</span> is_z_isomorphism_identity.
+    - <span class="nb">intros</span> x y z f g xx.
+      use opp_is_z_isomorphism.
+      use is_z_isomorphism_comp.
+      + <span class="nb">apply</span> (is_z_iso_inv_from_z_iso (indexed_cat_comp_z_iso Φ f g xx)).
+      + <span class="nb">cbn</span>.
+        <span class="nb">apply</span> is_z_isomorphism_identity.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. The laws</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">op_indexed_cat_laws</span>
+    : indexed_cat_laws op_indexed_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y f xx ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> !id_right.
+      <span class="nb">change</span> (is_z_isomorphism_mor (is_z_isomorphism_indexed_cat_id Φ xx))
+        <span class="k">with</span> (inv_from_z_iso (indexed_cat_id_z_iso Φ xx)).
+      <span class="nb">change</span> (is_z_isomorphism_mor (is_z_isomorphism_indexed_cat_comp Φ (identity x) f xx))
+        <span class="k">with</span> (inv_from_z_iso (indexed_cat_comp_z_iso Φ (identity x) f xx)).
+      <span class="nb">rewrite</span> functor_on_inv_from_z_iso.
+      <span class="nb">rewrite</span> !assoc.
+      use z_iso_inv_on_left ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ !(id_left _)).
+      <span class="nb">refine</span> (!_).
+      use z_iso_inv_on_left ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ !(indexed_cat_lunitor_alt Φ f xx)).
+      <span class="nb">refine</span> (@idtoiso_opp (Φ y) _ _ _ @ _).
+      <span class="nb">rewrite</span> maponpathsinv0.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y f xx ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> id_right.
+        }
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">change</span> (is_z_isomorphism_mor (is_z_isomorphism_indexed_cat_id Φ ((Φ $ f) xx)))
+        <span class="k">with</span> (inv_from_z_iso (indexed_cat_id_z_iso Φ ((Φ $ f) xx))).
+      <span class="nb">change</span> (is_z_isomorphism_mor (is_z_isomorphism_indexed_cat_comp Φ f (identity y) xx))
+        <span class="k">with</span> (inv_from_z_iso (indexed_cat_comp_z_iso Φ f (identity y) xx)).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (!_).
+      use z_iso_inv_on_left ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ !(id_left _)).
+      <span class="nb">refine</span> (!_).
+      use z_iso_inv_on_left ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ !(indexed_cat_runitor_alt Φ f xx)).
+      <span class="nb">refine</span> (@idtoiso_opp (Φ y) _ _ _ @ _).
+      <span class="nb">rewrite</span> maponpathsinv0.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z f g h ww ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> !id_right.
+      <span class="nb">change</span> (is_z_isomorphism_mor (is_z_isomorphism_indexed_cat_comp Φ f (g · h) ww))
+        <span class="k">with</span> (inv_from_z_iso (indexed_cat_comp_z_iso Φ f (g · h) ww)).
+      <span class="nb">change</span> (is_z_isomorphism_mor (is_z_isomorphism_indexed_cat_comp Φ g h ((Φ $ f) ww)))
+        <span class="k">with</span> (inv_from_z_iso (indexed_cat_comp_z_iso Φ g h ((Φ $ f) ww))).
+      <span class="nb">change</span> (is_z_isomorphism_mor (is_z_isomorphism_indexed_cat_comp Φ (f · g) h ww))
+        <span class="k">with</span> (inv_from_z_iso (indexed_cat_comp_z_iso Φ (f · g) h ww)).
+      <span class="nb">change</span> (is_z_isomorphism_mor (is_z_isomorphism_indexed_cat_comp Φ f g ww))
+        <span class="k">with</span> (inv_from_z_iso (indexed_cat_comp_z_iso Φ f g ww)).
+      <span class="nb">rewrite</span> functor_on_inv_from_z_iso.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      use z_iso_inv_on_left ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!(id_left _) @ _).
+      <span class="nb">refine</span> (!_).
+      use z_iso_inv_on_left ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!(indexed_cat_lassociator Φ f g h ww)).
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+      }
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+      }
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (@idtoiso_opp (Φ z)).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (maponpathsinv0 (<span class="k">λ</span> <span class="nv">k</span>, (Φ $ k) ww)).
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> pr1_idtoiso_concat.
+      }
+      <span class="nb">rewrite</span> &lt;- (maponpathscomp0 (<span class="k">λ</span> <span class="nv">k</span>, (Φ $ k) ww)).
+      <span class="nb">rewrite</span> pathsinv0l.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. The fiberwise core</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">op_indexed_cat</span>
+    : indexed_cat C.
+  <span class="kn">Proof</span>.
+    use make_indexed_cat.
+    - <span class="bp">exact</span> op_indexed_cat_data.
+    - <span class="bp">exact</span> op_indexed_cat_isos.
+    - <span class="bp">exact</span> op_indexed_cat_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FiberwiseOp</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/IndexedCategories/OpIndexedCategory.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The fiberwise core
+  &gt;
+  &gt;  *********************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Isos.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StrongMonad.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************</span>
+
+<span class="sd"> Strong monads</span>
+
+<span class="sd"> In this file, we define the notion of strong monad on a monoidal</span>
+<span class="sd"> category.</span>
+
+<span class="sd"> ********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">LeftStrength</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}.
+
+  <span class="kn">Definition</span> <span class="nf">left_strength_data</span>
+             (<span class="nv">F</span> : V ⟶ V)
+    : UU
+    := ∏ (x y : V), x ⊗ F y --&gt; F(x ⊗ y).
+
+  <span class="kn">Definition</span> <span class="nf">left_strength_laws</span>
+             {<span class="nv">F</span> : V ⟶ V}
+             (<span class="nv">tF</span> : left_strength_data F)
+    : UU
+    := (∏ (x₁ x₂ y₁ y₂ : V)
+          (f : x₁ --&gt; x₂)
+          (g : y₁ --&gt; y₂),
+        f #⊗ #F g· tF x₂ y₂
+        =
+        tF x₁ y₁ · #F(f #⊗ g))
+       ×
+       (∏ (x : V),
+        tF I_{V} x · #F(mon_lunitor x)
+        =
+        mon_lunitor (F x))
+       ×
+       (∏ (x y z : V),
+        tF (x ⊗ y) z · #F(mon_lassociator x y z)
+        =
+        mon_lassociator x y (F z) · identity x #⊗ tF y z · tF x (y ⊗ z)).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_left_strength_laws</span>
+              {<span class="nv">F</span> : V ⟶ V}
+              (<span class="nv">tF</span> : left_strength_data F)
+    : isaprop (left_strength_laws tF).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use isapropdirprod) ; <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_strength</span>
+             (<span class="nv">F</span> : V ⟶ V)
+    : UU
+    := ∑ (tF : left_strength_data F), left_strength_laws tF.
+
+  <span class="kn">Definition</span> <span class="nf">left_strength_to_data</span>
+             {<span class="nv">F</span> : V ⟶ V}
+             (<span class="nv">tF</span> : left_strength F)
+             (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : x ⊗ F y --&gt; F(x ⊗ y)
+    := pr1 tF x y.
+
+  <span class="kn">Coercion</span> <span class="nf">left_strength_to_data</span> : left_strength &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Section</span> <span class="nf">LeftStrengthLaws</span>.
+    <span class="kn">Context</span> {<span class="nv">F</span> : V ⟶ V}
+            (<span class="nv">tF</span> : left_strength F).
+
+    <span class="kn">Proposition</span> <span class="nf">left_strength_natural</span>
+                {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : V}
+                (<span class="nv">f</span> : x₁ --&gt; x₂)
+                (<span class="nv">g</span> : y₁ --&gt; y₂)
+      : f #⊗ #F g· tF x₂ y₂
+        =
+        tF x₁ y₁ · #F(f #⊗ g).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr12 tF x₁ x₂ y₁ y₂ f g).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">left_strength_mon_lunitor</span>
+                (<span class="nv">x</span> : V)
+      : tF I_{V} x · #F(mon_lunitor x)
+        =
+        mon_lunitor (F x).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr122 tF x).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">left_strength_mon_lassociator</span>
+                (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V)
+      : tF (x ⊗ y) z · #F(mon_lassociator x y z)
+        =
+        mon_lassociator x y (F z) · identity x #⊗ tF y z · tF x (y ⊗ z).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr222 tF x y z).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">LeftStrengthLaws</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_strong_monad_laws</span>
+             {<span class="nv">M</span> : Monad V}
+             (<span class="nv">tM</span> : left_strength M)
+    : UU
+    := (∏ (x y : V),
+        identity x #⊗ η M y · tM x y
+        =
+        η M (x ⊗ y))
+       ×
+       (∏ (x y : V),
+        identity x #⊗ μ M y · tM x y
+        =
+        tM x (M y) · #M (tM x y) · μ M (x ⊗ y)).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_left_strong_monad_laws</span>
+              {<span class="nv">M</span> : Monad V}
+              (<span class="nv">tM</span> : left_strength M)
+    : isaprop (left_strong_monad_laws tM).
+  <span class="kn">Proof</span>.
+    use isapropdirprod ; <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_strong_monad</span>
+             (<span class="nv">M</span> : Monad V)
+    : UU
+    := ∑ (tM : left_strength M), left_strong_monad_laws tM.
+
+  <span class="kn">Coercion</span> <span class="nf">left_strong_monad_strength</span>
+           {M : Monad V}
+           (tM : left_strong_monad M)
+    : left_strength M
+    := pr1 tM.
+
+  <span class="kn">Section</span> <span class="nf">LeftStrongMonadLaws</span>.
+    <span class="kn">Context</span> {<span class="nv">M</span> : Monad V}
+            (<span class="nv">tM</span> : left_strong_monad M).
+
+    <span class="kn">Proposition</span> <span class="nf">left_strong_monad_unit</span>
+                (<span class="nv">x</span> <span class="nv">y</span> : V)
+      : identity x #⊗ η M y · tM x y
+        =
+        η M (x ⊗ y).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr12 tM x y).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">left_strong_monad_mu</span>
+                (<span class="nv">x</span> <span class="nv">y</span> : V)
+      : identity x #⊗ μ M y · tM x y
+        =
+        tM x (M y) · #M (tM x y) · μ M (x ⊗ y).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr22 tM x y).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">LeftStrongMonadLaws</span>.
+<span class="kn">End</span> <span class="nf">LeftStrength</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/StrongMonad.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  category.
+  &gt;
+  &gt;  ********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

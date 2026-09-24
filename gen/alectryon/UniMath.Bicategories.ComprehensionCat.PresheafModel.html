@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PresheafModel.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> The presheaf model of type theory</span>
+
+<span class="sd"> One of the standard models of type theory, is the presheaf model. Specifically,</span>
+<span class="sd"> if we have a category `C`, then we have a comprehension category as follows.</span>
+<span class="sd"> - Contexts: presheaves over `C`</span>
+<span class="sd"> - Morphisms between contexts: natural transformations</span>
+<span class="sd"> - Types in context `Γ`: dependent presheaves over `Γ` (i.e., presheaves over `∫ Γ`</span>
+<span class="sd">   where `∫ Γ` is the category of elements of `Γ`)</span>
+<span class="sd"> - Morphisms between types: natural transformation</span>
+<span class="sd"> - Terms are the same as sections</span>
+<span class="sd"> We construct this model as a full comprehension category. In addition, we show that</span>
+<span class="sd"> this model supports various type formers, like extensional identity types, a unit type,</span>
+<span class="sd"> binary products, ∑-types, natural numbers, and ∏-types. We also show that it supports</span>
+<span class="sd"> a subobject classifier type. We use this to deduce that the category of presheaves</span>
+<span class="sd"> is an elementary topos.</span>
+
+<span class="sd"> We also show that functors and natural transformations lift to the presheaf model.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The full comprehension category</span>
+<span class="sd"> 2. Type formers in the presheaf model</span>
+<span class="sd"> 3. The category of presheaves is an elementary topos</span>
+<span class="sd"> 4. Functors on the presheaf model</span>
+<span class="sd"> 5. Natural transformations on the presheaf model</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PowerObject.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ElementaryTopos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.TotalPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SigmaTypes.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.PiTypes.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.PiTypesStable.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Precomposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.Democracy.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.ProductTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.UnitTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.SigmaTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatWithProp.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.PiTypesBiequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="kn">Section</span> <span class="nf">PShCompCat</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="sd">(** * 1. The full comprehension category *)</span>
+  <span class="kn">Definition</span> <span class="nf">psh_cat_with_terminal_disp_cat</span>
+    : cat_with_terminal_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_cat_with_terminal_disp_cat.
+    - use make_univalent_category.
+      + <span class="bp">exact</span> (PreShv C).
+      + use is_univalent_functor_category.
+        <span class="bp">exact</span> is_univalent_HSET.
+    - <span class="bp">exact</span> Terminal_PreShv.
+    - use make_disp_univalent_category.
+      + <span class="bp">exact</span> (disp_cat_dep_psh C).
+      + <span class="bp">exact</span> (is_univalent_disp_disp_cat_dep_psh C).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psh_cat_with_terminal_cleaving</span>
+    : cat_with_terminal_cleaving.
+  <span class="kn">Proof</span>.
+    use make_cat_with_terminal_cleaving.
+    - <span class="bp">exact</span> psh_cat_with_terminal_disp_cat.
+    - <span class="bp">exact</span> (cleaving_disp_cat_dep_psh C).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psh_comprehension_functor</span>
+    : comprehension_functor psh_cat_with_terminal_cleaving.
+  <span class="kn">Proof</span>.
+    use make_comprehension_functor.
+    - <span class="bp">exact</span> (dep_psh_comprehension C).
+    - <span class="bp">exact</span> (is_cartesian_dep_psh_comprehension C).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psh_comp_cat</span>
+    : comp_cat.
+  <span class="kn">Proof</span>.
+    use make_comp_cat.
+    - <span class="bp">exact</span> psh_cat_with_terminal_cleaving.
+    - <span class="bp">exact</span> psh_comprehension_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psh_full_comp_cat</span>
+    : full_comp_cat.
+  <span class="kn">Proof</span>.
+    use make_full_comp_cat.
+    - <span class="bp">exact</span> psh_comp_cat.
+    - <span class="bp">exact</span> (disp_functor_ff_dep_psh_comprehension C).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Type formers in the presheaf model *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_democratic_psh_full_comp_cat</span>
+    : is_democratic psh_full_comp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Γ.
+    <span class="bp">exact</span> (psh_to_dep_psh Γ ,, psh_to_dep_psh_z_iso Γ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dependent_sums_psh_full_comp_cat</span>
+    : comp_cat_dependent_sum psh_full_comp_cat.
+  <span class="kn">Proof</span>.
+    use make_comp_cat_dependent_sum_from_chosen.
+    use make_comp_cat_dependent_sum_chosen.
+    - <span class="nb">intros</span> Γ A.
+      <span class="bp">exact</span> (dependent_sum_dep_psh A).
+    - <span class="nb">intros</span> Γ₁ Γ₂ A s B.
+      use make_is_z_isomorphism.
+      + <span class="bp">exact</span> (dep_psh_sigma_subst s A B).
+      + <span class="kp">abstract</span>
+          (<span class="nb">split</span> ;
+           use dep_psh_nat_trans_eq ;
+           <span class="nb">intros</span> x xx ab ;
+           <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _) ;
+           <span class="bp">exact</span> (dep_psh_sigma_beck_chevalley s A B ab _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strong_dependent_sums_psh_full_comp_cat</span>
+    : strong_dependent_sums psh_full_comp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (dependent_sums_psh_full_comp_cat ,, _).
+    <span class="nb">intros</span> Γ A B.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (dep_psh_sigma_total_inv A B).
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ]) ;
+         <span class="nb">intro</span> x ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psh_dfl_full_comp_cat</span>
+    : dfl_full_comp_cat.
+  <span class="kn">Proof</span>.
+    use make_dfl_full_comp_cat.
+    - <span class="bp">exact</span> psh_full_comp_cat.
+    - <span class="bp">exact</span> is_democratic_psh_full_comp_cat.
+    - <span class="bp">exact</span> (dep_psh_fiberwise_terminal C).
+    - <span class="bp">exact</span> dep_psh_unit_z_iso.
+    - <span class="bp">exact</span> (dep_psh_fiberwise_binproducts C).
+    - <span class="bp">exact</span> (dep_psh_fiberwise_equalizers C).
+    - <span class="bp">exact</span> strong_dependent_sums_psh_full_comp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dependent_prod_psh_comp_cat</span>
+    : comp_cat_dependent_prod psh_full_comp_cat.
+  <span class="kn">Proof</span>.
+    use make_comp_cat_dependent_prod_from_chosen.
+    use make_comp_cat_dependent_prod_chosen.
+    - <span class="nb">intros</span> Γ A.
+      <span class="bp">exact</span> (dependent_product_dep_psh A).
+    - <span class="nb">intros</span> Γ₁ Γ₂ A s B.
+      use make_is_z_isomorphism.
+      + <span class="bp">exact</span> (dep_psh_pi_subst s A B).
+      + <span class="bp">exact</span> (dep_psh_pi_subst_inv_laws s A B _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_psh_comp_cat</span>
+    : fiberwise_cat_property
+        subobject_classifier_local_property
+        psh_dfl_full_comp_cat.
+  <span class="kn">Proof</span>.
+    use make_fiberwise_cat_property.
+    - <span class="bp">exact</span> dep_psh_subobject_classifier.
+    - <span class="nb">intros</span> Γ₁ Γ₂ s.
+      <span class="bp">exact</span> (dep_psh_subobject_classifier_preservation s).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pnno_psh_comp_cat</span>
+    : fiberwise_cat_property
+        parameterized_NNO_local_property
+        psh_dfl_full_comp_cat.
+  <span class="kn">Proof</span>.
+    use make_fiberwise_cat_property.
+    - <span class="nb">intro</span> Γ.
+      <span class="nb">refine</span> (_ ,, _ ,, _ ,, _).
+      <span class="bp">exact</span> (is_parameterized_NNO_prod_independent
+               (C := univalent_fiber_category
+                       (univalent_disp_cat_dep_psh C)
+                       Γ)
+               _
+               (dep_psh_fiberwise_nno Γ)).
+    - <span class="nb">intros</span> Γ₁ Γ₂ s.
+      use preserves_parameterized_NNO_prod_independent.
+      <span class="bp">exact</span> (dep_psh_fiberwise_nno_stable s).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. The category of presheaves is an elementary topos *)</span>
+  <span class="kn">Definition</span> <span class="nf">psh_univ_cat_with_finlim</span>
+    : univ_cat_with_finlim
+    := dfl_full_comp_cat_to_finlim psh_dfl_full_comp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">is_locally_cartesian_closed_psh_univ_cat_with_finlim</span>
+    : is_locally_cartesian_closed
+        (pullbacks_univ_cat_with_finlim psh_univ_cat_with_finlim)
+    := dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob
+         psh_dfl_full_comp_cat
+         dependent_prod_psh_comp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">psh_univ_cat_subobject_classifier</span>
+    : subobject_classifier (@Terminal_PreShv C)
+    := local_property_in_dfl_comp_cat
+         subobject_classifier_local_property
+         psh_dfl_full_comp_cat
+         subobject_classifier_psh_comp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">psh_univ_cat_pnno</span>
+    : parameterized_NNO
+        Terminal_PreShv
+        (binproducts_univ_cat_with_finlim
+           psh_univ_cat_with_finlim)
+    := local_property_in_dfl_comp_cat
+         parameterized_NNO_local_property
+         psh_dfl_full_comp_cat
+         pnno_psh_comp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">psh_topos</span>
+    : Topos.
+  <span class="kn">Proof</span>.
+    use make_Topos.
+    - <span class="bp">exact</span> psh_univ_cat_with_finlim.
+    - use make_Topos_Structure.
+      + <span class="bp">exact</span> (pullbacks_univ_cat_with_finlim psh_univ_cat_with_finlim).
+      + <span class="bp">exact</span> (terminal_univ_cat_with_finlim psh_univ_cat_with_finlim).
+      + <span class="bp">exact</span> psh_univ_cat_subobject_classifier.
+      + use PowerObject_from_exponentials.
+        use is_locally_cartesian_closed_exponentials.
+        <span class="bp">exact</span> is_locally_cartesian_closed_psh_univ_cat_with_finlim.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PShCompCat</span>.
+
+<span class="sd">(** * 4. Functors on the presheaf model *)</span>
+<span class="kn">Section</span> <span class="nf">PShCompCatFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">F</span> : C₁ ⟶ C₂).
+
+  <span class="kn">Definition</span> <span class="nf">precomposition_psh_functor_with_terminal_disp_cat</span>
+    : functor_with_terminal_disp_cat
+        (psh_dfl_full_comp_cat C₂)
+        (psh_dfl_full_comp_cat C₁).
+  <span class="kn">Proof</span>.
+    use make_functor_with_terminal_disp_cat.
+    - <span class="bp">exact</span> (precomp_psh F).
+    - <span class="bp">exact</span> (preserves_terminal_precomp_psh F).
+    - <span class="bp">exact</span> (precomp_dep_psh_disp_functor F).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomposition_psh_functor_with_terminal_cleaving</span>
+    : functor_with_terminal_cleaving
+        (psh_dfl_full_comp_cat C₂)
+        (psh_dfl_full_comp_cat C₁).
+  <span class="kn">Proof</span>.
+    use make_functor_with_terminal_cleaving.
+    - <span class="bp">exact</span> precomposition_psh_functor_with_terminal_disp_cat.
+    - <span class="bp">exact</span> (is_cartesian_precomp_dep_psh_disp_functor F).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomposition_psh_comp_cat_functor</span>
+    : comp_cat_functor
+        (psh_dfl_full_comp_cat C₂)
+        (psh_dfl_full_comp_cat C₁).
+  <span class="kn">Proof</span>.
+    use make_comp_cat_functor.
+    - <span class="bp">exact</span> precomposition_psh_functor_with_terminal_cleaving.
+    - <span class="bp">exact</span> (precomp_dep_psh_disp_functor_comprehension F).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomposition_psh_full_comp_cat_functor</span>
+    : full_comp_cat_functor
+        (psh_dfl_full_comp_cat C₂)
+        (psh_dfl_full_comp_cat C₁).
+  <span class="kn">Proof</span>.
+    use make_full_comp_cat_functor.
+    - <span class="bp">exact</span> precomposition_psh_comp_cat_functor.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">A</span>, precomp_dep_psh_disp_functor_comprehension_z_iso F A).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomposition_psh_dfl_full_comp_cat_functor</span>
+    : dfl_full_comp_cat_functor
+        (psh_dfl_full_comp_cat C₂)
+        (psh_dfl_full_comp_cat C₁).
+  <span class="kn">Proof</span>.
+    use make_dfl_full_comp_cat_functor.
+    - <span class="bp">exact</span> precomposition_psh_full_comp_cat_functor.
+    - <span class="bp">exact</span> (precomp_dep_psh_disp_functor_preserves_terminal F).
+    - <span class="bp">exact</span> (precomp_dep_psh_disp_functor_preserves_binproduct F).
+    - <span class="bp">exact</span> (precomp_dep_psh_disp_functor_preserves_equalizer F).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PShCompCatFunctor</span>.
+
+<span class="sd">(** * 5. Natural transformations on the presheaf model *)</span>
+<span class="kn">Section</span> <span class="nf">PShCompCatNatTrans</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+          (<span class="nv">τ</span> : F ⟹ G).
+
+  <span class="kn">Definition</span> <span class="nf">precomposition_psh_dfl_full_nat_trans_with_terminal_cleaving</span>
+    : nat_trans_with_terminal_cleaving
+        (precomposition_psh_dfl_full_comp_cat_functor G)
+        (precomposition_psh_dfl_full_comp_cat_functor F).
+  <span class="kn">Proof</span>.
+    use make_nat_trans_with_terminal_cleaving.
+    use make_nat_trans_with_terminal_disp_cat.
+    - <span class="bp">exact</span> (precomp_psh_nat_trans τ).
+    - <span class="bp">exact</span> (precomp_psh_disp_nat_trans τ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomposition_psh_dfl_full_comp_cat_nat_trans</span>
+    : dfl_full_comp_cat_nat_trans
+        (precomposition_psh_dfl_full_comp_cat_functor G)
+        (precomposition_psh_dfl_full_comp_cat_functor F).
+  <span class="kn">Proof</span>.
+    use make_dfl_full_comp_cat_nat_trans.
+    use make_full_comp_cat_nat_trans.
+    use make_comp_cat_nat_trans.
+    - <span class="bp">exact</span> precomposition_psh_dfl_full_nat_trans_with_terminal_cleaving.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Γ A ;
+         use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PShCompCatNatTrans</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/PresheafModel.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Natural transformations on the presheaf model
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

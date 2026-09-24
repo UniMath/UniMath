@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>IdempotencePointedFunctorsWhiskeredMonoidal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* In this file we show that for any category C,</span>
+<span class="c">   the monoidal category of pointed functors of C is equivalent to</span>
+<span class="c">   the monoidal category of monoidal-pointed objects in the monoidal category of pointed functors of C.</span>
+
+<span class="c">   By equivalence, we mean that these two monoidal categories</span>
+<span class="c">   are (internally) equivalent as objects in the bicategory of monoidal categories</span>
+<span class="c">*)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.coslicecat.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+
+<span class="c">(* The monoidal categories of endofunctors that we compare are defined in the following files: *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.PointedFunctorsWhiskeredMonoidal.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
+
+<span class="c">(* The notion of internal adjoint equivalences in a bicategory is defined in: *)</span>
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+
+<span class="c">(* The necessary bicategories *)</span>
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">PointedFunctorsIdempotentGeneralMonoidalCats</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V).
+
+  <span class="kn">Definition</span> <span class="nf">adj_equivalence_ptdfunctor_in_cat</span>
+    : adjoint_equivalence
+        (B := bicat_of_cats)
+        (coslice_cat_total V (monoidal_unit Mon_V))
+        (coslice_cat_total (coslice_cat_total V (monoidal_unit Mon_V)) (monoidal_unit (monoidal_pointed_objects Mon_V))).
+  <span class="kn">Proof</span>.
+    use make_adjoint_equivalence.
+    - <span class="bp">exact</span> (ptdob_to_ptdptdob Mon_V).
+    - <span class="bp">exact</span> (ptdptdob_to_ptdob Mon_V).
+    - <span class="bp">exact</span> (unit_ptdob Mon_V).
+    - <span class="bp">exact</span> (counit_ptdob Mon_V).
+    - use nat_trans_eq.
+      { <span class="nb">apply</span> homset_property. }
+      <span class="nb">intro</span>.
+      use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> ! id_right.
+      <span class="nb">apply</span> idpath.
+    - use nat_trans_eq.
+      { <span class="nb">apply</span> homset_property. }
+      <span class="nb">intro</span>.
+      use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> ! id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="kp">repeat</span> (use tpair).
+      + <span class="nb">intro</span>.
+        <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+        <span class="nb">apply</span> id_right.
+      + <span class="nb">intro</span> ; <span class="nb">intros</span>.
+        use total2_paths_f.
+        <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+        etrans. { <span class="nb">apply</span> id_right. }
+        <span class="nb">apply</span> (! id_left _).
+      + <span class="nb">apply</span> nat_trans_eq.
+        { <span class="nb">apply</span> homset_property. }
+        <span class="nb">intro</span>.
+        use total2_paths_f.
+        <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+        <span class="nb">apply</span> id_right.
+      + <span class="nb">apply</span> nat_trans_eq.
+        { <span class="nb">apply</span> homset_property. }
+        <span class="nb">intro</span>.
+        use total2_paths_f.
+        <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+        <span class="nb">apply</span> id_right.
+    - <span class="kp">repeat</span> (use tpair).
+      + <span class="nb">intro</span>.
+        <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+        use total2_paths_f.
+        <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+        <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> (! pr22 x).
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> id_right.
+      + <span class="nb">intro</span> ; <span class="nb">intros</span>.
+        use total2_paths_f.
+        <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+        etrans. { <span class="nb">apply</span> id_right. }
+        <span class="nb">apply</span> (! id_left _).
+      + <span class="nb">apply</span> nat_trans_eq.
+        { <span class="nb">apply</span> homset_property. }
+        <span class="nb">intro</span>.
+        use total2_paths_f.
+        <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+        <span class="nb">apply</span> id_right.
+      + <span class="nb">apply</span> nat_trans_eq.
+        { <span class="nb">apply</span> homset_property. }
+        <span class="nb">intro</span>.
+        use total2_paths_f.
+        <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+        <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_left_adjoint_data_ptdfunctor_in_moncat</span>
+    : disp_left_adjoint_data
+            (D := bidisp_monbicat_disp_prebicat)
+            adj_equivalence_ptdfunctor_in_cat
+            (ptdob_to_ptdptdob_fmonoidal Mon_V).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">ptdptdob_to_ptdob_fmonoidal</span> <span class="nv">Mon_V</span>).
+    <span class="nb">split</span>.
+      + use tpair.
+        * <span class="nb">intro</span> ; <span class="nb">intros</span>.
+          <span class="kp">abstract</span> (
+              use total2_paths_f ;
+              [
+                <span class="nb">simpl</span> ;
+                <span class="nb">rewrite</span> (bifunctor_leftid Mon_V) ;
+                <span class="nb">rewrite</span> (bifunctor_rightid Mon_V) ;
+                <span class="nb">rewrite</span> ! id_right ;
+                <span class="nb">apply</span> idpath
+              | <span class="nb">apply</span> homset_property
+              ]
+            ).
+        * <span class="kp">abstract</span> (use total2_paths_f ; [<span class="nb">apply</span> idpath | <span class="nb">apply</span> homset_property ]).
+      + use tpair.
+        * <span class="nb">intro</span> ; <span class="nb">intros</span>.
+          <span class="kp">abstract</span> (
+              use total2_paths_f ;
+              [
+                use total2_paths_f ;
+                [
+                  <span class="nb">simpl</span> ;
+                  <span class="nb">rewrite</span> (bifunctor_leftid Mon_V) ;
+                  <span class="nb">rewrite</span> (bifunctor_rightid Mon_V) ;
+                  <span class="nb">rewrite</span> ! id_right ;
+                  <span class="nb">apply</span> idpath
+                | <span class="nb">apply</span> homset_property
+                ]
+              | <span class="nb">apply</span> homset_property
+              ]
+            ).
+        * <span class="kp">abstract</span> (
+              use total2_paths_f ;
+              [
+                use total2_paths_f ;
+                [
+                  <span class="nb">simpl</span> ;
+                  <span class="nb">rewrite</span> ! id_right ;
+                  <span class="nb">apply</span> idpath
+                | <span class="nb">apply</span> homset_property
+                ]
+              | <span class="nb">apply</span> homset_property
+              ]
+            ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_left_adjoint_axioms_ptdfunctor_in_moncat</span>
+    :  disp_left_adjoint_axioms
+         adj_equivalence_ptdfunctor_in_cat
+         disp_left_adjoint_data_ptdfunctor_in_moncat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+        * use total2_paths_f.
+          <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+          <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+          <span class="nb">apply</span> homset_property.
+        * use total2_paths_f.
+          <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+          <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+          <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_left_equivalence_axioms_ptdfunctor_in_moncat</span>
+    :  disp_left_equivalence_axioms
+         adj_equivalence_ptdfunctor_in_cat
+         disp_left_adjoint_data_ptdfunctor_in_moncat.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use tpair).
+    - <span class="nb">intro</span> ; <span class="nb">intro</span>.
+      use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> (bifunctor_rightid Mon_V).
+      <span class="nb">rewrite</span> (bifunctor_leftid Mon_V).
+      <span class="nb">apply</span> idpath.
+    - use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> ! id_right.
+      <span class="nb">apply</span> idpath.
+    - use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+    - use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> ; <span class="nb">intro</span>.
+      use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> (bifunctor_rightid Mon_V).
+      <span class="nb">rewrite</span> (bifunctor_leftid Mon_V).
+      <span class="nb">rewrite</span> ! id_right.
+      <span class="nb">apply</span> idpath.
+    - use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="nb">simpl</span>.
+      <span class="nb">apply</span> idpath.
+    - use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+    - use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adj_equivalence_ptdfunctor_in_moncat</span>
+    : disp_left_adjoint_equivalence
+            (D := bidisp_monbicat_disp_prebicat)
+            adj_equivalence_ptdfunctor_in_cat
+             (ptdob_to_ptdptdob_fmonoidal Mon_V).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">disp_left_adjoint_data_ptdfunctor_in_moncat</span>.
+    <span class="k">exists</span> <span class="nv">disp_left_adjoint_axioms_ptdfunctor_in_moncat</span>.
+    <span class="bp">exact</span> disp_left_equivalence_axioms_ptdfunctor_in_moncat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equivalence_ptdfunctor_in_moncat</span>
+    : adjoint_equivalence
+        (B := monbicat)
+        (_ ,, monoidal_pointed_objects Mon_V)
+        (_ ,, monoidal_pointed_objects (monoidal_pointed_objects Mon_V)).
+  <span class="kn">Proof</span>.
+    use (invmap (adjoint_equivalence_total_disp_weq _ _) _).
+    <span class="k">exists</span> <span class="nv">adj_equivalence_ptdfunctor_in_cat</span>.
+    <span class="k">exists</span> (<span class="nv">ptdob_to_ptdptdob_fmonoidal</span> <span class="nv">Mon_V</span>).
+    <span class="bp">exact</span> disp_adj_equivalence_ptdfunctor_in_moncat.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PointedFunctorsIdempotentGeneralMonoidalCats</span>.
+
+<span class="kn">Definition</span> <span class="nf">adj_equivalence_ptdfunctor</span> (<span class="nv">C</span> : category)
+  : adjoint_equivalence
+      (B := monbicat)
+      (_ ,, pointedfunctors_moncat C)
+      (_ ,, monoidal_pointed_objects (pointedfunctors_moncat C))
+  := adj_equivalence_ptdfunctor_in_moncat (monoidal_of_endofunctors C).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/IdempotencePointedFunctorsWhiskeredMonoidal.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

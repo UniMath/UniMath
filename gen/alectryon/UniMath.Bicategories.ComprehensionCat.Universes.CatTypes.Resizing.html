@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Resizing.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Universes in categories that are closed under propositional resizing</span>
+
+<span class="sd"> A universe is said to be closed under propositional resizing if there is a code in that</span>
+<span class="sd"> universe for every type that is a proposition (i.e., every two inhabitants are equal).</span>
+<span class="sd"> In this file, we define when a universe in a category is closed under propositional</span>
+<span class="sd"> resizing.</span>
+
+<span class="sd"> The main idea behind our development is that types which are propositions, can be</span>
+<span class="sd"> characterized as types whose projection map is a monomorphism, which holds generally in</span>
+<span class="sd"> extensional type theory. Hence, if we are looking at comprehension categories arising</span>
+<span class="sd"> from categories with finite limits, propositions in a context `Γ` are the same as</span>
+<span class="sd"> monomorphisms into `Γ`. We can thus formulate propositional resizing in a convenient way</span>
+<span class="sd"> for universes in categories, namely there is a code for every monomorphism in the</span>
+<span class="sd"> category.</span>
+
+<span class="sd"> Note that this axiom appears frequently in the context of algebraic set theory (see, for</span>
+<span class="sd"> instance, "Algebraic Set Theory" by Joyal and Moerdijk or "A brief introduction to algebraic</span>
+<span class="sd"> set theory" by Awodey). In that context, one works with categories that are, among others,</span>
+<span class="sd"> equipped with a class of small maps and classifying object for them. The classifying object</span>
+<span class="sd"> represents the universe type and the map that associated to each code an actual type, and</span>
+<span class="sd"> small maps represent those types for which there is a code. If one uses algebraic set theory</span>
+<span class="sd"> to construct models of IZF (i.e., intuitionistic Zermelo-Fraenkel set theory, which is</span>
+<span class="sd"> impredicative), then one assumes that all monomorphisms are small. Concretely, this means</span>
+<span class="sd"> that for every monomorphism there is a code in the universe, which corresponds to the axiom</span>
+<span class="sd"> of propositional resizing. In the context of set theory, propositional resizing gives us</span>
+<span class="sd"> the full separation axiom rather than one restricted to bounded formulas.</span>
+
+<span class="sd"> References:</span>
+<span class="sd"> - "Algebraic Set Theory" by Joyal and Moerdijk</span>
+<span class="sd"> - "A brief introduction to algebraic set theory" by Awodey</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Codes for resizing</span>
+<span class="sd"> 2. Stability</span>
+<span class="sd"> 3. Preservation</span>
+<span class="sd"> 4. Preservation by identity and composition</span>
+<span class="sd"> 5. Univalence condition</span>
+
+<span class="sd">                                                                                           *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ResizingInCatWithUniv</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : univ_cat_with_finlim_universe}.
+
+  <span class="kn">Let</span> <span class="nf">el</span> : cat_stable_el_map_coherent C := univ_cat_cat_stable_el_map C.
+
+  <span class="sd">(** * 1. Codes for resizing *)</span>
+  <span class="kn">Definition</span> <span class="nf">cat_univ_codes_resizing</span>
+    : UU
+    := ∏ (Γ A : C)
+         (m : Monic C A Γ),
+       ∑ (a : Γ --&gt; univ_cat_universe C)
+         (f : z_iso (cat_el_map_el el a) A),
+       f · m = cat_el_map_mor el _.
+
+  <span class="kn">Definition</span> <span class="nf">make_cat_univ_codes_resizing</span>
+             (<span class="nv">a</span> : ∏ (Γ A : C)
+                    (m : Monic C A Γ),
+                  Γ --&gt; univ_cat_universe C)
+             (<span class="nv">f</span> : ∏ (Γ A : C)
+                    (m : Monic C A Γ),
+                  z_iso (cat_el_map_el el (a Γ A m)) A)
+             (<span class="nv">p</span> : ∏ (Γ A : C)
+                    (m : Monic C A Γ),
+                  f Γ A m · m = cat_el_map_mor el _)
+    : cat_univ_codes_resizing
+    := <span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">m</span>, a Γ A m ,, f Γ A m ,, p Γ A m.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_cat_univ_codes_resizing</span>
+    : isaset cat_univ_codes_resizing.
+  <span class="kn">Proof</span>.
+    use impred_isaset ; <span class="nb">intros</span> Γ.
+    use impred_isaset ; <span class="nb">intros</span> A.
+    use impred_isaset ; <span class="nb">intros</span> m.
+    use isaset_total2.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> a.
+      use isaset_total2.
+      + <span class="nb">apply</span> isaset_z_iso.
+      + <span class="nb">intro</span> f.
+        <span class="nb">apply</span> isasetaprop.
+        <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cat_univ_resize_monic</span>
+             (<span class="nv">resize</span> : cat_univ_codes_resizing)
+             {<span class="nv">Γ</span> <span class="nv">A</span> : C}
+             (<span class="nv">m</span> : Monic C A Γ)
+    : Γ --&gt; univ_cat_universe C
+    := pr1 (resize Γ A m).
+
+  <span class="kn">Definition</span> <span class="nf">cat_univ_resize_z_iso</span>
+             (<span class="nv">resize</span> : cat_univ_codes_resizing)
+             {<span class="nv">Γ</span> <span class="nv">A</span> : C}
+             (<span class="nv">m</span> : Monic C A Γ)
+    : z_iso (cat_el_map_el el (cat_univ_resize_monic resize m)) A
+    := pr12 (resize Γ A m).
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_resize_z_iso_comm</span>
+              (<span class="nv">resize</span> : cat_univ_codes_resizing)
+              {<span class="nv">Γ</span> <span class="nv">A</span> : C}
+              (<span class="nv">m</span> : Monic C A Γ)
+    : cat_univ_resize_z_iso resize m · m = cat_el_map_mor el _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 (resize Γ A m)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_resizing_eq</span>
+              {<span class="nv">resize₁</span> <span class="nv">resize₂</span> : cat_univ_codes_resizing}
+              (<span class="nv">p</span> : ∏ (Γ A : C)
+                     (m : Monic C A Γ),
+                   cat_univ_resize_monic resize₁ m
+                   =
+                   cat_univ_resize_monic resize₂ m)
+    : resize₁ = resize₂.
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> Γ.
+    use funextsec ; <span class="nb">intro</span> A.
+    use funextsec ; <span class="nb">intro</span> m.
+    use total2_paths_f.
+    - <span class="bp">exact</span> (p Γ A m).
+    - use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">rewrite</span> pr1_transportf.
+      <span class="nb">unfold</span> z_iso.
+      use z_iso_eq.
+      etrans.
+      {
+        <span class="nb">apply</span> (pr1_transportf (P := <span class="k">λ</span> <span class="nv">x</span> (<span class="nv">f</span> : cat_el_map_el el x --&gt; _), is_z_isomorphism _)).
+      }
+      <span class="nb">rewrite</span> transportf_cat_el_map_el.
+      use (MonicisMonic _ m).
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> cat_univ_resize_z_iso_comm.
+      }
+      <span class="nb">rewrite</span> cat_el_map_mor_eq.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> cat_univ_resize_z_iso_comm.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_resize_monic_eq</span>
+              (<span class="nv">resize</span> : cat_univ_codes_resizing)
+              {<span class="nv">Γ</span> <span class="nv">A</span> : C}
+              {<span class="nv">m</span> <span class="nv">m'</span> : Monic C A Γ}
+              (<span class="nv">p</span> : (m : A --&gt; Γ) = m')
+    : cat_univ_resize_monic resize m = cat_univ_resize_monic resize m'.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (m = m') <span class="k">as</span> -&gt;.
+    {
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropisMonic | ].
+      <span class="bp">exact</span> p.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_resize_monic_eq_on_z_iso_help</span>
+              (<span class="nv">resize</span> : cat_univ_codes_resizing)
+              {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">A'</span> : C}
+              {<span class="nv">m</span> : Monic C A Γ}
+              {<span class="nv">m'</span> : Monic C A' Γ}
+              (<span class="nv">f</span> : A = A')
+              (<span class="nv">p</span> : idtoiso f · m' = m)
+    : cat_univ_resize_monic resize m = cat_univ_resize_monic resize m'.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> f.
+    use cat_univ_resize_monic_eq.
+    <span class="nb">refine</span> (!p @ _).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_resize_monic_eq_on_z_iso</span>
+              (<span class="nv">resize</span> : cat_univ_codes_resizing)
+              {<span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">A'</span> : C}
+              {<span class="nv">m</span> : Monic C A Γ}
+              {<span class="nv">m'</span> : Monic C A' Γ}
+              (<span class="nv">f</span> : z_iso A A')
+              (<span class="nv">p</span> : f · m' = m)
+    : cat_univ_resize_monic resize m = cat_univ_resize_monic resize m'.
+  <span class="kn">Proof</span>.
+    use cat_univ_resize_monic_eq_on_z_iso_help.
+    - <span class="nb">refine</span> (isotoid _ _ f).
+      <span class="nb">apply</span> univalent_category_is_univalent.
+    - <span class="nb">rewrite</span> idtoiso_isotoid.
+      <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. Stability *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_stable_cat_univ_codes_resizing</span>
+             (<span class="nv">resize</span> : cat_univ_codes_resizing)
+    : UU
+    := ∏ (Γ Δ A : C)
+         (s : Γ --&gt; Δ)
+         (m : Monic C A Δ),
+       s · cat_univ_resize_monic resize m
+       =
+       cat_univ_resize_monic
+         resize
+         (pullback_pr2_monic
+            _ _
+            (pullbacks_univ_cat_with_finlim C _ _ _ m s)).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_stable_cat_univ_codes_resizing</span>
+              (<span class="nv">resize</span> : cat_univ_codes_resizing)
+    : isaprop (is_stable_cat_univ_codes_resizing resize).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cat_univ_stable_codes_resizing</span>
+    : UU
+    := ∑ (resize : cat_univ_codes_resizing),
+       is_stable_cat_univ_codes_resizing resize.
+
+  <span class="kn">Definition</span> <span class="nf">make_cat_univ_stable_codes_resizing</span>
+             (<span class="nv">resize</span> : cat_univ_codes_resizing)
+             (<span class="nv">H</span> : is_stable_cat_univ_codes_resizing resize)
+    : cat_univ_stable_codes_resizing
+    := resize ,, H.
+
+  <span class="kn">Coercion</span> <span class="nf">cat_univ_stable_codes_resizing_to_codes</span>
+           (resize : cat_univ_stable_codes_resizing)
+    : cat_univ_codes_resizing
+    := pr1 resize.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_resize_monic_stable</span>
+              (<span class="nv">resize</span> : cat_univ_stable_codes_resizing)
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> <span class="nv">A</span> : C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">m</span> : Monic C A Δ)
+    : s · cat_univ_resize_monic resize m
+      =
+      cat_univ_resize_monic resize
+        (pullback_pr2_monic
+           _ _
+           (pullbacks_univ_cat_with_finlim C _ _ _ m s)).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 resize Γ Δ A s m).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_stable_codes_resizing_eq</span>
+              {<span class="nv">resize₁</span> <span class="nv">resize₂</span> : cat_univ_stable_codes_resizing}
+              (<span class="nv">p</span> : ∏ (Γ A : C)
+                     (m : Monic C A Γ),
+                   cat_univ_resize_monic resize₁ m
+                   =
+                   cat_univ_resize_monic resize₂ m)
+    : resize₁ = resize₂.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_stable_cat_univ_codes_resizing.
+    }
+    use cat_univ_codes_resizing_eq.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_cat_univ_stable_codes_resizing</span>
+    : isaset cat_univ_stable_codes_resizing.
+  <span class="kn">Proof</span>.
+    use isaset_total2.
+    - <span class="bp">exact</span> isaset_cat_univ_codes_resizing.
+    - <span class="nb">intro</span> resize.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isaprop_is_stable_cat_univ_codes_resizing.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ResizingInCatWithUniv</span>.
+
+<span class="kn">Arguments</span> cat_univ_codes_resizing C : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> isaset_cat_univ_codes_resizing C : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> cat_univ_stable_codes_resizing C : <span class="kn">clear implicits</span>.
+
+<span class="kn">Section</span> <span class="nf">PreservationResizingCodes</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+          (<span class="nv">resize₁</span> : cat_univ_stable_codes_resizing C₁)
+          (<span class="nv">resize₂</span> : cat_univ_stable_codes_resizing C₂)
+          (<span class="nv">F</span> : functor_finlim_universe C₁ C₂).
+
+  <span class="kn">Let</span> <span class="nf">el₁</span> : cat_stable_el_map_coherent C₁ := univ_cat_cat_stable_el_map C₁.
+  <span class="kn">Let</span> <span class="nf">el₂</span> : cat_stable_el_map_coherent C₂ := univ_cat_cat_stable_el_map C₂.
+
+  <span class="kn">Let</span> <span class="nf">Fel</span> : functor_preserves_el
+              (univ_cat_cat_stable_el_map C₁)
+              (univ_cat_cat_stable_el_map C₂)
+              F
+    := functor_finlim_universe_preserves_el F.
+
+  <span class="sd">(** * 3. Preservation *)</span>
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_stable_resizing_codes</span>
+    : UU
+    := ∏ (Γ A : C₁)
+         (m : Monic C₁ A Γ),
+       #F(cat_univ_resize_monic resize₁ m) · functor_on_universe F
+       =
+       cat_univ_resize_monic
+         resize₂
+         (functor_preserves_pb_on_monic (functor_finlim_preserves_pullback F) m).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_functor_preserves_stable_resizing_codes</span>
+    : isaprop functor_preserves_stable_resizing_codes.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">functor_preserves_stable_resizing_codes_on_code</span>
+              (<span class="nv">p</span> : functor_preserves_stable_resizing_codes)
+              {<span class="nv">Γ</span> <span class="nv">A</span> : C₁}
+              (<span class="nv">m</span> : Monic C₁ A Γ)
+    : #F(cat_univ_resize_monic resize₁ m) · functor_on_universe F
+      =
+      cat_univ_resize_monic
+        resize₂
+        (functor_preserves_pb_on_monic (functor_finlim_preserves_pullback F) m).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (p Γ A m).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PreservationResizingCodes</span>.
+
+<span class="kn">Arguments</span> functor_preserves_stable_resizing_codes_on_code
+  {C₁ C₂ resize₁ resize₂ F} p {Γ A} m.
+
+<span class="sd">(** * 4. Preservation by identity and composition *)</span>
+<span class="kn">Proposition</span> <span class="nf">identity_preserves_resizing_codes</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            (<span class="nv">resize</span> : cat_univ_stable_codes_resizing C)
+  : functor_preserves_stable_resizing_codes
+      resize
+      resize
+      (identity _).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Γ A m ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_right.
+  use cat_univ_resize_monic_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_preserves_resizing_codes</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">resize₁</span> : cat_univ_stable_codes_resizing C₁}
+            {<span class="nv">resize₂</span> : cat_univ_stable_codes_resizing C₂}
+            {<span class="nv">resize₃</span> : cat_univ_stable_codes_resizing C₃}
+            {<span class="nv">F</span> : functor_finlim_universe C₁ C₂}
+            (<span class="nv">Fc</span> : functor_preserves_stable_resizing_codes resize₁ resize₂ F)
+            {<span class="nv">G</span> : functor_finlim_universe C₂ C₃}
+            (<span class="nv">Gc</span> : functor_preserves_stable_resizing_codes resize₂ resize₃ G)
+  : functor_preserves_stable_resizing_codes
+      resize₁
+      resize₃
+      (F · G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Γ A m ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (functor_preserves_stable_resizing_codes_on_code Fc).
+  }
+  etrans.
+  {
+    <span class="nb">apply</span> (functor_preserves_stable_resizing_codes_on_code Gc).
+  }
+  use cat_univ_resize_monic_eq ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Univalence condition *)</span>
+<span class="kn">Proposition</span> <span class="nf">cat_univ_stable_codes_resizing_univalence_lemma</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">resize₁</span> <span class="nv">resize₂</span> : cat_univ_stable_codes_resizing C}
+            (<span class="nv">Fc</span> : functor_preserves_stable_resizing_codes resize₁ resize₂ (identity _))
+  : resize₁ = resize₂.
+<span class="kn">Proof</span>.
+  use cat_univ_stable_codes_resizing_eq.
+  <span class="nb">intros</span> Γ A m.
+  <span class="nb">refine</span> (_ @ functor_preserves_stable_resizing_codes_on_code Fc m @ _).
+  {
+    <span class="bp">exact</span> (!(id_right _)).
+  }
+  use cat_univ_resize_monic_eq ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/CatTypes/Resizing.v</tt>, line 42)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Univalence condition
+  &gt;
+  &gt;                                                                                            *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

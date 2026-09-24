@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EpiFacts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">- Definition of an effective epimorphism.</span>
+<span class="sd">- Proof that natural transformations that are pointwise effective epis are</span>
+<span class="sd"> effective epis.</span>
+<span class="sd">- Proof that if the target category has pushouts, a natural transformation that is</span>
+<span class="sd">  an epimorphism is pointwise epimorphic</span>
+<span class="sd">- Faithul functors reflect epimorphisms</span>
+<span class="sd">- Definition of a split epimorphism</span>
+<span class="sd">- Split epis are absolute (ie are preserved by any functor)</span>
+
+<span class="sd">Ambroise LAFONT January 2017</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.EqDiag.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** Definition of an effective epimorphism.</span>
+<span class="sd">An effective epimorphism p: A -&gt; B is a morphism which has a kernel pair and which</span>
+<span class="sd">is the coequalizer of its kernel pair.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">EffectiveEpi</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span>:category} {<span class="nv">A</span> <span class="nv">B</span>:C}.
+  <span class="kn">Variable</span> (<span class="nv">f</span>: C ⟦A,B⟧).
+
+  <span class="kn">Definition</span> <span class="nf">kernel_pair</span> := Pullback  f f.
+
+  <span class="kn">Definition</span> <span class="nf">isEffective</span> :=
+    ∑  g:kernel_pair,
+         (isCoequalizer (PullbackPr1 g)
+                        (PullbackPr2 g) f (PullbackSqrCommutes g)).
+<span class="kn">End</span> <span class="nf">EffectiveEpi</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_isEffective</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">H</span> : is_univalent C)
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+  : isaprop (isEffective f).
+<span class="kn">Proof</span>.
+  use isaproptotal2.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_isCoequalizer.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_Pullback.
+    <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_isEffective'</span>
+            {<span class="nv">C</span> : univalent_category}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+  : isaprop (isEffective f).
+<span class="kn">Proof</span>.
+  use isaprop_isEffective.
+  <span class="nb">apply</span> univalent_category_is_univalent.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">EpisAreEffective</span> (<span class="nv">C</span>:category) :=
+  ∏ (A B:C) (f:C⟦A,B⟧), isEpi f -&gt; isEffective f.
+
+
+
+
+<span class="sd">(** Let f be a natural transformation. If f is pointwise effective, then f is effective *)</span>
+<span class="kn">Section</span> <span class="nf">IsEffectivePw</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">D</span> : category} .
+
+  <span class="kn">Local Notation</span> <span class="nf">CD</span> := (functor_category C D).
+
+  <span class="kn">Lemma</span> <span class="nf">eq_pb_pw</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>:functor C D}
+        (<span class="nv">a</span>: X ⟹ Z) (<span class="nv">b</span>: Y ⟹ Z)
+        (<span class="nv">c</span>:C)
+    : eq_diag
+        (pullback_diagram D (a c)  (b c))
+        (diagram_pointwise (pullback_diagram CD a b) c).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    use tpair.
+    use StandardFiniteSets.three_rec_dep; <span class="nb">apply</span> idpath.
+    use StandardFiniteSets.three_rec_dep;  use StandardFiniteSets.three_rec_dep;
+      <span class="bp">exact</span> (empty_rect _ ) ||  (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, idpath _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">eq_coeq_pw</span> {<span class="nv">X</span> <span class="nv">Y</span>: functor C D} (<span class="nv">a</span> <span class="nv">b</span>:X ⟹ Y) (<span class="nv">c</span>:C) :
+    eq_diag
+      (Coequalizer_diagram D (a c) (b c))
+      (diagram_pointwise (Coequalizer_diagram CD a b) c).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    use tpair.
+    use StandardFiniteSets.two_rec_dep; <span class="bp">reflexivity</span>.
+    use StandardFiniteSets.two_rec_dep;  use StandardFiniteSets.two_rec_dep;
+       <span class="kp">try</span> <span class="bp">exact</span> (empty_rect _ ).
+    <span class="nb">intros</span> g'.
+    <span class="nb">destruct</span> g'.
+    <span class="nb">apply</span> idpath.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> :functor C D } {<span class="nv">a</span>:X ⟹ Y}.
+
+  <span class="kn">Lemma</span> <span class="nf">isEffectivePw</span> : (∏ (x:C), isEffective (a x)) -&gt; isEffective (C:=CD) a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> h.
+    <span class="nb">red</span>.
+    transparent <span class="nb">assert</span> (f:(kernel_pair (C:=CD) a)).
+    { <span class="nb">apply</span> equiv_Pullback_2.
+      <span class="nb">apply</span> LimFunctorCone.
+      <span class="nb">intro</span> c.
+      <span class="nb">specialize</span> (h c).
+      <span class="nb">set</span> (f := pr1 h).
+      <span class="nb">apply</span> equiv_Pullback_1 <span class="k">in</span> f.
+      use (eq_diag_liftlimcone _  _  f).
+      <span class="nb">apply</span> eq_pb_pw.
+    }
+    <span class="k">exists</span> <span class="nv">f</span>.
+    <span class="nb">apply</span> equiv_isCoequalizer2.
+    <span class="nb">apply</span>  pointwise_Colim_is_isColimFunctor.
+    <span class="nb">intro</span> x.
+    <span class="nb">set</span> (g:= f).
+    <span class="nb">assert</span> (hf := (pr2 (h x))); <span class="nb">simpl</span> <span class="k">in</span> hf.
+    <span class="nb">apply</span> equiv_isCoequalizer1 <span class="k">in</span> hf.
+    <span class="nb">set</span> (eqd := eq_coeq_pw (PullbackPr1 g) (PullbackPr2 g) x).
+    <span class="nb">set</span> (z:= (eq_diag_iscolimcocone _ eqd hf)).
+    <span class="nb">set</span> (CC := (make_ColimCocone _ _ _ z)).
+    <span class="nb">apply</span> (is_z_iso_isColim _ CC).
+    <span class="nb">rewrite</span> &lt;- (colimArrowUnique CC _ _ (identity _)).
+    <span class="nb">apply</span> identity_is_z_iso.
+    use StandardFiniteSets.two_rec_dep;
+    <span class="nb">cbn</span> beta;
+    <span class="nb">rewrite</span> id_right;
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+
+
+<span class="kn">End</span> <span class="nf">IsEffectivePw</span>.
+
+<span class="sd">(**  if the target category has pushouts, a natural transformation that is</span>
+<span class="sd">  an epimorphism is pointwise epimorphic *)</span>
+<span class="kn">Section</span> <span class="nf">PointwiseEpi</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">D</span> : category}.
+
+  <span class="kn">Local Notation</span> <span class="nf">CD</span> := (functor_category C D).
+
+  <span class="kn">Lemma</span> <span class="nf">eq_po_pw</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> :functor C D} {<span class="nv">a</span>: X ⟹ Y } {<span class="nv">b</span>: X ⟹ Z} <span class="nv">x</span>  :
+    eq_diag
+      (pushout_diagram D (a x) (b x))
+      (diagram_pointwise (pushout_diagram CD a b) x).
+  <span class="kn">Proof</span>.
+    use tpair.
+    use StandardFiniteSets.three_rec_dep;  <span class="nb">apply</span> idpath.
+    use StandardFiniteSets.three_rec_dep;  use StandardFiniteSets.three_rec_dep;
+      <span class="bp">exact</span> (empty_rect _ )||<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, idpath _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Pushouts_pw_epi</span> (<span class="nv">colimD</span> : Graphs.Pushouts.Pushouts D) (<span class="nv">A</span> <span class="nv">B</span> : functor C D)
+       (<span class="nv">a</span>: A ⟹ B)  (<span class="nv">epia</span>:isEpi (C:=CD) a) : ∏ (x:C), isEpi (a x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>  x; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (epi_to_pushout (C:=CD)) <span class="k">in</span> epia.
+    <span class="nb">apply</span> pushout_to_epi.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> equiv_isPushout1 <span class="k">in</span> epia.
+    <span class="nb">apply</span> equiv_isPushout2.
+    <span class="nb">red</span> <span class="k">in</span> epia.
+    <span class="nb">red</span>.
+    <span class="nb">eapply</span> isColimFunctor_is_pointwise_Colim <span class="k">in</span> epia; <span class="nb">cycle</span> <span class="mi">1</span>.
+    {
+      <span class="nb">intro</span> c.
+      <span class="nb">eapply</span> eq_diag_liftcolimcocone.
+      - <span class="nb">apply</span> eq_po_pw.
+      - <span class="nb">apply</span> colimD.
+    }
+    <span class="nb">apply</span> (eq_diag_iscolimcocone _ (sym_eq_diag _ _ (eq_po_pw x)))<span class="k">in</span> epia; <span class="nb">cycle</span> <span class="mi">1</span>.
+    <span class="nb">set</span> (CC := (make_ColimCocone _ _ _ epia)).
+    <span class="nb">eapply</span> (is_z_iso_isColim  _ CC).
+    <span class="nb">rewrite</span> &lt;- (colimArrowUnique CC _ _ (identity _)).
+    <span class="nb">apply</span> identity_is_z_iso.
+    use StandardFiniteSets.three_rec_dep;
+    <span class="nb">cbn</span> beta;
+    <span class="nb">rewrite</span> id_right;
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">PointwiseEpi</span>.
+
+<span class="sd">(** faithul functors reflect epimorphisms *)</span>
+<span class="kn">Lemma</span> <span class="nf">faithful_reflects_epis</span> {<span class="nv">C</span> <span class="nv">D</span>:precategory} (<span class="nv">U</span>:functor C D) (<span class="nv">hU</span>:faithful U)
+      {<span class="nv">a</span> <span class="nv">b</span>:C} (<span class="nv">f</span>:C⟦a,b⟧) : isEpi (#U f) -&gt; isEpi f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> hf c u v huv.
+  <span class="nb">eapply</span> invmaponpathsincl.
+  <span class="nb">apply</span> hU.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> hf.
+  <span class="nb">rewrite</span> &lt;- functor_comp, &lt;- functor_comp.
+  <span class="bp">now</span> <span class="nb">rewrite</span> huv.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EpiFacts.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Ambroise LAFONT January 2017
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

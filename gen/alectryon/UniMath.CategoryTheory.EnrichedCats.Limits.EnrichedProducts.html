@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EnrichedProducts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Type indexed enriched products</span>
+
+<span class="sd"> In this file, we define the type indexed products in enriched</span>
+<span class="sd"> categories. The definition foollows the same ideas as the</span>
+<span class="sd"> definition for enriched binary, and the only difference is that</span>
+<span class="sd"> we index the product by a type.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Cones of enriched products</span>
+<span class="sd"> 2. Products in an enriched category</span>
+<span class="sd"> 3. Being a product is a proposition</span>
+<span class="sd"> 4. Products in the underlying category</span>
+<span class="sd"> 5. Builders for products</span>
+<span class="sd"> 6. Products are closed under iso</span>
+<span class="sd"> 7. Products are isomorphic</span>
+<span class="sd"> 8. Enriched categories with products</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">EnrichedProducts</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}
+          {<span class="nv">C</span> : category}
+          (<span class="nv">E</span> : enrichment C V)
+          {<span class="nv">J</span> : UU}
+          (<span class="nv">D</span> : J → C).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Cones of enriched products</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_prod_cone</span>
+    : UU
+    := ∑ (a : C), ∏ (j : J), I_{V} --&gt; E ⦃ a , D j ⦄.
+
+  #[reversible] <span class="kn">Coercion</span> <span class="nf">ob_enriched_prod_cone</span>
+           (a : enriched_prod_cone)
+    : C
+    := pr1 a.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_prod_cone_pr</span>
+             (<span class="nv">a</span> : enriched_prod_cone)
+             (<span class="nv">j</span> : J)
+    : a --&gt; D j
+    := enriched_to_arr E (pr2 a j).
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_prod_cone</span>
+             (<span class="nv">a</span> : C)
+             (<span class="nv">p</span> : ∏ (j : J), I_{V} --&gt; E ⦃ a , D j ⦄)
+    : enriched_prod_cone
+    := a ,, p.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Products in an enriched category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_prod_enriched</span>
+             (<span class="nv">a</span> : enriched_prod_cone)
+    : UU
+    := ∏ (w : C),
+       isProduct
+         J V
+         (<span class="k">λ</span> <span class="nv">j</span>, E ⦃ w , D j ⦄)
+         (E ⦃ w , a ⦄)
+         (<span class="k">λ</span> <span class="nv">j</span>, postcomp_arr E w (enriched_prod_cone_pr a j)).
+
+  <span class="kn">Definition</span> <span class="nf">is_prod_enriched_to_Product</span>
+             {<span class="nv">a</span> : enriched_prod_cone}
+             (<span class="nv">Ha</span> : is_prod_enriched a)
+             (<span class="nv">w</span> : C)
+    : Product
+        J V
+        (<span class="k">λ</span> <span class="nv">j</span>, E ⦃ w , D j ⦄).
+  <span class="kn">Proof</span>.
+    use make_Product.
+    - <span class="bp">exact</span> (E ⦃ w , a ⦄).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">j</span>, postcomp_arr E w (enriched_prod_cone_pr a j)).
+    - <span class="bp">exact</span> (Ha w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_enriched</span>
+    : UU
+    := ∑ (a : enriched_prod_cone),
+       is_prod_enriched a.
+
+  <span class="kn">Coercion</span> <span class="nf">cone_of_prod_enriched</span>
+           (a : prod_enriched)
+    : enriched_prod_cone
+    := pr1 a.
+
+  <span class="kn">Coercion</span> <span class="nf">prod_enriched_is_prod</span>
+           (a : prod_enriched)
+    : is_prod_enriched a
+    := pr2 a.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Being a product is a proposition</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_prod_enriched</span>
+              (<span class="nv">a</span> : enriched_prod_cone)
+    : isaprop (is_prod_enriched a).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Products in the underlying category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">InUnderlying</span>.
+    <span class="kn">Context</span> {<span class="nv">a</span> : enriched_prod_cone}
+            (<span class="nv">Ha</span> : is_prod_enriched a).
+
+    <span class="kn">Definition</span> <span class="nf">is_prod_enriched_arrow</span>
+               {<span class="nv">w</span> : C}
+               (<span class="nv">f</span> : ∏ (j : J), w --&gt; D j)
+      : w --&gt; a.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (enriched_to_arr E _).
+      use (ProductArrow _ _ (is_prod_enriched_to_Product Ha w)).
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">j</span>, enriched_from_arr E (f j)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_prod_enriched_arrow_pr</span>
+                {<span class="nv">w</span> : C}
+                (<span class="nv">f</span> : ∏ (j : J), w --&gt; D j)
+                (<span class="nv">j</span> : J)
+      : is_prod_enriched_arrow f · enriched_prod_cone_pr a j
+        =
+        f j.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_prod_enriched_arrow, enriched_prod_cone_pr.
+      use (invmaponpathsweq (make_weq _ (isweq_enriched_from_arr E _ _))) ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ ProductPrCommutes
+                    _ _ _
+                    (is_prod_enriched_to_Product Ha w)
+                    _
+                    (<span class="k">λ</span> <span class="nv">j</span>, enriched_from_arr E (f j))
+                    j).
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> postcomp_arr, enriched_prod_cone_pr.
+      <span class="nb">rewrite</span> enriched_from_arr_comp.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> tensor_linvunitor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- tensor_split.
+      <span class="nb">rewrite</span> !enriched_from_to_arr.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_prod_enriched_arrow_eq</span>
+                {<span class="nv">w</span> : C}
+                {<span class="nv">f</span> <span class="nv">g</span> : w --&gt; a}
+                (<span class="nv">q</span> : ∏ (j : J),
+                     f · enriched_prod_cone_pr a j
+                     =
+                     g · enriched_prod_cone_pr a j)
+      : f = g.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!(enriched_to_from_arr E _) @ _ @ enriched_to_from_arr E _).
+      <span class="nb">apply</span> maponpaths.
+      use (ProductArrow_eq
+               _ _ _
+               (is_prod_enriched_to_Product Ha w)).
+      <span class="nb">intro</span> j.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> postcomp_arr.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !tensor_linvunitor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+      <span class="nb">rewrite</span> &lt;- !tensor_split.
+      use (invmaponpathsweq (make_weq _ (isweq_enriched_to_arr E _ _))) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- !(enriched_to_arr_comp E).
+      <span class="bp">exact</span> (q j).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">underlying_Product</span>
+      : Product J C D.
+    <span class="kn">Proof</span>.
+      use make_Product.
+      - <span class="bp">exact</span> a.
+      - <span class="bp">exact</span> (enriched_prod_cone_pr a).
+      - <span class="nb">intros</span> w f.
+        use iscontraprop1.
+        + <span class="kp">abstract</span>
+            (use invproofirrelevance ;
+             <span class="nb">intros</span> φ₁ φ₂ ;
+             use subtypePath ; [ <span class="nb">intro</span> ; use impred ; <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+             <span class="bp">exact</span> (is_prod_enriched_arrow_eq
+                      (<span class="k">λ</span> <span class="nv">j</span>, pr2 φ₁ j @ !(pr2 φ₂ j)))).
+        + <span class="bp">exact</span> (is_prod_enriched_arrow f
+                 ,,
+                 is_prod_enriched_arrow_pr f).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">InUnderlying</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Builders for products</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_is_prod_enriched</span>
+             (<span class="nv">a</span> : enriched_prod_cone)
+             (<span class="nv">pair</span> : ∏ (w : C) (v : V)
+                       (f : ∏ (j : J), v --&gt; E ⦃ w , D j ⦄),
+                     v --&gt; E ⦃ w , a ⦄)
+             (<span class="nv">pair_pr</span> : ∏ (w : C) (v : V)
+                          (f : ∏ (j : J), v --&gt; E ⦃ w , D j ⦄)
+                          (j : J),
+                        pair w v f · postcomp_arr E w (enriched_prod_cone_pr a j)
+                        =
+                          f j)
+             (<span class="nv">pair_eq</span> : ∏ (w : C) (v : V)
+                          (φ₁ φ₂ : v --&gt; E ⦃ w , a ⦄)
+                          (q : ∏ (j : J),
+                           φ₁ · postcomp_arr E w (enriched_prod_cone_pr a j)
+                           =
+                           φ₂ · postcomp_arr E w (enriched_prod_cone_pr a j)),
+                        φ₁ = φ₂)
+    : is_prod_enriched a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> w.
+    use make_isProduct.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> v f.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; use impred ; <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+         <span class="bp">exact</span> (pair_eq
+                  w v
+                  (pr1 φ₁) (pr1 φ₂)
+                  (<span class="k">λ</span> <span class="nv">j</span>, pr2 φ₁ j @ !(pr2 φ₂ j)))).
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (pair w v f).
+      + <span class="bp">exact</span> (pair_pr w v f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_enriched_to_prod</span>
+             (<span class="nv">PV</span> : Products J V)
+             (<span class="nv">a</span> : enriched_prod_cone)
+             (<span class="nv">w</span> : C)
+    : E ⦃ w, a ⦄ --&gt; PV (<span class="k">λ</span> <span class="nv">j</span>, E ⦃ w, D j ⦄).
+  <span class="kn">Proof</span>.
+    use ProductArrow.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">j</span>, postcomp_arr E w (enriched_prod_cone_pr a j)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_is_prod_enriched_from_z_iso</span>
+             (<span class="nv">PV</span> : Products J V)
+             (<span class="nv">a</span> : enriched_prod_cone)
+             (<span class="nv">Ha</span> : ∏ (w : C),
+                   is_z_isomorphism (prod_enriched_to_prod PV a w))
+    : is_prod_enriched a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> w.
+    use (isProduct_z_iso _ _ _ _ (pr2 (PV (<span class="k">λ</span> <span class="nv">j</span>, E ⦃ w , D j ⦄)))).
+    - <span class="bp">exact</span> (z_iso_inv (_ ,, Ha w)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> j ;
+         <span class="nb">unfold</span> prod_enriched_to_prod ; <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">apply</span> (ProductPrCommutes _ _ _ (PV (<span class="k">λ</span> <span class="nv">j</span>, E ⦃ w , D j ⦄)))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">ProductFromUnderlying</span>.
+    <span class="kn">Context</span> (<span class="nv">PV</span> : Products J V)
+            (<span class="nv">a</span> : enriched_prod_cone)
+            (<span class="nv">prod</span> : isProduct J C D a (enriched_prod_cone_pr a))
+            (<span class="nv">w</span> : C).
+
+    <span class="kn">Definition</span> <span class="nf">prod_from_underlying_arr_map</span>
+               (<span class="nv">f</span> : I_{V} --&gt; PV (<span class="k">λ</span> <span class="nv">j</span>, E ⦃ w , D j ⦄))
+      : I_{V} --&gt; E ⦃ w, a ⦄.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> enriched_from_arr.
+      use (ProductArrow _ _ (make_Product _ _ _ _ _ prod)).
+      <span class="nb">intro</span> j.
+      <span class="bp">exact</span> (enriched_to_arr E (f · ProductPr _ _ _ j)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">prod_from_underlying_arr_map_eq₁</span>
+                (<span class="nv">f</span> : I_{V} --&gt; E ⦃ w, a ⦄)
+      : prod_from_underlying_arr_map (f · prod_enriched_to_prod PV a w)
+        =
+        f.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> prod_from_underlying_arr_map.
+      <span class="nb">refine</span> (_ @ enriched_from_to_arr E f).
+      <span class="nb">apply</span> maponpaths.
+      use (ProductArrow_eq
+             _ _ _
+             (make_Product _ _ _ _ _ prod)).
+      <span class="nb">unfold</span> prod_enriched_to_prod.
+      <span class="nb">intro</span> j.
+      <span class="nb">rewrite</span> ProductPrCommutes ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (enriched_to_arr_comp E).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_linvunitor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> enriched_from_to_arr.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> (ProductPrCommutes _ _ _ (PV (<span class="k">λ</span> <span class="nv">k</span>, E ⦃ w , D k ⦄)) _ _ j).
+      }
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">prod_from_underlying_arr_map_eq₂</span>
+                (<span class="nv">f</span> : I_{V} --&gt; PV (<span class="k">λ</span> <span class="nv">j</span>, E ⦃ w , D j ⦄))
+      : prod_from_underlying_arr_map f · prod_enriched_to_prod PV a w = f.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> prod_from_underlying_arr_map.
+      use (ProductArrow_eq
+             _ _ _
+             (PV (<span class="k">λ</span> <span class="nv">j</span>, E ⦃ w, D j ⦄))).
+      <span class="nb">unfold</span> prod_enriched_to_prod.
+      <span class="nb">intro</span> j.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (ProductPrCommutes _ _ _ (PV (<span class="k">λ</span> <span class="nv">k</span>, E ⦃ w , D k ⦄)) _ _ j).
+      }
+      <span class="nb">rewrite</span> enriched_from_arr_postcomp.
+      <span class="nb">refine</span> (_ @ enriched_from_to_arr E _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (ProductPrCommutes _ _ _ (make_Product _ _ _ _ _ prod)).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">ProductFromUnderlying</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_is_prod_enriched_from_underlying</span>
+             (<span class="nv">PV</span> : Products J V)
+             (<span class="nv">a</span> : enriched_prod_cone)
+             (<span class="nv">prod</span> : isProduct
+                       J C D
+                       a
+                       (enriched_prod_cone_pr a))
+             (<span class="nv">HV</span> : conservative_moncat V)
+    : is_prod_enriched a.
+  <span class="kn">Proof</span>.
+    use (make_is_prod_enriched_from_z_iso PV).
+    <span class="nb">intros</span> w.
+    use HV.
+    use isweq_iso.
+    - <span class="bp">exact</span> (prod_from_underlying_arr_map PV a prod w).
+    - <span class="bp">exact</span> (prod_from_underlying_arr_map_eq₁ PV a prod w).
+    - <span class="bp">exact</span> (prod_from_underlying_arr_map_eq₂ PV a prod w).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. Products are closed under iso</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">ProdIso</span>.
+    <span class="kn">Context</span> (<span class="nv">a</span> : enriched_prod_cone)
+            (<span class="nv">Ha</span> : is_prod_enriched a)
+            (<span class="nv">b</span> : C)
+            (<span class="nv">f</span> : z_iso b a).
+
+    <span class="kn">Definition</span> <span class="nf">enriched_prod_cone_from_iso</span>
+      : enriched_prod_cone
+      := make_enriched_prod_cone
+           b
+           (<span class="k">λ</span> <span class="nv">j</span>, enriched_from_arr E (f · enriched_prod_cone_pr a j)).
+
+    <span class="kn">Definition</span> <span class="nf">is_prod_enriched_from_iso</span>
+      : is_prod_enriched enriched_prod_cone_from_iso.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w.
+      use (isProduct_z_iso _ _ _ _ (Ha w)).
+      - <span class="bp">exact</span> (postcomp_arr_z_iso E w (z_iso_inv f)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intro</span> j ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> &lt;- postcomp_arr_comp ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">unfold</span> enriched_prod_cone_from_iso ; <span class="nb">cbn</span> ;
+           <span class="nb">unfold</span>  enriched_prod_cone_pr ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> enriched_to_from_arr ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ProdIso</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   7. Products are isomorphic</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">map_between_product_enriched</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : enriched_prod_cone}
+             (<span class="nv">Ha</span> : is_prod_enriched a)
+             (<span class="nv">Hb</span> : is_prod_enriched b)
+    : a --&gt; b
+    := is_prod_enriched_arrow
+         Hb
+         (enriched_prod_cone_pr a).
+
+  <span class="kn">Lemma</span> <span class="nf">iso_between_product_enriched_inv</span>
+        {<span class="nv">a</span> <span class="nv">b</span> : enriched_prod_cone}
+        (<span class="nv">Ha</span> : is_prod_enriched a)
+        (<span class="nv">Hb</span> : is_prod_enriched b)
+    : map_between_product_enriched Ha Hb · map_between_product_enriched Hb Ha
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> map_between_product_enriched.
+    use (is_prod_enriched_arrow_eq Ha).
+    <span class="nb">intro</span> j.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !is_prod_enriched_arrow_pr.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_between_product_enriched</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : enriched_prod_cone}
+             (<span class="nv">Ha</span> : is_prod_enriched a)
+             (<span class="nv">Hb</span> : is_prod_enriched b)
+    : z_iso a b.
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> (map_between_product_enriched Ha Hb).
+    - <span class="bp">exact</span> (map_between_product_enriched Hb Ha).
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> iso_between_product_enriched_inv.
+      + <span class="nb">apply</span> iso_between_product_enriched_inv.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EnrichedProducts</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 8. Enriched categories with products</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">enrichment_prod</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">C</span> : category}
+           (<span class="nv">E</span> : enrichment C V)
+           (<span class="nv">J</span> : UU)
+  : UU
+  := ∏ (D : J → C),
+     ∑ (a : enriched_prod_cone E D),
+     is_prod_enriched E D a.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_enrichment_prod</span>
+            {<span class="nv">V</span> : monoidal_cat}
+            {<span class="nv">C</span> : category}
+            (<span class="nv">HC</span> : is_univalent C)
+            (<span class="nv">E</span> : enrichment C V)
+            (<span class="nv">J</span> : UU)
+  : isaprop (enrichment_prod E J).
+<span class="kn">Proof</span>.
+  use invproofirrelevance.
+  <span class="nb">intros</span> φ₁ φ₂.
+  use funextsec ; <span class="nb">intro</span> D.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_prod_enriched.
+  }
+  use total2_paths_f.
+  - use (isotoid _ HC).
+    use iso_between_product_enriched.
+    + <span class="bp">exact</span> (pr2 (φ₁ D)).
+    + <span class="bp">exact</span> (pr2 (φ₂ D)).
+  - <span class="nb">rewrite</span> transportf_sec_constant.
+    use funextsec.
+    <span class="nb">intro</span> j.
+    <span class="nb">rewrite</span> transportf_enriched_arr_l.
+    <span class="nb">rewrite</span> idtoiso_inv.
+    <span class="nb">rewrite</span> idtoiso_isotoid.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ enriched_from_to_arr E _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> map_between_product_enriched ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> is_prod_enriched_arrow_pr.
+    }
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_with_enrichment_product</span>
+           (<span class="nv">V</span> : monoidal_cat)
+           (<span class="nv">J</span> : UU)
+  : UU
+  := ∑ (C : cat_with_enrichment V), enrichment_prod C J.
+
+<span class="kn">Coercion</span> <span class="nf">cat_with_enrichment_product_to_cat_with_enrichment</span>
+         {V : monoidal_cat}
+         {J : UU}
+         (C : cat_with_enrichment_product V J)
+  : cat_with_enrichment V
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">products_of_cat_with_enrichment</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">J</span> : UU}
+           (<span class="nv">C</span> : cat_with_enrichment_product V J)
+  : enrichment_prod C J
+  := pr2 C.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Limits/EnrichedProducts.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Enriched categories with products
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

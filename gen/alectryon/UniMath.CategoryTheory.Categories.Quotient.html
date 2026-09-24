@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Quotient.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************</span>
+<span class="sd">Quotient</span>
+
+<span class="sd">In this file, we construct the quotient category of a category C under a</span>
+<span class="sd">congruence relation on its morphisms.</span>
+<span class="sd">- the objects are the same as the objects of C</span>
+<span class="sd">- the morphisms f : x --&gt; y are equivalence classes of morphisms [f] : x --&gt; y in C</span>
+<span class="sd">- the axioms of a congruence relation make sure that composition is well-defined </span>
+<span class="sd">  in the quotient category </span>
+
+<span class="sd">Outline</span>
+<span class="sd">* 1. Definition of a congruence relation [mor_cong_rel C] on a category C</span>
+<span class="sd">* 2. Definition of the quotient category [mor_quot_category]</span>
+
+<span class="sd">**********************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Definition of a congruence relation [mor_cong_rel C] on a category C *)</span>
+
+<span class="kn">Definition</span> <span class="nf">mor_cong_rel</span> (<span class="nv">C</span> : category) : UU
+  := ∑ (eq : ∏ (x y : C), eqrel (x --&gt; y)),
+     ∏ (x y z : C)
+       (f f' : x --&gt; y)
+       (g g' : y --&gt; z),
+     eq _ _ f f'
+     → eq _ _ g g'
+     → eq _ _ (f · g) (f' · g').
+
+<span class="kn">Definition</span> <span class="nf">make_mor_cong_rel</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">eq</span> : ∏ (x y : C), eqrel (x --&gt; y))
+           (<span class="nv">eqc</span> : ∏ (x y z : C)
+                    (f f' : x --&gt; y)
+                    (g g' : y --&gt; z),
+                  eq _ _ f f'
+                  → eq _ _ g g'
+                  → eq _ _ (f · g) (f' · g'))
+  : mor_cong_rel C
+  := eq ,, eqc.
+
+<span class="kn">Definition</span> <span class="nf">mor_cong_rel_to_eqrel</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">eq</span> : mor_cong_rel C)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+  : hProp
+  := pr1 eq x y f g.
+
+<span class="kn">Notation</span> <span class="s2">"f ~_{ eq } g"</span> := (mor_cong_rel_to_eqrel eq f g) (<span class="kn">at level</span> <span class="mi">70</span>) : cat.
+
+<span class="kn">Proposition</span> <span class="nf">mor_cong_rel_congruence</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">eq</span> : mor_cong_rel C}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y}
+            {<span class="nv">g</span> <span class="nv">g'</span> : y --&gt; z}
+            (<span class="nv">p</span> : f ~_{eq} f')
+            (<span class="nv">q</span> : g ~_{eq} g')
+  : f · g ~_{eq} f' · g'.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 eq _ _ _ _ _ _ _ p q).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Definition of the quotient category [mor_quot_category] *)</span>
+
+<span class="kn">Section</span> <span class="nf">QuotientMorphisms</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">eq</span> : mor_cong_rel C).
+
+  <span class="kn">Definition</span> <span class="nf">mor_quot_precategory_ob_mor</span>
+    : precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    use make_precategory_ob_mor.
+    - <span class="bp">exact</span> C.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, setquot (<span class="k">λ</span> (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y), f ~_{ eq } g)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mor_quot_precategory_data</span>
+    : precategory_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - <span class="bp">exact</span> mor_quot_precategory_ob_mor.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, setquotpr _ (identity x)).
+    - <span class="nb">intros</span> x y z.
+      use setquotfun2'.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span>, f · g).
+      + <span class="nb">unfold</span> iscomprelrelfun2' ; <span class="nb">cbn</span>.
+        <span class="nb">split</span>.
+        * <span class="kp">abstract</span>
+            (<span class="nb">intros</span> f f' g p ;
+             use (mor_cong_rel_congruence p) ;
+             <span class="nb">apply</span> eqrelrefl).
+        * <span class="kp">abstract</span>
+            (<span class="nb">intros</span> f g g' q ;
+             use (mor_cong_rel_congruence _ q) ;
+             <span class="nb">apply</span> eqrelrefl).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_precategory_mor_quot</span>
+    : is_precategory mor_quot_precategory_data.
+  <span class="kn">Proof</span>.
+    use make_is_precategory_one_assoc.
+    - <span class="nb">intros</span> x y.
+      use setquotunivprop'.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isasetsetquot.
+      + <span class="nb">intro</span> f.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> x y.
+      use setquotunivprop'.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isasetsetquot.
+      + <span class="nb">intro</span> f. 
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_right.
+        <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> w x y z.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        use impred ; <span class="nb">intro</span>.
+        use impred ; <span class="nb">intro</span>.
+        <span class="nb">apply</span> isasetsetquot.
+      }
+      <span class="nb">intro</span> f.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        use impred ; <span class="nb">intro</span>.
+        <span class="nb">apply</span> isasetsetquot.
+      }
+      <span class="nb">intro</span> g.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isasetsetquot.
+      }
+      <span class="nb">intro</span> h.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mor_quot_precategory</span>
+    : precategory.
+  <span class="kn">Proof</span>.
+    use make_precategory.
+    - <span class="bp">exact</span> mor_quot_precategory_data.
+    - <span class="bp">exact</span> is_precategory_mor_quot.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">has_homsets_mor_quot_category</span>
+    : has_homsets mor_quot_precategory.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> isasetsetquot.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mor_quot_category</span>
+    : category.
+  <span class="kn">Proof</span>.
+    use make_category.
+    - <span class="bp">exact</span> mor_quot_precategory.
+    - <span class="bp">exact</span> has_homsets_mor_quot_category.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">QuotientMorphisms</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/Quotient.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; * 2. Definition of the quotient category [mor_quot_category]
+  &gt;
+  &gt; **********************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

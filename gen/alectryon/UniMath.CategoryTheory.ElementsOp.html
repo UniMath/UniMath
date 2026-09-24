@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ElementsOp.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ****************************************************************************</span>
+
+<span class="sd">The category of elements of a presheaf "F : C^op ⟶ HSET"</span>
+
+<span class="sd">Contents:</span>
+
+<span class="sd">- Category of elements ([cat_of_elems])</span>
+<span class="sd">- Functoriality of the constructon of the category of elements</span>
+<span class="sd">  ([cat_of_elems_on_nat_trans])</span>
+<span class="sd">- The forgetful functor from the category of elements to C</span>
+<span class="sd">  ([cat_of_elems_forgetful])</span>
+
+<span class="sd">Originally written by: Matthew Weaver (based on Elements.v by Dan Grayson)</span>
+<span class="sd">Ported to CT by: Anders Mörtberg</span>
+
+<span class="sd">Note: an alternative construction is given in the file `CategoryOfElementsPsh.v‎`</span>
+<span class="sd">where displayed categories are used.</span>
+
+<span class="sd">*******************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">cat_of_elems_def</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">X</span> : C^op ⟶ HSET).
+
+<span class="kn">Definition</span> <span class="nf">cat_of_elems_ob_mor</span> : precategory_ob_mor.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (∑ (c : C), X c : hSet).
+<span class="nb">intros</span> a b.
+<span class="nb">apply</span> (∑ (f : C⟦pr1 a,pr1 b⟧), (pr2 a) = # X f (pr2 b)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_of_elems_data</span> : precategory_data.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> <span class="nv">cat_of_elems_ob_mor</span>.
+<span class="nb">split</span>.
++ <span class="nb">intros</span> a.
+  <span class="k">exists</span> (<span class="nv">identity</span> (pr1 a)).
+  <span class="kp">abstract</span> (<span class="bp">exact</span> (eqtohomot (!(functor_id X) (pr1 a)) (pr2 a))).
++ <span class="nb">intros</span> a b c f g.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">f</span> · pr1 g).
+  <span class="kp">abstract</span> (<span class="bp">exact</span> ((pr2 f) @ maponpaths (#X (pr1 f)) (pr2 g)
+                    @ (eqtohomot (!(functor_comp X) (pr1 g) (pr1 f)) (pr2 c)))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">get_mor</span> {<span class="nv">x</span> <span class="nv">y</span> : cat_of_elems_data} (<span class="nv">f</span> : _⟦x,y⟧) := pr1 f.
+
+<span class="kn">Lemma</span> <span class="nf">cat_of_elems_mor_eq</span> (<span class="nv">x</span> <span class="nv">y</span> : cat_of_elems_data) (<span class="nv">f</span> <span class="nv">g</span> : _⟦x,y⟧) :
+  get_mor f = get_mor g → f = g.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> p.
+<span class="nb">apply</span> subtypePath.
+- <span class="nb">intro</span> r; <span class="nb">apply</span> setproperty.
+- <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_cat_of_elems_data</span> : is_precategory cat_of_elems_data.
+<span class="kn">Proof</span>.
+<span class="nb">split</span>; [<span class="nb">split</span>|<span class="nb">split</span>]; <span class="nb">intros</span>; <span class="nb">apply</span> cat_of_elems_mor_eq.
++ <span class="nb">apply</span> id_left.
++ <span class="nb">apply</span> id_right.
++ <span class="nb">apply</span> assoc.
++ <span class="nb">apply</span> assoc'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precat_of_elems</span> : precategory :=
+  (cat_of_elems_data,,is_precategory_cat_of_elems_data).
+
+
+<span class="kn">End</span> <span class="nf">cat_of_elems_def</span>.
+
+<span class="kn">Arguments</span> get_mor {_ _ _ _} _.
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_cat_of_elems</span> {<span class="nv">C</span> : category} (<span class="nv">X</span> : C^op ⟶ HSET)
+  : has_homsets (precat_of_elems X).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> a b.
+<span class="nb">apply</span> isaset_total2.
+- <span class="nb">apply</span> C.
+- <span class="nb">intro</span> f. <span class="nb">apply</span> isasetaprop, setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_of_elems</span> {<span class="nv">C</span> : category} (<span class="nv">X</span> : C^op ⟶ HSET) : category
+  := make_category _ (has_homsets_cat_of_elems X).
+
+<span class="sd">(** Type as \int in Agda mode *)</span>
+<span class="kn">Notation</span> <span class="s2">"∫ X"</span> := (cat_of_elems X) (<span class="kn">at level</span> <span class="mi">3</span>) : cat.
+
+<span class="kn">Section</span> <span class="nf">cat_of_elems_theory</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">X</span> <span class="nv">Y</span> : C^op ⟶ HSET}.
+
+<span class="kn">Definition</span> <span class="nf">get_ob</span> (<span class="nv">x</span> : ∫ X) : C := pr1 x.
+<span class="kn">Definition</span> <span class="nf">get_el</span> (<span class="nv">x</span> : ∫ X) : X (get_ob x) : hSet := pr2 x.
+<span class="kn">Definition</span> <span class="nf">get_eqn</span> {<span class="nv">x</span> <span class="nv">y</span> : ∫ X} (<span class="nv">f</span> : (∫ X)⟦x,y⟧) :
+  get_el x = # X (get_mor f) (get_el y)  := pr2 f.
+
+<span class="kn">Definition</span> <span class="nf">make_ob</span> (<span class="nv">c</span> : C) (<span class="nv">x</span> : X c : hSet) : ∫ X := (c,,x).
+<span class="kn">Definition</span> <span class="nf">make_mor</span> (<span class="nv">r</span> <span class="nv">s</span> : ∫ X) (<span class="nv">f</span> : C⟦get_ob r,get_ob s⟧)
+  (<span class="nv">i</span> : get_el r = # X f (get_el s)) : (∫ X)⟦r,s⟧ := (f,,i).
+
+<span class="c">(* Any f : J → I and ρ : X I defines a morphism from (J,,# X ρ) to (I,,ρ) in ∫ X *)</span>
+<span class="kn">Definition</span> <span class="nf">mor_to_el_mor</span> {<span class="nv">I</span> <span class="nv">J</span> : C} (<span class="nv">f</span> : J --&gt; I) (<span class="nv">ρ</span> : pr1 X I : hSet) :
+  ∫ X ⟦ make_ob J (# (pr1 X) f ρ), make_ob I ρ ⟧ :=
+  make_mor (J,,# (pr1 X) f ρ) (I,,ρ) f (idpath (# (pr1 X) f ρ)).
+
+<span class="kn">Lemma</span> <span class="nf">base_paths_maponpaths_make_ob</span> {<span class="nv">I</span> : C} <span class="nv">x</span> <span class="nv">y</span> (<span class="nv">e</span> : x = y) :
+  base_paths _ _ (maponpaths (make_ob I) e) = idpath I.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">induction</span> e.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_make_ob_eq</span> {<span class="nv">I</span> <span class="nv">J</span>} (<span class="nv">f</span> : C⟦J,I⟧) {<span class="nv">a</span> <span class="nv">b</span>} (<span class="nv">e</span> : make_ob J a = make_ob J b) :
+  transportf (<span class="k">λ</span> <span class="nv">x</span> : ∫ X, C⟦pr1 x,I⟧) e f = transportf (<span class="k">λ</span> <span class="nv">x</span>, C⟦x,I⟧) (base_paths _ _ e) f.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">induction</span> e.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_make_ob</span> {<span class="nv">A</span> : PreShv (∫ X)} {<span class="nv">I</span> : C} {<span class="nv">x</span> <span class="nv">y</span>} (<span class="nv">e</span> : x = y)
+  (<span class="nv">u</span> : pr1 (pr1 A (make_ob I x))) :
+    transportf (<span class="k">λ</span> <span class="nv">x</span>, pr1 (pr1 A (make_ob I x))) e u =
+    transportf (<span class="k">λ</span> <span class="nv">x</span>, pr1 (pr1 A x)) (maponpaths (make_ob I) e) u.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">induction</span> e.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">make_ob_identity_eq</span> {<span class="nv">I</span> : C} (<span class="nv">ρ</span> : pr1 (pr1 X I)) :
+  make_ob I (# (pr1 X) (identity I) ρ) = make_ob I ρ.
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (maponpaths (make_ob I) (eqtohomot (functor_id X I) ρ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">mor_to_el_mor_id</span> {<span class="nv">I</span> : C} (<span class="nv">ρ</span> : pr1 (pr1 X I)) :
+  mor_to_el_mor (identity I) ρ =
+  transportb (<span class="k">λ</span> <span class="nv">Z</span>, ∫ X⟦Z, make_ob I ρ⟧) (make_ob_identity_eq ρ) (identity _).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (@transportf_transpose_right _ (<span class="k">λ</span> <span class="nv">Z</span> : ∫ X, ∫ X ⟦Z,_⟧)), cat_of_elems_mor_eq; <span class="nb">simpl</span>.
+<span class="nb">unfold</span> transportb; <span class="nb">rewrite</span> pathsinv0inv0.
+<span class="nb">rewrite</span> transportf_total2; <span class="nb">simpl</span>; <span class="nb">rewrite</span> transportf_make_ob_eq.
+<span class="bp">now</span> <span class="nb">unfold</span> make_ob_identity_eq; <span class="nb">rewrite</span> base_paths_maponpaths_make_ob, idpath_transportf.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">make_ob_comp_eq</span> {<span class="nv">I</span> <span class="nv">J</span> <span class="nv">K</span>} (<span class="nv">ρ</span> : pr1 (pr1 X I)) (<span class="nv">f</span> : C^op⟦I,J⟧) (<span class="nv">g</span> : C^op⟦J,K⟧) :
+  make_ob _ (# (pr1 X) (f · g) ρ) = make_ob _ (# (pr1 X) g (# (pr1 X) f ρ)).
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (maponpaths (make_ob K) (eqtohomot (functor_comp X f g) ρ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">mor_to_el_mor_comp</span> {<span class="nv">I</span> <span class="nv">J</span> <span class="nv">K</span>} (<span class="nv">ρ</span> : pr1 (pr1 X I)) (<span class="nv">f</span> : C^op⟦I,J⟧) (<span class="nv">g</span> : C^op⟦J,K⟧) :
+  mor_to_el_mor (f · g) ρ =
+  transportb (<span class="k">λ</span> <span class="nv">Z</span>, ∫ X⟦Z,_⟧) (make_ob_comp_eq ρ f g)
+             (mor_to_el_mor g (# (pr1 X) f ρ) · mor_to_el_mor f ρ).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (@transportf_transpose_right _ (<span class="k">λ</span> <span class="nv">Z</span> : ∫ X, ∫ X ⟦Z,_⟧)), cat_of_elems_mor_eq; <span class="nb">simpl</span>.
+<span class="nb">unfold</span> transportb; <span class="nb">rewrite</span> pathsinv0inv0.
+<span class="nb">rewrite</span> transportf_total2; <span class="nb">simpl</span>; <span class="nb">rewrite</span> transportf_make_ob_eq.
+<span class="bp">now</span> <span class="nb">unfold</span> make_ob_comp_eq; <span class="nb">rewrite</span> base_paths_maponpaths_make_ob, idpath_transportf.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Functoriality of the construction of the category of elements *)</span>
+<span class="kn">Definition</span> <span class="nf">cat_of_elems_on_nat_trans_data</span> (<span class="nv">α</span> : X ⟹ Y) :
+  functor_data (∫ X) (∫ Y).
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">a</span>, (get_ob a,, α (get_ob a) (get_el a))).
+<span class="nb">intros</span> b c f.
+<span class="k">exists</span> (<span class="nv">get_mor</span> <span class="nv">f</span>).
+<span class="kp">abstract</span> (<span class="bp">exact</span> (maponpaths (α (get_ob b)) (get_eqn f)
+                @ eqtohomot (pr2 α (get_ob c) (get_ob b) (get_mor f)) (get_el c))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cat_of_elems_on_nat_trans_is_functor</span> (<span class="nv">α</span> : X ⟹ Y) :
+  is_functor (cat_of_elems_on_nat_trans_data α).
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="bp">now</span> <span class="nb">intros</span> a; <span class="nb">apply</span> cat_of_elems_mor_eq.
+- <span class="bp">now</span> <span class="nb">intros</span> a b c f g; <span class="nb">apply</span> cat_of_elems_mor_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_of_elems_on_nat_trans</span> (<span class="nv">α</span> : X ⟹ Y) : ∫ X ⟶ ∫ Y :=
+  (cat_of_elems_on_nat_trans_data α,, cat_of_elems_on_nat_trans_is_functor α).
+
+<span class="c">(* maybe make a functor [C,SET] ⟶ [category of Precategories] *)</span>
+
+<span class="sd">(** The forgetful functor from the category of elements to C *)</span>
+<span class="kn">Definition</span> <span class="nf">cat_of_elems_forgetful</span> : ∫ X ⟶ C.
+<span class="kn">Proof</span>.
+use make_functor.
+- <span class="k">exists</span> <span class="nv">pr1</span>.
+  <span class="nb">intros</span> a b; <span class="nb">apply</span> pr1.
+- <span class="bp">now</span> <span class="nb">split</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">reflects_isos_cat_of_elems_forgetful</span> : reflects_isos cat_of_elems_forgetful.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> [c x] [d y] f Hf.
+<span class="nb">destruct</span> f <span class="k">as</span> [f i]; <span class="nb">destruct</span> Hf <span class="k">as</span> [f' j].
+<span class="nb">assert</span> (i' : y = #X f' x).
+{ intermediate_path (#X (identity d) y).
+  - <span class="bp">exact</span> (eqtohomot (!functor_id X d) y).
+  - intermediate_path (#X (f ∘ f') y).
+    + <span class="bp">exact</span> (eqtohomot (!maponpaths #X (pr2 j)) y).
+    + intermediate_path (#X f' (#X f y)).
+      * <span class="bp">exact</span> (eqtohomot ((functor_comp X) f f') y).
+      * <span class="bp">exact</span> (maponpaths (#X f') (!i)).
+}
+<span class="k">exists</span> (<span class="nv">f'</span>,,<span class="nv">i'</span>).
+<span class="nb">split</span>; <span class="nb">apply</span> cat_of_elems_mor_eq; [ <span class="bp">exact</span> (pr1 j) | <span class="bp">exact</span> (pr2 j) ].
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">cat_of_elems_theory</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/ElementsOp.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *******************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

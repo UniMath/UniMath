@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SymmetricMonoidalBuilder.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">In this file, we provide a builder to construct a symmetric displayed monoidal category on a locally propositional displayed category [make_symmetric_monoidal_disp_cat_locally_prop].</span>
+
+<span class="c">This builder takes into account the symmetric aspects found in a monoidal category,</span>
+<span class="c">e.g., the (displayed) right unitor can be constructed from the left unitor (provided a braiding); the assumptions on the right unitor, follow from those on the left unitor.</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories</span>.
+
+  <span class="kn">Context</span> (<span class="nv">V</span> : sym_monoidal_cat) (<span class="nv">D</span> : disp_cat V).
+
+  <span class="kn">Context</span> (<span class="nv">disp_tensor_ob</span> : ∏ x y : V, D x → D y → D (x ⊗ y)).
+  <span class="kn">Let</span> <span class="nf">T</span> {<span class="nv">x</span> <span class="nv">y</span> : V} (<span class="nv">xx</span> : D x) (<span class="nv">yy</span> : D y) : D (x ⊗ y) := disp_tensor_ob _ _ xx yy.
+
+  <span class="kn">Context</span> (<span class="nv">disp_lwhisker</span> : ∏ (x y1 y2 : V) (g : V⟦ y1, y2 ⟧) (xx : D x) (yy1 : D y1) (yy2 : D y2),
+              yy1 --&gt;[ g] yy2 → T xx yy1 --&gt;[ x ⊗^{V}_{l} g] T xx yy2).
+  <span class="kn">Let</span> <span class="nf">Tl</span>
+    {<span class="nv">x</span> <span class="nv">y1</span> <span class="nv">y2</span> : V} {<span class="nv">g</span> : V⟦ y1, y2 ⟧} (<span class="nv">xx</span> : D x) {<span class="nv">yy1</span> : D y1} {<span class="nv">yy2</span> : D y2}
+    (<span class="nv">gg</span> : yy1 --&gt;[ g] yy2)
+    : T xx yy1 --&gt;[ x ⊗^{V}_{l} g] T xx yy2
+    := disp_lwhisker _ _ _ _ _ _ _ gg.
+
+  <span class="kn">Context</span> (<span class="nv">disp_braiding</span> : ∏ (x y : V) (xx : D x) (yy : D y), T xx yy --&gt;[sym_mon_braiding V x y] T yy xx).
+  <span class="kn">Let</span> <span class="nf">B</span> {<span class="nv">x</span> <span class="nv">y</span> : V} (<span class="nv">xx</span> : D x) (<span class="nv">yy</span> : D y)
+    : T xx yy --&gt;[sym_mon_braiding V x y] T yy xx
+    := disp_braiding x y xx yy.
+
+  <span class="kn">Let</span> <span class="nf">Tr</span>
+    {<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y</span> : V} {<span class="nv">f</span> : V⟦ x1, x2 ⟧}
+    {<span class="nv">xx1</span> : D x1} {<span class="nv">xx2</span> : D x2}
+    (<span class="nv">yy</span> : D y) (<span class="nv">ff</span> : xx1 --&gt;[ f] xx2)
+    : T xx1 yy --&gt;[ f ⊗^{V}_{r} y] T xx2 yy.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (t := B xx1 yy ;; Tl _ ff ;; B yy xx2).
+    use (transportf _ _ t).
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (monoidal_braiding_naturality_right V).
+    }
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pr1 ((pr122 (pr2 V)) x2 y)).
+    }
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> (<span class="nv">disp_lwhisker_preserves_id</span> :
+            ∏ (x y : V) (xx : D x) (yy : D y),
+              Tl xx (id_disp yy) =
+                transportb _ (bifunctor_leftid V x y) (id_disp (T xx yy))).
+
+  <span class="kn">Context</span> (<span class="nv">B_inv</span> : ∏ (x y : V) (xx : D x) (yy : D y),
+              B xx yy ;; B yy xx = transportb _ (sym_mon_braiding_inv V x y) (id_disp _)).
+
+  <span class="kn">Local Lemma</span> <span class="nf">disp_rwhisker_preserves_id</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : V} (<span class="nv">xx</span> : D x) (<span class="nv">yy</span> : D y)
+    : Tr yy (id_disp xx) =
+        transportb _ (bifunctor_rightid V y x) (id_disp (T xx yy)).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> Tr.
+    <span class="nb">cbn</span>.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> disp_lwhisker_preserves_id.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> id_right_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> B_inv.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Context</span> (<span class="nv">disp_lwhisker_preserves_comp</span>
+    : ∏ (x y1 y2 y3 : V) (g1 : V⟦ y1, y2 ⟧) (g2 : V⟦ y2, y3 ⟧) (xx : D x)
+        (yy1 : D y1) (yy2 : D y2) (yy3 : D y3)
+        (gg1 : yy1 --&gt;[ g1] yy2) (gg2 : yy2 --&gt;[ g2] yy3),
+      Tl xx (gg1 ;; gg2)
+      = transportb _ (bifunctor_leftcomp V x y1 y2 y3 g1 g2)
+          (Tl _ gg1 ;; Tl _ gg2)).
+
+  <span class="kn">Local Lemma</span> <span class="nf">disp_rwhisker_preserves_comp</span>
+    {<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">x3</span> <span class="nv">y</span> : V} {<span class="nv">f1</span> : V⟦ x1, x2 ⟧} {<span class="nv">f2</span> : V⟦ x2, x3 ⟧} {<span class="nv">xx1</span> : D x1}
+    {<span class="nv">xx2</span> : D x2} {<span class="nv">xx3</span> : D x3} (<span class="nv">yy</span> : D y)
+    (<span class="nv">ff1</span> : xx1 --&gt;[ f1] xx2) (<span class="nv">ff2</span> : xx2 --&gt;[ f2] xx3)
+    : Tr yy (ff1 ;; ff2)
+      = transportb _ (bifunctor_rightcomp V y x1 x2 x3 f1 f2) (Tr yy ff1 ;; Tr yy ff2).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> Tr.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (disp_lwhisker_preserves_comp _ _ _ _ _ _ _ _ _ _ ff1 ff2).
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> ! mor_disp_transportf_prewhisker.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> ! mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> ! transport_f_f.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, B_inv.
+    }
+
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> ! transport_f_f.
+    <span class="nb">rewrite</span> ! mor_disp_transportf_prewhisker.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> ! transport_f_f.
+    <span class="nb">rewrite</span> ! mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> ! mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> ! transport_f_f.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> ! mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> ! mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> ! transport_f_f.
+    use transportf_transpose_right.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+
+    <span class="nb">rewrite</span> ! assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    use transportf_transpose_right.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> ! transport_f_f.
+    use transportf_set.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Lemma B_naturality</span>
+<span class="c">    : B x1 y1 xx1 yy1 ;; Tl yy1 ff = Tl _ ff *)</span>
+
+  <span class="kn">Context</span> (<span class="nv">disp_tensor_equalwhiskers</span>
+            : ∏ (x1 x2 y1 y2 : V) (f : V⟦ x1, x2 ⟧) (g : V⟦ y1, y2 ⟧)
+                (xx1 : D x1) (xx2 : D x2) (yy1 : D y1) (yy2 : D y2)
+                (ff : xx1 --&gt;[ f] xx2) (gg : yy1 --&gt;[ g] yy2),
+              Tr yy1 ff ;; Tl xx2 gg
+              = transportb _ (bifunctor_equalwhiskers V x1 x2 y1 y2 f g)
+                  (Tl xx1 gg ;; Tr yy2 ff)).
+
+  <span class="kn">Definition</span> <span class="nf">make_symmetric_monoidal_disp_cat_tensor</span>
+    : disp_tensor D V.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_,,(_,,_)),,(_,,_,,_,,_,,_)).
+    - <span class="bp">exact</span> disp_tensor_ob.
+    - <span class="bp">exact</span> disp_lwhisker.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">yy</span> <span class="nv">gg</span>, Tr yy gg).
+    - <span class="bp">exact</span> disp_lwhisker_preserves_id.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> disp_rwhisker_preserves_id.
+    - <span class="bp">exact</span> disp_lwhisker_preserves_comp.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> disp_rwhisker_preserves_comp.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> disp_tensor_equalwhiskers.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> (<span class="nv">II</span> : D (monoidal_unit V))
+    (<span class="nv">lu_lu</span> : disp_leftunitor_data make_symmetric_monoidal_disp_cat_tensor II)
+    (<span class="nv">lu_lu_inv</span> : disp_leftunitorinv_data make_symmetric_monoidal_disp_cat_tensor II).
+
+  <span class="kn">Lemma</span> <span class="nf">make_symmetric_monoidal_disp_cat_rightunitor</span>
+    {<span class="nv">x</span> : V} (<span class="nv">xx</span> : D x)
+    : T xx II --&gt;[mon_runitor x] xx.
+  <span class="kn">Proof</span>.
+    use (transportf _ _ (B xx II ;; lu_lu _ xx)).
+    <span class="nb">apply</span> sym_mon_braiding_lunitor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_symmetric_monoidal_disp_cat_rightunitor_inv</span>
+    {<span class="nv">x</span> : V} (<span class="nv">xx</span> : D x)
+    : xx --&gt;[mon_rinvunitor x] T xx II.
+  <span class="kn">Proof</span>.
+    use (transportf _ _ (lu_lu_inv _ xx ;; B _ _)).
+    <span class="nb">apply</span> sym_mon_braiding_linvunitor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> (<span class="nv">asas</span> : disp_associator_data make_symmetric_monoidal_disp_cat_tensor).
+  <span class="kn">Context</span> (<span class="nv">asasinv</span> : disp_associatorinv_data make_symmetric_monoidal_disp_cat_tensor).
+
+  <span class="kn">Definition</span> <span class="nf">make_symmetric_monoidal_disp_cat_monoidal_data</span>
+    : disp_monoidal_data D V.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">make_symmetric_monoidal_disp_cat_tensor</span>.
+    <span class="k">exists</span> <span class="nv">II</span>.
+    <span class="k">exists</span> <span class="nv">lu_lu</span>.
+    <span class="k">exists</span> <span class="nv">lu_lu_inv</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span> <span class="nv">xx</span>, <span class="nv">make_symmetric_monoidal_disp_cat_rightunitor</span> <span class="nv">xx</span>).
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span> <span class="nv">xx</span>, <span class="nv">make_symmetric_monoidal_disp_cat_rightunitor_inv</span> <span class="nv">xx</span>).
+    <span class="k">exists</span> <span class="nv">asas</span>.
+    <span class="bp">exact</span> asasinv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_symmetric_monoidal_disp_cat_monoidal_locally_prop</span>
+    (<span class="nv">LP</span> : locally_propositional D)
+    : disp_monoidal D V.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">make_symmetric_monoidal_disp_cat_monoidal_data</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">intro</span> ; <span class="nb">intros</span>) ; <span class="nb">apply</span> LP.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_symmetric_monoidal_disp_cat_locally_prop'</span>
+    (<span class="nv">LP</span> : locally_propositional D)
+    : ∑ DM : disp_monoidal D V, disp_symmetric DM V.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">make_symmetric_monoidal_disp_cat_monoidal_locally_prop</span> <span class="nv">LP</span>).
+    use make_disp_symmetric_locally_propositional.
+    { <span class="bp">exact</span> LP. }
+    <span class="bp">exact</span> disp_braiding.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_symmetric_monoidal_disp_cat_locally_prop</span>
+  (<span class="nv">V</span> : sym_monoidal_cat) (<span class="nv">D</span> : disp_cat V)
+  (<span class="nv">LP</span> : locally_propositional D)
+  (<span class="nv">T</span> : ∏ x y : V, D x → D y → D (x ⊗ y))
+  (<span class="nv">Tmor</span> : ∏ (x y1 y2 : V) (g : V⟦ y1, y2 ⟧) (xx : D x) (yy1 : D y1) (yy2 : D y2),
+      yy1 --&gt;[g] yy2
+      → T x y1 xx yy1 --&gt;[ x ⊗^{V}_{l} g] T x y2 xx yy2)
+  (<span class="nv">B</span> :  ∏ (x y : V) (xx : D x) (yy : D y), T x y xx yy --&gt;[sym_mon_braiding V x y] T y x yy xx)
+  (<span class="nv">II</span> :  D (monoidal_unit V))
+  (<span class="nv">lu_lu</span> : ∏ (x : V) (xx : D x), T (monoidal_unit V) x II xx --&gt;[mon_lunitor x] xx)
+  (<span class="nv">lu_lu_inv</span> : ∏ (x : V) (xx : D x), xx --&gt;[mon_linvunitor x] T (monoidal_unit V) x II xx)
+  (<span class="nv">assass</span> : ∏ (x y z : V) (xx : D x) (yy : D y) (zz : D z),
+      (T _ _ (T _ _ xx yy) zz) --&gt;[mon_lassociator x y z] T _ _ xx (T _ _ yy zz))
+  (<span class="nv">assassinv</span> : ∏ (x y z : V) (xx : D x) (yy : D y) (zz : D z),
+      T _ _ xx (T _ _ yy zz) --&gt;[mon_rassociator x y z] (T _ _ (T _ _ xx yy) zz))
+  : ∑ DM : disp_monoidal D V, disp_symmetric DM V.
+<span class="kn">Proof</span>.
+  use make_symmetric_monoidal_disp_cat_locally_prop'.
+  - <span class="bp">exact</span> T.
+  - <span class="bp">exact</span> Tmor.
+  - <span class="bp">exact</span> B.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LP.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LP.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LP.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LP.
+  - <span class="bp">exact</span> II.
+  - <span class="bp">exact</span> lu_lu.
+  - <span class="bp">exact</span> lu_lu_inv.
+  - <span class="bp">exact</span> assass.
+  - <span class="bp">exact</span> assassinv.
+  - <span class="bp">exact</span> LP.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Displayed/SymmetricMonoidalBuilder.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; e.g., the (displayed) right unitor can be constructed from the left unitor (provided a braiding); the assumptions on the right unitor, follow from those on the left unitor.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

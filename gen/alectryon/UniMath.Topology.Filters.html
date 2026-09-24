@@ -1,0 +1,1577 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Filters.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Results about Filters *)</span>
+<span class="sd">(** Author: Catherine LELAY. Jan 2016 - *)</span>
+<span class="sd">(** Based on Bourbaky *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.Preamble.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Export</span> UniMath.Topology.Prelim.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="sd">(** ** Definition of a Filter *)</span>
+
+<span class="kn">Section</span> <span class="nf">Filter_def</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">F</span> : (X → hProp) → hProp).
+
+<span class="kn">Definition</span> <span class="nf">isfilter_imply</span> :=
+  ∏ A B : X → hProp, (∏ x : X, A x → B x) → F A → F B.
+<span class="kn">Lemma</span> <span class="nf">isaprop_isfilter_imply</span> : isaprop isfilter_imply.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> A.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> B.
+  <span class="nb">apply</span> isapropimpl.
+  <span class="nb">apply</span> isapropimpl.
+  <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isfilter_finite_intersection</span> :=
+  ∏ (L : Sequence (X → hProp)), (∏ n, F (L n)) → F (finite_intersection L).
+<span class="kn">Lemma</span> <span class="nf">isaprop_isfilter_finite_intersection</span> :
+  isaprop isfilter_finite_intersection.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intros</span> L.
+  <span class="nb">apply</span> isapropimpl.
+  <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isfilter_htrue</span> : hProp :=
+  F (<span class="k">λ</span> <span class="nv">_</span> : X, htrue).
+
+<span class="kn">Definition</span> <span class="nf">isfilter_and</span> :=
+  ∏ A B : X → hProp, F A → F B → F (<span class="k">λ</span> <span class="nv">x</span> : X, A x ∧ B x).
+<span class="kn">Lemma</span> <span class="nf">isaprop_isfilter_and</span> : isaprop isfilter_and.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> A.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> B.
+  <span class="nb">apply</span> isapropimpl.
+  <span class="nb">apply</span> isapropimpl.
+  <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isfilter_notempty</span> :=
+  ∏ A : X → hProp, F A → <span class="k">∃</span> <span class="nv">x</span> : X, A x.
+<span class="kn">Lemma</span> <span class="nf">isaprop_isfilter_notempty</span> :
+  isaprop isfilter_notempty.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> A.
+  <span class="nb">apply</span> isapropimpl.
+  <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isfilter_finite_intersection_htrue</span> :
+  isfilter_finite_intersection → isfilter_htrue.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hand.
+  <span class="nb">unfold</span> isfilter_htrue.
+  <span class="nb">rewrite</span> &lt;- finite_intersection_htrue.
+  <span class="nb">apply</span> Hand.
+  <span class="nb">intros</span> m.
+  <span class="nb">apply</span> fromempty.
+  <span class="nb">generalize</span> (pr2 m).
+  <span class="bp">now</span> <span class="nb">apply</span> negnatlthn0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isfilter_finite_intersection_and</span> :
+  isfilter_finite_intersection → isfilter_and.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hand A B Fa Fb.
+  <span class="nb">rewrite</span> &lt;- finite_intersection_and.
+  <span class="nb">apply</span> Hand.
+  <span class="nb">intros</span> m.
+  <span class="nb">induction</span> m <span class="k">as</span> [m Hm].
+  <span class="nb">induction</span> m <span class="k">as</span> [ | m _].
+  - <span class="bp">exact</span> Fa.
+  - <span class="bp">exact</span> Fb.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isfilter_finite_intersection_carac</span> :
+  isfilter_htrue → isfilter_and
+  → isfilter_finite_intersection.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Htrue Hand L.
+  <span class="nb">apply</span> (pr2 (finite_intersection_hProp F)).
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> Htrue.
+  - <span class="bp">exact</span> Hand.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Filter_def</span>.
+
+<span class="kn">Definition</span> <span class="nf">isPreFilter</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> : (X → hProp) → hProp) :=
+  isfilter_imply F × isfilter_finite_intersection F.
+<span class="kn">Definition</span> <span class="nf">PreFilter</span> (<span class="nv">X</span> : UU) :=
+  ∑ (F : (X → hProp) → hProp), isPreFilter F.
+<span class="kn">Definition</span> <span class="nf">make_PreFilter</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> : (X → hProp) → hProp)
+           (<span class="nv">Himpl</span> : isfilter_imply F)
+           (<span class="nv">Htrue</span> : isfilter_htrue F)
+           (<span class="nv">Hand</span> : isfilter_and F) : PreFilter X :=
+  F,, Himpl,, isfilter_finite_intersection_carac F Htrue Hand.
+
+<span class="kn">Definition</span> <span class="nf">pr1PreFilter</span> (<span class="nv">X</span> : UU) (<span class="nv">F</span> : PreFilter X) : (X → hProp) → hProp := pr1 F.
+<span class="kn">Coercion</span> <span class="nf">pr1PreFilter</span> : PreFilter &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">isFilter</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> : (X → hProp) → hProp) :=
+  isPreFilter F × isfilter_notempty F.
+<span class="kn">Definition</span> <span class="nf">Filter</span> (<span class="nv">X</span> : UU) := ∑ F : (X → hProp) → hProp, isFilter F.
+<span class="kn">Definition</span> <span class="nf">pr1Filter</span> (<span class="nv">X</span> : UU) (<span class="nv">F</span> : Filter X) : PreFilter X :=
+  pr1 F,, pr1 (pr2 F).
+<span class="kn">Coercion</span> <span class="nf">pr1Filter</span> : Filter &gt;-&gt; PreFilter.
+<span class="kn">Definition</span> <span class="nf">make_Filter</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> : (X → hProp) → hProp)
+           (<span class="nv">Himp</span> : isfilter_imply F)
+           (<span class="nv">Htrue</span> : isfilter_htrue F)
+           (<span class="nv">Hand</span> : isfilter_and F)
+           (<span class="nv">Hempty</span> : isfilter_notempty F) : Filter X :=
+  F ,, (Himp ,, (isfilter_finite_intersection_carac F Htrue Hand)) ,, Hempty.
+
+<span class="kn">Lemma</span> <span class="nf">emptynofilter</span> :
+  ∏ F : (empty → hProp) → hProp,
+    ¬ isFilter F.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F Hf.
+  <span class="nb">generalize</span> (isfilter_finite_intersection_htrue _ (pr2 (pr1 Hf))) ; <span class="nb">intros</span> Htrue.
+  <span class="nb">generalize</span> (pr2 Hf _ Htrue).
+  <span class="nb">apply</span> factor_through_squash.
+  - <span class="nb">apply</span> isapropempty.
+  - <span class="nb">intros</span> x.
+    <span class="nb">apply</span> (pr1 x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">PreFilter_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">F</span> : PreFilter X).
+
+<span class="kn">Lemma</span> <span class="nf">filter_imply</span> :
+  isfilter_imply F.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr2 F)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filter_finite_intersection</span> :
+  isfilter_finite_intersection F.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (pr2 F)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filter_htrue</span> :
+  isfilter_htrue F.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isfilter_finite_intersection_htrue.
+  <span class="bp">exact</span> filter_finite_intersection.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filter_and</span> :
+  isfilter_and F.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isfilter_finite_intersection_and.
+  <span class="bp">exact</span> filter_finite_intersection.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">filter_forall</span> :
+  ∏ A : X → hProp, (∏ x : X, A x) → F A.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A Ha.
+  <span class="nb">generalize</span> filter_htrue.
+  <span class="nb">apply</span> filter_imply.
+  <span class="nb">intros</span> x _.
+  <span class="bp">now</span> <span class="nb">apply</span> Ha.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">PreFilter_pty</span>.
+
+<span class="kn">Section</span> <span class="nf">Filter_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">F</span> : Filter X).
+
+<span class="kn">Lemma</span> <span class="nf">filter_notempty</span> :
+  isfilter_notempty F.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (pr2 F)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">filter_const</span> :
+  ∏ A : hProp, F (<span class="k">λ</span> <span class="nv">_</span> : X, A) → ¬ (¬ A).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A Fa Ha.
+  <span class="nb">generalize</span> (filter_notempty _ Fa).
+  <span class="nb">apply</span> factor_through_squash.
+  - <span class="nb">apply</span> isapropempty.
+  - <span class="nb">intros</span> x ; <span class="nb">generalize</span> (pr2 x); <span class="nb">clear</span> x.
+    <span class="bp">exact</span> Ha.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Filter_pty</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isasetPreFilter</span> (<span class="nv">X</span> : UU) : isaset (PreFilter X).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (isaset_carrier_subset (make_hSet _ _) (<span class="k">λ</span> <span class="nv">_</span>, make_hProp _ _)).
+  - <span class="nb">apply</span> impred_isaset ; <span class="nb">intros</span> _.
+    <span class="nb">apply</span> isasethProp.
+  - <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isaprop_isfilter_imply.
+    + <span class="nb">apply</span> isaprop_isfilter_finite_intersection.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isasetFilter</span> (<span class="nv">X</span> : UU) : isaset (Filter X).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (isaset_carrier_subset (make_hSet _ _) (<span class="k">λ</span> <span class="nv">_</span>, make_hProp _ _)).
+  - <span class="nb">apply</span> impred_isaset ; <span class="nb">intros</span> _.
+    <span class="nb">apply</span> isasethProp.
+  - <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isapropdirprod.
+      * <span class="nb">apply</span> isaprop_isfilter_imply.
+      * <span class="nb">apply</span> isaprop_isfilter_finite_intersection.
+    + <span class="nb">apply</span> isaprop_isfilter_notempty.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Order on filters *)</span>
+
+<span class="kn">Definition</span> <span class="nf">filter_le</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> <span class="nv">G</span> : PreFilter X) :=
+  ∏ A : X → hProp, G A → F A.
+
+<span class="kn">Lemma</span> <span class="nf">istrans_filter_le</span> {<span class="nv">X</span> : UU} :
+  ∏ F G H : PreFilter X,
+    filter_le F G → filter_le G H → filter_le F H.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F G H Hfg Hgh A Fa.
+  <span class="nb">apply</span> Hfg, Hgh, Fa.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrefl_filter_le</span> {<span class="nv">X</span> : UU} :
+  ∏ F : PreFilter X, filter_le F F.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F A Fa.
+  <span class="bp">exact</span> Fa.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isantisymm_filter_le</span> {<span class="nv">X</span> : UU} :
+  ∏ F G : PreFilter X, filter_le F G → filter_le G F → F = G.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F G Hle Hge.
+  <span class="nb">simple refine</span> (subtypePath_prop (B := <span class="k">λ</span> <span class="nv">_</span>, make_hProp _ _) _).
+  - <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isaprop_isfilter_imply.
+    + <span class="nb">apply</span> isaprop_isfilter_finite_intersection.
+  - <span class="nb">apply</span> funextfun ; <span class="nb">intros</span> A.
+    <span class="nb">apply</span> hPropUnivalence.
+    + <span class="bp">now</span> <span class="nb">apply</span> Hge.
+    + <span class="bp">now</span> <span class="nb">apply</span> Hle.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">PartialOrder_filter_le</span> (<span class="nv">X</span> : UU) : PartialOrder (make_hSet (PreFilter _) (isasetPreFilter X)).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_PartialOrder _ _).
+  - <span class="nb">intros</span> F G.
+    <span class="nb">simple refine</span> (make_hProp _ _).
+    + <span class="nb">apply</span> (filter_le F G).
+    + <span class="nb">apply</span> impred_isaprop ; <span class="nb">intros</span> A.
+      <span class="nb">apply</span> isapropimpl.
+      <span class="nb">apply</span> propproperty.
+  - <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="nb">intros</span> F G H ; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> istrans_filter_le.
+    + <span class="nb">intros</span> A ; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> isrefl_filter_le.
+    + <span class="nb">intros</span> F G ; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> isantisymm_filter_le.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Image of a filter *)</span>
+
+<span class="kn">Section</span> <span class="nf">filterim</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">f</span> : X → Y) (<span class="nv">F</span> : (X → hProp) → hProp).
+<span class="kn">Context</span> (<span class="nv">Himp</span> : isfilter_imply F)
+        (<span class="nv">Htrue</span> : isfilter_htrue F)
+        (<span class="nv">Hand</span> : isfilter_and F)
+        (<span class="nv">Hempty</span> : isfilter_notempty F).
+
+<span class="kn">Definition</span> <span class="nf">filterim</span> :=
+  <span class="k">λ</span> <span class="nv">A</span> : (Y → hProp), F (<span class="k">λ</span> <span class="nv">x</span> : X, A (f x)).
+
+<span class="kn">Lemma</span> <span class="nf">filterim_imply</span> :
+  isfilter_imply filterim.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B H.
+  <span class="nb">apply</span> Himp.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterim_htrue</span> :
+  isfilter_htrue filterim.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> Htrue.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterim_and</span> :
+  isfilter_and filterim.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B.
+  <span class="nb">apply</span> Hand.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterim_notempty</span> :
+  isfilter_notempty filterim.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A Fa.
+  <span class="nb">generalize</span> (Hempty _ Fa).
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> x.
+  <span class="k">exists</span> (<span class="nv">f</span> (pr1 x)).
+  <span class="bp">exact</span> (pr2 x).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">filterim</span>.
+
+<span class="kn">Definition</span> <span class="nf">PreFilterIm</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X → Y) (<span class="nv">F</span> : PreFilter X) : PreFilter Y.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_PreFilter _ _ _ _).
+  - <span class="bp">exact</span> (filterim f F).
+  - <span class="nb">apply</span> filterim_imply, filter_imply.
+  - <span class="nb">apply</span> filterim_htrue, filter_htrue.
+  - <span class="nb">apply</span> filterim_and, filter_and.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">FilterIm</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X → Y) (<span class="nv">F</span> : Filter X) : Filter Y.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (tpair _ _ _).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr2 (PreFilterIm f F)).
+  - <span class="nb">apply</span> filterim_notempty, filter_notempty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">PreFilterIm_incr</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} :
+  ∏ (f : X → Y) (F G : PreFilter X),
+    filter_le F G → filter_le (PreFilterIm f F) (PreFilterIm f G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f F G Hle A ; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> Hle.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">FilterIm_incr</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} :
+  ∏ (f : X → Y) (F G : Filter X),
+    filter_le F G → filter_le (FilterIm f F) (FilterIm f G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f F G Hle A ; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> Hle.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Limit: filter version *)</span>
+
+<span class="kn">Definition</span> <span class="nf">filterlim</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X → Y) (<span class="nv">F</span> : PreFilter X) (<span class="nv">G</span> : PreFilter Y) :=
+  filter_le (PreFilterIm f F) G.
+
+<span class="kn">Lemma</span> <span class="nf">filterlim_comp</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} :
+  ∏ (f : X → Y) (g : Y → Z)
+    (F : PreFilter X) (G : PreFilter Y) (H : PreFilter Z),
+    filterlim f F G → filterlim g G H → filterlim (funcomp f g) F H.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g F G H Hf Hg A Fa.
+  <span class="nb">specialize</span> (Hg _ Fa).
+  <span class="nb">specialize</span> (Hf _ Hg).
+  <span class="nb">apply</span> Hf.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">filterlim_decr_1</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} :
+  ∏ (f : X → Y) (F F' : PreFilter X) (G : PreFilter Y),
+    filter_le F' F → filterlim f F G → filterlim f F' G.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f F F' G Hf Hle A Ha.
+  <span class="nb">specialize</span> (Hle _ Ha).
+  <span class="nb">specialize</span> (Hf _ Hle).
+  <span class="nb">apply</span> Hf.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">filterlim_incr_2</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} :
+  ∏ (f : X → Y) (F : PreFilter X) (G G' : PreFilter Y),
+    filter_le G G' → filterlim f F G → filterlim f F G'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f F G G' Hg Hle A Ha.
+  <span class="nb">specialize</span> (Hg _ Ha).
+  <span class="nb">specialize</span> (Hle _ Hg).
+  <span class="bp">exact</span> Hle.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Some usefull filters *)</span>
+
+<span class="sd">(** *** Filter on a domain *)</span>
+
+<span class="kn">Section</span> <span class="nf">filterdom</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">F</span> : (X → hProp) → hProp)
+        (<span class="nv">Himp</span> : isfilter_imply F)
+        (<span class="nv">Htrue</span> : isfilter_htrue F)
+        (<span class="nv">Hand</span> : isfilter_and F)
+        (<span class="nv">Hempty</span> : isfilter_notempty F).
+<span class="kn">Context</span> (<span class="nv">dom</span> : X → hProp)
+        (<span class="nv">Hdom</span> : ∏ P, F P → <span class="k">∃</span> <span class="nv">x</span>, dom x ∧ P x).
+
+<span class="kn">Definition</span> <span class="nf">filterdom</span> : (X → hProp) → hProp
+  := <span class="k">λ</span> <span class="nv">A</span> : X → hProp, F (<span class="k">λ</span> <span class="nv">x</span> : X, make_hProp (dom x → A x) (isapropimpl _ _ (propproperty _))).
+
+<span class="kn">Lemma</span> <span class="nf">filterdom_imply</span> :
+  isfilter_imply filterdom.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B Himpl.
+  <span class="nb">apply</span> Himp.
+  <span class="nb">intros</span> x Ax Hx.
+  <span class="nb">apply</span> Himpl, Ax, Hx.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterdom_htrue</span> :
+  isfilter_htrue filterdom.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> Himp <span class="k">with</span> (<span class="mi">2</span> := Htrue).
+  <span class="nb">intros</span> x H _.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterdom_and</span> :
+  isfilter_and filterdom.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B Ha Hb.
+  <span class="nb">generalize</span> (Hand _ _ Ha Hb).
+  <span class="nb">apply</span> Himp.
+  <span class="nb">intros</span> x ABx Hx.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr1 ABx), Hx.
+  - <span class="nb">apply</span> (pr2 ABx), Hx.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterdom_notempty</span> :
+  isfilter_notempty filterdom.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">intros</span> A Fa.
+  <span class="nb">generalize</span> (Hdom _ Fa).
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> x.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">x</span>).
+  <span class="nb">apply</span> (pr2 (pr2 x)), (pr1 (pr2 x)).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">filterdom</span>.
+
+<span class="kn">Definition</span> <span class="nf">PreFilterDom</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> : PreFilter X) (<span class="nv">dom</span> : X → hProp) : PreFilter X.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_PreFilter _ _ _ _).
+  - <span class="bp">exact</span> (filterdom F dom).
+  - <span class="nb">apply</span> filterdom_imply, filter_imply.
+  - <span class="nb">apply</span> filterdom_htrue.
+    + <span class="nb">apply</span> filter_imply.
+    + <span class="nb">apply</span> filter_htrue.
+  - <span class="nb">apply</span> filterdom_and.
+    + <span class="nb">apply</span> filter_imply.
+    + <span class="nb">apply</span> filter_and.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">FilterDom</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> : Filter X) (<span class="nv">dom</span> : X → hProp)
+           (<span class="nv">Hdom</span> : ∏ P, F P → <span class="k">∃</span> <span class="nv">x</span>, dom x ∧ P x) : Filter X.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (tpair _ _ _).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr2 (PreFilterDom F dom)).
+  - <span class="nb">apply</span> filterdom_notempty.
+    <span class="bp">exact</span> Hdom.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Filter on a subtype *)</span>
+
+<span class="kn">Section</span> <span class="nf">filtersubtype</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">F</span> : (X → hProp) → hProp)
+        (<span class="nv">Himp</span> : isfilter_imply F)
+        (<span class="nv">Htrue</span> : isfilter_htrue F)
+        (<span class="nv">Hand</span> : isfilter_and F)
+        (<span class="nv">Hempty</span> : isfilter_notempty F).
+<span class="kn">Context</span> (<span class="nv">dom</span> : X → hProp)
+        (<span class="nv">Hdom</span> : ∏ P, F P → <span class="k">∃</span> <span class="nv">x</span>, dom x ∧ P x).
+
+<span class="kn">Definition</span> <span class="nf">filtersubtype</span> : ((∑ x : X, dom x) → hProp) → hProp :=
+  <span class="k">λ</span> <span class="nv">A</span> : (∑ x : X, dom x) → hProp,
+        F (<span class="k">λ</span> <span class="nv">x</span> : X, make_hProp (∏ Hx : dom x, A (x,, Hx)) (impred_isaprop _ (<span class="k">λ</span> <span class="nv">_</span>, propproperty _))).
+
+<span class="kn">Lemma</span> <span class="nf">filtersubtype_imply</span> :
+  isfilter_imply filtersubtype.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B Himpl.
+  <span class="nb">apply</span> Himp.
+  <span class="nb">intros</span> x Ax Hx.
+  <span class="nb">apply</span> Himpl, Ax.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filtersubtype_htrue</span> :
+  isfilter_htrue filtersubtype.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> Himp <span class="k">with</span> (<span class="mi">2</span> := Htrue).
+  <span class="nb">intros</span> x H _.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filtersubtype_and</span> :
+  isfilter_and filtersubtype.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B Ha Hb.
+  <span class="nb">generalize</span> (Hand _ _ Ha Hb).
+  <span class="nb">apply</span> Himp.
+  <span class="nb">intros</span> x ABx Hx.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr1 ABx).
+  - <span class="nb">apply</span> (pr2 ABx).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filtersubtype_notempty</span> :
+  isfilter_notempty filtersubtype.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A Fa.
+  <span class="nb">generalize</span> (Hdom _ Fa).
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> x.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">x</span>,,<span class="nv">pr1</span> (pr2 x)).
+  <span class="bp">exact</span> (pr2 (pr2 x) (pr1 (pr2 x))).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">filtersubtype</span>.
+
+<span class="kn">Definition</span> <span class="nf">PreFilterSubtype</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> : PreFilter X) (<span class="nv">dom</span> : X → hProp) : PreFilter (∑ x : X, dom x).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_PreFilter _ _ _ _).
+  - <span class="bp">exact</span> (filtersubtype F dom).
+  - <span class="nb">apply</span> filtersubtype_imply, filter_imply.
+  - <span class="nb">apply</span> filtersubtype_htrue.
+    + <span class="nb">apply</span> filter_imply.
+    + <span class="nb">apply</span> filter_htrue.
+  - <span class="nb">apply</span> filtersubtype_and.
+    + <span class="nb">apply</span> filter_imply.
+    + <span class="nb">apply</span> filter_and.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">FilterSubtype</span> {<span class="nv">X</span> : UU} (<span class="nv">F</span> : Filter X) (<span class="nv">dom</span> : X → hProp)
+           (<span class="nv">Hdom</span> : ∏ P, F P → <span class="k">∃</span> <span class="nv">x</span>, dom x ∧ P x) : Filter (∑ x : X, dom x).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (tpair _ _ _).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr2 (PreFilterSubtype F dom)).
+  - <span class="nb">apply</span> filtersubtype_notempty.
+    <span class="bp">exact</span> Hdom.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Direct Product of filters *)</span>
+
+<span class="kn">Section</span> <span class="nf">filterdirprod</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">Fx</span> : (X → hProp) → hProp)
+        (<span class="nv">Himp_x</span> : isfilter_imply Fx)
+        (<span class="nv">Htrue_x</span> : isfilter_htrue Fx)
+        (<span class="nv">Hand_x</span> : isfilter_and Fx)
+        (<span class="nv">Hempty_x</span> : isfilter_notempty Fx).
+<span class="kn">Context</span> (<span class="nv">Fy</span> : (Y → hProp) → hProp)
+        (<span class="nv">Himp_y</span> : isfilter_imply Fy)
+        (<span class="nv">Htrue_y</span> : isfilter_htrue Fy)
+        (<span class="nv">Hand_y</span> : isfilter_and Fy)
+        (<span class="nv">Hempty_y</span> : isfilter_notempty Fy).
+
+<span class="kn">Definition</span> <span class="nf">filterdirprod</span> : (X × Y → hProp) → hProp :=
+  <span class="k">λ</span> <span class="nv">A</span> : (X × Y) → hProp,
+        <span class="k">∃</span> (<span class="nv">Ax</span> : X → hProp) (<span class="nv">Ay</span> : Y → hProp),
+          Fx Ax × Fy Ay × (∏ (x : X) (y : Y), Ax x → Ay y → A (x,,y)).
+
+<span class="kn">Lemma</span> <span class="nf">filterdirprod_imply</span> :
+  isfilter_imply filterdirprod.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B Himpl.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> C.
+  <span class="nb">generalize</span> (pr1 C) (pr1 (pr2 C)) (pr1 (pr2 (pr2 C))) (pr1 (pr2 (pr2 (pr2 C)))) (pr2 (pr2 (pr2 (pr2 C)))) ;
+  <span class="nb">clear</span> C ; <span class="nb">intros</span> Ax Ay Fax Fay Ha.
+  <span class="k">exists</span> <span class="nv">Ax</span>, Ay.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  + <span class="bp">exact</span> Fax.
+  + <span class="bp">exact</span> Fay.
+  + <span class="nb">intros</span> x y Hx Hy.
+    <span class="bp">now</span> <span class="nb">apply</span> Himpl, Ha.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterdirprod_htrue</span> :
+  isfilter_htrue filterdirprod.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>:X, htrue), (<span class="k">λ</span> <span class="nv">_</span>:Y, htrue).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  + <span class="nb">apply</span> Htrue_x.
+  + <span class="nb">apply</span> Htrue_y.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterdirprod_and</span> :
+  isfilter_and filterdirprod.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B.
+  <span class="nb">apply</span> hinhfun2.
+  <span class="nb">intros</span> C D.
+  <span class="nb">generalize</span> (pr1 C) (pr1 (pr2 C)) (pr1 (pr2 (pr2 C))) (pr1 (pr2 (pr2 (pr2 C)))) (pr2 (pr2 (pr2 (pr2 C)))) ;
+  <span class="nb">clear</span> C ; <span class="nb">intros</span> Ax Ay Fax Fay Ha.
+  <span class="nb">generalize</span> (pr1 D) (pr1 (pr2 D)) (pr1 (pr2 (pr2 D))) (pr1 (pr2 (pr2 (pr2 D)))) (pr2 (pr2 (pr2 (pr2 D)))) ;
+  <span class="nb">clear</span> D ; <span class="nb">intros</span> Bx By Fbx Fby Hb.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span> : X, Ax x ∧ Bx x), (<span class="k">λ</span> <span class="nv">y</span> : Y, Ay y ∧ By y).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  + <span class="bp">now</span> <span class="nb">apply</span> Hand_x.
+  + <span class="bp">now</span> <span class="nb">apply</span> Hand_y.
+  + <span class="nb">apply</span> Ha.
+    * <span class="nb">apply</span> (pr1 X0).
+    * <span class="nb">apply</span> (pr1 X1).
+  + <span class="nb">apply</span> Hb.
+    * <span class="nb">apply</span> (pr2 X0).
+    * <span class="nb">apply</span> (pr2 X1).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterdirprod_notempty</span> :
+  isfilter_notempty filterdirprod.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> C.
+  <span class="nb">generalize</span> (pr1 C) (pr1 (pr2 C)) (pr1 (pr2 (pr2 C))) (pr1 (pr2 (pr2 (pr2 C)))) (pr2 (pr2 (pr2 (pr2 C)))) ;
+  <span class="nb">clear</span> C ; <span class="nb">intros</span> Ax Ay Fax Fay Ha.
+  <span class="nb">generalize</span> (Hempty_x _ Fax) (Hempty_y _ Fay).
+  <span class="nb">apply</span> hinhfun2.
+  <span class="nb">intros</span> x y.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">x</span>,,<span class="nv">pr1</span> <span class="nv">y</span>).
+  <span class="nb">apply</span> Ha.
+  - <span class="bp">exact</span> (pr2 x).
+  - <span class="bp">exact</span> (pr2 y).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">filterdirprod</span>.
+
+<span class="kn">Definition</span> <span class="nf">PreFilterDirprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">Fx</span> : PreFilter X) (<span class="nv">Fy</span> : PreFilter Y) : PreFilter (X × Y).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_PreFilter _ _ _ _).
+  - <span class="bp">exact</span> (filterdirprod Fx Fy).
+  - <span class="nb">apply</span> filterdirprod_imply.
+  - <span class="nb">apply</span> filterdirprod_htrue.
+    + <span class="nb">apply</span> filter_htrue.
+    + <span class="nb">apply</span> filter_htrue.
+  - <span class="nb">apply</span> filterdirprod_and.
+    + <span class="nb">apply</span> filter_and.
+    + <span class="nb">apply</span> filter_and.
+<span class="kn">Defined</span>.
+<span class="kn">Definition</span> <span class="nf">FilterDirprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">Fx</span> : Filter X) (<span class="nv">Fy</span> : Filter Y) : Filter (X × Y).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (tpair _ _ _).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr2 (PreFilterDirprod Fx Fy)).
+  - <span class="nb">apply</span> filterdirprod_notempty.
+    + <span class="nb">apply</span> filter_notempty.
+    + <span class="nb">apply</span> filter_notempty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PreFilterPr1</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">F</span> : PreFilter (X × Y)) : PreFilter X :=
+  (PreFilterIm pr1 F).
+<span class="kn">Definition</span> <span class="nf">FilterPr1</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">F</span> : Filter (X × Y)) : Filter X :=
+  (FilterIm pr1 F).
+
+<span class="kn">Definition</span> <span class="nf">PreFilterPr2</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">F</span> : PreFilter (X × Y)) : PreFilter Y :=
+  (PreFilterIm (@pr2 X (<span class="k">λ</span> <span class="nv">_</span> : X, Y)) F).
+<span class="kn">Definition</span> <span class="nf">FilterPr2</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">F</span> : Filter (X × Y)) : Filter Y :=
+  (FilterIm (@pr2 X (<span class="k">λ</span> <span class="nv">_</span> : X, Y)) F).
+
+<span class="kn">Goal</span> ∏ {X Y : UU} (F : PreFilter (X × Y)),
+    filter_le F (PreFilterDirprod (PreFilterPr1 F) (PreFilterPr2 F)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y F.
+  <span class="nb">intros</span> A.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> C ;
+    <span class="nb">generalize</span> (pr1 C) (pr1 (pr2 C)) (pr1 (pr2 (pr2 C))) (pr1 (pr2 (pr2 (pr2 C)))) (pr2 (pr2 (pr2 (pr2 C)))) ;
+    <span class="nb">clear</span> C ; <span class="nb">intros</span> Ax Ay Fax Fay Ha.
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">generalize</span> (filter_and _ _ _ Fax Fay).
+  <span class="nb">apply</span> filter_imply.
+  <span class="nb">intros</span> xy Fxy.
+  <span class="nb">apply</span> Ha.
+  - <span class="bp">exact</span> (pr1 Fxy).
+  - <span class="bp">exact</span> (pr2 Fxy).
+<span class="kn">Qed</span>.
+
+<span class="kn">Goal</span> ∏ {X Y : UU} (F : PreFilter X) (G : PreFilter Y),
+    filter_le (PreFilterPr1 (PreFilterDirprod F G)) F.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y F G.
+  <span class="nb">intros</span> A Fa.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> <span class="nv">A</span>, (<span class="k">λ</span> <span class="nv">_</span>, htrue).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">exact</span> Fa.
+  - <span class="bp">now</span> <span class="nb">apply</span> filter_htrue.
+  - <span class="nb">intros</span>. <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Goal</span> ∏ {X Y : UU} (F : PreFilter X) (G : PreFilter Y),
+    filter_le (PreFilterPr2 (PreFilterDirprod F G)) G.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y F G.
+  <span class="nb">intros</span> A Fa.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">htrue</span>), A.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">now</span> <span class="nb">apply</span> filter_htrue.
+  - <span class="bp">exact</span> Fa.
+  - <span class="nb">intros</span>. <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Other filters *)</span>
+
+<span class="sd">(** *** Filter on nat *)</span>
+
+<span class="kn">Section</span> <span class="nf">filternat</span>.
+
+<span class="kn">Definition</span> <span class="nf">filternat</span> : (nat → hProp) → hProp :=
+  <span class="k">λ</span> <span class="nv">P</span> : nat → hProp, <span class="k">∃</span> <span class="nv">N</span> : nat, ∏ n : nat, N ≤ n → P n.
+
+<span class="kn">Lemma</span> <span class="nf">filternat_imply</span> :
+  isfilter_imply filternat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P Q H.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> N.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">N</span>).
+  <span class="nb">intros</span> n Hn.
+  <span class="bp">now</span> <span class="nb">apply</span> H, (pr2 N).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filternat_htrue</span> :
+  isfilter_htrue filternat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hinhpr.
+  <span class="bp">now</span> <span class="k">exists</span> <span class="nv">O</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filternat_and</span> :
+  isfilter_and filternat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B.
+  <span class="nb">apply</span> hinhfun2.
+  <span class="nb">intros</span> Na Nb.
+  <span class="k">exists</span> (<span class="nv">max</span> (pr1 Na) (pr1 Nb)).
+  <span class="nb">intros</span> n Hn.
+  <span class="nb">split</span>.
+  + <span class="nb">apply</span> (pr2 Na).
+    <span class="nb">eapply</span> istransnatleh, Hn.
+    <span class="bp">now</span> <span class="nb">apply</span> max_le_l.
+  + <span class="nb">apply</span> (pr2 Nb).
+    <span class="nb">eapply</span> istransnatleh, Hn.
+    <span class="bp">now</span> <span class="nb">apply</span> max_le_r.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filternat_notempty</span> :
+  isfilter_notempty filternat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> N.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">N</span>).
+  <span class="nb">apply</span> (pr2 N (pr1 N)).
+  <span class="bp">now</span> <span class="nb">apply</span> isreflnatleh.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">filternat</span>.
+
+<span class="kn">Definition</span> <span class="nf">FilterNat</span> : Filter nat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_Filter _ _ _ _ _).
+  - <span class="nb">apply</span> filternat.
+  - <span class="nb">apply</span> filternat_imply.
+  - <span class="nb">apply</span> filternat_htrue.
+  - <span class="nb">apply</span> filternat_and.
+  - <span class="nb">apply</span> filternat_notempty.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** The upper filter *)</span>
+
+<span class="kn">Section</span> <span class="nf">filtertop</span>.
+
+<span class="kn">Context</span>  {<span class="nv">X</span> : UU} (<span class="nv">x0</span> : ∥ X ∥).
+
+<span class="kn">Definition</span> <span class="nf">filtertop</span> : (X → hProp) → hProp :=
+  <span class="k">λ</span> <span class="nv">A</span> : X → hProp, make_hProp (∏ x : X, A x) (impred_isaprop _ (<span class="k">λ</span> <span class="nv">_</span>, propproperty _)).
+
+<span class="kn">Lemma</span> <span class="nf">filtertop_imply</span> :
+  isfilter_imply filtertop.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B H Ha x.
+  <span class="nb">apply</span> H.
+  <span class="nb">simple refine</span> (Ha _).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filtertop_htrue</span> :
+  isfilter_htrue filtertop.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> tt.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filtertop_and</span> :
+  isfilter_and filtertop.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B Ha Hb x.
+  <span class="nb">split</span>.
+  + <span class="nb">simple refine</span> (Ha _).
+  + <span class="nb">simple refine</span> (Hb _).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filtertop_notempty</span> :
+  isfilter_notempty filtertop.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A Fa.
+  <span class="nb">revert</span> x0.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> x0.
+  <span class="k">exists</span> <span class="nv">x0</span>.
+  <span class="nb">simple refine</span> (Fa _).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">filtertop</span>.
+
+<span class="kn">Definition</span> <span class="nf">PreFilterTop</span> {<span class="nv">X</span> : UU} : PreFilter X.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_PreFilter _ _ _ _).
+  - <span class="bp">exact</span> filtertop.
+  - <span class="bp">exact</span> filtertop_imply.
+  - <span class="bp">exact</span> filtertop_htrue.
+  - <span class="bp">exact</span> filtertop_and.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">FilterTop</span> {<span class="nv">X</span> : UU} (<span class="nv">x0</span> : ∥ X ∥) : Filter X.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (tpair _ _ _).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr2 PreFilterTop).
+  - <span class="nb">apply</span> filtertop_notempty, x0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">PreFilterTop_correct</span> {<span class="nv">X</span> : UU} :
+  ∏ (F : PreFilter X), filter_le F PreFilterTop.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F A Ha.
+  <span class="nb">apply</span> filter_forall, Ha.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">FilterTop_correct</span> {<span class="nv">X</span> : UU} :
+  ∏ (x0 : ∥ X ∥) (F : Filter X), filter_le F (FilterTop x0).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x0 F A Ha.
+  <span class="nb">apply</span> PreFilterTop_correct, Ha.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Intersection of filters *)</span>
+
+<span class="kn">Section</span> <span class="nf">filterintersection</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">isc</span> : ((X → hProp) → hProp) → UU).
+<span class="kn">Context</span> (<span class="nv">FF</span> : (∑ F : ((X → hProp) → hProp), isc F) → hProp)
+        (<span class="nv">Himp</span> : ∏ F, FF F → isfilter_imply (pr1 F))
+        (<span class="nv">Htrue</span> : ∏ F, FF F → isfilter_htrue (pr1 F))
+        (<span class="nv">Hand</span> : ∏ F, FF F → isfilter_and (pr1 F))
+        (<span class="nv">Hempty</span> : ∏ F, FF F → isfilter_notempty (pr1 F)).
+<span class="kn">Context</span> (<span class="nv">His</span> : <span class="k">∃</span> <span class="nv">F</span>, FF F).
+
+<span class="kn">Definition</span> <span class="nf">filterintersection</span> : (X → hProp) → hProp :=
+  <span class="k">λ</span> <span class="nv">A</span> : X → hProp, make_hProp (∏ F, FF F → (pr1 F) A)
+                             (impred_isaprop _ (<span class="k">λ</span> <span class="nv">_</span>, isapropimpl _ _ (propproperty _))).
+
+<span class="kn">Lemma</span> <span class="nf">filterintersection_imply</span> :
+  isfilter_imply filterintersection.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B H Ha F Hf.
+  <span class="nb">apply</span> (Himp F Hf A).
+  - <span class="nb">apply</span> H.
+  - <span class="nb">simple refine</span> (Ha _ _).
+    <span class="bp">exact</span> Hf.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterintersection_htrue</span> :
+  isfilter_htrue filterintersection.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F Hf.
+  <span class="bp">now</span> <span class="nb">apply</span> (Htrue F).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterintersection_and</span> :
+  isfilter_and filterintersection.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B Ha Hb F Hf.
+  <span class="nb">apply</span> (Hand F Hf).
+  * <span class="bp">now</span> <span class="nb">simple refine</span> (Ha _ _).
+  * <span class="bp">now</span> <span class="nb">simple refine</span> (Hb _ _).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterintersection_notempty</span> :
+  isfilter_notempty filterintersection.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A Fa.
+  <span class="nb">revert</span> His.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> F.
+  <span class="nb">apply</span> (Hempty (pr1 F)).
+  * <span class="bp">exact</span> (pr2 F).
+  * <span class="nb">simple refine</span> (Fa _ _).
+    <span class="bp">exact</span> (pr2 F).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">filterintersection</span>.
+
+<span class="kn">Definition</span> <span class="nf">PreFilterIntersection</span> {<span class="nv">X</span> : UU} (<span class="nv">FF</span> : PreFilter X → hProp) : PreFilter X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">simple refine</span> (make_PreFilter _ _ _ _).
+  - <span class="nb">apply</span> (filterintersection _ FF).
+  - <span class="nb">apply</span> filterintersection_imply.
+    <span class="nb">intros</span> F _.
+    <span class="nb">apply</span> filter_imply.
+  - <span class="nb">apply</span> filterintersection_htrue.
+    <span class="nb">intros</span> F _.
+    <span class="nb">apply</span> filter_htrue.
+  - <span class="nb">apply</span> filterintersection_and.
+    <span class="nb">intros</span> F _.
+    <span class="nb">apply</span> filter_and.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">FilterIntersection</span> {<span class="nv">X</span> : UU} (<span class="nv">FF</span> : Filter X → hProp)
+           (<span class="nv">Hff</span> : <span class="k">∃</span> <span class="nv">F</span> : Filter X, FF F) : Filter X.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_Filter _ _ _ _ _).
+  - <span class="nb">apply</span> (filterintersection _ FF).
+  - <span class="nb">apply</span> filterintersection_imply.
+    <span class="nb">intros</span> F _.
+    <span class="nb">apply</span> (filter_imply (pr1Filter _ F)).
+  - <span class="nb">apply</span> filterintersection_htrue.
+    <span class="nb">intros</span> F _.
+    <span class="nb">apply</span> (filter_htrue (pr1Filter _ F)).
+  - <span class="nb">apply</span> filterintersection_and.
+    <span class="nb">intros</span> F _.
+    <span class="nb">apply</span> (filter_and (pr1Filter _ F)).
+  - <span class="nb">apply</span> filterintersection_notempty.
+    + <span class="nb">intros</span> F _.
+      <span class="nb">apply</span> (filter_notempty F).
+    + <span class="bp">exact</span> Hff.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">PreFilterIntersection_glb</span> {<span class="nv">X</span> : UU} (<span class="nv">FF</span> : PreFilter X → hProp) :
+  (∏ F : PreFilter X, FF F → filter_le F (PreFilterIntersection FF))
+    × (∏ F : PreFilter X, (∏ G : PreFilter X, FF G → filter_le G F)
+                          → filter_le (PreFilterIntersection FF) F).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> F Hf A Ha.
+    <span class="bp">now</span> <span class="nb">simple refine</span> (Ha _ _).
+  - <span class="nb">intros</span> F H A Fa G Hg.
+    <span class="nb">apply</span> (H G Hg).
+    <span class="nb">apply</span> Fa.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">FilterIntersection_glb</span> {<span class="nv">X</span> : UU} (<span class="nv">FF</span> : Filter X → hProp) <span class="nv">Hff</span> :
+  (∏ F : Filter X, FF F → filter_le F (FilterIntersection FF Hff))
+    × (∏ F : Filter X, (∏ G : Filter X, FF G → filter_le G F)
+                       → filter_le (FilterIntersection FF Hff) F).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> F Hf A Ha.
+    <span class="bp">now</span> <span class="nb">simple refine</span> (Ha _ _).
+  - <span class="nb">intros</span> F H A Fa G Hg.
+    <span class="nb">apply</span> (H G Hg).
+    <span class="nb">apply</span> Fa.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Filter generated by a set of subsets *)</span>
+
+<span class="kn">Section</span> <span class="nf">filtergenerated</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">L</span> : (X → hProp) → hProp).
+<span class="kn">Context</span> (<span class="nv">Hl</span> : ∏ (L' : Sequence (X → hProp)), (∏ m, L (L' m)) → <span class="k">∃</span> <span class="nv">x</span> : X, ∏ m, L' m x).
+
+<span class="kn">Definition</span> <span class="nf">filtergenerated</span> : (X → hProp) → hProp :=
+  <span class="k">λ</span> <span class="nv">A</span> : X → hProp,
+        <span class="k">∃</span> (<span class="nv">L'</span> : Sequence (X → hProp)), (∏ m, L (L' m)) × (∏ x : X, finite_intersection L' x → A x).
+
+<span class="kn">Lemma</span> <span class="nf">filtergenerated_imply</span> :
+  isfilter_imply filtergenerated.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B H.
+  <span class="nb">apply</span> hinhfun ; <span class="nb">intro</span> Ha.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">Ha</span>), (pr1 (pr2 Ha)).
+  <span class="nb">intros</span> x Hx.
+  <span class="nb">apply</span> H.
+  <span class="nb">apply</span> (pr2 (pr2 Ha)), Hx.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filtergenerated_htrue</span> :
+  isfilter_htrue filtergenerated.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> <span class="nv">nil</span>.
+  <span class="nb">split</span>.
+  + <span class="nb">intros</span> m.
+    <span class="nb">induction</span> (nopathsfalsetotrue (pr2 m)).
+  + <span class="bp">easy</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">filtergenerated_and</span> :
+  isfilter_and filtergenerated.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B.
+  <span class="nb">apply</span> hinhfun2.
+  <span class="nb">intros</span> Ha Hb.
+  <span class="k">exists</span> (<span class="nv">concatenate</span> (pr1 Ha) (pr1 Hb)).
+  <span class="nb">split</span>.
+  + <span class="nb">simpl</span> ; <span class="nb">intros</span> m.
+    <span class="nb">unfold</span> concatenate'.
+    <span class="nb">set</span> (Hm := (weqfromcoprodofstn_invmap (length (pr1 Ha)) (length (pr1 Hb))) m).
+    <span class="nb">change</span> ((weqfromcoprodofstn_invmap (length (pr1 Ha)) (length (pr1 Hb))) m) <span class="k">with</span> Hm.
+    <span class="nb">induction</span> Hm <span class="k">as</span> [Hm | Hm].
+    * <span class="nb">rewrite</span> coprod_rect_compute_1.
+      <span class="nb">apply</span> (pr1 (pr2 Ha)).
+    * <span class="nb">rewrite</span> coprod_rect_compute_2.
+      <span class="nb">apply</span> (pr1 (pr2 Hb)).
+  + <span class="nb">intros</span> x Hx.
+    <span class="nb">simpl</span> <span class="k">in</span> Hx.
+    <span class="nb">unfold</span> concatenate' <span class="k">in</span> Hx.
+    <span class="nb">split</span>.
+    * <span class="nb">apply</span> (pr2 (pr2 Ha)).
+      <span class="nb">intros</span> m.
+      <span class="nb">specialize</span> (Hx (weqfromcoprodofstn_map _ _ (ii1 m))).
+      <span class="nb">rewrite</span> (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_1 <span class="k">in</span> Hx.
+      <span class="bp">exact</span> Hx.
+    * <span class="nb">apply</span> (pr2 (pr2 Hb)).
+      <span class="nb">intros</span> m.
+      <span class="nb">specialize</span> (Hx (weqfromcoprodofstn_map _ _ (ii2 m))).
+      <span class="nb">rewrite</span> (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_2 <span class="k">in</span> Hx.
+      <span class="bp">exact</span> Hx.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filtergenerated_notempty</span> :
+  isfilter_notempty filtergenerated.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> L'.
+  <span class="nb">generalize</span> (Hl _ (pr1 (pr2 L'))).
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> x.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">x</span>).
+  <span class="nb">apply</span> (pr2 (pr2 L')).
+  <span class="bp">exact</span> (pr2 x).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">filtergenerated</span>.
+
+<span class="kn">Definition</span> <span class="nf">PreFilterGenerated</span> {<span class="nv">X</span> : UU} (<span class="nv">L</span> : (X → hProp) → hProp) : PreFilter X.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_PreFilter _ _ _ _).
+  - <span class="nb">apply</span> (filtergenerated L).
+  - <span class="nb">apply</span> filtergenerated_imply.
+  - <span class="nb">apply</span> filtergenerated_htrue.
+  - <span class="nb">apply</span> filtergenerated_and.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">FilterGenerated</span> {<span class="nv">X</span> : UU} (<span class="nv">L</span> : (X → hProp) → hProp)
+           (<span class="nv">Hl</span> : ∏ L' : Sequence (X → hProp),
+  (∏ m : stn (length L'), L (L' m)) → <span class="k">∃</span> <span class="nv">x</span> : X, finite_intersection L' x) : Filter X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">PreFilterGenerated</span> <span class="nv">L</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr2 (PreFilterGenerated L)).
+  - <span class="nb">apply</span> filtergenerated_notempty.
+    <span class="bp">exact</span> Hl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">PreFilterGenerated_correct</span> {<span class="nv">X</span> : UU} :
+   ∏ (L : (X → hProp) → hProp),
+   (∏ A : X → hProp, L A → (PreFilterGenerated L) A)
+   × (∏ F : PreFilter X,
+      (∏ A : X → hProp, L A → F A) → filter_le F (PreFilterGenerated L)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> L.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> A La.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">singletonSequence</span> <span class="nv">A</span>).
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span>. <span class="bp">assumption</span>.
+    + <span class="nb">intros</span> x Hx.
+      <span class="nb">apply</span> (Hx (O,,paths_refl _)).
+  - <span class="nb">intros</span> F Hf A.
+    <span class="nb">apply</span> hinhuniv.
+    <span class="nb">intros</span> Ha.
+    <span class="nb">refine</span> (filter_imply _ _ _ _ _).
+    + <span class="nb">apply</span> (pr2 (pr2 Ha)).
+    + <span class="nb">apply</span> filter_finite_intersection.
+      <span class="nb">intros</span> m.
+      <span class="nb">apply</span> Hf.
+      <span class="nb">apply</span> (pr1 (pr2 Ha)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">FilterGenerated_correct</span> {<span class="nv">X</span> : UU} :
+   ∏ (L : (X → hProp) → hProp)
+   (Hl : ∏ L' : Sequence (X → hProp),
+         (∏ m, L (L' m)) →
+         (<span class="k">∃</span> <span class="nv">x</span> : X, finite_intersection L' x)),
+   (∏ A : X → hProp, L A → (FilterGenerated L Hl) A)
+   × (∏ F : Filter X,
+      (∏ A : X → hProp, L A → F A) → filter_le F (FilterGenerated L Hl)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> L Hl.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> A La.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">singletonSequence</span> <span class="nv">A</span>).
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span>; <span class="bp">assumption</span>.
+    + <span class="nb">intros</span> x Hx.
+      <span class="nb">apply</span> (Hx (O,,paths_refl _)).
+  - <span class="nb">intros</span> F Hf A.
+    <span class="nb">apply</span> hinhuniv.
+    <span class="nb">intros</span> Ha.
+    <span class="nb">refine</span> (filter_imply _ _ _ _ _).
+    + <span class="nb">apply</span> (pr2 (pr2 Ha)).
+    + <span class="nb">apply</span> filter_finite_intersection.
+      <span class="nb">intros</span> m.
+      <span class="nb">apply</span> Hf.
+      <span class="nb">apply</span> (pr1 (pr2 Ha)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">FilterGenerated_inv</span> {<span class="nv">X</span> : UU} :
+   ∏ (L : (X → hProp) → hProp) (F : Filter X),
+   (∏ A : X → hProp, L A → F A) →
+   ∏ (L' : Sequence (X → hProp)),
+   (∏ m, L (L' m)) →
+   (<span class="k">∃</span> <span class="nv">x</span> : X, finite_intersection L' x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> L F Hf L' Hl'.
+  <span class="nb">apply</span> (filter_notempty F).
+  <span class="nb">apply</span> filter_finite_intersection.
+  <span class="nb">intros</span> m.
+  <span class="nb">apply</span> Hf, Hl'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ex_filter_le</span> {<span class="nv">X</span> : UU} :
+  ∏ (F : Filter X) (A : X → hProp),
+    (∑ G : Filter X, filter_le G F × G A)
+    &lt;-&gt; (∏ B : X → hProp, F B → (<span class="k">∃</span> <span class="nv">x</span> : X, A x ∧ B x)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F A.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> G B Fb.
+    <span class="nb">apply</span> (filter_notempty (pr1 G)).
+    <span class="nb">apply</span> filter_and.
+    + <span class="nb">apply</span> (pr2 (pr2 G)).
+    + <span class="bp">now</span> <span class="nb">apply</span> (pr1 (pr2 G)).
+  - <span class="nb">intros</span> H.
+    <span class="nb">simple refine</span> (tpair _ _ _).
+    + <span class="nb">simple refine</span> (FilterGenerated _ _).
+      * <span class="nb">intros</span> B.
+        <span class="nb">apply</span> (F B ∨ B = A).
+      * <span class="nb">intros</span> L Hl.
+        <span class="nb">assert</span> (B : <span class="k">∃</span> <span class="nv">B</span> : X → hProp, F B × (∏ x, (A x ∧ B x → A x ∧ finite_intersection L x))).
+        { <span class="nb">revert</span> L Hl.
+          <span class="nb">apply</span> (Sequence_rect (P := <span class="k">λ</span> <span class="nv">L</span> : Sequence (X → hProp),
+                                    (∏ m : stn (length L), (<span class="k">λ</span> <span class="nv">B</span> : X → hProp, F B ∨ B = A) (L m)) →
+                                    <span class="k">∃</span> <span class="nv">B</span> : X → hProp,
+                                      F B × (∏ x : X, A x ∧ B x → A x ∧ finite_intersection L x))).
+        - <span class="nb">intros</span> Hl.
+          <span class="nb">apply</span> hinhpr.
+          <span class="nb">rewrite</span> finite_intersection_htrue.
+          <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">htrue</span>).
+          <span class="nb">split</span>.
+          + <span class="bp">exact</span> (filter_htrue F).
+          + <span class="nb">intros</span>; <span class="bp">assumption</span>.
+        - <span class="nb">intros</span> L B IHl Hl.
+          <span class="nb">rewrite</span> finite_intersection_append.
+          <span class="nb">simple refine</span> (hinhuniv _ _).
+          <span class="mi">3</span>: <span class="nb">apply</span> IHl.
+          + <span class="nb">intros</span> C.
+            <span class="nb">generalize</span> (Hl lastelement) ; <span class="nb">simpl</span>.
+            <span class="nb">rewrite</span> append_vec_compute_2.
+            <span class="nb">apply</span> hinhfun.
+            <span class="nb">apply</span> sumofmaps ; [<span class="nb">intros</span> Fl | <span class="nb">intros</span> -&gt;].
+            * <span class="nb">refine</span> (tpair _ _ _).
+              <span class="nb">split</span>.
+              ** <span class="nb">apply</span> (filter_and F).
+                 *** <span class="nb">apply</span> (pr1 (pr2 C)).
+                 *** <span class="nb">apply</span> Fl.
+              ** <span class="nb">intros</span> x H0 ; <span class="kp">repeat</span> <span class="nb">split</span>.
+                 *** <span class="bp">exact</span> (pr1 H0).
+                 *** <span class="bp">exact</span> (pr2 (pr2 H0)).
+                 *** <span class="nb">simple refine</span> (pr2 (pr2 (pr2 C) x _)).
+                     <span class="nb">split</span>.
+                     **** <span class="bp">exact</span> (pr1 H0).
+                     **** <span class="bp">exact</span> (pr1 (pr2 H0)).
+            * <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">C</span>) ; <span class="nb">split</span>.
+              ** <span class="bp">exact</span> (pr1 (pr2 C)).
+              ** <span class="nb">intros</span> x H0 ; <span class="kp">repeat</span> <span class="nb">split</span>.
+                 *** <span class="bp">exact</span> (pr1 H0).
+                 *** <span class="bp">exact</span> (pr1 H0).
+                 *** <span class="nb">simple refine</span> (pr2 (pr2 (pr2 C) x _)).
+                     <span class="bp">exact</span> H0.
+          + <span class="nb">intros</span>.
+            <span class="nb">generalize</span> (Hl (dni_lastelement m)) ; <span class="nb">simpl</span>.
+            <span class="nb">rewrite</span> &lt;- replace_dni_last.
+            <span class="bp">now</span> <span class="nb">rewrite</span> append_vec_compute_1. }
+      <span class="nb">revert</span> B.
+      <span class="nb">apply</span> hinhuniv.
+      <span class="nb">intros</span> B.
+      <span class="nb">generalize</span> (H (pr1 B) (pr1 (pr2 B))).
+      <span class="nb">apply</span> hinhfun.
+      <span class="nb">intros</span> x.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">x</span>).
+      <span class="nb">simple refine</span> (pr2 (pr2 (pr2 B) (pr1 x) _)).
+      <span class="bp">exact</span> (pr2 x).
+    + <span class="nb">split</span>.
+      * <span class="nb">intros</span> B Fb.
+        <span class="nb">apply</span> hinhpr.
+        <span class="k">exists</span> (<span class="nv">singletonSequence</span> <span class="nv">B</span>).
+        <span class="nb">split</span>.
+        ** <span class="nb">intros</span> m.
+           <span class="nb">apply</span> hinhpr.
+           <span class="bp">now</span> <span class="nb">left</span>.
+        ** <span class="nb">intros</span> x Hx.
+           <span class="nb">apply</span> (Hx (O ,, paths_refl _)).
+      * <span class="nb">apply</span> hinhpr.
+        <span class="k">exists</span> (<span class="nv">singletonSequence</span> <span class="nv">A</span>).
+        <span class="nb">split</span>.
+        ** <span class="nb">intros</span> m.
+           <span class="nb">apply</span> hinhpr.
+           <span class="bp">now</span> <span class="nb">right</span>.
+        ** <span class="nb">intros</span> x Hx.
+           <span class="nb">apply</span> (Hx (O ,, paths_refl _)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Filter defined by a base *)</span>
+
+<span class="kn">Section</span> <span class="nf">base</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">base</span> : (X → hProp) → hProp).
+
+<span class="kn">Definition</span> <span class="nf">isbase_and</span> :=
+  ∏ A B : X → hProp, base A → base B → <span class="k">∃</span> <span class="nv">C</span> : X → hProp, base C × (∏ x, C x → A x ∧ B x).
+<span class="kn">Definition</span> <span class="nf">isbase_notempty</span> :=
+  <span class="k">∃</span> <span class="nv">A</span> : X → hProp, base A.
+<span class="kn">Definition</span> <span class="nf">isbase_notfalse</span> :=
+  ∏ A, base A → <span class="k">∃</span> <span class="nv">x</span>, A x.
+
+<span class="kn">Definition</span> <span class="nf">isBaseOfPreFilter</span> :=
+  isbase_and × isbase_notempty.
+<span class="kn">Definition</span> <span class="nf">isBaseOfFilter</span> :=
+  isbase_and × isbase_notempty × isbase_notfalse.
+
+<span class="kn">End</span> <span class="nf">base</span>.
+
+<span class="kn">Definition</span> <span class="nf">BaseOfPreFilter</span> (<span class="nv">X</span> : UU) :=
+  ∑ (base : (X → hProp) → hProp), isBaseOfPreFilter base.
+<span class="kn">Definition</span> <span class="nf">pr1BaseOfPreFilter</span> {<span class="nv">X</span> : UU} : BaseOfPreFilter X → ((X → hProp) → hProp) := pr1.
+<span class="kn">Coercion</span> <span class="nf">pr1BaseOfPreFilter</span> : BaseOfPreFilter &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">BaseOfFilter</span> (<span class="nv">X</span> : UU) :=
+  ∑ (base : (X → hProp) → hProp), isBaseOfFilter base.
+<span class="kn">Definition</span> <span class="nf">pr1BaseOfFilter</span> {<span class="nv">X</span> : UU} : BaseOfFilter X → BaseOfPreFilter X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> base.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">base</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr1 (pr2 base)).
+  - <span class="nb">apply</span> (pr1 (pr2 (pr2 base))).
+<span class="kn">Defined</span>.
+<span class="kn">Coercion</span> <span class="nf">pr1BaseOfFilter</span> : BaseOfFilter &gt;-&gt; BaseOfPreFilter.
+
+  <span class="kn">Lemma</span> <span class="nf">BaseOfPreFilter_and</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> : BaseOfPreFilter X) :
+  ∏ A B : X → hProp, base A → base B → <span class="k">∃</span> <span class="nv">C</span> : X → hProp, base C × (∏ x, C x → A x ∧ B x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr1 (pr2 base)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">BaseOfPreFilter_notempty</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> : BaseOfPreFilter X) :
+  <span class="k">∃</span> <span class="nv">A</span> : X → hProp, base A.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr2 (pr2 base)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BaseOfFilter_and</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> : BaseOfFilter X) :
+  ∏ A B : X → hProp, base A → base B → <span class="k">∃</span> <span class="nv">C</span> : X → hProp, base C × (∏ x, C x → A x ∧ B x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr1 (pr2 base)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">BaseOfFilter_notempty</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> : BaseOfFilter X) :
+  <span class="k">∃</span> <span class="nv">A</span> : X → hProp, base A.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr1 (pr2 (pr2 base))).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">BaseOfFilter_notfalse</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> : BaseOfFilter X) :
+  ∏ A, base A → <span class="k">∃</span> <span class="nv">x</span>, A x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr2 (pr2 (pr2 base))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">filterbase</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">base</span> : (X → hProp) → hProp)
+        (<span class="nv">Hand</span> : isbase_and base)
+        (<span class="nv">Hempty</span> : isbase_notempty base)
+        (<span class="nv">Hfalse</span> : isbase_notfalse base).
+
+<span class="kn">Definition</span> <span class="nf">filterbase</span> : (X → hProp) → hProp :=
+  <span class="k">λ</span> <span class="nv">A</span> : X → hProp, (<span class="k">∃</span> <span class="nv">B</span> : X → hProp, base B × ∏ x, B x → A x).
+
+<span class="kn">Lemma</span> <span class="nf">filterbase_imply</span> :
+  isfilter_imply filterbase.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B H.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> A'.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">A'</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr1 (pr2 A')).
+  - <span class="nb">intros</span> x Hx.
+    <span class="nb">apply</span> H.
+    <span class="bp">now</span> <span class="nb">apply</span> (pr2 (pr2 A')).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">filterbase_htrue</span> :
+  isfilter_htrue filterbase.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> Hempty.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> A.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">A</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr2 A).
+  - <span class="nb">intros</span>. <span class="bp">exact</span> tt.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterbase_and</span> :
+  isfilter_and filterbase.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B.
+  <span class="nb">apply</span> hinhuniv2.
+  <span class="nb">intros</span> A' B'.
+  <span class="nb">refine</span> (hinhfun _ _).
+  <span class="mi">2</span>: <span class="nb">apply</span> Hand.
+  <span class="mi">2</span>: (<span class="nb">apply</span> (pr1 (pr2 A'))).
+  <span class="mi">2</span>: (<span class="nb">apply</span> (pr1 (pr2 B'))).
+  <span class="nb">intros</span> C'.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">C'</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr1 (pr2 C')).
+  - <span class="nb">intros</span> x Cx ; <span class="nb">split</span>.
+    + <span class="nb">apply</span> (pr2 (pr2 A')).
+      <span class="bp">now</span> <span class="nb">refine</span> (pr1 (pr2 (pr2 C') _ _)).
+    + <span class="nb">apply</span> (pr2 (pr2 B')).
+      <span class="bp">now</span> <span class="nb">refine</span> (pr2 (pr2 (pr2 C') _ _)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">filterbase_notempty</span> :
+  isfilter_notempty filterbase.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> B.
+  <span class="nb">generalize</span> (Hfalse _ (pr1 (pr2 B))).
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> x.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">x</span>).
+  <span class="nb">apply</span> (pr2 (pr2 B)), (pr2 x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">base_finite_intersection</span> :
+  ∏ L : Sequence (X → hProp),
+    (∏ n, base (L n)) → <span class="k">∃</span> <span class="nv">A</span>, base A × (∏ x, A x → finite_intersection L x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> L Hbase.
+  <span class="nb">apply</span> (pr2 (finite_intersection_hProp (<span class="k">λ</span> <span class="nv">B</span>, <span class="k">∃</span> <span class="nv">A</span> : X → hProp, base A × (∏ x : X, A x → B x)))).
+  - <span class="nb">split</span>.
+    + <span class="nb">revert</span> Hempty.
+      <span class="nb">apply</span> hinhfun.
+      <span class="nb">intros</span> A.
+      <span class="bp">now</span> <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">A</span>), (pr2 A).
+    + <span class="nb">intros</span> A B.
+      <span class="nb">apply</span> hinhuniv2.
+      <span class="nb">intros</span> A' B'.
+      <span class="nb">generalize</span> (Hand _ _ (pr1 (pr2 A')) (pr1 (pr2 B'))).
+      <span class="nb">apply</span> hinhfun.
+      <span class="nb">intros</span> C.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">C</span>).
+      <span class="nb">split</span>.
+      * <span class="bp">exact</span> (pr1 (pr2 C)).
+      * <span class="nb">intros</span> x Cx.
+        <span class="nb">split</span>.
+        ** <span class="nb">apply</span> (pr2 (pr2 A')), (pr1 (pr2 (pr2 C) _ Cx)).
+        ** <span class="nb">apply</span> (pr2 (pr2 B')), (pr2 (pr2 (pr2 C) _ Cx)).
+  - <span class="nb">intros</span> n.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">L</span> <span class="nv">n</span>).
+    <span class="nb">split</span>.
+    + <span class="bp">now</span> <span class="nb">apply</span> Hbase.
+    + <span class="nb">intros</span>; <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">filterbase_genetated</span> :
+  filterbase = filtergenerated base.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextfun ; <span class="nb">intros</span> P.
+  <span class="nb">apply</span> hPropUnivalence.
+  - <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> A.
+    <span class="k">exists</span> (<span class="nv">singletonSequence</span> (pr1 A)).
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> m ; <span class="nb">simpl</span>.
+      <span class="bp">exact</span> (pr1 (pr2 A)).
+    + <span class="nb">intros</span> x Ax.
+      <span class="nb">apply</span> (pr2 (pr2 A)).
+      <span class="nb">simple refine</span> (Ax _).
+      <span class="bp">now</span> <span class="k">exists</span> <span class="mi">0</span>%nat.
+  - <span class="nb">apply</span> hinhuniv.
+    <span class="nb">intros</span> L.
+    <span class="nb">generalize</span> (base_finite_intersection (pr1 L) (pr1 (pr2 L))).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> A.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">A</span>) ; <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr1 (pr2 A)).
+    + <span class="nb">intros</span> x Ax.
+      <span class="bp">now</span> <span class="nb">apply</span> (pr2 (pr2 L)), (pr2 (pr2 A)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">filterbase_generated_hypothesis</span> :
+  ∏ L' : Sequence (X → hProp),
+    (∏ m : stn (length L'), base (L' m))
+    → <span class="k">∃</span> <span class="nv">x</span> : X, finite_intersection L' x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> L Hbase.
+  <span class="nb">generalize</span> (base_finite_intersection L Hbase).
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> A.
+  <span class="nb">generalize</span> (Hfalse _ (pr1 (pr2 A))).
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> x.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">x</span>).
+  <span class="nb">apply</span> (pr2 (pr2 A)).
+  <span class="bp">exact</span> (pr2 x).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">filterbase</span>.
+
+<span class="kn">Definition</span> <span class="nf">PreFilterBase</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> : BaseOfPreFilter X) : PreFilter X.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_PreFilter _ _ _ _).
+  - <span class="nb">apply</span> (filterbase base).
+  - <span class="nb">apply</span> filterbase_imply.
+  - <span class="nb">apply</span> filterbase_htrue, BaseOfPreFilter_notempty.
+  - <span class="nb">apply</span> filterbase_and.
+    <span class="nb">intros</span> A B.
+    <span class="bp">now</span> <span class="nb">apply</span> BaseOfPreFilter_and.
+<span class="kn">Defined</span>.
+<span class="kn">Definition</span> <span class="nf">FilterBase</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> : BaseOfFilter X) : Filter X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="k">exists</span> (<span class="nv">pr1</span> (PreFilterBase base)).
+  <span class="nb">split</span>.
+  - <span class="nb">simple refine</span> (pr2 (PreFilterBase base)).
+  - <span class="nb">apply</span> filterbase_notempty.
+    <span class="nb">intros</span> A Ha.
+    <span class="nb">simple refine</span> (BaseOfFilter_notfalse _ _ _).
+    + <span class="nb">apply</span> base.
+    + <span class="nb">apply</span> Ha.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">PreFilterBase_Generated</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> : BaseOfPreFilter X) :
+  PreFilterBase base = PreFilterGenerated base.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (subtypePath_prop (B := <span class="k">λ</span> <span class="nv">_</span>, make_hProp _ _) _).
+  - <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isaprop_isfilter_imply.
+    + <span class="nb">apply</span> isaprop_isfilter_finite_intersection.
+  - <span class="nb">simpl</span>.
+    <span class="nb">apply</span> filterbase_genetated.
+    + <span class="nb">intros</span> A B.
+      <span class="nb">apply</span> (BaseOfPreFilter_and base).
+    + <span class="nb">apply</span> (BaseOfPreFilter_notempty base).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">FilterBase_Generated</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> : BaseOfFilter X) <span class="nv">Hbase</span> :
+  FilterBase base = FilterGenerated base Hbase.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (subtypePath_prop (B := <span class="k">λ</span> <span class="nv">_</span>, make_hProp _ _) _).
+  - <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isapropdirprod.
+      * <span class="nb">apply</span> isaprop_isfilter_imply.
+      * <span class="nb">apply</span> isaprop_isfilter_finite_intersection.
+    + <span class="nb">apply</span> isaprop_isfilter_notempty.
+  - <span class="nb">simpl</span>.
+    <span class="nb">apply</span> filterbase_genetated.
+    + <span class="nb">intros</span> A B.
+      <span class="nb">apply</span> (BaseOfFilter_and base).
+    + <span class="nb">apply</span> (BaseOfFilter_notempty base).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">FilterBase_Generated_hypothesis</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> : BaseOfFilter X) :
+  ∏ L' : Sequence (X → hProp),
+    (∏ m : stn (length L'), base (L' m))
+    → <span class="k">∃</span> <span class="nv">x</span> : X, finite_intersection L' x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> filterbase_generated_hypothesis.
+  - <span class="nb">intros</span> A B.
+    <span class="nb">apply</span> (BaseOfFilter_and base).
+  - <span class="nb">apply</span> (BaseOfFilter_notempty base).
+  - <span class="nb">intros</span> A Ha.
+    <span class="bp">now</span> <span class="nb">apply</span> (BaseOfFilter_notfalse base).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">filterbase_le</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> <span class="nv">base'</span> : (X → hProp) → hProp) :
+  (∏ P : X → hProp, base P → <span class="k">∃</span> <span class="nv">Q</span> : X → hProp, base' Q × (∏ x, Q x → P x))
+  &lt;-&gt; (∏ P : X → hProp, filterbase base P → filterbase base' P).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> Hbase P.
+    <span class="nb">apply</span> hinhuniv.
+    <span class="nb">intros</span> A.
+    <span class="nb">generalize</span> (Hbase _ (pr1 (pr2 A))).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> B.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">B</span>).
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> (pr1 (pr2 B)).
+    + <span class="nb">intros</span> x Bx.
+      <span class="nb">apply</span> (pr2 (pr2 A)), (pr2 (pr2 B)), Bx.
+  - <span class="nb">intros</span> Hbase P Hp.
+    <span class="nb">apply</span> Hbase.
+    <span class="nb">apply</span> hinhpr.
+    <span class="bp">now</span> <span class="k">exists</span> <span class="nv">P</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">PreFilterBase_le</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> <span class="nv">base'</span> : BaseOfPreFilter X) :
+  (∏ P : X → hProp, base P → <span class="k">∃</span> <span class="nv">Q</span> : X → hProp, base' Q × (∏ x, Q x → P x))
+  &lt;-&gt; filter_le (PreFilterBase base') (PreFilterBase base).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> Hbase P.
+    <span class="nb">apply</span> (pr1 (filterbase_le base base')), Hbase.
+  - <span class="nb">apply</span> (pr2 (filterbase_le base base')).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">FilterBase_le</span> {<span class="nv">X</span> : UU} (<span class="nv">base</span> <span class="nv">base'</span> : BaseOfFilter X) :
+  (∏ P : X → hProp, base P → <span class="k">∃</span> <span class="nv">Q</span> : X → hProp, base' Q × (∏ x, Q x → P x))
+  &lt;-&gt; filter_le (FilterBase base') (FilterBase base).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> Hbase P.
+    <span class="nb">apply</span> (pr1 (filterbase_le base base')), Hbase.
+  - <span class="nb">apply</span> (pr2 (filterbase_le base base')).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Topology/Filters.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Preamble.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** Author: Catherine LELAY. Jan 2016 - *)
+  &gt; (** Based on Bourbaky *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Preamble.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+  &gt; Require Export UniMath.Topology.Prelim.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,1543 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Associators.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> The associators for composition of enriched profunctors</span>
+
+<span class="sd"> In this file, we define the associators for composition of enriched profunctors. All the</span>
+<span class="sd"> constructions and proofs boil down to calculations with coends. To construct the desired</span>
+<span class="sd"> morphisms, we use the mapping property and to prove the necessary laws, we use the</span>
+<span class="sd"> uniqueness of such morphisms.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The right associator</span>
+<span class="sd"> 1.1. Action on objects</span>
+<span class="sd"> 1.2. The data</span>
+<span class="sd"> 1.3. The laws</span>
+<span class="sd"> 1.4. The right associator as a transformation</span>
+<span class="sd"> 2. The left associator</span>
+<span class="sd"> 2.1. Action on objects</span>
+<span class="sd"> 2.2. The data</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coends.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Profunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.StandardProfunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.ProfunctorTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Invertible.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.ProfunctorSquares.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Composition.CompositionProf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Opaque</span> sym_mon_braiding.
+
+<span class="kn">Section</span> <span class="nf">Associator</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : benabou_cosmos}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+          {<span class="nv">E₁</span> : enrichment C₁ V}
+          {<span class="nv">E₂</span> : enrichment C₂ V}
+          {<span class="nv">E₃</span> : enrichment C₃ V}
+          {<span class="nv">E₄</span> : enrichment C₄ V}
+          (<span class="nv">P₁</span> : E₁ ↛e E₂)
+          (<span class="nv">P₂</span> : E₂ ↛e E₃)
+          (<span class="nv">P₃</span> : E₃ ↛e E₄).
+
+  <span class="sd">(** * 1. The right associator *)</span>
+
+  <span class="sd">(** ** 1.1. Action on objects *)</span>
+  <span class="kn">Definition</span> <span class="nf">lassociator_enriched_profunctor_mor_ob</span>
+             (<span class="nv">z</span> : C₄)
+             (<span class="nv">y</span> : C₃)
+             (<span class="nv">x</span> : C₂)
+             (<span class="nv">w</span> : C₁)
+    : P₂ y x ⊗ P₃ z y ⊗ P₁ x w
+      --&gt;
+      comp_enriched_profunctor (comp_enriched_profunctor P₁ P₂) P₃ z w
+    := sym_mon_braiding _ _ _
+       · mon_rassociator _ _ _
+       · (comp_enriched_profunctor_in P₁ P₂ y w x #⊗ identity _)
+       · comp_enriched_profunctor_in (comp_enriched_profunctor P₁ P₂) P₃ z w y.
+
+  <span class="kn">Proposition</span> <span class="nf">lassociator_enriched_profunctor_mor_eq</span>
+              (<span class="nv">z</span> : C₄)
+              (<span class="nv">y₁</span> <span class="nv">y₂</span> : C₃)
+              (<span class="nv">x</span> : C₂)
+              (<span class="nv">w</span> : C₁)
+    : lmap_e P₂ y₂ y₁ x #⊗ identity _
+      · internal_lam (lassociator_enriched_profunctor_mor_ob z y₁ x w)
+      =
+      sym_mon_braiding V _ _ #⊗ identity _
+      · mon_lassociator _ _ _
+      · identity _ #⊗ rmap_e P₃ z y₁ y₂
+      · internal_lam (lassociator_enriched_profunctor_mor_ob z y₂ x w).
+  <span class="kn">Proof</span>.
+    use internal_funext.
+    <span class="nb">intros</span> a h.
+    <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !internal_beta.
+    <span class="nb">rewrite</span> !(tensor_split (_ #⊗ _) h).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> lassociator_enriched_profunctor_mor_ob.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> !tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_rassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !tensor_comp_id_l.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_rassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> &lt;- tensor_split.
+      <span class="nb">rewrite</span> tensor_split'.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (comp_enriched_profunctor_comm' (comp_enriched_profunctor P₁ P₂) P₃).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_split'.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_id_id.
+      <span class="nb">rewrite</span> tensor_rassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_rassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> sym_mon_hexagon_rassociator.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> sym_mon_braiding_inv.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> mon_rassociator_rassociator.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">rewrite</span> mon_lassociator_rassociator.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_rassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">clear</span> z.
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> comp_enriched_profunctor_lmap_comm.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">unfold</span> comp_enriched_profunctor_lmap_mor.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> mon_rassociator_lassociator.
+      <span class="nb">apply</span> id_right.
+    }
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> sym_mon_braiding_inv.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** 1.2. The data *)</span>
+  <span class="kn">Definition</span> <span class="nf">lassociator_enriched_profunctor_mor</span>
+             (<span class="nv">z</span> : C₄)
+             (<span class="nv">x</span> : C₂)
+             (<span class="nv">w</span> : C₁)
+    : comp_enriched_profunctor_ob P₂ P₃ z x
+      --&gt;
+      P₁ x w ⊸ comp_enriched_profunctor (comp_enriched_profunctor P₁ P₂) P₃ z w.
+  <span class="kn">Proof</span>.
+    use from_comp_enriched_profunctor_ob.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, internal_lam (lassociator_enriched_profunctor_mor_ob z y x w)).
+    - <span class="nb">intros</span> y₁ y₂ ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (lassociator_enriched_profunctor_mor_eq z y₁ y₂ x w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lassociator_enriched_profunctor_mor_comm</span>
+              (<span class="nv">z</span> : C₄)
+              (<span class="nv">y</span> : C₃)
+              (<span class="nv">x</span> : C₂)
+              (<span class="nv">w</span> : C₁)
+    : (comp_enriched_profunctor_in _ _ z x y
+       · lassociator_enriched_profunctor_mor z x w) #⊗ identity _
+       · internal_eval _ _
+      =
+      lassociator_enriched_profunctor_mor_ob z y x w.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> lassociator_enriched_profunctor_mor.
+    <span class="nb">rewrite</span> from_comp_enriched_profunctor_ob_comm.
+    <span class="nb">rewrite</span> internal_beta.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lassociator_enriched_profunctor_data_eq</span>
+              (<span class="nv">z</span> : C₄)
+              (<span class="nv">x₁</span> <span class="nv">x₂</span> : C₂)
+              (<span class="nv">w</span> : C₁)
+    : lmap_e P₁ x₂ x₁ w #⊗ identity _
+      · (sym_mon_braiding V _ _
+      · lassociator_enriched_profunctor_mor z x₁ w #⊗ identity _
+      · internal_eval _ _)
+      =
+      sym_mon_braiding _ _ _ #⊗ identity _
+      · mon_lassociator _ _ _
+      · identity _ #⊗ (identity _ #⊗ comp_enriched_profunctor_rmap P₂ P₃ z x₁ x₂
+                       · sym_mon_braiding _ _ _
+                       · internal_eval _ _)
+      · (sym_mon_braiding _ _ _
+      · lassociator_enriched_profunctor_mor z x₂ w #⊗ identity _
+      · internal_eval _ _).
+  <span class="kn">Proof</span>.
+    use is_inj_internal_transpose.
+    use from_comp_enriched_profunctor_eq.
+    <span class="nb">intros</span> x'.
+    use internal_funext.
+    <span class="nb">intros</span> a h.
+    <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+    <span class="nb">rewrite</span> !(tensor_split (comp_enriched_profunctor_in _ _ _ _ _) h).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> internal_transpose.
+    <span class="nb">rewrite</span> !internal_beta.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> !tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_split.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">apply</span> lassociator_enriched_profunctor_mor_comm.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_split.
+      <span class="nb">rewrite</span> tensor_split'.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_id_id.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> tensor_comp_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+        <span class="nb">rewrite</span> comp_enriched_profunctor_rmap_comm.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">unfold</span> comp_enriched_profunctor_rmap_mor.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !tensor_comp_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">rewrite</span> lassociator_enriched_profunctor_mor_comm.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">unfold</span> lassociator_enriched_profunctor_mor_ob.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_rassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">rewrite</span> comp_enriched_profunctor_comm'.
+      <span class="nb">rewrite</span> !tensor_comp_id_r.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- tensor_id_id.
+      <span class="nb">rewrite</span> tensor_rassociator.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">clear</span> a h.
+    <span class="nb">generalize</span> (E₂ ⦃ x₁ , x₂ ⦄) (P₁ x₂ w) (P₂ x' x₁) (P₃ z x').
+    <span class="nb">intros</span> v₁ v₂ v₃ v₄.
+    <span class="nb">rewrite</span> sym_mon_braiding_inv.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">pose</span> (maponpaths
+              (<span class="k">λ</span> <span class="nv">z</span>, z · mon_lassociator _ _ _ #⊗ identity _)
+              (@mon_rassociator_rassociator V v₂ v₁ v₃ v₄))
+        <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r <span class="k">in</span> p.
+      <span class="nb">rewrite</span> mon_rassociator_lassociator <span class="k">in</span> p.
+      <span class="nb">rewrite</span> tensor_id_id <span class="k">in</span> p.
+      <span class="nb">rewrite</span> id_right <span class="k">in</span> p.
+      <span class="bp">exact</span> (!p).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> mon_lassociator_rassociator.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> &lt;- tensor_id_id.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_rassociator.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+    <span class="nb">rewrite</span> &lt;- tensor_id_id.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">clear</span> v₄.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> sym_mon_hexagon_rassociator.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> mon_lassociator_rassociator.
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+    <span class="nb">rewrite</span> sym_mon_braiding_inv.
+    <span class="nb">apply</span> tensor_id_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lassociator_enriched_profunctor_data</span>
+    : enriched_profunctor_transformation_data
+        (comp_enriched_profunctor P₁ (comp_enriched_profunctor P₂ P₃))
+        (comp_enriched_profunctor (comp_enriched_profunctor P₁ P₂) P₃).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z w.
+    use from_comp_enriched_profunctor_ob.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>,
+             sym_mon_braiding _ _ _
+             · (lassociator_enriched_profunctor_mor z x w #⊗ identity _)
+             · internal_eval _ _).
+    - <span class="nb">intros</span> x₁ x₂ ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (lassociator_enriched_profunctor_data_eq z x₁ x₂ w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lassociator_enriched_profunctor_data_comm</span>
+              (<span class="nv">z</span> : C₄)
+              (<span class="nv">x</span> : C₂)
+              (<span class="nv">w</span> : C₁)
+    : comp_enriched_profunctor_in _ _ z w x
+      · lassociator_enriched_profunctor_data z w
+      =
+      sym_mon_braiding _ _ _
+      · (lassociator_enriched_profunctor_mor z x w #⊗ identity _)
+      · internal_eval _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> lassociator_enriched_profunctor_data.
+    <span class="nb">rewrite</span> from_comp_enriched_profunctor_ob_comm.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** 1.3. The laws *)</span>
+  <span class="kn">Proposition</span> <span class="nf">lassociator_enriched_profunctor_laws</span>
+    : enriched_profunctor_transformation_laws
+        lassociator_enriched_profunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> z₁ z₂ w ; <span class="nb">cbn</span>.
+      use is_inj_internal_transpose.
+      use from_comp_enriched_profunctor_eq.
+      <span class="nb">intros</span> x.
+      use internal_funext.
+      <span class="nb">intros</span> v h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !(tensor_split (comp_enriched_profunctor_in _ _ _ _ _) h).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> v h.
+      <span class="nb">unfold</span> internal_transpose.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- !tensor_comp_id_l.
+        <span class="nb">rewrite</span> lassociator_enriched_profunctor_data_comm.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> comp_enriched_profunctor_lmap_comm.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      use is_inj_internal_lam.
+      use is_inj_internal_transpose.
+      use from_comp_enriched_profunctor_eq.
+      <span class="nb">intros</span> y.
+      use internal_funext.
+      <span class="nb">intros</span> v h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !(tensor_split (comp_enriched_profunctor_in _ _ _ _ _) h).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> v h.
+      <span class="nb">unfold</span> internal_transpose.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      use internal_funext.
+      <span class="nb">intros</span> v h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> tensor_split.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> tensor_split.
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> v h.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !tensor_sym_mon_braiding.
+      etrans.
+      {
+        <span class="nb">unfold</span> comp_enriched_profunctor_lmap_mor.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> lassociator_enriched_profunctor_data_comm.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> comp_enriched_profunctor_lmap_comm.
+        }
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">unfold</span> comp_enriched_profunctor_lmap_mor.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">apply</span> lassociator_enriched_profunctor_mor_comm.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> sym_mon_braiding_inv.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">rewrite</span> sym_mon_braiding_inv.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> sym_mon_braiding_inv.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">unfold</span> lassociator_enriched_profunctor_mor_ob.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> sym_mon_braiding_inv.
+        <span class="nb">apply</span> id_right.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !tensor_comp_id_l.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_rassociator.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+        <span class="nb">rewrite</span> lassociator_enriched_profunctor_mor_comm.
+        <span class="nb">unfold</span> lassociator_enriched_profunctor_mor_ob.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (comp_enriched_profunctor_lmap_comm (comp_enriched_profunctor P₁ P₂) P₃).
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">rewrite</span> sym_mon_braiding_inv.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">unfold</span> comp_enriched_profunctor_lmap_mor.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_split'.
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> tensor_comp_id_l.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> tensor_rassociator.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> sym_mon_braiding_inv.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">rewrite</span> &lt;- tensor_id_id.
+      <span class="nb">rewrite</span> &lt;- mon_rassociator_lassociator.
+      <span class="nb">rewrite</span> tensor_comp_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- mon_lassociator_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> mon_lassociator_rassociator.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> z₁ z₂ w ; <span class="nb">cbn</span>.
+      use is_inj_internal_transpose.
+      use from_comp_enriched_profunctor_eq.
+      <span class="nb">intros</span> x.
+      use internal_funext.
+      <span class="nb">intros</span> v h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !(tensor_split (comp_enriched_profunctor_in _ _ _ _ _) h).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> v h.
+      <span class="nb">unfold</span> internal_transpose.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- !tensor_comp_id_l.
+        <span class="nb">rewrite</span> lassociator_enriched_profunctor_data_comm.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> comp_enriched_profunctor_rmap_comm.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      use is_inj_internal_lam.
+      use is_inj_internal_transpose.
+      use from_comp_enriched_profunctor_eq.
+      <span class="nb">intros</span> y.
+      use internal_funext.
+      <span class="nb">intros</span> v h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !(tensor_split (comp_enriched_profunctor_in _ _ _ _ _) h).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> v h.
+      <span class="nb">unfold</span> internal_transpose.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      use internal_funext.
+      <span class="nb">intros</span> v h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> tensor_split.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> tensor_split.
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> v h.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !tensor_sym_mon_braiding.
+      etrans.
+      {
+        <span class="nb">unfold</span> comp_enriched_profunctor_rmap_mor.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> lassociator_enriched_profunctor_data_comm.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_rassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">rewrite</span> &lt;- tensor_split.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">apply</span> lassociator_enriched_profunctor_mor_comm.
+      }
+      <span class="nb">unfold</span> lassociator_enriched_profunctor_mor_ob.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_id_id.
+        <span class="nb">rewrite</span> tensor_rassociator.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+        <span class="nb">rewrite</span> lassociator_enriched_profunctor_mor_comm.
+        <span class="nb">unfold</span> lassociator_enriched_profunctor_mor_ob.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (comp_enriched_profunctor_rmap_comm (comp_enriched_profunctor P₁ P₂) P₃).
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">rewrite</span> sym_mon_braiding_inv.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">unfold</span> comp_enriched_profunctor_rmap_mor.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_rassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> comp_enriched_profunctor_rmap_comm.
+      }
+      etrans.
+      {
+        <span class="nb">unfold</span> comp_enriched_profunctor_rmap_mor.
+        <span class="nb">rewrite</span> !tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">rewrite</span> sym_mon_braiding_inv.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- mon_rassociator_rassociator.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** 1.4. The right associator as a transformation *)</span>
+  <span class="kn">Definition</span> <span class="nf">lassociator_enriched_profunctor</span>
+    : enriched_profunctor_transformation
+        (comp_enriched_profunctor
+           P₁
+           (comp_enriched_profunctor P₂ P₃))
+        (comp_enriched_profunctor
+           (comp_enriched_profunctor P₁ P₂)
+           P₃).
+  <span class="kn">Proof</span>.
+    use make_enriched_profunctor_transformation.
+    - <span class="bp">exact</span> lassociator_enriched_profunctor_data.
+    - <span class="bp">exact</span> lassociator_enriched_profunctor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lassociator_enriched_profunctor_square</span>
+    : enriched_profunctor_square
+        (functor_id_enrichment E₁)
+        (functor_id_enrichment E₄)
+        (comp_enriched_profunctor
+           P₁
+           (comp_enriched_profunctor P₂ P₃))
+        (comp_enriched_profunctor
+           (comp_enriched_profunctor P₁ P₂)
+           P₃).
+  <span class="kn">Proof</span>.
+    use enriched_profunctor_transformation_to_square.
+    <span class="bp">exact</span> lassociator_enriched_profunctor.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The right associator *)</span>
+
+  <span class="sd">(** ** 2.1. Action on objects *)</span>
+  <span class="kn">Definition</span> <span class="nf">rassociator_enriched_profunctor_mor_ob</span>
+             (<span class="nv">z</span> : C₄)
+             (<span class="nv">y</span> : C₃)
+             (<span class="nv">x</span> : C₂)
+             (<span class="nv">w</span> : C₁)
+    : P₁ x w ⊗ P₂ y x ⊗ P₃ z y
+      --&gt;
+      comp_enriched_profunctor P₁ (comp_enriched_profunctor P₂ P₃) z w
+    := mon_lassociator _ _ _
+       · (identity _ #⊗ comp_enriched_profunctor_in P₂ P₃ z x y)
+       · comp_enriched_profunctor_in P₁ (comp_enriched_profunctor P₂ P₃) z w x.
+
+  <span class="kn">Proposition</span> <span class="nf">rassociator_enriched_profunctor_mor_eq</span>
+              (<span class="nv">z</span> : C₄)
+              (<span class="nv">y</span> : C₃)
+              (<span class="nv">x₁</span> <span class="nv">x₂</span> : C₂)
+              (<span class="nv">w</span> : C₁)
+    : lmap_e P₁ x₂ x₁ w #⊗ identity _
+      · internal_lam (rassociator_enriched_profunctor_mor_ob z y x₁ w)
+      =
+      sym_mon_braiding _ _ _ #⊗ identity _
+      · mon_lassociator _ _ _
+      · identity _ #⊗ rmap_e P₂ y x₁ x₂
+      · internal_lam (rassociator_enriched_profunctor_mor_ob z y x₂ w).
+  <span class="kn">Proof</span>.
+    use internal_funext.
+    <span class="nb">intros</span> a h.
+    <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !internal_beta.
+    <span class="nb">rewrite</span> !(tensor_split (_ #⊗ _) h).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> rassociator_enriched_profunctor_mor_ob.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_split'.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (comp_enriched_profunctor_comm P₁ (comp_enriched_profunctor P₂ P₃)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_id_id.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> tensor_comp_id_l.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> tensor_comp_id_l.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> comp_enriched_profunctor_rmap_comm.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">unfold</span> comp_enriched_profunctor_rmap_mor.
+      <span class="nb">rewrite</span> !tensor_comp_id_l.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> tensor_lassociator.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> sym_mon_hexagon_lassociator.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_id_id.
+    <span class="nb">rewrite</span> &lt;- tensor_lassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_lassociator_lassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+    <span class="nb">rewrite</span> mon_lassociator_rassociator.
+    <span class="nb">rewrite</span> tensor_id_id.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** 2.2. The data *)</span>
+  <span class="kn">Definition</span> <span class="nf">rassociator_enriched_profunctor_mor</span>
+             (<span class="nv">z</span> : C₄)
+             (<span class="nv">y</span> : C₃)
+             (<span class="nv">w</span> : C₁)
+    : comp_enriched_profunctor P₁ P₂ y w
+      --&gt;
+      P₃ z y ⊸ comp_enriched_profunctor P₁ (comp_enriched_profunctor P₂ P₃) z w.
+  <span class="kn">Proof</span>.
+    use from_comp_enriched_profunctor_ob.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, internal_lam (rassociator_enriched_profunctor_mor_ob z y x w)).
+    - <span class="nb">intros</span> x₁ x₂ ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (rassociator_enriched_profunctor_mor_eq z y x₁ x₂ w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rassociator_enriched_profunctor_mor_comm</span>
+              (<span class="nv">z</span> : C₄)
+              (<span class="nv">y</span> : C₃)
+              (<span class="nv">x</span> : C₂)
+              (<span class="nv">w</span> : C₁)
+    : (comp_enriched_profunctor_in _ _ y w x
+       · rassociator_enriched_profunctor_mor z y w) #⊗ identity _
+       · internal_eval _ _
+      =
+      rassociator_enriched_profunctor_mor_ob z y x w.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> rassociator_enriched_profunctor_mor.
+    <span class="nb">rewrite</span> from_comp_enriched_profunctor_ob_comm.
+    <span class="nb">rewrite</span> internal_beta.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rassociator_enriched_profunctor_data_eq</span>
+              (<span class="nv">z</span> : C₄)
+              (<span class="nv">y₁</span> <span class="nv">y₂</span> : C₃)
+              (<span class="nv">w</span> : C₁)
+    : (identity _ #⊗ comp_enriched_profunctor_lmap P₁ P₂ y₂ y₁ w
+       · sym_mon_braiding _ _ _
+       · internal_eval _ _) #⊗ identity _
+      · (rassociator_enriched_profunctor_mor z y₁ w #⊗ identity _
+      · internal_eval _ _)
+      =
+      sym_mon_braiding _ _ _ #⊗ identity _
+      · mon_lassociator _ _ _
+      · identity _ #⊗ rmap_e P₃ z y₁ y₂
+      · (rassociator_enriched_profunctor_mor z y₂ w #⊗ identity _
+      · internal_eval _ _).
+  <span class="kn">Proof</span>.
+    use is_inj_internal_lam.
+    use is_inj_internal_transpose.
+    <span class="nb">unfold</span> internal_transpose.
+    use from_comp_enriched_profunctor_eq.
+    <span class="nb">intros</span> x'.
+    use internal_funext.
+    <span class="nb">intros</span> a h.
+    <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+    <span class="nb">rewrite</span> !(tensor_split (comp_enriched_profunctor_in _ _ _ _ _) h).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !internal_beta.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> !tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">clear</span> a h.
+    use internal_funext.
+    <span class="nb">intros</span> a h.
+    <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+    <span class="nb">rewrite</span> !(tensor_split (identity _ #⊗ comp_enriched_profunctor_in _ _ _ _ _) h).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">clear</span> a h.
+    <span class="nb">rewrite</span> !internal_beta.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> comp_enriched_profunctor_lmap_comm.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">unfold</span> comp_enriched_profunctor_lmap_mor.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> tensor_comp_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> rassociator_enriched_profunctor_mor_comm.
+      <span class="nb">unfold</span> rassociator_enriched_profunctor_mor_ob.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> tensor_comp_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> &lt;- tensor_split'.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">rewrite</span> rassociator_enriched_profunctor_mor_comm.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">unfold</span> rassociator_enriched_profunctor_mor_ob.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- tensor_id_id.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">rewrite</span> comp_enriched_profunctor_comm'.
+      <span class="nb">rewrite</span> !tensor_comp_id_l.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> tensor_comp_id_l.
+      <span class="nb">rewrite</span> tensor_comp_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_lassociator_lassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> tensor_lassociator.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- !tensor_comp_id_l.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> sym_mon_hexagon_rassociator.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_lassociator_rassociator.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rassociator_enriched_profunctor_data</span>
+             (<span class="nv">z</span> : C₄)
+             (<span class="nv">w</span> : C₁)
+    : comp_enriched_profunctor (comp_enriched_profunctor P₁ P₂) P₃ z w
+      --&gt;
+      comp_enriched_profunctor P₁ (comp_enriched_profunctor P₂ P₃) z w.
+  <span class="kn">Proof</span>.
+    use from_comp_enriched_profunctor_ob.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>,
+             (rassociator_enriched_profunctor_mor z y w #⊗ identity _)
+             · internal_eval _ _).
+    - <span class="nb">intros</span> y₁ y₂ ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (rassociator_enriched_profunctor_data_eq z y₁ y₂ w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rassociator_enriched_profunctor_data_comm</span>
+              (<span class="nv">z</span> : C₄)
+              (<span class="nv">y</span> : C₃)
+              (<span class="nv">w</span> : C₁)
+    : comp_enriched_profunctor_in _ _ z w y
+      · rassociator_enriched_profunctor_data z w
+      =
+      (rassociator_enriched_profunctor_mor z y w #⊗ identity _)
+      · internal_eval _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> rassociator_enriched_profunctor_data.
+    <span class="nb">rewrite</span> from_comp_enriched_profunctor_ob_comm.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_inverse_lassociator_enriched_profunctor_mor</span>
+              (<span class="nv">z</span> : C₄)
+              (<span class="nv">w</span> : C₁)
+    : is_inverse_in_precat
+        (lassociator_enriched_profunctor z w)
+        (rassociator_enriched_profunctor_data z w).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - use from_comp_enriched_profunctor_eq.
+      <span class="nb">intros</span> x.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> lassociator_enriched_profunctor_data_comm.
+      use is_inj_internal_transpose.
+      use from_comp_enriched_profunctor_eq.
+      <span class="nb">intros</span> y.
+      use internal_funext.
+      <span class="nb">intros</span> a h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !(tensor_split (comp_enriched_profunctor_in _ _ _ _ _) h).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> internal_transpose.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> sym_mon_braiding_inv.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">rewrite</span> lassociator_enriched_profunctor_mor_comm.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">unfold</span> lassociator_enriched_profunctor_mor_ob.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rassociator_enriched_profunctor_data_comm.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">rewrite</span> rassociator_enriched_profunctor_mor_comm.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">unfold</span> rassociator_enriched_profunctor_mor_ob.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> mon_rassociator_lassociator.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    - use from_comp_enriched_profunctor_eq.
+      <span class="nb">intros</span> x.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> rassociator_enriched_profunctor_data_comm.
+      use is_inj_internal_lam.
+      use from_comp_enriched_profunctor_eq.
+      <span class="nb">intros</span> y.
+      use internal_funext.
+      <span class="nb">intros</span> a h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !(tensor_split (comp_enriched_profunctor_in _ _ _ _ _) h).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">rewrite</span> rassociator_enriched_profunctor_mor_comm.
+      <span class="nb">unfold</span> rassociator_enriched_profunctor_mor_ob.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lassociator_enriched_profunctor_data_comm.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">rewrite</span> lassociator_enriched_profunctor_mor_comm.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">unfold</span> lassociator_enriched_profunctor_mor_ob.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> sym_mon_braiding_inv.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> mon_lassociator_rassociator.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_iso_lassociator_enriched_profunctor</span>
+    : is_iso_enriched_profunctor_transformation
+        lassociator_enriched_profunctor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z w.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (rassociator_enriched_profunctor_data z w).
+    - <span class="bp">exact</span> (is_inverse_lassociator_enriched_profunctor_mor z w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rassociator_enriched_profunctor</span>
+    : enriched_profunctor_transformation
+        (comp_enriched_profunctor
+           (comp_enriched_profunctor P₁ P₂)
+           P₃)
+        (comp_enriched_profunctor
+           P₁
+           (comp_enriched_profunctor P₂ P₃))
+    := inv_enriched_profunctor_transformation
+         _
+         is_iso_lassociator_enriched_profunctor.
+
+  <span class="kn">Definition</span> <span class="nf">rassociator_enriched_profunctor_square</span>
+    : enriched_profunctor_square
+        (functor_id_enrichment E₁)
+        (functor_id_enrichment E₄)
+        (comp_enriched_profunctor
+           (comp_enriched_profunctor P₁ P₂)
+           P₃)
+        (comp_enriched_profunctor
+           P₁
+           (comp_enriched_profunctor P₂ P₃)).
+  <span class="kn">Proof</span>.
+    use enriched_profunctor_transformation_to_square.
+    <span class="bp">exact</span> rassociator_enriched_profunctor.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Associator</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Profunctors/Composition/Associators.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2.2. The data
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

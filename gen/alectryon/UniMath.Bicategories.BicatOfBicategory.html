@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BicatOfBicategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** * Bicategories</span>
+<span class="sd">    Benedikt Ahrens, Marco Maggesi</span>
+<span class="sd">    February 2018</span>
+<span class="sd"> ********************************************************************************* *)</span>
+
+<span class="c">(* ========================================================================= *)</span>
+<span class="c">(* Every (pre)bicategory of UniMath.Bicategories.WkCatEnrichment is a      *)</span>
+<span class="c">(* (pre)bicategory of UniMath.Bicategories.Core.Bicat.             *)</span>
+<span class="c">(* ========================================================================= *)</span>
+
+<span class="c">(* Note: an equivalence is established in WkCatEnrichment/hcomp_bicat.v *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.WkCatEnrichment.prebicategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.WkCatEnrichment.whiskering.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.WkCatEnrichment.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="c">(* Missing lemmas.                                                           *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">whisker_left_left</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">g</span> : b -<span class="mi">1</span>-&gt; c) {<span class="nv">h</span> <span class="nv">i</span> : c -<span class="mi">1</span>-&gt; d} (<span class="nv">x</span> : h -<span class="mi">2</span>-&gt; i) :
+  whisker_left f (whisker_left g x) ;v; associator_2mor f g i =
+  associator_2mor f g h ;v; whisker_left (f ;<span class="mi">1</span>; g) x.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> whisker_left.
+  etrans; [ <span class="nb">apply</span> associator_naturality | <span class="kp">idtac</span>].
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="bp">exact</span> horizontal_comp_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">whisker_left_right</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">g</span> <span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c) (<span class="nv">i</span> : c -<span class="mi">1</span>-&gt; d) (<span class="nv">x</span> : g -<span class="mi">2</span>-&gt; h) :
+  whisker_left f (whisker_right x i) ;v; associator_2mor f h i =
+  associator_2mor f g i ;v; whisker_right (whisker_left f x) i.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (associator_naturality (identity f) x (identity i)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">whisker_right_right</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+      (<span class="nv">f</span> <span class="nv">g</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c) (<span class="nv">i</span> : c -<span class="mi">1</span>-&gt; d) (<span class="nv">x</span> : f -<span class="mi">2</span>-&gt; g) :
+  associator_2mor f h i ;v; whisker_right (whisker_right x h) i =
+  whisker_right x (h ;<span class="mi">1</span>; i) ;v; associator_2mor g h i.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> whisker_right.
+  etrans; [ <span class="nb">apply</span> pathsinv0, associator_naturality | <span class="kp">idtac</span>].
+  <span class="nb">apply</span> maponpaths_2, maponpaths.
+  <span class="bp">exact</span> horizontal_comp_id.
+<span class="kn">Defined</span>.
+
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="c">(* From bicategory structure to bicat structure.                             *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">unfold_data</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : prebicategory.
+
+<span class="kn">Definition</span> <span class="nf">bcat_precategory_ob_mor</span> : precategory_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">C</span>. <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, homcat a b).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bcat_cell_struct</span> : prebicat_2cell_struct bcat_precategory_ob_mor
+  := <span class="k">λ</span> (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : homcat a b), (homcat a b) ⟦ f, g ⟧.
+
+<span class="kn">Definition</span> <span class="nf">bcat_ob_mor_cells</span> : ∑ (C : precategory_ob_mor), prebicat_2cell_struct C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">bcat_precategory_ob_mor</span>. <span class="bp">exact</span> bcat_cell_struct.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bcat_1_id_comp_cells</span> : prebicat_1_id_comp_cells.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="k">exists</span> <span class="nv">bcat_precategory_ob_mor</span>.
+    use tpair.
+    + <span class="nb">simpl</span>. <span class="nb">intros</span>. <span class="bp">exact</span> (identity1 _).
+    + <span class="nb">simpl</span>. <span class="nb">intros</span> a b c f g. <span class="bp">exact</span> (compose1 f g).
+  - <span class="bp">exact</span> bcat_cell_struct.
+<span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">Definition bcat_cells_1_id_comp : ∑ C : prebicat_ob_mor_cells, precategory_id_comp C.</span>
+<span class="c">Proof.</span>
+<span class="c">  exists bcat_ob_mor_cells. split.</span>
+<span class="c">  - simpl. intros. exact (identity1 _).</span>
+<span class="c">  - simpl. intros a b c f g. exact (compose1 f g).</span>
+<span class="c">Defined.</span>
+<span class="c"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">bcat_2_id_comp_struct</span> : prebicat_2_id_comp_struct bcat_1_id_comp_cells.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">unfold</span> bcat_cell_struct.
+  - <span class="c">(* 2-unit *)</span>
+    <span class="nb">intros</span>. <span class="bp">exact</span> (identity _).
+  - <span class="c">(* left unitor *)</span>
+    <span class="nb">intros</span>. <span class="bp">exact</span> (left_unitor f).
+  - <span class="c">(* right unitor *)</span>
+    <span class="nb">intros</span>. <span class="bp">exact</span> (right_unitor f).
+  - <span class="c">(* left inverse unitor *)</span>
+    <span class="nb">intros</span>. <span class="bp">exact</span> (inv_from_z_iso (left_unitor f)).
+  - <span class="c">(* right inverse unitor *)</span>
+    <span class="nb">intros</span>. <span class="bp">exact</span> (inv_from_z_iso (right_unitor f)).
+  - <span class="c">(* right associator *)</span>
+    <span class="nb">intros</span>. <span class="bp">exact</span> (inv_from_z_iso (associator f g h)).
+  - <span class="c">(* left associator *)</span>
+    <span class="nb">intros</span>. <span class="bp">exact</span> (associator_2mor f g h).
+  - <span class="c">(* vertical composition *)</span>
+    <span class="nb">intros</span> a b f g h x y. <span class="bp">exact</span> (x · y).
+  - <span class="c">(* left whiskering *)</span>
+    <span class="nb">intros</span> a b c f g1 g2 x. <span class="bp">exact</span> (whisker_left f x).
+  - <span class="c">(* right whiskering *)</span>
+    <span class="nb">intros</span> a b c f1 f2 g x. <span class="bp">exact</span> (whisker_right x g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bcat_data</span> : ∑ C, prebicat_2_id_comp_struct C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">bcat_1_id_comp_cells</span>. <span class="bp">exact</span> bcat_2_id_comp_struct.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Theorem</span> <span class="nf">bcat_laws</span> : prebicat_laws bcat_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>;
+  <span class="nb">unfold</span> id2, vcomp2, runitor, lunitor, rinvunitor, linvunitor,
+         rassociator, lassociator, lwhisker, rwhisker;
+  <span class="nb">simpl</span>;
+  <span class="nb">unfold</span> bcat_precategory_ob_mor, bcat_cell_struct, bcat_ob_mor_cells,
+         bcat_1_id_comp_cells, bcat_2_id_comp_struct, bcat_data;
+  <span class="nb">simpl</span>;
+  <span class="kp">first</span> [ <span class="nb">intros until</span> <span class="mi">1</span> | <span class="nb">intros</span> ].
+  - <span class="c">(* 1a id2_left *)</span>
+    <span class="nb">apply</span> id_left.
+  - <span class="c">(* 1b id2_right *)</span>
+    <span class="nb">apply</span> id_right.
+  - <span class="c">(* 2 vassocr *)</span>
+    <span class="nb">apply</span> assoc.
+  - <span class="c">(* 3a lwhisker_id2 *)</span>
+    <span class="nb">apply</span> whisker_left_id_2mor.
+  - <span class="c">(* 3b id2_rwhisker *)</span>
+    <span class="nb">apply</span> whisker_right_id_2mor.
+  - <span class="c">(* 4 lwhisker_vcomp *)</span>
+    <span class="nb">apply</span> pathsinv0, whisker_left_on_comp.
+  - <span class="c">(* 5 rwhisker_vcomp *)</span>
+    <span class="nb">apply</span> pathsinv0, whisker_right_on_comp.
+  - <span class="c">(* 6  vcomp_lunitor *)</span>
+    <span class="nb">apply</span> left_unitor_naturality.
+  - <span class="c">(* 7 vcomp_runitor *)</span>
+    <span class="nb">apply</span> right_unitor_naturality.
+  - <span class="c">(* 8 lwhisker_lwhisker *)</span>
+    <span class="nb">apply</span> whisker_left_left.
+  - <span class="c">(* 9 rwhisker_lwhisker *)</span>
+    <span class="nb">apply</span> whisker_left_right.
+  - <span class="c">(* 10 rwhisker_rwhisker *)</span>
+    <span class="nb">apply</span> whisker_right_right.
+  - <span class="c">(* 11 vcomp_whisker *)</span>
+    <span class="nb">apply</span> twomor_naturality.
+  - <span class="c">(* 12a lunitor_linvunitor *)</span>
+    <span class="nb">apply</span> (z_iso_inv_after_z_iso (left_unitor f)).
+  - <span class="c">(* 12b linvunitor_lunitor *)</span>
+    <span class="nb">apply</span> (z_iso_after_z_iso_inv (left_unitor f)).
+  - <span class="c">(* 13a runitor_rinvunitor *)</span>
+    <span class="nb">apply</span> (z_iso_inv_after_z_iso (right_unitor f)).
+  - <span class="c">(* 13b rinvunitor_runitor *)</span>
+    <span class="nb">apply</span> (z_iso_after_z_iso_inv (right_unitor f)).
+  - <span class="c">(* 14a lassociator_rassociator *)</span>
+    <span class="nb">apply</span> (z_iso_inv_after_z_iso (associator f g h)).
+  - <span class="c">(* 14b rassociator_lassociator *)</span>
+    <span class="nb">apply</span> (z_iso_after_z_iso_inv (associator f g h)).
+  - <span class="c">(* 15 runitor_rwhisker *)</span>
+    <span class="nb">apply</span> pathsinv0, (triangle_axiom f g).
+  - <span class="c">(* 16  lassociator_lassociator *)</span>
+    <span class="nb">apply</span> pathsinv0, (pentagon_axiom f g h).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bcat</span> : prebicat := (bcat_data,, bcat_laws).
+
+<span class="kn">End</span> <span class="nf">unfold_data</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/BicatOfBicategory.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (* Note: an equivalence is established in WkCatEnrichment/hcomp_bicat.v *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

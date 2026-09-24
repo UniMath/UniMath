@@ -1,0 +1,687 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MorphismsOfActegories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** the concept of morphism between actegories that is a functor between the</span>
+<span class="sd">    categories acted upon that is compatible with the action structures</span>
+
+<span class="sd">Written by Ralph Matthes in close correspondence with the code in [UniMath.CategoryTheory.MonoidalOld.MonoidalFunctorsWhiskered]</span>
+
+<span class="sd">Naming is inspired from Actegories for the Working Amthematician by Matteo Capucci and Bruno Gavranović,</span>
+<span class="sd">available at https://arxiv.org/abs/2203.16351</span>
+
+<span class="sd">There are lax and non-lax versions of morphisms: the lax morphisms of V-actegories are called lax V-linear functors, and the non-lax version the V-linear functors, where the difference is that in the latter the crucial natural transformation called the lineator is required to be an isomorphism.</span>
+
+<span class="sd">The non-lax version is not called strong so as to avoid confusion with the usual denomination of the lineator as the strength of the underlying functor. [lineator_lax] is that notion of strength together with the laws governing it.</span>
+
+<span class="sd">2022</span>
+<span class="sd">*)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Actegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.coslicecat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Import</span> ActegoryNotations.
+
+<span class="kn">Section</span> <span class="nf">LinearFunctors</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V). <span class="sd">(** given the monoidal category that acts upon categories *)</span>
+
+<span class="kn">Section</span> <span class="nf">TheDefinitions</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">ActC</span> : actegory Mon_V C) (<span class="nv">ActD</span> : actegory Mon_V D) (<span class="nv">F</span>: functor C D).
+
+
+  <span class="sd">(** (Weak) Linear functors **)</span>
+  <span class="c">(* Linear functor data *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">lineator_data</span> : UU := ∏ (v : V) (x : C), D ⟦ v ⊗_{ActD} F x, F (v ⊗_{ActC} x) ⟧.
+  <span class="kn">Identity Coercion</span> <span class="nf">lineator_data_funclass</span> : lineator_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="sd">(** Properties **)</span>
+  <span class="kn">Definition</span> <span class="nf">lineator_nat_left</span> (<span class="nv">ld</span> : lineator_data)
+    := ∏ (v : V) (x1 x2 : C) (g : C⟦x1,x2⟧),
+      v ⊗^{ActD}_{l} # F g · ld v x2 = ld v x1 · # F (v ⊗^{ActC}_{l} g).
+
+  <span class="kn">Definition</span> <span class="nf">lineator_nat_right</span> (<span class="nv">ld</span> : lineator_data)
+    := ∏ (v1 v2 : V) (x : C) (f : V⟦v1,v2⟧),
+      f ⊗^{ActD}_{r} F x · ld v2 x = ld v1 x · # F (f ⊗^{ActC}_{r} x).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_unitor</span> (<span class="nv">ld</span> : lineator_data)
+    := ∏ (x : C), ld I_{Mon_V} x · # F au^{ActC}_{x} = au^{ActD}_{F x}.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_unitorinv</span> (<span class="nv">ld</span> : lineator_data)
+    := ∏ (x : C), auinv^{ActD}_{F x} · ld I_{Mon_V} x = # F auinv^{ActC}_{x}.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_actor</span> (<span class="nv">ld</span> : lineator_data) : UU :=
+    ∏ (v w : V) (x : C),  ld (v ⊗_{Mon_V} w) x · #F (aα^{ActC}_{v,w,x}) =
+                            aα^{ActD}_{v,w,F x} · v ⊗^{ActD}_{l} (ld w x) · ld v (w ⊗_{ActC} x).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_actorinv</span>  (<span class="nv">ld</span> : lineator_data) : UU :=
+    ∏ (v w : V) (x : C), aαinv^{ActD}_{v,w,F x} · ld (v ⊗_{Mon_V} w) x =
+                           v ⊗^{ActD}_{l} (ld w x) · ld v (w ⊗_{ActC} x) · #F (aαinv^{ActC}_{v,w,x}).
+
+  <span class="c">(* the order of the entries follws that of [fmonoidal_laxlaws] *)</span>
+  <span class="kn">Definition</span> <span class="nf">lineator_laxlaws</span> (<span class="nv">ld</span> : lineator_data) : UU :=
+    lineator_nat_left ld × lineator_nat_right ld × preserves_actor ld × preserves_unitor ld.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_lineator_laxlaws</span> (<span class="nv">ld</span> : lineator_data) : isaprop (lineator_laxlaws ld).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod; [| <span class="nb">apply</span> isapropdirprod ; [| <span class="nb">apply</span> isapropdirprod]];
+      <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> D.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lineator_lax</span> : UU := ∑ (ld : lineator_data), lineator_laxlaws ld.
+
+  <span class="kn">Definition</span> <span class="nf">lineator_lindata</span> (<span class="nv">ll</span> : lineator_lax) : lineator_data := pr1 ll.
+  <span class="kn">Coercion</span> <span class="nf">lineator_lindata</span> : lineator_lax &gt;-&gt; lineator_data.
+
+  <span class="kn">Definition</span> <span class="nf">lineator_linlaws</span> (<span class="nv">ll</span> : lineator_lax) : lineator_laxlaws ll := pr2 ll.
+
+  <span class="kn">Definition</span> <span class="nf">lineator_linnatleft</span> (<span class="nv">ll</span> : lineator_lax) : lineator_nat_left ll := pr12 ll.
+  <span class="kn">Definition</span> <span class="nf">lineator_linnatright</span> (<span class="nv">ll</span> : lineator_lax) : lineator_nat_right ll := pr122 ll.
+
+  <span class="kn">Definition</span> <span class="nf">lineator_preservesactor</span> (<span class="nv">ll</span> : lineator_lax) : preserves_actor ll := pr1 (pr222 ll).
+
+  <span class="kn">Lemma</span> <span class="nf">lineator_preservesactorinv</span> (<span class="nv">ll</span> : lineator_lax) : preserves_actorinv ll.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v w x.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (z_iso_from_actor_iso Mon_V ActD _ _ _)).
+    <span class="nb">cbn</span>.
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">apply</span> lineator_preservesactor. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+    etrans.
+    { <span class="nb">apply</span> pathsinv0, id_right. }
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> &lt;- functor_comp.
+         <span class="nb">apply</span> maponpaths.
+         <span class="nb">apply</span> pathsinv0, (actegory_actorisolaw Mon_V ActC). }
+    <span class="nb">apply</span> pathsinv0, functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lineator_preservesunitor</span> (<span class="nv">ll</span> : lineator_lax) : preserves_unitor ll := pr2 (pr222 ll).
+
+  <span class="kn">Lemma</span> <span class="nf">lineator_preservesunitorinv</span> (<span class="nv">ll</span> : lineator_lax) : preserves_unitorinv ll.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (_,,_,, actegory_unitorisolaw Mon_V ActD (F x))).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- (lineator_preservesunitor ll).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+    etrans.
+    { <span class="nb">apply</span> pathsinv0, id_right. }
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> &lt;- functor_comp.
+         <span class="nb">apply</span> maponpaths.
+         <span class="nb">apply</span> pathsinv0, (actegory_unitorisolaw Mon_V ActC x). }
+    <span class="nb">apply</span> pathsinv0, functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lineator_strongly</span> (<span class="nv">ld</span> : lineator_data) : UU
+    := ∏ (v : V) (x : C), is_z_isomorphism (ld v x).
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_z_iso_from_lineator_strongly</span> {<span class="nv">ld</span> : lineator_data}
+    (<span class="nv">pas</span> : lineator_strongly ld) (<span class="nv">v</span> : V) (<span class="nv">x</span> : C) :
+    z_iso (v ⊗_{ActD} F x) (F (v ⊗_{ActC} x)) := ld v x ,, pas v x.
+
+  <span class="kn">Lemma</span> <span class="nf">preserves_actor_of_inverse_lineator_strongly</span>
+        {<span class="nv">ld</span> : lineator_data}
+        (<span class="nv">pα</span> : preserves_actor ld)
+        (<span class="nv">ls</span> : lineator_strongly ld) (<span class="nv">v</span> <span class="nv">w</span> : V) (<span class="nv">x</span> : C) :
+    (is_z_isomorphism_mor (ls (v ⊗_{Mon_V} w) x))
+       · aα^{ActD}_{v, w, F x} =
+    (#F (aα^{ActC}_{v,w,x}))
+      · (is_z_isomorphism_mor (ls v (w ⊗_{ActC} x)))
+      · (v ⊗^{ActD}_{l} (is_z_isomorphism_mor (ls w x))).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (lsv_wx := pointwise_z_iso_from_lineator_strongly ls v (w ⊗_{ActC} x)).
+    <span class="nb">set</span> (lsvw_x := pointwise_z_iso_from_lineator_strongly ls (v ⊗_{Mon_V} w) x).
+    <span class="nb">set</span> (lsfv := functor_on_z_iso
+          (leftwhiskering_functor ActD v)
+          (pointwise_z_iso_from_lineator_strongly ls w x)).
+    <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ lsfv).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ lsv_wx).
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> assoc'.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="bp">exact</span> (pα v w x).
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! pr222 lsvw_x).
+    }
+    <span class="nb">apply</span> (! id_left _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lineatorinv_nat_right</span> {<span class="nv">ld</span> : lineator_data} (<span class="nv">ls</span> : lineator_strongly ld) (<span class="nv">lrn</span> : lineator_nat_right ld)
+    (<span class="nv">v1</span> <span class="nv">v2</span> : V) (<span class="nv">x</span> : C) (<span class="nv">f</span> : V⟦v1,v2⟧) :
+    (is_z_isomorphism_mor (ls v1 x)) · f ⊗^{ActD}_{r} F x =  #F (f ⊗^{ActC}_{r} x) · (is_z_isomorphism_mor (ls v2 x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (ldiso := ld v1 x ,, ls v1 x : z_iso _ _).
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ ldiso).
+    <span class="nb">rewrite</span> assoc.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lrn.
+    }
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">unfold</span> is_z_isomorphism_mor.
+    <span class="nb">rewrite</span> (pr12 (ls v2 x)).
+    <span class="nb">apply</span> (! id_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lineatorinv_nat_left</span> {<span class="nv">ld</span> : lineator_data} (<span class="nv">ls</span> : lineator_strongly ld) (<span class="nv">lln</span> : lineator_nat_left ld)
+    (<span class="nv">v</span> : V) (<span class="nv">x1</span> <span class="nv">x2</span> : C) (<span class="nv">f</span> : C⟦x1,x2⟧) :
+      (is_z_isomorphism_mor (ls v x1)) · v ⊗^{ActD}_{l} # F f = # F (v ⊗^{ActC}_{l} f) · (is_z_isomorphism_mor (ls v x2)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (ldiso := ld v x1 ,, ls v x1 : z_iso _ _).
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ ldiso).
+    <span class="nb">rewrite</span> assoc.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lln.
+    }
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">unfold</span> is_z_isomorphism_mor.
+    <span class="nb">rewrite</span> (pr12 (ls v x2)).
+    <span class="nb">apply</span> (! id_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lineator</span> : UU := ∑ (ll : lineator_lax), lineator_strongly ll.
+
+  <span class="kn">Definition</span> <span class="nf">lineator_lineatorlax</span> (<span class="nv">lin</span> : lineator) : lineator_lax := pr1 lin.
+  <span class="kn">Coercion</span> <span class="nf">lineator_lineatorlax</span> : lineator &gt;-&gt; lineator_lax.
+
+  <span class="kn">Definition</span> <span class="nf">lineator_linstrongly</span> (<span class="nv">lin</span> : lineator) : lineator_strongly lin := pr2 lin.
+
+  <span class="sd">(** We now show that everything behaves as expected **)</span>
+  <span class="kn">Definition</span> <span class="nf">functor_imageofaction</span> : bifunctor V C D
+    := compose_bifunctor_with_functor ActC F.
+
+  <span class="kn">Definition</span> <span class="nf">functor_actionofrightimage</span> : bifunctor V C D
+    := compose_functor_with_bifunctor (functor_identity _) F ActD.
+
+  <span class="kn">Definition</span> <span class="nf">lineator_is_nattrans_type</span> : UU
+    := binat_trans functor_actionofrightimage functor_imageofaction.
+
+<span class="kn">Section</span> <span class="nf">LineatorNatural</span>.
+
+  <span class="c">(* I really don't know how to call the following lemma *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">ld</span> : lineator_data} (<span class="nv">lnl</span> : lineator_nat_left ld) (<span class="nv">lnr</span> : lineator_nat_right ld).
+
+  <span class="kn">Definition</span> <span class="nf">lineator_is_nattrans_data</span> : binat_trans_data functor_actionofrightimage functor_imageofaction.
+  <span class="kn">Proof</span>.
+    use make_binat_trans_data.
+    <span class="nb">intros</span> v x.
+    <span class="nb">apply</span> ld.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lineator_is_nattrans_law</span> : is_binat_trans lineator_is_nattrans_data.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> v x1 x2 g.
+      <span class="nb">apply</span> lnl.
+    - <span class="nb">intros</span> v1 v2 x f.
+      <span class="nb">apply</span> lnr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lineator_is_nattrans</span> : lineator_is_nattrans_type :=
+    lineator_is_nattrans_data,,lineator_is_nattrans_law.
+
+  <span class="kn">Lemma</span> <span class="nf">lineator_is_nattrans_full</span> (<span class="nv">v1</span> <span class="nv">v2</span> : V) (<span class="nv">x1</span> <span class="nv">x2</span> : C) (<span class="nv">f</span> : V⟦v1,v2⟧) (<span class="nv">g</span> : C⟦x1,x2⟧) :
+      f ⊗^{ActD} # F g · ld v2 x2 = ld v1 x1 · # F (f ⊗^{ActC} g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    etrans.
+    { <span class="nb">unfold</span> functoronmorphisms1.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> lnl.
+      <span class="nb">apply</span> assoc. }
+    <span class="nb">rewrite</span> lnr.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0, functor_comp.
+  <span class="kn">Qed</span>.
+
+ <span class="kn">End</span> <span class="nf">LineatorNatural</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lineator_inv_is_nattrans_type</span> : UU
+    := binat_trans functor_imageofaction functor_actionofrightimage.
+
+  <span class="c">(* name follows [lineator_is_nattrans], for lack of a better proposition *)</span>
+  <span class="kn">Definition</span> <span class="nf">lineator_inv_is_nattrans</span>
+    {<span class="nv">ld</span> : lineator_data}
+    (<span class="nv">lnl</span> : lineator_nat_left ld) (<span class="nv">lnr</span> : lineator_nat_right ld) (<span class="nv">ls</span> : lineator_strongly ld)
+    : lineator_inv_is_nattrans_type
+    := inv_binattrans_from_binatiso(α:=lineator_is_nattrans lnl lnr) ls.
+
+  <span class="c">(* Strictly linear functors *)</span>
+  <span class="kn">Definition</span> <span class="nf">lineator_strictly</span> (<span class="nv">ld</span> : lineator_data) : UU
+    := ∏ (v : V) (x : C), ∑ (pf : v ⊗_{ActD} (F x) = F (v ⊗_{ActC} x)), ld v x = transportf _ pf (identity (v ⊗_{ActD} (F x))).
+
+  <span class="kn">Lemma</span> <span class="nf">lineator_strictly_is_strongly</span>  {<span class="nv">ld</span> : lineator_data} (<span class="nv">lst</span> : lineator_strictly ld) : lineator_strongly ld.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v x.
+    use (iso_stable_under_equalitytransportf (pr2 (lst v x)) (is_z_isomorphism_identity (v ⊗_{ActD} F x))).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">TheDefinitions</span>.
+
+<span class="kn">Arguments</span> lineator_lindata {_ _ _ _ _} _ _ _.
+<span class="kn">Arguments</span> lineator_laxlaws {_ _ _ _ _} _.
+<span class="kn">Arguments</span> lineator_strongly {_ _ _ _ _} _.
+<span class="kn">Arguments</span> lineator_preservesactor {_ _ _ _ _} _ _ _ _.
+<span class="kn">Arguments</span> lineator_preservesunitor {_ _ _ _ _} _ _.
+<span class="kn">Arguments</span> lineator_linstrongly {_ _ _ _ _} _ _ _.
+
+<span class="sd">(** towards a bicategory of actegories *)</span>
+  <span class="kn">Definition</span> <span class="nf">identity_lineator_data</span> {<span class="nv">C</span> : category} (<span class="nv">Act</span> : actegory Mon_V C) :
+    lineator_data Act Act (functor_identity C).
+  <span class="kn">Proof</span>.
+    - <span class="nb">intros</span> v x. <span class="nb">apply</span> identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">identity_lineator_laxlaws</span> {<span class="nv">C</span> : category} (<span class="nv">Act</span> : actegory Mon_V C) :
+    lineator_laxlaws (identity_lineator_data Act).
+  <span class="kn">Proof</span>.
+    split4; <span class="nb">intros</span> x1; <span class="nb">unfold</span> identity_lineator_data; <span class="nb">intros</span>.
+    - <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> (bifunctor_leftid Act).
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">identity_lineator_lax</span> {<span class="nv">C</span> : category} (<span class="nv">Act</span> : actegory Mon_V C) :
+    lineator_lax Act Act (functor_identity C)
+    := identity_lineator_data Act ,, identity_lineator_laxlaws Act.
+
+  <span class="kn">Definition</span> <span class="nf">identity_lineator_strongly</span> {<span class="nv">C</span> : category} (<span class="nv">Act</span> : actegory Mon_V C) :
+    lineator_strongly (identity_lineator_lax Act).
+  <span class="kn">Proof</span>.
+    - <span class="nb">intros</span> v x. <span class="nb">apply</span> is_z_isomorphism_identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">identity_lineator</span> {<span class="nv">C</span> : category} (<span class="nv">Act</span> : actegory Mon_V C) : lineator Act Act (functor_identity C)
+    := identity_lineator_lax Act ,, identity_lineator_strongly Act.
+
+<span class="kn">Section</span> <span class="nf">Composition</span>.
+
+    <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} {<span class="nv">ActC</span> : actegory Mon_V C} {<span class="nv">ActD</span> : actegory Mon_V D} {<span class="nv">ActE</span> : actegory Mon_V E}
+    {<span class="nv">F</span> : C ⟶ D} {<span class="nv">G</span> : D ⟶ E}.
+
+<span class="kn">Section</span> <span class="nf">CompositionOfLaxLineators</span>.
+
+  <span class="kn">Context</span> (<span class="nv">Fl</span> : lineator_lax ActC ActD F) (<span class="nv">Gl</span> : lineator_lax ActD ActE G).
+
+  <span class="kn">Definition</span> <span class="nf">comp_lineator_data</span> : lineator_data ActC ActE (F ∙ G).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v x.
+    <span class="bp">exact</span> (lineator_lindata Gl v (F x) · #G (lineator_lindata Fl v x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comp_lineator_laxlaws</span> : lineator_laxlaws comp_lineator_data.
+  <span class="kn">Proof</span>.
+    split4; <span class="nb">intro</span>; <span class="nb">unfold</span> comp_lineator_data; <span class="nb">intros</span>; <span class="nb">cbn</span>.
+    - etrans.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc'. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> functor_comp. }
+      etrans.
+      <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> lineator_linnatleft. }
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> lineator_linnatleft.
+    - etrans.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc'. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> functor_comp. }
+      etrans.
+      <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> lineator_linnatright. }
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> lineator_linnatright.
+    - <span class="nb">assert</span> (auxF := lineator_preservesactor Fl v w x).
+      <span class="nb">assert</span> (auxG := lineator_preservesactor Gl v w (F x)).
+      <span class="nb">rewrite</span> (bifunctor_leftcomp ActE).
+      etrans.
+      <span class="mi">2</span>: { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+           <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+           <span class="nb">apply</span> pathsinv0, lineator_linnatleft. }
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+           <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+           <span class="bp">exact</span> auxG. }
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'. <span class="nb">apply</span> maponpaths.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      etrans; [ <span class="bp">exact</span> auxF |].
+      <span class="nb">apply</span> assoc'.
+    - <span class="nb">assert</span> (auxF := lineator_preservesunitor Fl x).
+      <span class="nb">assert</span> (auxG := lineator_preservesunitor Gl (F x)).
+      etrans; [| <span class="bp">exact</span> auxG].
+      <span class="nb">clear</span> auxG.
+      <span class="nb">rewrite</span> &lt;- auxF.
+      <span class="nb">clear</span> auxF.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, functor_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_lineator_lax</span> : lineator_lax ActC ActE (F ∙ G) := comp_lineator_data,,comp_lineator_laxlaws.
+
+<span class="kn">End</span> <span class="nf">CompositionOfLaxLineators</span>.
+
+<span class="kn">Section</span> <span class="nf">CompositionOfLineators</span>.
+
+  <span class="kn">Context</span> (<span class="nv">Fl</span> : lineator ActC ActD F) (<span class="nv">Gl</span> : lineator ActD ActE G).
+
+  <span class="kn">Definition</span> <span class="nf">comp_lineator_strongly_inverse</span> (<span class="nv">v</span> : V) (<span class="nv">x</span> : C) : E ⟦ G (F (v ⊗_{ ActC} x)), v ⊗_{ ActE} G (F x) ⟧ :=
+    #G (pr1 (lineator_linstrongly Fl v x)) · pr1 (lineator_linstrongly Gl v (F x)).
+
+  <span class="kn">Lemma</span> <span class="nf">comp_lineator_strongly_inverse_is_inverse</span> (<span class="nv">v</span> : V) (<span class="nv">x</span> : C) :
+    is_inverse_in_precat (comp_lineator_lax Fl Gl v x) (comp_lineator_strongly_inverse v x).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">cbn</span>; <span class="nb">unfold</span> comp_lineator_data.
+    - etrans.
+      { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">unfold</span> comp_lineator_strongly_inverse.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (pr12 (lineator_linstrongly Fl v x)). }
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> (pr12 (lineator_linstrongly Gl v (F x))).
+    - <span class="nb">unfold</span> comp_lineator_strongly_inverse.
+      etrans.
+      { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> (pr22 (lineator_linstrongly Gl v (F x))). }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (pr22 (lineator_linstrongly Fl v x)). }
+      <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">comp_lineator_strongly</span> : lineator_strongly (comp_lineator_lax Fl Gl).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v x.
+    <span class="bp">exact</span> (comp_lineator_strongly_inverse v x,,comp_lineator_strongly_inverse_is_inverse v x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_lineator</span> : lineator ActC ActE (F ∙ G)
+    := comp_lineator_lax Fl Gl ,, comp_lineator_strongly.
+
+<span class="kn">End</span> <span class="nf">CompositionOfLineators</span>.
+
+<span class="kn">End</span> <span class="nf">Composition</span>.
+
+<span class="kn">End</span> <span class="nf">LinearFunctors</span>.
+
+<span class="kn">Section</span> <span class="nf">TransformationsOfActegories</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} {<span class="nv">Mon_V</span> : monoidal V} {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">ActC</span> : actegory Mon_V C} {<span class="nv">ActD</span> : actegory Mon_V D}.
+
+  <span class="kn">Definition</span> <span class="nf">is_linear_nat_trans</span> {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+    (<span class="nv">Fl</span> : lineator_lax Mon_V ActC ActD F) (<span class="nv">Gl</span> : lineator_lax Mon_V ActC ActD G)(<span class="nv">ξ</span> : F ⟹ G) : UU :=
+    ∏ (v : V) (x : C), Fl v x · ξ (v ⊗_{ActC} x) = v ⊗^{ActD}_{l} ξ x · Gl v x.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_linear_nat_trans</span> {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+    (<span class="nv">Fl</span> : lineator_lax Mon_V ActC ActD F) (<span class="nv">Gl</span> : lineator_lax Mon_V ActC ActD G)
+    (<span class="nv">ξ</span> : F ⟹ G) : isaprop (is_linear_nat_trans Fl Gl ξ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred; <span class="nb">intro</span> v; <span class="nb">apply</span> impred; <span class="nb">intro</span> x. <span class="nb">apply</span> D.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_linear_nat_trans_pointwise_inverse</span> {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+    (<span class="nv">Fl</span> : lineator_lax Mon_V ActC ActD F) (<span class="nv">Gl</span> : lineator_lax Mon_V ActC ActD G)
+    (<span class="nv">ξ</span> : F ⟹ G) (<span class="nv">isnziξ</span> : is_nat_z_iso ξ) :
+    is_linear_nat_trans Fl Gl ξ -&gt; is_linear_nat_trans Gl Fl (nat_z_iso_inv (ξ,,isnziξ)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> islnt v x.
+    <span class="nb">cbn</span>.
+    <span class="nb">set</span> (aux := (_,,is_z_iso_leftwhiskering_z_iso (actegory_action Mon_V ActD) v (ξ x) (isnziξ x)  : z_iso _ _)).
+    <span class="nb">apply</span> pathsinv0, (z_iso_inv_on_right _ _ _ aux).
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ (_,,isnziξ (v ⊗_{ActC} x))).
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (!(islnt v x)).
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">is_linear_nat_trans_identity</span> {<span class="nv">F</span> : functor C D} (<span class="nv">Fl</span> : lineator_lax Mon_V ActC ActD F) :
+    is_linear_nat_trans Fl Fl (nat_trans_id F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v c.
+    <span class="nb">rewrite</span> id_right.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> pathsinv0, (bifunctor_leftid ActD). }
+    <span class="nb">apply</span> pathsinv0, id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_linear_nat_trans_comp</span> {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> : functor C D}
+    (<span class="nv">Fl</span> : lineator_lax Mon_V ActC ActD F)
+    (<span class="nv">Gl</span> : lineator_lax Mon_V ActC ActD G)
+    (<span class="nv">Hl</span> : lineator_lax Mon_V ActC ActD H) {<span class="nv">ξ1</span> : F ⟹ G} {<span class="nv">ξ2</span> : G ⟹ H}
+    (<span class="nv">islnt1</span> : is_linear_nat_trans Fl Gl ξ1)
+    (<span class="nv">islnt2</span> : is_linear_nat_trans Gl Hl ξ2) : is_linear_nat_trans Fl Hl (nat_trans_comp _ _ _ ξ1 ξ2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v x.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (bifunctor_leftcomp ActD).
+    <span class="nb">rewrite</span> assoc.
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> islnt1. }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> islnt2.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">TransformationsOfActegories</span>.
+
+<span class="kn">Section</span> <span class="nf">StrongFunctors</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensorialstrength</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C) (<span class="nv">F</span> : functor C C) : UU :=
+    lineator_lax M (actegory_with_canonical_self_action M)
+      (actegory_with_canonical_self_action M) F.
+
+  <span class="kn">Identity Coercion</span> <span class="nf">id_tensorialstrength</span> : tensorialstrength &gt;-&gt; lineator_lax.
+
+  <span class="kn">Lemma</span> <span class="nf">tensorialstrength_lineator_nat_left</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    {<span class="nv">F</span> : functor C C} (<span class="nv">ts</span> : tensorialstrength M F) :
+    lineator_nat_left _ _ _ _ ts =
+      ∏ (v x1 x2 : C) (g : C ⟦ x1, x2 ⟧),
+      v ⊗^{ M}_{l} # F g · ts v x2 = ts v x1 · # F (v ⊗^{ M}_{l} g).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">tensorialstrength_lineator_nat_right</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    {<span class="nv">F</span> : functor C C} (<span class="nv">ts</span> : tensorialstrength M F) :
+    lineator_nat_right _ _ _ _ ts =
+      ∏ (v1 v2 x : C) (f : C ⟦ v1, v2 ⟧),
+      f ⊗^{ M}_{r} F x · ts v2 x = ts v1 x · # F (f ⊗^{ M}_{r} x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">tensorialstrength_preserves_unitor</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    {<span class="nv">F</span> : functor C C} (<span class="nv">ts</span> : tensorialstrength M F) :
+    preserves_unitor _ _ _ _ ts = ∏ c : C, ts I_{M} c · # F lu^{M}_{c} = lu^{M}_{F c}.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">tensorialstrength_preserves_actor</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    {<span class="nv">F</span> : functor C C} (<span class="nv">ts</span> : tensorialstrength M F) :
+    preserves_actor _ _ _ _ ts = ∏ v w x : C,
+        ts (v ⊗_{M} w) x · # F α^{M}_{v, w, x} =
+          α^{M}_{v, w, F x} · v ⊗^{M}_{l} ts w x · ts v (w ⊗_{M} x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">ReindexedStrength</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V)
+          {<span class="nv">W</span> : category} (<span class="nv">Mon_W</span> : monoidal W)
+          {<span class="nv">F</span> : W ⟶ V} (<span class="nv">U</span> : fmonoidal Mon_W Mon_V F)
+          {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">ActC</span> : actegory Mon_V C) (<span class="nv">ActD</span> : actegory Mon_V D) (<span class="nv">FF</span> :  C ⟶ D).
+
+  <span class="kn">Definition</span> <span class="nf">reindexedstrength</span> : UU :=
+    lineator_lax Mon_W (reindexed_actegory Mon_V ActC Mon_W U) (reindexed_actegory Mon_V ActD Mon_W U) FF.
+
+  <span class="kn">Identity Coercion</span> <span class="nf">id_reindexedstrength</span> : reindexedstrength &gt;-&gt; lineator_lax.
+
+<span class="kn">End</span> <span class="nf">ReindexedStrength</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointedtensorialstrength</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C) (<span class="nv">F</span> : functor C C) : UU :=
+    reindexedstrength M (monoidal_pointed_objects M) (forget_monoidal_pointed_objects_monoidal M)
+                   (actegory_with_canonical_self_action M) (actegory_with_canonical_self_action M) F.
+
+  <span class="kn">Goal</span> ∏ (C : category)(M : monoidal C) (F : functor C C), pointedtensorialstrength M F =
+    lineator_lax (monoidal_pointed_objects M) (actegory_with_canonical_pointed_action M)
+                                              (actegory_with_canonical_pointed_action M) F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Identity Coercion</span> <span class="nf">id_pointedtensorialstrength</span> : pointedtensorialstrength &gt;-&gt; reindexedstrength.
+
+  <span class="kn">Lemma</span> <span class="nf">pointedtensorialstrength_lineator_nat_left</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    {<span class="nv">F</span> : functor C C} (<span class="nv">pts</span> : pointedtensorialstrength M F):
+    lineator_nat_left _ _ _ _ pts =
+      ∏ (v : coslice_cat_total C I_{M}) (x1 x2 : C) (g : C⟦x1,x2⟧),
+      pr1 v ⊗^{ M}_{l} # F g · pts v x2 = pts v x1 · # F (pr1 v ⊗^{ M}_{l} g).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pointedtensorialstrength_lineator_nat_right</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    {<span class="nv">F</span> : functor C C} (<span class="nv">pts</span> : pointedtensorialstrength M F):
+    lineator_nat_right _ _ _ _ pts =
+      ∏ (v1 v2 : coslice_cat_total C I_{M}) (x : C) (f : coslice_cat_total C I_{M} ⟦v1,v2⟧),
+      pr1 f ⊗^{ M}_{r} F x · pts v2 x = pts v1 x · # F (pr1 f ⊗^{ M}_{r} x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pointedtensorialstrength_preserves_unitor</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    {<span class="nv">F</span> : functor C C} (<span class="nv">pts</span> : pointedtensorialstrength M F):
+    preserves_unitor _ _ _ _ pts ≃
+      ∏ c : C, pts I_{ monoidal_pointed_objects M} c · # F lu^{M}_{c} = lu^{M}_{F c}.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intros</span> H c.
+      <span class="nb">assert</span> (Hc := H c). <span class="nb">clear</span> H.
+      <span class="nb">cbn</span> <span class="k">in</span> Hc.
+      <span class="nb">unfold</span> total_unit, reindexed_action_unitor_data <span class="k">in</span> Hc. <span class="nb">cbn</span> <span class="k">in</span> Hc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (bifunctor_rightid M) <span class="k">in</span> Hc. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left <span class="k">in</span> Hc.
+      <span class="bp">exact</span> Hc.
+    - <span class="nb">intros</span> H c.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> total_unit, reindexed_action_unitor_data. <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (bifunctor_rightid M). <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> H.
+    - <span class="nb">apply</span> impred; <span class="nb">intro</span> c. <span class="nb">apply</span> C.
+    - <span class="nb">apply</span> impred; <span class="nb">intro</span> c. <span class="nb">apply</span> C.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pointedtensorialstrength_preserves_actor</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    {<span class="nv">F</span> : functor C C} (<span class="nv">pts</span> : pointedtensorialstrength M F) :
+    preserves_actor _ _ _ _ pts ≃
+      ∏ (v w : coslice_cat_total C I_{M}) (x : C),
+      pts (v ⊗_{monoidal_pointed_objects M} w) x · # F α^{M}_{pr1 v, pr1 w, x} =
+          α^{M}_{pr1 v, pr1 w, F x} · pr1 v ⊗^{M}_{l} pts w x · pts v (pr1 w ⊗_{M} x).
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intros</span> H v w x.
+      <span class="nb">assert</span> (Hinst := H v w x). <span class="nb">clear</span> H.
+      <span class="nb">cbn</span> <span class="k">in</span> Hinst.
+      <span class="nb">unfold</span> reindexed_actor_data <span class="k">in</span> Hinst. <span class="nb">cbn</span> <span class="k">in</span> Hinst.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (bifunctor_rightid M) <span class="k">in</span> Hinst. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left <span class="k">in</span> Hinst.
+      <span class="bp">exact</span> Hinst.
+    - <span class="nb">intros</span> H v w x.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> reindexed_actor_data. <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (bifunctor_rightid M). <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> H.
+    - <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>). <span class="nb">apply</span> C.
+    - <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>). <span class="nb">apply</span> C.
+  <span class="kn">Qed</span>.
+
+
+<span class="kn">End</span> <span class="nf">StrongFunctors</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Actegories/MorphismsOfActegories.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

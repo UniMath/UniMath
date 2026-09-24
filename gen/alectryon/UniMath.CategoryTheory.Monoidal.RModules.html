@@ -1,0 +1,862 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RModules.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************</span>
+
+<span class="sd"> (Right) Modules over a monoid</span>
+
+<span class="sd"> In this file, we define the category of (right) modules MOD R over a given</span>
+<span class="sd"> monoid R in some fixed monoidal category C.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Definitions</span>
+<span class="sd"> 2. Two examples of modules</span>
+<span class="sd"> 3. Colimits in MOD R are inherited from colimits in C</span>
+<span class="sd"> 4. Limits in MOD R are inherited from limits in C</span>
+
+<span class="sd"> ***************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">RModules</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : monoidal_cat}.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x ⊗l f"</span> := (x ⊗^{C}_{l} f) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f ⊗r y"</span> := (f ⊗^{C}_{r} y) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Context</span> (<span class="nv">R</span> : C) (<span class="nv">R_m</span> : monoid C R).
+  <span class="kn">Definition</span> <span class="nf">μ</span> : C⟦R ⊗ R, R⟧ := pr1 (pr1 R_m).
+  <span class="kn">Definition</span> <span class="nf">η</span> : C⟦I_{C}, R⟧ := pr2 (pr1 R_m).
+
+  <span class="sd">(**</span>
+<span class="sd">     1. Definitions</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">module_subst</span> (<span class="nv">M</span> : C) : UU := C⟦ M ⊗ R, M ⟧.
+
+
+  <span class="kn">Definition</span> <span class="nf">module_object</span> {<span class="nv">M</span> : C} (<span class="nv">p</span> : module_subst M) : C := M.
+  <span class="kn">Coercion</span> <span class="nf">module_object</span> : module_subst &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">module_laws_assoc</span> {<span class="nv">M</span> : C} (<span class="nv">p</span> : module_subst M) : UU
+    := α^{C}_{M,R,R} · (M ⊗l μ) · p = p ⊗r R · p.
+
+  <span class="kn">Definition</span> <span class="nf">module_laws_unit</span> {<span class="nv">M</span> : C} (<span class="nv">p</span> : module_subst M) : UU
+    := M ⊗l η · p = ru^{C}_{M}.
+
+  <span class="kn">Definition</span> <span class="nf">module_laws</span> {<span class="nv">M</span> : C} (<span class="nv">p</span> : module_subst M) : UU
+    := module_laws_assoc p × module_laws_unit p.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_module_laws</span> {<span class="nv">M</span> : C} (<span class="nv">p</span> : module_subst M)
+    : isaprop (module_laws p).
+  <span class="kn">Proof</span>.
+    use isapropdirprod; use homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">module</span> (<span class="nv">M</span> : C): UU := ∑ p : module_subst M, module_laws p.
+
+  <span class="kn">Definition</span> <span class="nf">make_module</span>
+    {<span class="nv">M</span> : C} (<span class="nv">p</span> : C⟦M ⊗ R, M⟧)
+    (<span class="nv">p_unit</span> : M ⊗l η · p = ru^{C}_{M})
+    (<span class="nv">p_assoc</span> : α^{C}_{M,R,R} · (M ⊗l μ) · p = p ⊗r R · p)
+    : module M
+    := (p ,, p_assoc ,, p_unit).
+
+  <span class="kn">Definition</span> <span class="nf">module_to_module_subst</span> {<span class="nv">M</span> : C} (<span class="nv">p</span> : module M) : C⟦ M ⊗ R, M ⟧ := pr1 p.
+  <span class="kn">Coercion</span> <span class="nf">module_to_module_subst</span> : module &gt;-&gt; precategory_morphisms.
+
+  <span class="kn">Definition</span> <span class="nf">module_laws_assoc_from_module</span> {<span class="nv">M</span> : C} (<span class="nv">p</span> : module M) :
+    module_laws_assoc (module_to_module_subst p)
+    := pr12 p.
+
+  <span class="kn">Definition</span> <span class="nf">module_laws_unit_from_module</span> {<span class="nv">M</span> : C} (<span class="nv">p</span> : module M) :
+    module_laws_unit (module_to_module_subst p)
+    := pr22 p.
+
+  <span class="kn">Definition</span> <span class="nf">is_module_mor</span> {<span class="nv">M</span> <span class="nv">M'</span> : C} (<span class="nv">p</span> : module M) (<span class="nv">p'</span> : module M') (<span class="nv">r</span> : M --&gt; M') : UU
+    := r ⊗r R · p' = p · r.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_module_mor</span> {<span class="nv">M</span> <span class="nv">M'</span> : C} (<span class="nv">p</span> : module M) (<span class="nv">p'</span> : module M') (<span class="nv">r</span> : C⟦M,M'⟧)
+    : isaprop (is_module_mor p p' r).
+  <span class="kn">Proof</span>.
+    use homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">id_is_module_mor</span> (<span class="nv">M</span> : C) (<span class="nv">p</span> : module M) : is_module_mor p p (identity M).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_module_mor.
+    <span class="nb">rewrite</span> id_right, (bifunctor_rightid C).
+    use id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comp_is_module_mor</span> (<span class="nv">M</span> <span class="nv">M'</span> <span class="nv">M''</span> : C)
+    (<span class="nv">p</span> : module M) (<span class="nv">p'</span> : module M') (<span class="nv">p''</span> : module M'')
+    (<span class="nv">r</span> : C⟦M,M'⟧) (<span class="nv">r'</span> : C⟦M',M''⟧)
+    (<span class="nv">Hr</span> : is_module_mor p p' r) (<span class="nv">Hr'</span> : is_module_mor p' p'' r')
+    : is_module_mor p p'' (r·r').
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_module_mor <span class="k">in</span> * |- *.
+    <span class="nb">rewrite</span> (bifunctor_rightcomp C), assoc, &lt;- Hr.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="bp">now</span> use maponpaths.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">module_disp_cat_ob_mor</span> : disp_cat_ob_mor C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">module</span>.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, is_module_mor).
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">module_disp_cat_id_comp</span> : disp_cat_id_comp C module_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">intros</span>; [<span class="bp">now</span> use id_is_module_mor|<span class="bp">now</span> use comp_is_module_mor].
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">module_disp_cat_data</span> : disp_cat_data C
+    := module_disp_cat_ob_mor ,, module_disp_cat_id_comp.
+
+  <span class="kn">Lemma</span> <span class="nf">module_disp_cat_data_is_locally_propositional</span> : locally_propositional module_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span>; use isaprop_is_module_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">module_disp_cat</span> : disp_cat C
+    := make_disp_cat_locally_prop module_disp_cat_data_is_locally_propositional.
+
+  <span class="kn">Definition</span> <span class="nf">MOD</span> : category := total_category module_disp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">MOD_to_C</span> (<span class="nv">M</span> : MOD) : C := pr1 M.
+
+  <span class="kn">Lemma</span> <span class="nf">MOD_mor_eq</span> {<span class="nv">M</span> <span class="nv">M'</span> : MOD} (<span class="nv">r</span> <span class="nv">r'</span> : MOD⟦M,M'⟧) : pr1 r = pr1 r' -&gt; r = r'.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> mor_eq_total_category_when_locally_prop.
+    <span class="bp">exact</span> module_disp_cat_data_is_locally_propositional.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">     2. Two examples of modules</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">trivial_module</span> : MOD :=
+    <span class="k">let</span> <span class="nv">l</span> := pr2 (monoid_to_monoid_laws C R_m) <span class="k">in</span>
+    R ,, μ ,, pr2 l ,, pr1 l.
+
+  <span class="kn">Definition</span> <span class="nf">product_module_subst</span> {<span class="nv">M</span> : C} (<span class="nv">D</span> : C) (<span class="nv">p</span> : module M) : module_subst (D ⊗_{C} M)
+    := α^{C}_{D,M,R} · D ⊗l p.
+
+  <span class="kn">Lemma</span> <span class="nf">product_module_unit</span> (<span class="nv">M</span> <span class="nv">D</span> : C) (<span class="nv">p</span> : module M) :
+    module_laws_unit (product_module_subst D p).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> product_module_subst, module_laws_unit.
+    <span class="nb">rewrite</span> assoc, &lt;- (monoidal_associatornatleft C).
+    etrans.
+    - <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+      <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp C).
+      <span class="nb">refine</span> (maponpaths _ _).
+      use (module_laws_unit_from_module p).
+    - use left_whisker_with_runitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">product_module_assoc</span> (<span class="nv">M</span> <span class="nv">D</span> : C) (<span class="nv">p</span> : module M) :
+    module_laws_assoc (product_module_subst D p).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> module_laws_assoc; <span class="nb">symmetry</span>.
+    etrans; etrans. etrans. etrans.
+    - <span class="nb">unfold</span> product_module_subst. <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _). use (bifunctor_rightcomp C).
+    - <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _); <span class="nb">rewrite</span> assoc.
+      <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+      use monoidal_associatornatleftright.
+    - <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (maponpaths _ _).
+      <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp C).
+      <span class="nb">refine</span> (!maponpaths _ _); use (module_laws_assoc_from_module p).
+    - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> bifunctor_leftcomp; <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _) _).
+      use monoidal_pentagonidentity.
+    - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">refine</span> (maponpaths _ _).
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+      use monoidal_associatornatleft.
+    - <span class="nb">unfold</span> product_module_subst. <span class="bp">now</span> <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">product_module</span> (<span class="nv">M</span> <span class="nv">D</span> : C) (<span class="nv">p</span> : module M) : MOD.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">D</span> ⊗ M).
+    <span class="k">exists</span> (<span class="nv">product_module_subst</span> <span class="nv">D</span> <span class="nv">p</span>).
+    <span class="nb">split</span>; [use product_module_assoc | use product_module_unit].
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">forgetful_functor_data</span> : functor_data MOD C.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intros</span> [M p]; <span class="bp">exact</span> M.
+    - <span class="nb">intros</span> [M p] [M' p'] [f _]; <span class="bp">exact</span> f.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">forgetful_is_functor</span> : is_functor forgetful_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> <span class="kp">idtac</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">forgetful</span> : MOD ⟶ C
+    := make_functor forgetful_functor_data forgetful_is_functor.
+
+  <span class="sd">(**</span>
+<span class="sd">     3. Colimits in MOD R are inherited from colimits in C</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Section</span> <span class="nf">Colimits</span>.
+    <span class="kn">Context</span> {<span class="nv">g</span> : graph}.
+    <span class="kn">Context</span> (<span class="nv">colims_g</span> : Colims_of_shape g C).
+    <span class="kn">Context</span> (<span class="nv">HR</span> : preserves_colimits_of_shape (rightwhiskering_functor C R) g).
+
+    <span class="kn">Context</span> (<span class="nv">F</span> : diagram g MOD).
+
+    <span class="kn">Let</span> <span class="nf">F'</span> := mapdiagram forgetful F : diagram g C.
+    <span class="kn">Let</span> <span class="nf">L</span> : C := pr11 (colims_g F').
+    <span class="kn">Let</span> <span class="nf">cc</span> : cocone F' L := pr21 (colims_g F').
+    <span class="kn">Let</span> <span class="nf">c</span> : isColimCocone F' L cc := pr2 (colims_g F').
+
+    <span class="c">(* Colimit cocone over L *)</span>
+    <span class="kn">Definition</span> <span class="nf">ColimCocone_L</span> := colims_g F'.
+
+    <span class="c">(* Colimit cocone over L ⊗ R *)</span>
+    <span class="kn">Definition</span> <span class="nf">ColimCocone_L_R</span> := make_ColimCocone _ _ _ (HR F' L cc c).
+
+    <span class="c">(* Colimit cocone over (L ⊗ R) ⊗ R *)</span>
+    <span class="kn">Definition</span> <span class="nf">ColimCocone_L_R_R</span> := make_ColimCocone _ _ _ (HR _ _ _ (HR F' L cc c)).
+
+    <span class="kn">Let</span> <span class="nf">q</span> (<span class="nv">v</span> : vertex g): module_subst (dob F' v) := pr12 (dob F v).
+    <span class="kn">Let</span> <span class="nf">f</span> (<span class="nv">v</span> : vertex g): dob F' v --&gt; L := colimIn _ v.
+
+    <span class="kn">Definition</span> <span class="nf">colim_module_subst</span> : L ⊗ R --&gt; L.
+    <span class="kn">Proof</span>.
+      use (colimOfArrows ColimCocone_L_R ColimCocone_L); <span class="nb">simpl</span>.
+      - <span class="nb">intro</span> u; use (q u).
+      - <span class="nb">intros</span> u v e; <span class="nb">simpl</span>. <span class="bp">exact</span> (pr2 (dmor F e)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">p</span> := colim_module_subst.
+
+    <span class="kn">Lemma</span> <span class="nf">colim_module_mor</span> (<span class="nv">v</span> : vertex g) : f v ⊗r R · p = q v · f v.
+    <span class="kn">Proof</span>.
+      use (colimOfArrowsIn _ _ ColimCocone_L_R _ _ _ v).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">rw_unit_is_left_adjoint</span>
+      : is_left_adjoint (rightwhiskering_functor C I_{C}).
+    <span class="kn">Proof</span>.
+      <span class="k">exists</span> (<span class="nv">functor_identity</span> <span class="nv">C</span>); use make_are_adjoints.
+      <span class="mi">3</span>: use make_form_adjunction.
+      - <span class="nb">eexists</span>; <span class="nb">intros</span> A B h; <span class="nb">symmetry</span>; use monoidal_rightunitorinvnat.
+      - <span class="nb">eexists</span>; <span class="nb">intros</span> A B h; use monoidal_rightunitornat.
+      - <span class="nb">intro</span> A. <span class="nb">cbn</span>; <span class="nb">symmetry</span>.
+        <span class="nb">transitivity</span> (ruinv^{C}_{A} ⊗r I_{C} · ru^{C}_{A} ⊗r I_{C}); [etrans|]; <span class="nb">swap</span> <span class="mi">1</span> <span class="mi">2</span>.
+        + use (bifunctor_rightcomp C).
+        + etrans; [<span class="nb">symmetry</span>; use tensor_id_id|].
+          <span class="bp">now</span> <span class="nb">rewrite</span> @tensor_mor_right, (pr2 (monoidal_rightunitorisolaw C A)).
+        + use maponpaths.
+          <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">symmetry</span>; <span class="nb">rewrite</span> &lt;- id_right; <span class="nb">rewrite</span> &lt;- (pr1 (monoidal_rightunitorisolaw C A)), assoc).
+          <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- monoidal_rightunitornat.
+      - <span class="nb">intro</span> A; <span class="nb">cbn</span>; use (pr2 (monoidal_rightunitorisolaw C A)).
+    <span class="kn">Qed</span>.
+
+    <span class="c">(* Colimit cocone over L ⊗ I *)</span>
+    <span class="kn">Definition</span> <span class="nf">ColimCocone_L_I</span> := make_ColimCocone _ _ _ (left_adjoint_preserves_colimit _ rw_unit_is_left_adjoint _ _ _ c).
+
+    <span class="kn">Lemma</span> <span class="nf">colim_rightunitor</span> : ru^{C}_{L} = colimOfArrows ColimCocone_L_I ColimCocone_L (<span class="k">λ</span> <span class="nv">_</span>, ru^{C}_{_}) (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, monoidal_rightunitornat _ _ _ _).
+    <span class="kn">Proof</span>.
+      <span class="nb">assert</span> (forms_cocone (mapdiagram (rightwhiskering_functor C I_{C}) F') (<span class="k">λ</span> <span class="nv">v</span>, ru^{C}_{dob F' v} · f v)) <span class="k">as</span> H_cc'
+      <span class="bp">by</span> (
+        <span class="nb">intros</span> v w e; <span class="nb">simpl</span>;
+        <span class="nb">rewrite</span> assoc, monoidal_rightunitornat, &lt;- assoc;
+        use maponpaths; use (coconeInCommutes cc)
+      ).
+      <span class="nb">pose</span> (make_cocone _ H_cc') <span class="k">as</span> cc'.
+      <span class="nb">assert</span> (∏ (u : vertex g), colimIn ColimCocone_L_I u · ru^{C}_{L} = coconeIn cc' u) <span class="k">as</span> H_unique
+      <span class="bp">by</span> (<span class="nb">intro</span>; <span class="nb">cbn</span>; use monoidal_rightunitornat).
+      etrans.
+      use (colimArrowUnique _ _ _ _ H_unique).
+      <span class="kp">do</span> <span class="mi">2</span> use maponpaths.
+      use proofirrelevance;
+      use isaprop_forms_cocone.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">η_swap</span> : ∏ (u v : vertex g) (e : edge u v),
+       pr1 (dmor F e) ⊗^{ C}_{r} I_{C} · pr1 (dob F v) ⊗^{ C}_{l} η =
+       pr1 (dob F u) ⊗^{ C}_{l} η · pr1 (dmor F e) ⊗^{ C}_{r} R.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> tensor_mor_right, @tensor_mor_left;
+      use tensor_swap.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">colim_unit</span> : L ⊗l η = colimOfArrows ColimCocone_L_I ColimCocone_L_R (<span class="k">λ</span> <span class="nv">_</span>, _ ⊗l η) η_swap.
+    <span class="kn">Proof</span>.
+      <span class="nb">assert</span> (forms_cocone (mapdiagram (rightwhiskering_functor C I_{C}) F') (<span class="k">λ</span> <span class="nv">v</span>, _ ⊗l η · f v ⊗r _)) <span class="k">as</span> H_cc' <span class="bp">by</span> (
+        <span class="nb">intros</span> u v e; <span class="nb">cbn</span>; <span class="nb">rewrite</span> assoc;
+        <span class="nb">change</span> (dmor F' e ⊗r I_{C} · dob F' v ⊗l η · f v ⊗r R = dob F' u ⊗l η · f u ⊗r R); <span class="nb">unfold</span> f;
+        <span class="nb">rewrite</span> &lt;- (colimInCommutes _ _ _ e), !@tensor_mor_right, tensor_comp_id_r, assoc;
+        use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)); <span class="nb">rewrite</span> !@tensor_mor_left; use tensor_swap
+      ).
+      <span class="nb">pose</span> (make_cocone _ H_cc') <span class="k">as</span> cc'.
+      <span class="nb">assert</span> (∏ (u : vertex g), colimIn ColimCocone_L_I u · L ⊗l η = coconeIn cc' u) <span class="k">as</span> H_unique <span class="bp">by</span> (
+        <span class="nb">intro</span>; <span class="nb">cbn</span>; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> @tensor_mor_right, @tensor_mor_left; use tensor_swap
+      ).
+      etrans.
+      use (colimArrowUnique _ _ _ _ H_unique).
+      <span class="kp">do</span> <span class="mi">2</span> use maponpaths.
+      use proofirrelevance;
+      use isaprop_forms_cocone.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">colim_module_unit</span> : L ⊗l η · p = ru^{C}_{L}.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> colim_unit, colim_rightunitor.
+      <span class="nb">unfold</span> p, colim_module_subst; <span class="nb">simpl</span>.
+      <span class="nb">simpl</span>.
+      <span class="nb">assert</span> (∏ u v (e : edge u v),
+        dmor F' e ⊗r I_{ C} · (dob F' v ⊗l η · q v)
+        = dob F' u ⊗l η · q u · dmor F' e
+      ) <span class="k">as</span> H.
+      {
+        <span class="nb">intros</span>; <span class="nb">cbn</span>; <span class="nb">symmetry</span>; etrans.
+        - <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) _).
+          <span class="nb">symmetry</span>; use (pr2 (dmor F e)).
+        - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">u</span>, u · _)).
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> @tensor_mor_left, @tensor_mor_right.
+          use tensor_swap'.
+      }
+      <span class="nb">change</span> (
+        colimOfArrows ColimCocone_L_I ColimCocone_L_R _ η_swap
+        · colimOfArrows ColimCocone_L_R ColimCocone_L _ (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">e</span>, pr2 (dmor F e))
+        = colimOfArrows ColimCocone_L_I ColimCocone_L _
+          (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">e</span>, monoidal_rightunitornat _ _ _ (dmor F' e))
+      ).
+      <span class="nb">rewrite</span> (colimOfArrows_comp ColimCocone_L_I ColimCocone_L_R ColimCocone_L _ _ _ _ H).
+      use two_arg_paths_f; [use funextsec; <span class="nb">intro</span>; use (pr222 (dob F x))|].
+      <span class="kp">do</span> <span class="mi">3</span> (use funextsec; <span class="nb">intro</span>).
+      use proofirrelevance; use homset_property.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">lemma_R_R_to_R_nat</span> :
+       (∏ u v e,
+        (dmor F' e ⊗r R) ⊗r R · q v ⊗r R =
+        q u ⊗r R · dmor F' e ⊗r R).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (bifunctor_rightcomp C).
+      use maponpaths.
+      use (pr2 (dmor F e)).
+    <span class="kn">Qed</span>.
+
+
+    <span class="kn">Lemma</span> <span class="nf">colim_module_subst_tens_r</span> : p ⊗r R = colimOfArrows ColimCocone_L_R_R ColimCocone_L_R _ lemma_R_R_to_R_nat.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> colimOfArrows; <span class="nb">simpl</span>.
+      <span class="nb">assert</span> (
+        forms_cocone
+          (mapdiagram (rightwhiskering_functor C R)
+             (mapdiagram (rightwhiskering_functor C R) F'))
+          (<span class="k">λ</span> <span class="nv">v</span>, (q v · f v) ⊗r R)
+      ) <span class="k">as</span> H_cc'.
+      {
+        <span class="nb">intros</span> x y e; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- (bifunctor_rightcomp C), assoc.
+        use maponpaths.
+        etrans.
+        - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">u</span>, u · f y) (pr2 (dmor F e))).
+        - <span class="nb">rewrite</span> &lt;- assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">u</span>, q x · u)).
+          use colimInCommutes.
+      }
+
+      <span class="nb">pose</span> (make_cocone _ H_cc') <span class="k">as</span> cc'.
+
+      <span class="nb">assert</span> (∏ u, colimIn ColimCocone_L_R_R u · p ⊗r R = coconeIn cc' u)
+      <span class="k">as</span> H_unique.
+      {
+        <span class="nb">intro</span> u; <span class="nb">cbn</span>; <span class="nb">rewrite</span> &lt;- (bifunctor_rightcomp C).
+        use maponpaths; use colim_module_mor.
+      }
+
+      etrans.
+      use (colimArrowUnique _ _ _ _ H_unique).
+
+      <span class="nb">cbn</span>.
+      use maponpaths.
+      use two_arg_paths_f.
+      use funextsec; <span class="nb">intro</span>; <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> @tensor_mor_right.
+      <span class="bp">now</span> <span class="nb">rewrite</span> tensor_comp_id_r.
+
+      use proofirrelevance.
+      use isaprop_forms_cocone.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">lemma_R_R_to_R_nat2</span> : ∏ u v e,
+      (dmor F' e ⊗r R) ⊗r R
+      · (α^{C}_{dob F' v,R,R} · dob F' v ⊗l μ) =
+      α^{C}_{dob F' u,R,R} · dob F' u ⊗l μ
+      · dmor F' e ⊗r R.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span>; <span class="nb">rewrite</span> assoc; etrans.
+      - <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+        use monoidal_associatornatright.
+      - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc.
+        use maponpaths.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> @tensor_mor_right, @tensor_mor_left.
+        use tensor_swap.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">colim_associator_mult</span> : α^{C}_{L,R,R} · L ⊗l μ = colimOfArrows ColimCocone_L_R_R ColimCocone_L_R _ lemma_R_R_to_R_nat2.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> colimOfArrows.
+
+      <span class="nb">assert</span> (
+        forms_cocone
+          (mapdiagram (rightwhiskering_functor C R)
+             (mapdiagram (rightwhiskering_functor C R) F'))
+          (<span class="k">λ</span> <span class="nv">v</span> : vertex g,
+           α^{C}_{dob F' v,R,R} · dob F' v ⊗^{ C}_{l} μ · f v ⊗^{ C}_{r} R)
+      ) <span class="k">as</span> H_cc'. {
+        <span class="nb">intros</span> x y e; <span class="nb">cbn</span>; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+        etrans; [etrans|]; <span class="nb">swap</span> <span class="mi">2</span> <span class="mi">3</span>.
+        - <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc, &lt;- (monoidal_associatornatright C), &lt;- assoc.
+        - <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> (maponpaths _ _)); use (colimInCommutes _ _ _ e).
+        - <span class="nb">rewrite</span> &lt;- assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">u</span>, _ · u)).
+          <span class="nb">rewrite</span> (bifunctor_rightcomp C).
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+          use (maponpaths (<span class="k">λ</span> <span class="nv">u</span>, u · _)).
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> @tensor_mor_right, @tensor_mor_left.
+          use tensor_swap.
+      }
+
+      <span class="nb">pose</span> (make_cocone _ H_cc') <span class="k">as</span> cc'.
+
+      <span class="nb">assert</span> (∏ u : vertex g, colimIn ColimCocone_L_R_R u · (α^{C}_{_,_,_} · L ⊗^{ C}_{l} μ) = coconeIn cc' u) <span class="k">as</span> H_unique. {
+        <span class="nb">intro</span>; <span class="nb">cbn</span>; <span class="nb">rewrite</span> assoc; etrans.
+        - <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+          use monoidal_associatornatright.
+        - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc; use maponpaths.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> @tensor_mor_right, @tensor_mor_left.
+          use tensor_swap.
+      }
+
+      etrans.
+      use (colimArrowUnique _ _ _ _ H_unique).
+      <span class="kp">do</span> <span class="mi">2</span> use maponpaths.
+      use proofirrelevance;
+      use isaprop_forms_cocone.
+    <span class="kn">Qed</span>.
+
+
+    <span class="kn">Lemma</span> <span class="nf">colim_module_assoc</span> : α^{C}_{L,R,R} · L ⊗l μ · p = p ⊗r R · p.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> colim_associator_mult, colim_module_subst_tens_r.
+      <span class="nb">unfold</span> p, colim_module_subst; <span class="nb">cbn</span>.
+      <span class="nb">assert</span> ( ∏ u v e,
+        (dmor F' e ⊗r R) ⊗r R · (α^{C}_{_,_,_} · dob F' v ⊗l μ · q v) =
+        α^{C}_{_,R,R} · dob F' u ⊗l μ · q u · dmor F' e) <span class="k">as</span> H1.
+      {
+        <span class="nb">intros</span>.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+        etrans; <span class="nb">cycle</span> <span class="mi">1</span>.
+        - <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ (pr2 (dmor F e))).
+        - <span class="nb">rewrite</span> &lt;- (monoidal_associatornatright C).
+          <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc; use maponpaths.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span>  @tensor_mor_left, @tensor_mor_right.
+          use tensor_swap.
+      }
+
+      <span class="nb">assert</span> (∏ u v e,
+         (pr1 (dmor F e) ⊗^{ C}_{r} R) ⊗^{ C}_{r} R
+         · (q v ⊗^{ C}_{r} R · q v) =
+         q u ⊗^{ C}_{r} R · q u · pr1 (dmor F e)
+      ) <span class="k">as</span> H2.
+      {
+        <span class="nb">intros</span>; <span class="nb">rewrite</span> assoc.
+        etrans; <span class="nb">cycle</span> <span class="mi">1</span>.
+        - <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (pr2 (dmor F e))).
+        - <span class="nb">rewrite</span> assoc. use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (bifunctor_rightcomp C).
+          use maponpaths.
+          use (pr2 (dmor F e)).
+      }
+
+      <span class="nb">transitivity</span> (colimOfArrows ColimCocone_L_R_R ColimCocone_L _ H2).
+      <span class="nb">transitivity</span> (colimOfArrows ColimCocone_L_R_R ColimCocone_L _ H1).
+      - <span class="nb">change</span> (
+          colimOfArrows ColimCocone_L_R_R ColimCocone_L_R _ lemma_R_R_to_R_nat2
+          · colimOfArrows ColimCocone_L_R ColimCocone_L _ (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">e</span>, pr2 (dmor F e))
+          = colimOfArrows ColimCocone_L_R_R ColimCocone_L _ H1
+        );
+        use colimOfArrows_comp.
+      - use two_arg_paths_f; <span class="nb">cycle</span> <span class="mi">1</span>.
+        + use proofirrelevance; <span class="kp">do</span> <span class="mi">3</span> (use impred; <span class="nb">intro</span>); use homset_property.
+        + use funextsec; <span class="nb">intro</span> u; use (module_laws_assoc_from_module (pr2 (dob F u))).
+      - <span class="nb">symmetry</span>.
+        <span class="nb">change</span> (
+          colimOfArrows ColimCocone_L_R_R ColimCocone_L_R _ lemma_R_R_to_R_nat
+          · colimOfArrows ColimCocone_L_R ColimCocone_L _ (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">e</span>, pr2 (dmor F e))
+          = colimOfArrows ColimCocone_L_R_R ColimCocone_L _ H2
+        );
+        use colimOfArrows_comp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">colim_module</span> : module L
+      := make_module p colim_module_unit colim_module_assoc.
+
+    <span class="kn">Definition</span> <span class="nf">colim_module_cocone</span> : cocone F (L,, colim_module).
+    <span class="kn">Proof</span>.
+      use make_cocone.
+      - <span class="nb">intro</span> u; <span class="k">exists</span> (<span class="nv">f</span> <span class="nv">u</span>); use colim_module_mor.
+      - <span class="nb">intros</span> u v e.
+        <span class="nb">apply</span> MOD_mor_eq.
+        <span class="nb">change</span> (dmor F' e · f v = f u); use colimInCommutes.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">colim_module_colimArrow_is_module_mor</span> (<span class="nv">M</span> : MOD) (<span class="nv">cc'</span> : cocone F M)
+      : is_module_mor colim_module (pr2 M)
+        (colimArrow (colims_g F') (pr1 M) (mapcocone forgetful F cc')).
+    <span class="kn">Proof</span>.
+      use (colimArrowUnique' ColimCocone_L_R).
+      <span class="nb">intro</span> u; <span class="nb">cbn</span>; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">symmetry</span>; etrans; etrans.
+      - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); use colim_module_mor.
+      - <span class="nb">rewrite</span> &lt;- assoc; use maponpaths; [|use colimArrowCommutes].
+      - <span class="nb">symmetry</span>; use (pr2 (coconeIn cc' u)).
+      - <span class="nb">symmetry</span>; <span class="nb">rewrite</span> &lt;- (bifunctor_rightcomp C).
+        use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)); use maponpaths.
+        use (colimArrowCommutes _ _ (mapcocone forgetful _ cc')).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">FixACocone</span>.
+      <span class="kn">Context</span> (<span class="nv">M</span> : MOD).
+      <span class="kn">Context</span> (<span class="nv">cc'</span> : cocone F M).
+
+      <span class="kn">Definition</span> <span class="nf">colim_module_colimArrow</span>
+        : MOD⟦(L ,, colim_module) , M⟧.
+      <span class="kn">Proof</span>.
+        use tpair; [use colimArrow; <span class="bp">now</span> use mapcocone|].
+        use colim_module_colimArrow_is_module_mor.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">colim_module_colimArrow_is_cocone_mor</span>
+        : is_cocone_mor colim_module_cocone cc' colim_module_colimArrow.
+      <span class="kn">Proof</span>.
+        <span class="nb">intro</span> u; <span class="nb">apply</span> MOD_mor_eq; use (colimArrowCommutes _ _ (mapcocone forgetful _ cc')).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Context</span> (<span class="nv">pair</span> : ∑ (u: MOD⟦(L ,, colim_module), M⟧),
+            is_cocone_mor colim_module_cocone cc' u).
+
+      <span class="kn">Let</span> <span class="nf">u</span> : MOD⟦(L ,, colim_module), M⟧ := pr1 pair.
+      <span class="kn">Let</span> <span class="nf">H</span> : is_cocone_mor colim_module_cocone cc' u := pr2 pair.
+
+      <span class="kn">Lemma</span> <span class="nf">colim_module_colimArrow_unique</span>
+        : u = colim_module_colimArrow.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> MOD_mor_eq; use colimArrowUnique; <span class="nb">intro</span> v; <span class="nb">cbn</span>.
+        <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- H.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">colim_module_colimArrow_uniqueness</span>
+        : pair = (colim_module_colimArrow ,, colim_module_colimArrow_is_cocone_mor).
+      <span class="kn">Proof</span>.
+        use subtypePath.
+        use isaprop_is_cocone_mor.
+        use colim_module_colimArrow_unique.
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">FixACocone</span>.
+
+    <span class="kn">Definition</span> <span class="nf">colim_module_isColimCocone</span>
+      : isColimCocone F (L,, colim_module) colim_module_cocone
+      := <span class="k">λ</span> <span class="nv">M</span> <span class="nv">cc'</span>, _ ,, colim_module_colimArrow_uniqueness M cc'.
+
+    <span class="kn">Definition</span> <span class="nf">colim_module_ColimCocone</span> : ColimCocone F.
+    <span class="kn">Proof</span>.
+      use make_ColimCocone.
+      - <span class="k">exists</span> <span class="nv">L</span>; use colim_module.
+      - use colim_module_cocone.
+      - use colim_module_isColimCocone.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Colimits</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">MOD_inherits_colimits</span> (<span class="nv">g</span> : graph) (<span class="nv">_</span> : Colims_of_shape g C)
+    (<span class="nv">_</span> : preserves_colimits_of_shape (rightwhiskering_functor C R) g)
+    : Colims_of_shape g MOD.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> use colim_module_ColimCocone.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">     4. Limits in MOD R are inherited from colimits in C</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Section</span> <span class="nf">limits</span>.
+    <span class="kn">Context</span> {<span class="nv">g</span> : graph}.
+    <span class="kn">Context</span> (<span class="nv">lims_g</span> : Lims_of_shape g C).
+
+    <span class="kn">Context</span> (<span class="nv">F</span> : diagram g MOD).
+
+    <span class="kn">Let</span> <span class="nf">F'</span> := mapdiagram forgetful F : diagram g C.
+    <span class="kn">Let</span> <span class="nf">L</span> : C := pr11 (lims_g F').
+    <span class="kn">Let</span> <span class="nf">cc</span> : cone F' L := pr21 (lims_g F').
+    <span class="kn">Let</span> <span class="nf">c</span> : isLimCone F' L cc := pr2 (lims_g F').
+
+    <span class="kn">Let</span> <span class="nf">q</span> (<span class="nv">v</span> : vertex g): module_subst (dob F' v) := pr12 (dob F v).
+    <span class="kn">Let</span> <span class="nf">f</span> (<span class="nv">v</span> : vertex g): L --&gt; dob F' v := limOut _ v.
+
+    <span class="kn">Local Lemma</span> <span class="nf">lim_module_forms_cone_tens_R</span>
+      : forms_cone F' (<span class="k">λ</span> <span class="nv">v</span>, f v ⊗r R · q v).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> u v e.
+      <span class="nb">symmetry</span>; etrans.
+      - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ⊗r _ · _) _).
+        <span class="nb">unfold</span> f; <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (limOutCommutes _ _ _ e).
+      - <span class="nb">rewrite</span> (bifunctor_rightcomp C), &lt;- assoc, &lt;- assoc.
+        use maponpaths; use (pr2 (dmor F e)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">lim_module_subst</span> : module_subst L
+      := limArrow _ _ (make_cone _ lim_module_forms_cone_tens_R).
+
+    <span class="kn">Local Lemma</span> <span class="nf">lim_module_forms_cone_tens_I</span>
+      : forms_cone F' (<span class="k">λ</span> <span class="nv">v</span>, f v ⊗r I_{ C} · dob F' v ⊗l η · q v).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> u v e.
+      etrans; [etrans|]; <span class="nb">swap</span> <span class="mi">2</span> <span class="mi">3</span>.
+      - <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · _ · x) _).
+        use (pr2 (dmor F e)).
+      - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ⊗r _ · _ · _) _).
+        use (limOutCommutes _ _ _ e).
+      - <span class="nb">rewrite</span> (bifunctor_rightcomp C).
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- assoc; use maponpaths.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> @tensor_mor_left, @tensor_mor_right; use tensor_swap'.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">lim_module_unit</span>
+      : module_laws_unit lim_module_subst.
+    <span class="kn">Proof</span>.
+      etrans.
+      - use limArrowUnique.
+        use (make_cone _ lim_module_forms_cone_tens_I).
+        <span class="nb">intro</span> u; <span class="nb">unfold</span> lim_module_subst; <span class="nb">cbn</span>; etrans.
+        + <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+          use (limArrowCommutes (lims_g F')).
+        + <span class="nb">cbn</span>; <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> @tensor_mor_left, @tensor_mor_right; use tensor_swap'.
+      - <span class="nb">symmetry</span>; use limArrowUnique; <span class="nb">intro</span> u; <span class="nb">cbn</span>; <span class="nb">symmetry</span>; etrans.
+        + <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+          use module_laws_unit_from_module.
+        + use monoidal_rightunitornat.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">lim_module_forms_cone_tens_R_R</span>
+      : forms_cone F' (<span class="k">λ</span> <span class="nv">v</span>, (f v ⊗r R) ⊗r R · q v ⊗r R · q v).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> u v e; <span class="nb">symmetry</span>; etrans; [etrans|].
+      - <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x ⊗r R) ⊗r R · _ · _) _).
+        use (limOutCommutes _ _ _ e).
+      - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (bifunctor_rightcomp C).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+        <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+        <span class="nb">rewrite</span> &lt;- @bifunctor_rightcomp; <span class="nb">refine</span> (maponpaths _ _).
+        use (pr2 (dmor F e)).
+      - <span class="nb">rewrite</span> bifunctor_rightcomp;
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- assoc;
+        <span class="kp">do</span> <span class="mi">2</span> use maponpaths.
+        use (pr2 (dmor F e)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">lim_module_assoc</span>
+      : module_laws_assoc lim_module_subst.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> module_laws_assoc; <span class="nb">symmetry</span>; etrans.
+      - use limArrowUnique.
+        use (make_cone _ lim_module_forms_cone_tens_R_R).
+        <span class="nb">intro</span> u; <span class="nb">unfold</span> lim_module_subst; <span class="nb">cbn</span>; etrans.
+        + <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+          use (limArrowCommutes (lims_g F')).
+        + <span class="nb">cbn</span>; <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (bifunctor_rightcomp C).
+          use maponpaths; use (limArrowCommutes (lims_g F')).
+      - <span class="nb">symmetry</span>; use limArrowUnique; <span class="nb">intro</span> u; <span class="nb">cbn</span>.
+        <span class="nb">symmetry</span>; <span class="kp">do</span> <span class="mi">2</span> etrans; <span class="nb">swap</span> <span class="mi">3</span> <span class="mi">4</span>.
+        + <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+          <span class="nb">symmetry</span>; use module_laws_assoc_from_module.
+        + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _) _).
+          <span class="nb">symmetry</span>; use monoidal_associatornatright.
+        + <span class="nb">symmetry</span>; <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+          use (limArrowCommutes (lims_g F')).
+        + <span class="nb">cbn</span>.
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- assoc; use maponpaths.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> @tensor_mor_right, @tensor_mor_left; use tensor_swap.
+    <span class="kn">Qed</span>.
+
+
+    <span class="kn">Definition</span> <span class="nf">lim_module</span> : module L
+      := make_module lim_module_subst lim_module_unit lim_module_assoc.
+
+    <span class="kn">Lemma</span> <span class="nf">lim_module_cone</span> : cone F (L ,, lim_module).
+    <span class="kn">Proof</span>.
+      use make_cone.
+      - <span class="nb">intro</span> v; <span class="k">exists</span> (<span class="nv">f</span> <span class="nv">v</span>).
+        <span class="kp">abstract</span> (
+          <span class="nb">cbn</span>; <span class="nb">unfold</span> is_module_mor; <span class="nb">symmetry</span>;
+          use (limArrowCommutes (lims_g F'))
+        ).
+      - <span class="kp">abstract</span>(
+          <span class="nb">intros</span> u v e; <span class="nb">apply</span> MOD_mor_eq; use limOutCommutes).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">lim_module_limArrow_is_module_mor</span> (<span class="nv">M</span> : MOD) (<span class="nv">cc'</span> : cone F M)
+      : is_module_mor (pr2 M) lim_module
+        (limArrow (lims_g F') (pr1 M) (mapcone forgetful F cc')).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_module_mor; <span class="nb">cbn</span>; etrans.
+      - use limArrowUnique; [use make_cone|].
+        + <span class="nb">intro</span> v; use (module_to_module_subst (pr2 M) · pr1 (coneOut cc' v)).
+        + <span class="kp">abstract</span> (
+            <span class="nb">intros</span> u v e; <span class="nb">rewrite</span> &lt;- assoc; use maponpaths;
+            <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (coneOutCommutes _ _ _ e)
+          ).
+        + <span class="nb">intro</span> u; <span class="nb">cbn</span>; etrans; [etrans|].
+          * <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+            use (limArrowCommutes (lims_g F')).
+          * <span class="nb">cbn</span>; <span class="nb">rewrite</span> assoc, &lt;- (bifunctor_rightcomp C);
+            <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ⊗r R · _) _).
+            use (limArrowCommutes (lims_g F')).
+          * use (pr2 (coneOut cc' _)).
+      - <span class="nb">symmetry</span>; use limArrowUnique; <span class="nb">intro</span> u; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- assoc; use maponpaths.
+        use (limArrowCommutes (lims_g F')).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">FixACone</span>.
+
+      <span class="kn">Context</span> (<span class="nv">M</span> : MOD).
+      <span class="kn">Context</span> (<span class="nv">cc'</span> : cone F M).
+
+      <span class="kn">Definition</span> <span class="nf">lim_module_limArrow</span>
+        : MOD⟦M, (L ,, lim_module)⟧.
+      <span class="kn">Proof</span>.
+        use tpair; [use limArrow; <span class="bp">now</span> use mapcone|].
+        use lim_module_limArrow_is_module_mor.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">lim_module_limArrow_is_cone_mor</span>
+        : is_cone_mor cc' lim_module_cone lim_module_limArrow.
+      <span class="kn">Proof</span>.
+        <span class="nb">intro</span> v.
+        <span class="nb">apply</span> MOD_mor_eq.
+        use (limArrowCommutes (lims_g F')).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Context</span> (<span class="nv">pair</span> : ∑ (u: MOD⟦M, (L ,, lim_module)⟧),
+            is_cone_mor cc' lim_module_cone u).
+
+      <span class="kn">Let</span> <span class="nf">u</span> : MOD⟦M, (L ,, lim_module)⟧ := pr1 pair.
+      <span class="kn">Let</span> <span class="nf">H</span> : is_cone_mor cc' lim_module_cone u := pr2 pair.
+
+      <span class="kn">Lemma</span> <span class="nf">lim_module_limArrow_unique</span>
+        : u = lim_module_limArrow.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> MOD_mor_eq.
+        use limArrowUnique; <span class="nb">intro</span> v; <span class="nb">cbn</span>.
+        <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- H.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">lim_module_limArrow_uniqueness</span>
+        : pair = (lim_module_limArrow ,, lim_module_limArrow_is_cone_mor).
+      <span class="kn">Proof</span>.
+        use subtypePath.
+        use isaprop_is_cone_mor.
+        use lim_module_limArrow_unique.
+      <span class="kn">Qed</span>.
+
+    <span class="kn">End</span> <span class="nf">FixACone</span>.
+
+    <span class="kn">Definition</span> <span class="nf">lim_module_isLimCone</span>
+      : isLimCone F (L,, lim_module) lim_module_cone
+      := <span class="k">λ</span> <span class="nv">M</span> <span class="nv">cc'</span>, _ ,, lim_module_limArrow_uniqueness M cc'.
+
+    <span class="kn">Definition</span> <span class="nf">lim_module_LimCone</span> : LimCone F.
+    <span class="kn">Proof</span>.
+      use make_LimCone.
+      - <span class="nb">eexists</span>; <span class="bp">exact</span> lim_module.
+      - use lim_module_cone.
+      - use lim_module_isLimCone.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">limits</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">MOD_inherits_limits</span> (<span class="nv">g</span> : graph) (<span class="nv">_</span> : Lims_of_shape g C)
+    : Lims_of_shape g MOD.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> use lim_module_LimCone.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">RModules</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/RModules.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ***************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

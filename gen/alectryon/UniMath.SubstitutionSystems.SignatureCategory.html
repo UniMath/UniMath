@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SignatureCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">Definition of the category of signatures with strength ([Signature_category]) with</span>
+
+<span class="sd">- Binary products ([BinProducts_Signature_category])</span>
+<span class="sd">- Coproducts ([Coproducts_Signature_category])</span>
+
+<span class="sd">Written by: Anders Mörtberg in October 2016 based on a note of Benedikt Ahrens.</span>
+
+<span class="sd">In 2021 obtained by Ralph Matthes from the Structure Identity Principle through a displayed category, hence allowing for a short proof of univalence.</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctorsComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.<span class="kn">Notation</span>.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subsys.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.SIP.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.BinProductOfSignatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SumOfSignatures.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[ C , D ]"</span> := (functor_category C D).
+
+<span class="sd">(** * The category of signatures with strength *)</span>
+<span class="kn">Section</span> <span class="nf">SignatureCategory</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">D'</span>: category).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'U'"</span> := (functor_ptd_forget C).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'Ptd'"</span> := (category_Ptd C).
+
+<span class="sd">(** Define the commutative diagram used in the morphisms *)</span>
+<span class="kn">Section</span> <span class="nf">Signature_category_mor</span>.
+
+<span class="kn">Context</span> (<span class="nv">Ht</span> <span class="nv">Ht'</span> : Signature C D D').
+
+<span class="kn">Let</span> <span class="nf">H</span> := Signature_Functor Ht.
+<span class="kn">Let</span> <span class="nf">H'</span> := Signature_Functor Ht'.
+<span class="kn">Let</span> <span class="nf">θ</span> : PrestrengthForSignature Ht := theta Ht.
+<span class="kn">Let</span> <span class="nf">θ'</span> : PrestrengthForSignature Ht' := theta Ht'.
+
+<span class="kn">Context</span> (<span class="nv">α</span> : nat_trans H H').
+
+<span class="kn">Section</span> <span class="nf">Signature_category_mor_diagram</span>.
+
+<span class="kn">Context</span> (<span class="nv">X</span> : [C,D']) (<span class="nv">Y</span> : Ptd).
+
+<span class="kn">Let</span> <span class="nf">f1</span> : [C,D] ⟦H X • U Y,H (X • U Y)⟧ := θ (X,,Y).
+<span class="kn">Let</span> <span class="nf">f2</span> : [C,D] ⟦H (X • U Y),H' (X • U Y)⟧ := α (X • U Y).
+
+<span class="kn">Let</span> <span class="nf">g1</span> : [C,D] ⟦H X • U Y,H' X • U Y⟧ := α X ⋆ identity (U Y).
+<span class="kn">Let</span> <span class="nf">g2</span> : [C,D] ⟦H' X • U Y,H' (X • U Y)⟧ := θ' (X,,Y).
+
+<span class="kn">Definition</span> <span class="nf">Signature_category_mor_diagram</span> : UU := f1 · f2 = g1 · g2.
+
+<span class="sd">(** Special comparison lemma that speeds things up a lot *)</span>
+<span class="kn">Lemma</span> <span class="nf">Signature_category_mor_diagram_pointwise</span>
+  (<span class="nv">Hc</span> : ∏ c, pr1 f1 c · pr1 f2 c = pr1 (α X) ((pr1 Y) c) · pr1 g2 c) :
+   Signature_category_mor_diagram.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>. <span class="nb">unfold</span> horcomp_data; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> functor_id, id_right; <span class="nb">apply</span> (Hc c).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Signature_category_mor_diagram</span>.
+
+<span class="kn">Definition</span> <span class="nf">quantified_signature_category_mor_diagram</span> : UU := ∏ X Y, Signature_category_mor_diagram X Y.
+
+<span class="kn">End</span> <span class="nf">Signature_category_mor</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">SignatureMor_id_subproof</span> (<span class="nv">Ht</span> : Signature C D D') <span class="nv">X</span> <span class="nv">Y</span> :
+  Signature_category_mor_diagram Ht Ht (nat_trans_id Ht) X Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> Signature_category_mor_diagram_pointwise; <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">SignatureMor_comp_subproof</span> (<span class="nv">Ht1</span> <span class="nv">Ht2</span> <span class="nv">Ht3</span> : Signature C D D')
+           (<span class="nv">α</span> : nat_trans Ht1 Ht2) (<span class="nv">β</span> : nat_trans Ht2 Ht3):
+  quantified_signature_category_mor_diagram Ht1 Ht2 α -&gt;
+  quantified_signature_category_mor_diagram Ht2 Ht3 β -&gt;
+  quantified_signature_category_mor_diagram Ht1 Ht3 (nat_trans_comp α β).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hα Hβ X Y.
+  <span class="nb">unfold</span> quantified_signature_category_mor_diagram <span class="k">in</span> *|-.
+  <span class="nb">unfold</span> Signature_category_mor_diagram <span class="k">in</span> *; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> (assoc ((theta Ht1) (X,,Y))).
+  etrans; [<span class="nb">apply</span> (cancel_postcomposition ((theta Ht1) (X,,Y) · _)), Hα|].
+  <span class="nb">rewrite</span> &lt;- assoc; etrans; [<span class="nb">apply</span> maponpaths, Hβ|].
+  <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> (cancel_postcomposition (C:=[C,D]) _  (_ ⋆ identity (U Y))).
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>. <span class="nb">unfold</span> horcomp_data; <span class="nb">simpl</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> assoc, !functor_id, !id_right.
+<span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Signature_category_displayed</span> : disp_cat [[C,D'],[C,D]].
+  <span class="kn">Proof</span>.
+    use disp_cat_from_SIP_data.
+    - <span class="nb">intro</span> H.
+      <span class="bp">exact</span> (@StrengthForSignature C D D' H).
+    - <span class="nb">intros</span> H1 H2 str1 str2 α.
+      <span class="bp">exact</span> (quantified_signature_category_mor_diagram (H1,,str1) (H2,,str2) α).
+    - <span class="nb">intros</span> H1 H2 str1 str2 α.
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+      <span class="nb">apply</span> functor_category_has_homsets.
+    - <span class="nb">intros</span> H a X Z.
+      <span class="nb">apply</span> SignatureMor_id_subproof.
+    - <span class="nb">intros</span> H1 H2 H3 str1 str2 str3 a1 a2 a1mor a2mor. <span class="nb">simpl</span> <span class="k">in</span> a1mor, a2mor.
+      <span class="nb">simpl</span>.
+      <span class="bp">exact</span> (SignatureMor_comp_subproof (H1,,str1) (H2,,str2) (H3,,str3) a1 a2 a1mor a2mor).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Signature_category</span> : category := total_category Signature_category_displayed.
+
+  <span class="kn">Lemma</span> <span class="nf">Signature_category_ob_ok</span> : ob Signature_category = Signature C D D'.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* what would be the right source class for the following coercion?</span>
+<span class="c">  Definition Signature_category_ob_to_functor_data (sig : Signature_category) :</span>
+<span class="c">    functor_data [C, D', hsD'] [C, D, hsD]</span>
+<span class="c">    := pr1 (pr1 sig).</span>
+<span class="c">  Coercion Signature_category_ob_to_functor_data : Signature_category &gt;-&gt; functor_data.</span>
+<span class="c">*)</span>
+
+  <span class="kn">Definition</span> <span class="nf">SignatureMor</span> : Signature C D D' → Signature C D D' → UU.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (precategory_ob_mor_from_precategory_data Signature_category)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">SignatureMor_ok</span> (<span class="nv">Ht</span> <span class="nv">Ht'</span> : Signature C D D') :
+    SignatureMor Ht Ht' = total2 (quantified_signature_category_mor_diagram Ht Ht').
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">SignatureMor_to_nat_trans</span> (<span class="nv">Ht</span> <span class="nv">Ht'</span> : Signature C D D') :
+    SignatureMor Ht Ht' -&gt; Ht ⟹ Ht'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> f.
+    <span class="bp">exact</span> (pr1 f).
+  <span class="kn">Defined</span>.
+  <span class="kn">Coercion</span> <span class="nf">SignatureMor_to_nat_trans</span> : SignatureMor &gt;-&gt; nat_trans.
+
+  <span class="kn">Lemma</span> <span class="nf">SignatureMor_eq</span> (<span class="nv">Ht</span> <span class="nv">Ht'</span> : Signature C D D') (<span class="nv">f</span> <span class="nv">g</span> : SignatureMor Ht Ht') :
+    (pr1 f: pr1 Ht ⟹ pr1 Ht') = (pr1 g: pr1 Ht ⟹ pr1 Ht') -&gt; f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    <span class="nb">apply</span> subtypePath; <span class="nb">trivial</span>.
+    <span class="bp">now</span> <span class="nb">intros</span> α; <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> functor_category_has_homsets.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">SignatureForgetfulFunctor</span> : functor Signature_category [[C,D'],[C,D]].
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use tpair.
+      + <span class="nb">intros</span> F; <span class="nb">apply</span> (Signature_Functor F).
+      + <span class="nb">intros</span> F G α; <span class="nb">apply</span> α.
+    - <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">split</span>).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">SignatureForgetfulFunctorFaithful</span> : faithful SignatureForgetfulFunctor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F G.
+    <span class="nb">apply</span> isinclbetweensets.
+    + <span class="nb">apply</span> Signature_category.
+    + <span class="nb">apply</span> functor_category_has_homsets.
+    + <span class="nb">apply</span> SignatureMor_eq.
+  <span class="kn">Qed</span>.
+
+<span class="sd">(** towards univalence *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">Signature_category_Pisset</span> (<span class="nv">H</span> : [[C, D'], [C, D]]) : isaset (@StrengthForSignature C D D' H).
+  <span class="kn">Proof</span>.
+    <span class="nb">change</span> isaset <span class="k">with</span> (isofhlevel <span class="mi">2</span>).
+    <span class="nb">apply</span> isofhleveltotal2.
+    { <span class="nb">apply</span> (functor_category_has_homsets ([C, D'] ⊠ category_Ptd C) ([C, D]) (functor_category_has_homsets _ _ _)). }
+    <span class="nb">intro</span> θ.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isaprop_θ_Strength1_int.
+    + <span class="nb">apply</span> isaprop_θ_Strength2_int.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Signature_category_Hstandard</span> (<span class="nv">H</span> : [[C, D'], [C, D]]) (<span class="nv">a</span> <span class="nv">a'</span> : @StrengthForSignature C D D' H) :
+  (∏ (X : [C, D']) (Y : category_Ptd C),
+  Signature_category_mor_diagram (H,, a) (H,, a') (identity H) X Y)
+ → (∏ (X : [C, D']) (Y : category_Ptd C),
+    Signature_category_mor_diagram (H,, a') (H,, a) (identity H) X Y)
+ → a = a'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> leq geq.
+    <span class="nb">apply</span> StrengthForSignature_eq.
+    <span class="nb">apply</span> (nat_trans_eq (functor_category_has_homsets _ _ _)).
+    <span class="nb">intro</span> XZ.
+    <span class="nb">assert</span> (leqinst := leq (pr1 XZ) (pr2 XZ)).
+    <span class="c">(* assert (geqinst := geq (pr1 XZ) (pr2 XZ)). *)</span>
+    <span class="nb">clear</span> leq geq.
+    <span class="nb">red</span> <span class="k">in</span> leqinst.
+    <span class="nb">unfold</span> theta <span class="k">in</span> leqinst.
+    etrans.
+    { <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_right. }
+    etrans.
+    { <span class="bp">exact</span> leqinst. }
+    <span class="nb">clear</span> leqinst.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> id_left. }
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property |].
+    <span class="nb">intro</span> c.
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> horcomp_data; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_Signature_category_displayed</span> : is_univalent_disp Signature_category_displayed.
+  <span class="kn">Proof</span>.
+    use is_univalent_disp_from_SIP_data.
+    - <span class="bp">exact</span> Signature_category_Pisset.
+    - <span class="bp">exact</span> Signature_category_Hstandard.
+  <span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">SignatureCategory</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_Signature_category</span> (<span class="nv">C</span> : category) (<span class="nv">D</span>: univalent_category) (<span class="nv">D'</span> : category) :
+  is_univalent (Signature_category C D D').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> SIP.
+  - <span class="bp">exact</span> (is_univalent_functor_category [C, D'] _ (is_univalent_functor_category C D (pr2 D))).
+  - <span class="nb">apply</span> Signature_category_Pisset.
+  - <span class="nb">apply</span> Signature_category_Hstandard.
+<span class="kn">Defined</span>.
+
+
+
+<span class="sd">(** * Binary products in the category of signatures *)</span>
+<span class="kn">Section</span> <span class="nf">BinProducts</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category) (<span class="nv">BC</span> : BinProducts C) (<span class="nv">D</span> : category) (<span class="nv">BD</span> : BinProducts D) (<span class="nv">D'</span> : category).
+
+<span class="kn">Local Definition</span> <span class="nf">BCD</span> : BinProducts [[C,D'],[C,D]].
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> BinProducts_functor_precat, (BinProducts_functor_precat C _ BD).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">Signature_category_pr1_diagram</span> (<span class="nv">Ht1</span> <span class="nv">Ht2</span> : Signature C D D') <span class="nv">X</span> <span class="nv">Y</span> :
+  Signature_category_mor_diagram _ _ _ (BinProduct_of_Signatures _ _ _ _ Ht1 Ht2) _
+    (BinProductPr1 _ (BCD _ _)) X Y.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> Signature_category_mor_diagram_pointwise; <span class="nb">intro</span> c; <span class="nb">apply</span> BinProductOfArrowsPr1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">Signature_category_pr1</span> (<span class="nv">Ht1</span> <span class="nv">Ht2</span> : Signature C D D') :
+  SignatureMor C D D' (BinProduct_of_Signatures C D D' BD Ht1 Ht2) Ht1.
+<span class="kn">Proof</span>.
+use tpair.
++ <span class="nb">apply</span> (BinProductPr1 _ (BCD (pr1 Ht1) (pr1 Ht2))).
++ <span class="nb">cbn</span>. <span class="nb">intros</span> X Y. <span class="nb">apply</span> Signature_category_pr1_diagram.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">Signature_category_pr2_diagram</span> (<span class="nv">Ht1</span> <span class="nv">Ht2</span> : Signature C D D' ) <span class="nv">X</span> <span class="nv">Y</span> :
+  Signature_category_mor_diagram _ _ _ (BinProduct_of_Signatures _ _ _ _ Ht1 Ht2) _
+    (BinProductPr2 _ (BCD _ _)) X Y.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> Signature_category_mor_diagram_pointwise; <span class="nb">intro</span> c; <span class="nb">apply</span> BinProductOfArrowsPr2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">Signature_category_pr2</span> (<span class="nv">Ht1</span> <span class="nv">Ht2</span> : Signature C D D' ) :
+  SignatureMor C D D' (BinProduct_of_Signatures C D D' BD Ht1 Ht2) Ht2.
+<span class="kn">Proof</span>.
+use tpair.
++ <span class="nb">apply</span> (BinProductPr2 _ (BCD (pr1 Ht1) (pr1 Ht2))).
++ <span class="nb">cbn</span>. <span class="nb">intros</span> X Y. <span class="nb">apply</span> Signature_category_pr2_diagram.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">BinProductArrow_diagram</span> <span class="nv">Ht1</span> <span class="nv">Ht2</span> <span class="nv">Ht3</span>
+  (<span class="nv">F</span> : SignatureMor C D D' Ht3 Ht1) (<span class="nv">G</span> : SignatureMor C D D' Ht3 Ht2) <span class="nv">X</span> <span class="nv">Y</span> :
+  Signature_category_mor_diagram _ _ _ _ (BinProduct_of_Signatures _ _ _ _ Ht1 Ht2)
+    (BinProductArrow _ (BCD _ _) (pr1 F) (pr1 G)) X Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> Signature_category_mor_diagram_pointwise; <span class="nb">intro</span> c.
+  <span class="nb">apply</span> pathsinv0.
+  etrans; [ <span class="nb">apply</span> postcompWithBinProductArrow |].
+  <span class="nb">apply</span> pathsinv0, BinProductArrowUnique; <span class="nb">rewrite</span> &lt;- assoc.
+  + etrans; [ <span class="nb">apply</span> maponpaths, BinProductPr1Commutes |].
+  etrans; [ <span class="nb">apply</span> (nat_trans_eq_pointwise (pr2 F X Y) c) |].
+  <span class="bp">now</span> etrans; [ <span class="nb">apply</span> cancel_postcomposition, horcomp_id_left |].
++ etrans; [ <span class="nb">apply</span> maponpaths, BinProductPr2Commutes |].
+  etrans; [ <span class="nb">apply</span> (nat_trans_eq_pointwise (pr2 G X Y) c) |].
+  <span class="bp">now</span> etrans; [ <span class="nb">apply</span> cancel_postcomposition, horcomp_id_left |].
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">isBinProduct_Signature_category</span> (<span class="nv">Ht1</span> <span class="nv">Ht2</span> : Signature C D D') :
+  isBinProduct (Signature_category C D D') Ht1 Ht2
+                   (BinProduct_of_Signatures C D D' BD Ht1 Ht2)
+                   (Signature_category_pr1 Ht1 Ht2) (Signature_category_pr2 Ht1 Ht2).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_isBinProduct.
+  <span class="nb">intros</span> Ht3 F G.
+  use unique_exists.
+  - <span class="nb">apply</span> (tpair _ (BinProductArrow _ (BCD (pr1 Ht1) (pr1 Ht2)) (pr1 F) (pr1 G))).
+    <span class="nb">intros</span> X Y. <span class="nb">apply</span> BinProductArrow_diagram.
+  - <span class="kp">abstract</span> (<span class="nb">split</span>;
+              [ <span class="nb">apply</span> SignatureMor_eq, (BinProductPr1Commutes _ _ _ (BCD  _ _))
+              | <span class="nb">apply</span> SignatureMor_eq, (BinProductPr2Commutes _ _ _ (BCD  _ _))]).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> X; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> Signature_category).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> X H1H2; <span class="nb">apply</span> SignatureMor_eq; <span class="nb">simpl</span>;
+              <span class="nb">apply</span> (BinProductArrowUnique _ _ _ (BCD  _ _));
+              [ <span class="nb">apply</span> (maponpaths pr1 (pr1 H1H2)) | <span class="nb">apply</span> (maponpaths pr1 (pr2 H1H2)) ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BinProducts_Signature_category</span> : BinProducts (Signature_category C D D').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Ht1 Ht2.
+  use make_BinProduct.
+  - <span class="nb">apply</span> (BinProduct_of_Signatures _ _ _ BD Ht1 Ht2).
+  - <span class="nb">apply</span> Signature_category_pr1.
+  - <span class="nb">apply</span> Signature_category_pr2.
+  - <span class="nb">apply</span> isBinProduct_Signature_category.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BinProducts</span>.
+
+<span class="sd">(** * Coproducts in the category of signatures *)</span>
+<span class="kn">Section</span> <span class="nf">Coproducts</span>.
+
+<span class="kn">Context</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">D'</span> : category) (<span class="nv">CD</span> : Coproducts I D).
+
+<span class="kn">Local Definition</span> <span class="nf">CCD</span> : Coproducts I [[C,D'],[C,D]].
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="kp">repeat</span> <span class="nb">apply</span> Coproducts_functor_precat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">Signature_category_in_diagram</span> (<span class="nv">Ht</span> : I → Signature_category C D D') <span class="nv">i</span> <span class="nv">X</span> <span class="nv">Y</span> :
+  Signature_category_mor_diagram _ _ _ _ (Sum_of_Signatures I C _ _ CD Ht)
+    (CoproductIn _ _ (CCD (<span class="k">λ</span> <span class="nv">j</span> : I, pr1 (Ht j))) i) X Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> Signature_category_mor_diagram_pointwise; <span class="nb">intro</span> c.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">set</span> (C1 := CD (<span class="k">λ</span> <span class="nv">j</span>, pr1 (pr1 (pr1 (Ht j)) X) ((pr1 Y) c))).
+  <span class="nb">set</span> (C2 := CD (<span class="k">λ</span> <span class="nv">j</span>, pr1 (pr1 (pr1 (Ht j)) (functor_composite (pr1 Y) X)) c)).
+  <span class="nb">apply</span> (@CoproductOfArrowsIn I D _ C1 _ C2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">Signature_category_in</span> (<span class="nv">Ht</span> : I → Signature_category C D D') (<span class="nv">i</span> : I) :
+  SignatureMor C D D' (Ht i) (Sum_of_Signatures I C D D' CD Ht).
+<span class="kn">Proof</span>.
+  use tpair.
+  + <span class="nb">apply</span> (CoproductIn _ _ (CCD (<span class="k">λ</span> <span class="nv">j</span>, pr1 (Ht j))) i).
+  + <span class="nb">cbn</span>. <span class="nb">intros</span> X Y. <span class="nb">apply</span> Signature_category_in_diagram.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductArrow_diagram</span> (<span class="nv">Hti</span> : I → Signature_category C D D')
+  (<span class="nv">Ht</span> : Signature C D D') (<span class="nv">F</span> : ∏ i : I, SignatureMor C D D' (Hti i) Ht) <span class="nv">X</span> <span class="nv">Y</span> :
+  Signature_category_mor_diagram C D D' (Sum_of_Signatures I C D D' CD Hti) Ht
+    (CoproductArrow I _ (CCD _) (<span class="k">λ</span> <span class="nv">i</span>, pr1 (F i))) X Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> Signature_category_mor_diagram_pointwise; <span class="nb">intro</span> c.
+  etrans; [<span class="nb">apply</span> precompWithCoproductArrow|].
+  <span class="nb">apply</span> pathsinv0, CoproductArrowUnique; <span class="nb">intro</span> i; <span class="nb">rewrite</span> assoc; <span class="nb">simpl</span>.
+  etrans;
+    [<span class="nb">apply</span> cancel_postcomposition, (CoproductInCommutes _ _ _ (CD (<span class="k">λ</span> <span class="nv">j</span>, pr1 (pr1 (pr1 (Hti j)) X) _)))|].
+  <span class="nb">apply</span> pathsinv0; etrans; [<span class="nb">apply</span> (nat_trans_eq_pointwise (pr2 (F i) X Y) c)|].
+  <span class="bp">now</span> etrans; [<span class="nb">apply</span> cancel_postcomposition, horcomp_id_left|].
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">isCoproduct_Signature_category</span> (<span class="nv">Hti</span> : I → Signature_category C D D') :
+  isCoproduct I (Signature_category C D D') _
+    (Sum_of_Signatures I C D D' CD Hti) (Signature_category_in Hti).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (make_isCoproduct _ _ (Signature_category C D D')).
+  <span class="nb">intros</span> Ht F.
+  use unique_exists.
+  + use tpair.
+  - <span class="nb">apply</span> (CoproductArrow I _ (CCD (<span class="k">λ</span> <span class="nv">j</span>, pr1 (Hti j))) (<span class="k">λ</span> <span class="nv">i</span>, pr1 (F i))).
+  - <span class="nb">cbn</span>. <span class="nb">intros</span> X Y. <span class="nb">apply</span> CoproductArrow_diagram.
+    + <span class="kp">abstract</span> (<span class="nb">intro</span> i; <span class="nb">apply</span> SignatureMor_eq, (CoproductInCommutes _ _ _ (CCD (<span class="k">λ</span> <span class="nv">j</span>, pr1 (Hti j))))).
+    + <span class="kp">abstract</span> (<span class="nb">intros</span> X; <span class="nb">apply</span> impred; <span class="nb">intro</span> i; <span class="nb">apply</span> Signature_category).
+    + <span class="kp">abstract</span> (<span class="nb">intros</span> X Hi;  <span class="nb">apply</span> SignatureMor_eq; <span class="nb">simpl</span>;
+                <span class="nb">apply</span> (CoproductArrowUnique _ _ _ (CCD (<span class="k">λ</span> <span class="nv">j</span>, pr1 (Hti j)))); <span class="nb">intro</span> i;
+                <span class="nb">apply</span> (maponpaths pr1 (Hi i))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Coproducts_Signature_category</span> : Coproducts I (Signature_category C D D').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Ht.
+  use make_Coproduct.
+  - <span class="nb">apply</span> (Sum_of_Signatures I _ _ _ CD Ht).
+  - <span class="nb">apply</span> Signature_category_in.
+  - <span class="nb">apply</span> isCoproduct_Signature_category.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Coproducts</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/SignatureCategory.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

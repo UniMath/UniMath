@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RightUnitor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Preservation of the right unitor by the composition of double functors</span>
+
+<span class="sd"> This file is split due to high memory consumption</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.Basics.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Unset</span> Kernel Term Sharing.
+<span class="c">(* this is to reduce the memory consumption of this file *)</span>
+
+<span class="kn">Proposition</span> <span class="nf">comp_functor_runitor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            {<span class="nv">I₃</span> : hor_id D₃}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            {<span class="nv">Cm₃</span> : hor_comp D₃}
+            {<span class="nv">r₁</span> : double_cat_runitor I₁ Cm₁}
+            {<span class="nv">r₂</span> : double_cat_runitor I₂ Cm₂}
+            {<span class="nv">r₃</span> : double_cat_runitor I₃ Cm₃}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+            {<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂}
+            {<span class="nv">GI</span> : double_functor_hor_id GG I₂ I₃}
+            {<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂}
+            {<span class="nv">GC</span> : double_functor_hor_comp GG Cm₂ Cm₃}
+            (<span class="nv">Fl</span> : double_functor_runitor r₁ r₂ FI FC)
+            (<span class="nv">Gl</span> : double_functor_runitor r₂ r₃ GI GC)
+  : double_functor_runitor
+      r₁ r₃
+      (comp_hor_id FI GI)
+      (comp_hor_comp FC GC).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> Gl, Fl.
+  <span class="nb">rewrite</span> transportf_twosided_disp_functor.
+  <span class="nb">rewrite</span> two_disp_post_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> twosided_disp_functor_comp.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> twosided_disp_functor_comp.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp_alt.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc_two_disp.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> assoc_two_disp.
+    <span class="nb">rewrite</span> functor_double_comp_eq_alt.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+  <span class="nb">rewrite</span> two_disp_post_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> &lt;- double_hor_comp_mor_comp.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> twosided_disp_functor_id.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">rewrite</span> assoc_two_disp.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">apply</span> idpath.
+  }
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (double_hor_comp_mor_transportf_disp_mor2_right
+             _
+             (!(id_left _ @ functor_id _ _))).
+  }
+  <span class="nb">rewrite</span> !two_disp_pre_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Core/DoubleFunctor/RightUnitor.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  This file is split due to high memory consumption
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

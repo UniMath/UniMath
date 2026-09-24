@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UnivalenceAxiom.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** The univalence axiom and its consequences *)</span>
+
+<span class="sd">(**</span>
+
+<span class="sd">In this file, we formulate univalence and its consequences, including functional</span>
+<span class="sd">extensionality (the statement that functions with equal values are equal).</span>
+
+<span class="sd">One approach would be to take univalence as the only axiom and to formulate</span>
+<span class="sd">theorems proving the consequences, whose proofs would appeal to the</span>
+<span class="sd">univalence axiom.  We adopt a different approach here, preferring also to</span>
+<span class="sd">introduce axioms for various consequences of univalence.  This allows us to</span>
+<span class="sd">measure how subsequent theorems depend on the axioms using the "Print</span>
+<span class="sd">Assumptions" command of Coq.</span>
+
+<span class="sd">An important point is that the types of all our axioms are propositions, that is</span>
+<span class="sd">types of h-level 1 and once an element of such a type is declared or contructed</span>
+<span class="sd">it becomes a contractible type.</span>
+
+<span class="sd">In particular, the declared element corresponding to the axiom and the element</span>
+<span class="sd">that can be contructed using another, stronger, axiom are connected by a path.</span>
+
+<span class="sd">Proofs that the types of our axioms are propositions will be provided in the</span>
+<span class="sd">file UnivalenceAxiom2.</span>
+
+<span class="sd">We postpone stating the axioms themselves until after all the implications</span>
+<span class="sd">are established; this helps us encourage the use of the axioms for the</span>
+<span class="sd">consequences of univalence, rather than the theorems giving the implications.</span>
+
+<span class="sd">*)</span>
+
+<span class="sd">(** Preliminaries  *)</span>
+
+<span class="kn">Require Export</span> UniMath.Foundations.PartB.
+
+<span class="c">(* everything related to eta correction is obsolete *)</span>
+
+<span class="kn">Definition</span> <span class="nf">eqweqmap</span> { <span class="nv">T1</span> <span class="nv">T2</span> : UU } : T1 = T2 -&gt; T1 ≃ T2.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> e. <span class="nb">induction</span> e. <span class="nb">apply</span> idweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sectohfiber</span> { <span class="nv">X</span> : UU } (<span class="nv">P</span>:X -&gt; UU): (∏ x:X, P x) -&gt; (hfiber (<span class="k">λ</span> <span class="nv">f</span>, <span class="k">λ</span> <span class="nv">x</span>, pr1  (f x)) (<span class="k">λ</span> <span class="nv">x</span>:X, x)) := (<span class="k">fun</span> <span class="nv">a</span> : ∏ x:X, P x =&gt; tpair _ (<span class="k">λ</span> <span class="nv">x</span>, tpair _ x (a x)) (idpath (<span class="k">λ</span> <span class="nv">x</span>:X, x))).
+
+<span class="kn">Definition</span> <span class="nf">hfibertosec</span> { <span class="nv">X</span> : UU } (<span class="nv">P</span>:X -&gt; UU):
+  (hfiber (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">x</span>, pr1 (f x)) (<span class="k">λ</span> <span class="nv">x</span>:X, x)) -&gt; (∏ x:X, P x)
+  := <span class="k">λ</span> <span class="nv">se</span> , <span class="k">λ</span> <span class="nv">x</span>:X, <span class="k">match</span> se <span class="k">as</span> se' <span class="k">return</span> P x <span class="k">with</span> tpair _ s e =&gt; (transportf P (toforallpaths _ (<span class="k">λ</span> <span class="nv">x</span>:X, pr1 (s x)) (<span class="k">λ</span> <span class="nv">x</span>:X, x) e x) (pr2  (s x))) <span class="k">end</span>.
+
+<span class="kn">Definition</span> <span class="nf">sectohfibertosec</span> { <span class="nv">X</span> : UU } (<span class="nv">P</span>:X -&gt; UU):
+  ∏ a : (∏ x:X, P x), hfibertosec _ (sectohfiber _ a) = a.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isweqtransportf10</span> { <span class="nv">X</span> : UU } ( <span class="nv">P</span> : X -&gt; UU ) { <span class="nv">x</span> <span class="nv">x'</span> : X } ( <span class="nv">e</span> :  x = x' ) : isweq ( transportf P e ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> e.  <span class="nb">apply</span> idisweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isweqtransportb10</span> { <span class="nv">X</span> : UU } ( <span class="nv">P</span> : X -&gt; UU ) { <span class="nv">x</span> <span class="nv">x'</span> : X } ( <span class="nv">e</span> :  x = x' ) : isweq ( transportb P e ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> ( isweqtransportf10 _ ( pathsinv0 e ) ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">l1</span>  { <span class="nv">X0</span> <span class="nv">X0'</span> : UU } ( <span class="nv">ee</span> : X0 = X0' ) ( <span class="nv">P</span> : UU -&gt; UU ) ( <span class="nv">pp'</span> : P X0' ) ( <span class="nv">R</span> : ∏ X X' : UU , ∏ w : X ≃ X' , P X' -&gt; P X ) ( <span class="nv">r</span> : ∏ X : UU , ∏ p : P X , paths ( R X X ( idweq X ) p ) p ) : paths ( R X0 X0' ( eqweqmap ee ) pp' ) (  transportb P ee pp' ).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> ee. <span class="nb">simpl</span>. <span class="nb">apply</span> r.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Axiom statements (propositions) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">univalenceStatement</span> := ∏ X Y:UU, isweq (@eqweqmap X Y).
+
+<span class="kn">Definition</span> <span class="nf">funextemptyStatement</span> := ∏ (X:UU) (f g : X-&gt;empty), f = g.
+
+<span class="kn">Definition</span> <span class="nf">propositionalUnivalenceStatement</span> :=
+  ∏ (P Q:UU), isaprop P -&gt; isaprop Q -&gt; (P -&gt; Q) -&gt; (Q -&gt; P) -&gt; P=Q.
+
+<span class="kn">Definition</span> <span class="nf">funcontrStatement</span> :=
+  ∏ (X : UU) (P:X -&gt; UU),
+    (∏ x:X, iscontr (P x)) -&gt; iscontr (∏ x:X, P x).
+
+<span class="kn">Definition</span> <span class="nf">funextcontrStatement</span> :=
+  ∏ (T:UU) (P:T -&gt; UU) (g: ∏ t, P t), <span class="k">∃</span>! (f:∏ t, P t), ∏ t:T, f t = g t.
+
+<span class="kn">Definition</span> <span class="nf">isweqtoforallpathsStatement</span> :=
+  ∏ (T:UU) (P:T -&gt; UU) (f g :∏ t:T, P t), isweq (toforallpaths _ f g).
+
+<span class="sd">(** Axiom consequence statements (not propositions) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">funextsecStatement</span> :=
+  ∏ (T:UU) (P:T -&gt; UU) (f g :∏ t:T, P t), f ~ g -&gt; f = g.
+
+<span class="kn">Definition</span> <span class="nf">funextfunStatement</span> :=
+  ∏ (X Y:UU) (f g : X -&gt; Y), f ~ g -&gt; f = g.
+
+<span class="kn">Definition</span> <span class="nf">weqtopathsStatement</span> := ∏ ( T1 T2 : UU ), T1 ≃ T2 -&gt; T1 = T2.
+
+<span class="kn">Definition</span> <span class="nf">weqpathsweqStatement</span> (<span class="nv">weqtopaths</span>:weqtopathsStatement) :=
+  ∏ ( T1 T2 : UU ) ( w : T1 ≃ T2 ), eqweqmap (weqtopaths _ _ w) = w.
+
+<span class="kn">Definition</span> <span class="nf">weqtoforallpathsStatement</span> :=
+  ∏ (T:UU) (P:T -&gt; UU) (f g :∏ t:T, P t), (f = g) ≃ (f ~ g).
+
+<span class="sd">(** Implications between statements and consequences of them *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">funextsecImplication</span> : isweqtoforallpathsStatement -&gt; funextsecStatement.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> fe ? ? ? ?. <span class="bp">exact</span> (invmap (make_weq _ (fe _ _ f g))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">funextfunImplication</span> : funextsecStatement -&gt; funextfunStatement.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> fe ? ?. <span class="nb">apply</span> fe.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** We show that [ univalenceAxiom ] is equivalent to the axioms [ weqtopathsStatement ] and [ weqpathsweqStatement ] stated below . *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">univfromtwoaxioms</span> :
+  (∑ weqtopaths: weqtopathsStatement, weqpathsweqStatement weqtopaths)
+  &lt;-&gt; univalenceStatement.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  { <span class="nb">intros</span> [weqtopaths weqpathsweq] T1 T2.
+    <span class="nb">set</span> ( P1 := <span class="k">λ</span> <span class="nv">XY</span> : UU × UU, pr1 XY = pr2 XY ) .
+    <span class="nb">set</span> ( P2 := <span class="k">λ</span> <span class="nv">XY</span> :  UU × UU, (pr1 XY) ≃ (pr2 XY) ) .
+    <span class="nb">set</span> ( Z1 := total2 P1 ). <span class="nb">set</span> ( Z2 := total2 P2 ).
+    <span class="nb">set</span> ( f := totalfun _ _ ( <span class="k">λ</span> <span class="nv">XY</span> : UU × UU,  @eqweqmap (pr1 XY) (pr2 XY)) : Z1 -&gt; Z2 ) .
+    <span class="nb">set</span> ( g := totalfun _ _ ( <span class="k">λ</span> <span class="nv">XY</span> : UU × UU,  weqtopaths (pr1 XY) (pr2 XY) ) : Z2 -&gt; Z1 ) .
+    <span class="nb">assert</span> (efg : funcomp g f ~ idfun _) .
+    - <span class="nb">intro</span> z2 . <span class="nb">induction</span> z2 <span class="k">as</span> [ XY e ] .
+      <span class="nb">unfold</span> g . <span class="nb">unfold</span> f . <span class="nb">unfold</span> totalfun . <span class="nb">simpl</span> .
+      <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">w</span> : ( pr1 XY) ≃ (pr2 XY) =&gt;  tpair P2 XY w )
+                       ( weqpathsweq ( pr1 XY ) ( pr2 XY ) e )) .
+    - <span class="nb">set</span> ( h := <span class="k">λ</span> <span class="nv">a1</span> : Z1,  pr1 ( pr1 a1 ) ) .
+      <span class="nb">assert</span> ( egf0 : ∏ a1 : Z1 ,  pr1 ( g ( f a1 ) ) = pr1 a1 ).
+      + <span class="nb">intro</span>. <span class="nb">apply</span> idpath.
+      + <span class="nb">assert</span> ( egf1 : ∏ a1 a1' : Z1 ,  paths ( pr1 a1' ) (  pr1 a1 ) -&gt;  a1' = a1 ).
+        * <span class="nb">intros</span>.
+          <span class="nb">set</span> ( X' :=  maponpaths pr1 X ).
+          <span class="nb">assert</span> ( isw : isweq h ).
+          { <span class="nb">simpl</span> <span class="k">in</span> h .  <span class="nb">apply</span> isweqpr1pr1 . }
+          <span class="nb">apply</span> ( invmaponpathsweq ( make_weq h isw ) _ _ X' ).
+        * <span class="nb">set</span> ( egf := <span class="k">λ</span> <span class="nv">a1</span> , egf1 _ _ ( egf0 a1 ) ).
+          <span class="nb">set</span> ( is2 := isweq_iso _ _ egf efg ).
+          <span class="nb">apply</span> ( isweqtotaltofib _ _ ( <span class="k">λ</span> <span class="nv">_</span>, eqweqmap) is2 ( make_dirprod T1 T2 ) ).
+          }
+  { <span class="nb">intros</span> ua.
+    <span class="nb">simple refine</span> (_,,_).
+    - <span class="nb">intros</span> ? ?. <span class="bp">exact</span> (invmap (make_weq _ (ua _ _))).
+    - <span class="nb">intros</span> ? ?. <span class="bp">exact</span> (homotweqinvweq (make_weq _ (ua _ _))). }
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Conjecture :  the pair [weqtopaths] and [weqtopathsweq] in the proof above is well defined up to a canonical equality. **)</span>
+
+<span class="kn">Section</span> <span class="nf">UnivalenceImplications</span>.
+
+  <span class="sd">(** In this section we take univalence as a hypothesis, not as an axiom, so</span>
+<span class="sd">     we can limit the number of theorems that take univalence an axiom.</span>
+
+<span class="sd">     The suffix UAH on the name of a theorem indicates a theorem that will be</span>
+<span class="sd">     stated later unconditionally, with a proof that appeals to the future</span>
+<span class="sd">     univalence axiom. *)</span>
+
+  <span class="kn">Hypothesis</span> <span class="nv">univalenceAxiom</span> : univalenceStatement.
+
+  <span class="kn">Theorem</span> <span class="nf">univalenceUAH</span> (<span class="nv">X</span> <span class="nv">Y</span>:UU) : (X=Y) ≃ (X≃Y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (make_weq _ (univalenceAxiom X Y)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weqtopathsUAH</span> : weqtopathsStatement.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ?. <span class="bp">exact</span> (invmap (univalenceUAH _ _)).
+  <span class="kn">Defined</span>.
+  <span class="kn">Arguments</span> weqtopathsUAH {_ _} _.
+
+  <span class="kn">Definition</span> <span class="nf">weqpathsweqUAH</span> : weqpathsweqStatement (@weqtopathsUAH).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? w. <span class="bp">exact</span> (homotweqinvweq (univalenceUAH T1 T2) w).
+  <span class="kn">Defined</span>.
+  <span class="kn">Arguments</span> weqpathsweqUAH {_ _} _.
+
+  <span class="kn">Lemma</span> <span class="nf">propositionalUnivalenceUAH</span>: propositionalUnivalenceStatement.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> propositionalUnivalenceStatement; <span class="nb">intros</span> ? ? i j f g.
+    <span class="nb">apply</span> weqtopathsUAH.
+    <span class="nb">simple refine</span> (make_weq f (isweq_iso f g _ _)).
+    - <span class="nb">intro</span> p. <span class="nb">apply</span> proofirrelevance, i.
+    - <span class="nb">intro</span> q. <span class="nb">apply</span> proofirrelevance, j.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** Proof of the functional extensionality for functions from univalence *)</span>
+
+  <span class="sd">(** ** Transport theorem.</span>
+
+<span class="sd">    Theorem saying that any general scheme to "transport" a structure along a</span>
+<span class="sd">    weak equivalence which does not change the structure in the case of the</span>
+<span class="sd">    identity equivalence is equivalent to the transport along the path which</span>
+<span class="sd">    corresponds to a weak equivalence by the univalenceAxiom. As a corollary we</span>
+<span class="sd">    conclude that for any such transport scheme the corresponding maps on spaces</span>
+<span class="sd">    of structures are weak equivalences. *)</span>
+
+  <span class="kn">Theorem</span> <span class="nf">weqtransportbUAH</span> ( <span class="nv">P</span> : UU -&gt; UU )
+          ( <span class="nv">R</span> : ∏ ( X X' : UU ) ( w :  X ≃ X' ) , P X' -&gt; P X )
+          ( <span class="nv">r</span> : ∏ X : UU , ∏ p : P X , R X X ( idweq X ) p = p ) :
+    ∏ ( X X' : UU ) ( w :  X ≃ X' ) ( p' : P X' ),
+      R X X' w p' = transportb P ( weqtopathsUAH w ) p'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">set</span> ( uv := weqtopathsUAH w ).
+    <span class="nb">set</span> ( v := eqweqmap uv ).
+    <span class="nb">assert</span> ( e : v = w ) .
+    - <span class="nb">unfold</span> weqtopathsUAH <span class="k">in</span> uv.
+      <span class="nb">apply</span> ( homotweqinvweq ( univalenceUAH X X' ) w ).
+    - <span class="nb">assert</span> ( ee : R X X' v p' = R X X' w p' ).
+      + <span class="nb">set</span> ( R' := <span class="k">fun</span> <span class="nv">vis</span> : X ≃ X' =&gt; R X X' vis p' ).
+        <span class="nb">assert</span> ( ee' : R' v = R' w ).
+        * <span class="nb">apply</span> (  maponpaths R' e ).
+        * <span class="bp">assumption</span>.
+      + <span class="nb">induction</span> ee. <span class="nb">apply</span> l1. <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">isweqweqtransportbUAH</span>
+            ( <span class="nv">P</span> : UU -&gt; UU )
+            ( <span class="nv">R</span> :  ∏ ( X X' : UU ) ( w : X ≃ X' ) , P X' -&gt; P X )
+            ( <span class="nv">r</span> :  ∏ X : UU , ∏ p : P X , R X X ( idweq X ) p  = p ) :
+    ∏ ( X X' : UU ) ( w : X ≃ X' ),
+      isweq ( <span class="k">λ</span> <span class="nv">p'</span> :  P X', R X X' w p' ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">assert</span> ( e : R X X' w ~ transportb P ( weqtopathsUAH w )).
+    - <span class="nb">unfold</span> homot. <span class="nb">apply</span> weqtransportbUAH. <span class="bp">assumption</span>.
+    - <span class="nb">assert</span> ( ee : transportb P ( weqtopathsUAH w ) ~ R X X' w).
+      + <span class="nb">intro</span> p'. <span class="nb">apply</span> ( pathsinv0 ( e p' ) ).
+      + <span class="nb">clear</span> e.
+        <span class="nb">assert</span> ( is1 : isweq ( transportb P ( weqtopathsUAH w ) ) ).
+        <span class="nb">apply</span> isweqtransportb10.
+        <span class="nb">apply</span> ( isweqhomot ( transportb P ( weqtopathsUAH w ) ) (R X X' w) ee is1 ).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Theorem saying that composition with a weak equivalence is a weak equivalence on function spaces. *)</span>
+
+  <span class="kn">Theorem</span> <span class="nf">isweqcompwithweqUAH</span> { <span class="nv">X</span> <span class="nv">X'</span> : UU } ( <span class="nv">w</span> : X ≃ X' ) ( <span class="nv">Y</span> : UU ) :
+    isweq ( <span class="k">fun</span> <span class="nv">f</span> : X' -&gt; Y =&gt; ( <span class="k">λ</span> <span class="nv">x</span> : X, f ( w x ) ) ).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> ( P := <span class="k">λ</span> <span class="nv">X0</span> : UU, ( X0 -&gt; Y ) ).
+    <span class="nb">set</span> ( R := <span class="k">λ</span> <span class="nv">X0</span> : UU, ( <span class="k">λ</span> <span class="nv">X0'</span> : UU, ( <span class="k">fun</span> <span class="nv">w1</span> : X0 -&gt; X0' =&gt;  ( <span class="k">λ</span>  <span class="nv">f</span> : P X0' , ( <span class="k">λ</span> <span class="nv">x</span> : X0, f ( w1 x ) ) ) ) ) ).
+    <span class="nb">apply</span> ( isweqweqtransportbUAH P R (<span class="k">λ</span> <span class="nv">X0</span> <span class="nv">f</span>, idpath _) X X' w ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">eqcor0UAH</span> { <span class="nv">X</span> <span class="nv">X'</span> : UU } ( <span class="nv">w</span> :  X ≃ X' ) ( <span class="nv">Y</span> : UU ) ( <span class="nv">f1</span> <span class="nv">f2</span> : X' -&gt; Y ) :
+    (<span class="k">λ</span> <span class="nv">x</span> : X, f1 ( w x )) = (<span class="k">λ</span> <span class="nv">x</span> : X, f2 ( w x ) ) -&gt; f1 = f2.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> ( invmaponpathsweq ( make_weq _ ( isweqcompwithweqUAH w Y ) ) f1 f2 ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">apathpr1toprUAH</span> ( <span class="nv">T</span> : UU ) : paths ( <span class="k">λ</span> <span class="nv">z</span> :  pathsspace T, pr1 z ) ( <span class="k">λ</span> <span class="nv">z</span> : pathsspace T, pr1 ( pr2 z ) ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> ( eqcor0UAH ( make_weq _ ( isweqdeltap T ) ) _ ( <span class="k">λ</span> <span class="nv">z</span> :  pathsspace T, pr1 z ) ( <span class="k">λ</span> <span class="nv">z</span> :  pathsspace T, pr1 ( pr2 z ) ) ( idpath ( idfun T ) ) ) .
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">funextfunPreliminaryUAH</span> : funextfunStatement.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? f1 f2 e.
+    <span class="nb">set</span> ( f := <span class="k">λ</span> <span class="nv">x</span> : X, pathsspacetriple Y ( e x ) ).
+    <span class="nb">set</span> ( g1 := <span class="k">λ</span> <span class="nv">z</span> : pathsspace Y, pr1 z ).
+    <span class="nb">set</span> ( g2 := <span class="k">λ</span> <span class="nv">z</span> : pathsspace Y, pr1 ( pr2 z ) ).
+    <span class="nb">change</span> ( (funcomp f g1) = (funcomp f g2) ).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> apathpr1toprUAH.
+  <span class="kn">Defined</span>.
+  <span class="kn">Arguments</span> funextfunPreliminaryUAH {_ _} _ _ _.
+
+  <span class="kn">Lemma</span> <span class="nf">funextemptyUAH</span> : funextemptyStatement.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> funextemptyStatement; <span class="nb">intros</span>.
+    <span class="nb">apply</span> funextfunPreliminaryUAH.
+    <span class="nb">intro</span> x.
+    <span class="nb">induction</span> (f x).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Deduction of functional extensionality for dependent functions (sections) from functional extensionality of usual functions *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">isweqlcompwithweqUAH</span> {<span class="nv">X</span> <span class="nv">X'</span> : UU} (<span class="nv">w</span>: X ≃ X') (<span class="nv">Y</span>:UU) : isweq (<span class="k">fun</span> (<span class="nv">a</span>:X'-&gt;Y) <span class="nv">x</span> =&gt; a (w x)).
+  <span class="c">(* this lemma is currently unused *)</span>
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (isweq_iso _ _ _ _).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">b</span> <span class="nv">x'</span>, b (invweq w x')).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span>, funextfunPreliminaryUAH _ a (<span class="k">λ</span> <span class="nv">x'</span>, maponpaths a (homotweqinvweq w x'))).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span>, funextfunPreliminaryUAH _ a (<span class="k">λ</span> <span class="nv">x</span> , maponpaths a (homotinvweqweq w x ))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isweqrcompwithweqUAH</span> { <span class="nv">Y</span> <span class="nv">Y'</span>:UU } (<span class="nv">w</span>: Y ≃ Y')(<span class="nv">X</span>:UU) :
+    isweq (<span class="k">fun</span> <span class="nv">a</span>:X-&gt;Y =&gt; (<span class="k">λ</span> <span class="nv">x</span>, w (a x))).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (isweq_iso _ _ _ _).
+    <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">a'</span>:X-&gt;Y' =&gt; <span class="k">λ</span> <span class="nv">x</span>, (invweq  w (a' x))).
+    <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">a</span> :X-&gt;Y  =&gt; funextfunPreliminaryUAH _ a (<span class="k">λ</span> <span class="nv">x</span>, homotinvweqweq w (a x))).
+    <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">a'</span>:X-&gt;Y' =&gt; funextfunPreliminaryUAH _ a' (<span class="k">λ</span> <span class="nv">x</span>, homotweqinvweq w (a' x))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">funcontrUAH</span> : funcontrStatement.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> funcontrStatement.
+    <span class="nb">intros</span> ? ? X0.
+    <span class="nb">set</span> (T1 := ∏ x:X, P x).
+    <span class="nb">set</span> (T2 := (hfiber (<span class="k">fun</span> <span class="nv">f</span>: (X -&gt; total2 P)  =&gt; <span class="k">λ</span> <span class="nv">x</span>: X, pr1  (f x)) (<span class="k">λ</span> <span class="nv">x</span>:X, x))).
+    <span class="nb">assert</span> (is1:isweq (@pr1 X P)).
+    - <span class="nb">apply</span> isweqpr1. <span class="bp">assumption</span>.
+    - <span class="nb">set</span> (w1:= make_weq  (@pr1 X P) is1).
+      <span class="nb">assert</span> (X1:iscontr T2).
+      + <span class="nb">apply</span> (isweqrcompwithweqUAH w1 X (<span class="k">λ</span> <span class="nv">x</span>:X, x)).
+      + <span class="nb">apply</span> (iscontrretract _ _ (sectohfibertosec P) X1).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Proof of the fact that the [ toforallpaths ] from [s1 = s2] to</span>
+<span class="sd">  [∏ t:T, paths (s1 t) (s2 t)] is a weak equivalence - a strong form of</span>
+<span class="sd">  functional extensionality for sections of general families. The proof uses</span>
+<span class="sd">  only [funcontrUAH] which is an element of a proposition.  *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">funextcontrUAH</span> : funextcontrStatement.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> funextcontrStatement.
+    <span class="nb">intros</span>.
+    use (iscontrretract (X := ∏ t, ∑ p, p = g t)).
+    - <span class="nb">intros</span> x. use tpair.
+      + <span class="nb">intro</span> t. <span class="bp">exact</span> (pr1 (x t)).
+      + <span class="nb">intro</span> t; <span class="nb">simpl</span>. <span class="bp">exact</span> (pr2 (x t)).
+    - <span class="nb">intros</span> y t. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">y</span> <span class="nv">t</span>). <span class="bp">exact</span> (pr2 y t).
+    - <span class="nb">intros</span> u. <span class="nb">induction</span> u <span class="k">as</span> [t x]. <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> funcontrUAH. <span class="nb">intro</span> t. <span class="nb">apply</span> iscontrcoconustot.
+  <span class="kn">Defined</span>.
+  <span class="kn">Arguments</span> funextcontrUAH {_} _ _.
+
+  <span class="kn">Theorem</span> <span class="nf">isweqtoforallpathsUAH</span> : isweqtoforallpathsStatement.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> isweqtoforallpathsStatement.
+    <span class="nb">intros</span>.
+    <span class="nb">refine</span> (isweqtotaltofib _ _ (<span class="k">λ</span> (<span class="nv">h</span>:∏ t, P t), toforallpaths _ h g) _ f).
+    <span class="nb">refine</span> (isweqcontrcontr (X := ∑ (h: ∏ t, P t), h = g)
+              (<span class="k">λ</span> <span class="nv">ff</span>, tpair _ (pr1 ff) (toforallpaths P (pr1 ff) g (pr2 ff))) _ _).
+    { <span class="bp">exact</span> (iscontrcoconustot _ g). }
+    { <span class="nb">apply</span> funextcontrUAH. }
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">UnivalenceImplications</span>.
+
+<span class="sd">(** Univalence implies each of the other axioms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">funcontrFromUnivalence</span>: univalenceStatement -&gt; funcontrStatement
+  := funcontrUAH.
+
+<span class="kn">Definition</span> <span class="nf">funextsecweqFromUnivalence</span>: univalenceStatement -&gt; isweqtoforallpathsStatement
+  := isweqtoforallpathsUAH.
+
+<span class="kn">Definition</span> <span class="nf">funextemptyFromUnivalence</span>: univalenceStatement -&gt; funextemptyStatement
+  := funextemptyUAH.
+
+<span class="kn">Definition</span> <span class="nf">propositionalUnivalenceFromUnivalence</span>: univalenceStatement -&gt; propositionalUnivalenceStatement
+  := propositionalUnivalenceUAH.
+
+<span class="kn">Definition</span> <span class="nf">funextcontrStatementFromUnivalence</span>: univalenceStatement -&gt;  funextcontrStatement
+  := funextcontrUAH.
+
+<span class="sd">(** the axioms themselves *)</span>
+
+<span class="kn">Axiom</span> <span class="nv">univalenceAxiom</span> : univalenceStatement.
+<span class="kn">Axiom</span> <span class="nv">funextemptyAxiom</span> : funextemptyStatement.
+<span class="kn">Axiom</span> <span class="nv">isweqtoforallpathsAxiom</span> : isweqtoforallpathsStatement.
+<span class="kn">Axiom</span> <span class="nv">funcontrAxiom</span> : funcontrStatement.
+<span class="kn">Axiom</span> <span class="nv">propositionalUnivalenceAxiom</span> : propositionalUnivalenceStatement.
+<span class="kn">Axiom</span> <span class="nv">funextcontrAxiom</span> : funextcontrStatement.
+
+<span class="sd">(** provide some theorems based on the axioms  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">funextempty</span> := funextemptyAxiom.
+
+<span class="kn">Definition</span> <span class="nf">univalence</span> := univalenceUAH univalenceAxiom.
+
+<span class="kn">Definition</span> <span class="nf">weqtopaths</span> : weqtopathsStatement.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> weqtopathsStatement.
+  <span class="nb">intros</span> ? ?.
+  <span class="bp">exact</span> (invmap (univalence _ _)).
+<span class="kn">Defined</span>.
+<span class="kn">Arguments</span> weqtopaths {_ _} _.
+
+<span class="kn">Definition</span> <span class="nf">weqpathsweq</span> := weqpathsweqUAH univalenceAxiom.
+<span class="kn">Arguments</span> weqpathsweq {_ _} _.
+
+<span class="kn">Definition</span> <span class="nf">funcontr</span> : funcontrStatement := funcontrAxiom.
+<span class="kn">Arguments</span> funcontr {_} _ _.
+
+<span class="kn">Definition</span> <span class="nf">funextcontr</span> : funextcontrStatement := @funextcontrAxiom.
+<span class="kn">Arguments</span> funextcontr {_} _ _.
+
+<span class="kn">Definition</span> <span class="nf">isweqtoforallpaths</span> : isweqtoforallpathsStatement := isweqtoforallpathsAxiom.
+<span class="kn">Arguments</span> isweqtoforallpaths {_} _ _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">weqtoforallpaths</span> : weqtoforallpathsStatement
+  := <span class="k">λ</span> <span class="nv">X</span> <span class="nv">P</span> <span class="nv">f</span> <span class="nv">g</span>, make_weq _ (@isweqtoforallpaths X P f g).
+<span class="kn">Arguments</span> weqtoforallpaths {_} _ _ _.
+<span class="c">(* Print Assumptions weqtoforallpaths. (* isweqtoforallpathsAxiom *) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">funextsec</span> : funextsecStatement := funextsecImplication isweqtoforallpathsAxiom.
+<span class="kn">Arguments</span> funextsec {_} _ _ _ _.
+<span class="c">(* Print Assumptions funextsec.    (* isweqtoforallpathsAxiom *) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">funextfun</span> := funextfunImplication (@funextsec).
+<span class="kn">Arguments</span> funextfun {_ _} _ _ _.
+<span class="c">(* Print Assumptions funextfun.    (* isweqtoforallpathsAxiom *) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">weqfunextsec</span> { <span class="nv">T</span> : UU } (<span class="nv">P</span>:T -&gt; UU) (<span class="nv">f</span> <span class="nv">g</span> : ∏ t:T, P t) :
+  (f ~ g) ≃ (f = g)
+  := invweq (weqtoforallpaths P f g).
+<span class="c">(* Print Assumptions weqfunextsec. (* isweqtoforallpathsAxiom *) *)</span>
+
+<span class="kn">Corollary</span> <span class="nf">funcontrtwice</span> { <span class="nv">X</span> : UU } (<span class="nv">P</span>: X-&gt; X -&gt; UU) (<span class="nv">isc</span>: ∏ (x x':X), iscontr (P x x')) :
+  iscontr (∏ (x x':X), P x x').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (is1: ∏ x:X, iscontr (∏ x':X, P x x')).
+  - <span class="nb">intro</span>. <span class="nb">apply</span> (funcontr _ (isc x)).
+  - <span class="nb">apply</span> (funcontr _ is1).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Check assumptions *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">toforallpaths_induction</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">f</span> <span class="nv">g</span> : X -&gt; Y) (<span class="nv">P</span> : (∏ x, f x = g x) -&gt; UU)
+      (<span class="nv">H</span> : ∏ e : f = g, P (toforallpaths _ _ _ e)) : ∏ i : (∏ x, f x = g x), P i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i. <span class="nb">rewrite</span> &lt;- (homotweqinvweq (weqtoforallpaths _ f g)). <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportf_funextfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">P</span> : Y -&gt; UU) (<span class="nv">F</span> <span class="nv">F'</span> : X -&gt; Y) (<span class="nv">H</span> : ∏ (x : X), F x = F' x)
+           (<span class="nv">x</span> : X) (<span class="nv">f</span> : P (F x)) :
+  transportf (<span class="k">λ</span> <span class="nv">x0</span> : X → Y, P (x0 x)) (funextsec _ F F' H) f = transportf (<span class="k">λ</span> <span class="nv">x0</span> : Y, P x0) (H x) f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (toforallpaths_induction
+           _ _ F F' (<span class="k">λ</span> <span class="nv">H'</span>, transportf (<span class="k">λ</span> <span class="nv">x0</span> : X → Y, P (x0 x))
+                                       (funextsec (<span class="k">λ</span> <span class="nv">_</span> : X, Y) F F' (<span class="k">λ</span> <span class="nv">x0</span> : X, H' x0)) f =
+                            transportf (<span class="k">λ</span> <span class="nv">x0</span> : Y, P x0) (H' x) f)).
+  <span class="nb">intro</span> e. <span class="nb">clear</span> H.
+  <span class="nb">set</span> (XR := homotinvweqweq (weqtoforallpaths _ F F') e).
+  <span class="nb">set</span> (H := funextsec (<span class="k">λ</span> <span class="nv">_</span> : X, Y) F F' (<span class="k">λ</span> <span class="nv">x0</span> : X, toforallpaths (<span class="k">λ</span> <span class="nv">_</span> : X, Y) F F' e x0)).
+  <span class="nb">set</span> (P' := <span class="k">λ</span> <span class="nv">x0</span> : X → Y, P (x0 x)).
+  use pathscomp0.
+  - <span class="bp">exact</span> (transportf P' e f).
+  - use transportf_paths. <span class="bp">exact</span> XR.
+  - <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** induction tactic for the universe *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">UU_rect</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">P</span> : X ≃ Y -&gt; UU) :
+  (∏ e : X=Y, P (univalence _ _ e)) -&gt; ∏ f, P f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ih ?.
+  <span class="nb">set</span> (p := ih (invmap (univalence _ _) f)).
+  <span class="nb">set</span> (h := homotweqinvweq (univalence _ _) f).
+  <span class="bp">exact</span> (transportf P h p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Ltac</span> <span class="nf">type_induction</span> f e := <span class="nb">generalize</span> f; <span class="nb">apply</span> UU_rect; <span class="nb">intro</span> e; <span class="nb">clear</span> f.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Foundations/UnivalenceAxiom.v</tt>, line 33)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartB.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** Preliminaries  *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Foundations.PartB.&lt;&lt;&lt;
+  &gt;
+  &gt; (* everything related to eta correction is obsolete *)
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

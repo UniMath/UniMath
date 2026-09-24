@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PERTerminal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Terminal object in the category of partial setoids</span>
+
+<span class="sd"> The category of partial setoids has a terminal object. This terminal object is given by</span>
+<span class="sd"> the terminal object in the category of types of the hyperdoctrine `H`, and the partial</span>
+<span class="sd"> equivalence relation is given by the equality formula in `H`. We also show that the constant</span>
+<span class="sd"> object functor preserves terminal objects.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Morphism to the terminal object</span>
+<span class="sd"> 2. Uniqueness of the morphism to the terminal object</span>
+<span class="sd"> 3. The terminal object</span>
+<span class="sd"> 4. Preservation of terminal objects by the constant object functor</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERConstantObjects.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="sd">(** * 1. Morphism to the terminal object *)</span>
+<span class="kn">Definition</span> <span class="nf">partial_setoid_morphism_to_terminal_form</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">X</span> : partial_setoid H)
+  : form (X ×h eq_partial_setoid <span class="mi">𝟙</span>)
+  := <span class="k">let</span> <span class="nv">x</span> := π₁ (tm_var (X ×h <span class="mi">𝟙</span>)) <span class="k">in</span>
+     x ~ x.
+
+<span class="kn">Arguments</span> partial_setoid_morphism_to_terminal_form {H} X /.
+
+<span class="kn">Proposition</span> <span class="nf">partial_setoid_morphism_to_terminal_laws</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            (<span class="nv">X</span> : partial_setoid H)
+  : partial_setoid_morphism_laws (partial_setoid_morphism_to_terminal_form X).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> partial_setoid_morphism_to_terminal_form.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">unfold</span> partial_setoid_mor_dom_defined_law.
+    <span class="nb">cbn</span> ; hypersimplify.
+    hypersimplify.
+    <span class="nb">pose</span> (x := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h X) ×h <span class="mi">𝟙</span>)))).
+    <span class="nb">fold</span> x.
+    use forall_intro.
+    use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  - <span class="nb">unfold</span> partial_setoid_mor_cod_defined_law.
+    <span class="nb">cbn</span> ; hypersimplify.
+    hypersimplify.
+    <span class="nb">pose</span> (x := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h X) ×h <span class="mi">𝟙</span>)))).
+    <span class="nb">pose</span> (y := π₂ (tm_var ((<span class="mi">𝟙</span> ×h X) ×h <span class="mi">𝟙</span>))).
+    <span class="nb">fold</span> x y.
+    use forall_intro.
+    use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    use eq_in_eq_partial_setoid.
+    <span class="nb">apply</span> hyperdoctrine_refl.
+  - <span class="nb">unfold</span> partial_setoid_mor_eq_defined_law.
+    <span class="nb">cbn</span> ; hypersimplify.
+    hypersimplify.
+    <span class="nb">pose</span> (T := X).
+    <span class="nb">pose</span> (T' := <span class="mi">𝟙</span> : ty H).
+    <span class="nb">pose</span> (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h T) ×h T) ×h T') ×h T')))))).
+    <span class="nb">pose</span> (x₂ := π₂ (π₁ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h T) ×h T) ×h T') ×h T'))))).
+    <span class="nb">pose</span> (y₁ := π₂ (π₁ (tm_var ((((<span class="mi">𝟙</span> ×h T) ×h T) ×h T') ×h T')))).
+    <span class="nb">pose</span> (y₂ := π₂ (tm_var ((((<span class="mi">𝟙</span> ×h T) ×h T) ×h T') ×h T'))).
+    <span class="nb">unfold</span> T, T' <span class="k">in</span> *.
+    <span class="nb">fold</span> x₁ x₂ y₁ y₂.
+    <span class="kp">do</span> <span class="mi">4</span> use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    <span class="kp">do</span> <span class="mi">2</span> use impl_intro.
+    <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+    use partial_setoid_refl_r.
+    {
+      <span class="bp">exact</span> x₁.
+    }
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  - <span class="nb">unfold</span> partial_setoid_mor_unique_im_law.
+    <span class="nb">cbn</span> ; hypersimplify.
+    hypersimplify.
+    <span class="nb">pose</span> (T := X).
+    <span class="nb">pose</span> (T' := <span class="mi">𝟙</span> : ty H).
+    <span class="nb">pose</span> (x := π₂ (π₁ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T') ×h T'))))).
+    <span class="nb">pose</span> (y₁ := π₂ (π₁ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T') ×h T')))).
+    <span class="nb">pose</span> (y₂ := π₂ (tm_var (((<span class="mi">𝟙</span> ×h T) ×h T') ×h T'))).
+    <span class="nb">unfold</span> T, T' <span class="k">in</span> *.
+    <span class="nb">fold</span> x y₁ y₂.
+    <span class="kp">do</span> <span class="mi">3</span> use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    use impl_intro.
+    use eq_in_eq_partial_setoid.
+    use hyperdoctrine_unit_tm_eq.
+  - <span class="nb">unfold</span> partial_setoid_mor_hom_exists_law.
+    <span class="nb">cbn</span> ; hypersimplify.
+    hypersimplify.
+    <span class="nb">pose</span> (T := X).
+    <span class="nb">pose</span> (T' := <span class="mi">𝟙</span> : ty H).
+    <span class="nb">pose</span> (x := π₂ (tm_var (<span class="mi">𝟙</span> ×h T))).
+    <span class="nb">pose</span> (y := π₂ (tm_var ((<span class="mi">𝟙</span> ×h T) ×h T'))).
+    <span class="nb">unfold</span> T, T' <span class="k">in</span> *.
+    <span class="nb">fold</span> x y.
+    use forall_intro.
+    use impl_intro.
+    use weaken_right.
+    use exists_intro.
+    + <span class="bp">exact</span> !!.
+    + hypersimplify.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">partial_setoid_morphism_to_terminal</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">X</span> : partial_setoid H)
+  : partial_setoid_morphism X (eq_partial_setoid <span class="mi">𝟙</span>).
+<span class="kn">Proof</span>.
+  use make_partial_setoid_morphism.
+  - <span class="bp">exact</span> (partial_setoid_morphism_to_terminal_form X).
+  - <span class="bp">exact</span> (partial_setoid_morphism_to_terminal_laws X).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Uniqueness of the morphism to the terminal object *)</span>
+<span class="kn">Proposition</span> <span class="nf">parital_setoid_morphism_to_terminal_eq</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">X</span> : partial_setoid H}
+            (<span class="nv">φ</span> : partial_setoid_morphism X (eq_partial_setoid <span class="mi">𝟙</span>))
+  : φ = partial_setoid_morphism_to_terminal X.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (x := π₁ (tm_var (X ×h <span class="mi">𝟙</span>))).
+  <span class="nb">pose</span> (y := π₂ (tm_var (X ×h <span class="mi">𝟙</span>))).
+  use eq_partial_setoid_morphism ; <span class="nb">cbn</span> ; <span class="nb">fold</span> x.
+  - use (partial_setoid_mor_dom_defined φ x y).
+    <span class="nb">unfold</span> x, y.
+    <span class="nb">rewrite</span> &lt;- hyperdoctrine_pair_eta.
+    hypersimplify.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  - use (exists_elim (partial_setoid_mor_hom_exists φ (hyperdoctrine_hyp _))).
+    <span class="nb">cbn</span>.
+    use weaken_right.
+    <span class="nb">unfold</span> x, y ; <span class="nb">clear</span> x y.
+    hypersimplify.
+    <span class="nb">pose</span> (x := π₁ (tm_var ((X ×h <span class="mi">𝟙</span>) ×h <span class="mi">𝟙</span>))).
+    <span class="nb">pose</span> (y := π₂ (tm_var ((X ×h <span class="mi">𝟙</span>) ×h <span class="mi">𝟙</span>))).
+    <span class="nb">fold</span> x y.
+    <span class="nb">assert</span> (y = π₂ x) <span class="k">as</span> p.
+    {
+      use hyperdoctrine_unit_eq.
+    }
+    <span class="nb">rewrite</span> p.
+    <span class="nb">rewrite</span> &lt;- (hyperdoctrine_pair_eta x).
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. The terminal object *)</span>
+<span class="kn">Definition</span> <span class="nf">terminal_partial_setoid</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+  : Terminal (category_of_partial_setoids H).
+<span class="kn">Proof</span>.
+  use make_Terminal.
+  - <span class="bp">exact</span> (eq_partial_setoid <span class="mi">𝟙</span>).
+  - <span class="nb">intros</span> X.
+    use make_iscontr.
+    + <span class="bp">exact</span> (partial_setoid_morphism_to_terminal X).
+    + <span class="bp">exact</span> parital_setoid_morphism_to_terminal_eq.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Preservation of terminal objects by the constant object functor *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_terminal_functor_to_partial_setoids</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+  : preserves_terminal (functor_to_partial_setoids H).
+<span class="kn">Proof</span>.
+  use preserves_terminal_chosen_to_chosen_z_iso.
+  - <span class="bp">exact</span> (hyperdoctrine_terminal_type H).
+  - <span class="bp">exact</span> (terminal_partial_setoid H).
+  - <span class="nb">apply</span> identity_z_iso.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/PartialEqRels/PERTerminal.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Preservation of terminal objects by the constant object functor
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Terminal.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

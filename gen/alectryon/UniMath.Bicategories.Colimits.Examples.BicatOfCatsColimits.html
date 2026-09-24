@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BicatOfCatsColimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************</span>
+
+<span class="sd"> Colimits in the bicategory of categories</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Kleisli objects</span>
+
+<span class="sd"> ********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.KleisliCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpMorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Monads.Examples.MonadsInBicatOfCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Monads.Examples.MonadsInOp1Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Colimits.KleisliObjects.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Kleisli objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">KleisliCategoryUMP</span>.
+  <span class="kn">Context</span> (<span class="nv">m</span> : mnd (op1_bicat bicat_of_cats)).
+
+  <span class="kn">Let</span> <span class="nf">C</span> : category := ob_of_mnd m.
+  <span class="kn">Let</span> <span class="nf">M</span> : Monad C := mnd_bicat_of_cats_to_Monad (mnd_op1_to_mnd m).
+
+  <span class="kn">Definition</span> <span class="nf">bicat_of_cats_has_kleisli_cocone</span>
+    : kleisli_cocone m.
+  <span class="kn">Proof</span>.
+    use make_kleisli_cocone.
+    - <span class="bp">exact</span> (Kleisli_cat_monad M).
+    - <span class="bp">exact</span> (Left_Kleisli_functor M).
+    - <span class="bp">exact</span> (kleisli_monad_nat_trans M).
+    - <span class="kp">abstract</span>
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">intro</span> x ;
+         <span class="bp">exact</span> (η_η_bind M x)).
+    - <span class="kp">abstract</span>
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">intro</span> x ;
+         <span class="bp">exact</span> (η_bind_bind M x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bicat_of_cats_has_kleisli_ump_1</span>
+    : has_kleisli_ump_1 m bicat_of_cats_has_kleisli_cocone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> q.
+    <span class="nb">pose</span> (F := mor_of_kleisli_cocone _ q).
+    <span class="nb">pose</span> (γ := cell_of_kleisli_cocone _ q).
+    <span class="nb">pose</span> (p₁ := nat_trans_eq_pointwise (kleisli_cocone_unit _ q)).
+    <span class="nb">assert</span> (p₂ : ∏ (x : C), pr1 γ (M x) · pr1 γ x = # (pr1 F) (μ M x) · pr1 γ x).
+    {
+      <span class="nb">intro</span> x.
+      <span class="nb">pose</span> (p₂ := nat_trans_eq_pointwise (kleisli_cocone_mult _ q) x).
+      <span class="nb">cbn</span> <span class="k">in</span> p₂.
+      <span class="nb">rewrite</span> !id_left <span class="k">in</span> p₂.
+      <span class="bp">exact</span> p₂.
+    }
+    use make_kleisli_cocone_mor.
+    - <span class="bp">exact</span> (functor_from_kleisli_cat_monad M F γ p₁ p₂).
+    - <span class="bp">exact</span> (functor_from_kleisli_cat_monad_nat_trans M F γ p₁ p₂).
+    - <span class="kp">abstract</span>
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> functor_id ;
+         <span class="nb">rewrite</span> !id_left, id_right ;
+         <span class="nb">apply</span> idpath).
+    - use is_nat_z_iso_to_is_invertible_2cell.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> is_z_isomorphism_identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bicat_of_cats_has_kleisli_ump_2</span>
+    : has_kleisli_ump_2 m bicat_of_cats_has_kleisli_cocone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C' G₁ G₂ α p.
+    <span class="nb">assert</span> (p' : ∏ (x : C),
+                 # (pr1 G₁) (kleisli_monad_nat_trans M x) · pr1 α x
+                 =
+                 pr1 α (M x) · # (pr1 G₂) (kleisli_monad_nat_trans M x)).
+    {
+      <span class="nb">intro</span> x.
+      <span class="nb">pose</span> (q := nat_trans_eq_pointwise p x).
+      <span class="nb">cbn</span> <span class="k">in</span> q.
+      <span class="nb">rewrite</span> !id_left, !id_right <span class="k">in</span> q.
+      <span class="bp">exact</span> q.
+    }
+    use iscontraprop1.
+    - use invproofirrelevance.
+      <span class="nb">intros</span> β₁ β₂.
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ].
+      <span class="bp">exact</span> (nat_trans_from_kleisli_cat_monad_unique M α (pr2 β₁) (pr2 β₂)).
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (nat_trans_from_kleisli_cat_monad M α p').
+      + <span class="bp">exact</span> (pre_whisker_nat_trans_from_kleisli_cat_monad M α p').
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">KleisliCategoryUMP</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_of_cats_has_kleisli</span>
+  : has_kleisli bicat_of_cats.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> m.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _).
+  - <span class="bp">exact</span> (bicat_of_cats_has_kleisli_cocone m).
+  - <span class="bp">exact</span> (bicat_of_cats_has_kleisli_ump_1 m).
+  - <span class="bp">exact</span> (bicat_of_cats_has_kleisli_ump_2 m).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Colimits/Examples/BicatOfCatsColimits.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  1. Kleisli objects
+  &gt;
+  &gt;  ********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Univalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************</span>
+<span class="sd">Univalence </span>
+
+<span class="sd">We define what it means for a Markov category to be univalent,</span>
+<span class="sd">namely equality of objects is equivalent to deterministic isomorphism.</span>
+
+<span class="sd">Markov categories can equivalently be defined as semi-Cartesian monoidal categories</span>
+<span class="sd">that supply commutative comonoids. More specifically, in a Markov category</span>
+<span class="sd">every object is equipped with a commutative comonoid structure given by</span>
+<span class="sd">the copy and delete maps. Note that while deletion is necessarily natural</span>
+<span class="sd">(because Markov categories are semi-Cartesian), the copy map is not required</span>
+<span class="sd">to be natural.</span>
+
+<span class="sd">A notion of univalence for symmetric monoidal categories that supply some structure</span>
+<span class="sd">given by a PROP is given in Example 13.2 in "The Univalence Principle" by Ahrens,</span>
+<span class="sd">North, Shulman and Tsementzis. The indiscernibilities are isomorphism that commute with</span>
+<span class="sd">the PROP structure. For Markov categories, this means isomorphisms that commute with</span>
+<span class="sd">both the copy and delete map. Since commutation with the delete map is automatic (the</span>
+<span class="sd">delete morphism lands in the terminal object), indiscernibilities are given by</span>
+<span class="sd">isomorphisms that commute with the copy map. Deterministic isomorphisms are exactly</span>
+<span class="sd">those isomorphisms that satisfy that property. Hence, univalence for Markov categories</span>
+<span class="sd">should be defined using deterministic isomorphisms.</span>
+
+<span class="sd">Note that in many examples of Markov categories deterministic isomorphisms are the same</span>
+<span class="sd">as ordinary isomorphisms (for example those satisfying the the axioms in `InformationFlowAxioms.v`, </span>
+<span class="sd">such as positivity and causality). For those, univalence and Markov univalence are equivalent.</span>
+
+<span class="sd">References</span>
+<span class="sd">- T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' </span>
+<span class="sd">- B. Ahrens, P.R. North, M. Shulman, D. Tsementzis - 'The Univalence Principle'</span>
+<span class="sd">**********************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.Determinism.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> markov.
+
+<span class="kn">Definition</span> <span class="nf">idtodet_iso</span>
+           {<span class="nv">C</span> : markov_category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">p</span> : x = y)
+  : deterministic_iso x y.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> identity_deterministic_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_markov_univalent</span>
+           (<span class="nv">C</span> : markov_category)
+  : UU
+  := ∏ (x y : C), isweq (idtodet_iso (x := x) (y := y)).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_markov_univalent</span>
+            (<span class="nv">C</span> : markov_category)
+  : isaprop (is_markov_univalent C).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropisweq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">all_isos_deterministic</span>
+           (<span class="nv">C</span> : markov_category)
+  : UU
+  := ∏ (x y : C) (f : z_iso x y), is_deterministic f.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_all_isos_deterministic</span>
+            (<span class="nv">C</span> : markov_category)
+  : isaprop (all_isos_deterministic C).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_deterministic.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_weq_det_iso_all_deterministic</span>
+           {<span class="nv">C</span> : markov_category}
+           (<span class="nv">H</span> : all_isos_deterministic C)
+           (<span class="nv">x</span> <span class="nv">y</span> : C)
+  : z_iso x y ≃ deterministic_iso x y.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intro</span> f.
+    <span class="nb">simple refine</span> (f ,, _).
+    <span class="nb">apply</span> H.
+  - <span class="nb">intro</span> f.
+    <span class="bp">exact</span> f.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> f ;
+      <span class="bp">reflexivity</span>).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> f ;
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_deterministic | ] ;
+      <span class="bp">reflexivity</span>). 
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">univalence_weq_markov_univalence</span>
+            {<span class="nv">C</span> : markov_category}
+            (<span class="nv">H</span> : all_isos_deterministic C)
+  : is_univalent C ≃ is_markov_univalent C.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">intros</span> HC x y.
+    use weqhomot.
+    + <span class="nb">simple refine</span> (iso_weq_det_iso_all_deterministic H x y ∘ _)%weq.
+      use make_weq.
+      * <span class="nb">apply</span> idtoiso.
+      * <span class="nb">apply</span> HC. 
+    + <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_deterministic.
+      }
+      <span class="nb">cbn</span>.
+      <span class="bp">reflexivity</span>. 
+  - <span class="nb">intros</span> HC x y.
+    use weqhomot.
+    + <span class="nb">simple refine</span> (invweq (iso_weq_det_iso_all_deterministic H x y) ∘ _)%weq.
+      use make_weq.
+      * <span class="nb">apply</span> idtodet_iso.
+      * <span class="nb">apply</span> HC. 
+    + <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p.
+      <span class="nb">cbn</span>.
+      <span class="bp">reflexivity</span>. 
+  - <span class="nb">apply</span> isaprop_is_univalent.
+  - <span class="nb">apply</span> isaprop_is_markov_univalent.
+<span class="kn">Qed</span>. </span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/MarkovCategories/Univalence.v</tt>, line 33)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - B. Ahrens, P.R. North, M. Shulman, D. Tsementzis - 'The Univalence Principle'
+  &gt; **********************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

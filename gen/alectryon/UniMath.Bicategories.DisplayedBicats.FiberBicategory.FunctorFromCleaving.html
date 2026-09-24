@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FunctorFromCleaving.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Discreteness.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.FiberCategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Cartesians.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="kn">Section</span> <span class="nf">ProjectionsGlobalCleaving</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">D</span> : disp_bicat B}
+          (<span class="nv">global_D</span> : global_cleaving D).
+
+  <span class="kn">Definition</span> <span class="nf">global_lift</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">yy</span> : D y)
+    : D x
+    := pr1 (global_D x y yy f).
+
+  <span class="kn">Definition</span> <span class="nf">mor_from_global_lift</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">yy</span> : D y)
+    : global_lift f yy --&gt;[ f ] yy
+    := pr12 (global_D x y yy f).
+
+  <span class="kn">Definition</span> <span class="nf">is_cartesian_mor_from_global_lift</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">yy</span> : D y)
+    : cartesian_1cell D (mor_from_global_lift f yy)
+    := pr22 (global_D x y yy f).
+
+  <span class="kn">Section</span> <span class="nf">GlobalCleavingOnMor</span>.
+    <span class="kn">Context</span> (<span class="nv">local_D</span> : local_iso_cleaving D)
+            {<span class="nv">x</span> <span class="nv">y</span> : B}
+            (<span class="nv">f</span> : x --&gt; y).
+
+    <span class="kn">Definition</span> <span class="nf">global_lift_mor</span>
+               {<span class="nv">yy₁</span> <span class="nv">yy₂</span> : D y}
+               (<span class="nv">ff</span> : yy₁ --&gt;[ id₁ y ] yy₂)
+      : global_lift f yy₁ --&gt;[ id₁ x ] global_lift f yy₂
+      := cartesian_1cell_lift_1cell
+           D
+           _
+           (is_cartesian_mor_from_global_lift f yy₂)
+           (local_iso_cleaving_1cell
+              local_D
+              (mor_from_global_lift f yy₁ ;; ff)
+              (comp_of_invertible_2cell
+                 (lunitor_invertible_2cell _)
+                 (rinvunitor_invertible_2cell _))).
+
+    <span class="kn">Section</span> <span class="nf">OnId</span>.
+      <span class="kn">Context</span> (<span class="nv">yy</span> : D y).
+
+      <span class="kn">Local Definition</span> <span class="nf">global_mor_id_mor</span>
+        : global_lift f yy --&gt;[ id₁ x · f] yy
+        := local_iso_cleaving_1cell
+             local_D
+             (mor_from_global_lift f yy)
+             (lunitor_invertible_2cell _).
+
+      <span class="kn">Local Definition</span> <span class="nf">global_mor_id_factor</span>
+        : disp_invertible_2cell
+            (id2_invertible_2cell (id₁ x · f))
+            (id_disp (global_lift f yy) ;; mor_from_global_lift f yy)
+            global_mor_id_mor.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, disp_invertible_2cell z _ _)
+                  _
+                  (vcomp_disp_invertible
+                     (disp_invertible_2cell_lunitor _)
+                     (inverse_of_disp_invertible_2cell
+                        (disp_local_iso_cleaving_invertible_2cell
+                           local_D
+                           (mor_from_global_lift f yy)
+                           (lunitor_invertible_2cell f))))).
+        <span class="kp">abstract</span>
+          (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> lunitor_linvunitor).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">global_mor_id_cell</span>
+        : disp_invertible_2cell
+            (rwhisker_of_invertible_2cell
+               _
+               (id2_invertible_2cell _))
+            (local_iso_cleaving_1cell
+               local_D
+               (mor_from_global_lift f yy ;; id_disp yy)
+               (comp_of_invertible_2cell
+                  (lunitor_invertible_2cell f)
+                  (rinvunitor_invertible_2cell f)))
+            global_mor_id_mor.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, disp_invertible_2cell z _ _)
+                  _
+                  (vcomp_disp_invertible
+                     (disp_local_iso_cleaving_invertible_2cell
+                        local_D
+                        (mor_from_global_lift f yy ;; id_disp yy)
+                        (comp_of_invertible_2cell
+                           (lunitor_invertible_2cell _)
+                           (rinvunitor_invertible_2cell _)))
+                     (vcomp_disp_invertible
+                        (disp_invertible_2cell_runitor _)
+                        (inverse_of_disp_invertible_2cell
+                           (disp_local_iso_cleaving_invertible_2cell
+                              local_D
+                              (mor_from_global_lift f yy)
+                              (lunitor_invertible_2cell f)))))).
+        <span class="kp">abstract</span>
+          (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> rinvunitor_runitor ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> id2_rwhisker ;
+           <span class="nb">apply</span> lunitor_linvunitor).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">global_mor_id</span>
+        : disp_invertible_2cell
+            (id2_invertible_2cell (id₁ x))
+            (global_lift_mor (id_disp yy))
+            (id_disp _).
+      <span class="kn">Proof</span>.
+        <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> (cartesian_1cell_lift_2cell
+                   D
+                   _
+                   (is_cartesian_mor_from_global_lift f yy)
+                   global_mor_id_cell
+                   _
+                   (id_disp (global_lift f yy) ,, global_mor_id_factor)).
+        + use (cartesian_1cell_lift_2cell_invertible
+                 D
+                 (is_cartesian_mor_from_global_lift f yy)
+                 _
+                 _
+                 _
+                 (id_disp (global_lift f yy) ,, global_mor_id_factor)).
+          <span class="bp">exact</span> (pr2 global_mor_id_cell).
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">OnId</span>.
+
+    <span class="kn">Section</span> <span class="nf">OnComp</span>.
+      <span class="kn">Context</span> {<span class="nv">yy₁</span> <span class="nv">yy₂</span> <span class="nv">yy₃</span> : D y}
+              (<span class="nv">ff</span> : yy₁ --&gt;[ id₁ y] yy₂)
+              (<span class="nv">gg</span> : yy₂ --&gt;[ id₁ y] yy₃).
+
+      <span class="kn">Definition</span> <span class="nf">global_mor_comp_mor</span>
+        : global_lift f yy₁ --&gt;[ id₁ x · f ] yy₃
+        := local_iso_cleaving_1cell
+             local_D
+             (mor_from_global_lift f yy₁ ;; ff ;; gg)
+             (comp_of_invertible_2cell
+                (lunitor_invertible_2cell _)
+                (comp_of_invertible_2cell
+                   (rinvunitor_invertible_2cell _)
+                   (rinvunitor_invertible_2cell _))).
+
+      <span class="kn">Definition</span> <span class="nf">global_mor_comp_factor</span>
+        : disp_invertible_2cell
+            (id2_invertible_2cell (id₁ x · f))
+            (local_iso_cleaving_1cell local_D
+               (global_lift_mor ff ;; global_lift_mor gg)
+               (idempunitor x)
+             ;; mor_from_global_lift f yy₃)
+            global_mor_comp_mor.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, disp_invertible_2cell z _ _)
+                  _
+                  (vcomp_disp_invertible
+                     (vcomp_disp_invertible
+                        (disp_invertible_2cell_rwhisker
+                           _
+                           (disp_local_iso_cleaving_invertible_2cell
+                              local_D
+                              _
+                              _))
+                        (vcomp_disp_invertible
+                           (disp_invertible_2cell_rassociator _ _ _)
+                           (vcomp_disp_invertible
+                              (disp_invertible_2cell_lwhisker
+                                 _
+                                 (pr2 (cartesian_1cell_lift_1cell D
+                                         (mor_from_global_lift f yy₃)
+                                         _
+                                         _)))
+                              (vcomp_disp_invertible
+                                 (disp_invertible_2cell_lwhisker
+                                    _
+                                    (disp_local_iso_cleaving_invertible_2cell
+                                       local_D
+                                       _
+                                       _))
+                                 (vcomp_disp_invertible
+                                    (disp_invertible_2cell_lassociator _ _ _)
+                                    (disp_invertible_2cell_rwhisker
+                                       _
+                                       (vcomp_disp_invertible
+                                          (pr2 (cartesian_1cell_lift_1cell
+                                                  D
+                                                  _
+                                                  _
+                                                  _))
+                                          (disp_local_iso_cleaving_invertible_2cell
+                                             local_D
+                                             _
+                                             _))))))))
+                     (inverse_of_disp_invertible_2cell
+                        (disp_local_iso_cleaving_invertible_2cell
+                           local_D
+                           _
+                           _)))).
+        <span class="kp">abstract</span>
+          (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> lwhisker_id2, !id2_left ;
+           <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp, &lt;- !rwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> lunitor_lwhisker ;
+           <span class="nb">rewrite</span> runitor_lunitor_identity ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> rwhisker_vcomp ;
+           <span class="nb">rewrite</span> linvunitor_lunitor ;
+           <span class="nb">rewrite</span> id2_rwhisker ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> lunitor_triangle ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> vcomp_lunitor ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">refine</span> (_ @ id2_right _) ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id2_right ;
+           <span class="nb">refine</span> (_ @ id2_left _) ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">rewrite</span> &lt;- runitor_triangle ;
+           <span class="nb">rewrite</span> runitor_lunitor_identity ;
+           <span class="nb">rewrite</span> lunitor_lwhisker ;
+           <span class="nb">rewrite</span> rwhisker_vcomp ;
+           <span class="nb">rewrite</span> rinvunitor_runitor ;
+           <span class="nb">apply</span> id2_rwhisker).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">global_mor_comp_cell</span>
+        : disp_invertible_2cell
+            (rwhisker_of_invertible_2cell
+               _
+               (id2_invertible_2cell _))
+            (local_iso_cleaving_1cell
+               local_D
+               (mor_from_global_lift f yy₁
+                ;;
+                local_iso_cleaving_1cell local_D (ff ;; gg) (idempunitor y))
+               (comp_of_invertible_2cell
+                  (lunitor_invertible_2cell f)
+                  (rinvunitor_invertible_2cell f)))
+            global_mor_comp_mor.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, disp_invertible_2cell z _ _)
+                  _
+                  (vcomp_disp_invertible
+                     (disp_local_iso_cleaving_invertible_2cell
+                        local_D
+                        _
+                        _)
+                     (vcomp_disp_invertible
+                        (vcomp_disp_invertible
+                           (disp_invertible_2cell_lwhisker
+                              _
+                              (disp_local_iso_cleaving_invertible_2cell
+                                 local_D
+                                 _
+                                 _))
+                           (disp_invertible_2cell_lassociator _ _ _))
+                        (inverse_of_disp_invertible_2cell
+                           (disp_local_iso_cleaving_invertible_2cell
+                              local_D
+                              _
+                              _))))).
+        <span class="kp">abstract</span>
+          (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id2_rwhisker ;
+           <span class="nb">rewrite</span> !vassocr ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">refine</span> (_ @ id2_right _) ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> !vassocr ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">refine</span> (_ @ id2_right _) ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id2_right ;
+           <span class="nb">rewrite</span> &lt;- runitor_triangle ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> lassociator_rassociator ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> runitor_lunitor_identity ;
+           <span class="nb">apply</span> idpath).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">global_mor_comp</span>
+        : disp_invertible_2cell
+            (id2_invertible_2cell _)
+            (global_lift_mor
+               (local_iso_cleaving_1cell local_D (ff ;; gg) (idempunitor y)))
+            (local_iso_cleaving_1cell local_D
+               (global_lift_mor ff ;; global_lift_mor gg)
+               (idempunitor x)).
+      <span class="kn">Proof</span>.
+        <span class="nb">simple refine</span> (_ ,, _).
+        - <span class="bp">exact</span> (cartesian_1cell_lift_2cell
+                   D
+                   _
+                   (is_cartesian_mor_from_global_lift f yy₃)
+                   global_mor_comp_cell
+                   _
+                   (local_iso_cleaving_1cell
+                      local_D
+                      (global_lift_mor ff ;; global_lift_mor gg)
+                      (idempunitor x)
+                    ,,
+                    global_mor_comp_factor)).
+        - use (cartesian_1cell_lift_2cell_invertible
+                 D
+                 (is_cartesian_mor_from_global_lift f yy₃)
+                 _
+                 _
+                 _
+                 (_ ,, _)).
+          <span class="bp">exact</span> (pr2 global_mor_comp_cell).
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">OnComp</span>.
+  <span class="kn">End</span> <span class="nf">GlobalCleavingOnMor</span>.
+<span class="kn">End</span> <span class="nf">ProjectionsGlobalCleaving</span>.
+
+<span class="kn">Section</span> <span class="nf">FiberFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">D</span> : disp_bicat B)
+          (<span class="nv">HD₁</span> : disp_2cells_isaprop D)
+          (<span class="nv">HD₂</span> : disp_univalent_2_1 D)
+          (<span class="nv">global_D</span> : global_cleaving D)
+          (<span class="nv">local_D</span> : local_iso_cleaving D)
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          (<span class="nv">f</span> : x --&gt; y).
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_cleaving_data</span>
+    : functor_data
+        (discrete_fiber_category D HD₁ HD₂ local_D y)
+        (discrete_fiber_category D HD₁ HD₂ local_D x).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">yy</span>, global_lift global_D f yy).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">yy₁</span> <span class="nv">yy₂</span> <span class="nv">ff</span>, global_lift_mor global_D local_D f ff).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_cleaving_is_functor</span>
+    : is_functor functor_from_cleaving_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> yy.
+      <span class="nb">apply</span> (disp_isotoid_2_1 _ HD₂ (idpath _)).
+      <span class="bp">exact</span> (global_mor_id global_D local_D f yy).
+    - <span class="nb">intros</span> yy₁ yy₂ yy₃ ff gg ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">apply</span> (disp_isotoid_2_1 _ HD₂ (idpath _)).
+      <span class="bp">exact</span> (global_mor_comp global_D local_D f ff gg).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_cleaving</span>
+    : discrete_fiber_category D HD₁ HD₂ local_D y
+      ⟶
+      discrete_fiber_category D HD₁ HD₂ local_D x.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> functor_from_cleaving_data.
+    - <span class="bp">exact</span> functor_from_cleaving_is_functor.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FiberFunctor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/FiberBicategory/FunctorFromCleaving.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

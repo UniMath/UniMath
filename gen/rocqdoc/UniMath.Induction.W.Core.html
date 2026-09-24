@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Induction.W.Core</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Induction.W.Core</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#"><span class="id" title="library">UniMath.Induction.FunctorAlgebras_legacy</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Induction.PolynomialFunctors.html#"><span class="id" title="library">UniMath.Induction.PolynomialFunctors</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The W-type associated to (A, B) is the initial algebra of the associated
+    polynomial functor. See the comment in Induction.M.Core as to why we
+    can't use category-theoretic terminology. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="W" class="idref" href="#W"><span class="id" title="section">W</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="W.A" class="idref" href="#W.A"><span class="id" title="variable">A</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} (<a id="W.B" class="idref" href="#W.B"><span class="id" title="variable">B</span></a> : <a class="idref" href="UniMath.Induction.W.Core.html#A:1"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="F" class="idref" href="#F"><span class="id" title="abbreviation">F</span></a> := (<a class="idref" href="UniMath.Induction.PolynomialFunctors.html#polynomial_functor"><span class="id" title="definition">polynomial_functor</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#W.A"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#W.B"><span class="id" title="variable">B</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The "recursion principle": there exists a morphism into any other
+      algebra.
+
+<div class="paragraph"> </div>
+
+      (The first two rules in Proposition 5.8 in Awodey, Gambino, and Sojakova)
+     
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_preinitial" class="idref" href="#is_preinitial"><span class="id" title="definition">is_preinitial</span></a> (<a id="X:3" class="idref" href="#X:3"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#F"><span class="id" title="abbreviation">F</span></a>) :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="Y:4" class="idref" href="#Y:4"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#F"><span class="id" title="abbreviation">F</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_mor"><span class="id" title="definition">algebra_mor</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#F"><span class="id" title="abbreviation">F</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#X:3"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#Y:4"><span class="id" title="variable">Y</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The "homotopy-initiality principle": there is exactly one morphism into
+      any other algebra.
+
+<div class="paragraph"> </div>
+
+      (Definition 5.6 in Awodey, Gambino, and Sojakova)
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_initial" class="idref" href="#is_initial"><span class="id" title="definition">is_initial</span></a> (<a id="X:5" class="idref" href="#X:5"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#F"><span class="id" title="abbreviation">F</span></a>) :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="Y:6" class="idref" href="#Y:6"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#F"><span class="id" title="abbreviation">F</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#iscontr"><span class="id" title="definition">iscontr</span></a> (<a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_mor"><span class="id" title="definition">algebra_mor</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#F"><span class="id" title="abbreviation">F</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#X:5"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#Y:6"><span class="id" title="variable">Y</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="isaprop_is_initial" class="idref" href="#isaprop_is_initial"><span class="id" title="definition">isaprop_is_initial</span></a> (<a id="X:7" class="idref" href="#X:7"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#F"><span class="id" title="abbreviation">F</span></a>) : <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.Induction.W.Core.html#is_initial"><span class="id" title="definition">is_initial</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#X:7"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred"><span class="id" title="lemma">impred</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#isapropiscontr"><span class="id" title="lemma">isapropiscontr</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="is_preinitial_to_is_initial" class="idref" href="#is_preinitial_to_is_initial"><span class="id" title="lemma">is_preinitial_to_is_initial</span></a> (<a id="X:8" class="idref" href="#X:8"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#F"><span class="id" title="abbreviation">F</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Induction.W.Core.html#is_preinitial"><span class="id" title="definition">is_preinitial</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#X:8"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="Y:9" class="idref" href="#Y:9"><span class="id" title="binder">Y</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_mor"><span class="id" title="definition">algebra_mor</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#F"><span class="id" title="abbreviation">F</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#X:8"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#Y:9"><span class="id" title="variable">Y</span></a>)<a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#is_initial"><span class="id" title="definition">is_initial</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#X:8"><span class="id" title="variable">X</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="is_pre:10" class="idref" href="#is_pre:10"><span class="id" title="binder"><span id="is_pre:13" class="id">is_pre</span></span></a> <a id="is_prop:11" class="idref" href="#is_prop:11"><span class="id" title="binder"><span id="is_prop:14" class="id">is_prop</span></span></a> <a id="Y:12" class="idref" href="#Y:12"><span class="id" title="binder"><span id="Y:15" class="id">Y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#iscontraprop1"><span class="id" title="lemma">iscontraprop1</span></a> (<a class="idref" href="UniMath.Induction.W.Core.html#is_prop:11"><span class="id" title="variable">is_prop</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#Y:12"><span class="id" title="variable">Y</span></a>) (<a class="idref" href="UniMath.Induction.W.Core.html#is_pre:10"><span class="id" title="variable">is_pre</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#Y:12"><span class="id" title="variable">Y</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="W" class="idref" href="#W"><span class="id" title="definition">W</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="X:16" class="idref" href="#X:16"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#F"><span class="id" title="abbreviation">F</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#is_initial"><span class="id" title="definition">is_initial</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#X:16"><span class="id" title="variable">X</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="W_algebra" class="idref" href="#W_algebra"><span class="id" title="definition">W_algebra</span></a> : <a class="idref" href="UniMath.Induction.W.Core.html#W"><span class="id" title="definition">W</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Induction.FunctorAlgebras_legacy.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#F"><span class="id" title="abbreviation">F</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="W_is_initial" class="idref" href="#W_is_initial"><span class="id" title="definition">W_is_initial</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="w:17" class="idref" href="#w:17"><span class="id" title="binder">w</span></a> : <a class="idref" href="UniMath.Induction.W.Core.html#W"><span class="id" title="definition">W</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#is_initial"><span class="id" title="definition">is_initial</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#w:17"><span class="id" title="variable">w</span></a>) := <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.Induction.W.Core.html#W_algebra"><span class="id" title="definition">W_algebra</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#W_algebra"><span class="id" title="definition">:</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#W_algebra"><span class="id" title="definition">W</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#W_algebra"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.Induction.W.Core.html#W_algebra"><span class="id" title="definition">algebra_ob</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Induction.W.Core.html#W"><span class="id" title="section">W</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Induction.W.Core.html#isaprop_is_initial"><span class="id" title="definition">isaprop_is_initial</span></a> {<span class="id" title="var">_</span> <span class="id" title="var">_</span>} <span class="id" title="var">_</span>.<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Induction.W.Core.html#is_preinitial"><span class="id" title="definition">is_preinitial</span></a> {<span class="id" title="var">_</span> <span class="id" title="var">_</span>} <span class="id" title="var">_</span>.<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Induction.W.Core.html#is_initial"><span class="id" title="definition">is_initial</span></a> {<span class="id" title="var">_</span> <span class="id" title="var">_</span>} <span class="id" title="var">_</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

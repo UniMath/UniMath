@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ConstructionOfAlgebras.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(****************************************************************************************</span>
+
+<span class="sd"> Construction of algebras</span>
+
+<span class="sd"> In the 'Formal Theory of Monads' by Street, the core definition is when a 2-category</span>
+<span class="sd"> has the construction of algebras, which says that the inclusion of that 2-category</span>
+<span class="sd"> into the monads has a right adjoint.</span>
+
+<span class="sd"> We take a slightly different approach: instead, we define this notion using limits.</span>
+<span class="sd"> More specifically, we look at Eilenberg-Moore objects. In this file, we show that these</span>
+<span class="sd"> two notions are indeed equivalent.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Definition of having the construction of algebras</span>
+<span class="sd"> 2. Having the construction of algebras is equivalent to having Eilenberg-Moore objects</span>
+
+<span class="sd"> ****************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.EilenbergMooreObjects.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.UniversalArrow.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.MonadInclusion.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Definition of having the construction of algebras</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">has_construction_of_algs</span>
+           (<span class="nv">B</span> : bicat)
+  : UU
+  := right_universal_arrow (mnd_incl B).
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Having the construction of algebras is equivalent to having Eilenberg-Moore objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ConstructionOfAlgsToEM</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">HB</span> : has_construction_of_algs B).
+
+  <span class="kn">Definition</span> <span class="nf">has_construction_of_algs_cone</span>
+             (<span class="nv">m</span> : mnd B)
+    : em_cone m
+    := pr1 HB m ,, pr12 HB m.
+
+  <span class="kn">Definition</span> <span class="nf">has_construction_of_algs_to_em_mnd_cell_data</span>
+             {<span class="nv">x</span> : B}
+             {<span class="nv">m</span> : mnd B}
+             (<span class="nv">f</span> : x --&gt; pr1 HB m)
+    : mnd_cell_data
+        (# (mnd_incl B) f · (pr12 HB) m)
+        (em_hom_functor m (has_construction_of_algs_cone m) x f)
+    := id2 _.
+
+  <span class="kn">Definition</span> <span class="nf">has_construction_of_algs_to_em_is_mnd_cell</span>
+             {<span class="nv">x</span> : B}
+             {<span class="nv">m</span> : mnd B}
+             (<span class="nv">f</span> : x --&gt; pr1 HB m)
+    : is_mnd_cell (has_construction_of_algs_to_em_mnd_cell_data f).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_mnd_cell ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> has_construction_of_algs_to_em_mnd_cell_data.
+    <span class="nb">rewrite</span> id2_rwhisker, lwhisker_id2.
+    <span class="nb">rewrite</span> id2_left, id2_right.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> runitor_rwhisker.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> linvunitor_assoc.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_construction_of_algs_to_em_mnd_cell</span>
+             {<span class="nv">x</span> : B}
+             {<span class="nv">m</span> : mnd B}
+             (<span class="nv">f</span> : x --&gt; pr1 HB m)
+    : # (mnd_incl B) f · pr12 HB m
+      ==&gt;
+      em_hom_functor m (has_construction_of_algs_cone m) x f.
+  <span class="kn">Proof</span>.
+    use make_mnd_cell.
+    - <span class="bp">exact</span> (has_construction_of_algs_to_em_mnd_cell_data f).
+    - <span class="bp">exact</span> (has_construction_of_algs_to_em_is_mnd_cell f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_construction_of_algs_to_em_is_nat_trans</span>
+             (<span class="nv">x</span> : B)
+             (<span class="nv">m</span> : mnd B)
+    : is_nat_trans
+        (right_universal_arrow_functor (mnd_incl B) x m (pr12 HB))
+        (em_hom_functor m (pr1 HB m,, (pr12 HB) m) x)
+        has_construction_of_algs_to_em_mnd_cell.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f₁ f₂ α.
+    use eq_mnd_cell ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (id2_right _ @ !(id2_left _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_construction_of_algs_to_em_nat_trans</span>
+             (<span class="nv">x</span> : B)
+             (<span class="nv">m</span> : mnd B)
+    : right_universal_arrow_functor (mnd_incl B) x m (pr12 HB)
+      ⟹
+      em_hom_functor m (pr1 HB m,, (pr12 HB) m) x.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> has_construction_of_algs_to_em_mnd_cell.
+    - <span class="bp">exact</span> (has_construction_of_algs_to_em_is_nat_trans x m).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_construction_of_algs_to_em</span>
+    : bicat_has_em B.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> m.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (has_construction_of_algs_cone m).
+    - <span class="nb">apply</span> is_universal_has_em_ump.
+      <span class="nb">intros</span> x.
+      use (nat_iso_adj_equivalence_of_cats _ _ (pr22 HB x m)).
+      + <span class="bp">exact</span> (has_construction_of_algs_to_em_nat_trans x m).
+      + <span class="nb">intro</span> f.
+        use is_inv2cell_to_is_z_iso.
+        use is_invertible_mnd_2cell.
+        <span class="nb">cbn</span> ; <span class="nb">unfold</span> has_construction_of_algs_to_em_mnd_cell_data.
+        is_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ConstructionOfAlgsToEM</span>.
+
+<span class="kn">Section</span> <span class="nf">EMToConstructionOfAlgs</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">HB</span> : bicat_has_em B).
+
+  <span class="kn">Definition</span> <span class="nf">em_to_has_construction_of_algs_nat_mnd_cell_data</span>
+             {<span class="nv">m</span> : mnd B}
+             {<span class="nv">x</span> : B}
+             (<span class="nv">f</span> : x --&gt; pr1 (HB m))
+    : mnd_cell_data
+        (em_hom_functor m (pr1 (HB m)) x f)
+        (right_universal_arrow_functor (mnd_incl B) x m (<span class="k">λ</span> <span class="nv">m0</span> : mnd B, pr21 (HB m0)) f)
+    := id2 _.
+
+  <span class="kn">Definition</span> <span class="nf">em_to_has_construction_of_algs_nat_is_mnd_cell</span>
+             {<span class="nv">m</span> : mnd B}
+             {<span class="nv">x</span> : B}
+             (<span class="nv">f</span> : x --&gt; pr1 (HB m))
+    : is_mnd_cell (em_to_has_construction_of_algs_nat_mnd_cell_data f).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_mnd_cell.
+    <span class="nb">unfold</span> em_to_has_construction_of_algs_nat_mnd_cell_data.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> lwhisker_id2.
+    }
+    <span class="nb">refine</span> (id2_right _ @ _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> id2_rwhisker.
+    }
+    <span class="nb">refine</span> (id2_left _ @ _).
+    <span class="nb">refine</span> (!_).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (vassocl _ _ _ @ _).
+    <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">refine</span> (_ @ vassocr _ _ _).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">refine</span> (vassocr _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> rwhisker_vcomp.
+      }
+      <span class="nb">refine</span> (vassocr _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> runitor_rwhisker.
+    }
+    <span class="nb">refine</span> (vassocl _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> linvunitor_assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">em_to_has_construction_of_algs_nat_mnd_cell</span>
+             {<span class="nv">m</span> : mnd B}
+             {<span class="nv">x</span> : B}
+             (<span class="nv">f</span> : x --&gt; pr1 (HB m))
+    : em_hom_functor m (pr1 (HB m)) x f
+      ==&gt;
+      right_universal_arrow_functor (mnd_incl B) x m (<span class="k">λ</span> <span class="nv">m0</span> : mnd B, pr21 (HB m0)) f.
+  <span class="kn">Proof</span>.
+    use make_mnd_cell.
+    - <span class="bp">exact</span> (em_to_has_construction_of_algs_nat_mnd_cell_data f).
+    - <span class="bp">exact</span> (em_to_has_construction_of_algs_nat_is_mnd_cell f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">em_to_has_construction_of_algs_is_nat_trans</span>
+             (<span class="nv">m</span> : mnd B)
+             (<span class="nv">x</span> : B)
+    : is_nat_trans
+        (em_hom_functor m (pr1 (HB m)) x)
+        (right_universal_arrow_functor (mnd_incl B) x m (<span class="k">λ</span> <span class="nv">m0</span> : mnd B, pr21 (HB m0)))
+        em_to_has_construction_of_algs_nat_mnd_cell.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f₁ f₂ α.
+    use eq_mnd_cell.
+    <span class="bp">exact</span> (id2_right _ @ !(id2_left _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">em_to_has_construction_of_algs_nat_trans</span>
+             (<span class="nv">m</span> : mnd B)
+             (<span class="nv">x</span> : B)
+    : em_hom_functor m (pr1 (HB m)) x
+      ⟹
+      right_universal_arrow_functor (mnd_incl B) x m (<span class="k">λ</span> <span class="nv">m0</span> : mnd B, pr21 (HB m0)).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> em_to_has_construction_of_algs_nat_mnd_cell.
+    - <span class="bp">exact</span> (em_to_has_construction_of_algs_is_nat_trans m x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">em_to_has_construction_of_algs</span>
+    : has_construction_of_algs B.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span>, pr1 (HB m)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span>, pr21 (HB m)).
+    - <span class="nb">intros</span> x m.
+      use (nat_iso_adj_equivalence_of_cats
+             _ _
+             (has_em_ump_is_universal m (pr2 (HB m)) x)).
+      + <span class="bp">exact</span> (em_to_has_construction_of_algs_nat_trans m x).
+      + <span class="nb">intro</span> f.
+        use is_inv2cell_to_is_z_iso.
+        use is_invertible_mnd_2cell.
+        <span class="nb">cbn</span> ; <span class="nb">unfold</span> em_to_has_construction_of_algs_nat_mnd_cell_data.
+        is_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EMToConstructionOfAlgs</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_construction_of_algs_weq_has_em_inv₁</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB₁</span> : is_univalent_2_1 B)
+           (<span class="nv">HB₂</span> : has_construction_of_algs B)
+  : em_to_has_construction_of_algs (has_construction_of_algs_to_em HB₂) = HB₂.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, _ ,, z) _).
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intro</span> m.
+  <span class="nb">enough</span> (isaprop
+            (adj_equivalence_of_cats
+               (right_universal_arrow_functor (mnd_incl B) x m (pr12 HB₂))))
+    <span class="k">as</span> X.
+  {
+    <span class="nb">apply</span> X.
+  }
+  use isofhlevelweqf.
+  - <span class="bp">exact</span> (@left_adjoint_equivalence
+             bicat_of_univ_cats
+             (univ_hom HB₁ x (pr1 HB₂ m))
+             (univ_hom (is_univalent_2_1_mnd _ HB₁) (mnd_incl B x) m)
+             (right_universal_arrow_functor (mnd_incl B) x m (pr12 HB₂))).
+    - <span class="bp">exact</span> (@adj_equiv_is_equiv_cat
+               (univ_hom _ _ _)
+               _
+               _).
+    - <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+      <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_construction_of_algs_weq_has_em_inv₂</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB₁</span> : is_univalent_2_1 B)
+           (<span class="nv">HB₂</span> : bicat_has_em B)
+  : has_construction_of_algs_to_em (em_to_has_construction_of_algs HB₂) = HB₂.
+<span class="kn">Proof</span>.
+  use funextsec ; <span class="nb">intro</span> m.
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+  <span class="nb">apply</span> isaprop_has_em_ump.
+  <span class="bp">exact</span> HB₁.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_construction_of_algs_weq_has_em</span>
+           (<span class="nv">B</span> : bicat)
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+  : has_construction_of_algs B ≃ bicat_has_em B.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> has_construction_of_algs_to_em.
+  - use isweq_iso.
+    + <span class="bp">exact</span> em_to_has_construction_of_algs.
+    + <span class="nb">apply</span> has_construction_of_algs_weq_has_em_inv₁.
+      <span class="bp">exact</span> HB.
+    + <span class="nb">apply</span> has_construction_of_algs_weq_has_em_inv₂.
+      <span class="bp">exact</span> HB.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Monads/ConstructionOfAlgebras.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Having the construction of algebras is equivalent to having Eilenberg-Moore objects
+  &gt;
+  &gt;  ****************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

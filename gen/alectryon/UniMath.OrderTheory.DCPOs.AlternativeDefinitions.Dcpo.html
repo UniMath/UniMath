@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Dcpo.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">Tom de Jong</span>
+
+<span class="sd">Created: November 2018</span>
+
+<span class="sd">Refactored: January 2019</span>
+
+<span class="sd">****************************************************************************</span>
+<span class="sd">Note: a newer and different implementation of DCPOs and fixed point theorems</span>
+<span class="sd">can be found in OrderTheory.DCPOs.</span>
+<span class="sd">****************************************************************************</span>
+
+<span class="sd">*******************************************************************************)</span>
+
+<span class="sd">(** * Directed complete posets and least fixed points *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Least upper bounds ([leastupperbound])</span>
+<span class="sd">- Definition of a directed family ([directedfamily])</span>
+<span class="sd">- Definition of a directed complete poset (dcpo) ([dcpo])</span>
+<span class="sd">- Definition of a morphisms of dcpos ([morphismofdcpos])</span>
+<span class="sd">- The morphisms between two dcpos form a dcpo with the pointwise order</span>
+<span class="sd">  ([morphismsofdcpos_formdcpo])</span>
+<span class="sd">- Definition of a dcpo with bottom ([dcpowithbottom])</span>
+<span class="sd">- The least fixed point operator for morphisms between dcpos with bottom</span>
+<span class="sd">  ([leastfixedpoint])</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> poset. <span class="c">(* So we can write ≤ *)</span>
+
+<span class="sd">(** ** Least upper bounds *)</span>
+<span class="kn">Section</span> <span class="nf">leastupperbound</span>.
+<span class="kn">Context</span> {<span class="nv">X</span> : Poset}.
+<span class="kn">Context</span> {<span class="nv">I</span> : UU}.
+<span class="kn">Variable</span> (<span class="nv">f</span> : I -&gt; X). <span class="c">(* Indexing family *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isupperbound</span> (<span class="nv">u</span> : X) : UU := ∏ (i : I), f i ≤ u.
+<span class="kn">Lemma</span> <span class="nf">isaprop_isupperbound</span> (<span class="nv">u</span> : X) : isaprop (isupperbound u).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> i; <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="c">(* Definition of least upper bound (lub) *)</span>
+<span class="kn">Definition</span> <span class="nf">islub</span> (<span class="nv">u</span> : X) : UU := isupperbound u ×
+                                 ∏ (y : X), (∏ (i : I), f i ≤ y) -&gt; u ≤ y.
+<span class="kn">Lemma</span> <span class="nf">isaprop_islub</span> (<span class="nv">u</span> : X) : isaprop (islub u).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod.
+  - <span class="nb">apply</span> isaprop_isupperbound.
+  - <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> x.
+    <span class="nb">apply</span> isapropimpl; <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">islub_isupperbound</span> {<span class="nv">u</span> : X} : islub u -&gt; isupperbound u := pr1.
+<span class="kn">Definition</span> <span class="nf">islub_isleast</span> {<span class="nv">u</span> : X} :
+  islub u -&gt; ∏ (y : X), (∏ (i : I), f i ≤ y) -&gt; u ≤ y := pr2.
+
+<span class="kn">Lemma</span> <span class="nf">lubsareunique</span> {<span class="nv">u</span> <span class="nv">v</span> : X} : islub u -&gt; islub v -&gt; u = v.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> islubu islubv.
+  <span class="nb">apply</span> isantisymm_posetRelation.
+  - <span class="nb">apply</span> (islub_isleast islubu). <span class="bp">exact</span> (islub_isupperbound islubv).
+  - <span class="nb">apply</span> (islub_isleast islubv). <span class="bp">exact</span> (islub_isupperbound islubu).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">leastupperbound</span>.
+
+<span class="sd">(** ** Directed families *)</span>
+<span class="kn">Section</span> <span class="nf">directedfamily</span>.
+<span class="kn">Context</span> {<span class="nv">X</span> : Poset}.
+<span class="kn">Context</span> {<span class="nv">I</span> : UU}.
+
+<span class="kn">Definition</span> <span class="nf">isdirected</span> (<span class="nv">f</span> : I -&gt; X) : UU :=
+  ∥ I ∥ × ∏ (i j : I), ∥∑ (k : I), f i ≤ f k × f j ≤ f k∥.
+<span class="kn">Lemma</span> <span class="nf">isaprop_isdirected</span> (<span class="nv">f</span> : I -&gt; X) : isaprop (isdirected f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod.
+  - <span class="nb">apply</span> isapropishinh.
+  - <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> i; <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> j.
+    <span class="nb">apply</span> isapropishinh.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">directeduntruncated</span> (<span class="nv">f</span> : I -&gt; X) (<span class="nv">i</span> <span class="nv">j</span> : I) : UU :=
+  ∑ (k : I), f i ≤ f k × f j ≤ f k.
+
+<span class="kn">Definition</span> <span class="nf">isdirected_inhabited</span> {<span class="nv">f</span> : I -&gt; X} :
+  isdirected f -&gt; ∥ I  ∥ := pr1.
+<span class="kn">Definition</span> <span class="nf">isdirected_compatible</span> {<span class="nv">f</span> : I -&gt; X} :
+  isdirected f -&gt; ∏ (i j : I), ∥∑ (k : I), f i ≤ f k × f j ≤ f k∥ := pr2.
+
+<span class="kn">End</span> <span class="nf">directedfamily</span>.
+
+<span class="sd">(** ** Directed complete posets (dcpos) *)</span>
+<span class="kn">Section</span> <span class="nf">dcpo</span>.
+<span class="kn">Definition</span> <span class="nf">isdirectedcomplete</span> (<span class="nv">X</span> : Poset) : UU :=
+  ∏ (I : UU) (f : I -&gt; X), isdirected f -&gt; ∑ (u : X), islub f u.
+<span class="kn">Lemma</span> <span class="nf">isaprop_isdirectedcomplete</span> (<span class="nv">X</span> : Poset) : isaprop (isdirectedcomplete X).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> I.
+  <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> f.
+  <span class="nb">apply</span> isapropimpl.
+  <span class="nb">apply</span> invproofirrelevance.
+  <span class="nb">intros</span> [u p] [v q].
+  <span class="nb">apply</span> total2_paths_equiv.
+  <span class="k">exists</span> (<span class="nv">lubsareunique</span> <span class="nv">_</span> <span class="nv">p</span> <span class="nv">q</span>).
+  <span class="nb">apply</span> proofirrelevance. <span class="nb">apply</span> isaprop_islub.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dcpo</span> := ∑ (X : Poset), isdirectedcomplete X.
+<span class="kn">Definition</span> <span class="nf">dcpoposet</span> : dcpo -&gt; Poset := pr1.
+<span class="kn">Coercion</span> <span class="nf">dcpoposet</span> : dcpo &gt;-&gt; Poset.
+<span class="kn">Definition</span> <span class="nf">dcpoisdirectedcomplete</span> (<span class="nv">D</span> : dcpo) : isdirectedcomplete D := pr2 D.
+<span class="kn">Definition</span> <span class="nf">make_dcpo</span> (<span class="nv">X</span> : Poset) (<span class="nv">i</span> : isdirectedcomplete X) : dcpo := (X,,i).
+
+<span class="kn">Definition</span> <span class="nf">make_dcpo_lub</span> {<span class="nv">D</span> : dcpo} {<span class="nv">I</span> : UU} {<span class="nv">f</span> : I -&gt; D} : isdirected f -&gt; D.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> isdirec.
+  <span class="bp">exact</span> (pr1 (dcpoisdirectedcomplete D I f isdirec)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_dcpo_lub_islub</span> {<span class="nv">D</span> : dcpo} {<span class="nv">I</span> : UU} {<span class="nv">f</span> : I -&gt; D}
+           (<span class="nv">isdirec</span> : isdirected f) : islub f (make_dcpo_lub isdirec).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (dcpoisdirectedcomplete D I f isdirec)).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">dcpo</span>.
+
+<span class="sd">(** ** Morphisms of dcpos *)</span>
+
+<span class="kn">Section</span> <span class="nf">morphismofdcpos</span>.
+<span class="kn">Definition</span> <span class="nf">preserveslub</span> {<span class="nv">P</span> <span class="nv">Q</span> : Poset} (<span class="nv">f</span> : P -&gt; Q) {<span class="nv">I</span> : UU} (<span class="nv">u</span> : I -&gt; P) : UU :=
+  ∏ (v : P), islub u v -&gt; islub (f ∘ u) (f v).
+<span class="kn">Lemma</span> <span class="nf">isaprop_preserveslub</span> {<span class="nv">P</span> <span class="nv">Q</span> : Poset} (<span class="nv">f</span> : P -&gt; Q) {<span class="nv">I</span> : UU} (<span class="nv">u</span> : I -&gt; P) :
+  isaprop (preserveslub f u).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> v.
+  <span class="nb">apply</span> isapropimpl. <span class="nb">apply</span> isaprop_islub.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isdcpomorphism</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} (<span class="nv">f</span> : D -&gt; D') :=
+  isaposetmorphism f ×
+  ∏ (I : UU) (u : I -&gt; D), isdirected u -&gt; preserveslub f u.
+<span class="kn">Lemma</span> <span class="nf">isaprop_isdcpomorphism</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} (<span class="nv">f</span> : D -&gt; D') :
+  isaprop (isdcpomorphism f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod.
+  - <span class="nb">apply</span> isaprop_isaposetmorphism.
+  - <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> I.
+    <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> u.
+    <span class="nb">apply</span> isapropimpl; <span class="nb">apply</span> isaprop_preserveslub.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dcpomorphism</span> (<span class="nv">D</span> <span class="nv">D'</span> : dcpo) := ∑ (f : D -&gt; D'), isdcpomorphism f.
+
+<span class="kn">Definition</span> <span class="nf">dcpomorphism_posetmorphism</span> (<span class="nv">D</span> <span class="nv">D'</span> : dcpo) :
+  dcpomorphism D D' -&gt; posetmorphism D D'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [f isdcpomor].
+  <span class="k">exists</span> <span class="nv">f</span>. <span class="bp">exact</span> (pr1 isdcpomor).
+<span class="kn">Defined</span>.
+<span class="kn">Coercion</span> <span class="nf">dcpomorphism_posetmorphism</span> : dcpomorphism &gt;-&gt; posetmorphism.
+
+<span class="kn">Lemma</span> <span class="nf">dcpomorphism_preservesorder</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} (<span class="nv">f</span> : dcpomorphism D D') :
+  isaposetmorphism f.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr2 f)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dcpomorphism_preservesdirected</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} (<span class="nv">f</span> : dcpomorphism D D')
+      {<span class="nv">I</span> : UU} {<span class="nv">u</span> : I -&gt; D} : isdirected u -&gt; isdirected (pr1 f ∘ u).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> isdirec.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (isdirected_inhabited isdirec).
+  - <span class="nb">intros</span> i j. <span class="nb">apply</span> (@factor_through_squash (directeduntruncated u i j)).
+    + <span class="nb">apply</span> isapropishinh.
+    + <span class="nb">intro</span> direc. <span class="nb">apply</span> hinhpr. <span class="nb">induction</span> direc <span class="k">as</span> [k ineqs].
+      <span class="nb">split with</span> k. <span class="nb">split</span>.
+      * <span class="nb">apply</span> dcpomorphism_preservesorder. <span class="bp">exact</span> (pr1 ineqs).
+      * <span class="nb">apply</span> dcpomorphism_preservesorder. <span class="bp">exact</span> (pr2 ineqs).
+    + <span class="bp">exact</span> (isdirected_compatible isdirec i j).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dcpomorphism_preserveslub</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} (<span class="nv">f</span> : dcpomorphism D D')
+           {<span class="nv">I</span> : UU} {<span class="nv">u</span> : I -&gt; D} : isdirected u -&gt; preserveslub f u.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> isdirec.
+  <span class="nb">apply</span> (pr2 (pr2 f)).
+  <span class="bp">exact</span> isdirec.
+<span class="kn">Qed</span>.
+
+<span class="c">(* In fact, requiring that a dcpo morphism is a poset morphism is redundant *)</span>
+<span class="kn">Definition</span> <span class="nf">isdcpomorphism'</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} (<span class="nv">f</span> : D -&gt; D') :=
+  ∏ (I : UU) (u : I -&gt; D), isdirected u -&gt; preserveslub f u.
+
+<span class="kn">Lemma</span> <span class="nf">preservesdirectedlub_isdcpomorphism</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} (<span class="nv">f</span> : D -&gt; D') :
+  isdcpomorphism' f -&gt; isdcpomorphism f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> preservesdireclub.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y ineq.
+    <span class="nb">set</span> (two := coprod unit unit).
+    <span class="nb">set</span> (fam := (<span class="k">λ</span> <span class="nv">t</span> : two, <span class="k">match</span> t <span class="k">with</span> | inl _ =&gt; x | inr _ =&gt; y <span class="k">end</span>)).
+    <span class="nb">assert</span> (isdirec : isdirected fam).
+    { <span class="nb">split</span>.
+      - <span class="nb">apply</span> hinhpr. <span class="bp">exact</span> (inl tt).
+      - <span class="nb">intros</span> i j. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">inr</span> <span class="nv">tt</span>).
+        <span class="nb">induction</span> i, j.
+        + <span class="nb">simpl</span>. <span class="bp">exact</span> (ineq,,ineq).
+        + <span class="nb">simpl</span>. <span class="nb">split</span>.
+          ++ <span class="bp">exact</span> ineq.
+          ++ <span class="nb">apply</span> isrefl_posetRelation.
+        + <span class="nb">simpl</span>. <span class="nb">split</span>.
+          ++ <span class="nb">apply</span> isrefl_posetRelation.
+          ++ <span class="bp">exact</span> ineq.
+        + <span class="nb">simpl</span>. <span class="nb">split</span>.
+          ++ <span class="nb">apply</span> isrefl_posetRelation.
+          ++ <span class="nb">apply</span> isrefl_posetRelation. }
+    <span class="nb">assert</span> (islubfam : islub fam y).
+    { <span class="nb">split</span>.
+      - <span class="nb">intro</span> t. <span class="nb">induction</span> t.
+        + <span class="nb">simpl</span>. <span class="bp">exact</span> ineq.
+        + <span class="nb">simpl</span>. <span class="nb">apply</span> isrefl_posetRelation.
+      - <span class="nb">intros</span> d ineqs. <span class="bp">exact</span> (ineqs (inr tt)). }
+    <span class="nb">set</span> (islubfam' := preservesdireclub two fam isdirec y islubfam).
+    <span class="nb">apply</span> (islub_isupperbound (f ∘ fam) islubfam' (inl tt)).
+  - <span class="bp">exact</span> preservesdireclub.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_dcpomorphism</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo}
+           (<span class="nv">f</span> : D -&gt; D') (<span class="nv">i</span> : isdcpomorphism' f) : dcpomorphism D D'.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">f</span>.
+  <span class="nb">apply</span> preservesdirectedlub_isdcpomorphism. <span class="bp">exact</span> i.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Constant functions between dcpos are continuous *)</span>
+<span class="kn">Definition</span> <span class="nf">const_dcpomor</span> (<span class="nv">D</span> <span class="nv">E</span> : dcpo) (<span class="nv">e</span> : E) : dcpomorphism D E.
+<span class="kn">Proof</span>.
+  use make_dcpomorphism.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, e).
+  - <span class="nb">intros</span> I u isdirec v islubv. <span class="nb">split</span>.
+    + <span class="nb">intro</span> i. <span class="nb">simpl</span>. <span class="nb">apply</span> isrefl_posetRelation.
+    + <span class="nb">intros</span> d' ineqs. <span class="nb">apply</span> (@factor_through_squash I).
+      * <span class="nb">apply</span> propproperty.
+      * <span class="nb">intro</span> i. <span class="bp">exact</span> (ineqs i).
+      * <span class="bp">exact</span> (isdirected_inhabited isdirec).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">morphismofdcpos</span>.
+
+<span class="sd">(** ** The morphisms between two dcpos form a dcpo with the pointwise order. *)</span>
+<span class="kn">Section</span> <span class="nf">morphismsofdcpos_formdcpo</span>.
+<span class="kn">Definition</span> <span class="nf">pointwiseorder</span> (<span class="nv">D</span> <span class="nv">D'</span> : dcpo) : hrel (dcpomorphism D D').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g. use make_hProp.
+  - <span class="bp">exact</span> (∏ (d : D), f d ≤ g d).
+  - <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span> d. <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispartialorder_pointwiseorder</span> (<span class="nv">D</span> <span class="nv">D'</span> : dcpo) :
+  isPartialOrder (pointwiseorder D D').
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span> f g h ineq1 ineq2 d.
+      <span class="nb">eapply</span> istrans_posetRelation.
+      ++ use ineq1.
+      ++ use ineq2.
+    + <span class="nb">intros</span> f p. <span class="nb">apply</span> isrefl_posetRelation.
+  - <span class="nb">intros</span> f g ineq1 ineq2. <span class="nb">apply</span> total2_paths_equiv.
+    <span class="nb">assert</span> (funeq : pr1 f = pr1 g).
+    { use funextfun; <span class="nb">intro</span> d. <span class="nb">apply</span> isantisymm_posetRelation.
+      - use ineq1.
+      - use ineq2. }
+    <span class="k">exists</span> <span class="nv">funeq</span>.
+    <span class="nb">apply</span> proofirrelevance, isaprop_isdcpomorphism.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">posetofdcpomorphisms</span> (<span class="nv">D</span> <span class="nv">D'</span> : dcpo) : Poset.
+<span class="kn">Proof</span>.
+  use make_Poset.
+  - use make_hSet.
+    + <span class="bp">exact</span> (dcpomorphism D D').
+    + <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>).
+      ++ <span class="nb">apply</span> impred_isaset; <span class="nb">intro</span> d.
+         <span class="nb">apply</span> setproperty.
+      ++ <span class="nb">intro</span> f; <span class="nb">apply</span> isasetaprop, isaprop_isdcpomorphism.
+  - use make_PartialOrder.
+    + <span class="nb">apply</span> pointwiseorder.
+    + <span class="nb">apply</span> ispartialorder_pointwiseorder.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lubpreservesorder</span> {<span class="nv">X</span> : Poset} {<span class="nv">I</span> : UU} (<span class="nv">u</span> <span class="nv">v</span> : I -&gt; X) :
+  (∏ (i : I), u i ≤ v i) -&gt;
+  ∏ (lu lv : X), islub u lu -&gt; islub v lv -&gt; lu ≤ lv.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ineqs lu lv islubu islubv.
+  <span class="nb">eapply</span> islub_isleast.
+  - <span class="bp">exact</span> islubu.
+  - <span class="nb">intro</span> i. <span class="nb">eapply</span> istrans_posetRelation.
+    + <span class="bp">exact</span> (ineqs i).
+    + <span class="nb">apply</span> (islub_isupperbound v islubv).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Given a family of dcpo morphisms from D to D' and a point d : D</span>
+<span class="sd">   we have a pointwise family in D' by evaluating each morphism at d. *)</span>
+<span class="kn">Definition</span> <span class="nf">pointwisefamily</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} {<span class="nv">I</span> : UU}
+           (<span class="nv">F</span> : I -&gt; dcpomorphism D D') : D -&gt; I -&gt; D' :=
+  <span class="k">λ</span> (<span class="nv">d</span> : D), <span class="k">λ</span> (<span class="nv">i</span> : I), (F i) d.
+
+<span class="kn">Lemma</span> <span class="nf">pointwisefamily_isdirected</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} {<span class="nv">I</span> : UU}
+      (<span class="nv">F</span> : I -&gt; posetofdcpomorphisms D D') :
+  isdirected F -&gt; ∏ (d : D), isdirected (pointwisefamily F d).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isdirec d. <span class="nb">split</span>.
+  - <span class="bp">exact</span> (isdirected_inhabited isdirec).
+  - <span class="nb">intros</span> i j. use factor_through_squash.
+    + <span class="bp">exact</span> (directeduntruncated F i j).
+    + <span class="nb">apply</span> isapropishinh.
+    + <span class="nb">intro</span> direc. <span class="nb">apply</span> hinhpr.
+      <span class="nb">induction</span> direc <span class="k">as</span> [k ineqs].
+      <span class="k">exists</span> <span class="nv">k</span>. <span class="nb">unfold</span> pointwisefamily.
+      <span class="nb">induction</span> ineqs <span class="k">as</span> [ineq1 ineq2]. <span class="nb">split</span>.
+      * use ineq1.
+      * use ineq2.
+    + <span class="nb">apply</span> (isdirected_compatible isdirec).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointwiselub</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} {<span class="nv">I</span> : UU}
+           (<span class="nv">F</span> : I -&gt; posetofdcpomorphisms D D') (<span class="nv">isdir</span> : isdirected F) : D -&gt; D'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> d.
+  <span class="nb">set</span> (ptfamdir := pointwisefamily_isdirected F isdir d).
+  <span class="bp">exact</span> (make_dcpo_lub ptfamdir).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pointwiselub_islubpointwise</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} {<span class="nv">I</span> : UU}
+      (<span class="nv">F</span> : I -&gt; posetofdcpomorphisms D D') (<span class="nv">isdirec</span> : isdirected F) :
+  ∏ (d : D), islub (pointwisefamily F d) (pointwiselub F isdirec d).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> d.
+  <span class="nb">set</span> (ptfamdir := pointwisefamily_isdirected F isdirec d).
+  <span class="bp">exact</span> (make_dcpo_lub_islub ptfamdir).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pointwiselub_preservesorder</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} {<span class="nv">I</span> : UU}
+      (<span class="nv">F</span> : I -&gt; posetofdcpomorphisms D D') (<span class="nv">isdirec</span> : isdirected F) :
+  isaposetmorphism (pointwiselub F isdirec).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y ineq. use lubpreservesorder.
+  - <span class="bp">exact</span> I.
+  - <span class="nb">intro</span> i. <span class="nb">apply</span> (F i). <span class="bp">exact</span> x.
+  - <span class="nb">intro</span> i. <span class="nb">apply</span> (F i). <span class="bp">exact</span> y.
+  - <span class="nb">intro</span> i. <span class="nb">simpl</span>.
+    <span class="nb">apply</span> dcpomorphism_preservesorder.
+    <span class="bp">exact</span> ineq.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> pointwiselub_islubpointwise.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> pointwiselub_islubpointwise.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pointwiselub_isdcpomorphism'</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} {<span class="nv">I</span> : UU}
+      (<span class="nv">F</span> : I -&gt; posetofdcpomorphisms D D') (<span class="nv">isdirec</span> : isdirected F) :
+  isdcpomorphism' (pointwiselub F isdirec).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> isdcpomorphism'. <span class="nb">intros</span> J v isdirecv.
+  <span class="nb">intros</span> w wislub.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> j. <span class="nb">apply</span> pointwiselub_preservesorder.
+    <span class="nb">apply</span> islub_isupperbound. <span class="bp">exact</span> wislub.
+  - <span class="nb">intros</span> d' ineqs.
+    <span class="nb">eapply</span> islub_isleast.
+    + <span class="nb">apply</span> pointwiselub_islubpointwise.
+    + <span class="nb">intro</span> i. <span class="nb">unfold</span> pointwisefamily.
+      <span class="nb">eapply</span> dcpomorphism_preserveslub.
+      * <span class="bp">exact</span> isdirecv.
+      * <span class="bp">exact</span> wislub.
+      * <span class="nb">intro</span> j. <span class="nb">eapply</span> istrans_posetRelation.
+        <span class="mi">2</span>: { <span class="bp">exact</span> (ineqs j). }
+        <span class="nb">apply</span> pointwiselub_islubpointwise.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pointwiselub_islub</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} {<span class="nv">I</span> : UU}
+      (<span class="nv">F</span> : I -&gt; posetofdcpomorphisms D D') (<span class="nv">isdirec</span> : isdirected F) :
+  islub F (make_dcpomorphism (pointwiselub F isdirec)
+                            (pointwiselub_isdcpomorphism' F isdirec)).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> i; <span class="nb">simpl</span>. <span class="nb">intro</span> d; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> pointwiselub_islubpointwise.
+  - <span class="nb">intros</span> h ineqs; <span class="nb">simpl</span>. <span class="nb">intro</span> d; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> pointwiselub_islubpointwise.
+    <span class="nb">intro</span> i. use (ineqs i).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">islub_islubpointwise</span> {<span class="nv">D</span> <span class="nv">D'</span> : dcpo} {<span class="nv">I</span> : UU} {<span class="nv">g</span> : posetofdcpomorphisms D D'}
+      {<span class="nv">F</span> : I -&gt; posetofdcpomorphisms D D'} (<span class="nv">isdirec</span> : isdirected F) :
+  islub F g -&gt; ∏ (d : D), islub (pointwisefamily F d) (pr1 g d).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> islubFg d.
+  <span class="nb">set</span> (ptlub := make_dcpomorphism (pointwiselub F isdirec)
+                               (pointwiselub_isdcpomorphism' F isdirec)).
+  <span class="nb">assert</span> (lubeq : g = ptlub).
+  { <span class="nb">apply</span> (lubsareunique F islubFg).
+    <span class="nb">apply</span> pointwiselub_islub. }
+  <span class="nb">rewrite</span> lubeq.
+  <span class="nb">apply</span> pointwiselub_islubpointwise.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">posetofdcpomorphisms_isdirectedcomplete</span> (<span class="nv">D</span> <span class="nv">D'</span> : dcpo) :
+  isdirectedcomplete (posetofdcpomorphisms D D').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> I F isdirec.
+  <span class="k">exists</span> (<span class="nv">make_dcpomorphism</span> (pointwiselub F isdirec)
+                         (pointwiselub_isdcpomorphism' F isdirec)).
+  <span class="nb">apply</span> pointwiselub_islub.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dcpoofdcpomorphisms</span> (<span class="nv">D</span> <span class="nv">D'</span> : dcpo) : dcpo.
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> make_dcpo.
+  - <span class="bp">exact</span> (posetofdcpomorphisms_isdirectedcomplete D D').
+<span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">morphismsofdcpos_formdcpo</span>.
+
+<span class="sd">(** ** Dcpos with bottom *)</span>
+<span class="kn">Section</span> <span class="nf">dcpowithbottom</span>.
+<span class="kn">Definition</span> <span class="nf">dcpowithbottom</span> := ∑ (D : dcpo), ∑ (l : D), isMinimal l.
+<span class="kn">Definition</span> <span class="nf">dcpowithbottom_dcpo</span> : dcpowithbottom -&gt; dcpo := pr1.
+<span class="kn">Coercion</span> <span class="nf">dcpowithbottom_dcpo</span> : dcpowithbottom &gt;-&gt; dcpo.
+<span class="kn">Definition</span> <span class="nf">dcpowithbottom_isMinimal</span> (<span class="nv">D</span> : dcpowithbottom) := (pr2 (pr2 D)).
+<span class="kn">Definition</span> <span class="nf">dcpowithbottom_bottom</span> (<span class="nv">D</span> : dcpowithbottom) := pr1 (pr2 D).
+
+<span class="kn">Definition</span> <span class="nf">dcpowithbottom_ofdcpomorphisms</span> (<span class="nv">D</span> <span class="nv">D'</span> : dcpowithbottom) :
+  dcpowithbottom.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">dcpoofdcpomorphisms</span> <span class="nv">D</span> <span class="nv">D'</span>).
+  <span class="nb">set</span> (leastD' := dcpowithbottom_bottom D').
+  <span class="nb">set</span> (l := const_dcpomor D D' leastD').
+  <span class="k">exists</span> <span class="nv">l</span>.
+  <span class="nb">intro</span> f. <span class="nb">simpl</span>. <span class="nb">intro</span> d.
+  <span class="nb">apply</span> dcpowithbottom_isMinimal.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">dcpowithbottom</span>.
+
+<span class="kn">Declare Scope</span> DCPO.
+<span class="kn">Delimit Scope</span> DCPO <span class="k">with</span> DCPO.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> DCPO.
+<span class="kn">Notation</span> <span class="s2">"A --&gt; B"</span> := (dcpowithbottom_ofdcpomorphisms A B) : DCPO.
+
+<span class="sd">(** ** The least fixed point *)</span>
+<span class="kn">Section</span> <span class="nf">leastfixedpoint</span>.
+
+<span class="kn">Definition</span> <span class="nf">iter</span> {<span class="nv">D</span> : dcpowithbottom} (<span class="nv">n</span> : nat) (<span class="nv">f</span> : D --&gt; D) : D.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | m IH].
+  - <span class="bp">exact</span> (dcpowithbottom_bottom D).
+  - <span class="nb">apply</span> f. <span class="bp">exact</span> IH.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iter_preservesorder</span> {<span class="nv">D</span> : dcpowithbottom} (<span class="nv">f</span> <span class="nv">g</span> : D --&gt; D) :
+  (f ≤ g) -&gt; ∏ (n : nat), (iter n f ≤ iter n g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ineq n; <span class="nb">induction</span> n <span class="k">as</span> [ | m IH].
+  - <span class="nb">apply</span> isrefl_posetRelation.
+  - <span class="nb">simpl</span>. <span class="nb">eapply</span> istrans_posetRelation.
+    + <span class="nb">apply</span> dcpomorphism_preservesorder. <span class="bp">exact</span> IH.
+    + use ineq.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Next, we show that each iter n is continuous, but first a small lemma.</span>
+<span class="sd">    It could be generalised using monotone nets, c.f.</span>
+<span class="sd">    Proposition 2.1.12 in Abramsky's and Jung's chapter "Domain Theory"</span>
+<span class="sd">    in "Handbook of Logic in Computer Science".</span>
+<span class="sd">    We're saying that: ⊔ f^(n+1)(⊥) = ⊔ g(⊔ f^n(⊥)), where f,g are in the</span>
+<span class="sd">    family F.</span>
+<span class="sd">    One inequality is easy; the other crucially relies on the fact that</span>
+<span class="sd">    F is directed. *)</span>
+<span class="kn">Lemma</span> <span class="nf">doublelubdirected</span> {<span class="nv">D</span> : dcpowithbottom} {<span class="nv">I</span> : UU} (<span class="nv">F</span> : I -&gt; D --&gt;D)
+      (<span class="nv">isdirec</span> : isdirected F) (<span class="nv">n</span> : nat) (<span class="nv">u</span> <span class="nv">u'</span> : D) :
+  islub (<span class="k">λ</span> <span class="nv">i</span> : I, iter n (F i)) u' -&gt; islub (<span class="k">λ</span> <span class="nv">j</span> : I, (pr1) (F j) u') u -&gt;
+  islub (<span class="k">λ</span> <span class="nv">i</span> : I, iter (S n) (F i)) u.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> islubu' islubu.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> i.
+    <span class="nb">simpl</span>. <span class="nb">eapply</span> istrans_posetRelation.
+    + <span class="nb">apply</span> dcpomorphism_preservesorder.
+      <span class="nb">apply</span> (islub_isupperbound _ islubu').
+    + <span class="nb">apply</span> (islub_isupperbound _ islubu).
+  - <span class="nb">intros</span> d ineqs.
+    <span class="nb">apply</span> (islub_isleast _ islubu).
+    <span class="nb">intro</span> i.
+    <span class="nb">set</span> (fam := <span class="k">λ</span> <span class="nv">i</span> : I, iter n (F i)).
+    <span class="nb">assert</span> (isdirec' : isdirected (<span class="k">λ</span> <span class="nv">i</span> : I, iter n (F i))).
+    { <span class="nb">split</span>.
+      - <span class="bp">exact</span> (isdirected_inhabited isdirec).
+      - <span class="nb">intros</span> i1 i2.
+        use factor_through_squash.
+        + <span class="bp">exact</span> (directeduntruncated F i1 i2).
+        + <span class="nb">apply</span> isapropishinh.
+        + <span class="nb">intro</span> direc. <span class="nb">apply</span> hinhpr.
+          <span class="nb">induction</span> direc <span class="k">as</span> [k ineqs'].
+          <span class="k">exists</span> <span class="nv">k</span>.
+          <span class="nb">split</span>.
+          * <span class="nb">apply</span> iter_preservesorder. <span class="bp">exact</span> (pr1 ineqs').
+          * <span class="nb">apply</span> iter_preservesorder. <span class="bp">exact</span> (pr2 ineqs').
+        + <span class="nb">apply</span> (isdirected_compatible isdirec).
+    }
+    <span class="nb">eapply</span> dcpomorphism_preserveslub.
+    + <span class="bp">exact</span> isdirec'.
+    + <span class="bp">exact</span> islubu'.
+    + <span class="nb">intro</span> j. <span class="nb">simpl</span>.
+      use factor_through_squash.
+      * <span class="bp">exact</span> (directeduntruncated F i j).
+      * <span class="nb">apply</span> propproperty.
+      * <span class="nb">intro</span> direc. <span class="nb">induction</span> direc <span class="k">as</span> [k ineqs'].
+        <span class="nb">eapply</span> istrans_posetRelation.
+        -- <span class="nb">apply</span> dcpomorphism_preservesorder.
+           <span class="nb">apply</span> iter_preservesorder.
+           <span class="nb">apply</span> (pr2 ineqs').
+        -- <span class="nb">eapply</span> istrans_posetRelation.
+           ++ use (pr1 ineqs').
+           ++ <span class="bp">exact</span> (ineqs k).
+      * <span class="nb">apply</span> (isdirected_compatible isdirec).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iter_isdcpomorphism'</span> (<span class="nv">D</span> : dcpowithbottom) :
+  ∏ (n : nat), isdcpomorphism' (@iter D n).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n I F isdirec g islubg.
+  <span class="nb">induction</span> n <span class="k">as</span> [| m IH].
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span> i. <span class="nb">simpl</span>. <span class="nb">apply</span> dcpowithbottom_isMinimal.
+    + <span class="nb">intros</span> y ineqs. <span class="nb">apply</span> dcpowithbottom_isMinimal.
+  - <span class="nb">simpl</span>. <span class="nb">eapply</span> doublelubdirected.
+    + <span class="bp">exact</span> isdirec.
+    + <span class="bp">exact</span> IH.
+    + <span class="nb">set</span> (islub' := pointwiselub_islub F isdirec).
+      <span class="nb">set</span> (eq := lubsareunique _ islubg islub').
+      <span class="nb">rewrite</span> eq; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pointwiselub_islubpointwise.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Iter as dcpo morphism *)</span>
+<span class="kn">Definition</span> <span class="nf">iter'</span> {<span class="nv">D</span> : dcpowithbottom} (<span class="nv">n</span> : nat) : (D --&gt; D) --&gt; D.
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> make_dcpomorphism.
+  <span class="bp">exact</span> (iter_isdcpomorphism' D n).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iter'_isomegachain</span> (<span class="nv">D</span> : dcpowithbottom) :
+  ∏ (n : nat), (@iter' D n ≤ @iter' D (S n)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | m IH].
+  - <span class="nb">simpl</span>. <span class="nb">intro</span> f. <span class="nb">apply</span> dcpowithbottom_isMinimal.
+  - <span class="nb">simpl</span>. <span class="nb">intro</span> f. <span class="nb">apply</span> dcpomorphism_preservesorder. use IH.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iter'_increases</span> (<span class="nv">D</span> : dcpowithbottom) :
+  ∏ (n m : nat), (n ≤ m)%nat -&gt; (@iter' D n ≤ @iter' D m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n m ineq.
+  <span class="nb">induction</span> m <span class="k">as</span> [ | m' IH].
+  - <span class="nb">set</span> (nis0 := natleh0tois0 ineq).
+    <span class="nb">rewrite</span> nis0. <span class="nb">apply</span> isrefl_posetRelation.
+  - <span class="nb">set</span> (cases := natlehchoice _ _ ineq).
+    <span class="nb">induction</span> cases <span class="k">as</span> [less | equal].
+    + <span class="nb">eapply</span> istrans_posetRelation.
+      * <span class="nb">apply</span> IH. <span class="nb">apply</span> less.
+      * <span class="nb">apply</span> iter'_isomegachain.
+    + <span class="nb">rewrite</span> equal. <span class="nb">apply</span> isrefl_posetRelation.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iter'_isdirected</span> (<span class="nv">D</span> : dcpowithbottom) :
+  isdirected (@iter' D).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> hinhpr. <span class="bp">exact</span> O.
+  - <span class="nb">intros</span> n m. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">n</span> + m).
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> iter'_increases. <span class="nb">apply</span> natlehnplusnm.
+    + <span class="nb">apply</span> iter'_increases, natlehmplusnm.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">leastfixedpoint</span> {<span class="nv">D</span> : dcpowithbottom} : (D --&gt; D) --&gt; D.
+<span class="kn">Proof</span>.
+  use make_dcpomorphism.
+  - <span class="nb">eapply</span> pointwiselub.
+    <span class="nb">apply</span> iter'_isdirected.
+  - <span class="nb">apply</span> pointwiselub_isdcpomorphism'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"'μ'"</span> := leastfixedpoint : DCPO.
+
+<span class="kn">Lemma</span> <span class="nf">leastfixedpoint_isfixedpoint</span> {<span class="nv">D</span> : dcpowithbottom} :
+  ∏ (f : D --&gt; D), (pr1 f) (pr1 μ f) = pr1 μ f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f. <span class="nb">unfold</span> leastfixedpoint; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> isantisymm_posetRelation.
+  - <span class="nb">set</span> (isdirec := pointwisefamily_isdirected iter' (iter'_isdirected D) f).
+    <span class="nb">eapply</span> dcpomorphism_preserveslub.
+    + <span class="bp">exact</span> isdirec.
+    + <span class="nb">apply</span> pointwiselub_islubpointwise.
+    + <span class="nb">intro</span> n. <span class="nb">simpl</span>.
+      <span class="nb">eapply</span> (istrans_posetRelation _ _ (pointwisefamily iter' f (S n)) _).
+      * <span class="nb">apply</span> isrefl_posetRelation.
+      * <span class="nb">apply</span> pointwiselub_islubpointwise.
+  - <span class="nb">eapply</span> (islub_isleast).
+    + <span class="nb">apply</span> pointwiselub_islubpointwise.
+    + <span class="nb">intro</span> n. <span class="nb">induction</span> n <span class="k">as</span> [ | m IH].
+      * <span class="nb">apply</span> dcpowithbottom_isMinimal.
+      * <span class="nb">unfold</span> pointwisefamily; <span class="nb">simpl</span>. <span class="nb">apply</span> dcpomorphism_preservesorder.
+        <span class="nb">eapply</span> istrans_posetRelation.
+        -- use iter'_increases.
+           ++ <span class="bp">exact</span> (S m).
+           ++ <span class="nb">apply</span> natlehnsn.
+        -- <span class="bp">exact</span> (islub_isupperbound _
+                  (pointwiselub_islubpointwise iter' (iter'_isdirected D) f)
+                  (S m)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">leastfixedpoint_isleast</span> {<span class="nv">D</span> : dcpowithbottom} (<span class="nv">f</span> : D --&gt; D) :
+  ∏ (d : D), ((pr1 f) d ≤ d) -&gt; (pr1 μ f ≤ d).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> d ineq.
+  <span class="nb">eapply</span> islub_isleast.
+  - <span class="nb">apply</span> pointwiselub_islubpointwise.
+  - <span class="nb">intro</span> n; <span class="nb">induction</span> n <span class="k">as</span> [ | m IH].
+    + <span class="nb">apply</span> dcpowithbottom_isMinimal.
+    + <span class="nb">unfold</span> pointwisefamily. <span class="nb">simpl</span>.
+      <span class="nb">eapply</span> istrans_posetRelation.
+      * <span class="nb">apply</span> dcpomorphism_preservesorder. <span class="bp">exact</span> IH.
+      * <span class="bp">exact</span> ineq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Close Scope</span> DCPO.
+
+<span class="kn">End</span> <span class="nf">leastfixedpoint</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/AlternativeDefinitions/Dcpo.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   ([leastfixedpoint])
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; Local Open Scope poset. (* So we can write ≤ *)
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

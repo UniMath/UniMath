@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Tensor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">In this file, the necessary ingredients to show how the (displayed) category of comonoids (resp. commutative comonoids) is (displayed) symmetric.</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.Fullsub.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.SymmetricDiagonal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Import</span> ComonoidNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">TensorOfComonoids</span>.
+
+  <span class="kn">Context</span> (<span class="nv">M</span> : sym_monoidal_cat).
+
+  <span class="kn">Definition</span> <span class="nf">tensor_of_comonoids_data</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : comonoid M)
+    : comonoid_data M.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">mx</span> ⊗ my).
+    <span class="nb">split</span>.
+    - <span class="nb">refine</span> (δ_{mx} #⊗ δ_{my} · _).
+      <span class="bp">exact</span> (inner_swap M mx mx my my).
+    - <span class="bp">exact</span> (ε_{mx} #⊗ ε_{my} · lu^{M}_{_}).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">precompose_inner_swap_with_augs_on_left</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : comonoid M)
+    : inner_swap M mx mx my my · (ε_{ mx} ⊗^{ M} ε_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
+      = (ε_{ mx} ⊗^{M}_{r} _) #⊗ (ε_{ my} ⊗^{M}_{r} my) · inner_swap M _ _ _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ naturality_inner_swap (M) ε_{mx} (identity _)  ε_{my} (identity _) @ _).
+    - <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_rightwhiskering M).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, tensor_id_id.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- ! (when_bifunctor_becomes_rightwhiskering M).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">precompose_inner_swap_with_diag_on_left</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : comonoid M)
+    : inner_swap (M) mx mx my my · (δ_{ mx} ⊗^{ M} δ_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
+      = (δ_{ mx} ⊗^{M}_{r} _) #⊗ (δ_{ my} ⊗^{M}_{r} my) · inner_swap M _ _ _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ naturality_inner_swap (M) δ_{mx} (identity _) δ_{my} (identity _) @ _).
+    - <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_rightwhiskering M).
+      <span class="bp">now</span> (<span class="nb">rewrite</span> &lt;- (bifunctor_distributes_over_id (F := M)) ; <span class="kp">try</span> (<span class="nb">apply</span> (pr21 M))).
+    - <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- ! (when_bifunctor_becomes_rightwhiskering M).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">precompose_inner_swap_with_augs_on_right</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : comonoid M)
+    : inner_swap (M) mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (ε_{mx} ⊗^{ M} ε_{my})
+      = (_ ⊗^{M}_{l} ε_{mx}) #⊗ (_ ⊗^{M}_{l} ε_{my}) · inner_swap (M) _ _ _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ naturality_inner_swap (M) (identity _) ε_{mx} (identity _) ε_{my} @ _).
+    - <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering M).
+      <span class="bp">now</span> (<span class="nb">rewrite</span> &lt;- (bifunctor_distributes_over_id (F := M)) ; <span class="kp">try</span> (<span class="nb">apply</span> (pr21 M))).
+    - <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- ! (when_bifunctor_becomes_leftwhiskering M).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">precompose_inner_swap_with_diag_on_right</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : comonoid M)
+    : inner_swap (M) mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (δ_{ mx} ⊗^{ M} δ_{ my})
+      = (_ ⊗^{M}_{l} δ_{ mx}) #⊗ (_ ⊗^{M}_{l} δ_{ my}) · inner_swap (M) _ _ _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ naturality_inner_swap (M) (identity _) δ_{mx} (identity _) δ_{my} @ _).
+    - <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering M).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> tensor_id_id.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- ! (when_bifunctor_becomes_leftwhiskering M).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">tensor_of_comonoids_laws_unit_left</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : comonoid M)
+    : comonoid_laws_unit_left M (tensor_of_comonoids_data mx my).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> comonoid_laws_unit_left.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (bifunctor_rightcomp M).
+    <span class="nb">rewrite</span> ! assoc.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> precompose_inner_swap_with_augs_on_left.
+    }
+
+    <span class="nb">rewrite</span> assoc.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, tensor_comp_mor.
+    }
+
+    etrans. {
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="bp">exact</span> (precompose_inner_swap_with_lunitors_on_right (M) mx my).
+    }
+    <span class="nb">cbn</span>.
+    etrans. {
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> tensor_comp_mor.
+    }
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> comonoid_to_law_unit_left.
+    }
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comonoid_to_law_unit_left.
+    }
+    <span class="nb">apply</span> tensor_id_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">tensor_of_comonoids_laws_unit_right</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : comonoid M)
+    : comonoid_laws_unit_right M (tensor_of_comonoids_data mx my).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> comonoid_laws_unit_right.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (bifunctor_leftcomp M).
+    <span class="nb">rewrite</span> ! assoc.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> precompose_inner_swap_with_augs_on_right.
+    }
+
+    <span class="nb">rewrite</span> assoc.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, tensor_comp_mor.
+    }
+
+    etrans. {
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="bp">exact</span> (precompose_inner_swap_with_lunitors_and_runitor (M) mx my).
+    }
+
+    etrans. {
+      <span class="nb">apply</span> pathsinv0, tensor_comp_mor.
+    }
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> comonoid_to_law_unit_right.
+    }
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comonoid_to_law_unit_right.
+    }
+    <span class="nb">apply</span> tensor_id_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">tensor_of_comonoids_laws_assoc</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : comonoid M)
+    : comonoid_laws_assoc M (tensor_of_comonoids_data mx my).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> comonoid_laws_assoc.
+    <span class="nb">cbn</span>.
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">rewrite</span> (bifunctor_rightcomp M).
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> precompose_inner_swap_with_diag_on_left.
+    }
+
+    <span class="nb">rewrite</span> (bifunctor_leftcomp M).
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> precompose_inner_swap_with_diag_on_right.
+    }
+
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">rewrite</span> &lt;- ! tensor_comp_mor.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comonoid_to_law_assoc.
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> comonoid_to_law_assoc.
+    }
+    <span class="nb">rewrite</span> ! tensor_comp_mor.
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> inner_swap_hexagon.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">tensor_of_comonoids_laws</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : comonoid M)
+    : comonoid_laws M (tensor_of_comonoids_data mx my).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (tensor_of_comonoids_laws_unit_left mx my).
+    - <span class="bp">exact</span> (tensor_of_comonoids_laws_unit_right mx my).
+    - <span class="bp">exact</span> (tensor_of_comonoids_laws_assoc mx my).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_of_comonoids</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : comonoid M)
+    : comonoid M.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    <span class="bp">exact</span> (tensor_of_comonoids_laws mx my).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_of_comonoid_mor_mult_left</span>
+    (<span class="nv">m</span> : comonoid M) {<span class="nv">m1</span> <span class="nv">m2</span> : comonoid M}
+    {<span class="nv">g</span> : M⟦m1,m2⟧}
+    (<span class="nv">gg</span> : δ_{_} · g #⊗ g = g · δ_{_})
+    : δ_{tensor_of_comonoids m m1} · (m ⊗^{ M}_{l} g) #⊗ (m ⊗^{M}_{l} g) = (m ⊗^{M}_{l} g) · δ_{tensor_of_comonoids m m2}.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    etrans.
+    <span class="mi">2</span>:{
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering M).
+      <span class="nb">refine</span> (_ @ tensor_comp_mor _ _ _ _ ).
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> gg.
+    }
+
+    etrans. {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ naturality_inner_swap (M) (identity _) (identity _) g g).
+      <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering M).
+    }
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (! tensor_comp_mor _ _ _ _ @ _).
+    <span class="nb">rewrite</span> tensor_id_id.
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_of_comonoid_mor_unit_left</span>
+    (<span class="nv">m</span> : comonoid M) {<span class="nv">m1</span> <span class="nv">m2</span> : comonoid M}
+    {<span class="nv">g</span> : M⟦m1,m2⟧}
+    (<span class="nv">gg</span> : ε_{_} · identity I_{M} = g · ε_{_})
+    : ε_{tensor_of_comonoids _ _} · identity I_{M} =  (m ⊗^{ M}_{l} g) · ε_{tensor_of_comonoids _ _}.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> id_right <span class="k">in</span> gg.
+    <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering M).
+    <span class="nb">refine</span> (_ @ tensor_comp_mor _ _ _ _).
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> gg.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_of_comonoid_mor_left</span>
+    (<span class="nv">m</span> : comonoid M) {<span class="nv">m1</span> <span class="nv">m2</span> : comonoid M}
+    {<span class="nv">g</span> : M⟦m1,m2⟧}
+    (<span class="nv">gg1</span> : δ_{_} · g #⊗ g = g · δ_{_})
+    (<span class="nv">gg2</span> : ε_{_} · identity I_{M} = g · ε_{_})
+    : comonoid_mor_struct M (tensor_of_comonoids m m1) (tensor_of_comonoids m m2) (m ⊗^{ M}_{l} g).
+  <span class="kn">Proof</span>.
+    use make_is_comonoid_mor.
+    - <span class="nb">apply</span> (tensor_of_comonoid_mor_mult_left m gg1).
+    - <span class="nb">apply</span> (tensor_of_comonoid_mor_unit_left m gg2).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_disp_unit_data</span>
+    : comonoid_data M.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">monoidal_unit</span> <span class="nv">M</span>).
+    <span class="k">exists</span> (<span class="nv">mon_linvunitor</span> <span class="nv">_</span>).
+    <span class="nb">apply</span> identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comonoid_disp_unit_laws</span>
+    : comonoid_laws M comonoid_disp_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="nb">unfold</span> comonoid_laws_unit_left.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (bifunctor_rightid M).
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> monoidal_leftunitorisolaw.
+    - <span class="nb">unfold</span> comonoid_laws_unit_right.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (bifunctor_leftid M).
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> mon_runitor_I_mon_lunitor_I.
+      <span class="nb">apply</span> monoidal_leftunitorisolaw.
+    - <span class="nb">unfold</span> comonoid_laws_assoc.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> lunitorinv_preserves_leftwhiskering_with_unit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_disp_unit</span>
+    :  comonoid M.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">comonoid_disp_unit_data</span>.
+    <span class="nb">refine</span> (_ ,, _).
+    <span class="bp">exact</span> comonoid_disp_unit_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comonoid_disp_lunitor</span>
+    (<span class="nv">m</span> : comonoid M)
+    : comonoid_mor_struct M (tensor_of_comonoids comonoid_disp_unit m) m (mon_lunitor m).
+  <span class="kn">Proof</span>.
+    use make_is_comonoid_mor.
+    - <span class="nb">cbn</span>.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> (precompose_inner_swap_with_lunitors_on_right (M)).
+      }
+
+      <span class="nb">refine</span> (_ @ monoidal_leftunitornat M _ _ δ_{m}).
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> maponpaths_2.
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> inner_swap_inv.
+      }
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_rightwhiskering M).
+      etrans. {
+        <span class="nb">apply</span> pathsinv0, tensor_comp_mor.
+      }
+
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering M).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (monoidal_leftunitorisolaw M I_{M}).
+    - <span class="nb">refine</span> (_ @ monoidal_leftunitornat M _ _ ε_{m}).
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (when_bifunctor_becomes_leftwhiskering M).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comonoid_disp_lunitor_inv</span>
+    (<span class="nv">m</span> : comonoid M)
+    : comonoid_mor_struct M m (tensor_of_comonoids comonoid_disp_unit m) (mon_linvunitor m).
+  <span class="kn">Proof</span>.
+    use make_is_comonoid_mor.
+    - <span class="nb">cbn</span>.
+      use (z_iso_inv_to_right _ _ _ _ (_ ,, _)).
+      {
+        <span class="nb">set</span> (i := monoidal_leftunitorisolaw M m).
+        use (is_z_iso_bifunctor_z_iso M)
+        ; <span class="nb">apply</span> (_ ,, pr2 i ,, pr1 i).
+      }
+      <span class="nb">cbn</span>.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (precompose_inner_swap_with_lunitors_on_right M).
+      }
+
+      <span class="nb">apply</span> pathsinv0.
+      etrans. {
+        <span class="nb">rewrite</span> ! assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> inner_swap_inv.
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_rightwhiskering M).
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> pathsinv0, tensor_comp_mor.
+      }
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> monoidal_leftunitorisolaw.
+      }
+      <span class="nb">rewrite</span> id_right.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_ @ monoidal_leftunitornat M _ _ δ_{m}).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (when_bifunctor_becomes_leftwhiskering M).
+      }
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> monoidal_leftunitorisolaw.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (_ @ monoidal_leftunitorinvnat M _ _ ε_{m}).
+        <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering M).
+      }
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> monoidal_leftunitorisolaw.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comonoid_disp_braiding</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : comonoid M)
+    : comonoid_mor_struct M (tensor_of_comonoids mx my) (tensor_of_comonoids my mx) (sym_mon_braiding M mx my).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_comonoid_mor.
+    - <span class="nb">cbn</span>.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (tensor_sym_mon_braiding).
+      }
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> comult_before_inner_swap_and_swap.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> (tensor_sym_mon_braiding M). }
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (! id_right _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, sym_mon_braiding_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comonoid_disp_associator</span>
+    (<span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">zz</span> : comonoid M)
+    : comonoid_mor_struct M
+        (tensor_of_comonoids (tensor_of_comonoids xx yy) zz)
+        (tensor_of_comonoids xx (tensor_of_comonoids yy zz))
+        (mon_lassociator xx yy zz).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_comonoid_mor.
+    - <span class="nb">cbn</span>.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">rewrite</span> tensor_comp_mor.
+      <span class="nb">rewrite</span> ! assoc.
+
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> pathsinv0, associator_nat2.
+      }
+
+      <span class="nb">rewrite</span> ! assoc'.
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, id_right.
+      }
+
+      <span class="nb">rewrite</span> tensor_comp_mor.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> inner_swap_hexagon'.
+    - <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> tensor_comp_l_id_l.
+      }
+      <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> ! assoc.
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> pathsinv0, tensor_lassociator.
+      }
+      <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> tensor_lassociator.
+      }
+      <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc'.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> tensor_comp_mor.
+      }
+      <span class="nb">rewrite</span> id_left.
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> pathsinv0, id_right.
+      }
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> tensor_comp_mor.
+      }
+      <span class="nb">rewrite</span> assoc.
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> associator_nat2.
+      }
+
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id_right.
+      }
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> pathsinv0, tensor_comp_mor.
+      }
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      { <span class="nb">apply</span> pathsinv0, mon_triangle. }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> mon_runitor_I_mon_lunitor_I.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Lemma comonoid_disp_associatorinv_mult</span>
+<span class="c">    {x y z : C}</span>
+<span class="c">    (xx : comonoid M x) (yy : comonoid M y) (zz : comonoid M z)</span>
+<span class="c">    : is_comonoid_mor_mult M (tensor_of_comonoids xx (tensor_of_comonoids yy zz))</span>
+<span class="c">     (tensor_of_comonoids (tensor_of_comonoids xx yy) zz) αinv^{ M }_{ x, y, z}.</span>
+<span class="c">  Proof.</span>
+<span class="c">    unfold is_comonoid_mor_mult.</span>
+<span class="c">    cbn.</span>
+
+<span class="c">    etrans.</span>
+<span class="c">    2: {</span>
+<span class="c">      rewrite assoc.</span>
+<span class="c">      apply maponpaths_2.</span>
+<span class="c">      apply maponpaths.</span>
+<span class="c">      apply maponpaths.</span>
+<span class="c">      apply id_right.</span>
+<span class="c">    }</span>
+<span class="c">    rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).</span>
+<span class="c">    rewrite ! assoc.</span>
+
+<span class="c">    etrans.</span>
+<span class="c">    2: {</span>
+<span class="c">      do 2 apply maponpaths_2.</span>
+<span class="c">      apply monoidal_associatorinv_nat2.</span>
+<span class="c">    }</span>
+
+<span class="c">    rewrite ! assoc'.</span>
+
+<span class="c">    etrans. {</span>
+<span class="c">      apply maponpaths_2.</span>
+<span class="c">      apply maponpaths_2.</span>
+<span class="c">      apply pathsinv0, id_right.</span>
+<span class="c">    }</span>
+
+<span class="c">    rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).</span>
+<span class="c">    rewrite ! assoc'.</span>
+<span class="c">    apply maponpaths.</span>
+<span class="c">    rewrite ! assoc.</span>
+<span class="c">    apply rearrange_hexagoninv'.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma comonoid_disp_associatorinv_unit {x y z : C}</span>
+<span class="c">    (xx : comonoid M x) (yy : comonoid M y) (zz : comonoid M z)</span>
+<span class="c">    : is_comonoid_mor_unit M (tensor_of_comonoids xx (tensor_of_comonoids yy zz))</span>
+<span class="c">        (tensor_of_comonoids (tensor_of_comonoids xx yy) zz) αinv^{ M }_{ x, y, z}.</span>
+<span class="c">  Proof.</span>
+<span class="c">    unfold is_comonoid_mor_unit.</span>
+<span class="c">    cbn.</span>
+
+<span class="c">    etrans. {</span>
+<span class="c">      apply maponpaths.</span>
+<span class="c">      apply maponpaths_2.</span>
+<span class="c">      apply (tensor_comp_r_id_r).</span>
+<span class="c">    }</span>
+<span class="c">    unfold monoidal_cat_tensor_mor.</span>
+<span class="c">    cbn.</span>
+<span class="c">    rewrite ! assoc.</span>
+<span class="c">    etrans. {</span>
+<span class="c">      do 2 apply maponpaths_2.</span>
+<span class="c">      apply pathsinv0, tensor_rassociator.</span>
+<span class="c">    }</span>
+<span class="c">    unfold monoidal_cat_tensor_mor.</span>
+<span class="c">    cbn.</span>
+<span class="c">    apply maponpaths_2.</span>
+<span class="c">    etrans. {</span>
+<span class="c">      apply maponpaths_2.</span>
+<span class="c">      apply tensor_rassociator.</span>
+<span class="c">    }</span>
+<span class="c">    unfold monoidal_cat_tensor_mor.</span>
+<span class="c">    cbn.</span>
+<span class="c">    rewrite assoc'.</span>
+<span class="c">    etrans. {</span>
+<span class="c">      apply maponpaths.</span>
+<span class="c">      apply pathsinv0.</span>
+<span class="c">      apply (bifunctor_distributes_over_comp (F := M)) ; try (apply M).</span>
+<span class="c">    }</span>
+<span class="c">    rewrite id_right.</span>
+
+<span class="c">    etrans. {</span>
+<span class="c">      apply maponpaths.</span>
+<span class="c">      apply maponpaths.</span>
+<span class="c">      apply pathsinv0, id_right.</span>
+<span class="c">    }</span>
+<span class="c">    rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).</span>
+<span class="c">    rewrite assoc.</span>
+
+<span class="c">    etrans. {</span>
+<span class="c">      apply maponpaths_2.</span>
+<span class="c">      apply pathsinv0.</span>
+<span class="c">      apply monoidal_associatorinv_nat2.</span>
+<span class="c">    }</span>
+
+<span class="c">    etrans.</span>
+<span class="c">    2: {</span>
+<span class="c">      apply maponpaths_2.</span>
+<span class="c">      apply id_right.</span>
+<span class="c">    }</span>
+<span class="c">    rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).</span>
+<span class="c">    rewrite assoc'.</span>
+<span class="c">    apply maponpaths.</span>
+<span class="c">    apply associator_before_rwhisker_with_lu.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma comonoid_disp_associatorinv</span>
+<span class="c">    {x y z : C}</span>
+<span class="c">    (xx : comonoid M x) (yy : comonoid M y) (zz : comonoid M z)</span>
+<span class="c">    : is_comonoid_mor M (tensor_of_comonoids xx (tensor_of_comonoids yy zz))</span>
+<span class="c">        (tensor_of_comonoids (tensor_of_comonoids xx yy) zz) αinv^{M}_{x, y, z}.</span>
+<span class="c">  Proof.</span>
+<span class="c">    split.</span>
+<span class="c">    - exact (comonoid_disp_associatorinv_mult xx yy zz).</span>
+<span class="c">    - exact (comonoid_disp_associatorinv_unit xx yy zz).</span>
+<span class="c">  Qed. *)</span>
+
+<span class="kn">End</span> <span class="nf">TensorOfComonoids</span>.
+
+<span class="kn">Section</span> <span class="nf">TensorOfCommutativeComonoids</span>.
+
+  <span class="kn">Context</span> (<span class="nv">V</span> : sym_monoidal_cat).
+
+  <span class="kn">Lemma</span> <span class="nf">tensor_of_comm_comonoids</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : commutative_comonoid V)
+    : is_commutative V (tensor_of_comonoids V mx my).
+  <span class="kn">Proof</span>.
+    use (z_iso_inv_on_left _ _ _ _ (inner_swap V _ _ _ _ ,, inner_swap V _ _ _ _ ,, _)).
+    { <span class="nb">apply</span> inner_swap_is_z_isomorphism. }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc'.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> inner_swap_commute_with_swap.
+    }
+
+    <span class="nb">rewrite</span> assoc.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, inner_swap_inv.
+    }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">refine</span> (_@ tensor_comp_mor _ _ _ _).
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, commutative_comonoid_is_commutative.
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0, commutative_comonoid_is_commutative.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">TensorOfCommutativeComonoids</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Comonoids/Tensor.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; In this file, the necessary ingredients to show how the (displayed) category of comonoids (resp. commutative comonoids) is (displayed) symmetric.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

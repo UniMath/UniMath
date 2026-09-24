@@ -1,0 +1,2116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StandardFiniteSets.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Standard finite sets . Vladimir Voevodsky . Apr. - Sep. 2011 .</span>
+
+<span class="sd">This file contains main constructions related to the standard finite sets defined as the initial intervals of [ nat ] and their properties . *)</span>
+
+
+
+
+<span class="sd">(** ** Preamble *)</span>
+
+<span class="sd">(** Imports. *)</span>
+
+<span class="kn">Require Export</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.DecidablePropositions.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.NegativePropositions.
+
+<span class="sd">(** ** Standard finite sets [ stn ]. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">stn</span> ( <span class="nv">n</span> : nat ) := ∑ m, m &lt; n.
+<span class="kn">Definition</span> <span class="nf">make_stn</span> <span class="nv">n</span> <span class="nv">m</span> (<span class="nv">l</span>:m&lt;n) := (m,,l) : stn n.
+<span class="kn">Definition</span> <span class="nf">stntonat</span> ( <span class="nv">n</span> : nat ) : stn n -&gt; nat := @pr1 _ _ .
+<span class="kn">Coercion</span> <span class="nf">stntonat</span> : stn &gt;-&gt; nat.
+<span class="kn">Lemma</span> <span class="nf">stnlt</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span>:stn n) : i &lt; n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="bp">exact</span> (pr2 i).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stn_eq</span>
+  {<span class="nv">n</span> : nat}
+  (<span class="nv">i</span> <span class="nv">i'</span> : stn n)
+  (<span class="nv">H</span> : pr1 i = pr1 i')
+  : i = i'.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (subtypePath _ H).
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> isasetbool.
+<span class="kn">Qed</span>.
+
+<span class="c">(* old way:</span>
+<span class="c">   Notation " 'stnel' ( i , j ) " :=</span>
+<span class="c">      ( make_stn _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) )</span>
+<span class="c">      ( at level 70 ). *)</span>
+<span class="kn">Notation</span> <span class="s2">" 'stnpr' j "</span> := (j,,idpath _) ( <span class="kn">at level</span> <span class="mi">70</span> ).
+<span class="kn">Notation</span> <span class="s2">" 'stnel' ( i , j ) "</span> := ( (j,,idpath _) : stn i ) ( <span class="kn">at level</span> <span class="mi">70</span> ).
+
+<span class="kn">Declare Scope</span> stn.
+<span class="kn">Delimit Scope</span> stn <span class="k">with</span> stn.
+
+<span class="kn">Notation</span> <span class="s2">"⟦ n ⟧"</span> := (stn n) : stn.
+<span class="c">(* in agda-mode \[[ n \]] *)</span>
+
+<span class="kn">Notation</span> <span class="s2">"● i"</span> := (i ,, (idpath _ : natgtb _ _ = _)) (<span class="kn">at level</span> <span class="mi">35</span>) : stn.
+
+<span class="kn">Lemma</span> <span class="nf">isinclstntonat</span> ( <span class="nv">n</span> : nat ) : isincl ( stntonat n ).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  use isinclpr1.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> ( pr2 ( natlth x n ) ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stntonat_incl</span> <span class="nv">n</span> := make_incl (stntonat n) (isinclstntonat n).
+
+<span class="kn">Lemma</span> <span class="nf">isdecinclstntonat</span> ( <span class="nv">n</span> : nat ) : isdecincl ( stntonat n ).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  use isdecinclpr1.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> isdecpropif.
+  use pr2.
+  <span class="nb">apply</span> isdecrelnatgth.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">neghfiberstntonat</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">isc</span> : natgeh m n ) : ¬ ( hfiber ( stntonat n ) m ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">intro</span> h.
+  <span class="nb">destruct</span> h <span class="k">as</span> [ j e ].
+  <span class="nb">destruct</span> j <span class="k">as</span> [ j is' ].
+  <span class="nb">simpl</span> <span class="k">in</span> e.
+  <span class="nb">rewrite</span> e <span class="k">in</span> is'.
+  <span class="nb">apply</span> ( natgehtonegnatlth _ _ isc is' ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscontrhfiberstntonat</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">isc</span> : natlth m n ) :
+  iscontr ( hfiber ( stntonat n ) m ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> ( iscontrhfiberofincl ( stntonat n ) ( isinclstntonat n ) ( make_stn n m isc ) ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+<span class="kn">Lemma</span> <span class="nf">stn_ne_iff_neq</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span>: ⟦n⟧ ) : ¬ (i = j) &lt;-&gt; stntonat _ i ≠ stntonat _ j.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">split</span>.
+  - <span class="nb">intro</span> ne. <span class="nb">apply</span> nat_nopath_to_neq. <span class="kn">Set Printing Coercions</span>. <span class="kp">idtac</span>.
+    <span class="nb">intro</span> e; <span class="nb">apply</span> ne; <span class="nb">clear</span> ne. <span class="nb">apply</span> subtypePath_prop. <span class="bp">assumption</span>.
+  - <span class="nb">simpl</span>. <span class="nb">intros</span> neq e. <span class="nb">apply</span> (nat_neq_to_nopath neq), maponpaths. <span class="bp">assumption</span>.
+  <span class="kn">Unset Printing Coercions</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnneq</span> {<span class="nv">n</span> : nat} : neqReln (⟦n⟧).
+<span class="kn">Proof</span>. <span class="c">(* here we use no axioms *)</span>
+  <span class="nb">intros</span> i j. <span class="k">exists</span> (<span class="nv">i</span> ≠ j)%nat. <span class="nb">split</span>.
+  - <span class="nb">apply</span> propproperty.
+  - <span class="nb">apply</span> stn_ne_iff_neq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">" x ≠ y "</span> := ( stnneq x y ) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : stn.
+<span class="kn">Delimit Scope</span> stn <span class="k">with</span> stn.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+
+<span class="kn">Lemma</span> <span class="nf">isisolatedinstn</span> { <span class="nv">n</span> : nat } ( <span class="nv">x</span> : ⟦n⟧ ) : isisolated _ x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> ( isisolatedinclb ( stntonat n ) ( isinclstntonat n ) x ( isisolatedn x ) ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnneq_iff_nopath</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span>: ⟦n⟧ ) : ¬ (i = j) &lt;-&gt; i ≠ j.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> negProp_to_iff.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stnneq_to_nopath</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span>: ⟦n⟧ ) : ¬ (i = j) &lt;- i ≠ j
+  := pr2 (stn_ne_iff_neq i j).
+
+<span class="kn">Corollary</span> <span class="nf">isdeceqstn</span> ( <span class="nv">n</span> : nat ) : isdeceq (⟦n⟧).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> isdeceq.
+  <span class="nb">intros</span> x x'.
+  <span class="nb">apply</span> (isisolatedinstn x x' ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stn_eq_or_neq</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span>: ⟦n⟧ ) : (i=j) ⨿ (i≠j).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> (nat_eq_or_neq i j) <span class="k">as</span> [eq|ne].
+  - <span class="nb">apply</span> ii1, subtypePath_prop. <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ii2. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqisolatedstntostn</span> ( <span class="nv">n</span> : nat ) : ( isolated (⟦n⟧) ) ≃ ⟦n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqpr1.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> iscontraprop1.
+  <span class="nb">apply</span> isapropisisolated.
+  <span class="nb">set</span> ( int := isdeceqstn n x  ).
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">isasetstn</span> ( <span class="nv">n</span> : nat ) : isaset (⟦n⟧).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> ( isasetifdeceq _ ( isdeceqstn n ) ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stnset</span> <span class="nv">n</span> := make_hSet (⟦n⟧) (isasetstn n).
+
+<span class="kn">Definition</span> <span class="nf">stn_to_nat</span> <span class="nv">n</span> : stnset n -&gt; natset := pr1.
+
+<span class="kn">Definition</span> <span class="nf">lastelement</span> {<span class="nv">n</span> : nat} : ⟦S n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">split with</span> n.
+  <span class="nb">apply</span> ( natgthsnn n ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lastelement_ge</span> {<span class="nv">n</span> : nat} : ∏ i : ⟦S n⟧, @lastelement n ≥ i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> natlthsntoleh.
+  <span class="nb">unfold</span> lastelement.
+  <span class="nb">apply</span> stnlt.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">firstelement</span> {<span class="nv">n</span> : nat} : ⟦S n⟧.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="mi">0</span>.
+  <span class="nb">apply</span> natgthsn0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">firstelement_le</span> {<span class="nv">n</span> : nat} : ∏ i : ⟦S n⟧, @firstelement n ≤ i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">firstValue</span> {<span class="nv">X</span>:UU} {<span class="nv">n</span>:nat} : (⟦S n⟧ -&gt; X) -&gt; X
+  := <span class="k">λ</span> <span class="nv">x</span>, x firstelement.
+
+<span class="kn">Definition</span> <span class="nf">lastValue</span> {<span class="nv">X</span>:UU} {<span class="nv">n</span>:nat} : (⟦S n⟧ -&gt; X) -&gt; X
+  := <span class="k">λ</span> <span class="nv">x</span>, x lastelement.
+
+<span class="sd">(** Dual of i in stn n, is n - 1 - i *)</span>
+<span class="kn">Local Lemma</span> <span class="nf">dualelement_0_empty</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> : ⟦n⟧ ) (<span class="nv">e</span> : <span class="mi">0</span> = n) : empty.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> (negnatlthn0 _ (stnlt i)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">dualelement_lt</span> (<span class="nv">i</span> <span class="nv">n</span> : nat) (<span class="nv">H</span> : n &gt; <span class="mi">0</span>) : n - <span class="mi">1</span> - i &lt; n.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> natminusminus.
+  <span class="nb">apply</span> (natminuslthn _ _ H).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dualelement</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> : ⟦n⟧ ) : ⟦n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> (natchoice0 n) <span class="k">as</span> [H | H].
+  - <span class="bp">exact</span> (make_stn n (n - <span class="mi">1</span> - i) (fromempty (dualelement_0_empty i H))).
+  - <span class="bp">exact</span> (make_stn n (n - <span class="mi">1</span> - i) (dualelement_lt i n H)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stnmtostnn</span> ( <span class="nv">m</span> <span class="nv">n</span> : nat ) (<span class="nv">isnatleh</span>: natleh m n ) : ⟦m⟧ -&gt; ⟦n⟧ :=
+  <span class="k">λ</span> <span class="nv">x</span> : ⟦m⟧, <span class="k">match</span> x <span class="k">with</span> tpair _ i isc
+                 =&gt; make_stn _ i ( natlthlehtrans i m n isc isnatleh ) <span class="k">end</span>.
+
+<span class="kn">Definition</span> <span class="nf">stn_left</span> (<span class="nv">m</span> <span class="nv">n</span> : nat) : ⟦m⟧ -&gt; ⟦m+n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">i</span>).
+  <span class="nb">apply</span> (natlthlehtrans (pr1 i) m (m+n) (pr2 i)).
+  <span class="nb">apply</span> natlehnplusnm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stn_right</span> (<span class="nv">m</span> <span class="nv">n</span> : nat) : ⟦n⟧ -&gt; ⟦m+n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i.
+  <span class="k">exists</span> (<span class="nv">m</span>+pr1 i).
+  <span class="nb">apply</span> natlthandplusl.
+  <span class="bp">exact</span> (pr2 i).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stn_left_compute</span> (<span class="nv">m</span> <span class="nv">n</span> : nat) (<span class="nv">i</span>: ⟦m⟧ ) : pr1 (stn_left m n i) = i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stn_right_compute</span> (<span class="nv">m</span> <span class="nv">n</span> : nat) (<span class="nv">i</span>: ⟦n⟧ ) : pr1 (stn_right m n i) = m+i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stn_left_0</span> {<span class="nv">m</span>:nat} {<span class="nv">i</span>:⟦m⟧} (<span class="nv">e</span>: m=m+<span class="mi">0</span>) : stn_left m <span class="mi">0</span> i = transportf stn e i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stn_left'</span> (<span class="nv">m</span> <span class="nv">n</span> : nat) : m ≤ n -&gt; ⟦m⟧ -&gt; ⟦n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> le i.
+  <span class="bp">exact</span> (make_stn _ _ (natlthlehtrans _ _ _ (stnlt i) le)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stn_left''</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} : m &lt; n -&gt; ⟦m⟧ -&gt; ⟦n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> le i.
+  <span class="bp">exact</span> (make_stn _ _ (istransnatlth _ _ _ (stnlt i) le)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stn_left_compare</span> (<span class="nv">m</span> <span class="nv">n</span> : nat) (<span class="nv">r</span> : m ≤ m+n) : stn_left' m (m+n) r = stn_left m n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** "Boundary" maps [ dni : stn n -&gt; stn ( S n ) ] and their properties. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">dni</span> {<span class="nv">n</span> : nat} ( <span class="nv">i</span> : ⟦S n⟧ ) : ⟦n⟧ -&gt; ⟦S n⟧.
+<span class="kn">Proof</span>. <span class="nb">intros</span> x. <span class="k">exists</span> (<span class="nv">di</span> <span class="nv">i</span> <span class="nv">x</span>). <span class="nb">unfold</span> di.
+       <span class="nb">induction</span> (natlthorgeh x i) <span class="k">as</span> [lt|ge].
+       - <span class="nb">apply</span> natgthtogths. <span class="bp">exact</span> (pr2 x).
+       - <span class="bp">exact</span> (pr2 x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">compute_pr1_dni_last</span> (<span class="nv">n</span> : nat) (<span class="nv">i</span>: ⟦n⟧ ) : pr1 (dni lastelement i) = pr1 i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> dni,di; <span class="nb">simpl</span>. <span class="nb">induction</span> (natlthorgeh i n) <span class="k">as</span> [q|q].
+  - <span class="nb">apply</span> idpath.
+  - contradicts (pr2 i) (natlehneggth q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">compute_pr1_dni_first</span> (<span class="nv">n</span> : nat) (<span class="nv">i</span>: ⟦n⟧ ) : pr1 (dni firstelement i) = S (pr1 i).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dni_last</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span>: ⟦n⟧ ) : pr1 (dni lastelement i) = i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> i <span class="k">as</span> [i I].
+  <span class="nb">unfold</span> dni,di. <span class="nb">simpl</span>.
+  <span class="nb">induction</span> (natlthorgeh i n) <span class="k">as</span> [g|g].
+  { <span class="nb">apply</span> idpath. }
+  <span class="nb">simpl</span>.
+  contradicts (natlehtonegnatgth _ _ g) I.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dni_first</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span>: ⟦n⟧ ) : pr1 (dni firstelement i) = S i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dni_firstelement</span> {<span class="nv">n</span> : nat} : ⟦n⟧ -&gt; ⟦S n⟧.
+<span class="c">(* this definition is simpler than that of [dni n (firstelement n)], since no choice is involved, so it's useful in special situations *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> h.
+  <span class="bp">exact</span> (S (pr1 h),, pr2 h).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">replace_dni_first</span> (<span class="nv">n</span> : nat) : dni (@firstelement n) = dni_firstelement.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">exact</span> (compute_pr1_dni_first n i).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dni_lastelement</span> {<span class="nv">n</span> : nat} : ⟦n⟧ -&gt; ⟦S n⟧.
+<span class="c">(* this definition is simpler than that of [dni lastelement], since no choice is involved, so it's useful in special situations *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> h.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">h</span>).
+  <span class="bp">exact</span> (natlthtolths _ _ (pr2 h)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">replace_dni_last</span> (<span class="nv">n</span> : nat) : dni (@lastelement n) = dni_lastelement.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">exact</span> (compute_pr1_dni_last n i).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dni_lastelement_ord</span> {<span class="nv">n</span> : nat} : ∏ i j: ⟦n⟧, i≤j -&gt; dni_lastelement i ≤ dni_lastelement j.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? e.
+  <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_dni_lastelement</span> {<span class="nv">n</span> : nat} {<span class="nv">i</span>: ⟦n⟧ } : pr1 (dni_lastelement i) = pr1 i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dni_last_lt</span> {<span class="nv">n</span> : nat} (<span class="nv">j</span> : ⟦ n ⟧) : dni lastelement j &lt; @lastelement n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> j <span class="k">as</span> [j J].
+  <span class="nb">simpl</span>. <span class="nb">unfold</span> di.
+  <span class="nb">induction</span> (natlthorgeh j n) <span class="k">as</span> [L|M].
+  - <span class="bp">exact</span> J.
+  - <span class="nb">apply</span> fromempty.
+    <span class="bp">exact</span> (natlthtonegnatgeh _ _ J M).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dnicommsq</span> ( <span class="nv">n</span> : nat ) ( <span class="nv">i</span> : ⟦S n⟧ ) :
+  commsqstr( dni i )  ( stntonat ( S n ) ) ( stntonat n ) ( di i ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">unfold</span> dni. <span class="nb">unfold</span> di.
+  <span class="nb">destruct</span> ( natlthorgeh x i ).
+  - <span class="nb">simpl</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">dnihfsq</span> ( <span class="nv">n</span> : nat ) ( <span class="nv">i</span> : ⟦S n⟧ ) :
+  hfsqstr ( di i ) ( stntonat ( S n ) ) ( stntonat n ) ( dni i ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> ( ishfsqweqhfibersgtof' ( di i ) ( stntonat ( S n ) ) ( stntonat n ) ( dni i ) ( dnicommsq _ _  ) ).
+  <span class="nb">intro</span> x.
+  <span class="nb">destruct</span> ( natlthorgeh x n ) <span class="k">as</span> [ g | l ].
+  - <span class="nb">assert</span> ( is1 : iscontr ( hfiber ( stntonat n ) x ) ).
+    { <span class="nb">apply</span> iscontrhfiberstntonat. <span class="bp">assumption</span>. }
+    <span class="nb">assert</span> ( is2 : iscontr ( hfiber ( stntonat ( S n ) ) ( di i x )  ) ).
+    { <span class="nb">apply</span> iscontrhfiberstntonat.
+      <span class="nb">apply</span> ( natlehlthtrans _ ( S x ) ( S n ) ( natlehdinsn i x ) g ). }
+    <span class="nb">apply</span> isweqcontrcontr.
+    + <span class="bp">assumption</span>.
+    + <span class="bp">assumption</span>.
+  - <span class="nb">assert</span> ( is1 : ¬ ( hfiber ( stntonat ( S n ) ) ( di i x ) ) ).
+    { <span class="nb">apply</span> neghfiberstntonat.
+      <span class="nb">unfold</span> di.
+      <span class="nb">destruct</span> ( natlthorgeh x i ) <span class="k">as</span> [ l'' | g' ].
+      + <span class="nb">destruct</span> ( natgehchoice2 _ _ l ) <span class="k">as</span> [ g' | e ].
+        * <span class="nb">apply</span> g'.
+        * <span class="nb">rewrite</span> e <span class="k">in</span> l''.
+          <span class="nb">assert</span> ( int := natlthtolehsn _ _ l'' ).
+          contradicts (natgthnegleh (pr2 i)) int.
+      + <span class="nb">apply</span> l.
+    }
+    <span class="nb">apply</span> ( isweqtoempty2 _ is1 ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dni_neq_i</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> : ⟦S n⟧) (<span class="nv">j</span> : ⟦n⟧ ) : i ≠ @dni n i j.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> di_neq_i.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqhfiberdnihfiberdi</span> ( <span class="nv">n</span> : nat ) ( <span class="nv">i</span> <span class="nv">j</span> : ⟦S n⟧ ) :
+  ( hfiber ( dni i ) j ) ≃ ( hfiber ( di i ) j ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> ( weqhfibersg'tof _ _ _ _ ( dnihfsq n i ) j ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">neghfiberdni</span> ( <span class="nv">n</span> : nat ) ( <span class="nv">i</span> : ⟦S n⟧ ) : ¬ ( hfiber ( dni i ) i ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> ( negf ( weqhfiberdnihfiberdi n i i ) ( neghfiberdi i ) ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscontrhfiberdni</span> ( <span class="nv">n</span> : nat ) ( <span class="nv">i</span> <span class="nv">j</span> : ⟦S n⟧ ) : i ≠ j -&gt; iscontr ( hfiber ( dni i ) j ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ne.
+  <span class="bp">exact</span> ( iscontrweqb ( weqhfiberdnihfiberdi n i j ) ( iscontrhfiberdi i j ne ) ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecincldni</span> ( <span class="nv">n</span> : nat ) ( <span class="nv">i</span> : ⟦S n⟧ ) : isdecincl ( dni i ).
+<span class="kn">Proof</span>.  <span class="nb">intros</span>. <span class="nb">intro</span> j. <span class="nb">induction</span> ( stn_eq_or_neq i j ) <span class="k">as</span> [eq|ne].
+        - <span class="nb">induction</span> eq. <span class="nb">apply</span> ( isdecpropfromneg ( neghfiberdni n i ) ).
+        - <span class="bp">exact</span> ( isdecpropfromiscontr (iscontrhfiberdni _ _ _ ne) ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isincldni</span> ( <span class="nv">n</span> : nat ) ( <span class="nv">i</span> : ⟦S n⟧ ) : isincl ( dni i ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="bp">exact</span> ( isdecincltoisincl _  ( isdecincldni n i ) ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** The order-preserving functions [ sni n i : stn (S n) -&gt; stn n ] that take the value [i] twice. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">sni</span> {<span class="nv">n</span> : nat} ( <span class="nv">i</span> : ⟦n⟧ ) : ⟦n⟧ &lt;- ⟦S n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> j. <span class="k">exists</span> (<span class="nv">si</span> <span class="nv">i</span> <span class="nv">j</span>). <span class="nb">unfold</span> si. <span class="nb">induction</span> (natlthorgeh i j) <span class="k">as</span> [lt|ge].
+  - <span class="nb">induction</span> j <span class="k">as</span> [j J]. <span class="nb">induction</span> i <span class="k">as</span> [i I]. <span class="nb">simpl</span>.
+    <span class="nb">induction</span> j <span class="k">as</span> [|j _].
+    + contradicts (negnatlthn0 i) lt.
+    + <span class="nb">change</span> (S j - <span class="mi">1</span> &lt; n).
+      <span class="nb">change</span> (S j) <span class="k">with</span> (<span class="mi">1</span> + j).
+      <span class="nb">rewrite</span> natpluscomm.
+      <span class="nb">rewrite</span> plusminusnmm.
+      <span class="bp">exact</span> J.
+  - <span class="nb">induction</span> i <span class="k">as</span> [i I].
+    <span class="bp">exact</span> (natlehlthtrans _ _ _ ge I).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Weak equivalences between standard finite sets and constructions on these sets *)</span>
+
+
+
+<span class="sd">(** *** The weak equivalence from [ stn n ] to the complement of a point [ j ] in [ stn ( S n ) ] defined by [ dni j ] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">stn_compl</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span>: ⟦n⟧ ) := compl_ne _ i (stnneq i).
+
+<span class="kn">Definition</span> <span class="nf">dnitocompl</span> ( <span class="nv">n</span> : nat ) ( <span class="nv">i</span> : ⟦S n⟧ ) : ⟦n⟧ -&gt; stn_compl i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> j.
+  <span class="k">exists</span> ( <span class="nv">dni</span> <span class="nv">i</span> <span class="nv">j</span> ).
+  <span class="nb">apply</span> dni_neq_i.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isweqdnitocompl</span>  ( <span class="nv">n</span> : nat ) ( <span class="nv">i</span> : ⟦S n⟧ ) : isweq ( dnitocompl n i ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> jni.
+  <span class="nb">assert</span> ( w := samehfibers ( dnitocompl n i )  _ ( isinclpr1compl_ne _ i _ ) jni ) ;
+    <span class="nb">simpl</span> <span class="k">in</span> w.
+  <span class="nb">apply</span> (iscontrweqb w).
+  <span class="nb">apply</span> iscontrhfiberdni.
+  <span class="bp">exact</span> (pr2 jni).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqdnicompl</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span>: ⟦S n⟧ ): ⟦n⟧ ≃ stn_compl i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (w := weqdicompl (stntonat _ i)).
+  <span class="nb">assert</span> (eq : ∏ j, j &lt; n &lt;-&gt; pr1 (w j) &lt; S n).
+  { <span class="nb">simpl</span> <span class="k">in</span> w. <span class="nb">intros</span> j. <span class="nb">unfold</span> w.
+    <span class="nb">change</span> (pr1 ((weqdicompl i) j)) <span class="k">with</span> (di (stntonat _ i) j).
+    <span class="nb">unfold</span> di.
+    <span class="nb">induction</span> (natlthorgeh j i) <span class="k">as</span> [lt|ge].
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> natlthtolths.
+      + <span class="nb">intros</span> _. <span class="bp">exact</span> (natlehlthtrans (S j) i (S n) lt (pr2 i)).
+    - <span class="nb">split</span>; <span class="bp">exact</span> (idfun _). }
+  <span class="nb">refine</span> (_ ∘ (weq_subtypes w (<span class="k">λ</span> <span class="nv">j</span>, j &lt; n) (<span class="k">λ</span> <span class="nv">j</span>, pr1 j &lt; S n) eq))%weq.
+  use weqtotal2comm12.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqdnicompl_compute</span> {<span class="nv">n</span> : nat} (<span class="nv">j</span>: ⟦S n⟧ ) (<span class="nv">i</span>: ⟦n⟧ ) :
+  pr1 (weqdnicompl j i) = dni j i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Weak equivalence from [ coprod ( stn n ) unit ] to [ stn ( S n ) ] defined by [ dni i ] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">weqdnicoprod_provisional</span> (<span class="nv">n</span> : nat) (<span class="nv">j</span> : ⟦S n⟧) : ⟦n⟧ ⨿ unit ≃ ⟦S n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (weqcomp (weqcoprodf (weqdnicompl j) (idweq unit))
+                 (weqrecompl_ne (⟦S n⟧) j (isdeceqstn (S n) j) (stnneq j))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Opaque</span> weqdnicoprod_provisional.
+
+<span class="kn">Definition</span> <span class="nf">weqdnicoprod_map</span> {<span class="nv">n</span> : nat} (<span class="nv">j</span> : ⟦S n⟧ ) : ⟦n⟧ ⨿ unit -&gt; ⟦S n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x. <span class="nb">induction</span> x <span class="k">as</span> [i|t].
+  - <span class="bp">exact</span> (dni j i).
+  - <span class="bp">exact</span> j.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqdnicoprod_compute</span> {<span class="nv">n</span> : nat} (<span class="nv">j</span> : ⟦S n⟧ ) :
+  weqdnicoprod_provisional n j ~ weqdnicoprod_map j.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">intros</span> i.
+  <span class="nb">induction</span> i <span class="k">as</span> [i|i].
+  - <span class="nb">apply</span> subtypePath_prop. <span class="nb">induction</span> i <span class="k">as</span> [i I]. <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqdnicoprod</span> (<span class="nv">n</span> : nat) (<span class="nv">j</span> : ⟦S n⟧ ) : ⟦n⟧ ⨿ unit ≃ ⟦S n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (make_weq (weqdnicoprod_map j)).
+  <span class="nb">apply</span> (isweqhomot _ _ (weqdnicoprod_compute _)).
+  <span class="nb">apply</span> weqproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqoverdnicoprod</span> {<span class="nv">n</span> : nat} (<span class="nv">P</span>: ⟦S n⟧ → UU) :
+  (∑ i, P i) ≃ (∑ j, P(dni lastelement j)) ⨿ P lastelement.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  use (weqcomp (weqtotal2overcoprod' P (weqdnicoprod n lastelement))).
+  <span class="nb">apply</span> weqcoprodf.
+  - <span class="nb">apply</span> idweq.
+  - <span class="nb">apply</span> weqtotal2overunit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqoverdnicoprod_eq1</span> {<span class="nv">n</span> : nat} (<span class="nv">P</span>: ⟦S n⟧ → UU) <span class="nv">j</span> <span class="nv">p</span> :
+  invmap (weqoverdnicoprod P) (ii1 (j,,p)) = ( dni lastelement j ,, p ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">simpl</span> <span class="k">in</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqoverdnicoprod_eq1'</span> {<span class="nv">n</span> : nat} (<span class="nv">P</span>: ⟦S n⟧ → UU) <span class="nv">jp</span> :
+  invmap (weqoverdnicoprod P) (ii1 jp) = (total2_base_map (dni lastelement) jp).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> jp.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqoverdnicoprod_eq2</span> {<span class="nv">n</span> : nat} (<span class="nv">P</span>: ⟦S n⟧→UU) <span class="nv">p</span> :
+  invmap (weqoverdnicoprod P) (ii2 p) = (lastelement ,, p ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqdnicoprod_invmap</span> {<span class="nv">n</span> : nat} (<span class="nv">j</span> : ⟦S n⟧ ) : ⟦n⟧ ⨿ unit &lt;- ⟦S n⟧.
+  <span class="c">(* perhaps use this to improve weqdnicoprod *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i.
+  <span class="nb">induction</span> (isdeceqstn (S n) i j) <span class="k">as</span> [eq|ne].
+  - <span class="bp">exact</span> (ii2 tt).
+  - <span class="nb">apply</span> ii1. <span class="nb">induction</span> i <span class="k">as</span> [i I]. <span class="nb">induction</span> j <span class="k">as</span> [j J].
+    choose (i &lt; j)%dnat a a.
+    + <span class="k">exists</span> <span class="nv">i</span>. <span class="bp">exact</span> (natltltSlt _ _ _ a J).
+    + <span class="k">exists</span> (<span class="nv">i</span> - <span class="mi">1</span>).
+      <span class="nb">induction</span> (natlehchoice _ _ (negnatgthtoleh a)) <span class="k">as</span> [b|b].
+      * <span class="nb">induction</span> (natlehchoice4 _ _ I) <span class="k">as</span> [c|c].
+        -- <span class="nb">apply</span> (natlehlthtrans (i - <span class="mi">1</span>) i n).
+           ++ <span class="nb">apply</span> natminuslehn.
+           ++ <span class="bp">exact</span> c.
+        -- <span class="nb">induction</span> c. <span class="nb">apply</span> natminuslthn.
+           ++ <span class="nb">apply</span> (natlehlthtrans _ j _).
+              ** <span class="nb">apply</span> natleh0n.
+              ** <span class="bp">exact</span> b.
+           ++ <span class="nb">apply</span> natlthnsn.
+      * <span class="nb">induction</span> b.
+        <span class="nb">induction</span> (ne (@subtypePath_prop _ _ (make_stn _ j I) (make_stn _ j J) (idpath j))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Weak equivalences from [ stn n ] for [ n = 0 , 1 , 2 ] to [ empty ] , [ unit ] and [ bool ] ( see also the section on [ nelstruct ] in finitesets.v ). *)</span>
+
+<span class="kn">Definition</span> <span class="nf">negstn0</span> : ¬ (⟦<span class="mi">0</span>⟧).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">destruct</span> x <span class="k">as</span> [ a b ].
+  <span class="nb">apply</span> ( negnatlthn0 _ b ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqstn0toempty</span> : ⟦<span class="mi">0</span>⟧ ≃ empty.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqtoempty.
+  <span class="nb">apply</span> negstn0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqstn1tounit</span> : ⟦<span class="mi">1</span>⟧ ≃ unit.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> ( f := <span class="k">λ</span> <span class="nv">x</span> : ⟦<span class="mi">1</span>⟧, tt ).
+  <span class="nb">apply</span> weqcontrcontr.
+  - <span class="nb">split with</span> lastelement.
+    <span class="nb">intro</span> t.
+    <span class="nb">destruct</span> t <span class="k">as</span> [ t l ].
+    <span class="nb">set</span> ( e := natlth1tois0 _ l ).
+    <span class="nb">apply</span> ( invmaponpathsincl _ ( isinclstntonat <span class="mi">1</span> ) ( make_stn _ t l ) lastelement e ).
+  - <span class="nb">apply</span> iscontrunit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">iscontrstn1</span> : iscontr (⟦<span class="mi">1</span>⟧).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> iscontrifweqtounit.
+  <span class="nb">apply</span> weqstn1tounit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">isconnectedstn1</span> : ∏ i1 i2 : ⟦<span class="mi">1</span>⟧, i1 = i2.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i1 i2.
+  <span class="nb">apply</span> (invmaponpathsweq weqstn1tounit).
+  <span class="nb">apply</span> isProofIrrelevantUnit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinclfromstn1</span> { <span class="nv">X</span> : UU } ( <span class="nv">f</span> : ⟦<span class="mi">1</span>⟧ -&gt; X ) ( <span class="nv">isc</span> : isaset X ) : isincl f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> ( isinclbetweensets f ( isasetstn <span class="mi">1</span> ) isc ).
+  <span class="nb">intros</span> x x' e.
+  <span class="nb">apply</span> ( invmaponpathsweq weqstn1tounit x x' ( idpath tt ) ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqstn2tobool</span> : ⟦<span class="mi">2</span>⟧ ≃ bool.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> ( f := <span class="k">λ</span> <span class="nv">j</span> : ⟦<span class="mi">2</span>⟧, <span class="k">match</span> ( isdeceqnat j <span class="mi">0</span> ) <span class="k">with</span>
+                            ii1 _ =&gt; false
+                          | ii2 _ =&gt; true
+                          <span class="k">end</span> ).
+  <span class="nb">set</span> ( g := <span class="k">λ</span> <span class="nv">b</span> : bool, <span class="k">match</span> b <span class="k">with</span>
+                        false =&gt; make_stn <span class="mi">2</span> <span class="mi">0</span> ( idpath true )
+                      | true =&gt; make_stn <span class="mi">2</span> <span class="mi">1</span> ( idpath true )
+                      <span class="k">end</span> ).
+  <span class="nb">split with</span> f.
+  <span class="nb">assert</span> ( egf : ∏ j : _ , paths ( g ( f j ) ) j ).
+  { <span class="nb">intro</span> j.
+    <span class="nb">unfold</span> f.
+    <span class="nb">destruct</span> ( isdeceqnat j <span class="mi">0</span> ) <span class="k">as</span> [ e | ne ].
+    - <span class="nb">apply</span> ( invmaponpathsincl _ ( isinclstntonat <span class="mi">2</span> ) ).
+      <span class="nb">rewrite</span> e.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> ( invmaponpathsincl _ ( isinclstntonat <span class="mi">2</span> ) ).
+      <span class="nb">destruct</span> j <span class="k">as</span> [ j l ].
+      <span class="nb">simpl</span>.
+      <span class="nb">set</span> ( l' := natlthtolehsn _ _ l ).
+      <span class="nb">destruct</span> ( natlehchoice _ _ l' ) <span class="k">as</span> [ l'' | e ].
+      + <span class="nb">simpl</span> <span class="k">in</span> ne.
+        <span class="nb">destruct</span>  ( ne ( natlth1tois0 _ l'' ) ).
+      + <span class="nb">apply</span> ( pathsinv0 ( invmaponpathsS _ _ e ) ).
+  }
+  <span class="nb">assert</span> ( efg : ∏ b : _ , paths ( f ( g b ) ) b ).
+  { <span class="nb">intro</span> b.
+    <span class="nb">unfold</span> g.
+    <span class="nb">destruct</span> b.
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> ( isweq_iso _ _ egf efg ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinjstntonat</span> (<span class="nv">n</span> : nat) : isInjectiveFunction (pr1 : stnset n -&gt; natset).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i j.
+  <span class="nb">apply</span> subtypePath_prop.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ***  Weak equivalence between the coproduct of [ stn n ] and [ stn m ] and [ stn ( n + m ) ] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">weqfromcoprodofstn_invmap</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : ⟦n + m⟧ -&gt; (⟦n⟧ ⨿ ⟦m⟧).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i.
+  <span class="nb">induction</span> (natlthorgeh i n) <span class="k">as</span> [i1 | i2].
+  - <span class="bp">exact</span> (ii1 (make_stn n i i1)).
+  - <span class="bp">exact</span> (ii2 (make_stn m (i - n) (nat_split (pr2 i) i2))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqfromcoprodofstn_invmap_r0</span> (<span class="nv">n</span> : nat) (<span class="nv">i</span> : ⟦n+<span class="mi">0</span>⟧ ) :
+  weqfromcoprodofstn_invmap n <span class="mi">0</span> i = ii1 (transportf stn (natplusr0 n) i).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> weqfromcoprodofstn_invmap.
+  <span class="nb">simpl</span>.
+  <span class="nb">induction</span> (natlthorgeh i n) <span class="k">as</span> [I|J].
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath_prop. <span class="nb">simpl</span>.
+    <span class="nb">induction</span> (natplusr0 n). <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> fromempty. <span class="nb">induction</span> (! natplusr0 n).
+    <span class="bp">exact</span> (natgehtonegnatlth _ _ J (stnlt i)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqfromcoprodofstn_map</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : (⟦n⟧ ⨿ ⟦m⟧) -&gt; ⟦n+m⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i.
+  <span class="nb">induction</span> i <span class="k">as</span> [i | i].
+  - <span class="nb">apply</span> stn_left. <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> stn_right. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqfromcoprodofstn_eq1</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) :
+  ∏ x : ⟦n⟧ ⨿ ⟦m⟧, weqfromcoprodofstn_invmap n m (weqfromcoprodofstn_map n m x) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">unfold</span> weqfromcoprodofstn_map, weqfromcoprodofstn_invmap. <span class="nb">unfold</span> coprod_rect.
+  <span class="nb">induction</span> x <span class="k">as</span> [x | x].
+  - <span class="nb">induction</span> (natlthorgeh (stn_left n m x) n) <span class="k">as</span> [H | H].
+    + <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isinjstntonat. <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> fromempty. <span class="nb">apply</span> (natlthtonegnatgeh x n (stnlt x) H).
+  - <span class="nb">induction</span> (natlthorgeh (stn_right n m x) n) <span class="k">as</span> [H | H].
+    + <span class="nb">apply</span> fromempty.
+      <span class="nb">set</span> (tmp := natlehlthtrans n (n + x) n (natlehnplusnm n x) H).
+      use (isirrefl_natneq n (natlthtoneq _ _ tmp)).
+    + <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isinjstntonat. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> natpluscomm. <span class="nb">apply</span> plusminusnmm.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqfromcoprodofstn_eq2</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) :
+  ∏ y : ⟦n+m⟧, weqfromcoprodofstn_map n m (weqfromcoprodofstn_invmap n m y) = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">unfold</span> weqfromcoprodofstn_map, weqfromcoprodofstn_invmap. <span class="nb">unfold</span> coprod_rect.
+  <span class="nb">induction</span> (natlthorgeh x n) <span class="k">as</span> [H | H].
+  - <span class="nb">apply</span> isinjstntonat. <span class="nb">apply</span> idpath.
+  - <span class="nb">induction</span> (natchoice0 m) <span class="k">as</span> [H1 | H1].
+    + <span class="nb">apply</span> fromempty. <span class="nb">induction</span> H1. <span class="nb">induction</span> (! (natplusr0 n)).
+      use (natlthtonegnatgeh x n (stnlt x) H).
+    + <span class="nb">apply</span> isinjstntonat. <span class="nb">cbn</span>. <span class="nb">rewrite</span> natpluscomm. <span class="nb">apply</span> minusplusnmm. <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** A proof of weqfromcoprodofstn using isweq_iso *)</span>
+<span class="kn">Theorem</span> <span class="nf">weqfromcoprodofstn</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : (⟦n⟧ ⨿ ⟦m⟧) ≃ ⟦n+m⟧.
+<span class="kn">Proof</span>.
+  use (tpair _ (weqfromcoprodofstn_map n m)).
+  use (isweq_iso _ (weqfromcoprodofstn_invmap n m)).
+  - <span class="bp">exact</span> (weqfromcoprodofstn_eq1 n m).
+  - <span class="bp">exact</span> (weqfromcoprodofstn_eq2 n m).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Associativity of [weqfromcoprodofstn] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pr1_eqweqmap_stn</span> (<span class="nv">m</span> <span class="nv">n</span> : nat) (<span class="nv">e</span>: m=n) (<span class="nv">i</span>: ⟦m⟧ ) :
+  pr1 (pr1weq (eqweqmap (maponpaths stn e)) i) = pr1 i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coprod_stn_assoc</span> (<span class="nv">l</span> <span class="nv">m</span> <span class="nv">n</span> : nat) : (
+  eqweqmap (maponpaths stn (natplusassoc l m n))
+           ∘ weqfromcoprodofstn (l+m) n
+           ∘ weqcoprodf (weqfromcoprodofstn l m) (idweq _)
+  ~
+  weqfromcoprodofstn l (m+n)
+           ∘ weqcoprodf (idweq _) (weqfromcoprodofstn m n)
+           ∘ weqcoprodasstor _ _ _
+  ) %weq.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">intros</span> abc.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (invmaponpathsincl pr1). <span class="nb">apply</span> isinclstntonat.
+  <span class="nb">rewrite</span> pr1_eqweqmap_stn.
+  <span class="nb">induction</span> abc <span class="k">as</span> [[a|b]|c].
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> natplusassoc.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Weak equivalence from the total space of a family [ stn ( f x ) ]  over [ stn n ] to [ stn ( stnsum n f ) ] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">stnsum</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦n⟧ -&gt; nat) : nat.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> f.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn].
+  - <span class="nb">intro</span>. <span class="bp">exact</span> <span class="mi">0</span>.
+  - <span class="nb">intro</span> f. <span class="bp">exact</span> (IHn (<span class="k">λ</span> <span class="nv">i</span>, f (dni lastelement i)) + f lastelement).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_step</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span>: ⟦S n⟧ -&gt; nat) :
+  stnsum f = stnsum (f ∘ (dni lastelement)) + f lastelement.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_eq</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> <span class="nv">g</span>: ⟦n⟧ -&gt; nat) : f ~ g -&gt; stnsum f = stnsum g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> h.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> <span class="mi">2</span>? stnsum_step.
+    <span class="nb">induction</span> (h lastelement).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">i</span>, i + f lastelement)).
+    <span class="nb">apply</span> IH.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> h.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_stnsum</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">e</span>: m=n) (<span class="nv">g</span>: ⟦n⟧ -&gt; nat) :
+  stnsum g = stnsum (<span class="k">λ</span> <span class="nv">i</span>, g(transportf stn e i)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_le</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> <span class="nv">g</span>: ⟦n⟧ -&gt; nat) : (∏ i, f i ≤ g i) -&gt; stnsum f ≤ stnsum g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> le.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> natlehandplus.
+    + <span class="nb">apply</span> IH. <span class="nb">intro</span> i. <span class="nb">apply</span> le.
+    + <span class="nb">apply</span> le.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_stn</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">e</span>: m=n) (<span class="nv">i</span>: ⟦m⟧ ) :
+  transportf stn e i = make_stn n (pr1 i) (transportf (<span class="k">λ</span> <span class="nv">k</span>, pr1 i &lt; k) e (pr2 i)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_left_right</span> (<span class="nv">m</span> <span class="nv">n</span> : nat) (<span class="nv">f</span>: ⟦m+n⟧ -&gt; nat) :
+  stnsum f = stnsum (f ∘ stn_left m n) + stnsum (f ∘ stn_right m n).
+<span class="kn">Proof</span>.
+  <span class="c">(* why is this proof so obnoxious and fragile? *)</span>
+  <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+  { <span class="nb">change</span> (stnsum _) <span class="k">with</span> <span class="mi">0</span> <span class="nb">at</span> <span class="mi">3</span>. <span class="nb">rewrite</span> natplusr0.
+    <span class="nb">assert</span> (e := ! natplusr0 m).
+    <span class="nb">rewrite</span> (transport_stnsum e). <span class="nb">apply</span> stnsum_eq; <span class="nb">intro</span> i. <span class="nb">simpl</span>.
+    <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> stn_left_0. }
+  <span class="nb">rewrite</span> stnsum_step. <span class="nb">assert</span> (e : S (m+n) = m + S n).
+  { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> natplusnsm. }
+  <span class="nb">rewrite</span> (transport_stnsum e).
+  <span class="nb">rewrite</span> stnsum_step. <span class="nb">rewrite</span> &lt;- natplusassoc. <span class="nb">apply</span> map_on_two_paths.
+  { <span class="nb">rewrite</span> IHn; <span class="nb">clear</span> IHn. <span class="nb">apply</span> map_on_two_paths.
+    { <span class="nb">apply</span> stnsum_eq; <span class="nb">intro</span> i. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath_prop.
+      <span class="nb">rewrite</span> stn_left_compute. <span class="nb">induction</span> e.
+      <span class="nb">rewrite</span> idpath_transportf. <span class="nb">rewrite</span> dni_last.
+      <span class="nb">apply</span> idpath. }
+    { <span class="nb">apply</span> stnsum_eq; <span class="nb">intro</span> i. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath_prop.
+      <span class="nb">rewrite</span> stn_right_compute. <span class="nb">unfold</span> stntonat. <span class="nb">induction</span> e.
+      <span class="nb">rewrite</span> idpath_transportf. <span class="nb">rewrite</span> <span class="mi">2</span>? dni_last. <span class="nb">apply</span> idpath. } }
+  <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">stnsum_left_le</span> (<span class="nv">m</span> <span class="nv">n</span> : nat) (<span class="nv">f</span>: ⟦m+n⟧ -&gt; nat) :
+  stnsum (f ∘ stn_left m n) ≤ stnsum f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> stnsum_left_right.
+  <span class="nb">apply</span> natlehnplusnm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">stnsum_left_le'</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">f</span>: ⟦n⟧ -&gt; nat) (<span class="nv">r</span>:m≤n) :
+  stnsum (f ∘ stn_left' m n r) ≤ stnsum f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (s := minusplusnmm n m r). <span class="nb">rewrite</span> (natpluscomm (n-m) m) <span class="k">in</span> s.
+  <span class="nb">generalize</span> r f; <span class="nb">clear</span> r f.
+  <span class="nb">rewrite</span> &lt;- s; <span class="nb">clear</span> s.
+  <span class="nb">set</span> (k := n-m).
+  <span class="nb">generalize</span> k; <span class="nb">clear</span> k; <span class="nb">intros</span> k r f.
+  <span class="nb">induction</span> (natpluscomm m k).
+  <span class="nb">rewrite</span> stn_left_compare.
+  <span class="nb">rewrite</span> stnsum_left_right.
+  <span class="nb">apply</span> natlehnplusnm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_dni</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span>: ⟦S n⟧ -&gt; nat) (<span class="nv">j</span>: ⟦S n⟧ ) :
+  stnsum f = stnsum (f ∘ dni j) + f j.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> j <span class="k">as</span> [j J].
+  <span class="nb">assert</span> (e2 : j + (n - j) = n).
+  { <span class="nb">rewrite</span> natpluscomm. <span class="nb">apply</span> minusplusnmm. <span class="nb">apply</span> natlthsntoleh. <span class="bp">exact</span> J. }
+  <span class="nb">assert</span> (e : (S j) + (n - j) = S n).
+  { <span class="nb">change</span> (S j + (n - j)) <span class="k">with</span> (S (j + (n - j))). <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> e2. }
+  intermediate_path (stnsum (<span class="k">λ</span> <span class="nv">i</span>, f (transportf stn e i))).
+  - <span class="nb">apply</span> (transport_stnsum e).
+  - <span class="nb">rewrite</span> (stnsum_left_right (S j) (n - j)); <span class="nb">unfold</span> funcomp.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> (transport_stnsum e2).
+    <span class="nb">rewrite</span> (stnsum_left_right j (n-j)); <span class="nb">unfold</span> funcomp.
+    <span class="nb">rewrite</span> (stnsum_step (<span class="k">λ</span> <span class="nv">x</span>, f (transportf stn e _))); <span class="nb">unfold</span> funcomp.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">rewrite</span> natplusassoc. <span class="nb">rewrite</span> (natpluscomm (f _)). <span class="nb">rewrite</span> &lt;- natplusassoc.
+    <span class="nb">apply</span> map_on_two_paths.
+    + <span class="nb">apply</span> map_on_two_paths.
+      * <span class="nb">apply</span> stnsum_eq; <span class="nb">intro</span> i. <span class="nb">induction</span> i <span class="k">as</span> [i I].
+        <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath_prop.
+        <span class="nb">induction</span> e. <span class="nb">rewrite</span> idpath_transportf. <span class="nb">rewrite</span> stn_left_compute.
+        <span class="nb">unfold</span> dni,di, stntonat; <span class="nb">simpl</span>.
+        <span class="nb">induction</span> (natlthorgeh i j) <span class="k">as</span> [R|R].
+        -- <span class="nb">unfold</span> stntonat; <span class="nb">simpl</span>; <span class="nb">rewrite</span> transport_stn; <span class="nb">simpl</span>.
+           <span class="nb">induction</span> (natlthorgeh i j) <span class="k">as</span> [a|b].
+           ++ <span class="nb">apply</span> idpath.
+           ++ contradicts R (natlehneggth b).
+        -- <span class="nb">unfold</span> stntonat; <span class="nb">simpl</span>; <span class="nb">rewrite</span> transport_stn; <span class="nb">simpl</span>.
+           <span class="nb">induction</span> (natlthorgeh i j) <span class="k">as</span> [V|V].
+           ++ contradicts I (natlehneggth R).
+           ++ <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> stnsum_eq; <span class="nb">intro</span> i. <span class="nb">induction</span> i <span class="k">as</span> [i I]. <span class="nb">apply</span> maponpaths.
+        <span class="nb">unfold</span> dni,di, stn_right, stntonat; <span class="kp">repeat</span> <span class="nb">rewrite</span> transport_stn; <span class="nb">simpl</span>.
+        <span class="nb">induction</span> (natlthorgeh (j+i) j) <span class="k">as</span> [X|X].
+        -- contradicts (negnatlthplusnmn j i) X.
+        -- <span class="nb">apply</span> subtypePath_prop. <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> transport_stn; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> subtypePath_prop.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_pos</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span>: ⟦n⟧ -&gt; nat) (<span class="nv">j</span>: ⟦n⟧ ) : f j ≤ stnsum f.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (m : <span class="mi">0</span> &lt; n).
+  { <span class="nb">apply</span> (natlehlthtrans _ j).
+    - <span class="nb">apply</span> natleh0n.
+    - <span class="bp">exact</span> (pr2 j). }
+  <span class="nb">assert</span> (l : <span class="mi">1</span> ≤ n). { <span class="nb">apply</span> natlthtolehsn. <span class="bp">assumption</span>. }
+  <span class="nb">assert</span> (e : n = S (n - <span class="mi">1</span>)).
+  { <span class="nb">change</span> (S (n - <span class="mi">1</span>)) <span class="k">with</span> (<span class="mi">1</span> + (n - <span class="mi">1</span>)). <span class="nb">rewrite</span> natpluscomm.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> minusplusnmm. <span class="bp">assumption</span>. }
+  <span class="nb">rewrite</span> (transport_stnsum (!e) f).
+  <span class="nb">rewrite</span> (stnsum_dni _ (transportf stn e j)).
+  <span class="nb">unfold</span> funcomp.
+  <span class="nb">generalize</span> (stnsum (<span class="k">λ</span> <span class="nv">x</span>, f (transportf stn (! e) (dni (transportf stn e j) x)))); <span class="nb">intro</span> s.
+  <span class="nb">induction</span> e. <span class="nb">apply</span> natlehmplusnm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">stnsum_pos_0</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span>: ⟦S n⟧ -&gt; nat) : f firstelement ≤ stnsum f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="bp">exact</span> (stnsum_pos f firstelement).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_1</span> (<span class="nv">n</span> : nat) : stnsum(<span class="k">λ</span> <span class="nv">i</span>: ⟦n⟧, <span class="mi">1</span>) = n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  { <span class="nb">apply</span> idpath. }
+  <span class="nb">simpl</span>.
+  use (natpluscomm _ _ @ _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">exact</span> IH.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_const</span> {<span class="nv">m</span> <span class="nv">c</span> : nat} : stnsum (<span class="k">λ</span> <span class="nv">i</span>: ⟦m⟧, c) = m*c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> m <span class="k">as</span> [|m I].
+  - <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">i</span>, i+c) I).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_last_le</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span>: ⟦S n⟧ -&gt; nat) : f lastelement ≤ stnsum f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">rewrite</span> stnsum_step. <span class="nb">apply</span> natlehmplusnm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_first_le</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span>: ⟦S n⟧ -&gt; nat) : f firstelement ≤ stnsum f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  - <span class="nb">apply</span> isreflnatleh.
+  - <span class="nb">rewrite</span> stnsum_step. <span class="nb">assert</span> (W := IH (f ∘ dni lastelement)).
+    <span class="nb">change</span> ((f ∘ dni lastelement) firstelement) <span class="k">with</span> (f firstelement) <span class="k">in</span> W.
+    <span class="nb">apply</span> (istransnatleh W); <span class="nb">clear</span> W. <span class="nb">apply</span> natlehnplusnm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">_c_</span> {<span class="nv">n</span> : nat} {<span class="nv">m</span>: ⟦ n ⟧ → nat} (<span class="nv">ij</span> : ∑ i : ⟦ n ⟧, ⟦ m i ⟧) :
+  stnsum (m ∘ stn_left'' (stnlt (pr1 ij))) + pr2 ij &lt; stnsum m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (m1 := m ∘ stn_left'' (stnlt (pr1 ij))).
+  <span class="nb">induction</span> ij <span class="k">as</span> [i j].
+  <span class="nb">induction</span> i <span class="k">as</span> [i I].
+  <span class="nb">induction</span> j <span class="k">as</span> [j J].
+  <span class="nb">simpl</span> <span class="k">in</span> m1.
+  <span class="nb">change</span> (stnsum m1 + j &lt; stnsum m).
+  <span class="nb">assert</span> (s := stnsum_left_le' m (I : S i ≤ n)).
+  use (natlthlehtrans _ _ _ _ s).
+  <span class="nb">clear</span> s.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n _].
+  - <span class="nb">induction</span> (negnatlthn0 _ I).
+  - <span class="nb">assert</span> (t : stnsum m1 + j &lt; stnsum m1 + m (i,,I)).
+    { <span class="nb">apply</span> natlthandplusl. <span class="bp">exact</span> J. }
+    <span class="nb">apply</span> (natlthlehtrans _ _ _ t).
+    <span class="nb">assert</span> (K : ∏ m n, m = n -&gt; m ≤ n).
+    { <span class="nb">intros</span> a b e. <span class="nb">induction</span> e. <span class="nb">apply</span> isreflnatleh. }
+    <span class="nb">apply</span> K; <span class="nb">clear</span> K.
+    <span class="nb">rewrite</span> stnsum_step.
+    <span class="nb">clear</span> j J t.
+    <span class="nb">unfold</span> m1 ; <span class="nb">clear</span> m1.
+    <span class="nb">apply</span> two_arg_paths.
+    + <span class="nb">apply</span> stnsum_eq. <span class="nb">intro</span> l.
+      <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> subtypePath_prop; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> pathsinv0, di_eq1, stnlt.
+    + <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath_prop.
+      <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">weqstnsum_map</span> { <span class="nv">n</span> : nat } (<span class="nv">m</span> : ⟦n⟧ -&gt; nat) :
+  (∑ i, ⟦m i⟧) -&gt; ⟦stnsum m⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ij.
+  <span class="bp">exact</span> (make_stn _ (stnsum (m ∘ stn_left'' (stnlt (pr1 ij))) + pr2 ij) (_c_ ij)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">weqstnsum_invmap</span> {<span class="nv">n</span> : nat} (<span class="nv">m</span> : ⟦n⟧ -&gt; nat) :
+  ⟦stnsum m⟧ -&gt; (∑ i, ⟦m i⟧).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  { <span class="nb">intros</span> ? l. <span class="nb">apply</span> fromempty, negstn0. <span class="bp">assumption</span>. }
+  <span class="nb">intros</span> ? l.
+  <span class="nb">change</span> (⟦ stnsum (m ∘ dni lastelement) + m lastelement ⟧) <span class="k">in</span> l.
+  <span class="c">(* we are careful to use weqfromcoprodofstn_invmap both here and in concatenate' *)</span>
+  <span class="nb">assert</span> (ls := weqfromcoprodofstn_invmap _ _ l).
+  <span class="nb">induction</span> ls <span class="k">as</span> [j|k].
+  - <span class="bp">exact</span> (total2_base_map (dni lastelement) (IH _ j)).
+  - <span class="bp">exact</span> (lastelement,,k).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqstnsum_invmap_step1</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦S n⟧ -&gt; nat)
+  (<span class="nv">j</span> : stn (stnsum (<span class="k">λ</span> <span class="nv">x</span>, f (dni lastelement x)))) :
+  weqstnsum_invmap f
+    (weqfromcoprodofstn_map (stnsum (<span class="k">λ</span> <span class="nv">x</span>, f (dni lastelement x)))
+                            (f lastelement) (ii1 j))
+  = total2_base_map (dni lastelement) (weqstnsum_invmap (f ∘ dni lastelement) j).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> weqstnsum_invmap <span class="nb">at</span> <span class="mi">1</span>. <span class="nb">unfold</span> nat_rect <span class="nb">at</span> <span class="mi">1</span>.
+  <span class="nb">rewrite</span> weqfromcoprodofstn_eq1. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqstnsum_invmap_step2</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦S n⟧ -&gt; nat)
+  (<span class="nv">k</span> : ⟦f lastelement⟧) :
+  weqstnsum_invmap f
+    (weqfromcoprodofstn_map (stnsum (<span class="k">λ</span> <span class="nv">x</span>, f (dni lastelement x)))
+                            (f lastelement) (ii2 k))
+  = (lastelement,,k).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> weqstnsum_invmap <span class="nb">at</span> <span class="mi">1</span>. <span class="nb">unfold</span> nat_rect <span class="nb">at</span> <span class="mi">1</span>.
+  <span class="nb">rewrite</span> weqfromcoprodofstn_eq1. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">partial_sum_prop_aux</span> {<span class="nv">n</span> : nat} {<span class="nv">m</span> : ⟦n⟧ → nat} :
+  ∏ (i i' : ⟦ n ⟧) (j : ⟦ m i ⟧) (j' : ⟦ m i' ⟧),
+  i &lt; i' → stnsum (m ∘ stn_left'' (stnlt i)) + j &lt;
+           stnsum (m ∘ stn_left'' (stnlt i')) + j'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ? ? lt.
+  <span class="nb">apply</span> natlthtolehsn <span class="k">in</span> lt.
+  <span class="nb">pose</span> (ltS := (natlehlthtrans _ _ _ lt (stnlt i'))).
+  <span class="nb">refine</span> (natlthlehtrans _ _ _ _ (natlehnplusnm _ _)).
+  <span class="nb">apply</span> natlthlehtrans <span class="k">with</span> (stnsum (m ∘ stn_left'' ltS)).
+  - <span class="nb">rewrite</span> stnsum_step.
+    <span class="nb">assert</span> (stnsum (m ∘ stn_left'' (stnlt i)) =
+            stnsum (m ∘ stn_left'' ltS ∘ dni lastelement)) <span class="k">as</span> e. {
+      <span class="nb">apply</span> stnsum_eq.
+      <span class="nb">intros</span> k.
+      <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> subtypePath_prop. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> pathsinv0, di_eq1.
+      <span class="nb">apply</span> (stnlt k).
+    }
+    <span class="nb">induction</span> e.
+    <span class="nb">apply</span> natlthandplusl.
+    <span class="nb">assert</span> ((m ∘ stn_left'' ltS) lastelement = m i) <span class="k">as</span> e. {
+      <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> subtypePath_prop, idpath.
+    }
+    <span class="nb">induction</span> e.
+    <span class="nb">apply</span> (stnlt j).
+  - <span class="nb">assert</span> (stnsum (m ∘ stn_left'' ltS) =
+            stnsum (m ∘ stn_left'' (stnlt i') ∘ stn_left' _ _ lt)) <span class="k">as</span> e. {
+      <span class="nb">apply</span> stnsum_eq.
+      <span class="nb">intros</span> k.
+      <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> subtypePath_prop, idpath.
+    }
+    <span class="nb">rewrite</span> e.
+    <span class="nb">apply</span> stnsum_left_le'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">partial_sum_prop</span> {<span class="nv">n</span> : nat} {<span class="nv">m</span> : ⟦n⟧ → nat} {<span class="nv">l</span> : nat} :
+  isaprop (∑ (i : ⟦n⟧ ) (j : ⟦m i⟧ ), stnsum (m ∘ stn_left'' (stnlt i)) + j = l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> invproofirrelevance.
+  <span class="nb">intros</span> t t'.
+  <span class="nb">induction</span> t <span class="k">as</span> [i je]. <span class="nb">induction</span> je <span class="k">as</span> [j e].
+  <span class="nb">induction</span> t' <span class="k">as</span> [i' je']. <span class="nb">induction</span> je' <span class="k">as</span> [j' e'].
+  <span class="nb">pose</span> (e'' := e @ !e').
+  <span class="nb">assert</span> (i = i') <span class="k">as</span> p. {
+    <span class="nb">induction</span> (nat_eq_or_neq i i') <span class="k">as</span> [eq | ne].
+    + <span class="nb">apply</span> subtypePath_prop. <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> fromempty.
+      <span class="nb">generalize</span> e''.
+      <span class="nb">apply</span> nat_neq_to_nopath.
+      <span class="nb">induction</span> (natneqchoice _ _ ne);
+        [<span class="nb">apply</span> natgthtoneq | <span class="nb">apply</span> natlthtoneq];
+        <span class="nb">apply</span> partial_sum_prop_aux;
+        <span class="bp">assumption</span>.
+  }
+  <span class="nb">apply</span> total2_paths_f <span class="k">with</span> p.
+  - use total2_paths_f.
+    + <span class="nb">induction</span> p. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> subtypePath_prop.
+      <span class="nb">apply</span> (natpluslcan _ _ _ e'').
+    + <span class="nb">apply</span> isasetnat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">partial_sum_slot</span> {<span class="nv">n</span> : nat} {<span class="nv">m</span> : ⟦n⟧ → nat} {<span class="nv">l</span> : nat} : l &lt; stnsum m -&gt;
+  <span class="k">∃</span>! (i : ⟦n⟧ ) (j : ⟦m i⟧ ), stnsum (m ∘ stn_left'' (stnlt i)) + j = l.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> lt.
+  <span class="nb">set</span> (len := stnsum m).
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  { <span class="nb">apply</span> fromempty. <span class="nb">change</span> (hProptoType(l &lt; <span class="mi">0</span>)) <span class="k">in</span> lt. <span class="bp">exact</span> (negnatlthn0 _ lt). }
+  <span class="nb">set</span> (m' := m ∘ dni_lastelement).
+  <span class="nb">set</span> (len' := stnsum m').
+  <span class="nb">induction</span> (natlthorgeh l len') <span class="k">as</span> [I|J].
+  - <span class="nb">assert</span> (IH' := IH m' I); <span class="nb">clear</span> IH.
+    <span class="nb">induction</span> IH' <span class="k">as</span> [ijJ Q]. <span class="nb">induction</span> ijJ <span class="k">as</span> [i jJ]. <span class="nb">induction</span> jJ <span class="k">as</span> [j J].
+    use tpair.
+    + <span class="k">exists</span> (<span class="nv">dni_lastelement</span> <span class="nv">i</span>). <span class="k">exists</span> <span class="nv">j</span>.
+      <span class="kp">abstract</span> (use (_ @ J); <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x+j)); <span class="nb">apply</span> stnsum_eq; <span class="nb">intro</span> r;
+      <span class="nb">unfold</span> m'; <span class="nb">simpl</span>; <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> subtypePath_prop, idpath).
+    + <span class="nb">intro</span> t.
+      <span class="nb">apply</span> partial_sum_prop.
+  - <span class="nb">clear</span> IH. <span class="nb">set</span> (j := l - len').
+    <span class="nb">apply</span> iscontraprop1.
+    { <span class="nb">apply</span> partial_sum_prop. }
+    <span class="nb">assert</span> (K := minusplusnmm _ _ J). <span class="nb">change</span> (l-len') <span class="k">with</span> j <span class="k">in</span> K.
+    <span class="k">exists</span> <span class="nv">lastelement</span>.
+    use tpair.
+    * <span class="k">exists</span> <span class="nv">j</span>. <span class="nb">apply</span> (natlthandpluslinv _ _ len'). <span class="nb">rewrite</span> natpluscomm.
+      <span class="nb">induction</span> (!K); <span class="nb">clear</span> K J j.
+      <span class="nb">assert</span>(C : len = len' + m lastelement).
+      { use (stnsum_step _ @ _). <span class="nb">unfold</span> len', m'; <span class="nb">clear</span> m' len'.
+        <span class="nb">rewrite</span> replace_dni_last. <span class="nb">apply</span> idpath. }
+      <span class="nb">induction</span> C. <span class="bp">exact</span> lt.
+    * <span class="nb">simpl</span>. intermediate_path (stnsum m' + j).
+      -- <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x+j)). <span class="nb">apply</span> stnsum_eq; <span class="nb">intro</span> i.
+         <span class="nb">unfold</span> m'. <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths.
+         <span class="nb">apply</span> subtypePath_prop, idpath.
+      -- <span class="nb">rewrite</span> natpluscomm. <span class="bp">exact</span> K.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stn_right_first</span> (<span class="nv">n</span> <span class="nv">i</span> : nat) :
+  stn_right i (S n) firstelement = make_stn (i + S n) i (natltplusS n i).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> natplusr0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_rect_step</span> (<span class="nv">P</span> : nat → UU) (<span class="nv">p0</span> : P <span class="mi">0</span>) (<span class="nv">IH</span> : ∏ n, P n → P (S n)) <span class="nv">n</span> :
+  nat_rect P p0 IH (S n) = IH n (nat_rect P p0 IH n).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqstnsum1_prelim</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦n⟧ -&gt; nat) :
+  (∑ i, ⟦f i⟧) ≃ ⟦stnsum f⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> f.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n' IHn ].
+  { <span class="nb">intros</span> f. <span class="nb">apply</span> weqempty.
+    - <span class="bp">exact</span> (negstn0 ∘ pr1).
+    - <span class="bp">exact</span> negstn0. }
+  <span class="nb">intros</span> f.
+  <span class="nb">change</span> (⟦stnsum f⟧) <span class="k">with</span> (⟦stnsum (f ∘ dni lastelement) + f lastelement⟧).
+  use (weqcomp _ (weqfromcoprodofstn _ _)).
+  use (weqcomp (weqoverdnicoprod _) _).
+  <span class="nb">apply</span> weqcoprodf1.
+  <span class="nb">apply</span> IHn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqstnsum1_step</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦S n⟧ -&gt; nat)
+  : (
+      weqstnsum1_prelim f
+      =
+      weqfromcoprodofstn (stnsum (funcomp (dni lastelement) f)) (f lastelement)
+      ∘ (weqcoprodf1 (weqstnsum1_prelim (<span class="k">λ</span> <span class="nv">i</span>, f (dni lastelement i)))
+         ∘ weqoverdnicoprod (<span class="k">λ</span> <span class="nv">i</span>, ⟦ f i ⟧))) % weq.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqstnsum1_prelim_eq</span> { <span class="nv">n</span> : nat } (<span class="nv">f</span> : ⟦n⟧ -&gt; nat) :
+  weqstnsum1_prelim f ~ weqstnsum_map f.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> f.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n I].
+  - <span class="nb">intros</span> f ij. <span class="nb">apply</span> fromempty, negstn0. <span class="bp">exact</span> (pr1 ij).
+  - <span class="nb">intros</span> f.
+    <span class="nb">rewrite</span> weqstnsum1_step.
+    <span class="nb">intros</span> ij.
+    <span class="nb">rewrite</span> <span class="mi">2</span> weqcomp_to_funcomp_app.
+    <span class="nb">unfold</span> weqcoprodf1.
+    <span class="nb">change</span> (pr1weq (weqcoprodf (weqstnsum1_prelim (<span class="k">λ</span> <span class="nv">i</span>, f (dni lastelement i)))
+                               (idweq (⟦ f lastelement ⟧))))
+    <span class="k">with</span> (coprodf (weqstnsum1_prelim (<span class="k">λ</span> <span class="nv">i</span>, f (dni lastelement i)))
+                  (idfun (⟦ f lastelement ⟧))).
+    intermediate_path
+      ((weqfromcoprodofstn (stnsum (f ∘ dni lastelement)) (f lastelement))
+         (coprodf (weqstnsum_map (<span class="k">λ</span> <span class="nv">i</span>, f (dni lastelement i)))
+                  (idfun (⟦ f lastelement ⟧)) ((weqoverdnicoprod (<span class="k">λ</span> <span class="nv">i</span>, ⟦ f i ⟧)) ij))).
+    + <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> homotcoprodfhomot.
+      * <span class="nb">apply</span> I.
+      * <span class="nb">intro</span> x. <span class="nb">apply</span> idpath.
+    + <span class="nb">clear</span> I.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">generalize</span> ij ; <span class="nb">clear</span> ij.
+      <span class="nb">apply</span> (homotweqinv' (weqstnsum_map f)
+                          (weqoverdnicoprod (<span class="k">λ</span> <span class="nv">i</span> : ⟦ S n ⟧, ⟦ f i ⟧))
+                          (<span class="k">λ</span> <span class="nv">c</span>, pr1weq (weqfromcoprodofstn (stnsum (f ∘ dni lastelement)) (f lastelement))
+                                       (coprodf (weqstnsum_map (<span class="k">λ</span> <span class="nv">i</span>, f (dni lastelement i)))
+                                                (idfun _) c))
+            ).
+      <span class="nb">intros</span> c.
+      <span class="nb">simpl</span>.
+      <span class="nb">set</span> (P := <span class="k">λ</span> <span class="nv">i</span>, ⟦ f i ⟧).
+      <span class="nb">change</span> (pr1weq (weqfromcoprodofstn (stnsum (<span class="k">λ</span> <span class="nv">x</span> : ⟦ n ⟧, f (dni lastelement x))) (f lastelement)))
+      <span class="k">with</span> (weqfromcoprodofstn_map (stnsum (<span class="k">λ</span> <span class="nv">x</span> : ⟦ n ⟧, f (dni lastelement x))) (f lastelement)).
+      <span class="nb">induction</span> c <span class="k">as</span> [jk|k].
+      * <span class="nb">unfold</span> coprodf.
+        <span class="nb">induction</span> jk <span class="k">as</span> [j k].
+        <span class="nb">change</span> (invmap (weqoverdnicoprod P) (ii1 (j,,k))) <span class="k">with</span> (tpair P (dni lastelement j) k).
+        <span class="nb">unfold</span> weqfromcoprodofstn_map. <span class="nb">unfold</span> coprod_rect. <span class="nb">unfold</span> weqstnsum_map.
+        <span class="nb">apply</span> subtypePath_prop.
+        <span class="nb">induction</span> k <span class="k">as</span> [k K]. <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x+k)). <span class="nb">unfold</span> funcomp, stntonat, di.
+        <span class="nb">clear</span> K k.
+        <span class="nb">induction</span> (natlthorgeh _ n) <span class="k">as</span> [G|G'].
+        -- <span class="nb">simpl</span>. <span class="nb">apply</span> stnsum_eq; <span class="nb">intro</span> k. <span class="nb">apply</span> maponpaths.
+           <span class="nb">apply</span> subtypePath_prop. <span class="nb">simpl</span>.
+           <span class="nb">apply</span> pathsinv0, di_eq1.
+           <span class="bp">exact</span> (istransnatlth _ _ _ (stnlt k) G).
+        -- <span class="nb">apply</span> fromempty. <span class="bp">exact</span> (natlthtonegnatgeh _ _ (stnlt j) G').
+      * <span class="nb">change</span> (invmap (weqoverdnicoprod P) (ii2 k)) <span class="k">with</span> (tpair P lastelement k).
+        <span class="nb">simpl</span>.
+        <span class="nb">unfold</span> weqstnsum_map.
+        <span class="nb">apply</span> subtypePath_prop.
+        <span class="nb">induction</span> k <span class="k">as</span> [k K]. <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x+k)).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i. <span class="nb">induction</span> i <span class="k">as</span> [i I].
+        <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> subtypePath_prop.
+        <span class="nb">simpl</span>.
+        <span class="nb">apply</span> pathsinv0, di_eq1. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqstnsum1_prelim_eq'</span> { <span class="nv">n</span> : nat } (<span class="nv">f</span> : ⟦n⟧ -&gt; nat) :
+  invweq (weqstnsum1_prelim f) ~ weqstnsum_invmap f.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> f.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n I].
+  - <span class="nb">intros</span> f k. <span class="nb">apply</span> fromempty, negstn0. <span class="bp">exact</span> k.
+  - <span class="nb">intros</span> f. <span class="nb">rewrite</span> weqstnsum1_step.
+    <span class="nb">intros</span> k. <span class="nb">rewrite</span> <span class="mi">2</span> invweqcomp. <span class="nb">rewrite</span> <span class="mi">2</span> weqcomp_to_funcomp_app. <span class="nb">rewrite</span> <span class="mi">3</span> pr1_invweq.
+    <span class="nb">unfold</span> weqcoprodf1.
+    <span class="nb">change</span> (invmap (weqcoprodf (weqstnsum1_prelim (<span class="k">λ</span> <span class="nv">i</span>, f (dni lastelement i))) (idweq (⟦ f lastelement ⟧))))
+    <span class="k">with</span> (coprodf (invweq (weqstnsum1_prelim (<span class="k">λ</span> <span class="nv">i</span>, f (dni lastelement i)))) (idweq (⟦ f lastelement ⟧))).
+    intermediate_path (invmap (weqoverdnicoprod (<span class="k">λ</span> <span class="nv">i</span> : ⟦ S n ⟧, ⟦ f i ⟧))
+                              (coprodf (weqstnsum_invmap (<span class="k">λ</span> <span class="nv">i</span> : ⟦ n ⟧, f (dni lastelement i))) (idweq (⟦ f lastelement ⟧))
+                                       (invmap (weqfromcoprodofstn (stnsum (f ∘ dni lastelement)) (f lastelement)) k))).
+    + <span class="nb">apply</span> maponpaths.
+      <span class="nb">change</span> (invmap _ k)
+      <span class="k">with</span> (invmap (weqfromcoprodofstn (stnsum (f ∘ dni lastelement)) (f lastelement)) k).
+      <span class="nb">generalize</span> (invmap (weqfromcoprodofstn (stnsum (f ∘ dni lastelement)) (f lastelement)) k).
+      <span class="nb">intro</span> c.
+      <span class="nb">apply</span> homotcoprodfhomot.
+      * <span class="nb">apply</span> I.
+      * <span class="nb">apply</span> homotrefl.
+    + <span class="nb">clear</span> I.
+      <span class="nb">generalize</span> k; <span class="nb">clear</span> k.
+      use (homotweqinv
+                (<span class="k">λ</span> <span class="nv">c</span>, invmap (weqoverdnicoprod (<span class="k">λ</span> <span class="nv">i</span>, ⟦ f i ⟧))
+                             (coprodf (weqstnsum_invmap (<span class="k">λ</span> <span class="nv">i</span>, f (dni lastelement i)))
+                                      (idweq (⟦ f lastelement ⟧))
+                                      c))
+                (weqfromcoprodofstn (stnsum (f ∘ dni lastelement)) (f lastelement))
+                ).
+      <span class="nb">unfold</span> funcomp.
+      <span class="nb">intro</span> c.
+      <span class="nb">induction</span> c <span class="k">as</span> [r|s].
+      * <span class="nb">unfold</span> coprodf.
+        <span class="nb">change</span> (pr1weq (weqfromcoprodofstn (stnsum (<span class="k">λ</span> <span class="nv">x</span>, f (dni lastelement x))) (f lastelement)))
+        <span class="k">with</span> (weqfromcoprodofstn_map (stnsum (<span class="k">λ</span> <span class="nv">x</span>, f (dni lastelement x))) (f lastelement)).
+        <span class="nb">set</span> (P := (<span class="k">λ</span> <span class="nv">i</span> : ⟦ S n ⟧, ⟦ f i ⟧)).
+        <span class="nb">rewrite</span> weqstnsum_invmap_step1.
+        <span class="nb">change</span> (<span class="k">λ</span> <span class="nv">i</span> : ⟦ n ⟧, f (dni lastelement i)) <span class="k">with</span> (f ∘ dni lastelement).
+        <span class="nb">generalize</span> (weqstnsum_invmap (f ∘ dni lastelement) r); <span class="nb">intro</span> ij.
+        <span class="nb">induction</span> ij <span class="k">as</span> [i j].
+        <span class="nb">apply</span> idpath.
+      * <span class="nb">unfold</span> coprodf.
+        <span class="nb">change</span> (pr1weq (idweq _) s) <span class="k">with</span> s.
+        <span class="nb">set</span> (P := (<span class="k">λ</span> <span class="nv">i</span> : ⟦ S n ⟧, ⟦ f i ⟧)).
+        <span class="nb">change</span> (pr1weq _)
+        <span class="k">with</span> (weqfromcoprodofstn_map (stnsum (<span class="k">λ</span> <span class="nv">x</span> : ⟦ n ⟧, f (dni lastelement x))) (f lastelement)).
+        <span class="nb">rewrite</span> weqstnsum_invmap_step2.
+        <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqstnsum1</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦n⟧ -&gt; nat) : (∑ i, ⟦f i⟧) ≃ ⟦stnsum f⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. use (remakeweqboth (weqstnsum1_prelim_eq _) (weqstnsum1_prelim_eq' _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqstnsum1_eq</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦n⟧ -&gt; nat) : pr1weq (weqstnsum1 f) = weqstnsum_map f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqstnsum1_eq'</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦n⟧ -&gt; nat) : invmap (weqstnsum1 f) = weqstnsum_invmap f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">weqstnsum</span> { <span class="nv">n</span> : nat } (<span class="nv">P</span> : ⟦n⟧ -&gt; UU) (<span class="nv">f</span> : ⟦n⟧ -&gt; nat) :
+  (∏ i, ⟦f i⟧ ≃ P i) -&gt; total2 P ≃ ⟦stnsum f⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w.
+  intermediate_weq (∑ i, ⟦f i⟧).
+  - <span class="nb">apply</span> invweq. <span class="nb">apply</span> weqfibtototal. <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> weqstnsum1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">weqstnsum2</span> { <span class="nv">X</span> : UU } {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦n⟧ -&gt; nat) (<span class="nv">g</span> : X -&gt; ⟦n⟧ ) :
+  (∏ i, ⟦f i⟧ ≃ hfiber g i) -&gt; X ≃ ⟦stnsum f⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w.
+  use (weqcomp _ (weqstnsum _ _ w)).
+  <span class="nb">apply</span> weqtococonusf.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** lexical enumeration of pairs of natural numbers *)</span>
+
+<span class="kn">Definition</span> <span class="nf">lexicalEnumeration</span> {<span class="nv">n</span> : nat} (<span class="nv">m</span>: ⟦n⟧ -&gt; nat) :
+  ⟦stnsum m⟧ ≃ (∑ i : ⟦n⟧, ⟦m i⟧) := invweq (weqstnsum1 m).
+
+<span class="kn">Definition</span> <span class="nf">inverse_lexicalEnumeration</span> {<span class="nv">n</span> : nat} (<span class="nv">m</span>: ⟦n⟧ -&gt; nat) :
+  (∑ i : ⟦n⟧, ⟦m i⟧) ≃ ⟦stnsum m⟧ := weqstnsum1 m.
+
+<span class="sd">(** two generalizations of stnsum, potentially useful *)</span>
+
+<span class="kn">Definition</span> <span class="nf">foldleft</span> {<span class="nv">E</span>} (<span class="nv">e</span> : E) (<span class="nv">m</span> : binop E) {<span class="nv">n</span> : nat} (<span class="nv">x</span>: ⟦n⟧ -&gt; E) : E.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n foldleft].
+  + <span class="bp">exact</span> e.
+  + <span class="bp">exact</span> (m (foldleft (x ∘ (dni lastelement))) (x lastelement)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">foldright</span> {<span class="nv">E</span>} (<span class="nv">m</span> : binop E) (<span class="nv">e</span> : E) {<span class="nv">n</span> : nat} (<span class="nv">x</span>: ⟦n⟧ -&gt; E) : E.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n foldright].
+  + <span class="bp">exact</span> e.
+  + <span class="bp">exact</span> (m (x firstelement) (foldright (x ∘ dni firstelement))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Weak equivalence between the direct product of [ stn n ] and [ stn m ] and [ stn n * m ] *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">weqfromprodofstn</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) : ⟦n⟧ × ⟦m⟧ ≃ ⟦n*m⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> ( natgthorleh m <span class="mi">0</span> ) <span class="k">as</span> [ isc | i ].
+  - <span class="nb">assert</span> ( i1 : ∏ i j : nat, i &lt; n -&gt; j &lt; m -&gt; j + i * m &lt; n * m).
+    + <span class="nb">intros</span> i j li lj.
+      <span class="nb">apply</span> (natlthlehtrans ( j + i * m ) ( ( S i ) * m ) ( n * m )).
+      * <span class="nb">change</span> (S i * m) <span class="k">with</span> (i*m + m).
+        <span class="nb">rewrite</span> natpluscomm.
+        <span class="bp">exact</span> (natgthandplusl m j ( i * m ) lj ).
+      * <span class="bp">exact</span> ( natlehandmultr ( S i ) n m ( natgthtogehsn _ _ li ) ).
+    + <span class="nb">set</span> ( f := <span class="k">λ</span> <span class="nv">ij</span> : ⟦n⟧ × ⟦m⟧,
+                   <span class="k">match</span> ij
+                   <span class="k">with</span> tpair _ i j =&gt;
+                        make_stn ( n * m ) ( j + i * m ) ( i1 i j ( pr2 i ) ( pr2 j ) )
+                   <span class="k">end</span> ).
+      <span class="nb">split with</span> f.
+      <span class="nb">assert</span> ( isinf : isincl f ).
+      * <span class="nb">apply</span> isinclbetweensets.
+        <span class="nb">apply</span> ( isofhleveldirprod <span class="mi">2</span> _ _ ( isasetstn n ) ( isasetstn m ) ).
+        <span class="nb">apply</span> ( isasetstn ( n * m ) ).
+        <span class="nb">intros</span> ij ij' e.  <span class="nb">destruct</span> ij <span class="k">as</span> [ i j ]. <span class="nb">destruct</span> ij' <span class="k">as</span> [ i' j' ].
+        <span class="nb">destruct</span> i <span class="k">as</span> [ i li ]. <span class="nb">destruct</span> i' <span class="k">as</span> [ i' li' ].
+        <span class="nb">destruct</span> j <span class="k">as</span> [ j lj ]. <span class="nb">destruct</span> j' <span class="k">as</span> [ j' lj' ].
+        <span class="nb">simpl</span> <span class="k">in</span> e.
+        <span class="nb">assert</span> ( e' := maponpaths ( stntonat ( n * m ) ) e ). <span class="nb">simpl</span> <span class="k">in</span> e'.
+        <span class="nb">assert</span> ( eei : i = i' ).
+        { <span class="nb">apply</span> ( pr1 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ). }
+        <span class="nb">set</span> ( eeis := invmaponpathsincl _ ( isinclstntonat _ ) ( make_stn _ i li ) ( make_stn _ i' li' ) eei ).
+        <span class="nb">assert</span> ( eej : j = j' ).
+        { <span class="nb">apply</span> ( pr2 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ). }
+        <span class="nb">set</span> ( eejs := invmaponpathsincl _ ( isinclstntonat _ ) ( make_stn _ j lj ) ( make_stn _ j' lj' ) eej ).
+        <span class="nb">apply</span> ( pathsdirprod eeis eejs ).
+      * <span class="nb">intro</span> xnm.
+        <span class="nb">apply</span> iscontraprop1. <span class="nb">apply</span> ( isinf xnm ).
+        <span class="nb">set</span> ( e := pathsinv0 ( natdivremrule xnm m ( natgthtoneq _ _ isc ) ) ).
+        <span class="nb">set</span> ( i := natdiv xnm m ).   <span class="nb">set</span> ( j := natrem xnm m ).
+        <span class="nb">destruct</span> xnm <span class="k">as</span> [ xnm lxnm ].
+        <span class="nb">set</span> ( li := natlthandmultrinv _ _ _ ( natlehlthtrans _ _ _ ( natlehmultnatdiv xnm m ( natgthtoneq _ _ isc ) ) lxnm ) ).
+        <span class="nb">set</span> ( lj := lthnatrem xnm m ( natgthtoneq _ _ isc ) ).
+        <span class="nb">split with</span> ( make_dirprod ( make_stn n i li ) ( make_stn m j lj ) ).
+        <span class="nb">simpl</span>.
+        <span class="nb">apply</span> ( invmaponpathsincl _ ( isinclstntonat _ ) _ _ ).  <span class="nb">simpl</span>.
+        <span class="nb">apply</span> e.
+  - <span class="nb">set</span> ( e := natleh0tois0 i ).  <span class="nb">rewrite</span> e.  <span class="nb">rewrite</span> ( natmultn0 n ). <span class="nb">split with</span> ( @pr2 _ _ ).   <span class="nb">apply</span> ( isweqtoempty2 _ ( weqstn0toempty ) ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Weak equivalences between decidable subsets of [ stn n ] and [ stn x ] *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">weqfromdecsubsetofstn</span> { <span class="nv">n</span> : nat } ( <span class="nv">f</span> : ⟦n⟧ -&gt; bool ) :
+  total2 ( <span class="k">λ</span> <span class="nv">x</span> : nat, hfiber f true ≃ (⟦x⟧) ).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> f.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span>.
+    <span class="nb">split with</span> <span class="mi">0</span>.
+    <span class="nb">assert</span> ( g : hfiber f true -&gt; (⟦<span class="mi">0</span>⟧) ).
+    { <span class="nb">intro</span> hf.
+      <span class="nb">destruct</span> hf <span class="k">as</span> [ i e ].
+      <span class="nb">destruct</span> ( weqstn0toempty i ).
+    }
+    <span class="nb">apply</span> ( weqtoempty2 g weqstn0toempty ).
+  - <span class="nb">intro</span>.
+    <span class="nb">set</span> ( g := weqfromcoprodofstn <span class="mi">1</span> n ).
+    <span class="nb">change</span> ( <span class="mi">1</span> + n ) <span class="k">with</span> ( S n ) <span class="k">in</span> g.
+    <span class="nb">set</span> ( fl := <span class="k">λ</span> <span class="nv">i</span> : ⟦<span class="mi">1</span>⟧, f ( g ( ii1 i ) ) ).
+    <span class="nb">set</span> ( fh := <span class="k">λ</span> <span class="nv">i</span> : ⟦n⟧, f ( g ( ii2 i ) ) ).
+    <span class="nb">assert</span> ( w : ( hfiber f true ) ≃ ( hfiber ( sumofmaps fl fh ) true ) ).
+    { <span class="nb">set</span> ( int := invweq ( weqhfibersgwtog g f true  ) ).
+      <span class="nb">assert</span> ( h : ∏ x : _ , paths ( f ( g x ) ) ( sumofmaps fl fh x ) ).
+      { <span class="nb">intro</span>.
+        <span class="nb">destruct</span> x <span class="k">as</span> [ x1 | xn ].
+        + <span class="nb">apply</span> idpath.
+        + <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">apply</span> ( weqcomp int ( weqhfibershomot _ _ h true ) ).
+    }
+    <span class="nb">set</span> ( w' := weqcomp w ( invweq ( weqhfibersofsumofmaps fl fh true ) ) ).
+    <span class="nb">set</span> ( x0 := pr1 ( IHn fh ) ).
+    <span class="nb">set</span> ( w0 := pr2 ( IHn fh ) ).
+    <span class="nb">simpl</span> <span class="k">in</span> w0.
+    <span class="nb">destruct</span> ( boolchoice ( fl lastelement ) ) <span class="k">as</span> [ i | ni ].
+    + <span class="nb">split with</span> ( S x0 ).
+      <span class="nb">assert</span> ( wi : hfiber fl true ≃ ⟦<span class="mi">1</span>⟧ ).
+      { <span class="nb">assert</span> ( isc : iscontr ( hfiber fl true ) ).
+        { <span class="nb">apply</span> iscontraprop1.
+          * <span class="nb">apply</span> ( isinclfromstn1 fl isasetbool true ).
+          * <span class="nb">apply</span> ( make_hfiber _ lastelement i ).
+        }
+        <span class="nb">apply</span> ( weqcontrcontr isc iscontrstn1 ).
+      }
+      <span class="nb">apply</span> ( weqcomp ( weqcomp w' ( weqcoprodf wi w0 ) ) ( weqfromcoprodofstn <span class="mi">1</span> _ ) ).
+    + <span class="nb">split with</span> x0.
+      <span class="nb">assert</span> ( g' : ¬ ( hfiber fl true ) ).
+      { <span class="nb">intro</span> hf.
+        <span class="nb">destruct</span> hf <span class="k">as</span> [ j e ].
+        <span class="nb">assert</span> ( ee : j = lastelement ).
+        { <span class="nb">apply</span> proofirrelevancecontr, iscontrstn1. }
+        <span class="nb">destruct</span> ( nopathstruetofalse ( pathscomp0 ( pathscomp0 ( pathsinv0 e ) ( maponpaths fl ee ) ) ni ) ).
+      }
+      <span class="nb">apply</span> ( weqcomp w' ( weqcomp ( invweq ( weqii2withneg _ g' ) ) w0 )  ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Weak equivalences between hfibers of functions from [ stn n ] over isolated points and [ stn x ] *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">weqfromhfiberfromstn</span> { <span class="nv">n</span> : nat } { <span class="nv">X</span> : UU } ( <span class="nv">x</span> : X )
+  ( <span class="nv">isc</span> : isisolated X x ) ( <span class="nv">f</span> : ⟦n⟧ -&gt; X ) :
+  total2 ( <span class="k">λ</span> <span class="nv">x0</span> : nat, hfiber f x  ≃ (⟦x0⟧) ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> ( t := weqfromdecsubsetofstn ( <span class="k">λ</span> <span class="nv">i</span> : _, eqbx X x isc ( f i ) ) ).
+  <span class="nb">split with</span> ( pr1 t ).
+  <span class="nb">apply</span> ( weqcomp ( weqhfibertobhfiber f x isc ) ( pr2 t ) ).
+<span class="kn">Defined</span>.
+
+
+
+
+
+<span class="sd">(** *** Weak equivalence between [ stn n -&gt; stn m ] and [ stn ( natpower m n ) ] ( uses functional extensionality ) *)</span>
+
+
+<span class="kn">Theorem</span> <span class="nf">weqfromfunstntostn</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) : (⟦n⟧ -&gt; ⟦m⟧) ≃ ⟦natpower m n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intro</span> m.
+    <span class="nb">apply</span> weqcontrcontr.
+    + <span class="nb">apply</span> ( iscontrfunfromempty2 _ weqstn0toempty ).
+    + <span class="nb">apply</span> iscontrstn1.
+  - <span class="nb">intro</span> m.
+    <span class="nb">set</span> ( w1 := weqfromcoprodofstn <span class="mi">1</span> n ).
+    <span class="nb">assert</span> ( w2 : ( ⟦S n⟧ -&gt; ⟦m⟧ ) ≃ ( (⟦<span class="mi">1</span>⟧ ⨿ ⟦n⟧) -&gt; ⟦m⟧ ) ) <span class="bp">by</span> <span class="nb">apply</span> ( weqbfun _ w1  ).
+    <span class="nb">set</span> ( w3 := weqcomp w2 ( weqfunfromcoprodtoprod (⟦<span class="mi">1</span>⟧) (⟦n⟧) (⟦m⟧) ) ).
+    <span class="nb">set</span> ( w4 := weqcomp w3 ( weqdirprodf ( weqfunfromcontr (⟦m⟧) iscontrstn1 ) ( IHn m ) ) ).
+    <span class="nb">apply</span> ( weqcomp w4 ( weqfromprodofstn m ( natpower m n ) ) ).
+<span class="kn">Defined</span>.
+
+
+
+
+
+<span class="sd">(** *** Weak equivalence from the space of functions of a family [ stn ( f x ) ]  over [ stn n ] to [ stn ( stnprod n f ) ] ( uses functional extensionality ) *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">stnprod</span> { <span class="nv">n</span> : nat } ( <span class="nv">f</span> : ⟦n⟧ -&gt; nat ) : nat.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> f.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> <span class="mi">1</span>.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> (  ( IHn ( <span class="k">λ</span> <span class="nv">i</span> : ⟦n⟧, f ( dni lastelement i ) ) ) * f lastelement ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stnprod_step</span> { <span class="nv">n</span> : nat } ( <span class="nv">f</span> : ⟦S n⟧ -&gt; nat ) :
+  stnprod f = stnprod (f ∘ dni lastelement) * f lastelement.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnprod_eq</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> <span class="nv">g</span>: ⟦n⟧ -&gt; nat) : f ~ g -&gt; stnprod f = stnprod g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> h. <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  { <span class="nb">apply</span> idpath. }
+  <span class="nb">rewrite</span> <span class="mi">2</span>? stnprod_step. <span class="nb">induction</span> (h lastelement).
+  <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">i</span>, i * f lastelement)). <span class="nb">apply</span> IH. <span class="nb">intro</span> x. <span class="nb">apply</span> h.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">weqstnprod</span> { <span class="nv">n</span> : nat } ( <span class="nv">P</span> : ⟦n⟧ -&gt; UU ) ( <span class="nv">f</span> : ⟦n⟧ -&gt; nat )
+  ( <span class="nv">ww</span> : ∏ i : ⟦n⟧ , ( stn ( f i ) ) ≃ ( P i ) ) :
+  ( ∏ x : ⟦n⟧ , P x  ) ≃ stn ( stnprod f ).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> P f ww.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span>. <span class="nb">simpl</span>. <span class="nb">apply</span> ( weqcontrcontr ).
+    + <span class="nb">apply</span> ( iscontrsecoverempty2 _ ( negstn0 ) ).
+    + <span class="nb">apply</span> iscontrstn1.
+  - <span class="nb">intros</span>.
+    <span class="nb">set</span> ( w1 := weqdnicoprod n lastelement ).
+    <span class="nb">assert</span> ( w2 := weqonsecbase P w1 ).
+    <span class="nb">assert</span> ( w3 := weqsecovercoprodtoprod ( <span class="k">λ</span> <span class="nv">x</span> : _, P ( w1 x ) ) ).
+    <span class="nb">assert</span> ( w4 := weqcomp w2 w3 ) ; <span class="nb">clear</span> w2 w3.
+    <span class="nb">assert</span> ( w5 := IHn ( <span class="k">λ</span> <span class="nv">x</span> : ⟦n⟧, P ( w1 ( ii1 x ) ) ) ( <span class="k">λ</span> <span class="nv">x</span> : ⟦n⟧, f ( w1 ( ii1 x ) ) ) ( <span class="k">λ</span> <span class="nv">i</span> : ⟦n⟧, ww ( w1 ( ii1 i ) ) ) ).
+    <span class="nb">assert</span> ( w6 := weqcomp w4 ( weqdirprodf w5 ( weqsecoverunit _ ) ) ) ; <span class="nb">clear</span> w4 w5.
+    <span class="nb">simpl</span> <span class="k">in</span> w6.
+    <span class="nb">assert</span> ( w7 := weqcomp w6 ( weqdirprodf ( idweq _ ) ( invweq ( ww lastelement ) ) ) ).
+    <span class="nb">refine</span> ( _ ∘ w7 )%weq.
+    <span class="nb">unfold</span> w1.
+    <span class="bp">exact</span> (weqfromprodofstn _ _ ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Weak equivalence between [ ( stn n ) ≃ ( stn n ) ] and [ stn ( factorial n ) ] ( uses functional extensionality ) *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">weqweqstnsn</span> ( <span class="nv">n</span> : nat ) : (⟦S n⟧ ≃ ⟦S n⟧)  ≃  ⟦S n⟧ × ( ⟦n⟧ ≃ ⟦n⟧ ).
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> ( l := @lastelement n ).
+  intermediate_weq ( isolated (⟦S n⟧) × (compl _ l ≃ compl _ l) ).
+  { <span class="nb">apply</span> weqcutonweq. <span class="nb">intro</span> i. <span class="nb">apply</span> isdeceqstn. }
+  <span class="nb">apply</span> weqdirprodf.
+  - <span class="nb">apply</span> weqisolatedstntostn.
+  - <span class="nb">apply</span> weqweq. <span class="nb">apply</span> invweq.
+    intermediate_weq (compl_ne (⟦S n⟧) l (stnneq l)).
+    + <span class="nb">apply</span> weqdnicompl.
+    + <span class="nb">apply</span> compl_weq_compl_ne.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">weqfromweqstntostn</span> ( <span class="nv">n</span> : nat ) : ( (⟦n⟧) ≃ (⟦n⟧) ) ≃ ⟦factorial n⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">simpl</span>.
+    <span class="nb">apply</span> ( weqcontrcontr ).
+    + <span class="nb">apply</span> ( iscontraprop1 ).
+      * <span class="nb">apply</span> ( isapropweqtoempty2 _ ( negstn0 ) ).
+      * <span class="nb">apply</span> idweq.
+    + <span class="nb">apply</span> iscontrstn1.
+  - <span class="nb">change</span> ( factorial ( S n ) ) <span class="k">with</span> ( ( S n ) * ( factorial n ) ).
+    <span class="nb">set</span> ( w1 := weqweqstnsn n ).
+    <span class="nb">apply</span> ( weqcomp w1 ( weqcomp ( weqdirprodf ( idweq _ ) IHn ) ( weqfromprodofstn _ _ ) ) ).
+<span class="kn">Defined</span>.
+
+
+<span class="c">(* End of " weak equivalences between standard finite sets and constructions on these sets ". *)</span>
+
+
+
+
+
+
+
+<span class="sd">(** ** Standard finite sets satisfy weak axiom of choice *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">ischoicebasestn</span> ( <span class="nv">n</span> : nat ) : ischoicebase (⟦n⟧).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> ( ischoicebaseempty2 negstn0 ).
+  - <span class="nb">apply</span> ( ischoicebaseweqf ( weqdnicoprod n lastelement )
+                             ( ischoicebasecoprod IHn ischoicebaseunit ) ).
+<span class="kn">Defined</span>.
+
+
+
+
+
+
+
+<span class="sd">(** ** Weak equivalence class of [ stn n ] determines [ n ]. *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">negweqstnsn0</span> (<span class="nv">n</span> : nat) : ¬ (⟦S n⟧ ≃ stn O).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> neg.
+  <span class="nb">assert</span> (lp: ⟦S n⟧) <span class="bp">by</span> <span class="nb">apply</span> lastelement.
+  <span class="nb">intro</span> X.
+  <span class="nb">apply</span> weqstn0toempty.
+  <span class="nb">apply</span> (pr1 X lp).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">negweqstn0sn</span> (<span class="nv">n</span> : nat) : ¬ (stn O ≃ ⟦S n⟧).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> neg.
+  <span class="nb">assert</span> (lp: ⟦S n⟧) <span class="bp">by</span> <span class="nb">apply</span> lastelement.
+  <span class="nb">intro</span> X.
+  <span class="nb">apply</span> weqstn0toempty.
+  <span class="nb">apply</span> (pr1 ( invweq X ) lp).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqcutforstn</span> ( <span class="nv">n</span> <span class="nv">n'</span> : nat ) : ⟦S n⟧ ≃ ⟦S n'⟧ -&gt; ⟦n⟧ ≃ ⟦n'⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w. <span class="nb">assert</span> ( k := @lastelement n  ).
+  intermediate_weq (stn_compl k).
+  - <span class="nb">apply</span> weqdnicompl.
+  - intermediate_weq (stn_compl (w k)).
+    + <span class="nb">apply</span> weqoncompl_ne.
+    + <span class="nb">apply</span> invweq, weqdnicompl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">weqtoeqstn</span> { <span class="nv">n</span> <span class="nv">n'</span> : nat } : ⟦n⟧ ≃ ⟦n'⟧ -&gt; n = n'.
+<span class="kn">Proof</span>. <span class="nb">revert</span> n'.
+       <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+       - <span class="nb">intro</span>. <span class="nb">destruct</span> n' <span class="k">as</span> [ | n' ].
+         + <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+         + <span class="nb">intro</span> X. <span class="nb">apply</span> (fromempty (negweqstn0sn _ X)).
+       - <span class="nb">intro</span> n'. <span class="nb">destruct</span> n' <span class="k">as</span> [ | n' ].
+         + <span class="nb">intro</span> X. <span class="nb">apply</span> (fromempty ( negweqstnsn0 n X)).
+         + <span class="nb">intro</span> X. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> IHn.
+           <span class="nb">apply</span> weqcutforstn. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">eqtoweqstn</span>
+  {<span class="nv">n</span> <span class="nv">n'</span> : nat}
+  (<span class="nv">H</span> : n = n')
+  : stn n ≃ stn n'.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intro</span> i.
+    <span class="nb">refine</span> (make_stn _ i _).
+    <span class="kp">abstract</span> <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">x</span>, i &lt; x) H (stnlt i)).
+  - <span class="nb">intro</span> i.
+    <span class="nb">refine</span> (make_stn _ i _).
+    <span class="kp">abstract</span> <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">x</span>, i &lt; x) (!H) (stnlt i)).
+  - <span class="kp">abstract</span> (<span class="nb">intro</span> i; <span class="bp">now</span> <span class="nb">apply</span> stn_eq).
+  - <span class="kp">abstract</span> (<span class="nb">intro</span> i; <span class="bp">now</span> <span class="nb">apply</span> stn_eq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">stnsdnegweqtoeq</span> ( <span class="nv">n</span> <span class="nv">n'</span> : nat ) ( <span class="nv">dw</span> : dneg (⟦n⟧ ≃ ⟦n'⟧) ) : n = n'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (eqfromdnegeq nat isdeceqnat _ _  (dnegf (@weqtoeqstn n n') dw)).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Corollary</span> <span class="nf">dni_lastelement_is_inj</span> {<span class="nv">n</span> : nat} {<span class="nv">i</span> <span class="nv">j</span> : ⟦n⟧ }
+  (<span class="nv">e</span> : dni_lastelement i = dni_lastelement j) :
+  i = j.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isinjstntonat.
+  <span class="nb">unfold</span> dni_lastelement <span class="k">in</span> e.
+  <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> e.
+  <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">dni_lastelement_eq</span> : ∏ (n : nat) (i : ⟦S n⟧ ) (ie : pr1 i &lt; n),
+    i = dni_lastelement (make_stn n (pr1 i) ie).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n i ie.
+  <span class="nb">apply</span> isinjstntonat.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">lastelement_eq</span> : ∏ (n : nat) (i : ⟦S n⟧ ) (e : pr1 i = n),
+    i = lastelement.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n i e.
+  <span class="nb">unfold</span> lastelement.
+  <span class="nb">apply</span> isinjstntonat.
+  <span class="nb">apply</span> e.
+<span class="kn">Defined</span>.
+
+<span class="c">(* a tactic for proving things by induction over a finite number of cases *)</span>
+<span class="kn">Ltac</span> <span class="nf">inductive_reflexivity</span> i b :=
+  <span class="c">(* Here i is a variable natural number and b is a bound on *)</span>
+  <span class="c">(*      i of the form i&lt;k, where k is a numeral. *)</span>
+  <span class="nb">induction</span> i <span class="k">as</span> [|i];
+  [ <span class="kp">try</span> <span class="nb">apply</span> isinjstntonat ; <span class="nb">apply</span> idpath |
+    contradicts (negnatlthn0 i) b || inductive_reflexivity i b ].
+
+<span class="sd">(** concatenation and flattening of functions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">concatenate'</span> {<span class="nv">X</span>:UU} {<span class="nv">m</span> <span class="nv">n</span>:nat} (<span class="nv">f</span> : ⟦m⟧ -&gt; X) (<span class="nv">g</span> : ⟦n⟧ -&gt; X) : ⟦m+n⟧ -&gt; X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i.
+  <span class="c">(* we are careful to use weqfromcoprodofstn_invmap both here and in weqstnsum_invmap *)</span>
+  <span class="nb">induction</span> (weqfromcoprodofstn_invmap _ _ i) <span class="k">as</span> [j | k].
+  + <span class="bp">exact</span> (f j).
+  + <span class="bp">exact</span> (g k).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">concatenate'_r0</span> {<span class="nv">X</span>:UU} {<span class="nv">m</span>:nat} (<span class="nv">f</span> : ⟦m⟧ -&gt; X) (<span class="nv">g</span> : ⟦<span class="mi">0</span>⟧ -&gt; X) :
+  concatenate' f g = transportb (<span class="k">λ</span> <span class="nv">n</span>, ⟦n⟧ -&gt; X) (natplusr0 m) f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i. <span class="nb">unfold</span> concatenate'.
+  <span class="nb">rewrite</span> weqfromcoprodofstn_invmap_r0; <span class="nb">simpl</span>. <span class="nb">clear</span> g.
+  <span class="nb">apply</span> transportb_fun'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">concatenate'_r0'</span> {<span class="nv">X</span>:UU} {<span class="nv">m</span>:nat} (<span class="nv">f</span> : ⟦m⟧ -&gt; X) (<span class="nv">g</span> : ⟦<span class="mi">0</span>⟧ -&gt; X) (<span class="nv">i</span> : ⟦m+<span class="mi">0</span>⟧ ) :
+  concatenate' f g i = f (transportf stn (natplusr0 m) i).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> concatenate'.
+  <span class="nb">rewrite</span> weqfromcoprodofstn_invmap_r0.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">flatten'</span> {<span class="nv">X</span>:UU} {<span class="nv">n</span>:nat} {<span class="nv">m</span>: ⟦n⟧ -&gt; nat} :
+  (∏ (i: ⟦n⟧ ), ⟦m i⟧ -&gt; X) -&gt; ( ⟦stnsum m⟧ -&gt; X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> g.
+  <span class="bp">exact</span> (uncurry g ∘ invmap (weqstnsum1 m)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stn_predicate</span> {<span class="nv">n</span> : nat} (<span class="nv">P</span> : ⟦n⟧ -&gt; UU)
+           (<span class="nv">k</span> : nat) (<span class="nv">h</span> <span class="nv">h'</span> : k &lt; n) :
+           P (k,,h) -&gt; P (k,,h').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H.
+  transparent <span class="nb">assert</span> (X : (h = h')).
+  - <span class="nb">apply</span> propproperty.
+  - <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">x</span>, P (k,,x)) X H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">two</span> := ⟦<span class="mi">2</span>⟧.
+
+<span class="kn">Definition</span> <span class="nf">two_rec</span> {<span class="nv">A</span> : UU} (<span class="nv">a</span> <span class="nv">b</span> : A) : ⟦<span class="mi">2</span>⟧ -&gt; A.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> <span class="mi">1</span> <span class="k">as</span> [n p].
+  <span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> a|].
+  <span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> b|].
+  <span class="nb">induction</span> (nopathsfalsetotrue p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">two_rec_dep</span> (<span class="nv">P</span> : two -&gt; UU):
+  P (● <span class="mi">0</span>) -&gt; P (● <span class="mi">1</span>) -&gt; ∏ n, P n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b n.
+  <span class="nb">induction</span> n <span class="k">as</span> [n p].
+  <span class="nb">induction</span> n <span class="k">as</span> [|n _]. <span class="nb">eapply</span> stn_predicate. <span class="nb">apply</span> a.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n _]. <span class="nb">eapply</span> stn_predicate. <span class="nb">apply</span> b.
+  <span class="nb">induction</span> (nopathsfalsetotrue p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">three</span> := stn <span class="mi">3</span>.
+
+<span class="kn">Definition</span> <span class="nf">three_rec</span> {<span class="nv">A</span> : UU} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : A) : stn <span class="mi">3</span> -&gt; A.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> <span class="mi">1</span> <span class="k">as</span> [n p].
+  <span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> a|].
+  <span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> b|].
+  <span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> c|].
+  <span class="nb">induction</span> (nopathsfalsetotrue p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">three_rec_dep</span> (<span class="nv">P</span> : three -&gt; UU):
+  P (● <span class="mi">0</span>) -&gt; P (● <span class="mi">1</span>) -&gt; P (● <span class="mi">2</span>) -&gt; ∏ n, P n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b c n.
+  <span class="nb">induction</span> n <span class="k">as</span> [n p].
+  <span class="nb">induction</span> n <span class="k">as</span> [|n _]. <span class="nb">eapply</span> stn_predicate. <span class="nb">apply</span> a.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n _]. <span class="nb">eapply</span> stn_predicate. <span class="nb">apply</span> b.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n _]. <span class="nb">eapply</span> stn_predicate. <span class="nb">apply</span> c.
+  <span class="nb">induction</span> (nopathsfalsetotrue p).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ordered bijections are unique *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_stn_increasing</span> {<span class="nv">m</span> : nat} (<span class="nv">f</span> : ⟦m⟧ → nat) :=
+  ∏ (i j: ⟦m⟧ ), i ≤ j → f i ≤ f j.
+
+<span class="kn">Definition</span> <span class="nf">is_stn_strictly_increasing</span> {<span class="nv">m</span> : nat} (<span class="nv">f</span> : ⟦m⟧ → nat) :=
+  ∏ (i j: ⟦m⟧ ), i &lt; j → f i &lt; f j.
+
+<span class="kn">Lemma</span> <span class="nf">is_strincr_impl_incr</span> {<span class="nv">m</span> : nat} (<span class="nv">f</span> : ⟦m⟧ → nat) :
+  is_stn_strictly_increasing f -&gt; is_stn_increasing f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> inc ? ? e. <span class="nb">induction</span> (natlehchoice _ _ e) <span class="k">as</span> [I|J]; <span class="nb">clear</span> e.
+  + <span class="nb">apply</span> natlthtoleh. <span class="nb">apply</span> inc. <span class="bp">exact</span> I.
+  + <span class="nb">assert</span> (J' : i = j).
+    { <span class="nb">apply</span> subtypePath_prop. <span class="bp">exact</span> J. }
+    <span class="nb">clear</span> J. <span class="nb">induction</span> J'. <span class="nb">apply</span> isreflnatleh.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_incr_impl_strincr</span> {<span class="nv">m</span> : nat} (<span class="nv">f</span> : ⟦m⟧ → nat) :
+  isincl f -&gt; is_stn_increasing f -&gt; is_stn_strictly_increasing f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> incl incr i j e.
+  <span class="nb">assert</span> (d : i ≤ j).
+  { <span class="nb">apply</span> natlthtoleh. <span class="bp">assumption</span>. }
+  <span class="nb">assert</span> (c := incr _ _ d); <span class="nb">clear</span> d.
+  <span class="nb">assert</span> (b : i != j).
+  { <span class="nb">intro</span> p. <span class="nb">induction</span> p. <span class="bp">exact</span> (isirreflnatlth _ e). }
+  <span class="nb">induction</span> (natlehchoice _ _ c) <span class="k">as</span> [T|U].
+  - <span class="bp">exact</span> T.
+  - <span class="nb">apply</span> fromempty.
+    <span class="nb">unfold</span> isincl,isofhlevel,isofhlevelf <span class="k">in</span> incl.
+    <span class="nb">assert</span> (V := invmaponpathsincl f incl i j U).
+    <span class="nb">induction</span> V.
+    <span class="bp">exact</span> (isirreflnatlth _ e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_ge1</span> {<span class="nv">m</span> : nat} (<span class="nv">f</span> : ⟦m⟧ → nat) : ( ∏ i, f i ≥ <span class="mi">1</span> ) → stnsum f ≥ m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> G.
+  <span class="nb">set</span> (g := <span class="k">λ</span> <span class="nv">i</span>:⟦m⟧, <span class="mi">1</span>).
+  <span class="nb">assert</span> (E : stnsum g = m).
+  { <span class="nb">apply</span> stnsum_1. }
+  <span class="nb">assert</span> (F : stnsum g ≤ stnsum f).
+  { <span class="nb">apply</span> stnsum_le. <span class="bp">exact</span> G. }
+  <span class="nb">generalize</span> E F; <span class="nb">generalize</span> (stnsum g); <span class="nb">clear</span> E F g; <span class="nb">intros</span> s e i.
+  <span class="nb">induction</span> e.
+  <span class="bp">exact</span> i.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_add</span> {<span class="nv">m</span> : nat} (<span class="nv">f</span> <span class="nv">g</span> : ⟦m⟧ → nat) : stnsum (<span class="k">λ</span> <span class="nv">i</span>, f i + g i) = stnsum f + stnsum g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> m <span class="k">as</span> [|m I].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> <span class="mi">3</span> stnsum_step.
+    <span class="nb">change</span> ((<span class="k">λ</span> <span class="nv">i</span> : ⟦ S m ⟧, f i + g i) ∘ dni lastelement)
+    <span class="k">with</span> (<span class="k">λ</span> <span class="nv">y</span> : ⟦ m ⟧, f (dni lastelement y) + g (dni lastelement y)).
+    <span class="nb">rewrite</span> I. <span class="nb">rewrite</span> natplusassoc.
+    <span class="nb">rewrite</span> natplusassoc. <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="nb">rewrite</span> natpluscomm.
+    <span class="nb">rewrite</span> natplusassoc. <span class="nb">apply</span> maponpaths. <span class="nb">rewrite</span> natpluscomm. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_lt</span> {<span class="nv">m</span> : nat} (<span class="nv">f</span> <span class="nv">g</span> : ⟦m⟧ → nat) :
+  ( ∏ i, f i &lt; g i ) → stnsum g ≥ stnsum f + m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">set</span> (h := <span class="k">λ</span> <span class="nv">i</span>, f i + <span class="mi">1</span>).
+  <span class="nb">assert</span> (E : stnsum h = stnsum f + m).
+  { <span class="nb">unfold</span> h; <span class="nb">clear</span> h. <span class="nb">rewrite</span> stnsum_add. <span class="nb">rewrite</span> stnsum_1. <span class="nb">apply</span> idpath. }
+  <span class="nb">rewrite</span> &lt;- E. <span class="nb">apply</span> stnsum_le. <span class="nb">intros</span> i. <span class="nb">unfold</span> h. <span class="nb">apply</span> natlthtolehp1. <span class="nb">apply</span> X.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Arguments</span> dni {_} _ _.
+
+<span class="kn">Lemma</span> <span class="nf">stnsum_diffs</span> {<span class="nv">m</span> : nat} (<span class="nv">f</span> : ⟦S m⟧ → nat) : is_stn_increasing f -&gt;
+  stnsum (<span class="k">λ</span> <span class="nv">i</span>, f (dni_firstelement i) - f (dni_lastelement i)) =
+  f lastelement - f firstelement.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e.
+  <span class="nb">induction</span> m <span class="k">as</span> [|m I].
+  - <span class="nb">change</span> (<span class="mi">0</span> = f firstelement - f firstelement).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> minuseq0'.
+  - <span class="nb">rewrite</span> stnsum_step.
+    <span class="nb">change</span> (f (dni_firstelement lastelement)) <span class="k">with</span> (f lastelement).
+    <span class="nb">rewrite</span> natpluscomm.
+    use (_ @ ! @natdiffplusdiff
+                     (f lastelement)
+                     (f (dni_lastelement lastelement))
+                     (f firstelement) _ _).
+    + <span class="nb">apply</span> maponpaths.
+      use (_ @ I (f ∘ dni_lastelement) _ @ _).
+      * <span class="nb">simpl</span>. <span class="nb">apply</span> stnsum_eq; <span class="nb">intros</span> i.
+        <span class="nb">rewrite</span> replace_dni_last. <span class="nb">apply</span> idpath.
+      * <span class="nb">intros</span> i j s. <span class="nb">unfold</span> funcomp. <span class="nb">apply</span> e. <span class="nb">apply</span> s.
+      * <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> e. <span class="nb">apply</span> lastelement_ge.
+    + <span class="nb">apply</span> e. <span class="nb">apply</span> firstelement_le.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stn_ord_incl</span> {<span class="nv">m</span> : nat} (<span class="nv">f</span> : ⟦S m⟧ → nat) :
+  is_stn_strictly_increasing f  →  f lastelement ≥ f firstelement + m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> strinc.
+  <span class="nb">assert</span> (inc := is_strincr_impl_incr _ strinc).
+  <span class="nb">set</span> (d := <span class="k">λ</span> <span class="nv">i</span> : ⟦ m ⟧, f (dni_firstelement i) - f (dni_lastelement i)).
+  <span class="nb">assert</span> (E := stnsum_diffs f inc).
+  <span class="nb">change</span> (stnsum d = f lastelement - f firstelement) <span class="k">in</span> E.
+  <span class="nb">assert</span> (F : ∏ i, f (dni_firstelement i) &gt; f (dni_lastelement i)).
+  { <span class="nb">intros</span> i. <span class="nb">apply</span> strinc. <span class="nb">change</span> (stntonat _ i &lt; S(stntonat _ i)). <span class="nb">apply</span> natlthnsn. }
+  <span class="nb">assert</span> (G : ∏ i, d i ≥ <span class="mi">1</span>).
+  { <span class="nb">intros</span> i. <span class="nb">apply</span> natgthtogehsn. <span class="nb">apply</span> minusgth0. <span class="nb">apply</span> F. }
+  <span class="nb">clear</span> F.
+  <span class="nb">assert</span> (H := stnsum_ge1 _ G). <span class="nb">clear</span> G.
+  <span class="nb">rewrite</span> E <span class="k">in</span> H. <span class="nb">clear</span> E d.
+  <span class="nb">assert</span> (I : f lastelement ≥ f firstelement).
+  { <span class="nb">apply</span> inc. <span class="nb">apply</span> idpath. }
+  <span class="nb">assert</span> (J := minusplusnmm _ _ I); <span class="nb">clear</span> I.
+  <span class="nb">rewrite</span> &lt;- J; <span class="nb">clear</span> J.
+  <span class="nb">rewrite</span> natpluscomm.
+  <span class="nb">apply</span> natgehandplusl.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stn_ord_inj</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> : incl (⟦n⟧) (⟦n⟧)) :
+  (∏ (i j: ⟦n⟧ ), i ≤ j → f i ≤ f j) -&gt; ∏ i, f i = i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> inc ?.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n I].
+  - <span class="nb">apply</span> fromempty. <span class="nb">apply</span> negstn0. <span class="bp">assumption</span>.
+  - <span class="nb">assert</span> (strincr : is_stn_strictly_increasing (pr1incl _ _ f)).
+    { <span class="nb">apply</span> is_incr_impl_strincr.
+      { use (isinclcomp f (stntonat_incl _)). }
+      { <span class="bp">exact</span> inc. } }
+    <span class="nb">assert</span> (M : stntonat _ (f lastelement) = n).
+    { <span class="nb">apply</span> isantisymmnatgeh.
+      * <span class="nb">assert</span> (N : f lastelement ≥ f firstelement + n).
+        { <span class="bp">exact</span> (stn_ord_incl (pr1incl _ _ f) strincr). }
+        use (istransnatgeh _ _ _ N).
+        <span class="nb">apply</span> natgehplusnmm.
+      * <span class="bp">exact</span> (stnlt (f lastelement)). }
+    <span class="nb">assert</span> (L : ∏ j, f (dni lastelement j) &lt; n).
+    { <span class="nb">intros</span>. <span class="nb">induction</span> M. <span class="nb">apply</span> strincr. <span class="nb">apply</span> dni_last_lt. }
+    <span class="c">(* set (f' := λ j : ⟦n⟧, make_stn n (stntonat _ (f (dni_lastelement j))) (L j)). *)</span>
+    <span class="nb">pose</span> (f'' :=
+        inclcomp (inclcomp (make_incl _ (isincldni n lastelement)) f)
+                 (make_incl _ (isinclstntonat _))).
+    <span class="nb">pose</span> (f' := <span class="k">λ</span> <span class="nv">j</span> : ⟦n⟧, make_stn n (f'' j) (L j)).
+    <span class="nb">assert</span> (J : isincl f').
+    { <span class="nb">unfold</span> f'. <span class="nb">intros</span> x j j'.
+      <span class="nb">apply</span> iscontraprop1.
+      * <span class="nb">apply</span> isaset_hfiber; <span class="nb">apply</span> isasetstn.
+      * use subtypePath.
+        ** <span class="nb">intro</span>. <span class="nb">apply</span> isasetstn.
+        ** <span class="nb">induction</span> j <span class="k">as</span> [j e]. <span class="nb">induction</span> j' <span class="k">as</span> [j' e']. <span class="nb">simpl</span>.
+           <span class="nb">apply</span> (invmaponpathsincl f'' (pr2 f'')).
+           <span class="nb">apply</span> (base_paths _ _ (e @ !e')). }
+    <span class="nb">assert</span> (F : ∏ j : ⟦n⟧, f' j = j).
+    { <span class="nb">apply</span> (I (make_incl _ J)).
+      <span class="nb">intros</span> j j' lt. <span class="nb">apply</span> inc.
+      <span class="nb">change</span> (pr1 (dni lastelement j) ≤ pr1 (dni lastelement j')).
+      <span class="nb">rewrite</span> <span class="mi">2</span><span class="nl">?dni_last</span>. <span class="bp">assumption</span>. }
+
+    <span class="nb">apply</span> subtypePath_prop.
+    <span class="nb">change</span> (stntonat _ (f i) = i).
+    <span class="nb">induction</span> (natgehchoice _ _ (lastelement_ge i)) <span class="k">as</span> [ge | eq].
+    + <span class="nb">pose</span> (p := maponpaths (stntonat _) (F (make_stn n i ge))).
+      <span class="nb">simpl</span> <span class="k">in</span> p. <span class="nb">induction</span> p.
+      <span class="nb">change</span> (stntonat _ (f i) = f (dni lastelement (make_stn n i ge))).
+      <span class="nb">apply</span> maponpaths, maponpaths, pathsinv0.
+      <span class="nb">apply</span> subtypePath_prop. <span class="nb">apply</span> dni_last.
+    + <span class="nb">apply</span> subtypePath_prop <span class="k">in</span> eq.
+      <span class="nb">rewrite</span> &lt;- eq.
+      <span class="nb">apply</span> M.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stn_ord_bij</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦ n ⟧ ≃ ⟦ n ⟧) :
+  (∏ (i j: ⟦n⟧ ), i ≤ j → f i ≤ f j) -&gt; ∏ i, f i = i.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (stn_ord_inj (weqtoincl f)).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Functions with domain in Standard finite sets. *)</span>
+<span class="kn">Definition</span> <span class="nf">fun_stnsn_to_stnn</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} (<span class="nv">f</span> : stn (S n) → X) : stn n → X := f ∘ dni_lastelement.
+
+<span class="kn">Definition</span> <span class="nf">stnfun_singleton_complement</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} (<span class="nv">f</span> : stn (S n) → X) : 
+      ¬ hfiber (fun_stnsn_to_stnn f) (f lastelement) → stn n → 
+      (singleton_complement (f lastelement)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X0 X1.
+  <span class="k">exists</span> (<span class="nv">fun_stnsn_to_stnn</span> <span class="nv">f</span> <span class="nv">X1</span>).
+  <span class="nb">intros</span> contra. <span class="nb">apply</span> X0.
+  <span class="nb">eexists</span>. <span class="nb">apply</span> contra.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdeceq_isdecsurj</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦ n ⟧ → X ) (<span class="nv">y</span> : X) : 
+    isdeceq X → decidable (hfiber f y).
+<span class="kn">Proof</span>.
+  <span class="nb">generalize dependent</span> X.
+  <span class="nb">induction</span> n; <span class="nb">intros</span> X f x deceqX.
+  - <span class="nb">right</span>. <span class="nb">intros</span> contra. <span class="nb">eapply</span> weqstn0toempty, pr1, contra.
+  - <span class="nb">set</span> (g := fun_stnsn_to_stnn f). <span class="nb">specialize</span> IHn <span class="k">with</span> (f := g) (y := x).
+    <span class="nb">set</span> (H := IHn deceqX).
+    <span class="nb">induction</span> H.
+    + <span class="nb">left</span>. <span class="nb">induction</span> a <span class="k">as</span> [p eq]. <span class="nb">induction</span> p <span class="k">as</span> [m lth].
+      <span class="nb">apply</span> tpair <span class="k">with</span> (pr1 := (m ,, (natlthtolths _ _ lth))), eq.
+    + <span class="nb">induction</span> (deceqX (f (lastelement)) x); [<span class="nb">left</span> | <span class="nb">right</span>].
+      * <span class="nb">apply</span> (tpair _ lastelement). <span class="bp">assumption</span>.
+      * <span class="nb">intros</span> H. <span class="nb">induction</span> H <span class="k">as</span> [p eq]. <span class="nb">induction</span> p <span class="k">as</span> [m lth]. 
+        <span class="nb">induction</span> (natlehchoice _ _ (natlthsntoleh _ _ lth)).
+        -- <span class="nb">apply</span> b. <span class="nb">apply</span> tpair <span class="k">with</span> (pr1 := (m ,, a)).
+           <span class="nb">induction</span> eq. <span class="nb">unfold</span> g, fun_stnsn_to_stnn, make_stn. <span class="nb">unfold</span> funcomp.
+           <span class="nb">apply</span> maponpaths, stn_eq, idpath.
+        -- <span class="nb">apply</span> b0. <span class="nb">unfold</span> lastelement. <span class="nb">induction</span> b1, eq.
+           <span class="nb">apply</span> maponpaths, stn_eq, idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">surj_fun_stnsn_to_stnn</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦ S n ⟧ → X) : isdeceq X → issurjective f → 
+      hfiber (fun_stnsn_to_stnn f) (f lastelement) → issurjective (fun_stnsn_to_stnn f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> deceqX surj x. <span class="nb">induction</span> x <span class="k">as</span> [x eq].
+  <span class="nb">intros</span> y'.
+  <span class="nb">induction</span> (deceqX (f lastelement) y').
+  - <span class="nb">induction</span> a. <span class="nb">apply</span> hinhpr, tpair <span class="k">with</span> (pr1 := x), eq.
+  - <span class="nb">apply</span> (squash_to_prop (surj y')); <span class="kp">try</span> <span class="nb">apply</span> propproperty.
+    <span class="nb">intros</span> m. <span class="nb">induction</span> m <span class="k">as</span> [m eq']; <span class="nb">induction</span> m <span class="k">as</span> [m lth]. <span class="nb">apply</span> hinhpr.
+    <span class="nb">induction</span> (natlehchoice _ _ (natlthsntoleh _ _ lth)).
+    + <span class="nb">apply</span> tpair <span class="k">with</span> (pr1 := m ,, a).
+      <span class="nb">unfold</span> fun_stnsn_to_stnn, make_stn, funcomp.
+      <span class="nb">induction</span> eq'. <span class="nb">apply</span> maponpaths, stn_eq, idpath.
+    + <span class="nb">induction</span> eq', b0. <span class="nb">apply</span> fromempty, b. 
+      <span class="nb">apply</span> maponpaths, stn_eq, idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Combinatorics/StandardFiniteSets.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/NaturalNumbers.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** Imports. *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Foundations.NaturalNumbers.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+  &gt; Require Import UniMath.MoreFoundations.DecidablePropositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

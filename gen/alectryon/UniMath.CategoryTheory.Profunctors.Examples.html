@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Examples.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************************************</span>
+
+<span class="sd"> Examples of profunctors</span>
+
+<span class="sd"> In this file, we collect numerous examples of profunctors. We also give computation rules</span>
+<span class="sd"> for their left and right actions.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The constant profunctor</span>
+<span class="sd"> 2. The identity profunctor</span>
+<span class="sd"> 3. Representable profunctors</span>
+<span class="sd"> 4. Precomposition of a profunctor with functors</span>
+<span class="sd"> 5. Product of profunctors</span>
+<span class="sd"> 6. Composition of profunctors</span>
+
+<span class="sd"> *****************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.SetCoends.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Profunctors.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The constant profunctor *)</span>
+<span class="kn">Section</span> <span class="nf">ConstantProfunctor</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category)
+          (<span class="nv">X</span> : hSet).
+
+  <span class="kn">Definition</span> <span class="nf">const_profunctor_data</span>
+    : profunctor_data C D.
+  <span class="kn">Proof</span>.
+    use make_profunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, X).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">x</span>, x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">const_profunctor_laws</span>
+    : profunctor_laws const_profunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">const_profunctor</span>
+    : C ↛ D.
+  <span class="kn">Proof</span>.
+    use make_profunctor.
+    - <span class="bp">exact</span> const_profunctor_data.
+    - <span class="bp">exact</span> const_profunctor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lmap_const_profunctor</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : D}
+              (<span class="nv">f</span> : y₂ --&gt; y₁)
+              (<span class="nv">h</span> : X)
+    : lmap const_profunctor f (h : const_profunctor y₁ x) = h.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rmap_const_profunctor</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span>: C}
+              {<span class="nv">y</span> : D}
+              (<span class="nv">f</span> : x₁ --&gt; x₂)
+              (<span class="nv">h</span> : X)
+    : rmap const_profunctor f (h : const_profunctor y x₁) = h.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ConstantProfunctor</span>.
+
+<span class="sd">(** * 2. The identity profunctor *)</span>
+<span class="kn">Section</span> <span class="nf">IdentityProfunctor</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">id_profunctor_data</span>
+    : profunctor_data C C.
+  <span class="kn">Proof</span>.
+    use make_profunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, x --&gt; y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">g</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">f</span> <span class="nv">h</span>, g · h · f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">id_profunctor_laws</span>
+    : profunctor_laws id_profunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">id_profunctor</span>
+    : C ↛ C.
+  <span class="kn">Proof</span>.
+    use make_profunctor.
+    - <span class="bp">exact</span> id_profunctor_data.
+    - <span class="bp">exact</span> id_profunctor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lmap_id_profunctor</span>
+              {<span class="nv">x</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+              (<span class="nv">f</span> : y₂ --&gt; y₁)
+              (<span class="nv">h</span> : y₁ --&gt; x)
+    : lmap id_profunctor f h = f · h.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rmap_id_profunctor</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x₁ --&gt; x₂)
+              (<span class="nv">h</span> : y --&gt; x₁)
+    : rmap id_profunctor f h = h · f.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">IdentityProfunctor</span>.
+
+<span class="sd">(** * 3. Representable profunctors *)</span>
+<span class="kn">Section</span> <span class="nf">RepresentableProfunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">F</span> : C₁ ⟶ C₂).
+
+  <span class="kn">Definition</span> <span class="nf">representable_profunctor_left_data</span>
+    : profunctor_data C₁ C₂.
+  <span class="kn">Proof</span>.
+    use make_profunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">x</span>, y --&gt; F x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">g</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">f</span> <span class="nv">h</span>, g · h · #F f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">representable_profunctor_left_laws</span>
+    : profunctor_laws representable_profunctor_left_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">representable_profunctor_left</span>
+    : C₁ ↛ C₂.
+  <span class="kn">Proof</span>.
+    use make_profunctor.
+    - <span class="bp">exact</span> representable_profunctor_left_data.
+    - <span class="bp">exact</span> representable_profunctor_left_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lmap_representable_profunctor_left</span>
+              {<span class="nv">x</span> : C₁}
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+              (<span class="nv">g</span> : y₂ --&gt; y₁)
+              (<span class="nv">h</span> : y₁ --&gt; F x)
+    : lmap representable_profunctor_left g h = g · h.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rmap_representable_profunctor_left</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+              {<span class="nv">y</span> : C₂}
+              (<span class="nv">f</span> : x₁ --&gt; x₂)
+              (<span class="nv">h</span> : y --&gt; F x₁)
+    : rmap representable_profunctor_left f h = h · #F f.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">representable_profunctor_right_data</span>
+    : profunctor_data C₂ C₁.
+  <span class="kn">Proof</span>.
+    use make_profunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">x</span>, F y --&gt; x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">g</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">f</span> <span class="nv">h</span>, #F g · h · f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">representable_profunctor_right_laws</span>
+    : profunctor_laws representable_profunctor_right_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">representable_profunctor_right</span>
+    : C₂ ↛ C₁.
+  <span class="kn">Proof</span>.
+    use make_profunctor.
+    - <span class="bp">exact</span> representable_profunctor_right_data.
+    - <span class="bp">exact</span> representable_profunctor_right_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lmap_representable_profunctor_right</span>
+              {<span class="nv">x</span> : C₂}
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₁}
+              (<span class="nv">g</span> : y₂ --&gt; y₁)
+              (<span class="nv">h</span> : F y₁ --&gt; x)
+    : lmap representable_profunctor_right g h = #F g · h.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rmap_representable_profunctor_right</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₂}
+              {<span class="nv">y</span> : C₁}
+              (<span class="nv">f</span> : x₁ --&gt; x₂)
+              (<span class="nv">h</span> : F y --&gt; x₁)
+    : rmap representable_profunctor_right f h = h · f.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">RepresentableProfunctor</span>.
+
+<span class="sd">(** * 4. Precomposition of a profunctor with functors *)</span>
+<span class="kn">Section</span> <span class="nf">PrecompProfunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : category}
+          (<span class="nv">F</span> : C₁ ⟶ C₂)
+          (<span class="nv">G</span> : D₁ ⟶ D₂)
+          (<span class="nv">P</span> : C₂ ↛ D₂).
+
+  <span class="kn">Definition</span> <span class="nf">precomp_profunctor_data</span>
+    : profunctor_data C₁ D₁.
+  <span class="kn">Proof</span>.
+    use make_profunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">x</span>, P (G y) (F x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">g</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">f</span> <span class="nv">h</span>, lmap P (#G g) (rmap P (#F f) h)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">precomp_profunctor_laws</span>
+    : profunctor_laws precomp_profunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> -[lmap rmap].
+    - <span class="nb">rewrite</span> !functor_id.
+      <span class="nb">rewrite</span> lmap_id, rmap_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !functor_comp.
+      <span class="nb">rewrite</span> lmap_comp.
+      <span class="nb">rewrite</span> rmap_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> lmap_rmap.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_profunctor</span>
+    : C₁ ↛ D₁.
+  <span class="kn">Proof</span>.
+    use make_profunctor.
+    - <span class="bp">exact</span> precomp_profunctor_data.
+    - <span class="bp">exact</span> precomp_profunctor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lmap_precomp_profunctor</span>
+              {<span class="nv">x</span> : C₁}
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : D₁}
+              (<span class="nv">f</span> : y₂ --&gt; y₁)
+              (<span class="nv">h</span> : P (G y₁) (F x))
+    : lmap precomp_profunctor f h = lmap P (#G f) h.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">rewrite</span> rmap_id.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rmap_precomp_profunctor</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+              {<span class="nv">y</span> : D₁}
+              (<span class="nv">f</span> : x₁ --&gt; x₂)
+              (<span class="nv">h</span> : P (G y) (F x₁))
+    : rmap precomp_profunctor f h = rmap P (#F f) h.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">rewrite</span> lmap_id.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PrecompProfunctor</span>.
+
+<span class="sd">(** * 5. Product of profunctors *)</span>
+<span class="kn">Section</span> <span class="nf">ProdProfunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">P</span> <span class="nv">Q</span> : C₁ ↛ C₂).
+
+  <span class="kn">Definition</span> <span class="nf">prod_profunctor_data</span>
+    : profunctor_data C₁ C₂.
+  <span class="kn">Proof</span>.
+    use make_profunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">x</span>, P y x × Q y x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">g</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">f</span> <span class="nv">h</span>, P #[ g , f ] (pr1 h) ,, Q #[ g , f ] (pr2 h)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_profunctor_laws</span>
+    : profunctor_laws prod_profunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span> y x h.
+      <span class="nb">rewrite</span> !profunctor_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> y₁ y₂ y₃ g₁ g₂ x₁ x₂ x₃ f₁ f₂ h.
+      <span class="nb">rewrite</span> !profunctor_comp.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> y x.
+      <span class="nb">apply</span> isaset_dirprod ; <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_profunctor</span>
+    : C₁ ↛ C₂.
+  <span class="kn">Proof</span>.
+    use make_profunctor.
+    - <span class="bp">exact</span> prod_profunctor_data.
+    - <span class="bp">exact</span> prod_profunctor_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ProdProfunctor</span>.
+
+<span class="sd">(** * 6. Composition of profunctors *)</span>
+<span class="kn">Section</span> <span class="nf">CompProfunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+          (<span class="nv">P</span> : C₁ ↛ C₂)
+          (<span class="nv">Q</span> : C₂ ↛ C₃).
+
+  <span class="kn">Definition</span> <span class="nf">comp_profunctor_colim_profunctor_data</span>
+             (<span class="nv">x</span> : C₁)
+             (<span class="nv">z</span> : C₃)
+    : profunctor_data C₂ C₂.
+  <span class="kn">Proof</span>.
+    use make_profunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y₁</span> <span class="nv">y₂</span>, P y₁ x × Q z y₂).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">g</span> <span class="nv">y₁'</span> <span class="nv">y₂</span> <span class="nv">g'</span> <span class="nv">h</span>,
+             P #[ g , identity _ ] (pr1 h)
+             ,,
+             Q #[ identity _ , g' ] (pr2 h)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_profunctor_colim_profunctor_data_laws</span>
+              (<span class="nv">x</span> : C₁)
+              (<span class="nv">z</span> : C₃)
+    : profunctor_laws (comp_profunctor_colim_profunctor_data x z).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> !profunctor_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> &lt;- !profunctor_comp.
+      <span class="nb">rewrite</span> !id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_profunctor_colim_profunctor</span>
+             (<span class="nv">x</span> : C₁)
+             (<span class="nv">z</span> : C₃)
+    : C₂ ↛ C₂.
+  <span class="kn">Proof</span>.
+    use make_profunctor.
+    - <span class="bp">exact</span> (comp_profunctor_colim_profunctor_data x z).
+    - <span class="bp">exact</span> (comp_profunctor_colim_profunctor_data_laws x z).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_profunctor_ob</span>
+             (<span class="nv">z</span> : C₃)
+             (<span class="nv">x</span> : C₁)
+    : hSet
+    := HSET_coend (comp_profunctor_colim_profunctor x z).
+
+  <span class="kn">Definition</span> <span class="nf">comp_profunctor_ob_in</span>
+             {<span class="nv">z</span> : C₃}
+             (<span class="nv">y</span> : C₂)
+             {<span class="nv">x</span> : C₁}
+             (<span class="nv">h₁</span> : P y x)
+             (<span class="nv">h₂</span> : Q z y)
+    : comp_profunctor_ob z x
+    := HSET_coend_in (comp_profunctor_colim_profunctor x z) y (h₁ ,, h₂).
+
+  <span class="kn">Proposition</span> <span class="nf">comp_profunctor_ob_in_comm</span>
+              {<span class="nv">z</span> : C₃}
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+              (<span class="nv">g</span> : y₁ --&gt; y₂)
+              {<span class="nv">x</span> : C₁}
+              (<span class="nv">h</span> : P y₂ x)
+              (<span class="nv">h'</span> : Q z y₁)
+    : comp_profunctor_ob_in y₂ h (rmap Q g h')
+      =
+      comp_profunctor_ob_in y₁ (lmap P g h) h'.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (HSET_coend_comm
+            (comp_profunctor_colim_profunctor x z)
+            g
+            (h ,, h'))
+      <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !profunctor_id <span class="k">in</span> p.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_comp_profunctor_ob</span>
+             (<span class="nv">z</span> : C₃)
+             (<span class="nv">x</span> : C₁)
+             {<span class="nv">X</span> : hSet}
+             (<span class="nv">fs</span> : ∏ (y : C₂), P y x → Q z y → X)
+             (<span class="nv">ps</span> : ∏ (y₁ y₂ : C₂)
+                     (g : y₁ --&gt; y₂)
+                     (h : P y₂ x)
+                     (h' : Q z y₁),
+                   fs y₂ h (rmap Q g h') = fs y₁ (lmap P g h) h')
+    : comp_profunctor_ob z x → X.
+  <span class="kn">Proof</span>.
+    use mor_from_HSET_coend.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">h</span>, fs y (pr1 h) (pr2 h)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">intros</span> y₁ y₂ g h ;
+         <span class="nb">rewrite</span> !profunctor_id ;
+         <span class="nb">rewrite</span> &lt;- lmap_functor, &lt;- rmap_functor ;
+         <span class="nb">apply</span> ps).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">from_comp_profunctor_ob_comm</span>
+              (<span class="nv">z</span> : C₃)
+              (<span class="nv">x</span> : C₁)
+              {<span class="nv">X</span> : hSet}
+              (<span class="nv">fs</span> : ∏ (y : C₂), P y x → Q z y → X)
+              (<span class="nv">ps</span> : ∏ (y₁ y₂ : C₂)
+                      (g : y₁ --&gt; y₂)
+                      (h : P y₂ x)
+                      (h' : Q z y₁),
+                    fs y₂ h (rmap Q g h') = fs y₁ (lmap P g h) h')
+              (<span class="nv">y</span> : C₂)
+              (<span class="nv">h</span> : P y x)
+              (<span class="nv">h'</span> : Q z y)
+    : from_comp_profunctor_ob z x fs ps (comp_profunctor_ob_in y h h') = fs y h h'.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (mor_from_HSET_coend_comm _ _ _ _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">mor_from_comp_profunctor_ob_eq</span>
+              (<span class="nv">z</span> : C₃)
+              (<span class="nv">x</span> : C₁)
+              {<span class="nv">X</span> : hSet}
+              (<span class="nv">f</span> <span class="nv">g</span> : comp_profunctor_ob z x → X)
+              (<span class="nv">w</span> : comp_profunctor_ob z x)
+              (<span class="nv">ps</span> : ∏ (y : C₂)
+                      (h : P y x)
+                      (h' : Q z y),
+                    f (comp_profunctor_ob_in y h h')
+                    =
+                    g (comp_profunctor_ob_in y h h'))
+    : f w = g w.
+  <span class="kn">Proof</span>.
+    use mor_from_HSET_coend_eq ; <span class="nb">cbn</span>.
+    <span class="nb">intros</span> y h.
+    <span class="nb">apply</span> ps.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_profunctor_mor</span>
+             {<span class="nv">z₁</span> <span class="nv">z₂</span> : C₃}
+             (<span class="nv">k</span> : z₂ --&gt; z₁)
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+    : comp_profunctor_ob z₁ x₁
+      →
+      comp_profunctor_ob z₂ x₂.
+  <span class="kn">Proof</span>.
+    use from_comp_profunctor_ob.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">h</span> <span class="nv">h'</span>, comp_profunctor_ob_in _ (rmap P f h) (lmap Q k h')).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y₁ y₂ g h h' ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> lmap_rmap ;
+         <span class="nb">rewrite</span> comp_profunctor_ob_in_comm ;
+         <span class="nb">rewrite</span> &lt;- lmap_rmap ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_profunctor_mor_comm</span>
+              {<span class="nv">z₁</span> <span class="nv">z₂</span> : C₃}
+              (<span class="nv">k</span> : z₂ --&gt; z₁)
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+              (<span class="nv">f</span> : x₁ --&gt; x₂)
+              {<span class="nv">y</span> : C₂}
+              (<span class="nv">h</span> : P y x₁) (<span class="nv">h'</span> : Q z₁ y)
+    : comp_profunctor_mor
+        k f
+        (comp_profunctor_ob_in _ h h')
+      =
+      comp_profunctor_ob_in y (rmap P f h) (lmap Q k h').
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> comp_profunctor_mor.
+    <span class="nb">rewrite</span> from_comp_profunctor_ob_comm.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_profunctor_data</span>
+    : profunctor_data C₁ C₃.
+  <span class="kn">Proof</span>.
+    use make_profunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span> <span class="nv">x</span>, comp_profunctor_ob z x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">k</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">h</span>, comp_profunctor_mor k f h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_profunctor_laws</span>
+    : profunctor_laws comp_profunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> z x k ; <span class="nb">cbn</span>.
+      use mor_from_comp_profunctor_ob_eq.
+      <span class="nb">intros</span> y h h' ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> comp_profunctor_mor_comm.
+      <span class="nb">rewrite</span> rmap_id, lmap_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span> ; <span class="nb">intros</span> z₁ z₂ z₃ k₁ k₂ x₁ x₂ x₃ f₁ f₂ h.
+      use (mor_from_comp_profunctor_ob_eq
+             z₁ x₁
+             (comp_profunctor_mor (k₂ · k₁) (f₁ · f₂))
+             (<span class="k">λ</span> <span class="nv">h</span>, comp_profunctor_mor k₂ f₂ (comp_profunctor_mor k₁ f₁ h))).
+      <span class="nb">clear</span> h.
+      <span class="nb">intros</span> y h h' ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !comp_profunctor_mor_comm.
+      <span class="nb">rewrite</span> &lt;- rmap_comp, &lt;- lmap_comp.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_profunctor</span>
+    : C₁ ↛ C₃.
+  <span class="kn">Proof</span>.
+    use make_profunctor.
+    - <span class="bp">exact</span> comp_profunctor_data.
+    - <span class="bp">exact</span> comp_profunctor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lmap_comp_profunctor</span>
+              {<span class="nv">z₁</span> <span class="nv">z₂</span> : C₃}
+              (<span class="nv">k</span> : z₂ --&gt; z₁)
+              {<span class="nv">x</span> : C₁}
+              {<span class="nv">y</span> : C₂}
+              (<span class="nv">h</span> : P y x) (<span class="nv">h'</span> : Q z₁ y)
+    : lmap
+        comp_profunctor
+        k
+        (comp_profunctor_ob_in y h h')
+      =
+      comp_profunctor_ob_in y h (lmap Q k h').
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> comp_profunctor_mor_comm.
+    <span class="nb">rewrite</span> rmap_id.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rmap_comp_profunctor</span>
+              {<span class="nv">z</span> : C₃}
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+              (<span class="nv">f</span> : x₁ --&gt; x₂)
+              {<span class="nv">y</span> : C₂}
+              (<span class="nv">h</span> : P y x₁) (<span class="nv">h'</span> : Q z y)
+    : rmap
+        comp_profunctor
+        f
+        (comp_profunctor_ob_in y h h')
+      =
+      comp_profunctor_ob_in y (rmap P f h) h'.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> comp_profunctor_mor_comm.
+    <span class="nb">rewrite</span> lmap_id.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">CompProfunctor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Profunctors/Examples.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Composition of profunctors
+  &gt;
+  &gt;  *****************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

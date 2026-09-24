@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ApplicationsGenMendlerIteration_alt.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** proves Theorem 4.7 in Fiore &amp; Saville, List Objects with Algebraic Structures, FSCD'17</span>
+
+<span class="sd">    also instantiates it to present a variant of Lemma 4.8 in that paper</span>
+
+<span class="sd">author: Ralph Matthes</span>
+<span class="sd">formulation of Theorem 4.7 inspired by code provided by Ambroise Lafont available at https://github.com/amblafont/Skew-Monoidalcategories</span>
+
+<span class="sd">2022</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Adamek.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.yoneda.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.GenMendlerIteration_alt.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+
+<span class="kn">Import</span> BifunctorNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local Notation</span> <span class="nf">carrier</span> := (alg_carrier _ ).
+
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+  <span class="kn">Context</span> {<span class="nv">D</span> <span class="nv">C</span> <span class="nv">B</span> <span class="nv">A</span> : category}
+    (<span class="nv">OC</span> : Initial C)
+    (<span class="nv">chC</span> : Colims_of_shape nat_graph C)
+    (* (chA : Colims_of_shape nat_graph A) - superfluous <span class="bp">assumption</span> <span class="k">in</span> the paper *)
+    {<span class="nv">J</span> : C ⟶ A} (<span class="nv">OJ</span> : isInitial _ (J (InitialObject OC)))
+    (<span class="nv">omegaJ</span> : is_omega_cocont J)
+    {<span class="nv">F</span> : bifunctor D C C}
+    (<span class="nv">omegaF</span> : ∏ d , is_omega_cocont (leftwhiskering_functor F d))
+    (<span class="nv">G</span> : bifunctor B A A)
+    (* (omegaG : ∏ b , is_omega_cocont (leftwhiskering_functor G b)) - superfluous <span class="bp">assumption</span> <span class="k">in</span> the paper *)
+    {<span class="nv">K</span> : D ⟶ B}
+    (<span class="nv">h</span> : binat_trans (compose_bifunctor_with_functor F J)
+           (compose_functor_with_bifunctor K J G)).
+
+  <span class="kn">Let</span> <span class="nf">OA</span> : Initial A := make_Initial _ OJ.
+
+  <span class="kn">Context</span> {<span class="nv">a</span> : A} {<span class="nv">d</span> : D} (<span class="nv">α</span> : A ⟦ (K d) ⊗_{G} a , a ⟧).
+
+  <span class="kn">Let</span> <span class="nf">iniChd</span> : chain C := (initChain OC (leftwhiskering_functor F d)).
+
+  <span class="kn">Let</span> <span class="nf">μFd</span> : category_FunctorAlg (leftwhiskering_functor F d)
+      := (InitialObject (colimAlgInitial OC (omegaF d) (chC iniChd))).
+
+  <span class="kn">Definition</span> <span class="nf">statement_Thm47</span> : UU :=
+        <span class="k">∃</span>! (β : A ⟦ J (carrier μFd) , a ⟧),
+                h d (carrier μFd) · K d ⊗^{G}_{l} β · α  =
+                # J (alg_map (leftwhiskering_functor F d) μFd) · β.
+
+
+  <span class="kn">Definition</span> <span class="nf">Thm47</span> : statement_Thm47.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>.
+    <span class="nb">set</span> (Mendler := GenMendlerIteration OC chC (leftwhiskering_functor F d) (omegaF d) a J OJ omegaJ).
+    transparent <span class="nb">assert</span> (ψ : (ψ_source a J ⟹ ψ_target (leftwhiskering_functor F d) a J)).
+    { use make_nat_trans.
+      - <span class="nb">intros</span> y f.
+        <span class="nb">cbn</span>; <span class="nb">red</span>.
+        <span class="bp">exact</span> (h d y · (K d) ⊗^{G}_{l} f · α).
+      - <span class="nb">intros</span> y y' f. <span class="nb">cbn</span> <span class="k">in</span> f. <span class="nb">apply</span> funextsec. <span class="nb">intro</span> g. <span class="nb">cbn</span> <span class="k">in</span> g. <span class="nb">red</span> <span class="k">in</span> g. <span class="nb">cbn</span>.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">rewrite</span> bifunctor_leftcomp.
+        <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> pathsinv0, (pr12 h).
+    }
+    <span class="nb">set</span> (Mendlerinst := Mendler ψ).
+    use tpair.
+    - <span class="k">exists</span> (<span class="nv">pr11</span> <span class="nv">Mendlerinst</span>).
+      <span class="nb">apply</span> pathsinv0. <span class="bp">exact</span> (pr21 Mendlerinst).
+    - <span class="nb">intro</span> t.
+      <span class="nb">induction</span> t <span class="k">as</span> [β βeq].
+      <span class="nb">assert</span> (Mendlerinst2 := pr2 Mendlerinst (β,,!βeq)).
+      use subtypePath.
+      { <span class="nb">intro</span> g. <span class="nb">apply</span> A. }
+      <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> Mendlerinst2.
+      etrans.
+      { <span class="bp">exact</span> Mendlerinst2. }
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">A</span>.
+
+<span class="kn">Section</span> <span class="nf">B</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category } (<span class="nv">Mon_V</span> : monoidal C)
+    (<span class="nv">OC</span> : Initial C) (<span class="nv">chC</span> : Colims_of_shape nat_graph C)
+    {<span class="nv">F</span> : bifunctor C C C} (<span class="nv">omegaF</span> : ∏ c , is_omega_cocont (leftwhiskering_functor F c))
+    (** Lemma <span class="mi">4</span>.<span class="mi">8</span> <span class="k">in</span> the paper asks <span class="k">for</span> global omega-cocontinuity of [F] *)
+    (<span class="nv">p</span> : C).
+    <span class="sd">(** we formulate the statement for each [p] individually *)</span>
+
+  <span class="kn">Let</span> <span class="nf">J</span> : C ⟶ C := rightwhiskering_functor Mon_V p.
+  <span class="kn">Let</span> <span class="nf">G</span> : bifunctor C C C := compose_functor_with_bifunctor J (functor_identity C) F.
+
+  <span class="sd">(** the next two lemmas are no longer needed without the continuity requirement on [G] of the theorem *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">lwG_is_lwF</span> (<span class="nv">c</span> : C) : leftwhiskering_functor G c = leftwhiskering_functor F (c ⊗_{Mon_V} p).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> functor_eq.
+    { <span class="nb">apply</span> C. }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">omegaG</span> (<span class="nv">c</span> : C) : is_omega_cocont (leftwhiskering_functor G c).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> lwG_is_lwF. <span class="nb">apply</span> omegaF.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Context</span> (<span class="nv">OJ</span> : isInitial _ (J (InitialObject OC))) (<span class="nv">omegaJ</span> : is_omega_cocont J)
+    (<span class="nv">h</span>: binat_trans (compose_bifunctor_with_functor F J)
+          (compose_functor_with_bifunctor (functor_identity C) J G))
+    (** the target functor of [h] <span class="k">is</span> <span class="s2">"morally"</span> [compose_functor_with_bifunctor J J F],
+        hence [h] qualifies <span class="k">as</span> strength data <span class="k">for</span> [F], <span class="k">in</span> the sense of p.<span class="mi">3</span> of the paper, however
+        <span class="k">with</span> <span class="kp">only</span> naturality <span class="k">in</span> the arguments to [F] and w/o the coherence conditions  *)
+    (<span class="nv">z</span> <span class="nv">c</span> : C) (<span class="nv">γ</span> : C ⟦ (z ⊗_{ Mon_V} p) ⊗_{ F} c, c ⟧).
+
+  <span class="kn">Definition</span> <span class="nf">statement_Lemma_48</span> : UU
+    := statement_Thm47 (D:=C)(B:=C)(A:=C) OC chC omegaF <span class="c">(* omegaG *)</span> (K:=functor_identity C) G h (a:=c)(d:=z) γ.
+
+  <span class="kn">Let</span> <span class="nf">cc</span> : ColimCocone (initChain OC (leftwhiskering_functor F z))
+      := chC (initChain OC (leftwhiskering_functor F z)).
+
+  <span class="kn">Local Lemma</span> <span class="nf">statement_Lemma_48_ok</span> : statement_Lemma_48 =
+         <span class="k">∃</span>! β : C ⟦ colim cc ⊗_{ Mon_V} p, c ⟧,
+                h z (colim cc) · (z ⊗_{ Mon_V} p) ⊗^{ F}_{l} β · γ =
+                colim_algebra_mor OC (omegaF z) cc ⊗^{ Mon_V}_{r} p · β.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Lemma48</span> : statement_Lemma_48.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>. <span class="nb">apply</span> Thm47.
+    - <span class="bp">exact</span> OJ.
+    - <span class="bp">exact</span> omegaJ.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">B</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/ApplicationsGenMendlerIteration_alt.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; 2022
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

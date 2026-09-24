@@ -1,0 +1,1569 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PartA.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** This file contain various results that could be upstreamed to Foundations/PartA.v *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="sd">(** * Generalisations of [maponpaths]</span>
+
+<span class="sd">The following are a uniformly-named set of lemmas giving how multi-argument (non-dependent) functions act on paths, generalising [maponpaths].</span>
+
+<span class="sd">  The naming convention is that e.g. [maponpaths_135] takes paths in the 1st, 3rd, and 5th arguments, counting _backwards_ from the end.  (The “counting backwards” is so that it doesn’t depend on the total number of arguments the function takes.)</span>
+
+<span class="sd">  All are defined in terms of [maponpaths], to allow use of lemmas about it for reasoning about these.</span>
+
+<span class="sd"> See below for a note about defining duplicates/special cases of these lemmas downstream. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_1</span> {<span class="nv">X</span> <span class="nv">A</span> : UU} (<span class="nv">f</span> : X -&gt; A) {<span class="nv">x</span> <span class="nv">x'</span>} (<span class="nv">e</span> : x = x')
+  : f x = f x'
+:= maponpaths f e.
+
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_2</span> {<span class="nv">Y</span> <span class="nv">X</span> <span class="nv">A</span> : UU} (<span class="nv">f</span> : Y -&gt; X -&gt; A)
+    {<span class="nv">y</span> <span class="nv">y'</span>} (<span class="nv">e_y</span> : y = y') <span class="nv">x</span>
+  : f y x = f y' x
+:= maponpaths (<span class="k">fun</span> <span class="nv">y</span> =&gt; f y x) e_y.
+
+<span class="c">(* TODO: should this be defined in terms of [two_arg_paths] or [map_on_two_paths], from [Foundations]?*)</span>
+<span class="kn">Definition</span> <span class="nf">maponpaths_12</span> {<span class="nv">Y</span> <span class="nv">X</span> <span class="nv">A</span> : UU} (<span class="nv">f</span> : Y -&gt; X -&gt; A)
+    {<span class="nv">y</span> <span class="nv">y'</span>} (<span class="nv">e_y</span> : y = y') {<span class="nv">x</span> <span class="nv">x'</span>} (<span class="nv">e_x</span> : x = x')
+  : f y x = f y' x'
+:= maponpaths_1 _ e_x @ maponpaths_2 f e_y _.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_3</span> {<span class="nv">Z</span> <span class="nv">Y</span> <span class="nv">X</span> <span class="nv">A</span> : UU} (<span class="nv">f</span> : Z -&gt; Y -&gt; X -&gt; A)
+    {<span class="nv">z</span> <span class="nv">z'</span>} (<span class="nv">e_z</span> : z = z') <span class="nv">y</span> <span class="nv">x</span>
+  : f z y x = f z' y x
+:= maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; f z y x) e_z.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_123</span> {<span class="nv">Z</span> <span class="nv">Y</span> <span class="nv">X</span> <span class="nv">A</span> : UU} (<span class="nv">f</span> : Z -&gt; Y -&gt; X -&gt; A)
+    {<span class="nv">z</span> <span class="nv">z'</span>} (<span class="nv">e_z</span> : z = z') {<span class="nv">y</span> <span class="nv">y'</span>} (<span class="nv">e_y</span> : y = y') {<span class="nv">x</span> <span class="nv">x'</span>} (<span class="nv">e_x</span> : x = x')
+  : f z y x = f z' y' x'
+:= maponpaths_12 _ e_y e_x @ maponpaths_3 f e_z _ _.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_13</span> {<span class="nv">Z</span> <span class="nv">Y</span> <span class="nv">X</span> <span class="nv">A</span> : UU} (<span class="nv">f</span> : Z -&gt; Y -&gt; X -&gt; A)
+    {<span class="nv">z</span> <span class="nv">z'</span>} (<span class="nv">e_z</span> : z = z') (<span class="nv">y</span>:Y) {<span class="nv">x</span> <span class="nv">x'</span>} (<span class="nv">e_x</span> : x = x')
+  : f z y x = f z' y x'
+:= maponpaths_123 _ e_z (idpath y) e_x.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_4</span> {<span class="nv">W</span> <span class="nv">Z</span> <span class="nv">Y</span> <span class="nv">X</span> <span class="nv">A</span> : UU} (<span class="nv">f</span> : W -&gt; Z -&gt; Y -&gt; X -&gt; A)
+    {<span class="nv">w</span> <span class="nv">w'</span>} (<span class="nv">e_w</span> : w = w') <span class="nv">z</span> <span class="nv">y</span> <span class="nv">x</span>
+  : f w z y x = f w' z y x
+:= maponpaths (<span class="k">fun</span> <span class="nv">w</span> =&gt; f w z y x) e_w.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_1234</span> {<span class="nv">W</span> <span class="nv">Z</span> <span class="nv">Y</span> <span class="nv">X</span> <span class="nv">A</span> : UU} (<span class="nv">f</span> : W -&gt; Z -&gt; Y -&gt; X -&gt; A)
+    {<span class="nv">w</span> <span class="nv">w'</span>} (<span class="nv">e_w</span> : w = w') {<span class="nv">z</span> <span class="nv">z'</span>} (<span class="nv">e_z</span> : z = z')
+    {<span class="nv">y</span> <span class="nv">y'</span>} (<span class="nv">e_y</span> : y = y') {<span class="nv">x</span> <span class="nv">x'</span>} (<span class="nv">e_x</span> : x = x')
+  : f w z y x = f w' z' y' x'
+:= maponpaths_123 _ e_z e_y e_x @ maponpaths_4 _ e_w _ _ _.
+
+<span class="sd">(** Notes on duplication issues:</span>
+
+<span class="sd">Duplicates and special cases of these lemmas have been re-written multiple times, in multiple packages, by multiple contributors.</span>
+
+<span class="sd">Sometimes this is intended and useful — e.g. for frequently-used specialisations such as [base_paths], especially when subsequent definitions mention them, like [fiber_paths].</span>
+
+<span class="sd">Other times, it just happens because the contributor hasn’t been aware of the applicable general versions (or they weren’t available at the time of writing).  These cases are code duplication, causing redundancy and inconsistent coding style, and should be avoided/refactored.</span>
+
+<span class="sd">To keep these clearly distinguished: if you are defining duplicates or special cases of these lemmas, please (a) define them in terms of the general ones, so that lemmas about these are applicable, and (b) add a comment noting why your definitions are desirable.</span>
+
+<span class="sd">A few direct duplicates remain:</span>
+
+<span class="sd">- [Foundations.PartA.two_arg_paths] and [Foundations.PartA.map_on_two_paths] are complete duplicates of [maponpaths_12], and of each other (modulo reordering of arguments).</span>
+<span class="sd">- [Foundations.PartA.pathsdirprod] and [Foundations.PartA.total2_paths2] are complete duplicates of each other.</span>
+<span class="sd"> *)</span>
+
+<span class="c">(* TODO: several of the [maponpaths] family could usefully be generalised, to work with functions whose output type is dependent on the arguments that aren’t being varied in the specific lemma. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">maponpaths_for_constant_function</span> {<span class="nv">T1</span> <span class="nv">T2</span> : UU} (<span class="nv">x</span> : T2) {<span class="nv">t1</span> <span class="nv">t2</span> : T1}
+      (<span class="nv">e</span>: t1 = t2): maponpaths (<span class="k">fun</span> <span class="nv">_</span>: T1 =&gt; x) e = idpath x.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">base_paths_pair_path_in2</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : X → UU) {<span class="nv">x</span> : X} {<span class="nv">p</span> <span class="nv">q</span> : P x} (<span class="nv">e</span> : p = q) :
+  base_paths _ _ (pair_path_in2 P e) = idpath x.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">induction</span> e.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_transpose_right</span>
+      {<span class="nv">X</span> : UU}
+      {<span class="nv">P</span> : X → UU}
+      {<span class="nv">x</span> <span class="nv">x'</span> : X}
+      {<span class="nv">e</span> : x = x'}
+      {<span class="nv">y</span> : P x}
+      {<span class="nv">y'</span> : P x'} :
+      transportb P e y' = y -&gt; y' = transportf P e y.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e; <span class="nb">apply</span> idfun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportb_transpose_right</span>
+           {<span class="nv">A</span> : UU}
+           {<span class="nv">P</span> : A → UU}
+           {<span class="nv">x</span> <span class="nv">x'</span> : A}
+           {<span class="nv">e</span> : x = x'}
+           {<span class="nv">y</span> : P x} {<span class="nv">y'</span> : P x'}
+  : transportf P e y = y' → y = transportb P e y'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e; <span class="nb">apply</span> idfun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportf_transpose_left</span>
+           {<span class="nv">X</span> : UU}
+           {<span class="nv">P</span> : X → UU}
+           {<span class="nv">x</span> <span class="nv">x'</span> : X}
+           {<span class="nv">e</span> : x = x'}
+           {<span class="nv">y</span> : P x}
+           {<span class="nv">y'</span> : P x'}
+  : y = transportb P e y' → transportf P e y = y'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e; <span class="nb">apply</span> idfun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportb_transpose_left</span>
+           {<span class="nv">X</span> : UU}
+           {<span class="nv">P</span> : X → UU}
+           {<span class="nv">x</span> <span class="nv">x'</span> : X}
+           {<span class="nv">e</span> : x = x'}
+           {<span class="nv">y</span> : P x}
+           {<span class="nv">y'</span> : P x'}
+  : y' = transportf P e y → transportb P e y' = y.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e; <span class="nb">apply</span> idfun.
+<span class="kn">Defined</span>.
+
+<span class="c">(* taken from TypeTheory/Display_Cats/Auxiliary.v *)</span>
+<span class="sd">(** Very handy for reasoning with “dependent paths” —</span>
+
+<span class="sd">Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'],</span>
+<span class="sd">but not quite a special case of them, or (as far as I can find) any other</span>
+<span class="sd">library lemma.</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">transportf_pathsinv0</span> {<span class="nv">X</span>} (<span class="nv">P</span>:X-&gt;UU) {<span class="nv">x</span> <span class="nv">y</span>:X} (<span class="nv">p</span>:x = y) (<span class="nv">u</span>:P x) (<span class="nv">v</span>:P y) :
+  transportf _ (!p) v = u -&gt; transportf _ p u = v.
+<span class="kn">Proof</span>. <span class="nb">intro</span> e. <span class="nb">induction</span> p, e. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_comp_lemma</span> (<span class="nv">X</span> : UU) (<span class="nv">B</span> : X -&gt; UU) {<span class="nv">A</span> <span class="nv">A'</span> <span class="nv">A''</span>: X} (<span class="nv">e</span> : A = A'') (<span class="nv">e'</span> : A' = A'')
+  (<span class="nv">x</span> : B A) (<span class="nv">x'</span> : B A')
+  : transportf _ (e @ !e') x = x'
+  -&gt; transportf _ e x = transportf _ e' x'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> H. }
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="mi">2</span>: { <span class="nb">symmetry</span>. <span class="nb">apply</span> transport_f_f. }
+  <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">p</span>, transportf _ p x)).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">eapply</span> pathscomp0.
+  - <span class="nb">apply</span> @pathsinv0, path_assoc.
+  - <span class="nb">eapply</span> pathscomp0.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0l.
+    <span class="nb">apply</span> pathscomp0rid.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_comp_lemma_hset</span> (<span class="nv">X</span> : UU) (<span class="nv">B</span> : X -&gt; UU) (<span class="nv">A</span> : X) (<span class="nv">e</span> : A = A)
+  {<span class="nv">x</span> <span class="nv">x'</span> : B A} (<span class="nv">hs</span> : isaset X)
+  : x = x'
+  -&gt; transportf _ e x = x'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ex.
+  <span class="nb">apply</span> @pathscomp0 <span class="k">with</span> (transportf _ (idpath _) x).
+  - <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">p</span>, transportf _ p x)).
+    <span class="nb">apply</span> hs.
+  - <span class="bp">exact</span> ex.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">transportf_bind</span> {<span class="nv">X</span> : UU} {<span class="nv">P</span> : X → UU}
+  {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">x''</span> : X} (<span class="nv">e</span> : x' = x) (<span class="nv">e'</span> : x = x'')
+  <span class="nv">y</span> <span class="nv">y'</span>
+: y = transportf P e y' -&gt; transportf _ e' y = transportf _ (e @ e') y'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H; <span class="nb">destruct</span> e, e'; <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pathscomp0_dep</span> {<span class="nv">X</span> : UU} {<span class="nv">P</span> : X → UU}
+  {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">x''</span> : X} {<span class="nv">e</span> : x' = x} {<span class="nv">e'</span> : x'' = x'}
+  {<span class="nv">y</span>} {<span class="nv">y'</span>} {<span class="nv">y''</span>}
+: (y = transportf P e y') -&gt; (y' = transportf _ e' y'')
+  -&gt; y = transportf _ (e' @ e) y''.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ee ee'.
+  etrans. <span class="nb">apply</span> ee.
+  <span class="nb">apply</span> transportf_bind, ee'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Tactic Notation</span> <span class="s2">"etrans_dep"</span> := <span class="nb">eapply</span> @pathscomp0_dep.
+
+
+
+<span class="kn">Lemma</span> <span class="nf">transportf_set</span> {<span class="nv">A</span> : UU} (<span class="nv">B</span> : A → UU)
+      {<span class="nv">a</span> : A} (<span class="nv">e</span> : a = a) (<span class="nv">b</span> : B a)
+      (<span class="nv">X</span> : isaset A)
+  : transportf B e b = b.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> transportf_comp_lemma_hset.
+  - <span class="nb">apply</span> X.
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">transportf_pair</span> {<span class="nv">A</span> <span class="nv">B</span>} (<span class="nv">P</span> : A × B -&gt; UU) {<span class="nv">a</span> <span class="nv">a'</span> : A} {<span class="nv">b</span> <span class="nv">b'</span> : B}
+      (<span class="nv">eA</span> : a = a') (<span class="nv">eB</span> : b = b') (<span class="nv">p</span> : P (a,,b))
+      : transportf P (pathsdirprod eA eB) p =
+        transportf (<span class="k">λ</span> <span class="nv">bb</span>, P(a',,bb) ) eB (transportf (<span class="k">λ</span> <span class="nv">aa</span>, P(aa,,b)) eA p).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> eA. <span class="nb">induction</span> eB. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqhomot</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A -&gt; B) (<span class="nv">w</span> : A ≃ B) (<span class="nv">H</span> : w ~ f) : isweq f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isweqhomot <span class="k">with</span> w. <span class="nb">apply</span> H. <span class="nb">apply</span> weqproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">invmap_eq</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A ≃ B) (<span class="nv">b</span> : B) (<span class="nv">a</span> : A)
+  : b = f a → invmap f b = a.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> (invmaponpathsweq f).
+  etrans. <span class="nb">apply</span> homotweqinvweq. <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pr1_transportf</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A -&gt; UU} {<span class="nv">P</span> : ∏ a, B a -&gt; UU}
+   {<span class="nv">a</span> <span class="nv">a'</span> : A} (<span class="nv">e</span> : a = a') (<span class="nv">xs</span> : ∑ b : B a, P _ b):
+   pr1 (transportf (<span class="k">λ</span> <span class="nv">x</span>, ∑ b : B x, P _ b) e xs) =
+     transportf (<span class="k">λ</span> <span class="nv">x</span>, B x) e (pr1 xs).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (transport_map (<span class="k">λ</span> <span class="nv">a</span>, pr1 (P := P a))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pr1_transportb</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A -&gt; UU} {<span class="nv">P</span> : ∏ a, B a -&gt; UU}
+   {<span class="nv">a</span> <span class="nv">a'</span> : A} (<span class="nv">e</span> : a = a') (<span class="nv">xs</span> : ∑ b : B a', P _ b):
+   pr1 (transportb (<span class="k">λ</span> <span class="nv">x</span>, ∑ b : B x, P _ b) e xs) =
+     transportb (<span class="k">λ</span> <span class="nv">x</span>, B x) e (pr1 xs).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (transport_map (<span class="k">λ</span> <span class="nv">a</span>, pr1 (P := P a))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pr2_transportf</span> {<span class="nv">A</span>} {<span class="nv">B1</span> <span class="nv">B2</span> : A → UU}
+    {<span class="nv">a</span> <span class="nv">a'</span> : A} (<span class="nv">e</span> : a = a') (<span class="nv">xs</span> : B1 a × B2 a)
+  : pr2 (transportf (<span class="k">λ</span> <span class="nv">a</span>, B1 a × B2 a) e xs) = transportf _ e (pr2 xs).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (transport_map (<span class="k">λ</span> <span class="nv">a</span>, pr2 (P := <span class="k">λ</span> <span class="nv">_</span>, B2 a))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pr2_transportb</span> {<span class="nv">A</span>} {<span class="nv">B1</span> <span class="nv">B2</span> : A → UU}
+    {<span class="nv">a</span> <span class="nv">a'</span> : A} (<span class="nv">e</span> : a = a') (<span class="nv">xs</span> : B1 a' × B2 a')
+  : pr2 (transportb (<span class="k">λ</span> <span class="nv">a</span>, B1 a × B2 a) e xs) = transportb _ e (pr2 xs).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (transport_map (<span class="k">λ</span> <span class="nv">a</span>, pr2 (P := <span class="k">λ</span> <span class="nv">_</span>, B2 a))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">coprodcomm_coprodcomm</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">v</span> : X ⨿ Y) : coprodcomm Y X (coprodcomm X Y v) = v.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> v <span class="k">as</span> [x|y]; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sumofmaps_funcomp</span> {<span class="nv">X1</span> <span class="nv">X2</span> <span class="nv">Y1</span> <span class="nv">Y2</span> <span class="nv">Z</span> : UU} (<span class="nv">f1</span> : X1 → X2) (<span class="nv">f2</span> : X2 → Z) (<span class="nv">g1</span> : Y1 → Y2)
+  (<span class="nv">g2</span> : Y2 → Z) : sumofmaps (f2 ∘ f1) (g2 ∘ g1) ~ sumofmaps f2 g2 ∘ coprodf f1 g1.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x. <span class="nb">induction</span> x <span class="k">as</span> [x|y]; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sumofmaps_homot</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} {<span class="nv">f</span> <span class="nv">f'</span> : X → Z} {<span class="nv">g</span> <span class="nv">g'</span> : Y → Z} (<span class="nv">h</span> : f ~ f') (<span class="nv">h2</span> : g ~ g')
+  : sumofmaps f g ~ sumofmaps f' g'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x. <span class="nb">induction</span> x <span class="k">as</span> [x|y].
+  - <span class="bp">exact</span> (h x).
+  - <span class="bp">exact</span> (h2 y).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** coprod computation helper lemmas  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">coprod_rect_compute_1</span>
+           (<span class="nv">A</span> <span class="nv">B</span> : UU) (<span class="nv">P</span> : A ⨿ B -&gt; UU)
+           (<span class="nv">f</span> : ∏ (a : A), P (ii1 a))
+           (<span class="nv">g</span> : ∏ (b : B), P (ii2 b)) (<span class="nv">a</span>:A) :
+  coprod_rect P f g (ii1 a) = f a.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coprod_rect_compute_2</span>
+           (<span class="nv">A</span> <span class="nv">B</span> : UU) (<span class="nv">P</span> : A ⨿ B -&gt; UU)
+           (<span class="nv">f</span> : ∏ a : A, P (ii1 a))
+           (<span class="nv">g</span> : ∏ b : B, P (ii2 b)) (<span class="nv">b</span>:B) :
+  coprod_rect P f g (ii2 b) = g b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Flip the arguments of a function *)</span>
+<span class="kn">Definition</span> <span class="nf">flipsec</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} {<span class="nv">C</span> : A -&gt; B -&gt; UU} (<span class="nv">f</span> : ∏ a b, C a b) : ∏ b a, C a b :=
+  <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, f y x.
+<span class="kn">Notation</span> <span class="nf">flip</span> := flipsec.
+
+<span class="sd">(** Flip is a weak equivalence (in fact, it is an involution) *)</span>
+<span class="kn">Lemma</span> <span class="nf">isweq_flipsec</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} {<span class="nv">C</span> : A -&gt; B -&gt; UU} : isweq (@flipsec A B C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweq_iso _ flipsec); <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">flipsec_weq</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} {<span class="nv">C</span> : A -&gt; B -&gt; UU} :
+  (∏ a b, C a b) ≃ (∏ b a, C a b) := make_weq flipsec isweq_flipsec.
+
+<span class="sd">(** hlevel of empty type *)</span>
+<span class="kn">Definition</span> <span class="nf">empty_hlevel</span>
+           (<span class="nv">n</span> : nat)
+  : isofhlevel (n + <span class="mi">1</span>) ∅.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n.
+  - <span class="bp">exact</span> isapropempty.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, fromempty x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">empty_HLevel</span>
+           (<span class="nv">n</span> : nat)
+  : HLevel (n + <span class="mi">1</span>)
+  := empty ,, empty_hlevel n.
+
+<span class="kn">Definition</span> <span class="nf">HLevel_fun</span>
+           {<span class="nv">n</span> : nat}
+           (<span class="nv">X</span> <span class="nv">Y</span> : HLevel n)
+  : HLevel n.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (pr1 X → pr1 Y).
+  - <span class="nb">apply</span> impredfun.
+    <span class="bp">exact</span> (pr2 Y).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The subtypes of a type of hlevel S n are also of hlevel S n.</span>
+<span class="sd">    This doesn't work for types of hlevel 0: a subtype of a contractible</span>
+<span class="sd">    type might be empty, not contractible! *)</span>
+<span class="kn">Lemma</span> <span class="nf">isofhlevel_hsubtype</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} (<span class="nv">isof</span> : isofhlevel (S n) X) :
+  ∏ subt : hsubtype X, isofhlevel (S n) subt.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> subt.
+  <span class="nb">apply</span> isofhleveltotal2.
+  - <span class="bp">assumption</span>.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isofhlevelsnprop.
+    <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Homotopy equivalence on total spaces.</span>
+
+<span class="sd">  This result combines weqfp and weqfibtototal conveniently.</span>
+<span class="sd">  *)</span>
+<span class="kn">Lemma</span> <span class="nf">weqtotal2</span> {<span class="nv">X</span> <span class="nv">Y</span>:<span class="kt">Type</span>} {<span class="nv">P</span>:X-&gt;<span class="kt">Type</span>} {<span class="nv">Q</span>:Y-&gt;<span class="kt">Type</span>} (<span class="nv">f</span> : X ≃ Y) :
+  (∏ x, P x ≃ Q (f x)) -&gt; (∑ x:X, P x) ≃ (∑ y:Y, Q y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">xp</span>, (f(pr1 xp),,e (pr1 xp) (pr2 xp))).
+  <span class="bp">exact</span> (twooutof3c _ _ (isweqfibtototal P (Q ∘ f) e) (pr2 (weqfp f Q))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weq_subtypes'</span>
+    {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">w</span> : X ≃ Y)
+    {<span class="nv">S</span> : X -&gt; UU} {<span class="nv">T</span> : Y -&gt; UU}
+    (<span class="nv">HS</span> : isPredicate S)
+    (<span class="nv">HT</span> : isPredicate T)
+    (<span class="nv">HST</span> : ∏ x : X, S x &lt;-&gt; T (w x))
+  : (∑ x, S x) ≃ (∑ y, T y).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (weqbandf w).
+  <span class="nb">intros</span>. <span class="nb">apply</span> weqiff.
+  - <span class="nb">apply</span> HST.
+  - <span class="nb">apply</span> HS.
+  - <span class="nb">apply</span> HT.
+<span class="kn">Defined</span>.
+
+<span class="c">(* Specialisation of [weq_subtypes'] *)</span>
+<span class="kn">Lemma</span> <span class="nf">weq_subtypes_iff</span>
+    {<span class="nv">X</span> : UU} {<span class="nv">S</span> <span class="nv">T</span> : X -&gt; UU}
+    (<span class="nv">HS</span> : isPredicate S)
+    (<span class="nv">HT</span> : isPredicate T)
+    (<span class="nv">HST</span> : ∏ x, S x &lt;-&gt; T x)
+  : (∑ x, S x) ≃ (∑ x, T x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (weq_subtypes' (idweq X)); <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">hlevel_total2</span> <span class="nv">n</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A → UU} :
+  isofhlevel n (∑ (x :A), B x) → isofhlevel (S n) A → ∏ (x : A), isofhlevel n (B x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ic ia x.
+  <span class="bp">exact</span> (isofhlevelweqf _ (invweq (ezweqpr1 _ _)) (isofhlevelffromXY _ _ ic ia _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_sigma_hprop</span>
+           {<span class="nv">A</span> : UU}
+           (<span class="nv">B</span> : A → UU)
+           (<span class="nv">x</span> <span class="nv">y</span> : ∑ (z : A), B z)
+           (<span class="nv">HB</span> : isaprop (B (pr1 y)))
+  : x = y ≃ pr1 x = pr1 y.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (weqpr1 _ _ ∘ total2_paths_equiv _ _ _)%weq.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> HB.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscontr_prod</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU)
+  : iscontr X -&gt; iscontr Y -&gt; iscontr (X × Y).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isofhleveldirprod <span class="mi">0</span> _ _).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Pointed types *)</span>
+
+<span class="kn">Section</span> <span class="nf">PointedTypes</span>.
+  <span class="kn">Definition</span> <span class="nf">PointedType</span> := ∑ X, X.
+  <span class="kn">Definition</span> <span class="nf">pointedType</span> <span class="nv">X</span> <span class="nv">x</span> := X,,x : PointedType.
+  <span class="kn">Definition</span> <span class="nf">underlyingType</span> (<span class="nv">X</span>:PointedType) := pr1 X.
+  <span class="kn">Coercion</span> <span class="nf">underlyingType</span> : PointedType &gt;-&gt; UU.
+  <span class="kn">Definition</span> <span class="nf">basepoint</span> (<span class="nv">X</span>:PointedType) := pr2 X.
+  <span class="kn">Definition</span> <span class="nf">loopSpace</span> (<span class="nv">X</span>:PointedType) :=
+    pointedType (basepoint X = basepoint X) (idpath _).
+  <span class="kn">Definition</span> <span class="nf">underlyingLoop</span> {<span class="nv">X</span>:PointedType} (<span class="nv">l</span>:loopSpace X) : basepoint X = basepoint X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="bp">exact</span> l.
+  <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">Ω</span> := loopSpace.
+<span class="kn">End</span> <span class="nf">PointedTypes</span>.
+
+<span class="sd">(** associativity of ∑ *)</span>
+
+<span class="kn">Definition</span> <span class="nf">weq_total2_prod</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">Z</span>:Y-&gt;<span class="kt">Type</span>) : (∑ y, X × Z y) ≃ (X × ∑ y, Z y).
+<span class="kn">Proof</span>.
+  <span class="c">(* move upstream *)</span>
+  <span class="nb">intros</span>. <span class="nb">simple refine</span> (make_weq _ (isweq_iso _ _ _ _)).
+  { <span class="nb">intros</span> [y [x z]]. <span class="bp">exact</span> (x,,y,,z). }
+  { <span class="nb">intros</span> [x [y z]]. <span class="bp">exact</span> (y,,x,,z). }
+  { <span class="nb">intros</span> [y [x z]]. <span class="bp">reflexivity</span>. }
+  { <span class="nb">intros</span> [x [y z]]. <span class="bp">reflexivity</span>. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">totalAssociativity</span> {<span class="nv">X</span>:UU} {<span class="nv">Y</span>: ∏ (x:X), UU} (<span class="nv">Z</span>: ∏ (x:X) (y:Y x), UU) : (∑ (x:X) (y:Y x), Z x y) ≃ (∑ (p:∑ (x:X), Y x), Z (pr1 p) (pr2 p)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">simple refine</span> (_,,isweq_iso _ _ _ _).
+  { <span class="nb">intros</span> [x [y z]]. <span class="bp">exact</span> ((x,,y),,z). }
+  { <span class="nb">intros</span> [[x y] z]. <span class="bp">exact</span> (x,,(y,,z)). }
+  { <span class="nb">intros</span> [x [y z]]. <span class="bp">reflexivity</span>. }
+  { <span class="nb">intros</span> [[x y] z]. <span class="bp">reflexivity</span>. }
+<span class="kn">Defined</span>.
+
+<span class="c">(* direct product of 3 paths; extends pathsdirprod *)</span>
+<span class="kn">Definition</span> <span class="nf">paths3</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>} {<span class="nv">x</span> <span class="nv">x'</span>:X} {<span class="nv">y</span> <span class="nv">y'</span>:Y} {<span class="nv">z</span> <span class="nv">z'</span>:Z} :
+  x = x' -&gt; y = y' -&gt; z = z' -&gt; @paths (_×_×_) (x,,y,,z) (x',,y',,z').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p q r. <span class="nb">induction</span> p, q, r. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="c">(* paths *)</span>
+<span class="kn">Definition</span> <span class="nf">confun</span> <span class="nv">T</span> {<span class="nv">Y</span>} (<span class="nv">y</span>:Y) := <span class="k">λ</span> <span class="nv">_</span>:T, y.
+<span class="kn">Definition</span> <span class="nf">path_type</span> {<span class="nv">X</span>} {<span class="nv">x</span> <span class="nv">x'</span>:X} (<span class="nv">p</span>:x = x') := X.
+<span class="kn">Definition</span> <span class="nf">path_start</span> {<span class="nv">X</span>} {<span class="nv">x</span> <span class="nv">x'</span>:X} (<span class="nv">p</span>:x = x') := x.
+<span class="kn">Definition</span> <span class="nf">path_end</span> {<span class="nv">X</span>} {<span class="nv">x</span> <span class="nv">x'</span>:X} (<span class="nv">p</span>:x = x') := x'.
+
+<span class="kn">Definition</span> <span class="nf">uniqueness</span> {<span class="nv">T</span>} (<span class="nv">isc</span>:iscontr T) (<span class="nv">t</span>:T) : t = iscontrpr1 isc.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">exact</span> (pr2 isc t).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">uniqueness'</span> {<span class="nv">T</span>} (<span class="nv">isc</span>:iscontr T) (<span class="nv">t</span>:T) : iscontrpr1 isc = t.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">exact</span> (! (pr2 isc t)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_inverse_to_right</span> {<span class="nv">X</span>} {<span class="nv">x</span> <span class="nv">y</span>:X} (<span class="nv">p</span> <span class="nv">q</span>:x = y) : p = q -&gt; !q@p = idpath _.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">induction</span> e. <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_inverse_to_right'</span> {<span class="nv">X</span>} {<span class="nv">x</span> <span class="nv">y</span>:X} (<span class="nv">p</span> <span class="nv">q</span>:x = y) : p = q -&gt; p@!q = idpath _.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">induction</span> e. <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Paths *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pathsinv0_to_right</span> {<span class="nv">X</span>} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>:X} (<span class="nv">p</span>:y = x) (<span class="nv">q</span>:y = z) (<span class="nv">r</span>:x = z) :
+  q = p @ r -&gt; !p @ q = r.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">induction</span> p, q. <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pathsinv0_to_right'</span> {<span class="nv">X</span>} {<span class="nv">x</span> <span class="nv">y</span>:X} (<span class="nv">p</span>:y = x) (<span class="nv">r</span>:x = y) :
+  idpath _ = p @ r -&gt; !p = r.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">induction</span> p. <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pathsinv0_to_right''</span> {<span class="nv">X</span>} {<span class="nv">x</span>:X} (<span class="nv">p</span>:x = x) :
+  idpath _ = p -&gt; !p = idpath _.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">apply</span> pathsinv0_to_right'. <span class="nb">rewrite</span> pathscomp0rid. <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">loop_power_nat</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) (<span class="nv">n</span>:nat) : y = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [|n p].
+  { <span class="bp">exact</span> (idpath _). }
+  { <span class="bp">exact</span> (p@l). }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">irrel_paths</span> {<span class="nv">X</span>} (<span class="nv">irr</span>:∏ x y:X, x = y) {<span class="nv">x</span> <span class="nv">y</span>:X} (<span class="nv">p</span> <span class="nv">q</span>:x = y) : p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (k : ∏ z:X, ∏ r:x = z, r @ irr z z = irr x z).
+  { <span class="nb">intros</span>. <span class="nb">induction</span> r. <span class="bp">reflexivity</span>. }
+  <span class="nb">assert</span> (l := k y p @ !k y q).
+  <span class="nb">apply</span> (pathscomp_cancel_right _ _ _ l).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_inv_rotate_2</span> {<span class="nv">X</span>} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span>:X} (<span class="nv">p</span>:a = b) (<span class="nv">p'</span>:c = d) (<span class="nv">q</span>:a = c) (<span class="nv">q'</span>:b = d) :
+  q @ p' = p @ q' -&gt; p' @ ! q' = !q @ p.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> q,q'. <span class="nb">simpl</span>. <span class="kp">repeat</span> <span class="nb">rewrite</span> pathscomp0rid. <span class="nb">apply</span> idfun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_naturality</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">f</span> : X -&gt; Y}
+           {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">x''</span> : X} {<span class="nv">p</span> : x = x'} {<span class="nv">q</span> : x' = x''}
+           {<span class="nv">p'</span>: f x = f x'} {<span class="nv">q'</span>: f x' = f x''}
+           (<span class="nv">r</span> : maponpaths f p = p') (<span class="nv">s</span> : maponpaths f q = q') :
+  maponpaths f (p @ q) = p' @ q'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> r, s. <span class="nb">apply</span> maponpathscomp0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_naturality'</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">f</span> : X -&gt; Y}
+           {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">x''</span> : X} {<span class="nv">p</span> : x' = x} {<span class="nv">q</span> : x' = x''}
+           {<span class="nv">p'</span> : f x' = f x} {<span class="nv">q'</span> : f x' = f x''}
+           (<span class="nv">r</span> : maponpaths f p = p') (<span class="nv">s</span> : maponpaths f q = q') :
+  maponpaths f (!p @ q) = (!p') @ q'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> r, s, p, q. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** ** Pairs *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pr2_of_make_hfiber</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">f</span>:X-&gt;Y} {<span class="nv">x</span>:X} {<span class="nv">y</span>:Y} {<span class="nv">e</span>:f x = y} :
+  pr2 (make_hfiber f x e) = e.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_of_pair</span> {<span class="nv">X</span>} {<span class="nv">P</span>:X-&gt;<span class="kt">Type</span>} (<span class="nv">x</span>:X) (<span class="nv">p</span>:P x) : pr2 (tpair P x p) = p.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_of_make_weq</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span>:X-&gt;Y) (<span class="nv">i</span>:isweq f) : pr2 (make_weq f i) = i.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Paths between pairs *)</span>
+
+<span class="c">(* replace all uses of this by uses of subtypePairEquality *)</span>
+<span class="kn">Definition</span> <span class="nf">pair_path_props</span> {<span class="nv">X</span>} {<span class="nv">P</span>:X-&gt;<span class="kt">Type</span>} {<span class="nv">x</span> <span class="nv">y</span>:X} {<span class="nv">p</span>:P x} {<span class="nv">q</span>:P y} :
+  x = y -&gt; (∏ z, isaprop (P z)) -&gt; x,,p = y,,q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e isp. <span class="bp">now</span> <span class="nb">apply</span> subtypePairEquality.
+<span class="kn">Abort</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> transport.
+
+<span class="kn">Definition</span> <span class="nf">pair_path2</span> {<span class="nv">A</span>} {<span class="nv">B</span>:A-&gt;UU} {<span class="nv">a</span> <span class="nv">a1</span> <span class="nv">a2</span>} {<span class="nv">b1</span>:B a1} {<span class="nv">b2</span>:B a2}
+           (<span class="nv">p</span>:a1 = a) (<span class="nv">q</span>:a2 = a) (<span class="nv">e</span>:p#b1 = q#b2) : a1,,b1 = a2,,b2.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p,q; <span class="nb">compute</span> <span class="k">in</span> e. <span class="nb">induction</span> e. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Projections from pair types *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pair_path_in2_comp1</span> {<span class="nv">X</span>} (<span class="nv">P</span>:X-&gt;<span class="kt">Type</span>) {<span class="nv">x</span>:X} {<span class="nv">p</span> <span class="nv">q</span>:P x} (<span class="nv">e</span>:p = q) :
+  maponpaths pr1 (maponpaths (tpair P _) e) = idpath x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> e. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">total2_paths2_comp1</span> {<span class="nv">X</span>} {<span class="nv">Y</span>:X-&gt;<span class="kt">Type</span>} {<span class="nv">x</span>} {<span class="nv">y</span>:Y x} {<span class="nv">x'</span>} {<span class="nv">y'</span>:Y x'}
+           (<span class="nv">p</span>:x = x') (<span class="nv">q</span>:p#y = y') : maponpaths pr1 (two_arg_paths_f (f := tpair Y) p q) = p.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="nb">induction</span> q. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">total2_paths2_comp2</span> {<span class="nv">X</span>} {<span class="nv">Y</span>:X-&gt;<span class="kt">Type</span>} {<span class="nv">x</span>} {<span class="nv">y</span>:Y x} {<span class="nv">x'</span>} {<span class="nv">y'</span>:Y x'}
+           (<span class="nv">p</span>:x = x') (<span class="nv">q</span>:p#y = y') :
+  ! maponpaths_2 _ (total2_paths2_comp1 p q) y @ fiber_paths (two_arg_paths_f p q) = q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p, q. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Maps from pair types *)</span>
+
+<span class="kn">Definition</span> <span class="nf">from_total2</span> {<span class="nv">X</span>} {<span class="nv">P</span>:X-&gt;<span class="kt">Type</span>} {<span class="nv">Y</span>} : (∏ x, P x-&gt;Y) -&gt; total2 P -&gt; Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f [x p]. <span class="bp">exact</span> (f x p).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** ** Paths in coproducts *)</span>
+
+<span class="kn">Definition</span> <span class="nf">inv_equality_by_case_equality_by_case</span>
+           {<span class="nv">A</span> <span class="nv">B</span> : UU}
+           {<span class="nv">x</span> <span class="nv">y</span> : A ⨿ B}
+           (<span class="nv">p</span> : x = y)
+  : @inv_equality_by_case A B x y (equality_by_case p) = p.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x, y, p ; <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">equality_by_case_inv_equality_by_case</span>
+           {<span class="nv">A</span> <span class="nv">B</span> : UU}
+           {<span class="nv">x</span> <span class="nv">y</span> : A ⨿ B}
+           (<span class="nv">p</span> : equality_cases x y)
+  : equality_by_case (inv_equality_by_case p) = p.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x, y, p; <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">equality_by_case_equiv</span> {<span class="nv">A</span> <span class="nv">B</span>} (<span class="nv">t</span> <span class="nv">u</span> : A ⨿ B) : (t = u) ≃ equality_cases t u.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">apply</span> equality_by_case.
+  - <span class="nb">apply</span> inv_equality_by_case.
+  - <span class="nb">apply</span> inv_equality_by_case_equality_by_case.
+  - <span class="nb">apply</span> equality_by_case_inv_equality_by_case.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">paths_inl_inl_equiv</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">a</span> <span class="nv">a'</span> : A)
+  : @inl A B a = inl a' ≃ a = a'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> @equality_by_case_equiv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">paths_inl_inr_equiv</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">a</span> : A) (<span class="nv">b</span> : B)
+  : inl a = inr b ≃ empty.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> @equality_by_case_equiv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">paths_inr_inr_equiv</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">b</span> <span class="nv">b'</span> : B)
+  : @inr A B b = inr b' ≃ b = b'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> @equality_by_case_equiv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">paths_inr_inl_equiv</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">a</span> : A) (<span class="nv">b</span> : B)
+  : inr b = inl a ≃ empty.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> @equality_by_case_equiv.
+<span class="kn">Defined</span>.
+
+<span class="c">(* Note: the following lemmas are near-duplicates of [isinclii1], [isinclii2] provided in [Foundations]. *)</span>
+<span class="kn">Lemma</span> <span class="nf">isInjective_inl</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} : isInjective (@inl A B).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ?.
+  <span class="nb">refine</span> (isweqinvmap (@paths_inl_inl_equiv _ _ _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isInjective_inr</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} : isInjective (@inr A B).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ?.
+  <span class="nb">refine</span> (isweqinvmap (@paths_inr_inr_equiv _ _ _ _)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Sections and functions *)</span>
+
+<span class="kn">Notation</span> <span class="nf">homotsec</span> := homot.
+
+<span class="sd">(** Naturality of homotopies *)</span>
+<span class="kn">Definition</span> <span class="nf">homotsec_natural</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+           (<span class="nv">e</span> : f ~ g)
+           {<span class="nv">x</span> <span class="nv">y</span> : X}
+           (<span class="nv">p</span> : x = y)
+  : maponpaths f p @ e y = e x @ maponpaths g p.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="bp">exact</span> (!(pathscomp0rid _)).
+<span class="kn">Defined</span>.
+
+<span class="c">(* compare with [adjev] *)</span>
+<span class="kn">Definition</span> <span class="nf">evalat</span> {<span class="nv">T</span>} {<span class="nv">P</span>:T-&gt;UU} (<span class="nv">t</span>:T) (<span class="nv">f</span>:∏ t:T, P t) := f t.
+
+<span class="kn">Definition</span> <span class="nf">apfun</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">f</span> <span class="nv">f'</span>:X-&gt;Y} (<span class="nv">p</span>:f = f') {<span class="nv">x</span> <span class="nv">x'</span>} (<span class="nv">q</span>:x = x') : f x = f' x'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> q. <span class="bp">exact</span> (eqtohomot p x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fromemptysec</span> { <span class="nv">X</span> : empty -&gt; UU } (<span class="nv">nothing</span>:empty) : X nothing.
+<span class="c">(* compare with [fromempty] in u00 *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> nothing.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_idpath</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">f</span>:X-&gt;Y} {<span class="nv">x</span>:X} : maponpaths f (idpath x) = idpath (f x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Transport *)</span>
+
+<span class="kn">Definition</span> <span class="nf">cast</span> {<span class="nv">T</span> <span class="nv">U</span>:<span class="kt">Type</span>} : T = U -&gt; T -&gt; U
+  := transportf (<span class="k">λ</span> <span class="nv">T</span>:<span class="kt">Type</span>, T).
+
+<span class="kn">Definition</span> <span class="nf">transport_type_path</span> {<span class="nv">X</span> <span class="nv">Y</span>:<span class="kt">Type</span>} (<span class="nv">p</span>:X = Y) (<span class="nv">x</span>:X) :
+  transportf (<span class="k">λ</span> <span class="nv">T</span>:<span class="kt">Type</span>, T) p x = cast p x.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transport_fun_path</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">f</span> <span class="nv">g</span>:X-&gt;Y} {<span class="nv">x</span> <span class="nv">x'</span>:X} {<span class="nv">p</span>:x = x'} {<span class="nv">e</span>:f x = g x} {<span class="nv">e'</span>:f x' = g x'} :
+  e @ maponpaths g p = maponpaths f p @ e' -&gt;
+  transportf (<span class="k">λ</span> <span class="nv">x</span>, f x = g x) p e = e'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k. <span class="nb">induction</span> p. <span class="nb">rewrite</span> maponpaths_idpath <span class="k">in</span> k. <span class="nb">rewrite</span> maponpaths_idpath <span class="k">in</span> k.
+  <span class="nb">rewrite</span> pathscomp0rid <span class="k">in</span> k. <span class="bp">exact</span> k.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportf_pathsinv0'</span> {<span class="nv">X</span>} (<span class="nv">P</span>:X-&gt;UU) {<span class="nv">x</span> <span class="nv">y</span>:X} (<span class="nv">p</span>:x = y) (<span class="nv">u</span>:P x) (<span class="nv">v</span>:P y) :
+  p # u = v -&gt; !p # v = u.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">induction</span> p, e. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_idfun</span> {<span class="nv">X</span>} (<span class="nv">P</span>:X-&gt;UU) {<span class="nv">x</span> <span class="nv">y</span>:X} (<span class="nv">p</span>:x = y) (<span class="nv">u</span>:P x) :
+  transportf P p u = transportf (idfun UU) (maponpaths P p) u.
+<span class="c">(* same as HoTT.PathGroupoids.transport_idmap_ap *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_functions</span> {<span class="nv">X</span>} {<span class="nv">Y</span>:X-&gt;<span class="kt">Type</span>} {<span class="nv">Z</span>:∏ x (y:Y x), <span class="kt">Type</span>}
+      {<span class="nv">f</span> <span class="nv">f'</span>:∏ x : X, Y x} (<span class="nv">p</span>:f = f') (<span class="nv">z</span>:∏ x, Z x (f x)) <span class="nv">x</span> :
+    transportf (<span class="k">λ</span> <span class="nv">f</span>, ∏ x, Z x (f x)) p z x =
+    transportf (Z x) (toforallpaths _ _ _ p x) (z x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transport_funapp</span> {<span class="nv">T</span>} {<span class="nv">X</span> <span class="nv">Y</span>:T-&gt;<span class="kt">Type</span>}
+           (<span class="nv">f</span>:∏ t, X t -&gt; Y t) (<span class="nv">x</span>:∏ t, X t)
+           {<span class="nv">t</span> <span class="nv">t'</span>:T} (<span class="nv">p</span>:t = t') :
+  transportf _ p ((f t)(x t))
+  = (transportf (<span class="k">λ</span> <span class="nv">t</span>, X t -&gt; Y t) p (f t)) (transportf _ p (x t)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">helper_A</span> {<span class="nv">T</span>} {<span class="nv">Y</span>} (<span class="nv">P</span>:T-&gt;Y-&gt;<span class="kt">Type</span>) {<span class="nv">y</span> <span class="nv">y'</span>:Y} (<span class="nv">k</span>:∏ t, P t y) (<span class="nv">e</span>:y = y') <span class="nv">t</span> :
+  transportf (<span class="k">λ</span> <span class="nv">y</span>, P t y) e (k t)
+  =
+  (transportf (<span class="k">λ</span> <span class="nv">y</span>, ∏ t, P t y) e k) t.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> e. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">helper_B</span> {<span class="nv">T</span>} {<span class="nv">Y</span>} (<span class="nv">f</span>:T-&gt;Y) {<span class="nv">y</span> <span class="nv">y'</span>:Y} (<span class="nv">k</span>:∏ t, y = f t) (<span class="nv">e</span>:y = y') <span class="nv">t</span> :
+  transportf (<span class="k">λ</span> <span class="nv">y</span>, y = f t) e (k t)
+  =
+  (transportf (<span class="k">λ</span> <span class="nv">y</span>, ∏ t, y = f t) e k) t.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">exact</span> (helper_A _ k e t).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transport_invweq</span> {<span class="nv">T</span>} {<span class="nv">X</span> <span class="nv">Y</span>:T-&gt;<span class="kt">Type</span>} (<span class="nv">f</span>:∏ t, (X t) ≃ (Y t))
+           {<span class="nv">t</span> <span class="nv">t'</span>:T} (<span class="nv">p</span>:t = t') :
+  transportf (<span class="k">λ</span> <span class="nv">t</span>, (Y t) ≃ (X t)) p (invweq (f t))
+  =
+  invweq (transportf (<span class="k">λ</span> <span class="nv">t</span>, (X t) ≃ (Y t)) p (f t)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transport_invmap</span> {<span class="nv">T</span>} {<span class="nv">X</span> <span class="nv">Y</span>:T-&gt;<span class="kt">Type</span>} (<span class="nv">f</span>:∏ t, (X t) ≃ (Y t))
+           {<span class="nv">t</span> <span class="nv">t'</span>:T} (<span class="nv">p</span>:t=t') :
+  transportf (<span class="k">λ</span> <span class="nv">t</span>, Y t -&gt; X t) p (invmap (f t))
+  =
+  invmap (transportf (<span class="k">λ</span> <span class="nv">t</span>, (X t) ≃ (Y t)) p (f t)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Double transport *)</span>
+
+<span class="kn">Definition</span> <span class="nf">transportf2</span> {<span class="nv">X</span>} {<span class="nv">Y</span>:X-&gt;<span class="kt">Type</span>} (<span class="nv">Z</span>:∏ x, Y x-&gt;<span class="kt">Type</span>)
+           {<span class="nv">x</span> <span class="nv">x'</span>} (<span class="nv">p</span>:x = x')
+           (<span class="nv">y</span>:Y x) (<span class="nv">z</span>:Z x y) : Z x' (p#y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="bp">exact</span> z.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportb2</span> {<span class="nv">X</span>} {<span class="nv">Y</span>:X-&gt;<span class="kt">Type</span>} (<span class="nv">Z</span>:∏ x, Y x-&gt;<span class="kt">Type</span>)
+           {<span class="nv">x</span> <span class="nv">x'</span>} (<span class="nv">p</span>:x=x')
+           (<span class="nv">y'</span>:Y x') (<span class="nv">z'</span>:Z x' y') : Z x (p#'y').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="bp">exact</span> z'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_pr1_pr2</span> {<span class="nv">X</span>} {<span class="nv">P</span>:X-&gt;UU} {<span class="nv">Q</span>:∏ x, P x-&gt;<span class="kt">Type</span>}
+           {<span class="nv">w</span> <span class="nv">w'</span>: ∑ x p, Q x p}
+           (<span class="nv">p</span> : w = w') :
+  transportf P (maponpaths pr1 p) (pr1 (pr2 w)) = pr1 (pr2 w').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Transport a pair *)</span>
+
+<span class="c">(* (* replace this with transportf_total2 (?) : *) *)</span>
+<span class="c">(* Definition transportf_pair X (Y:X-&gt;Type) (Z:∏ x, Y x-&gt;Type) *)</span>
+<span class="c">(*            x x' (p:x = x') (y:Y x) (z:Z x y) : *)</span>
+<span class="c">(*   transportf (λ x, total2 (Z x)) p (tpair (Z x) y z) *)</span>
+<span class="c">(*   = *)</span>
+<span class="c">(*   tpair (Z x') (transportf Y p y) (transportf2 _ p y z). *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(*   intros. induction p. reflexivity. *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">transportb_pair</span> <span class="nv">X</span> (<span class="nv">Y</span>:X-&gt;<span class="kt">Type</span>) (<span class="nv">Z</span>:∏ x, Y x-&gt;<span class="kt">Type</span>)
+           <span class="nv">x</span> <span class="nv">x'</span> (<span class="nv">p</span>:x = x')
+           (<span class="nv">y'</span>:Y x') (<span class="nv">z'</span>:Z x' y')
+           (<span class="nv">z''</span> : (Z x' y')) :
+  transportb (<span class="k">λ</span> <span class="nv">x</span>, total2 (Z x)) p (tpair (Z x') y' z')
+  =
+  tpair (Z x) (transportb Y p y') (transportb2 _ p y' z').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">transportf_total2_const</span> (<span class="nv">A</span> <span class="nv">B</span> : UU) (<span class="nv">P</span> : B -&gt; A -&gt; UU) (<span class="nv">b</span> : B) (<span class="nv">a1</span> <span class="nv">a2</span> : A) (<span class="nv">e</span> : a1 = a2) (<span class="nv">p</span> : P b a1) :
+  transportf (<span class="k">λ</span> <span class="nv">x</span>, ∑ y, P y x) e (b,, p) = b,, transportf (P b) e p.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+
+<span class="sd">(** ** h-levels and paths *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_wma_inhab</span> <span class="nv">X</span> : (X -&gt; isaprop X) -&gt; isaprop X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f. <span class="nb">apply</span> invproofirrelevance. <span class="nb">intros</span> x y. <span class="nb">apply</span> (f x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_wma_inhab'</span> <span class="nv">X</span> : (X -&gt; iscontr X) -&gt; isaprop X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f. <span class="nb">apply</span> isaprop_wma_inhab. <span class="nb">intro</span> x. <span class="nb">apply</span> isapropifcontr.
+       <span class="nb">apply</span> (f x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Goal</span> ∏ (X:hSet) (x y:X) (p q:x = y), p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ (X:<span class="kt">Type</span>) (x y:X) (p q:x = y), isaset X -&gt; p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> * iss. <span class="nb">apply</span> iss.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">funset</span> <span class="nv">X</span> (<span class="nv">Y</span>:hSet) : hSet
+  := make_hSet (X-&gt;Y) (impredfun <span class="mi">2</span> _ _ (setproperty Y)).
+
+<span class="kn">Lemma</span> <span class="nf">eq_equalities_between_pairs</span> (<span class="nv">A</span> : UU) (<span class="nv">B</span> : A -&gt; UU)(<span class="nv">x</span> <span class="nv">y</span> : total2 (<span class="k">λ</span> <span class="nv">x</span>, B x))
+    (<span class="nv">p</span> <span class="nv">q</span> : x = y) (<span class="nv">H</span> : base_paths _ _ p = base_paths _ _ q)
+    (<span class="nv">H2</span> : transportf (<span class="k">fun</span> <span class="nv">p</span> : pr1 x = pr1 y =&gt;  transportf _ p (pr2 x) = pr2 y )
+         H (fiber_paths p) = fiber_paths q) :  p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (invmaponpathsweq (total2_paths_equiv _ _ _ )).
+  <span class="nb">apply</span> (total2_paths_f (B:=(<span class="k">fun</span> <span class="nv">p</span> : pr1 x = pr1 y =&gt;
+          transportf (<span class="k">λ</span> <span class="nv">x</span> : A, B x) p (pr2 x) = pr2 y))
+          (s  := (total2_paths_equiv B x y) p)
+          (s' := (total2_paths_equiv B x y) q) H).
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="c">(* perhaps consider name *)</span>
+<span class="kn">Lemma</span> <span class="nf">total2_reassoc_paths</span> {<span class="nv">A</span>} {<span class="nv">B</span> : A → UU} {<span class="nv">C</span> : (∑ a, B a) -&gt; UU}
+    (<span class="nv">BC</span> : A -&gt; UU := <span class="k">λ</span> <span class="nv">a</span>, ∑ b, C (a,,b))
+    {<span class="nv">a1</span> <span class="nv">a2</span> : A} (<span class="nv">bc1</span> : BC a1) (<span class="nv">bc2</span> : BC a2)
+    (<span class="nv">ea</span> : a1 = a2)
+    (<span class="nv">eb</span> : transportf _ ea (pr1 bc1) = pr1 bc2)
+    (<span class="nv">ec</span> : transportf C (two_arg_paths_f (*was total2_paths2*) ea eb) (pr2 bc1) = pr2 bc2)
+  : transportf _ ea bc1 = bc2.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> bc1 <span class="k">as</span> [b1 c1], bc2 <span class="k">as</span> [b2 c2]; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">destruct</span> ea. <span class="nb">destruct</span> eb. <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">destruct</span> ec.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="c">(* perhaps consider name *)</span>
+<span class="kn">Lemma</span> <span class="nf">total2_reassoc_paths'</span> {<span class="nv">A</span>} {<span class="nv">B</span> : A → UU} {<span class="nv">C</span> : (∑ a, B a) -&gt; UU}
+    (<span class="nv">BC</span> : A -&gt; UU := <span class="k">λ</span> <span class="nv">a</span>, ∑ b, C (a,,b))
+    {<span class="nv">a1</span> <span class="nv">a2</span> : A} (<span class="nv">bc1</span> : BC a1) (<span class="nv">bc2</span> : BC a2)
+    (<span class="nv">ea</span> : a1 = a2)
+    (<span class="nv">eb</span> : pr1 bc1 = transportb _ ea (pr1 bc2))
+    (<span class="nv">ec</span> : pr2 bc1 = transportb C (total2_paths2_b ea eb) (pr2 bc2))
+  : bc1 = transportb BC ea bc2.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> ea, bc1 <span class="k">as</span> [b1 c1], bc2 <span class="k">as</span> [b2 c2].
+  <span class="nb">cbn</span> <span class="k">in</span> eb; <span class="nb">destruct</span> eb; <span class="nb">cbn</span> <span class="k">in</span> ec; <span class="nb">destruct</span> ec.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="c">(* could also have better names, but I'm staying consistent with [total2asstor] from Foundations/PartA.v *)</span>
+
+<span class="kn">Definition</span> <span class="nf">total2asstor_path</span>
+  {<span class="nv">A</span> : UU}
+  {<span class="nv">B</span> : A -&gt; UU}
+  {<span class="nv">C</span> : (∑ a : A, B a) -&gt; UU}
+  {<span class="nv">x</span> <span class="nv">y</span> :  (∑ z : (∑ a : A, B a), C z)} :
+  total2asstor _ _ x = total2asstor _ _ y -&gt; x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> d.
+  use invmaponpathsweq.
+  - <span class="bp">exact</span> (∑ a : A, ∑ b : B a, C (a ,, b)).
+  - use weqtotal2asstor.
+  - <span class="bp">exact</span> d.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">total2asstol_path</span>
+  {<span class="nv">A</span> : UU}
+  {<span class="nv">B</span> : A -&gt; UU}
+  {<span class="nv">C</span> : (∑ a : A, B a) -&gt; UU}
+  {<span class="nv">x</span> <span class="nv">y</span> :  ∑ a : A, ∑ b : B a, C (a ,, b)} :
+  total2asstol _ _ x = total2asstol _ _ y -&gt; x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> d.
+  use invmaponpathsweq.
+  - <span class="bp">exact</span> (∑ z : (∑ a : A, B a), C z).
+  - use weqtotal2asstol.
+  - <span class="bp">exact</span> d.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">InvRot</span>.
+
+  <span class="sd">(** moving pathsinv0 to the other side in equations *)</span>
+
+  <span class="kn">Local Set Implicit Arguments</span>.
+  <span class="kn">Local Unset Strict Implicit</span>.
+
+  <span class="kn">Definition</span> <span class="nf">invrot</span> (<span class="nv">X</span>:<span class="kt">Type</span>) (<span class="nv">x</span> <span class="nv">y</span>:X) (<span class="nv">p</span>:x=y) (<span class="nv">p'</span>:y=x) : !p = p' -&gt; p = !p'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e. <span class="nb">induction</span> e. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> pathsinv0inv0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">invrot'</span> (<span class="nv">X</span>:<span class="kt">Type</span>) (<span class="nv">x</span> <span class="nv">y</span>:X) (<span class="nv">p</span>:x=y) (<span class="nv">p'</span>:y=x) : p = !p' -&gt; !p = p'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e. <span class="nb">induction</span> (!e); <span class="nb">clear</span> e. <span class="nb">apply</span> pathsinv0inv0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">invrot'rot</span> (<span class="nv">X</span>:<span class="kt">Type</span>) (<span class="nv">x</span> <span class="nv">y</span>:X) (<span class="nv">p</span>:x=y) (<span class="nv">p'</span>:y=x) (<span class="nv">e</span> : !p = p') :
+    invrot' (invrot e) = e.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> <span class="nb">induction</span> e,p.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">invrotrot'</span> (<span class="nv">X</span>:<span class="kt">Type</span>) (<span class="nv">x</span> <span class="nv">y</span>:X) (<span class="nv">p</span>:x=y) (<span class="nv">p'</span>:y=x) (<span class="nv">e</span> : p = !p') :
+    invrot (invrot' e) = e.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (pathsinv0inv0 e).
+    <span class="nb">generalize</span> (!e); <span class="nb">clear</span> e.
+    <span class="nb">intros</span> e.
+    <span class="bp">now</span> <span class="nb">induction</span> e, p'.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">InvRot</span>.
+
+<span class="kn">Section</span> <span class="nf">Weqpaths</span>.
+
+  <span class="sd">(** a more basic approach to proving isweqpathscomp0r *)</span>
+
+  <span class="kn">Local Set Implicit Arguments</span>.
+  <span class="kn">Local Unset Strict Implicit</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hornRotation_rr</span> {<span class="nv">X</span>:<span class="kt">Type</span>} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X} {<span class="nv">p</span> : x = z} {<span class="nv">q</span> : y = z} {<span class="nv">r</span> : x = y} :
+    r = p @ !q ≃ r @ q = p.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> q, r; <span class="nb">cbn</span>. <span class="nb">apply</span> eqweqmap.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, idpath x = k)). <span class="nb">apply</span> pathscomp0rid.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hornRotation_lr</span> {<span class="nv">X</span>:<span class="kt">Type</span>} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X} {<span class="nv">p</span> : x = z} {<span class="nv">q</span> : y = z} {<span class="nv">r</span> : x = y} :
+    q = (!r) @ p ≃ r @ q = p.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, r; <span class="nb">cbn</span>. <span class="nb">apply</span> idweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hornRotation_rl</span> {<span class="nv">X</span>:<span class="kt">Type</span>} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X} {<span class="nv">p</span> : x = z} {<span class="nv">q</span> : y = z} {<span class="nv">r</span> : x = y} :
+    p @ !q = r ≃ p = r @ q.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> q, r; <span class="nb">cbn</span>. <span class="nb">apply</span> eqweqmap.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, k = idpath x)). <span class="nb">apply</span> pathscomp0rid.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hornRotation_ll</span> {<span class="nv">X</span>:<span class="kt">Type</span>} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X} {<span class="nv">p</span> : x = z} {<span class="nv">q</span> : y = z} {<span class="nv">r</span> : x = y} :
+    (!r) @ p = q ≃ p = r @ q.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, r; <span class="nb">cbn</span>. <span class="nb">apply</span> idweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">uniqueFiller</span> (<span class="nv">X</span>:<span class="kt">Type</span>) (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X) (<span class="nv">p</span> : x = z) (<span class="nv">q</span> : y = z) :
+    <span class="k">∃</span>! r, r @ q = p.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (@iscontrweqf (∑ r, r = p @ !q) _ _ _).
+    { <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> r. <span class="bp">exact</span> hornRotation_rr. }
+    { <span class="nb">apply</span> iscontrcoconustot. }
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fillerEquation</span> {<span class="nv">X</span>:<span class="kt">Type</span>} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X} {<span class="nv">p</span> : x = z} {<span class="nv">q</span> : y = z}
+        (<span class="nv">r</span> : x = y) (<span class="nv">k</span> : r @ q = p) :
+    @paths (∑ r, r@q=p)
+           (r ,, k)
+           ((p @ !q) ,, hornRotation_rr (idpath _)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> proofirrelevancecontr. <span class="nb">apply</span> uniqueFiller.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">isweqpathscomp0r'</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : X) {<span class="nv">x'</span> <span class="nv">x''</span> : X} (<span class="nv">e'</span> : x' = x'') :
+    isweq (<span class="k">λ</span> <span class="nv">e</span> : x = x', e @ e').
+  <span class="kn">Proof</span>.
+    <span class="c">(* make a direct proof of isweqpathscomp0r, without using isweq_iso *)</span>
+    <span class="nb">intros</span> p. use tpair. <span class="k">exists</span> (<span class="nv">p</span> @ !e'). <span class="bp">now</span> <span class="nb">apply</span> hornRotation_rr.
+    <span class="nb">cbn</span>. <span class="nb">intros</span> [q l]. <span class="nb">apply</span> fillerEquation.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportPathTotal</span> {<span class="nv">X</span>:<span class="kt">Type</span>} {<span class="nv">x</span> <span class="nv">x'</span>:X} {<span class="nv">Y</span> : X -&gt; <span class="kt">Type</span>} (<span class="nv">y</span> : Y x) (<span class="nv">y'</span> : Y x')
+             (<span class="nv">r</span> : (x,,y) = (x',,y'))
+             (<span class="nv">T</span> : ∏ (a:X) (b:Y a), <span class="kt">Type</span>) : T x y → T x' y'.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> (total2_paths_equiv _ _ _ r) <span class="k">as</span> [p q].
+    <span class="nb">change</span> (x=x') <span class="k">in</span> p. <span class="nb">change</span> (transportf _ p y = y') <span class="k">in</span> q.
+    <span class="nb">induction</span> p.
+    <span class="nb">change</span> (y=y') <span class="k">in</span> q.
+    <span class="nb">induction</span> q.
+    <span class="nb">trivial</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">inductionOnFiller</span> {<span class="nv">X</span>:<span class="kt">Type</span>} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>:X} (<span class="nv">p</span>:x=z) (<span class="nv">q</span>:y=z)
+             (<span class="nv">S</span> := <span class="k">λ</span> <span class="nv">r</span>:x=y, r @ q = p)
+             (<span class="nv">T</span> : ∏ r (e : S r), <span class="kt">Type</span>)
+             (<span class="nv">t</span> : T (p @ !q) (hornRotation_rr (idpath _))) :
+    ∏ (r:x=y) (e : r @ q = p), T r e.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    use (transportPathTotal _ t).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> fillerEquation.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Weqpaths</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_paths_FlFr</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} {<span class="nv">f</span> <span class="nv">g</span> : A -&gt; B} {<span class="nv">x1</span> <span class="nv">x2</span> : A}
+ (<span class="nv">p</span> : x1 = x2) (<span class="nv">q</span> : f x1 = g x1)
+ : transportf (<span class="k">λ</span> <span class="nv">x</span>, f x = g x) p q = !maponpaths f p @ q @ maponpaths g p.
+<span class="kn">Proof</span>.
+ <span class="nb">induction</span> p. <span class="nb">cbn</span>.
+ <span class="nb">apply</span> pathsinv0.
+ <span class="nb">apply</span> pathscomp0rid.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_sec_constant</span>
+ {<span class="nv">A</span> <span class="nv">B</span> : UU} {<span class="nv">C</span> : A -&gt; B -&gt; UU}
+ {<span class="nv">x1</span> <span class="nv">x2</span> : A} (<span class="nv">p</span> : x1 = x2) (<span class="nv">f</span> : ∏ y : B, C x1 y)
+ : (transportf (<span class="k">λ</span> <span class="nv">x</span>, ∏ y : B, C x y) p f)
+   = (<span class="k">λ</span> <span class="nv">y</span>, transportf (<span class="k">λ</span> <span class="nv">x</span>, C x y) p (f y)).
+<span class="kn">Proof</span>.
+ <span class="nb">induction</span> p; <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** More facts on fiber products *)</span>
+<span class="kn">Definition</span> <span class="nf">path_hfp</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU}
+           {<span class="nv">f</span> : X → Z}
+           {<span class="nv">g</span> : Y → Z}
+           {<span class="nv">x</span> <span class="nv">y</span> : hfp f g}
+           (<span class="nv">p₁</span> : hfpg f g x = hfpg f g y)
+           (<span class="nv">p₂</span> : hfpg' f g x = hfpg' f g y)
+           (<span class="nv">p₃</span> : commhfp f g x @ maponpaths f p₁
+                 =
+                 maponpaths g p₂ @ commhfp f g y)
+  : x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [ [ x₁ x₂ ] px ].
+  <span class="nb">induction</span> y <span class="k">as</span> [ [ y₁ y₂ ] py ].
+  <span class="nb">cbn</span> <span class="k">in</span> p₁, p₂.
+  <span class="nb">induction</span> p₁, p₂.
+  <span class="nb">cbn</span> <span class="k">in</span> p₃.
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">exact</span> (!(pathscomp0rid _) @ p₃).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_hfpg_path_hfp</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU}
+           {<span class="nv">f</span> : X → Z}
+           {<span class="nv">g</span> : Y → Z}
+           {<span class="nv">x</span> <span class="nv">y</span> : hfp f g}
+           (<span class="nv">p₁</span> : hfpg f g x = hfpg f g y)
+           (<span class="nv">p₂</span> : hfpg' f g x = hfpg' f g y)
+           (<span class="nv">p₃</span> : commhfp f g x @ maponpaths f p₁
+                 =
+                 maponpaths g p₂ @ commhfp f g y)
+  : maponpaths
+      (hfpg f g)
+      (path_hfp p₁ p₂ p₃)
+    =
+    p₁.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [ [ x₁ x₂ ] px ].
+  <span class="nb">induction</span> y <span class="k">as</span> [ [ y₁ y₂ ] py ].
+  <span class="nb">cbn</span> <span class="k">in</span> p₁, p₂.
+  <span class="nb">induction</span> p₁, p₂.
+  <span class="nb">cbn</span> <span class="k">in</span> p₃.
+  <span class="nb">induction</span> p₃ ; <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> (maponpathscomp
+             (tpair (<span class="k">λ</span> <span class="nv">xx'</span>, g (pr2 xx') = f (pr1 xx')) (x₁,, x₂))
+             (hfpg f g)).
+  }
+  <span class="nb">apply</span> maponpaths_for_constant_function.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_hfpg'_path_hfp</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU}
+           {<span class="nv">f</span> : X → Z}
+           {<span class="nv">g</span> : Y → Z}
+           {<span class="nv">x</span> <span class="nv">y</span> : hfp f g}
+           (<span class="nv">p₁</span> : hfpg f g x = hfpg f g y)
+           (<span class="nv">p₂</span> : hfpg' f g x = hfpg' f g y)
+           (<span class="nv">p₃</span> : commhfp f g x @ maponpaths f p₁
+                 =
+                 maponpaths g p₂ @ commhfp f g y)
+  : maponpaths
+      (hfpg' f g)
+      (path_hfp p₁ p₂ p₃)
+    =
+    p₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [ [ x₁ x₂ ] px ].
+  <span class="nb">induction</span> y <span class="k">as</span> [ [ y₁ y₂ ] py ].
+  <span class="nb">cbn</span> <span class="k">in</span> p₁, p₂.
+  <span class="nb">induction</span> p₁, p₂.
+  <span class="nb">cbn</span> <span class="k">in</span> p₃.
+  <span class="nb">induction</span> p₃ ; <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> (maponpathscomp
+             (tpair (<span class="k">λ</span> <span class="nv">xx'</span>, g (pr2 xx') = f (pr1 xx')) (x₁,, x₂))
+             (hfpg' f g)).
+  }
+  <span class="nb">apply</span> maponpaths_for_constant_function.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_hfp_eta</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU}
+           {<span class="nv">f</span> : X → Z}
+           {<span class="nv">g</span> : Y → Z}
+           {<span class="nv">x</span> <span class="nv">y</span> : hfp f g}
+           (<span class="nv">p</span> : x = y)
+  : p
+    =
+    path_hfp
+      (maponpaths (hfpg f g) p)
+      (maponpaths (hfpg' f g) p)
+      (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ @ z) (maponpathscomp (hfpg f g) f p)
+       @ !(homotsec_natural (commhfp f g) p)
+       @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z @ _) (!(maponpathscomp (hfpg' f g) g p))).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> pathscomp0rid.
+      }
+      <span class="nb">apply</span> pathsinv0inv0.
+    }
+    <span class="nb">apply</span> pathsinv0l.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">homot_hfp</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU}
+           {<span class="nv">f</span> : X → Z} {<span class="nv">g</span> : Y → Z}
+           {<span class="nv">x</span> <span class="nv">y</span> : hfp f g}
+           {<span class="nv">h₁</span> <span class="nv">h₁'</span> : hfpg f g x = hfpg f g y}
+           (<span class="nv">e₁</span> : h₁ = h₁')
+           {<span class="nv">h₂</span> <span class="nv">h₂'</span> : hfpg' f g x = hfpg' f g y}
+           (<span class="nv">e₂</span> : h₂ = h₂')
+           (<span class="nv">h₃</span> : commhfp f g x @ maponpaths f h₁ = maponpaths g h₂ @ commhfp f g y)
+  : path_hfp h₁ h₂ h₃
+    =
+    path_hfp
+      h₁' h₂'
+      (maponpaths
+         (<span class="k">λ</span> <span class="nv">z</span>, _ @ maponpaths f z)
+         (!e₁)
+       @ h₃
+       @ maponpaths
+           (<span class="k">λ</span> <span class="nv">z</span>, maponpaths g z @ _)
+           e₂).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e₁ ; <span class="nb">induction</span> e₂.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">exact</span> (!(pathscomp0rid _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">homot_hfp_one_type</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU}
+           (<span class="nv">HZ</span> : isofhlevel <span class="mi">3</span> Z)
+           {<span class="nv">f</span> : X → Z}
+           {<span class="nv">g</span> : Y → Z}
+           {<span class="nv">x</span> <span class="nv">y</span> : hfp f g}
+           (<span class="nv">p</span> <span class="nv">q</span> : x = y)
+           (<span class="nv">r₁</span> : maponpaths (hfpg f g) p
+                 =
+                 maponpaths (hfpg f g) q)
+           (<span class="nv">r₂</span> : maponpaths (hfpg' f g) p
+                 =
+                 maponpaths (hfpg' f g) q)
+  : p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (path_hfp_eta p @ _ @ !(path_hfp_eta q)).
+  etrans.
+  {
+    <span class="bp">exact</span> (homot_hfp r₁ r₂ _).
+  }
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> HZ.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hfp_is_of_hlevel</span>
+           (<span class="nv">n</span> : nat)
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU}
+           (<span class="nv">HX</span> : isofhlevel n X)
+           (<span class="nv">HY</span> : isofhlevel n Y)
+           (<span class="nv">HZ</span> : isofhlevel n Z)
+           (<span class="nv">f</span> : X → Z)
+           (<span class="nv">g</span> : Y → Z)
+  : isofhlevel n (hfp f g).
+<span class="kn">Proof</span>.
+  use isofhleveltotal2.
+  - use isofhleveldirprod.
+    + <span class="bp">exact</span> HX.
+    + <span class="bp">exact</span> HY.
+  - <span class="nb">simpl</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> (hlevelntosn n _ HZ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hfp_HLevel</span>
+           (<span class="nv">n</span> : nat)
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : HLevel n}
+           (<span class="nv">f</span> : pr1 X → pr1 Z)
+           (<span class="nv">g</span> : pr1 Y → pr1 Z)
+  : HLevel n.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (hfp f g ,, _).
+  <span class="nb">apply</span> hfp_is_of_hlevel.
+  - <span class="bp">exact</span> (pr2 X).
+  - <span class="bp">exact</span> (pr2 Y).
+  - <span class="bp">exact</span> (pr2 Z).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Transport along a path of total2 *)</span>
+<span class="kn">Definition</span> <span class="nf">transportf_total2_paths_f</span>
+           {<span class="nv">A</span> : UU}
+           {<span class="nv">B</span> : A → UU}
+           (<span class="nv">C</span> : A → UU)
+           {<span class="nv">a₁</span> <span class="nv">a₂</span> : A}
+           {<span class="nv">b₁</span> : B a₁}
+           {<span class="nv">b₂</span> : B a₂}
+           (<span class="nv">p</span> : a₁ = a₂)
+           (<span class="nv">q</span> : transportf B p b₁ = b₂)
+           (<span class="nv">c₁</span> : C a₁)
+  : transportf
+      (<span class="k">λ</span> <span class="nv">z</span>, C (pr1 z))
+      (@total2_paths_f
+         A B
+         (a₁ ,, b₁) (a₂ ,, b₂)
+         p
+         q)
+      c₁
+    =
+    transportf
+      C
+      p
+      c₁.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">induction</span> q.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** Paths of products *)</span>
+<span class="kn">Definition</span> <span class="nf">maponpaths_pr1_pathsdirprod</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : X}
+           {<span class="nv">y₁</span> <span class="nv">y₂</span> : Y}
+           (<span class="nv">p</span> : x₁ = x₂)
+           (<span class="nv">q</span> : y₁ = y₂)
+  : maponpaths dirprod_pr1 (pathsdirprod p q) = p.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_pr2_pathsdirprod</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : X}
+           {<span class="nv">y₁</span> <span class="nv">y₂</span> : Y}
+           (<span class="nv">p</span> : x₁ = x₂)
+           (<span class="nv">q</span> : y₁ = y₂)
+  : maponpaths dirprod_pr2 (pathsdirprod p q) = q.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pathsdirprod_eta</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           {<span class="nv">x</span> <span class="nv">y</span> : X × Y}
+           (<span class="nv">p</span> : x = y)
+  : p
+    =
+    pathsdirprod (maponpaths dirprod_pr1 p) (maponpaths dirprod_pr2 p).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">paths_pathsdirprod</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : X}
+           {<span class="nv">y₁</span> <span class="nv">y₂</span> : Y}
+           {<span class="nv">p₁</span> <span class="nv">p₂</span> : x₁ = x₂}
+           {<span class="nv">q₁</span> <span class="nv">q₂</span> : y₁ = y₂}
+           (<span class="nv">r₁</span> : p₁ = p₂)
+           (<span class="nv">r₂</span> : q₁ = q₂)
+  : pathsdirprod p₁ q₁
+    =
+    pathsdirprod p₂ q₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> r₁, r₂.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Paths on functions *)</span>
+<span class="kn">Definition</span> <span class="nf">app_fun</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+  : (X → Y) × X → Y
+  := <span class="k">λ</span> <span class="nv">fx</span>, pr1 fx (pr2 fx).
+
+<span class="kn">Definition</span> <span class="nf">app_homot</span>
+           {<span class="nv">X</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : UU}
+           {<span class="nv">f</span> <span class="nv">g</span> : Y₁ → X → Y₂}
+           (<span class="nv">p</span> : ∏ (z : Y₁ × X), f (pr1 z) (pr2 z) = g (pr1 z) (pr2 z))
+           (<span class="nv">y</span> : Y₁)
+  : f y = g y
+  := funextsec _ _ _ (<span class="k">λ</span> <span class="nv">x</span>, p (y ,, x)).
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_app_fun</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           {<span class="nv">fx</span> <span class="nv">gx</span> : (X → Y) × X}
+           (<span class="nv">p</span> : fx = gx)
+  : maponpaths (<span class="k">λ</span> (<span class="nv">fx</span> : (X → Y) × X), app_fun fx) p
+    =
+    maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z (pr2 fx)) (maponpaths dirprod_pr1 p)
+    @
+    maponpaths (pr1 gx) (maponpaths dirprod_pr2 p).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+
+<span class="sd">(** Product of a propositions with itself *)</span>
+<span class="kn">Definition</span> <span class="nf">dirprod_with_prop</span> (<span class="nv">A</span> : UU) (<span class="nv">isa</span> : isaprop A) : A × A ≃ A.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqpr1, iscontraprop1; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A variation on the above theme *)</span>
+<span class="kn">Definition</span> <span class="nf">dirprod_with_prop'</span> (<span class="nv">A</span> <span class="nv">B</span> : UU) (<span class="nv">isa</span> : isaprop A) : A × B × A ≃ B × A.
+<span class="kn">Proof</span>.
+  intermediate_weq ((A × B) × A).
+  <span class="nb">apply</span> invweq, weqtotal2asstor.
+  intermediate_weq (A × (A × B)).
+  <span class="nb">apply</span> weqdirprodcomm.
+  intermediate_weq ((A × A) × B).
+  <span class="nb">apply</span> invweq, weqtotal2asstor.
+  intermediate_weq (A × B).
+  <span class="nb">apply</span> weqdirprodf.
+  - <span class="nb">apply</span> dirprod_with_prop; <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> idweq.
+  - <span class="nb">apply</span> weqdirprodcomm.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Surjectivity *)</span>
+
+<span class="kn">Section</span> <span class="nf">surjectivity</span>.
+  <span class="kn">Lemma</span> <span class="nf">issurjective_idfun</span> (<span class="nv">X</span> : UU) : issurjective (idfun X).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span>(<span class="k">λ</span> (<span class="nv">x</span> : X), hinhpr (x ,, idpath x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">issurjective_to_contr</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+    (<span class="nv">x</span> : X)
+    (<span class="nv">f</span> : X → Y)
+    (<span class="nv">isc</span> : iscontr Y) : issurjective f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>; <span class="nb">apply</span> hinhpr.
+    <span class="nb">apply</span>(make_hfiber f x).
+    <span class="nb">apply</span> proofirrelevancecontr, isc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">issurjective_tounit</span> {<span class="nv">X</span> : UU} : X -&gt; issurjective (@tounit X).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span>(issurjective_to_contr x).
+    <span class="nb">apply</span> iscontrunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">issurjective_coprodf</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">W</span> <span class="nv">Z</span> : UU}
+    {<span class="nv">f</span> : X → W}
+    {<span class="nv">g</span> : Y → Z}
+    (<span class="nv">fsurjective</span> : issurjective f)
+    (<span class="nv">gsurjective</span> : issurjective g)
+    : issurjective (coprodf f g).
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">apply</span> coprod_rect.
+    - <span class="nb">intro</span> w.
+      <span class="nb">apply</span>(hinhfun (weqhfibercoprodf1 f g w)).
+      <span class="bp">exact</span>(fsurjective w).
+    - <span class="nb">intro</span> z.
+      <span class="nb">apply</span>(hinhfun (weqhfibercoprodf2 f g z)).
+      <span class="bp">exact</span>(gsurjective z).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">issurjective_dirprodf</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">U</span> <span class="nv">W</span>}
+    {<span class="nv">f</span> : X → U}
+    {<span class="nv">g</span> : Y → W}
+    (<span class="nv">fsurjective</span> : issurjective f)
+    (<span class="nv">gsurjective</span> : issurjective g)
+    : issurjective (dirprodf f g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [u w].
+    use(hinhfun2 _ (fsurjective u) (gsurjective w)).
+    <span class="nb">intros</span> ffiber gfiber.
+    use make_hfiber.
+    - <span class="bp">exact</span>(hfiberpr1 f u ffiber
+              ,, hfiberpr1 g w gfiber).
+    - <span class="nb">apply</span> dirprodeq
+      ; <span class="nb">apply</span> hfiberpr2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">issurjective_totalfun</span>
+    {<span class="nv">X</span> : UU}
+    (<span class="nv">P</span> <span class="nv">Q</span> : X → UU)
+    (<span class="nv">f</span> : ∏ (x : X), P x → Q x)
+    (<span class="nv">fsurjective</span> : ∏ (x : X), issurjective (f x))
+    : issurjective (totalfun P Q f).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [x qx].
+    use(hinhfun _ (fsurjective x qx)).
+
+    <span class="nb">intros</span> [px pathpx]. <span class="c">(* pathpx : f x px = qx, in (Q x) *)</span>
+    use make_hfiber.
+    - <span class="bp">exact</span>(x ,, px).
+    - <span class="bp">exact</span>(pair_path_in2 Q pathpx).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">issurjective_sumofmaps_1</span> {<span class="nv">X</span> <span class="nv">A</span> <span class="nv">B</span> : UU}
+    (<span class="nv">f</span> : A -&gt; X)
+    (<span class="nv">g</span> : B -&gt; X)
+    (<span class="nv">fsurjective</span> : issurjective f)
+    : issurjective (sumofmaps f g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use(hinhfun _ (fsurjective x)).
+    <span class="nb">intro</span> ffiber; <span class="nb">apply</span> coprodofhfiberstohfiber.
+    <span class="bp">exact</span>(inl ffiber).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">issurjective_sumofmaps_2</span> {<span class="nv">X</span> <span class="nv">A</span> <span class="nv">B</span> : UU}
+    (<span class="nv">f</span> : A -&gt; X)
+    (<span class="nv">g</span> : B -&gt; X)
+    (<span class="nv">gsurjective</span> : issurjective g)
+    : issurjective (sumofmaps f g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use(hinhfun _ (gsurjective x)).
+    <span class="nb">intro</span> gfiber; <span class="nb">apply</span> coprodofhfiberstohfiber.
+    <span class="bp">exact</span>(inr gfiber).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">surjectivity</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/PartA.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** This file contain various results that could be upstreamed to Foundations/PartA.v *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

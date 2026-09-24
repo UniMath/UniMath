@@ -1,0 +1,1026 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StructureLimitsAndColimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Limits and colimits of structures</span>
+
+<span class="sd"> The category of structures might have additional structure. For</span>
+<span class="sd"> example, it could be cartesian closed or it could have all</span>
+<span class="sd"> limits. In this file, we give conditions that guarantee the</span>
+<span class="sd"> existence of certain limits/colimits in the category of</span>
+<span class="sd"> structures. We also provide conditions from which we can conclude</span>
+<span class="sd"> that this category is cartesian closed (where the internal hom</span>
+<span class="sd"> would be given by the set of morphisms). Besides that, we define</span>
+<span class="sd"> pointed structures: structures together with a chosen point.</span>
+
+<span class="sd"> Note that a in a pointed structures, the point does not have to</span>
+<span class="sd"> be an arbitrary point. For example, groups would form a pointed</span>
+<span class="sd"> structure, where we can select the identity element to be the</span>
+<span class="sd"> point for each structure.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Cartesian closed structures</span>
+<span class="sd"> 2. Equalizers of structures</span>
+<span class="sd"> 3. Coequalizers</span>
+<span class="sd"> 4. Type indexed products</span>
+<span class="sd"> 5. Pointed structures</span>
+<span class="sd"> 6. Binary coproducts</span>
+<span class="sd"> 7. Set-indexed coproducts</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Binproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.MonadAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Cartesian closed structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">struct_fun</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">PX</span> : P X)
+           (<span class="nv">PY</span> : P Y)
+  : UU
+  := ∑ (f : X → Y), mor_hset_struct P PX PY f.
+
+<span class="kn">Definition</span> <span class="nf">struct_fun_to_fun</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           {<span class="nv">PX</span> : P X}
+           {<span class="nv">PY</span> : P Y}
+           (<span class="nv">f</span> : struct_fun PX PY)
+  : X → Y
+  := pr1 f.
+
+<span class="kn">Coercion</span> <span class="nf">struct_fun_to_fun</span> : struct_fun &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_fun_hSet</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">PX</span> : P X)
+           (<span class="nv">PY</span> : P Y)
+  : hSet.
+<span class="kn">Proof</span>.
+  use (make_hSet (struct_fun PX PY)).
+  use isaset_total2.
+  - <span class="nb">apply</span> funspace_isaset.
+    <span class="nb">apply</span> setproperty.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">closed_under_fun_data</span>
+           (<span class="nv">P</span> : hset_struct)
+  : UU
+  := ∏ (X Y : hSet)
+       (PX : P X)
+       (PY : P Y),
+    P (struct_fun_hSet PX PY).
+
+<span class="kn">Definition</span> <span class="nf">struct_contains_constant</span>
+           (<span class="nv">P</span> : hset_struct)
+  : UU
+  := ∏ (X Y : hSet)
+       (PX : P X)
+       (PY : P Y)
+       (y : Y),
+     mor_hset_struct P PX PY (<span class="k">λ</span> <span class="nv">x</span>, y).
+
+<span class="kn">Definition</span> <span class="nf">hset_cartesian_closed_struct_data</span>
+  : UU
+  := ∑ (P : hset_cartesian_struct)
+       (constP : struct_contains_constant P),
+     closed_under_fun_data P.
+
+<span class="kn">Coercion</span> <span class="nf">hset_cartesian_closed_struct_data_to_struct</span>
+         (P : hset_cartesian_closed_struct_data)
+  : hset_cartesian_struct
+  := pr1 P.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_const</span>
+            (<span class="nv">P</span> : hset_cartesian_closed_struct_data)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">PX</span> : P X)
+            (<span class="nv">PY</span> : P Y)
+            (<span class="nv">y</span> : Y)
+  : mor_hset_struct P PX PY (<span class="k">λ</span> <span class="nv">x</span>, y).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 P X Y PX PY y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_pointwise</span>
+            (<span class="nv">P</span> : hset_cartesian_closed_struct_data)
+            {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+            {<span class="nv">PX</span> : P X}
+            {<span class="nv">PY</span> : P Y}
+            {<span class="nv">PZ</span> : P Z}
+            (<span class="nv">f</span> : X × Z → Y)
+            (<span class="nv">Pf</span> : mor_hset_struct P (hset_struct_prod P PX PZ) PY f)
+            (<span class="nv">z</span> : Z)
+  : mor_hset_struct P PX PY (<span class="k">λ</span> <span class="nv">x</span> : X, f (x ,, z)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (hset_struct_comp
+           P
+           (hset_struct_pair
+              P
+              (hset_struct_id P PX)
+              (hset_struct_const P PX PZ z))
+           Pf).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_fun</span>
+           (<span class="nv">P</span> : hset_cartesian_closed_struct_data)
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">PX</span> : P X)
+           (<span class="nv">PY</span> : P Y)
+  : P (struct_fun_hSet PX PY)
+  := pr22 P X Y PX PY.
+
+<span class="kn">Definition</span> <span class="nf">closed_under_fun_laws</span>
+           (<span class="nv">P</span> : hset_cartesian_closed_struct_data)
+  : UU
+  := (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      mor_hset_struct
+        P
+        (hset_struct_prod P PX (hset_struct_fun P PX PY))
+        PY
+        (<span class="k">λ</span> <span class="nv">xf</span>, pr12 xf (pr1 xf)))
+     ×
+     (∏ (X Y Z : hSet)
+        (PX : P X)
+        (PY : P Y)
+        (PZ : P Z)
+        (f : X × Z → Y)
+        (Pf : mor_hset_struct P (hset_struct_prod P PX PZ) PY f),
+      mor_hset_struct
+        P
+        PZ (hset_struct_fun P PX PY)
+        (<span class="k">λ</span> <span class="nv">z</span>, _ ,, hset_struct_pointwise P f Pf z)).
+
+<span class="kn">Definition</span> <span class="nf">hset_cartesian_closed_struct</span>
+  : UU
+  := ∑ (P : hset_cartesian_closed_struct_data), closed_under_fun_laws P.
+
+<span class="kn">Coercion</span> <span class="nf">hset_cartesian_closed_struct_to_data</span>
+         (P : hset_cartesian_closed_struct)
+  : hset_cartesian_closed_struct_data
+  := pr1 P.
+
+<span class="kn">Section</span> <span class="nf">ClosedUnderFunLaws</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : hset_cartesian_closed_struct).
+
+  <span class="kn">Proposition</span> <span class="nf">closed_under_fun_eval</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">PX</span> : P X)
+              (<span class="nv">PY</span> : P Y)
+    : mor_hset_struct
+        P
+        (hset_struct_prod P PX (hset_struct_fun P PX PY))
+        PY
+        (<span class="k">λ</span> <span class="nv">xf</span>, pr12 xf (pr1 xf)).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 P X Y PX PY).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">closed_under_fun_lam</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+              {<span class="nv">PX</span> : P X}
+              {<span class="nv">PY</span> : P Y}
+              {<span class="nv">PZ</span> : P Z}
+              (<span class="nv">f</span> : X × Z → Y)
+              (<span class="nv">Pf</span> : mor_hset_struct P (hset_struct_prod P PX PZ) PY f)
+    : mor_hset_struct
+        P
+        PZ (hset_struct_fun P PX PY)
+        (<span class="k">λ</span> <span class="nv">z</span>, _ ,, hset_struct_pointwise P f Pf z).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 P X Y Z PX PY PZ f Pf).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ClosedUnderFunLaws</span>.
+
+<span class="kn">Definition</span> <span class="nf">Exponentials_struct</span>
+           (<span class="nv">P</span> : hset_cartesian_closed_struct)
+  : Exponentials (BinProducts_category_of_hset_struct P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> PX.
+  <span class="nb">apply</span> coreflections_to_is_left_adjoint.
+  <span class="nb">intro</span> PY.
+  use make_coreflection'.
+  - <span class="bp">exact</span> (_ ,, hset_struct_fun P (pr2 PX) (pr2 PY)).
+  - <span class="bp">exact</span> (_ ,, closed_under_fun_eval P _ _).
+  - <span class="nb">intro</span> f.
+    use make_coreflection_arrow.
+    + <span class="bp">exact</span> (_ ,, closed_under_fun_lam P (pr1 (f : _ --&gt; _)) (pr2 (f : _ --&gt; _))).
+    + <span class="kp">abstract</span> <span class="bp">now</span> use eq_mor_hset_struct.
+    + <span class="kp">abstract</span> (
+        <span class="nb">intros</span> g Hg;
+        use eq_mor_hset_struct;
+        <span class="nb">intro</span> z;
+        use eq_mor_hset_struct;
+        <span class="nb">intro</span> x;
+        <span class="bp">exact</span> (!eqtohomot (base_paths _ _ Hg) (x ,, z))
+      ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Equalizers of structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">hset_equalizer_struct_data</span>
+           (<span class="nv">P</span> : hset_struct)
+  : UU
+  := ∏ (X Y : hSet)
+       (f g : X → Y)
+       (PX : P X)
+       (PY : P Y)
+       (Pf : mor_hset_struct P PX PY f)
+       (Pg : mor_hset_struct P PX PY g),
+     P (∑ (x : X), hProp_to_hSet (eqset (f x) (g x)))%<span class="nb">set</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_equalizer</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_equalizer_struct_data P)
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+           {<span class="nv">PX</span> : P X}
+           {<span class="nv">PY</span> : P Y}
+           (<span class="nv">Pf</span> : mor_hset_struct P PX PY f)
+           (<span class="nv">Pg</span> : mor_hset_struct P PX PY g)
+  : P (∑ (x : X), hProp_to_hSet (eqset (f x) (g x)))%<span class="nb">set</span>
+  := EP X Y f g PX PY Pf Pg.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_equalizer_ob</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_equalizer_struct_data P)
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+           {<span class="nv">PX</span> : P X}
+           {<span class="nv">PY</span> : P Y}
+           (<span class="nv">Pf</span> : mor_hset_struct P PX PY f)
+           (<span class="nv">Pg</span> : mor_hset_struct P PX PY g)
+  : category_of_hset_struct P
+  := _ ,, hset_struct_equalizer EP Pf Pg.
+
+<span class="kn">Definition</span> <span class="nf">hset_equalizer_struct_laws</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_equalizer_struct_data P)
+  : UU
+  := (∏ (X Y : hSet)
+        (f g : X → Y)
+        (PX : P X)
+        (PY : P Y)
+        (Pf : mor_hset_struct P PX PY f)
+        (Pg : mor_hset_struct P PX PY g),
+      mor_hset_struct P (hset_struct_equalizer EP Pf Pg) PX pr1)
+     ×
+     (∏ (X Y : hSet)
+        (f g : X → Y)
+        (PX : P X)
+        (PY : P Y)
+        (Pf : mor_hset_struct P PX PY f)
+        (Pg : mor_hset_struct P PX PY g)
+        (W : hSet)
+        (PW : P W)
+        (h : W → X)
+        (Ph : mor_hset_struct P PW PX h)
+        (q : (<span class="k">λ</span> <span class="nv">w</span>, f(h w)) = (<span class="k">λ</span> <span class="nv">w</span>, g(h w))),
+      mor_hset_struct
+        P
+        PW
+        (hset_struct_equalizer EP Pf Pg)
+        (<span class="k">λ</span> <span class="nv">w</span>, h w ,, eqtohomot q w)).
+
+<span class="kn">Definition</span> <span class="nf">hset_equalizer_struct</span>
+           (<span class="nv">P</span> : hset_struct)
+  : UU
+  := ∑ (EP : hset_equalizer_struct_data P), hset_equalizer_struct_laws EP.
+
+<span class="kn">Coercion</span> <span class="nf">hset_equalizer_struct_to_data</span>
+         {P : hset_struct}
+         (EP : hset_equalizer_struct P)
+  : hset_equalizer_struct_data P
+  := pr1 EP.
+
+<span class="kn">Section</span> <span class="nf">EqualizerLaws</span>.
+  <span class="kn">Context</span> {<span class="nv">P</span> : hset_struct}
+          (<span class="nv">EP</span> : hset_equalizer_struct P).
+
+  <span class="kn">Proposition</span> <span class="nf">hset_equalizer_pr_struct</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+              {<span class="nv">PX</span> : P X}
+              {<span class="nv">PY</span> : P Y}
+              (<span class="nv">Pf</span> : mor_hset_struct P PX PY f)
+              (<span class="nv">Pg</span> : mor_hset_struct P PX PY g)
+    : mor_hset_struct P (hset_struct_equalizer EP Pf Pg) PX pr1.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 EP X Y f g PX PY Pf Pg).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_equalizer_arrow_struct</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+              {<span class="nv">PX</span> : P X}
+              {<span class="nv">PY</span> : P Y}
+              (<span class="nv">Pf</span> : mor_hset_struct P PX PY f)
+              (<span class="nv">Pg</span> : mor_hset_struct P PX PY g)
+              {<span class="nv">W</span> : hSet}
+              (<span class="nv">PW</span> : P W)
+              (<span class="nv">h</span> : W → X)
+              (<span class="nv">Ph</span> : mor_hset_struct P PW PX h)
+              (<span class="nv">q</span> : (<span class="k">λ</span> <span class="nv">w</span>, f(h w)) = (<span class="k">λ</span> <span class="nv">w</span>, g(h w)))
+    : mor_hset_struct
+        P
+        PW
+        (hset_struct_equalizer EP Pf Pg)
+        (<span class="k">λ</span> <span class="nv">w</span>, h w ,, eqtohomot q w).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 EP X Y f g PX PY Pf Pg W PW h Ph q).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">EqualizerLaws</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_Equalizers_hset_disp_struct</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_equalizer_struct P)
+  : disp_Equalizers
+      (hset_struct_disp_cat P)
+      Equalizers_in_HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y f g PX PY Pf Pg.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (hset_struct_equalizer EP Pf Pg).
+  - <span class="bp">exact</span> (hset_equalizer_pr_struct EP Pf Pg).
+  - <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+  - <span class="nb">intros</span> W PW h Ph q qq.
+    use iscontraprop1.
+    + <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isasetaprop ; <span class="nb">apply</span> isaprop_hset_struct_on_mor | ] ;
+         <span class="nb">apply</span> isaprop_hset_struct_on_mor).
+    + <span class="nb">simple refine</span> (_ ,, _).
+      * <span class="bp">exact</span> (hset_equalizer_arrow_struct EP Pf Pg PW h Ph q).
+      * <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Equalizers_category_of_hset_struct</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_equalizer_struct P)
+  : Equalizers (category_of_hset_struct P).
+<span class="kn">Proof</span>.
+  use total_Equalizers.
+  - <span class="bp">exact</span> Equalizers_in_HSET.
+  - <span class="bp">exact</span> (disp_Equalizers_hset_disp_struct EP).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Coequalizers of structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">hset_coequalizer_struct_data</span>
+           (<span class="nv">P</span> : hset_struct)
+  : UU
+  := ∏ (X Y : hSet)
+       (f g : X → Y)
+       (PX : P X)
+       (PY : P Y)
+       (Pf : mor_hset_struct P PX PY f)
+       (Pg : mor_hset_struct P PX PY g),
+     P (coequalizer_hSet f g).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_coequalizer</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_coequalizer_struct_data P)
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+           {<span class="nv">PX</span> : P X}
+           {<span class="nv">PY</span> : P Y}
+           (<span class="nv">Pf</span> : mor_hset_struct P PX PY f)
+           (<span class="nv">Pg</span> : mor_hset_struct P PX PY g)
+  : P (coequalizer_hSet f g)
+  := EP X Y f g PX PY Pf Pg.
+
+<span class="kn">Definition</span> <span class="nf">hset_coequalizer_struct_laws</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_coequalizer_struct_data P)
+  : UU
+  := (∏ (X Y : hSet)
+        (f g : X → Y)
+        (PX : P X)
+        (PY : P Y)
+        (Pf : mor_hset_struct P PX PY f)
+        (Pg : mor_hset_struct P PX PY g),
+      mor_hset_struct P PY (hset_struct_coequalizer EP Pf Pg) (coequalizer_map_hSet f g))
+     ×
+     (∏ (X Y : hSet)
+        (f g : X → Y)
+        (PX : P X)
+        (PY : P Y)
+        (Pf : mor_hset_struct P PX PY f)
+        (Pg : mor_hset_struct P PX PY g)
+        (Z : hSet)
+        (PZ : P Z)
+        (h : Y → Z)
+        (Ph : mor_hset_struct P PY PZ h)
+        (q : (<span class="k">λ</span> <span class="nv">w</span>, h(f w)) = (<span class="k">λ</span> <span class="nv">w</span>, h(g w))),
+      mor_hset_struct
+        P
+        (hset_struct_coequalizer EP Pf Pg)
+        PZ
+        (coequalizer_out_hSet f g h (eqtohomot q))).
+
+<span class="kn">Definition</span> <span class="nf">hset_coequalizer_struct</span>
+           (<span class="nv">P</span> : hset_struct)
+  : UU
+  := ∑ (EP : hset_coequalizer_struct_data P), hset_coequalizer_struct_laws EP.
+
+<span class="kn">Coercion</span> <span class="nf">hset_coequalizer_struct_to_data</span>
+         {P : hset_struct}
+         (EP : hset_coequalizer_struct P)
+  : hset_coequalizer_struct_data P
+  := pr1 EP.
+
+<span class="kn">Section</span> <span class="nf">CoequalizerLaws</span>.
+  <span class="kn">Context</span> {<span class="nv">P</span> : hset_struct}
+          (<span class="nv">EP</span> : hset_coequalizer_struct P).
+
+  <span class="kn">Proposition</span> <span class="nf">hset_coequalizer_map_struct</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+              {<span class="nv">PX</span> : P X}
+              {<span class="nv">PY</span> : P Y}
+              (<span class="nv">Pf</span> : mor_hset_struct P PX PY f)
+              (<span class="nv">Pg</span> : mor_hset_struct P PX PY g)
+    : mor_hset_struct
+        P
+        PY
+        (hset_struct_coequalizer EP Pf Pg)
+        (coequalizer_map_hSet f g).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 EP X Y f g PX PY Pf Pg).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_equalizer_out_struct</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+              {<span class="nv">PX</span> : P X}
+              {<span class="nv">PY</span> : P Y}
+              (<span class="nv">Pf</span> : mor_hset_struct P PX PY f)
+              (<span class="nv">Pg</span> : mor_hset_struct P PX PY g)
+              {<span class="nv">Z</span> : hSet}
+              (<span class="nv">PZ</span> : P Z)
+              (<span class="nv">h</span> : Y → Z)
+              (<span class="nv">Ph</span> : mor_hset_struct P PY PZ h)
+              (<span class="nv">q</span> : (<span class="k">λ</span> <span class="nv">w</span>, h(f w)) = (<span class="k">λ</span> <span class="nv">w</span>, h(g w)))
+    : mor_hset_struct
+        P
+        (hset_struct_coequalizer EP Pf Pg)
+        PZ
+        (coequalizer_out_hSet f g h (eqtohomot q)).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 EP X Y f g PX PY Pf Pg Z PZ h Ph q).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">CoequalizerLaws</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_Coequalizers_hset_disp_struct</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_coequalizer_struct P)
+  : disp_Coequalizers
+      (hset_struct_disp_cat P)
+      Coequalizers_HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y f g PX PY Pf Pg.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (hset_struct_coequalizer EP Pf Pg).
+  - <span class="bp">exact</span> (hset_coequalizer_map_struct EP Pf Pg).
+  - <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+  - <span class="nb">intros</span> W PW h Ph q qq.
+    use iscontraprop1.
+    + <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isasetaprop ; <span class="nb">apply</span> isaprop_hset_struct_on_mor | ] ;
+         <span class="nb">apply</span> isaprop_hset_struct_on_mor).
+    + <span class="nb">simple refine</span> (_ ,, _).
+      * <span class="bp">exact</span> (hset_equalizer_out_struct EP Pf Pg PW h Ph q).
+      * <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Coequalizers_category_of_hset_struct</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_coequalizer_struct P)
+  : Coequalizers (category_of_hset_struct P).
+<span class="kn">Proof</span>.
+  use total_Coequalizers.
+  - <span class="bp">exact</span> Coequalizers_HSET.
+  - <span class="bp">exact</span> (disp_Coequalizers_hset_disp_struct EP).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Type indexed products</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">hset_struct_type_prod_data</span>
+           (<span class="nv">P</span> : hset_struct)
+           (<span class="nv">I</span> : UU)
+  : UU
+  := ∏ (D : I → hSet)
+       (PD : ∏ (i : I), P (D i)),
+     P (forall_hSet D).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_type_prod_laws</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">HP</span> : hset_struct_type_prod_data P I)
+  : UU
+  := (∏ (D : I → hSet)
+        (PD : ∏ (i : I), P (D i))
+        (i : I),
+      mor_hset_struct P (HP D PD) (PD i) (<span class="k">λ</span> <span class="nv">f</span>, f i))
+     ×
+     (∏ (D : I → hSet)
+        (PD : ∏ (i : I), P (D i))
+        (W : hSet)
+        (PW : P W)
+        (fs : ∏ (i : I), W → D i)
+        (Pfs : ∏ (i : I), mor_hset_struct P PW (PD i) (fs i)),
+       mor_hset_struct P PW (HP D PD) (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">i</span>, fs i w)).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_type_prod</span>
+           (<span class="nv">P</span> : hset_struct)
+           (<span class="nv">I</span> : UU)
+  : UU
+  := ∑ (P : hset_struct_type_prod_data P I), hset_struct_type_prod_laws P.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_type_prod_to_data</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">HP</span> : hset_struct_type_prod P I)
+           {<span class="nv">D</span> : I → hSet}
+           (<span class="nv">PD</span> : ∏ (i : I), P (D i))
+  : P (forall_hSet D)
+  := pr1 HP D PD.
+
+<span class="kn">Coercion</span> <span class="nf">hset_struct_type_prod_to_data</span> : hset_struct_type_prod &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_type_prod_ob</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">EP</span> : hset_struct_type_prod P I)
+           (<span class="nv">D</span> : I → hSet)
+           (<span class="nv">PD</span> : ∏ (i : I), P (D i))
+  : category_of_hset_struct P
+  := _ ,, EP D PD.
+
+<span class="kn">Section</span> <span class="nf">Projections</span>.
+  <span class="kn">Context</span> {<span class="nv">P</span> : hset_struct}
+          {<span class="nv">I</span> : UU}
+          (<span class="nv">HP</span> : hset_struct_type_prod P I).
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_type_prod_pr</span>
+              {<span class="nv">D</span> : I → hSet}
+              (<span class="nv">PD</span> : ∏ (i : I), P (D i))
+              (<span class="nv">i</span> : I)
+    : mor_hset_struct P (HP D PD) (PD i) (<span class="k">λ</span> <span class="nv">f</span>, f i).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 HP D PD i).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_type_prod_pair</span>
+              {<span class="nv">D</span> : I → hSet}
+              (<span class="nv">PD</span> : ∏ (i : I), P (D i))
+              (<span class="nv">W</span> : hSet)
+              (<span class="nv">PW</span> : P W)
+              (<span class="nv">fs</span> : ∏ (i : I), W → D i)
+              (<span class="nv">Pfs</span> : ∏ (i : I), mor_hset_struct P PW (PD i) (fs i))
+    : mor_hset_struct P PW (HP D PD) (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">i</span>, fs i w).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 HP D PD W PW fs Pfs).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Projections</span>.
+
+<span class="kn">Definition</span> <span class="nf">dispProducts_hset_struct</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">HP</span> : hset_struct_type_prod P I)
+  : disp_Products (hset_struct_disp_cat P) I (ProductsHSET I).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D DD.
+  <span class="nb">simple refine</span> (_ ,, (_ ,, _)).
+  - <span class="bp">exact</span> (HP D DD).
+  - <span class="bp">exact</span> (hset_struct_type_prod_pr HP DD).
+  - <span class="nb">intros</span> W PW fs Hf.
+    use iscontraprop1.
+    + <span class="kp">abstract</span>
+        (use isaproptotal2 ;
+         [ <span class="nb">intro</span> ;
+           use impred ; <span class="nb">intro</span> ;
+           <span class="nb">apply</span> hset_struct_disp_cat
+         | ] ;
+         <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isaprop_hset_struct_on_mor).
+    + <span class="nb">simple refine</span> (_ ,, _).
+      * <span class="bp">exact</span> (hset_struct_type_prod_pair HP _ _ _ _ Hf).
+      * <span class="nb">intro</span> i.
+        <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Products_category_of_hset_struct_type_prod</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">HP</span> : hset_struct_type_prod P I)
+  : Products I (category_of_hset_struct P).
+<span class="kn">Proof</span>.
+  use total_Products.
+  - <span class="bp">exact</span> (ProductsHSET I).
+  - <span class="bp">exact</span> (dispProducts_hset_struct HP).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Pointed structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">pointed_hset_struct_data</span>
+           (<span class="nv">P</span> : hset_struct)
+  : UU
+  := ∏ (X : hSet), P X → X.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_point</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">Px</span> : pointed_hset_struct_data P)
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : P X)
+  : X
+  := Px X PX.
+
+<span class="kn">Definition</span> <span class="nf">pointed_hset_struct_laws</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">Pt</span> : pointed_hset_struct_data P)
+  : UU
+  := (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      mor_hset_struct P PX PY (<span class="k">λ</span> <span class="nv">_</span>, hset_struct_point Pt PY))
+     ×
+     (∏ (X Y : hSet)
+        (f : X → Y)
+        (PX : P X)
+        (PY : P Y)
+        (Pf : mor_hset_struct P PX PY f),
+      f (hset_struct_point Pt PX) = hset_struct_point Pt PY).
+
+<span class="kn">Definition</span> <span class="nf">pointed_hset_struct</span>
+           (<span class="nv">P</span> : hset_struct)
+  : UU
+  := ∑ (Pt : pointed_hset_struct_data P), pointed_hset_struct_laws Pt.
+
+<span class="kn">Coercion</span> <span class="nf">pointed_hset_struct_to_data</span>
+         {P : hset_struct}
+         (Pt : pointed_hset_struct P)
+  : pointed_hset_struct_data P
+  := pr1 Pt.
+
+<span class="kn">Proposition</span> <span class="nf">pointed_hset_struct_const</span>
+            {<span class="nv">P</span> : hset_struct}
+            (<span class="nv">Pt</span> : pointed_hset_struct P)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">PX</span> : P X)
+            (<span class="nv">PY</span> : P Y)
+  : mor_hset_struct P PX PY (<span class="k">λ</span> <span class="nv">_</span>, hset_struct_point Pt PY).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 Pt X Y PX PY).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">pointed_hset_struct_preserve_point</span>
+            {<span class="nv">P</span> : hset_struct}
+            (<span class="nv">Pt</span> : pointed_hset_struct P)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            {<span class="nv">f</span> : X → Y}
+            {<span class="nv">PX</span> : P X}
+            {<span class="nv">PY</span> : P Y}
+            (<span class="nv">Pf</span> : mor_hset_struct P PX PY f)
+  : f (hset_struct_point Pt PX) = hset_struct_point Pt PY.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr22 Pt X Y f PX PY Pf).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">transportf_hset_struct_point</span>
+            {<span class="nv">P</span> : hset_cartesian_struct}
+            (<span class="nv">Pt</span> : pointed_hset_struct P)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">p</span> : X ≃ Y)
+            (<span class="nv">PX</span> : P X)
+  : hset_struct_point
+      Pt
+      (transportf
+         P
+         (univalence_hSet p)
+         PX)
+    =
+      p (hset_struct_point Pt PX).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (!(pointed_hset_struct_preserve_point
+             Pt
+             (transportf_struct_weq_on_weq P p PX))).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Binary coproducts</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">hset_binary_coprod_struct_data</span>
+           (<span class="nv">P</span> : hset_struct)
+  : UU
+  := ∏ (X Y : hSet)
+       (PX : P X)
+       (PY : P Y),
+     P (BinCoproductObject (BinCoproductsHSET X Y)).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_binary_coprod</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_binary_coprod_struct_data P)
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">PX</span> : P X)
+           (<span class="nv">PY</span> : P Y)
+  : P (BinCoproductObject (BinCoproductsHSET X Y))
+  := EP X Y PX PY.
+
+<span class="kn">Definition</span> <span class="nf">hset_binary_coprod_struct_laws</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_binary_coprod_struct_data P)
+  : UU
+  := (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      mor_hset_struct P PX (hset_struct_binary_coprod EP PX PY) inl)
+     ×
+     (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      mor_hset_struct P PY (hset_struct_binary_coprod EP PX PY) inr)
+     ×
+     (∏ (X Y Z : hSet)
+        (PX : P X)
+        (PY : P Y)
+        (PZ : P Z)
+        (f : X → Z)
+        (g : Y → Z)
+        (Pf : mor_hset_struct P PX PZ f)
+        (Pg : mor_hset_struct P PY PZ g),
+      mor_hset_struct P (hset_struct_binary_coprod EP PX PY) PZ (sumofmaps f g)).
+
+<span class="kn">Definition</span> <span class="nf">hset_binary_coprod_struct</span>
+           (<span class="nv">P</span> : hset_struct)
+  : UU
+  := ∑ (EP : hset_binary_coprod_struct_data P), hset_binary_coprod_struct_laws EP.
+
+<span class="kn">Coercion</span> <span class="nf">hset_binary_coprod_struct_to_data</span>
+         {P : hset_struct}
+         (EP : hset_binary_coprod_struct P)
+  : hset_binary_coprod_struct_data P
+  := pr1 EP.
+
+<span class="kn">Section</span> <span class="nf">BinaryCoprodLaws</span>.
+  <span class="kn">Context</span> {<span class="nv">P</span> : hset_struct}
+          (<span class="nv">EP</span> : hset_binary_coprod_struct P).
+
+  <span class="kn">Proposition</span> <span class="nf">hset_binary_coprod_struct_inl</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">PX</span> : P X)
+              (<span class="nv">PY</span> : P Y)
+    : mor_hset_struct P PX (hset_struct_binary_coprod EP PX PY) inl.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 EP X Y PX PY).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_binary_coprod_struct_inr</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">PX</span> : P X)
+              (<span class="nv">PY</span> : P Y)
+    : mor_hset_struct P PY (hset_struct_binary_coprod EP PX PY) inr.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 EP X Y PX PY).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_binary_coprod_struct_sumofmaps</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+              {<span class="nv">PX</span> : P X}
+              {<span class="nv">PY</span> : P Y}
+              {<span class="nv">PZ</span> : P Z}
+              {<span class="nv">f</span> : X → Z}
+              {<span class="nv">g</span> : Y → Z}
+              (<span class="nv">Pf</span> : mor_hset_struct P PX PZ f)
+              (<span class="nv">Pg</span> : mor_hset_struct P PY PZ g)
+    : mor_hset_struct P (hset_struct_binary_coprod EP PX PY) PZ (sumofmaps f g).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr222 EP X Y Z PX PY PZ f g Pf Pg).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">BinaryCoprodLaws</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_BinCoproducts_hset_disp_struct</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_binary_coprod_struct P)
+  : disp_BinCoproducts
+      (hset_struct_disp_cat P)
+      BinCoproductsHSET.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y PX PY.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (hset_struct_binary_coprod EP PX PY).
+  - <span class="bp">exact</span> (hset_binary_coprod_struct_inl EP PX PY).
+  - <span class="bp">exact</span> (hset_binary_coprod_struct_inr EP PX PY).
+  - <span class="nb">intros</span> W PW f Pf g Pg.
+    use iscontraprop1.
+    + <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ;
+           <span class="nb">apply</span> isapropdirprod ;
+           <span class="nb">apply</span> isasetaprop ;
+           <span class="nb">apply</span> isaprop_hset_struct_on_mor
+         | ] ;
+         <span class="nb">apply</span> isaprop_hset_struct_on_mor).
+    + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      * <span class="bp">exact</span> (hset_binary_coprod_struct_sumofmaps EP Pf Pg).
+      * <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+      * <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">BinCoproducts_category_of_hset_struct</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">EP</span> : hset_binary_coprod_struct P)
+  : BinCoproducts (category_of_hset_struct P).
+<span class="kn">Proof</span>.
+  use total_BinCoproducts.
+  - <span class="bp">exact</span> BinCoproductsHSET.
+  - <span class="bp">exact</span> (disp_BinCoproducts_hset_disp_struct EP).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Set-indexed coproducts</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">hset_struct_set_coprod_data</span>
+           (<span class="nv">P</span> : hset_struct)
+           (<span class="nv">I</span> : hSet)
+  : UU
+  := ∏ (D : I → hSet)
+       (PD : ∏ (i : I), P (D i)),
+     P (∑ (i : I), D i)%<span class="nb">set</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_set_coprod_laws</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">I</span> : hSet}
+           (<span class="nv">HP</span> : hset_struct_set_coprod_data P I)
+  : UU
+  := (∏ (D : I → hSet)
+        (PD : ∏ (i : I), P (D i))
+        (i : I),
+      mor_hset_struct P (PD i) (HP D PD) (<span class="k">λ</span> <span class="nv">d</span>, i ,, d))
+     ×
+     (∏ (D : I → hSet)
+        (PD : ∏ (i : I), P (D i))
+        (W : hSet)
+        (PW : P W)
+        (fs : ∏ (i : I), D i → W)
+        (Pfs : ∏ (i : I), mor_hset_struct P (PD i) PW (fs i)),
+      mor_hset_struct P (HP D PD) PW (<span class="k">λ</span> <span class="nv">id</span>, fs (pr1 id) (pr2 id))).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_set_coprod</span>
+           (<span class="nv">P</span> : hset_struct)
+           (<span class="nv">I</span> : hSet)
+  : UU
+  := ∑ (P : hset_struct_set_coprod_data P I), hset_struct_set_coprod_laws P.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_set_coprod_to_data</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">I</span> : hSet}
+           (<span class="nv">HP</span> : hset_struct_set_coprod P I)
+           {<span class="nv">D</span> : I → hSet}
+           (<span class="nv">PD</span> : ∏ (i : I), P (D i))
+  : P (∑ (i : I), D i)%<span class="nb">set</span>
+  := pr1 HP D PD.
+
+<span class="kn">Coercion</span> <span class="nf">hset_struct_set_coprod_to_data</span> : hset_struct_set_coprod &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_set_coprod_ob</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">I</span> : hSet}
+           (<span class="nv">EP</span> : hset_struct_set_coprod P I)
+           (<span class="nv">D</span> : I → hSet)
+           (<span class="nv">PD</span> : ∏ (i : I), P (D i))
+  : category_of_hset_struct P
+  := _ ,, EP D PD.
+
+<span class="kn">Section</span> <span class="nf">Projections</span>.
+  <span class="kn">Context</span> {<span class="nv">P</span> : hset_struct}
+          {<span class="nv">I</span> : hSet}
+          (<span class="nv">HP</span> : hset_struct_set_coprod P I).
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_set_coprod_in</span>
+              {<span class="nv">D</span> : I → hSet}
+              (<span class="nv">PD</span> : ∏ (i : I), P (D i))
+              (<span class="nv">i</span> : I)
+    : mor_hset_struct P (PD i) (HP D PD) (<span class="k">λ</span> <span class="nv">d</span>, i ,, d).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 HP D PD i).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_set_coprod_sum</span>
+              {<span class="nv">D</span> : I → hSet}
+              (<span class="nv">PD</span> : ∏ (i : I), P (D i))
+              {<span class="nv">W</span> : hSet}
+              (<span class="nv">PW</span> : P W)
+              {<span class="nv">fs</span> : ∏ (i : I), D i → W}
+              (<span class="nv">Pfs</span> : ∏ (i : I), mor_hset_struct P (PD i) PW (fs i))
+    : mor_hset_struct P (HP D PD) PW (<span class="k">λ</span> <span class="nv">id</span>, fs (pr1 id) (pr2 id)).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 HP D PD W PW fs Pfs).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Projections</span>.
+
+<span class="kn">Definition</span> <span class="nf">dispCoproducts_hset_struct</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">I</span> : hSet}
+           (<span class="nv">HP</span> : hset_struct_set_coprod P I)
+  : disp_Coproducts (hset_struct_disp_cat P) I (CoproductsHSET I (pr2 I)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D DD.
+  <span class="nb">simple refine</span> (_ ,, (_ ,, _)).
+  - <span class="bp">exact</span> (HP D DD).
+  - <span class="bp">exact</span> (hset_struct_set_coprod_in HP DD).
+  - <span class="nb">intros</span> W PW fs Hf.
+    use iscontraprop1.
+    + <span class="kp">abstract</span>
+        (use isaproptotal2 ;
+         [ <span class="nb">intro</span> ;
+           use impred ; <span class="nb">intro</span> ;
+           <span class="nb">apply</span> hset_struct_disp_cat
+         | ] ;
+         <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isaprop_hset_struct_on_mor).
+    + <span class="nb">simple refine</span> (_ ,, _).
+      * <span class="bp">exact</span> (hset_struct_set_coprod_sum HP _ _ Hf).
+      * <span class="nb">intro</span> i.
+        <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Coproducts_category_of_hset_struct_set_coprod</span>
+           {<span class="nv">P</span> : hset_struct}
+           {<span class="nv">I</span> : hSet}
+           (<span class="nv">HP</span> : hset_struct_set_coprod P I)
+  : Coproducts I (category_of_hset_struct P).
+<span class="kn">Proof</span>.
+  use total_Coproducts.
+  - <span class="bp">exact</span> (CoproductsHSET I (pr2 I)).
+  - <span class="bp">exact</span> (dispCoproducts_hset_struct HP).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Structures/StructureLimitsAndColimits.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. Set-indexed coproducts
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,1020 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Archimedean.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Archimedean property *)</span>
+
+
+
+<span class="sd">(** ** Preamble *)</span>
+
+<span class="sd">(** Settings *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Unset</span> Kernel Term Sharing.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-txt">
+<span class="sd">(** Imports *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Import</span> UniMath.Algebra.DivisionRig.
+<span class="kn">Require Import</span> UniMath.Algebra.Domains_and_Fields.
+<span class="kn">Require Import</span> UniMath.Algebra.ConstructiveStructures.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="sd">(** ** The standard function from the natural numbers to a monoid *)</span>
+
+<span class="kn">Fixpoint</span> <span class="nf">natmult</span> {<span class="nv">X</span> : monoid} (<span class="nv">n</span> : nat) (<span class="nv">x</span> : X) : X :=
+  <span class="k">match</span> n <span class="k">with</span>
+    | O =&gt; <span class="mi">0</span>%addmonoid
+    | S O =&gt; x
+    | S m =&gt; (x + natmult m x)%addmonoid
+  <span class="k">end</span>.
+<span class="kn">Definition</span> <span class="nf">nattorig</span> {<span class="nv">X</span> : rig} (<span class="nv">n</span> : nat) : X :=
+  natmult (X := rigaddabmonoid X) n <span class="mi">1</span>%rig.
+<span class="kn">Definition</span> <span class="nf">nattoring</span> {<span class="nv">X</span> : <span class="bp">ring</span>} (<span class="nv">n</span> : nat) : X :=
+  nattorig (X := ringtorig X) n.
+
+<span class="kn">Lemma</span> <span class="nf">natmultS</span> :
+  ∏ {X : monoid} (n : nat) (x : X),
+    natmult (S n) x = (x + natmult n x)%addmonoid.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X n x.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n].
+  - <span class="bp">now</span> <span class="nb">rewrite</span> runax.
+  - <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">nattorigS</span> {<span class="nv">X</span> : rig} :
+  ∏ (n : nat), nattorig (X := X) (S n) = (<span class="mi">1</span> + nattorig n)%rig.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> (natmultS (X := rigaddabmonoid X)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nattorig_natmult</span> :
+  ∏ {X : rig} (n : nat) (x : X),
+    (nattorig n * x)%rig = natmult (X := rigaddabmonoid X) n x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+  - <span class="bp">now</span> <span class="nb">apply</span> rigmult0x.
+  - <span class="nb">rewrite</span> nattorigS, natmultS.
+    <span class="bp">now</span> <span class="nb">rewrite</span> rigrdistr, IHn, riglunax2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">natmult_plus</span> :
+  ∏ {X : monoid} (n m : nat) (x : X),
+    natmult (n + m) x = (natmult n x + natmult m x)%addmonoid.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IHn] ; <span class="nb">intros</span> m x.
+  - <span class="nb">rewrite</span> lunax.
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">change</span> (S n + m)%nat <span class="k">with</span> (S (n + m))%nat.
+    <span class="nb">rewrite</span> !natmultS, IHn, assocax.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">nattorig_plus</span> :
+  ∏ {X : rig} (n m : nat),
+    (nattorig (n + m) : X) = (nattorig n + nattorig m)%rig.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X n m.
+  <span class="nb">apply</span> (natmult_plus (X := rigaddabmonoid X)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natmult_mult</span> :
+  ∏ {X : monoid} (n m : nat) (x : X),
+    natmult (n * m) x = (natmult n (natmult m x))%addmonoid.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IHn] ; <span class="nb">intros</span> m x.
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">simpl</span> (_ * _)%nat.
+    <span class="nb">assert</span> (H : S n = (n + <span class="mi">1</span>)%nat).
+    { <span class="nb">rewrite</span> &lt;- plus_n_Sm, natplusr0.
+      <span class="bp">reflexivity</span>. }
+    <span class="nb">rewrite</span> H ; <span class="nb">clear</span> H.
+    <span class="nb">rewrite</span> !natmult_plus, IHn.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">nattorig_mult</span> :
+  ∏ {X : rig} (n m : nat),
+    (nattorig (n * m) : X) = (nattorig n * nattorig m)%rig.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X n m.
+  <span class="nb">unfold</span> nattorig.
+  <span class="nb">rewrite</span> (natmult_mult (X := rigaddabmonoid X)), &lt;- nattorig_natmult.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natmult_op</span> {<span class="nv">X</span> : monoid} :
+  ∏ (n : nat) (x y : X),
+    (x + y = y + x)%addmonoid
+    → natmult n (x + y)%addmonoid = (natmult n x + natmult n y)%addmonoid.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+  - <span class="nb">rewrite</span> lunax.
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">rewrite</span> natmultS, assocax, IHn, &lt;- (assocax _ y).
+    <span class="nb">assert</span> (X1 : (y + natmult n x = natmult n x + y)%addmonoid).
+    { <span class="nb">clear</span> IHn.
+      <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+      - <span class="nb">rewrite</span> lunax, runax.
+        <span class="bp">reflexivity</span>.
+      - <span class="nb">rewrite</span> !natmultS, &lt;- assocax, &lt;- X0, !assocax, IHn.
+        <span class="bp">reflexivity</span>. }
+    <span class="nb">rewrite</span> X1, assocax, &lt;- natmultS, &lt;- assocax, &lt;- natmultS.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natmult_binophrel</span> {<span class="nv">X</span> : monoid} (<span class="nv">R</span> : hrel X) :
+  istrans R → isbinophrel R →
+  ∏ (n : nat) (x y : X), R x y → R (natmult (S n) x) (natmult (S n) y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hr Hop n x y H.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+  <span class="bp">exact</span> H.
+  <span class="nb">rewrite</span> !(natmultS (S _)).
+  <span class="nb">eapply</span> Hr.
+  <span class="nb">apply</span> (pr1 Hop).
+  <span class="bp">exact</span> IHn.
+  <span class="nb">apply</span> (pr2 Hop).
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** relation  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">setquot_aux</span> {<span class="nv">X</span> : monoid} (<span class="nv">R</span> : hrel X) : hrel X :=
+  <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, <span class="k">∃</span> <span class="nv">c</span> : X, R (x + c)%addmonoid (y + c)%addmonoid.
+
+<span class="kn">Lemma</span> <span class="nf">istrans_setquot_aux</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">R</span> : hrel X) :
+  istrans R → isbinophrel R → istrans (setquot_aux R).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hr Hop.
+  <span class="nb">intros</span> x y z.
+  <span class="nb">apply</span> hinhfun2.
+  <span class="nb">intros</span> (c1,Hc1) (c2,Hc2).
+  <span class="k">exists</span> (<span class="nv">c1</span> + c2)%addmonoid.
+  <span class="nb">eapply</span> Hr.
+  <span class="nb">rewrite</span> &lt;- assocax.
+  <span class="nb">apply</span> (pr2 Hop).
+  <span class="bp">exact</span> Hc1.
+  <span class="nb">rewrite</span> assocax, (commax _ c1), &lt;- !assocax.
+  <span class="nb">apply</span> (pr2 Hop).
+  <span class="bp">exact</span> Hc2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isbinophrel_setquot_aux</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">R</span> : hrel X) :
+  isbinophrel R → isbinophrel (setquot_aux R).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hop.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y z.
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> (c,Hc).
+    <span class="k">exists</span> <span class="nv">c</span>.
+    <span class="nb">rewrite</span> !assocax.
+    <span class="nb">apply</span> (pr1 Hop).
+    <span class="bp">exact</span> Hc.
+  - <span class="nb">intros</span> x y z.
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> (c,Hc).
+    <span class="k">exists</span> <span class="nv">c</span>.
+    <span class="nb">rewrite</span> !assocax, (commax _ z), &lt;- !assocax.
+    <span class="nb">apply</span> (pr2 Hop).
+    <span class="bp">exact</span> Hc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isequiv_setquot_aux</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">R</span> : hrel X) :
+  isinvbinophrel R →
+  ∏ x y : X, (setquot_aux R) x y &lt;-&gt; R x y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H x y.
+  <span class="nb">split</span>.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> (c,H').
+  <span class="nb">generalize</span> H'; <span class="nb">clear</span> H'.
+  <span class="nb">apply</span> (pr2 H).
+  <span class="nb">intros</span> H1.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> <span class="mi">0</span>%addmonoid.
+  <span class="nb">rewrite</span> !runax.
+  <span class="bp">exact</span> H1.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Archimedean property in a monoid *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isarchmonoid</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">R</span> : hrel X) :=
+  ∏ x y1 y2 : X,
+    R y1 y2 →
+    (<span class="k">∃</span> <span class="nv">n</span> : nat, R (natmult n y1 + x)%addmonoid (natmult n y2))
+      × (<span class="k">∃</span> <span class="nv">n</span> : nat, R (natmult n y1) (natmult n y2 + x)%addmonoid).
+
+<span class="kn">Definition</span> <span class="nf">isarchmonoid_1</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">R</span> : hrel X) :
+  isarchmonoid R →
+  ∏ x y1 y2 : X,
+    R y1 y2 →
+    <span class="k">∃</span> <span class="nv">n</span> : nat, R (natmult n y1 + x)%addmonoid (natmult n y2) :=
+  <span class="k">λ</span> <span class="nv">H</span> <span class="nv">x</span> <span class="nv">y1</span> <span class="nv">y2</span> <span class="nv">Hy</span>, (pr1 (H x y1 y2 Hy)).
+<span class="kn">Definition</span> <span class="nf">isarchmonoid_2</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">R</span> : hrel X) :
+  isarchmonoid R →
+  ∏ x y1 y2 : X,
+    R y1 y2 →
+    <span class="k">∃</span> <span class="nv">n</span> : nat, R (natmult n y1) (natmult n y2 + x)%addmonoid :=
+  <span class="k">λ</span> <span class="nv">H</span> <span class="nv">x</span> <span class="nv">y1</span> <span class="nv">y2</span> <span class="nv">Hy</span>, (pr2 (H x y1 y2 Hy)).
+
+<span class="sd">(** ** Archimedean property in a group *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isarchgr</span> {<span class="nv">X</span> : abgr} (<span class="nv">R</span> : hrel X) :=
+  ∏ x y1 y2 : X,
+    R y1 y2 →
+    <span class="k">∃</span> <span class="nv">n</span> : nat, R (natmult n y1 + x)%addmonoid (natmult n y2).
+
+<span class="kn">Local Lemma</span> <span class="nf">isarchgr_isarchmonoid_aux</span> {<span class="nv">X</span> : abgr} (<span class="nv">R</span> : hrel X) :
+  isbinophrel R →
+  ∏ (n : nat) (x y1 y2 : X),
+    R (natmult n y1 * grinv X x)%multmonoid (natmult n y2) → R (natmult n y1) (natmult n y2 * x)%multmonoid.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hop.
+  <span class="nb">intros</span> n x y1 y2 Hy.
+  <span class="nb">apply</span> (pr2 (isinvbinophrelgr _ Hop) _ _ (grinv X x)).
+  <span class="nb">rewrite</span> assocax, (grrinvax X), runax.
+  <span class="bp">exact</span> Hy.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isarchgr_isarchmonoid</span> {<span class="nv">X</span> : abgr} (<span class="nv">R</span> : hrel X) :
+  isbinophrel R →
+  isarchgr R →
+  isarchmonoid (X := abgrtoabmonoid X) R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hop H x y1 y2 Hy.
+  <span class="nb">split</span>.
+  - <span class="bp">now</span> <span class="nb">apply</span> H.
+  - <span class="nb">generalize</span> (H (grinv X x) _ _ Hy).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> (n,Hn).
+    <span class="k">exists</span> <span class="nv">n</span>.
+    <span class="nb">apply</span> isarchgr_isarchmonoid_aux.
+    <span class="bp">exact</span> Hop.
+    <span class="bp">exact</span> Hn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isarchmonoid_isarchgr</span> {<span class="nv">X</span> : abgr} (<span class="nv">R</span> : hrel X) :
+  isarchmonoid (X := abgrtoabmonoid X) R →
+  isarchgr R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H x y1 y2 Hy.
+  <span class="nb">apply</span> (isarchmonoid_1 _ H x y1 y2 Hy).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Local Lemma</span> <span class="nf">isarchabgrdiff_aux</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">R</span> : hrel X)
+      (<span class="nv">Hr</span> : isbinophrel R)
+      (<span class="nv">Hr'</span> : istrans R)
+      (<span class="nv">y1</span> <span class="nv">y2</span> <span class="nv">x</span> : abmonoiddirprod X X)
+      (<span class="nv">n1</span> : nat)
+      (<span class="nv">Hn1</span> : setquot_aux R (natmult n1 (pr1 y1 * pr2 y2) * pr1 x)%multmonoid
+                         (natmult n1 (pr1 y2 * pr2 y1)%multmonoid))
+      (<span class="nv">n2</span> : nat)
+      (<span class="nv">Hn2</span> : setquot_aux R (natmult n2 (pr1 y1 * pr2 y2)%multmonoid)
+                         (natmult n2 (pr1 y2 * pr2 y1) * pr2 x)%multmonoid) :
+  abgrdiffrel X Hr
+              (natmult (X := abgrdiff X) (n1 + n2) (setquotpr (binopeqrelabgrdiff X) y1) *
+               setquotpr (binopeqrelabgrdiff X) x)%multmonoid
+              (natmult (X := abgrdiff X) (n1 + n2) (setquotpr (binopeqrelabgrdiff X) y2)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (H0 : ∏ n y, natmult (X := abgrdiff X) n (setquotpr (binopeqrelabgrdiff X) y) = setquotpr (binopeqrelabgrdiff X) (natmult n (pr1 y) ,, natmult n (pr2 y))).
+  { <span class="nb">intros</span> n y.
+    <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+    <span class="bp">reflexivity</span>.
+    <span class="nb">rewrite</span> !natmultS, IHn.
+    <span class="bp">reflexivity</span>. }
+  <span class="nb">rewrite</span> !H0.
+  <span class="nb">revert</span> Hn1 Hn2.
+  <span class="nb">apply</span> hinhfun2 ; <span class="nb">simpl</span>.
+  <span class="nb">intros</span> (c1,Hc1) (c2,Hc2).
+  <span class="k">exists</span> (<span class="nv">c1</span> * c2)%multmonoid.
+  <span class="nb">eapply</span> Hr'.
+  <span class="nb">assert</span> (X0 : (natmult (n1 + n2) (pr1 y1) * pr1 x * natmult (n1 + n2) (pr2 y2) * (c1 * c2) = (natmult n1 (pr1 y1 * pr2 y2) * pr1 x * c1) * (natmult n2 (pr1 y1 * pr2 y2) * c2))%multmonoid).
+  { <span class="nb">rewrite</span> !natmult_op, !natmult_plus, !assocax.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> commax, !assocax.
+    <span class="nb">rewrite</span> commax, !assocax.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> commax, !assocax.
+    <span class="nb">rewrite</span> commax, !assocax.
+    <span class="nb">rewrite</span> commax, !assocax.
+    <span class="nb">rewrite</span> commax, !assocax.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> commax, !assocax.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> commax, !assocax.
+    <span class="bp">reflexivity</span>.
+    <span class="nb">apply</span> commax.
+    <span class="nb">apply</span> commax. }
+  <span class="nb">simpl</span> <span class="k">in</span> X0 |- *.
+  <span class="nb">rewrite</span> X0 ; <span class="nb">clear</span> X0.
+  <span class="nb">apply</span> (pr2 Hr).
+  <span class="nb">apply</span> Hc1.
+  <span class="nb">assert</span> (X0 : (natmult (n1 + n2) (pr1 y2) * (natmult (n1 + n2) (pr2 y1) * pr2 x) * (c1 * c2) = (natmult n1 (pr1 y2 * pr2 y1) * c1) * (natmult n2 (pr1 y2 * pr2 y1) * pr2 x * c2))%multmonoid).
+  { <span class="nb">rewrite</span> !natmult_op, !natmult_plus, !assocax.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> commax, !assocax.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> commax, !assocax.
+    <span class="nb">rewrite</span> commax, !assocax.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> commax, !assocax.
+    <span class="bp">reflexivity</span>.
+    <span class="nb">apply</span> commax.
+    <span class="nb">apply</span> commax. }
+  <span class="nb">simpl</span> <span class="k">in</span> X0 |- *.
+  <span class="nb">rewrite</span> X0 ; <span class="nb">clear</span> X0.
+  <span class="nb">apply</span> (pr1 Hr).
+  <span class="nb">apply</span> Hc2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isarchabgrdiff</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">R</span> : hrel X)  (<span class="nv">Hr</span> : isbinophrel R) :
+  istrans R →
+  isarchmonoid (setquot_aux R) →
+  isarchgr (X := abgrdiff X) (abgrdiffrel X (L := R) Hr).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hr' H.
+  <span class="nb">simple refine</span> (setquotuniv3prop _ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y1</span> <span class="nv">y2</span>, (abgrdiffrel X Hr y1 y2 →
+    <span class="k">∃</span> <span class="nv">n</span> : nat, abgrdiffrel X Hr (natmult (X := abgrdiff X) n y1 * x)%multmonoid (natmult (X := abgrdiff X) n y2)) ,, _) _).
+  <span class="kp">abstract</span> <span class="nb">apply</span> isapropimpl, propproperty.
+  <span class="nb">intros</span> x y1 y2 Hy.
+  <span class="nb">eapply</span> hinhfun2.
+  <span class="mi">2</span>: <span class="nb">apply</span> (isarchmonoid_1 _ H (pr1 x) (pr1 y1 * pr2 y2)%multmonoid (pr1 y2 * pr2 y1)%multmonoid), Hy.
+  <span class="mi">2</span>: <span class="nb">apply</span> (isarchmonoid_2 _ H (pr2 x) (pr1 y1 * pr2 y2)%multmonoid (pr1 y2 * pr2 y1)%multmonoid), Hy.
+  <span class="nb">intros</span> n1 n2.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n1</span> + pr1 n2)%nat.
+  <span class="nb">apply</span> isarchabgrdiff_aux.
+  <span class="bp">exact</span> Hr'.
+  <span class="bp">exact</span> (pr2 n1).
+  <span class="bp">exact</span> (pr2 n2).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Archimedean property in a rig *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isarchrig</span> {<span class="nv">X</span> : rig} (<span class="nv">R</span> : hrel X) :=
+  (∏ y1 y2 : X, R y1 y2 → <span class="k">∃</span> <span class="nv">n</span> : nat, R (nattorig n * y1)%rig (<span class="mi">1</span> + nattorig n * y2)%rig)
+    × (∏ x : X, <span class="k">∃</span> <span class="nv">n</span> : nat, R (nattorig n) x)
+    × (∏ x : X, <span class="k">∃</span> <span class="nv">n</span> : nat, R (nattorig n + x)%rig <span class="mi">0</span>%rig).
+
+<span class="kn">Definition</span> <span class="nf">isarchrig_diff</span> {<span class="nv">X</span> : rig} (<span class="nv">R</span> : hrel X) :
+  isarchrig R →
+  ∏ y1 y2 : X, R y1 y2 → <span class="k">∃</span> <span class="nv">n</span> : nat, R (nattorig n * y1)%rig (<span class="mi">1</span> + nattorig n * y2)%rig :=
+  pr1.
+<span class="kn">Definition</span> <span class="nf">isarchrig_gt</span> {<span class="nv">X</span> : rig} (<span class="nv">R</span> : hrel X) :
+  isarchrig R →
+  ∏ x : X, <span class="k">∃</span> <span class="nv">n</span> : nat, R (nattorig n) x :=
+  <span class="k">λ</span> <span class="nv">H</span>, (pr1 (pr2 H)).
+<span class="kn">Definition</span> <span class="nf">isarchrig_pos</span> {<span class="nv">X</span> : rig} (<span class="nv">R</span> : hrel X) :
+  isarchrig R →
+  ∏ x : X, <span class="k">∃</span> <span class="nv">n</span> : nat, R (nattorig n + x)%rig <span class="mi">0</span>%rig :=
+
+  <span class="k">λ</span> <span class="nv">H</span>, (pr2 (pr2 H)).
+
+<span class="kn">Lemma</span> <span class="nf">isarchrig_setquot_aux</span> {<span class="nv">X</span> : rig} (<span class="nv">R</span> : hrel X) :
+  isinvbinophrel (X := rigaddabmonoid X) R
+ → isarchrig R
+ → isarchrig (setquot_aux (X := rigaddabmonoid X) R).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hr H.
+  <span class="nb">split</span> ; [ | <span class="nb">split</span>].
+  - <span class="nb">intros</span> y1 y2.
+    <span class="nb">apply</span> hinhuniv.
+    <span class="nb">intros</span> Hy.
+    <span class="nb">generalize</span> (isarchrig_diff R H y1 y2 (pr2 Hr _ _ _ (pr2 Hy))).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> n.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="mi">0</span>%rig.
+    <span class="nb">rewrite</span> runax, runax.
+    <span class="bp">exact</span> (pr2 n).
+  - <span class="nb">intros</span> x.
+    <span class="nb">generalize</span> (isarchrig_gt R H x).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> n.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="mi">0</span>%rig.
+    <span class="nb">rewrite</span> runax, runax.
+    <span class="bp">exact</span> (pr2 n).
+  - <span class="nb">intros</span> x.
+    <span class="nb">generalize</span> (isarchrig_pos R H x).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> n.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="mi">0</span>%rig.
+    <span class="nb">rewrite</span> runax, runax.
+    <span class="bp">exact</span> (pr2 n).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">isarchrig_isarchmonoid_1_aux</span> {<span class="nv">X</span> : rig} (<span class="nv">R</span> : hrel X)
+      (<span class="nv">Hr1</span> : R <span class="mi">1</span>%rig <span class="mi">0</span>%rig)
+      (<span class="nv">Hr</span> : istrans R)
+      (<span class="nv">Hop1</span> : isbinophrel (X := rigaddabmonoid X) R)
+      (<span class="nv">x</span> <span class="nv">y1</span> <span class="nv">y2</span> : rigaddabmonoid X)
+      (<span class="nv">m</span> : nat)
+      (<span class="nv">Hm</span> : R (nattorig m * y1)%<span class="bp">ring</span> (<span class="mi">1</span>%rig + nattorig m * y2)%<span class="bp">ring</span>)
+      (<span class="nv">n</span> : nat)
+      (<span class="nv">Hn</span> : R (nattorig n + x)%<span class="bp">ring</span> <span class="mi">0</span>%rig) :
+   R (natmult (max <span class="mi">1</span> n * m) y1 * x)%multmonoid
+     (natmult (max <span class="mi">1</span> n * m) y2).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> !nattorig_natmult <span class="k">in</span> Hm.
+  <span class="nb">destruct</span> n.
+  + <span class="nb">rewrite</span> riglunax1 <span class="k">in</span> Hn.
+    <span class="nb">eapply</span> Hr.
+    <span class="nb">apply</span> (pr1 Hop1).
+    <span class="bp">exact</span> Hn.
+    <span class="nb">rewrite</span> runax.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> &lt;- (lunax _ (natmult m y2)).
+    <span class="nb">eapply</span> Hr.
+    <span class="bp">exact</span> Hm.
+    <span class="nb">apply</span> (pr2 Hop1).
+    <span class="bp">exact</span> Hr1.
+  + <span class="nb">rewrite</span> natmult_mult.
+    <span class="nb">simpl</span> max.
+    <span class="nb">rewrite</span> &lt;- (runax _ (natmult (S n * m) y2)).
+    <span class="nb">refine</span> (Hr _ _ _ _ _).
+    <span class="nb">apply</span> (pr2 Hop1).
+    <span class="nb">apply</span> natmult_binophrel.
+    <span class="bp">exact</span> Hr.
+    <span class="bp">exact</span> Hop1.
+    <span class="bp">exact</span> Hm.
+    <span class="nb">rewrite</span> rigcomm1.
+    <span class="nb">change</span> BinaryOperations.op1 <span class="k">with</span> (BinaryOperations.op (X := rigaddabmonoid X)).
+    <span class="nb">rewrite</span> natmult_op, assocax, &lt;- natmult_mult.
+    <span class="nb">apply</span> (pr1 Hop1).
+    <span class="bp">exact</span> Hn.
+    <span class="nb">apply</span> rigcomm1.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">isarchrig_isarchmonoid_2_aux</span> {<span class="nv">X</span> : rig} (<span class="nv">R</span> : hrel X)
+      (<span class="nv">Hr1</span> : R <span class="mi">1</span>%rig <span class="mi">0</span>%rig)
+      (<span class="nv">Hr</span> : istrans R)
+      (<span class="nv">Hop1</span> : isbinophrel (X := rigaddabmonoid X) R)
+      (<span class="nv">x</span> <span class="nv">y1</span> <span class="nv">y2</span> : rigaddabmonoid X)
+      (<span class="nv">m</span> : nat)
+      (<span class="nv">Hm</span> : R (nattorig m * y1)%<span class="bp">ring</span> (<span class="mi">1</span>%rig + nattorig m * y2)%<span class="bp">ring</span>)
+      (<span class="nv">n</span> : nat)
+      (<span class="nv">Hn</span> : R (nattorig n) x) :
+  R (natmult (max <span class="mi">1</span> n * m) y1)
+    (natmult (max <span class="mi">1</span> n * m) y2 * x)%multmonoid.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> !nattorig_natmult <span class="k">in</span> Hm.
+  <span class="nb">destruct</span> n.
+  + <span class="nb">eapply</span> Hr.
+    <span class="bp">exact</span> Hm.
+    <span class="nb">rewrite</span> rigcomm1.
+    <span class="nb">apply</span> (pr1 Hop1).
+    <span class="nb">eapply</span> Hr.
+    <span class="bp">exact</span> Hr1.
+    <span class="bp">exact</span> Hn.
+  + <span class="nb">rewrite</span> natmult_mult.
+    <span class="nb">eapply</span> Hr.
+    <span class="nb">simpl</span> max.
+    <span class="nb">apply</span> natmult_binophrel.
+    <span class="bp">exact</span> Hr.
+    <span class="bp">exact</span> Hop1.
+    <span class="bp">exact</span> Hm.
+    <span class="nb">rewrite</span> rigcomm1.
+    <span class="nb">change</span> BinaryOperations.op1 <span class="k">with</span> (BinaryOperations.op (X := rigaddabmonoid X)).
+    <span class="nb">rewrite</span> natmult_op, &lt;- natmult_mult.
+    <span class="nb">apply</span> (pr1 Hop1).
+    <span class="bp">exact</span> Hn.
+    <span class="nb">apply</span> rigcomm1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isarchrig_isarchmonoid</span> {<span class="nv">X</span> : rig} (<span class="nv">R</span> : hrel X) :
+  R <span class="mi">1</span>%rig <span class="mi">0</span>%rig →
+  istrans R → isbinophrel (X := rigaddabmonoid X) R →
+  isarchrig R → isarchmonoid (X := rigaddabmonoid X) R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hr1 Hr Hop1 H x y1 y2 Hy.
+  <span class="nb">split</span>.
+  - <span class="nb">generalize</span> (isarchrig_diff _ H _ _ Hy) (isarchrig_pos _ H x).
+    <span class="nb">apply</span> hinhfun2.
+    <span class="nb">intros</span> m n.
+    <span class="k">exists</span> (<span class="nv">max</span> <span class="mi">1</span> (pr1 n) * (pr1 m))%nat.
+    <span class="nb">apply</span> isarchrig_isarchmonoid_1_aux.
+    <span class="bp">exact</span> Hr1.
+    <span class="bp">exact</span> Hr.
+    <span class="bp">exact</span> Hop1.
+    <span class="bp">exact</span> (pr2 m).
+    <span class="bp">exact</span> (pr2 n).
+  - <span class="nb">generalize</span> (isarchrig_diff _ H _ _ Hy) (isarchrig_gt _ H x).
+    <span class="nb">apply</span> hinhfun2.
+    <span class="nb">intros</span> m n.
+    <span class="k">exists</span> (<span class="nv">max</span> <span class="mi">1</span> (pr1 n) * (pr1 m))%nat.
+    <span class="nb">apply</span> isarchrig_isarchmonoid_2_aux.
+    <span class="bp">exact</span> Hr1.
+    <span class="bp">exact</span> Hr.
+    <span class="bp">exact</span> Hop1.
+    <span class="bp">exact</span> (pr2 m).
+    <span class="bp">exact</span> (pr2 n).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isarchmonoid_isarchrig</span> {<span class="nv">X</span> : rig} (<span class="nv">R</span> : hrel X) :
+  (R <span class="mi">1</span>%rig <span class="mi">0</span>%rig)
+  → isarchmonoid (X := rigaddabmonoid X) R
+  → isarchrig R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H01 H.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> y1 y2 Hy.
+    <span class="nb">generalize</span> (isarchmonoid_2 _ H <span class="mi">1</span>%rig y1 y2 Hy).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> n.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+    <span class="kp">abstract</span> (<span class="nb">rewrite</span> !nattorig_natmult, rigcomm1 ;
+               <span class="bp">exact</span> (pr2 n)).
+  - <span class="nb">intros</span> x.
+    <span class="nb">generalize</span> (isarchmonoid_2 _ H x _ _ H01).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> n.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+    <span class="kp">abstract</span> (
+        <span class="nb">pattern</span> x <span class="nb">at</span> <span class="mi">1</span>;
+        <span class="nb">rewrite</span> &lt;- (riglunax1 X x) ;
+        <span class="nb">pattern</span> (<span class="mi">0</span>%rig : X) <span class="nb">at</span> <span class="mi">1</span>;
+        <span class="nb">rewrite</span> &lt;- (rigmultx0 X (nattorig (pr1 n))) ;
+        <span class="nb">rewrite</span> nattorig_natmult ;
+        <span class="bp">exact</span> (pr2 n)).
+  - <span class="nb">intros</span> x.
+    <span class="nb">generalize</span> (isarchmonoid_1 _ H x _ _ H01).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> n.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+    <span class="kp">abstract</span> (
+        <span class="nb">pattern</span> (<span class="mi">0</span>%rig : X) <span class="nb">at</span> <span class="mi">1</span>;
+        <span class="nb">rewrite</span> &lt;- (rigmultx0 X (nattorig (pr1 n))), nattorig_natmult ;
+        <span class="bp">exact</span> (pr2 n)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Archimedean property in a ring *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isarchring</span> {<span class="nv">X</span> : <span class="bp">ring</span>} (<span class="nv">R</span> : hrel X) :=
+  (∏ x : X, R x <span class="mi">0</span>%<span class="bp">ring</span> → <span class="k">∃</span> <span class="nv">n</span> : nat, R (nattoring n * x)%<span class="bp">ring</span> <span class="mi">1</span>%<span class="bp">ring</span>)
+    × (∏ x : X, <span class="k">∃</span> <span class="nv">n</span> : nat, R (nattoring n) x).
+
+<span class="kn">Definition</span> <span class="nf">isarchring_1</span> {<span class="nv">X</span> : <span class="bp">ring</span>} (<span class="nv">R</span> : hrel X) :
+  isarchring R →
+  ∏ x : X, R x <span class="mi">0</span>%<span class="bp">ring</span> → <span class="k">∃</span> <span class="nv">n</span> : nat, R (nattoring n * x)%<span class="bp">ring</span> <span class="mi">1</span>%<span class="bp">ring</span> := pr1.
+<span class="kn">Definition</span> <span class="nf">isarchring_2</span> {<span class="nv">X</span> : <span class="bp">ring</span>} (<span class="nv">R</span> : hrel X) :
+  isarchring R →
+  ∏ x : X, <span class="k">∃</span> <span class="nv">n</span> : nat, R (nattoring n) x := pr2.
+
+<span class="kn">Lemma</span> <span class="nf">isarchring_isarchrig</span> {<span class="nv">X</span> : <span class="bp">ring</span>} (<span class="nv">R</span> : hrel X) :
+  isbinophrel (X := rigaddabmonoid X) R →
+  isarchring R → isarchrig (X := ringtorig X) R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hop1 H.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> y1 y2 Hy.
+    <span class="nb">assert</span> (X0 : R (y1 - y2)%<span class="bp">ring</span> <span class="mi">0</span>%<span class="bp">ring</span>).
+    <span class="kp">abstract</span> (<span class="nb">apply</span> (pr2 (isinvbinophrelgr X Hop1)) <span class="k">with</span> y2 ;
+               <span class="nb">change</span> BinaryOperations.op <span class="k">with</span> (@BinaryOperations.op1 X) ;
+               <span class="nb">rewrite</span> ringassoc1, ringlinvax1, ringlunax1, ringrunax1 ;
+               <span class="bp">exact</span> Hy).
+    <span class="nb">generalize</span> (isarchring_1 _ H _ X0).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> n.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+    <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> &lt;- (ringrunax1 _ (nattorig (pr1 n) * y1)%<span class="bp">ring</span>), &lt;- (ringlinvax1 _ (nattorig (pr1 n) * y2)%<span class="bp">ring</span>), &lt;- ringassoc1 ;
+        <span class="nb">apply</span> (pr2 Hop1) ;
+        <span class="nb">rewrite</span> &lt;- ringrmultminus, &lt;- ringldistr ;
+        <span class="bp">exact</span> (pr2 n)).
+  - <span class="nb">apply</span> isarchring_2.
+    <span class="bp">exact</span> H.
+  - <span class="nb">intros</span> x.
+    <span class="nb">generalize</span> (isarchring_2 _ H (- x)%<span class="bp">ring</span>).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> n.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+    <span class="kp">abstract</span> (<span class="nb">change</span> <span class="mi">0</span>%rig <span class="k">with</span> (<span class="mi">0</span>%<span class="bp">ring</span> : X) ;
+               <span class="nb">rewrite</span> &lt;- (ringlinvax1 _ x) ;
+               <span class="nb">apply</span> (pr2 Hop1) ;
+               <span class="bp">exact</span> (pr2 n)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isarchrig_isarchring</span> {<span class="nv">X</span> : <span class="bp">ring</span>} (<span class="nv">R</span> : hrel X) :
+  isbinophrel (X := rigaddabmonoid X) R →
+  isarchrig (X := ringtorig X) R → isarchring R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hr H.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x Hx.
+    <span class="nb">generalize</span> (isarchrig_diff _ H _ _ Hx).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> (n,Hn).
+    <span class="k">exists</span> <span class="nv">n</span>.
+    <span class="nb">rewrite</span> &lt;- (ringrunax1 _ <span class="mi">1</span>%<span class="bp">ring</span>), &lt;- (ringmultx0 _ (nattoring n)).
+    <span class="bp">exact</span> Hn.
+  - <span class="nb">apply</span> (isarchrig_gt (X := ringtorig X)).
+    <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isarchring_isarchgr</span> {<span class="nv">X</span> : <span class="bp">ring</span>} (<span class="nv">R</span> : hrel X) :
+  R <span class="mi">1</span>%<span class="bp">ring</span> <span class="mi">0</span>%<span class="bp">ring</span> →
+  istrans R →
+  isbinophrel (X := X) R →
+  isarchring R → isarchgr (X := X) R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hr0 Hr Hop1 H.
+  <span class="nb">apply</span> isarchmonoid_isarchgr.
+  <span class="nb">apply</span> (isarchrig_isarchmonoid (X := X)).
+  <span class="bp">exact</span> Hr0.
+  <span class="bp">exact</span> Hr.
+  <span class="bp">exact</span> Hop1.
+  <span class="bp">now</span> <span class="nb">apply</span> isarchring_isarchrig.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isarchgr_isarchring</span> {<span class="nv">X</span> : <span class="bp">ring</span>} (<span class="nv">R</span> : hrel X) :
+  R <span class="mi">1</span>%<span class="bp">ring</span> <span class="mi">0</span>%<span class="bp">ring</span> →
+  istrans R →
+  isbinophrel (X := X) R →
+  isarchgr (X := X) R → isarchring R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hr0 Hr Hop1 H.
+  <span class="nb">apply</span> isarchrig_isarchring.
+  <span class="bp">exact</span> Hop1.
+  <span class="nb">apply</span> isarchmonoid_isarchrig.
+  <span class="bp">exact</span> Hr0.
+  <span class="bp">now</span> <span class="nb">apply</span> (isarchgr_isarchmonoid (X := X)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isarchrigtoring</span> :
+  ∏ (X : rig) (R : hrel X) (Hr : R <span class="mi">1</span>%rig <span class="mi">0</span>%rig)
+    (Hadd : isbinophrel (X := rigaddabmonoid X) R)
+    (Htra : istrans R)
+    (Harch : isarchrig (setquot_aux (X := rigaddabmonoid X) R)), isarchring (X := rigtoring X) (rigtoringrel X Hadd).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isarchgr_isarchring.
+  <span class="kp">abstract</span> (<span class="nb">apply</span> hinhpr ; <span class="nb">simpl</span> ;
+  <span class="k">exists</span> <span class="mi">0</span>%rig ; <span class="nb">rewrite</span> !rigrunax1 ;
+  <span class="bp">exact</span> Hr).
+  <span class="bp">now</span> <span class="nb">apply</span> (istransabgrdiffrel (rigaddabmonoid X)).
+  <span class="bp">now</span> <span class="nb">generalize</span> Hadd ; <span class="nb">apply</span> isbinopabgrdiffrel.
+  <span class="nb">apply</span> (isarchabgrdiff (X := rigaddabmonoid X)).
+  <span class="bp">exact</span> Htra.
+  <span class="nb">apply</span> isarchrig_isarchmonoid.
+  <span class="kp">abstract</span> (<span class="nb">apply</span> hinhpr ; <span class="nb">simpl</span> ;
+  <span class="k">exists</span> <span class="mi">0</span>%rig ; <span class="nb">rewrite</span> !rigrunax1 ;
+  <span class="bp">exact</span> Hr).
+  (<span class="bp">now</span> <span class="nb">apply</span> (istrans_setquot_aux (X := rigaddabmonoid X))).
+  (<span class="bp">now</span> <span class="nb">apply</span> (isbinophrel_setquot_aux (X := rigaddabmonoid X))).
+  <span class="bp">exact</span> Harch.
+<span class="c">(* Proof without (Hr : R 1%rig 0%rig)</span>
+<span class="c">  split.</span>
+<span class="c">  - intros xx Hx0.</span>
+<span class="c">    generalize (pr1 (pr2 xx)).</span>
+<span class="c">    apply hinhuniv ; intros (x,Hx).</span>
+<span class="c">    rewrite &lt;- (setquotl0 _ xx (x,,Hx)) in Hx0 |- * ; simpl pr1 in Hx0 |- * ; clear xx Hx.</span>
+<span class="c">    eapply hinhfun.</span>
+<span class="c">    2: apply (isarchrig_diff _ Harch (pr1 x) (pr2 x)).</span>
+<span class="c">    intros (n,Hn).</span>
+<span class="c">    exists n.</span>
+<span class="c">    assert ((nattoring (X := rigtoring X) n * setquotpr</span>
+<span class="c">    (binopeqrelabgrdiff (rigaddabmonoid X)) x)%ring = (setquotpr</span>
+<span class="c">    (binopeqrelabgrdiff (rigaddabmonoid X)) (nattorig n * pr1 x ,,</span>
+<span class="c">    nattorig n * pr2 x))%ring).</span>
+<span class="c">    { clear.</span>
+<span class="c">      induction n as [|n IHn].</span>
+<span class="c">      - rewrite !rigmult0x, ringmult0x.</span>
+<span class="c">        reflexivity.</span>
+<span class="c">      - unfold nattoring.</span>
+<span class="c">        rewrite !nattorigS, !rigrdistr, ringrdistr, !riglunax2, ringlunax2.</span>
+<span class="c">        simpl.</span>
+<span class="c">        eapply pathscomp0.</span>
+<span class="c">        apply maponpaths.</span>
+<span class="c">        apply IHn.</span>
+<span class="c">        reflexivity. }</span>
+<span class="c">    rewrite X0 ; clear X0.</span>
+<span class="c">    revert Hn.</span>
+<span class="c">    apply hinhfun ; simpl.</span>
+<span class="c">    intros (c,Hc).</span>
+<span class="c">    exists c.</span>
+<span class="c">    rewrite rigrunax1.</span>
+<span class="c">    exact Hc.</span>
+<span class="c">    revert Hx0.</span>
+<span class="c">    apply hinhfun ; simpl.</span>
+<span class="c">    intros (c,Hc).</span>
+<span class="c">    exists c.</span>
+<span class="c">    rewrite riglunax1, rigrunax1 in Hc.</span>
+<span class="c">    exact Hc.</span>
+<span class="c">  - intros xx.</span>
+<span class="c">    generalize (pr1 (pr2 xx)).</span>
+<span class="c">    apply hinhuniv ; intros (x,Hx).</span>
+<span class="c">    rewrite &lt;- (setquotl0 _ xx (x,,Hx)) ; simpl pr1 ; clear xx Hx.</span>
+<span class="c">    generalize (isarchrig_gt _ Harch (pr1 x)) (isarchrig_pos _ Harch (pr2 x)).</span>
+<span class="c">    apply hinhfun2.</span>
+<span class="c">    intros (n1,Hn1) (n2,Hn2).</span>
+<span class="c">    exists (n1 + n2)%nat.</span>
+<span class="c">    revert Hn1 Hn2.</span>
+<span class="c">    assert (nattoring (X := rigtoring X) (n1 + n2) = setquotpr</span>
+<span class="c">    (binopeqrelabgrdiff (rigaddabmonoid X)) (nattorig (n1 + n2) ,,</span>
+<span class="c">    0%rig)).</span>
+<span class="c">    { generalize (n1 + n2) ; clear.</span>
+<span class="c">      induction n as [|n IHn].</span>
+<span class="c">      - reflexivity.</span>
+<span class="c">      - unfold nattoring ; rewrite !nattorigS.</span>
+<span class="c">        rewrite &lt;- (riglunax1 _ 0%rig).</span>
+<span class="c">        eapply pathscomp0.</span>
+<span class="c">        apply maponpaths.</span>
+<span class="c">        exact IHn.</span>
+<span class="c">        reflexivity. }</span>
+<span class="c">    rewrite X0 ; clear X0.</span>
+<span class="c">    apply hinhfun2 ; simpl.</span>
+<span class="c">    intros (c1,Hc1) (c2,Hc2).</span>
+<span class="c">    exists (c1+c2)%rig.</span>
+<span class="c">    eapply Htra.</span>
+<span class="c">    assert (nattorig (n1 + n2) + pr2 x + (c1 + c2) =</span>
+<span class="c">            ((nattorig n1 + c1) + (nattorig n2 + pr2 x + c2)))%rig.</span>
+<span class="c">    { rewrite nattorig_plus, !rigassoc1.</span>
+<span class="c">      apply maponpaths.</span>
+<span class="c">      rewrite rigcomm1, !rigassoc1.</span>
+<span class="c">      rewrite rigcomm1, !rigassoc1.</span>
+<span class="c">      apply maponpaths.</span>
+<span class="c">      rewrite rigcomm1, !rigassoc1.</span>
+<span class="c">      reflexivity. }</span>
+<span class="c">    simpl in X0 |- * ; rewrite X0 ; clear X0.</span>
+<span class="c">    apply (pr2 Hadd).</span>
+<span class="c">    exact Hc1.</span>
+<span class="c">    rewrite rigrunax1, &lt;- rigassoc1.</span>
+<span class="c">    apply (pr1 Hadd).</span>
+<span class="c">    rewrite riglunax1 in Hc2.</span>
+<span class="c">    exact Hc2.*)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natmult_commringfrac</span> {<span class="nv">X</span> : commring} {<span class="nv">S</span> : subabmonoid _} :
+  ∏ n (x : X × S), natmult (X := commringfrac X S) n (setquotpr (eqrelcommringfrac X S) x) = setquotpr (eqrelcommringfrac X S) (natmult (X := X) n (pr1 x) ,, (pr2 x)).
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span> ; <span class="nb">intros</span> n x.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+  - <span class="nb">apply</span> (iscompsetquotpr (eqrelcommringfrac X S)).
+    <span class="nb">apply</span> hinhpr ; <span class="nb">simpl</span>.
+    <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">x</span>).
+    <span class="nb">rewrite</span> !(ringmult0x X).
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">rewrite</span> !natmultS, IHn.
+    <span class="nb">apply</span> (iscompsetquotpr (eqrelcommringfrac X S)).
+    <span class="nb">apply</span> hinhpr ; <span class="nb">simpl</span>.
+    <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">x</span>) ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> &lt;- (ringldistr X).
+    <span class="nb">rewrite</span> (ringcomm2 X (pr1 (pr2 x))).
+    <span class="nb">rewrite</span> !(ringassoc2 X).
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isarchcommringfrac</span> {<span class="nv">X</span> : commring} {<span class="nv">S</span> : subabmonoid _} (<span class="nv">R</span> : hrel X) <span class="nv">Hop1</span> <span class="nv">Hop2</span> <span class="nv">Hs</span>:
+  R <span class="mi">1</span>%<span class="bp">ring</span> <span class="mi">0</span>%<span class="bp">ring</span> →
+  istrans R →
+  isarchring R → isarchring (X := commringfrac X S) (commringfracgt X S (R := R) Hop1 Hop2 Hs).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H0 Htra Hr.
+  <span class="nb">split</span>.
+  - <span class="nb">simple refine</span> (setquotunivprop _ (<span class="k">λ</span> <span class="nv">_</span>, (_,,_)) _).
+    <span class="nb">apply</span> isapropimpl, propproperty.
+    <span class="nb">intros</span> x Hx.
+    <span class="nb">revert</span> Hx ; <span class="nb">apply</span> hinhuniv ; <span class="nb">intros</span> (c,Hx) ; <span class="nb">simpl</span> <span class="k">in</span> Hx.
+    <span class="nb">rewrite</span> !(ringmult0x X), (ringrunax2 X) <span class="k">in</span> Hx.
+    <span class="nb">apply</span> (hinhfun (X := ∑ n, commringfracgt X S Hop1 Hop2 Hs (setquotpr (eqrelcommringfrac X S) ((nattoring n * pr1 x)%<span class="bp">ring</span>,, pr2 x)) <span class="mi">1</span>%<span class="bp">ring</span>)).
+    <span class="nb">intros</span> H.
+    <span class="nb">eexists</span> (pr1 H).
+    <span class="nb">unfold</span> nattoring.
+    <span class="nb">rewrite</span> (nattorig_natmult (X := commringfrac X S)).
+    <span class="nb">rewrite</span> (natmult_commringfrac (X := X) (S := S)).
+    <span class="nb">rewrite</span> &lt;- (nattorig_natmult (X := X)).
+    <span class="bp">now</span> <span class="nb">apply</span> (pr2 H).
+    <span class="nb">generalize</span> (isarchring_1 _ Hr _ Hx) (isarchring_2 _ Hr (pr1 (pr2 x) * pr1 c)%<span class="bp">ring</span>).
+    <span class="nb">apply</span> hinhfun2.
+    <span class="nb">intros</span> (m,Hm) (n,Hn).
+    <span class="k">exists</span> (<span class="nv">max</span> <span class="mi">1</span> <span class="nv">n</span> * m)%nat.
+    <span class="nb">destruct</span> n ; <span class="nb">simpl</span> max.
+    + <span class="nb">apply</span> hinhpr ; <span class="nb">simpl</span>.
+      <span class="k">exists</span> <span class="nv">c</span>.
+      <span class="nb">rewrite</span> (ringrunax2 X), (ringlunax2 X), (ringassoc2 X).
+      <span class="nb">eapply</span> Htra.
+      <span class="bp">exact</span> Hm.
+      <span class="nb">eapply</span> Htra.
+      <span class="bp">exact</span> H0.
+      <span class="bp">exact</span> Hn.
+    + <span class="nb">unfold</span> nattoring.
+      <span class="nb">rewrite</span> (nattorig_natmult (X := X)), natmult_mult.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">simpl</span>.
+      <span class="k">exists</span> <span class="nv">c</span>.
+      <span class="nb">change</span> (R
+                (natmult (succ n) (natmult (X := X) m (pr1 x)) * <span class="mi">1</span> * pr1 c)%<span class="bp">ring</span>
+                (<span class="mi">1</span> * pr1 (pr2 x) * pr1 c)%<span class="bp">ring</span>).
+      <span class="nb">rewrite</span> &lt;- (nattorig_natmult (X := X)), (ringrunax2 X), (ringlunax2 X), (ringassoc2 X), (nattorig_natmult (X := X)).
+      <span class="nb">eapply</span> Htra.
+      <span class="nb">apply</span> (natmult_binophrel (X := X) R).
+      <span class="bp">exact</span> Htra.
+      <span class="bp">exact</span> Hop1.
+      <span class="nb">rewrite</span> &lt;- (nattorig_natmult (X := X)), (ringassoc2 X).
+      <span class="bp">exact</span> Hm.
+      <span class="bp">exact</span> Hn.
+  - <span class="nb">simple refine</span> (setquotunivprop _ _ _).
+    <span class="nb">intros</span> x.
+    <span class="nb">apply</span> (hinhfun (X := ∑ n : nat, commringfracgt X S Hop1 Hop2 Hs
+     (setquotpr (eqrelcommringfrac X S) (nattoring n,, unel S))
+     (setquotpr (eqrelcommringfrac X S) x))).
+    <span class="nb">intros</span> (n,Hn).
+    <span class="k">exists</span> <span class="nv">n</span>.
+    <span class="nb">unfold</span> nattoring, nattorig.
+    <span class="nb">change</span> <span class="mi">1</span>%rig <span class="k">with</span> (setquotpr (eqrelcommringfrac X S)
+                                (<span class="mi">1</span>%<span class="bp">ring</span>,, unel S)).
+    <span class="nb">rewrite</span> (natmult_commringfrac (X := X) (S := S) n).
+    <span class="bp">exact</span> Hn.
+    <span class="nb">generalize</span> (isarchring_1 _ Hr _ (Hs (pr1 (pr2 x)) (pr2 (pr2 x)))) (isarchring_2 _ Hr (pr1 x)%<span class="bp">ring</span>).
+    <span class="nb">apply</span> hinhfun2.
+    <span class="nb">intros</span> (m,Hm) (n,Hn).
+    <span class="k">exists</span> (<span class="nv">max</span> <span class="mi">1</span> <span class="nv">n</span> * m)%nat.
+    <span class="nb">destruct</span> n ; <span class="nb">simpl</span> max.
+    + <span class="nb">apply</span> hinhpr ; <span class="nb">simpl</span>.
+      <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">x</span>).
+      <span class="nb">apply</span> (isringmultgttoisrringmultgt X).
+      <span class="bp">exact</span> Hop1.
+      <span class="bp">exact</span> Hop2.
+      <span class="nb">apply</span> Hs.
+      <span class="nb">apply</span> (pr2 (pr2 x)).
+      <span class="nb">eapply</span> Htra.
+      <span class="bp">exact</span> Hm.
+      <span class="nb">eapply</span> Htra.
+      <span class="bp">exact</span> H0.
+      <span class="nb">rewrite</span> (ringrunax2 X).
+      <span class="bp">exact</span> Hn.
+    + <span class="nb">apply</span> hinhpr ; <span class="nb">simpl</span>.
+      <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">x</span>).
+      <span class="nb">change</span> (n * m + m)%nat <span class="k">with</span> (succ n * m)%nat.
+      <span class="nb">unfold</span> nattoring.
+      <span class="nb">apply</span> (isringmultgttoisrringmultgt X).
+      <span class="bp">exact</span> Hop1.
+      <span class="bp">exact</span> Hop2.
+      <span class="nb">apply</span> Hs.
+      <span class="nb">apply</span> (pr2 (pr2 x)).
+      <span class="nb">rewrite</span> (ringrunax2 X), (nattorig_natmult (X := X)), natmult_mult.
+      <span class="nb">eapply</span> Htra.
+      <span class="nb">apply</span> (natmult_binophrel (X := X) R).
+      <span class="bp">exact</span> Htra.
+      <span class="bp">exact</span> Hop1.
+      <span class="nb">rewrite</span> &lt;- (nattorig_natmult (X := X)).
+      <span class="bp">exact</span> Hm.
+      <span class="bp">exact</span> Hn.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Archimedean property in a field *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isarchfld</span> {<span class="nv">X</span> : fld} (<span class="nv">R</span> : hrel X) :=
+  ∏ x : X, <span class="k">∃</span> <span class="nv">n</span> : nat, R (nattoring n) x.
+
+<span class="kn">Lemma</span> <span class="nf">isarchfld_isarchring</span> {<span class="nv">X</span> : fld} (<span class="nv">R</span> : hrel X) :
+  ∏ (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isringmultgt X R)
+    (Hirr : isirrefl R),
+    isarchfld R → isarchring R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hadd Hmult Hirr H.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x Hx.
+    <span class="nb">case</span> (fldchoice x) ; <span class="nb">intros</span> x'.
+    + <span class="nb">generalize</span> (H (pr1 x')).
+      <span class="nb">apply</span> hinhfun.
+      <span class="nb">intros</span> n.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+      <span class="kp">abstract</span> (<span class="nb">pattern</span> (<span class="mi">1</span>%<span class="bp">ring</span> : X) <span class="nb">at</span> <span class="mi">1</span> ;
+                 <span class="nb">rewrite</span> &lt;- (pr1 (pr2 x')) ;
+                <span class="nb">apply</span> (isringmultgttoisrringmultgt _ Hadd Hmult _ _ _ Hx (pr2 n))).
+    + <span class="nb">apply</span> hinhpr.
+      <span class="k">exists</span> <span class="nv">O</span>.
+      <span class="kp">abstract</span> (<span class="nb">apply</span> fromempty ;
+                 <span class="nb">refine</span> (Hirr _ _) ;
+                 <span class="nb">rewrite</span> x' <span class="k">in</span> Hx ;
+                 <span class="nb">apply</span> Hx).
+  - <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+<span class="kn">Lemma</span> <span class="nf">isarchring_isarchfld</span> {<span class="nv">X</span> : fld} (<span class="nv">R</span> : hrel X) :
+    isarchring R → isarchfld R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> (isarchring_2 R H x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isarchfldfrac</span> ( <span class="nv">X</span> : intdom ) ( <span class="nv">isc</span> : isdeceq X )  { <span class="nv">R</span> : hrel X } ( <span class="nv">is0</span> : @isbinophrel X R ) ( <span class="nv">is1</span> : isringmultgt X R ) ( <span class="nv">is2</span> : R <span class="mi">1</span>%<span class="bp">ring</span> <span class="mi">0</span>%<span class="bp">ring</span> ) ( <span class="nv">nc</span> : neqchoice R ) ( <span class="nv">irr</span> : isirrefl R ) ( <span class="nv">tra</span> : istrans R ) :
+  isarchring R → isarchfld (X := fldfrac X isc ) (fldfracgt _  isc is0 is1 is2 nc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isarchring_isarchfld.
+  <span class="nb">unfold</span> fldfracgt.
+  <span class="nb">generalize</span> (isarchcommringfrac (X := X) (S := ringpossubmonoid X is1 is2) R is0 is1 (<span class="k">λ</span> (<span class="nv">c</span> : X) (<span class="nv">r</span> : (ringpossubmonoid X is1 is2) c), r) is2 tra X0).
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (H_f : ∏ n x, (weqfldfracgt_f X isc is0 is1 is2 nc (nattoring n * x)%<span class="bp">ring</span>) = (nattoring n * weqfldfracgt_f X isc is0 is1 is2 nc x)%<span class="bp">ring</span>).
+  { <span class="nb">clear</span> -irr.
+    <span class="nb">intros</span> n x.
+    <span class="nb">unfold</span> nattoring.
+    <span class="nb">rewrite</span> (nattorig_natmult (X := fldfrac X isc)), (nattorig_natmult (X := commringfrac X (@ringpossubmonoid X R is1 is2))).
+    <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+    - <span class="nb">refine</span> (pr2 (pr1 (isringfunweqfldfracgt_f _ _ _ _ _ _ _))).
+      <span class="bp">exact</span> irr.
+    - <span class="nb">rewrite</span> !natmultS, &lt;- IHn.
+      <span class="nb">refine</span> (pr1 (pr1 (isringfunweqfldfracgt_f _ _ _ _ _ _ _)) _ _).
+      <span class="bp">exact</span> irr. }
+  <span class="nb">assert</span> (H_0 : (weqfldfracgt_f X isc is0 is1 is2 nc <span class="mi">0</span>%<span class="bp">ring</span>) = <span class="mi">0</span>%<span class="bp">ring</span>).
+  { <span class="nb">refine</span> (pr2 (pr1 (isringfunweqfldfracgt_f _ _ _ _ _ _ _))).
+    <span class="bp">exact</span> irr. }
+  <span class="nb">assert</span> (H_1 : (weqfldfracgt_f X isc is0 is1 is2 nc <span class="mi">1</span>%<span class="bp">ring</span>) = <span class="mi">1</span>%<span class="bp">ring</span>).
+  { <span class="nb">refine</span> (pr2 (pr2 (isringfunweqfldfracgt_f _ _ _ _ _ _ _))).
+    <span class="bp">exact</span> irr. }
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x Hx.
+    <span class="nb">eapply</span> hinhfun.
+    <span class="mi">2</span>: <span class="nb">apply</span> (isarchring_1 _ X1 (weqfldfracgt_f X isc is0 is1 is2 nc x)).
+    <span class="nb">intros</span> (n,Hn).
+    <span class="k">exists</span> <span class="nv">n</span>.
+    <span class="nb">rewrite</span> H_f, H_1.
+    <span class="bp">exact</span> Hn.
+    <span class="nb">rewrite</span> H_0 <span class="k">in</span> Hx.
+    <span class="bp">exact</span> Hx.
+  - <span class="nb">intros</span> x.
+    <span class="nb">eapply</span> hinhfun.
+    <span class="mi">2</span>: <span class="nb">apply</span> (isarchring_2 _ X1 (weqfldfracgt_f X isc is0 is1 is2 nc x)).
+    <span class="nb">intros</span> (n,Hn).
+    <span class="k">exists</span> <span class="nv">n</span>.
+    <span class="nb">rewrite</span> &lt;- (ringrunax2 _ (nattoring n)), H_f, H_1, ringrunax2.
+    <span class="bp">exact</span> Hn.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Archimedean property in a constructive field *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isarchCF</span> {<span class="nv">X</span> : ConstructiveField} (<span class="nv">R</span> : hrel X) :=
+  ∏ x : X, <span class="k">∃</span> <span class="nv">n</span> : nat, R (nattoring n) x.
+
+<span class="kn">Lemma</span> <span class="nf">isarchCF_isarchring</span> {<span class="nv">X</span> : ConstructiveField} (<span class="nv">R</span> : hrel X) :
+  ∏ (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isringmultgt X R)
+    (Hirr : isirrefl R),
+    (∏ x : X, R x <span class="mi">0</span>%CF → (x ≠ <span class="mi">0</span>)%CF) →
+    isarchCF R → isarchring R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hadd Hmult Hirr H0 H.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x Hx.
+    <span class="nb">generalize</span> (H (CFinv x (H0 _ Hx))).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> (n,Hn).
+    <span class="k">exists</span> <span class="nv">n</span>.
+    <span class="nb">change</span> <span class="mi">1</span>%<span class="bp">ring</span> <span class="k">with</span> (<span class="mi">1</span>%CF : X).
+    <span class="nb">rewrite</span> &lt;- (islinv_CFinv x (H0 x Hx)).
+    <span class="nb">apply</span> isringmultgttoisrringmultgt.
+    <span class="bp">exact</span> Hadd.
+    <span class="bp">exact</span> Hmult.
+    <span class="bp">exact</span> Hx.
+    <span class="bp">exact</span> Hn.
+  - <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+<span class="kn">Lemma</span> <span class="nf">isarchring_isarchCF</span> {<span class="nv">X</span> : ConstructiveField} (<span class="nv">R</span> : hrel X) :
+    isarchring R → isarchCF R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> (isarchring_2 R H x).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Archimedean.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/NaturalNumbers.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** Imports *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.NaturalNumbers.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Algebra.RigsAndRings.
+  &gt; Require Import UniMath.Algebra.Groups.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

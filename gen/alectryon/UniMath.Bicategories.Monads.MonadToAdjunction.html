@@ -1,0 +1,733 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonadToAdjunction.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************</span>
+
+<span class="sd"> Every monad gives rise to an adjunction</span>
+
+<span class="sd"> If a bicategory has Eilenberg-Moore objects, then every monad arises from an</span>
+<span class="sd"> adjunction. This is the so-called free-algebra adjunction.</span>
+
+<span class="sd"> This generalizes the construction in Monads.MonadAlgebras.v.</span>
+<span class="sd"> Note: since we can instantiate this construction for Kleisli objects as well, the</span>
+<span class="sd"> construction also generalizes the construction in Monads.KleisliCategory.v</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Adjunction from monad</span>
+<span class="sd"> 2. The monad from the adjunction from a monad is equivalent to the original monad</span>
+
+<span class="sd"> *********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.EilenbergMooreObjects.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+<span class="kn">Require Import</span> UniMath.Bicategories.Monads.Examples.AdjunctionToMonad.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.MonadInclusion.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">MonadToAdjunction</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">HB</span> : bicat_has_em B)
+          (<span class="nv">m</span> : mnd B).
+
+  <span class="kn">Let</span> <span class="nf">x</span> : B := ob_of_mnd m.
+  <span class="kn">Let</span> <span class="nf">f</span> : x --&gt; x := endo_of_mnd m.
+  <span class="kn">Let</span> <span class="nf">η</span> : id₁ _ ==&gt; f := unit_of_mnd m.
+  <span class="kn">Let</span> <span class="nf">μ</span> : f · f ==&gt; f := mult_of_mnd m.
+
+  <span class="kn">Let</span> <span class="nf">e</span> : em_cone m := pr1 (HB m).
+  <span class="kn">Let</span> <span class="nf">He</span> : has_em_ump _ e := pr2 (HB m).
+
+  <span class="kn">Let</span> <span class="nf">l</span> : e --&gt; x := mor_of_mnd_mor (mor_of_em_cone _ e).
+  <span class="kn">Let</span> <span class="nf">lf</span> : l · f ==&gt; l := mnd_mor_endo (mor_of_em_cone _ e) • lunitor _.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Adjunction from monad</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">free_alg_1cell_cone</span>
+    : em_cone m.
+  <span class="kn">Proof</span>.
+    use make_em_cone.
+    - <span class="bp">exact</span> x.
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span> (μ • linvunitor _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (!(id2_left _) @ _) ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="bp">exact</span> (mnd_unit_right m)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> !vassocl ;
+         use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> rwhisker_vcomp ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> linvunitor_lunitor ;
+         <span class="nb">rewrite</span> id2_right ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="bp">exact</span> (!(mnd_mult_assoc m))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">free_alg_1cell</span>
+    : x --&gt; e
+    := em_ump_1_mor _ He free_alg_1cell_cone.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_unit</span>
+    : id₁ x ==&gt; free_alg_1cell · l
+    := η • cell_of_mnd_cell ((em_ump_1_inv2cell _ He free_alg_1cell_cone)^-<span class="mi">1</span>).
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_counit_cell_data</span>
+    : mnd_cell_data
+        (# (mnd_incl B) (l · free_alg_1cell) · mor_of_em_cone m e)
+        (# (mnd_incl B) (id₁ e) · mor_of_em_cone m e)
+    := rassociator _ _ _
+       • (_ ◃ cell_of_mnd_cell (em_ump_1_inv2cell _ He free_alg_1cell_cone))
+       • mnd_mor_endo (mor_of_em_cone m e).
+
+  <span class="kn">Local Definition</span> <span class="nf">em_ump_mnd_cell_endo_help</span>
+    : (_ ◃ mnd_mor_endo (mor_of_em_cone m e))
+      • lassociator _ _ _
+      • (runitor _ ▹ _)
+      • cell_of_mnd_cell (em_ump_1_inv2cell m He free_alg_1cell_cone)
+      =
+      lassociator _ _ _
+      • (cell_of_mnd_cell (em_ump_1_inv2cell m He free_alg_1cell_cone) ▹ endo_of_mnd m)
+      • μ.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ vassocr _ _ _).
+    use vcomp_move_L_pM ; [ is_iso | ].
+    use (vcomp_rcancel (linvunitor _)) ; [ is_iso | ].
+    <span class="nb">rewrite</span> !vassocl.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> linvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+      <span class="nb">rewrite</span> linvunitor_assoc.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (_ @ mnd_cell_endo (em_ump_1_inv2cell m He free_alg_1cell_cone)).
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_counit_is_mnd_cell</span>
+    : is_mnd_cell mnd_to_counit_cell_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_mnd_cell ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> mnd_to_counit_cell_data.
+    <span class="nb">rewrite</span> runitor_lunitor_identity.
+    <span class="nb">rewrite</span> lunitor_linvunitor.
+    <span class="nb">rewrite</span> id2_rwhisker.
+    <span class="nb">rewrite</span> id2_right.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> lassociator_rassociator.
+    <span class="nb">rewrite</span> id2_right.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> lwhisker_hcomp.
+        <span class="nb">rewrite</span> &lt;- inverse_pentagon_3.
+        <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lwhisker_lwhisker_rassociator.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> linvunitor_assoc.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rassociator_lassociator.
+        <span class="nb">rewrite</span> id2_right.
+        <span class="nb">rewrite</span> &lt;- runitor_triangle.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> rwhisker_rwhisker_alt.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">rewrite</span> vcomp_whisker.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker_rassociator.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> rwhisker_hcomp.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> &lt;- inverse_pentagon_4.
+        <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker_rassociator.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !lwhisker_vcomp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> em_ump_mnd_cell_endo_help.
+    }
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> &lt;- rassociator_rassociator.
+    <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> rassociator_lassociator.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> rwhisker_lwhisker_rassociator.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- linvunitor_assoc.
+      <span class="nb">rewrite</span> lwhisker_hcomp.
+      <span class="nb">rewrite</span> &lt;- linvunitor_natural.
+      <span class="nb">apply</span> idpath.
+    }
+    use vcomp_move_R_pM ; [ is_iso | ].
+    <span class="nb">rewrite</span> !vassocr.
+    use vcomp_move_R_Mp ; [ is_iso | ].
+    <span class="nb">refine</span> (!_).
+    <span class="nb">refine</span> (_ @ mnd_mor_mu (mor_of_em_cone m e)).
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> lunitor_triangle.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_counit_mnd_cell</span>
+    : # (mnd_incl B) (l · free_alg_1cell) · mor_of_em_cone m e
+      ==&gt;
+      # (mnd_incl B) (id₁ e) · mor_of_em_cone m e.
+  <span class="kn">Proof</span>.
+    use make_mnd_cell.
+    - <span class="bp">exact</span> mnd_to_counit_cell_data.
+    - <span class="bp">exact</span> mnd_to_counit_is_mnd_cell.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_counit</span>
+    : l · free_alg_1cell ==&gt; id₁ e
+    := em_ump_2_cell _ He mnd_to_counit_mnd_cell.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_left_adjoint_data</span>
+    : left_adjoint_data free_alg_1cell
+    := l ,, (mnd_to_unit ,, mnd_to_counit).
+
+  <span class="kn">Local Definition</span> <span class="nf">em_ump_mnd_cell_endo_inv_help</span>
+    : (cell_of_mnd_cell ((em_ump_1_inv2cell m He free_alg_1cell_cone) ^-<span class="mi">1</span>) ▹ endo_of_mnd m)
+      • rassociator _ _ _
+      • (_ ◃ mnd_mor_endo (mor_of_em_cone m e))
+      =
+      μ
+      • cell_of_mnd_cell ((em_ump_1_inv2cell m He free_alg_1cell_cone) ^-<span class="mi">1</span>)
+      • (_ ◃ linvunitor _).
+  <span class="kn">Proof</span>.
+    use (vcomp_rcancel (lassociator _ _ _ • ((runitor _) ▹ _) • linvunitor _)) ; [ is_iso | ].
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> lwhisker_hcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> triangle_l_inv.
+      }
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (rwhisker_vcomp _ _ _ @ _).
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">apply</span> id2_rwhisker.
+    }
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">rewrite</span> linvunitor_natural.
+    <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+    <span class="nb">refine</span> (vassocr _ _ _ @ _).
+    <span class="nb">refine</span> (mnd_cell_endo ((em_ump_1_inv2cell m He free_alg_1cell_cone) ^-<span class="mi">1</span>) @ _).
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> linvunitor_assoc.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_left_adjoint_axioms</span>
+    : left_adjoint_axioms mnd_to_left_adjoint_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use (em_ump_eq _ He).
+      + <span class="nb">apply</span> id₂.
+      + use eq_mnd_cell ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !rwhisker_hcomp.
+          <span class="nb">rewrite</span> &lt;- triangle_l.
+          <span class="nb">rewrite</span> &lt;- lwhisker_hcomp, &lt;- rwhisker_hcomp.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker_rassociator.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (maponpaths
+                   cell_of_mnd_cell
+                   (em_ump_2_eq _ He mnd_to_counit_mnd_cell)).
+        }
+        <span class="nb">cbn</span> ; <span class="nb">unfold</span> mnd_to_counit_cell_data.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> rassociator_rassociator.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> idpath.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> rwhisker_rwhisker_alt.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> lwhisker_lwhisker_rassociator.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">unfold</span> mnd_to_unit.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- linvunitor_assoc.
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> vcomp_whisker.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> em_ump_mnd_cell_endo_inv_help.
+        }
+        etrans.
+        {
+          <span class="nb">rewrite</span> !vassocr.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">rewrite</span> lwhisker_hcomp.
+            <span class="nb">rewrite</span> &lt;- linvunitor_natural.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !vassocl.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !vassocr.
+            <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> mnd_unit_left.
+          }
+          <span class="nb">rewrite</span> id2_left.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (maponpaths
+                     cell_of_mnd_cell
+                     (vcomp_rinv (em_ump_1_inv2cell m He free_alg_1cell_cone))).
+          }
+          <span class="nb">apply</span> id2_left.
+        }
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">rewrite</span> linvunitor_lunitor.
+        <span class="nb">apply</span> lwhisker_id2.
+      + <span class="nb">rewrite</span> psfunctor_id2.
+        <span class="nb">apply</span> id2_rwhisker.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">unfold</span> mnd_to_unit.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (maponpaths
+                 cell_of_mnd_cell
+                 (em_ump_2_eq _ He mnd_to_counit_mnd_cell)).
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> mnd_to_counit_cell_data.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lassociator_rassociator.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths
+                 cell_of_mnd_cell
+                 (vcomp_linv (em_ump_1_inv2cell m He free_alg_1cell_cone))).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> !vassocr.
+      use vcomp_move_R_Mp ; [ is_iso | ].
+      <span class="nb">refine</span> (!(mnd_mor_unit (mor_of_em_cone m e)) @ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">rewrite</span> id2_left, id2_right.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_left_adjoint</span>
+    : left_adjoint free_alg_1cell
+    := mnd_to_left_adjoint_data ,, mnd_to_left_adjoint_axioms.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_adjunction</span>
+    : adjunction x e
+    := free_alg_1cell ,, mnd_to_left_adjoint.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. The monad from the adjunction from a monad is equivalent to the original monad</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">mnd_to_adjunction_to_mnd_data</span>
+    : mnd_mor_data
+        (mnd_from_adjunction mnd_to_adjunction)
+        m.
+  <span class="kn">Proof</span>.
+    use make_mnd_mor_data.
+    - <span class="bp">exact</span> (id₁ _).
+    - <span class="bp">exact</span> (lunitor _
+             • cell_of_mnd_cell ((em_ump_1_inv2cell m He free_alg_1cell_cone)^-<span class="mi">1</span>)
+             • rinvunitor _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_adjunction_to_mnd_law₁</span>
+    : linvunitor (id₁ x)
+      • (mnd_to_unit ▹ id₁ x)
+      =
+      rinvunitor (id₁ x)
+      • (id₁ x ◃ unit_of_mnd m)
+      • ((lunitor f • cell_of_mnd_cell ((em_ump_1_inv2cell m He free_alg_1cell_cone) ^-<span class="mi">1</span>))
+     • rinvunitor _).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> lunitor_V_id_is_left_unit_V_id.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> mnd_to_unit.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rinvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> lunitor_runitor_identity.
+    <span class="nb">rewrite</span> runitor_rinvunitor.
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_adjunction_to_mnd_law₂</span>
+    : lassociator (id₁ _) f f
+      • ((lunitor f
+          • cell_of_mnd_cell ((em_ump_1_inv2cell m He free_alg_1cell_cone) ^-<span class="mi">1</span>)
+          • rinvunitor (em_ump_1_mor m He free_alg_1cell_cone · pr1 (mor_of_em_cone m e)))
+         ▹ endo_of_mnd m)
+      • rassociator (free_alg_1cell · l) (id₁ x) f
+      • (free_alg_1cell · l
+           ◃ (lunitor f
+              • cell_of_mnd_cell ((em_ump_1_inv2cell m He free_alg_1cell_cone) ^-<span class="mi">1</span>)
+              • rinvunitor (em_ump_1_mor m He free_alg_1cell_cone · pr1 (mor_of_em_cone m e))))
+      • lassociator (free_alg_1cell · l) (free_alg_1cell · l) (id₁ x)
+      • ((((rassociator free_alg_1cell l (free_alg_1cell · l)
+            • (free_alg_1cell ◃ lassociator l free_alg_1cell l))
+            • (free_alg_1cell ◃ (mnd_to_counit ▹ l)))
+            • (free_alg_1cell ◃ lunitor l)) ▹ id₁ x)
+      =
+      (id₁ x ◃ μ)
+      • ((lunitor f • cell_of_mnd_cell ((em_ump_1_inv2cell m He free_alg_1cell_cone) ^-<span class="mi">1</span>))
+      • rinvunitor (em_ump_1_mor m He free_alg_1cell_cone · pr1 (mor_of_em_cone m e))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> lunitor_triangle.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">7</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> rwhisker_hcomp.
+      <span class="nb">rewrite</span> &lt;- triangle_r_inv.
+      <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> linvunitor_lunitor.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">rewrite</span> !vassocl.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rinvunitor_triangle.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> !rwhisker_vcomp.
+      <span class="nb">rewrite</span> rwhisker_hcomp.
+      <span class="nb">rewrite</span> &lt;- rinvunitor_natural.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">pose</span> (p := maponpaths cell_of_mnd_cell (em_ump_2_eq m He mnd_to_counit_mnd_cell)).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    }
+    <span class="nb">unfold</span> mnd_to_counit_cell_data.
+    <span class="nb">rewrite</span> !vassocl.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lassociator_rassociator.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> lwhisker_lwhisker_rassociator.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !lwhisker_vcomp.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths
+                 cell_of_mnd_cell
+                 (vcomp_linv (em_ump_1_inv2cell m He free_alg_1cell_cone))).
+      }
+      <span class="nb">apply</span> lwhisker_id2.
+    }
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !vassocl.
+    use (vcomp_rcancel (linvunitor _)) ; [ is_iso | ].
+    <span class="nb">pose</span> (p := mnd_cell_endo ((em_ump_1_inv2cell m He free_alg_1cell_cone) ^-<span class="mi">1</span>)).
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> linvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="bp">exact</span> p.
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> &lt;- linvunitor_assoc.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">rewrite</span> runitor_rwhisker.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_adjunction_to_mnd_laws</span>
+    : mnd_mor_laws mnd_to_adjunction_to_mnd_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> mnd_to_adjunction_to_mnd_law₁.
+    - <span class="bp">exact</span> mnd_to_adjunction_to_mnd_law₂.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_adjunction_to_mnd</span>
+    : mnd_from_adjunction mnd_to_adjunction
+      --&gt;
+      m.
+  <span class="kn">Proof</span>.
+    use make_mnd_mor.
+    - <span class="bp">exact</span> mnd_to_adjunction_to_mnd_data.
+    - <span class="bp">exact</span> mnd_to_adjunction_to_mnd_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mnd_to_adjunction_to_mnd_adj_equivalence</span>
+             (<span class="nv">HB_2_0</span> : is_univalent_2_0 B)
+    : left_adjoint_equivalence mnd_to_adjunction_to_mnd.
+  <span class="kn">Proof</span>.
+    use to_equivalence_mnd.
+    - <span class="bp">exact</span> HB_2_0.
+    - <span class="nb">apply</span> internal_adjoint_equivalence_identity.
+    - <span class="nb">cbn</span>.
+      is_iso.
+      <span class="nb">apply</span> (from_invertible_mnd_2cell
+               (inv_of_invertible_2cell (em_ump_1_inv2cell m He free_alg_1cell_cone))).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MonadToAdjunction</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Monads/MonadToAdjunction.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. The monad from the adjunction from a monad is equivalent to the original monad
+  &gt;
+  &gt;  *********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

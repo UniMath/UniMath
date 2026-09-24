@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EquivalenceMonCatCurried.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.AssociatorUnitorsLayer.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.FinalLayer.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Section</span> <span class="nf">EquivalenceWithCurriedMonStruct</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ucat</span> (<span class="nv">C</span> : bicat_of_univ_cats) : category := (C : univalent_category).
+
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_unitors_associator_equiv_layer</span> (<span class="nv">C</span> : bicat_of_univ_cats)
+    : disp_tensor_unit_unitors_associator C ≃ tensor_unit_unitors_associator (ucat C).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqfibtototal.
+    <span class="nb">intro</span> tu.
+    <span class="nb">apply</span> weqdirprodasstor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cmon_structure_equiv_layer</span> (<span class="nv">C</span> : bicat_of_univ_cats)
+    : disp_univmon C ≃ CurriedMonoidalCategories.mon_structure (ucat C).
+  <span class="kn">Proof</span>.
+    use weqtotal2.
+    { <span class="nb">apply</span> tensor_unit_unitors_associator_equiv_layer. }
+    <span class="nb">intro</span> tuua.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> weqimplimpl.
+    - <span class="nb">intro</span> tpi.
+      <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">apply</span> tpi.
+    - <span class="nb">intro</span> tpi.
+      <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">apply</span> tpi.
+    - <span class="nb">apply</span> isaprop_P_prop.
+    - <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> isaprop_triangle_pentagon.
+      + <span class="nb">apply</span> isaprop_invertible_data.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cmon_structure_from_layer</span>
+             {<span class="nv">C</span> : bicat_of_univ_cats} (<span class="nv">M</span> : disp_univmon C)
+    : mon_structure (ucat C) := pr1 (cmon_structure_equiv_layer C) M.
+
+  <span class="kn">Definition</span> <span class="nf">cmon_structure_to_layer</span>
+             {<span class="nv">C</span> : bicat_of_univ_cats} (<span class="nv">M</span> : mon_structure (ucat C))
+    : disp_univmon C := invmap (cmon_structure_equiv_layer C) M.
+
+  <span class="kn">Definition</span> <span class="nf">equivalence_cmon_structure_oblayer</span>
+    : ob UMONCAT ≃ ∑ C : bicat_of_univ_cats, mon_structure (ucat C).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqfibtototal.
+    <span class="nb">intro</span> ; <span class="nb">apply</span> cmon_structure_equiv_layer.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_to_cmon_category</span> (<span class="nv">M</span> : ob UMONCAT)
+    : ∑ C : bicat_of_univ_cats, mon_structure (ucat C)
+    := (equivalence_cmon_structure_oblayer) M.
+
+  <span class="kn">Definition</span> <span class="nf">cmon_category_to_UMONCAT</span>
+             (<span class="nv">M</span> : ∑ C : bicat_of_univ_cats, mon_structure (ucat C))
+    : ob UMONCAT := invmap (equivalence_cmon_structure_oblayer) M.
+
+  <span class="kn">Lemma</span> <span class="nf">sigma_with_unit</span> (<span class="nv">A</span> : UU) : (∑ _ : A, unit) ≃ A.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">intro</span> x ; <span class="bp">exact</span> (pr1 x).
+    - <span class="nb">intro</span> a ; <span class="nb">apply</span> (a ,, tt).
+    - <span class="nb">intro</span>.
+      use total2_paths_f.
+      { <span class="nb">apply</span> idpath. }
+      <span class="nb">apply</span> isapropunit.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cmonstrongfunctor_structure_equiv_layer</span> (<span class="nv">C</span> : bicat_of_univ_cats)
+    : disp_univstrongfunctor C ≃ CurriedMonoidalCategories.mon_structure (ucat C).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (sigma_with_unit _ ∘ _)%weq.
+    use weqtotal2.
+    {
+      <span class="nb">apply</span> cmon_structure_equiv_layer.
+    }
+    <span class="nb">intro</span> ; <span class="nb">apply</span> idweq.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">EquivalenceWithCurriedMonStruct</span>.
+
+<span class="kn">Section</span> <span class="nf">EquivalenceWithCurriedLaxMonFunctors</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_laxmon_from_layer</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : bicat_of_univ_cats}
+             (<span class="nv">F</span> : bicat_of_univ_cats⟦C,D⟧)
+             (<span class="nv">tuuaC</span> : disp_univmon C)
+             (<span class="nv">tuuaD</span> : disp_univmon D)
+    : tuuaC --&gt;[F] tuuaD
+            -&gt; functor_lax_monoidal F (cmon_structure_from_layer tuuaC) (cmon_structure_from_layer tuuaD).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ptuua.
+    use tpair.
+    - <span class="nb">apply</span> equality_functor_assunitors_with_layer.
+      <span class="nb">apply</span> (pr1 ptuua).
+    - <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="nb">apply</span> (pr121 ptuua).
+      + <span class="nb">apply</span> (pr2 (pr121 ptuua)).
+      + <span class="nb">apply</span> (pr221 ptuua).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_laxmon_to_layer</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : bicat_of_univ_cats}
+             {<span class="nv">F</span> : bicat_of_univ_cats⟦C,D⟧}
+             (<span class="nv">tuuaC</span> : disp_univmon C)
+             (<span class="nv">tuuaD</span> : disp_univmon D)
+    : functor_lax_monoidal F (cmon_structure_from_layer tuuaC) (cmon_structure_from_layer tuuaD) -&gt; tuuaC --&gt;[F] tuuaD.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ptuua.
+    use tpair.
+    - <span class="nb">apply</span> equality_functor_assunitors_with_layer.
+      <span class="nb">apply</span> ptuua.
+    - <span class="bp">exact</span> tt.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_laxmon_equiv_layer</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : bicat_of_univ_cats}
+             (<span class="nv">F</span> : bicat_of_univ_cats⟦C,D⟧)
+             (<span class="nv">tuuaC</span> : disp_univmon C)
+             (<span class="nv">tuuaD</span> : disp_univmon D)
+    : functor_lax_monoidal F (cmon_structure_from_layer tuuaC) (cmon_structure_from_layer tuuaD) ≃ tuuaC --&gt;[F] tuuaD.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">apply</span> functor_laxmon_to_layer.
+    - <span class="nb">apply</span> functor_laxmon_from_layer.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span>.
+      use total2_paths_f.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> isapropunit.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Definition univstrongfunctor_to_univmon_on_ob (C : bicat_of_univ_cats)</span>
+<span class="c">    : disp_univstrongfunctor C -&gt; disp_univmon C := pr1. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">functor_strongmon_equiv_layer</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : bicat_of_univ_cats}
+             (<span class="nv">F</span> : bicat_of_univ_cats⟦C,D⟧)
+             (<span class="nv">tuuaC</span> : disp_univstrongfunctor C)
+             (<span class="nv">tuuaD</span> : disp_univstrongfunctor D)
+    : functor_strong_monoidal F (cmon_structure_from_layer (pr1 tuuaC)) (cmon_structure_from_layer (pr1 tuuaD)) ≃ tuuaC --&gt;[F] tuuaD.
+  <span class="kn">Proof</span>.
+    use weqtotal2.
+    { <span class="nb">apply</span> functor_laxmon_equiv_layer. }
+    <span class="nb">intro</span> flm.
+    use weqimplimpl.
+    - <span class="nb">intro</span> flms.
+      <span class="nb">split</span> ; <span class="nb">apply</span> flms.
+    - <span class="nb">intro</span> flms.
+      <span class="nb">split</span> ; <span class="nb">apply</span> flms.
+    - <span class="nb">apply</span> isaprop_functor_strong.
+    - <span class="nb">simpl</span>.
+      <span class="nb">apply</span> isaprop_P_strong_preserving.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">EquivalenceWithCurriedLaxMonFunctors</span>.
+
+<span class="kn">Section</span> <span class="nf">EquivalenceWithCurriedNatTrans</span>.
+
+  <span class="kn">Import</span> Notations.
+
+  <span class="kn">Definition</span> <span class="nf">nattrans_laxmon_from_layer</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : bicat_of_univ_cats} {<span class="nv">F</span> <span class="nv">G</span> : bicat_of_univ_cats⟦C,D⟧} (<span class="nv">α</span> : F ==&gt; G)
+             {<span class="nv">tuuaC</span> : disp_univmon C}
+             {<span class="nv">tuuaD</span> : disp_univmon D}
+             (<span class="nv">ptuuaF</span> : tuuaC --&gt;[F] tuuaD) (<span class="nv">ptuuaG</span> : tuuaC --&gt;[G] tuuaD)
+    : ptuuaF ==&gt;[α] ptuuaG
+      -&gt; nattrans_tensor_unit
+          (functor_laxmon_from_layer F tuuaC tuuaD ptuuaF)
+          (functor_laxmon_from_layer _ _ _ ptuuaG)
+          α.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ntu.
+    <span class="nb">apply</span> ntu.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nattrans_laxmon_to_layer</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : bicat_of_univ_cats} {<span class="nv">F</span> <span class="nv">G</span> : bicat_of_univ_cats⟦C,D⟧} (<span class="nv">α</span> : F ==&gt; G)
+             {<span class="nv">tuuaC</span> : disp_univmon C}
+             {<span class="nv">tuuaD</span> : disp_univmon D}
+             (<span class="nv">ptuuaF</span> : tuuaC --&gt;[F] tuuaD) (<span class="nv">ptuuaG</span> : tuuaC --&gt;[G] tuuaD)
+    : nattrans_tensor_unit
+          (functor_laxmon_from_layer _ _ _ ptuuaF)
+          (functor_laxmon_from_layer _ _ _ ptuuaG)
+          α
+      -&gt; ptuuaF ==&gt;[α] ptuuaG.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ntu.
+    <span class="kp">repeat</span> (use tpair) ; <span class="kp">try</span> (<span class="bp">exact</span> tt) ; <span class="kp">try</span> (<span class="nb">apply</span> ntu).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nattrans_laxmon_equiv_layer</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : bicat_of_univ_cats} {<span class="nv">F</span> <span class="nv">G</span> : bicat_of_univ_cats⟦C,D⟧} (<span class="nv">α</span> : F ==&gt; G)
+             {<span class="nv">tuuaC</span> : disp_univmon C}
+             {<span class="nv">tuuaD</span> : disp_univmon D}
+             (<span class="nv">ptuuaF</span> : tuuaC --&gt;[F] tuuaD) (<span class="nv">ptuuaG</span> : tuuaC --&gt;[G] tuuaD)
+    : nattrans_tensor_unit
+          (functor_laxmon_from_layer _ _ _ ptuuaF)
+          (functor_laxmon_from_layer _ _ _ ptuuaG)
+          α
+          ≃ ptuuaF ==&gt;[α] ptuuaG.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">apply</span> nattrans_laxmon_to_layer.
+    - <span class="nb">apply</span> nattrans_laxmon_from_layer.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span>.
+      <span class="kp">repeat</span> (use total2_paths_f) ; <span class="kp">try</span> (<span class="nb">apply</span> idpath) ; <span class="kp">try</span> (<span class="nb">apply</span> isapropunit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nattrans_strongmon_equiv_layer</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : bicat_of_univ_cats} {<span class="nv">F</span> <span class="nv">G</span> : bicat_of_univ_cats⟦C,D⟧} (<span class="nv">α</span> : F ==&gt; G)
+             {<span class="nv">tuuaC</span> : disp_univstrongfunctor C}
+             {<span class="nv">tuuaD</span> : disp_univstrongfunctor D}
+             (<span class="nv">ptuuaF</span> : tuuaC --&gt;[F] tuuaD) (<span class="nv">ptuuaG</span> : tuuaC --&gt;[G] tuuaD)
+    : nattrans_tensor_unit
+          (functor_laxmon_from_layer _ _ _ (pr1 ptuuaF))
+          (functor_laxmon_from_layer _ _ _ (pr1 ptuuaG))
+          α
+          ≃ ptuuaF ==&gt;[α] ptuuaG.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> ptc.
+      <span class="nb">simpl</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">apply</span> ptc.
+    - <span class="nb">intro</span> ptc.
+      <span class="nb">simpl</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">apply</span> ptc.
+    - <span class="nb">apply</span> isaprop_nattrans_tensor_unit.
+    - <span class="nb">apply</span> isaproptotal2 ; <span class="kp">try</span> (<span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit).
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">intro</span>.
+      use total2_paths_f.
+      -- use total2_paths_f.
+         {
+           use total2_paths_f.
+           - <span class="nb">apply</span> isaprop_preservestensor_commutes.
+           - <span class="nb">apply</span> isaprop_preservesunit_commutes.
+         }
+         <span class="nb">simpl</span>.
+         <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ; <span class="nb">apply</span> isapropunit.
+      -- <span class="nb">apply</span> isapropunit.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">EquivalenceWithCurriedNatTrans</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/UnivalenceMonCat/EquivalenceMonCatCurried.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

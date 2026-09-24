@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>TotalPresheaf.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> The total presheaf of a dependent presheaf</span>
+
+<span class="sd"> Every dependent presheaf `A` over some presheaf `Γ` induces a presheaf that maps</span>
+<span class="sd"> objects `x : C` to pairs of `xx : Γ x` and `a : A x xx`. In the presheaf model,</span>
+<span class="sd"> this operation represents context extension. In this file, we provide the necessary</span>
+<span class="sd"> definitions to construct the comprehension functor of the presheaf model, and we</span>
+<span class="sd"> characterise terms in the presheaf model.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The total presheaf of a dependent presheaf</span>
+<span class="sd"> 2. The projection</span>
+<span class="sd"> 3. The total presheaf and natural transformations</span>
+<span class="sd"> 4. Sections of the projection</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfElementsPsh.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">TotalSpace</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">Γ</span> : C^op ⟶ HSET}
+          (<span class="nv">A</span> : dep_psh Γ).
+
+  <span class="sd">(** * 1. The total presheaf of a dependent presheaf *)</span>
+  <span class="kn">Definition</span> <span class="nf">dep_psh_total_space</span>
+             (<span class="nv">x</span> : C)
+    : hSet
+    := (∑ (xx : (Γ x : hSet)), A x xx)%<span class="nb">set</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dep_psh_total_space_path</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">xx₁</span> <span class="nv">xx₂</span> : dep_psh_total_space x}
+              (<span class="nv">p</span> : pr1 xx₁ = pr1 xx₂)
+              (<span class="nv">q</span> : #d A (identity _) (eqtohomot (functor_id Γ x) _ @ p) (pr2 xx₁) = pr2 xx₂)
+    : xx₁ = xx₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> xx₁ <span class="k">as</span> [ x₁ a₁ ], xx₂ <span class="k">as</span> [ x₂ a₂ ].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_ @ q).
+    <span class="nb">apply</span> dep_psh_mor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dep_psh_total_space_pr1_path</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">xx₁</span> <span class="nv">xx₂</span> : dep_psh_total_space x}
+              (<span class="nv">p</span> : xx₁ = xx₂)
+    : pr1 xx₁ = pr1 xx₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dep_psh_total_space_pr2_path</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">xx₁</span> <span class="nv">xx₂</span> : dep_psh_total_space x}
+              (<span class="nv">p</span> : xx₁ = xx₂)
+    : #d A (identity _)
+           (eqtohomot (functor_id Γ x) _ @ dep_psh_total_space_pr1_path p)
+           (pr2 xx₁)
+      =
+      pr2 xx₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> dep_psh_mor_id'.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dep_psh_total_space_pr2_path'</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">xx₁</span> <span class="nv">xx₂</span> : dep_psh_total_space x}
+              (<span class="nv">p</span> : xx₁ = xx₂)
+    : pr2 xx₁
+      =
+      #d A (identity _)
+           (eqtohomot (functor_id Γ x) _ @ !(dep_psh_total_space_pr1_path p))
+           (pr2 xx₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> dep_psh_mor_id'.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_psh_data</span>
+    : functor_data C^op HSET.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> dep_psh_total_space.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">s</span> <span class="nv">xx</span>, #Γ s (pr1 xx) ,, #d A s (idpath _) (pr2 xx)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">total_psh_laws</span>
+    : is_functor total_psh_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      use funextsec.
+      <span class="nb">intro</span> xx.
+      use dep_psh_total_space_path.
+      + <span class="bp">exact</span> (eqtohomot (functor_id Γ _) _).
+      + <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+        <span class="nb">apply</span> dep_psh_mor_id'.
+        <span class="bp">exact</span> (!(id_left _)).
+    - <span class="nb">intros</span> x y z f g.
+      use funextsec.
+      <span class="nb">intro</span> xx.
+      use dep_psh_total_space_path.
+      + <span class="bp">exact</span> (eqtohomot (functor_comp Γ _ _) _).
+      + <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+        <span class="nb">refine</span> (_ @ !(dep_psh_mor_comp' _ _ _ _ _ _)).
+        <span class="nb">apply</span> dep_psh_mor_path_eq.
+        <span class="bp">exact</span> (id_left _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_psh</span>
+    : C^op ⟶ HSET.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> total_psh_data.
+    - <span class="bp">exact</span> total_psh_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The projection *)</span>
+  <span class="kn">Definition</span> <span class="nf">total_psh_pr</span>
+    : total_psh ⟹ Γ.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, pr1 xx).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         use funextsec ;
+         <span class="nb">intro</span> xx ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">TotalSpace</span>.
+
+<span class="sd">(** * 3. The total presheaf and natural transformations *)</span>
+<span class="kn">Definition</span> <span class="nf">total_psh_nat_trans</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> : dep_psh Γ₁}
+           {<span class="nv">B</span> : dep_psh Γ₂}
+           (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+           (<span class="nv">τ</span> : dep_psh_nat_trans A B s)
+  : total_psh A ⟹ total_psh B.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, s x (pr1 xx) ,, τ _ _ (pr2 xx)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ;
+       use funextsec ;
+       <span class="nb">intros</span> xx ; <span class="nb">cbn</span> ;
+       use dep_psh_total_space_path ;
+       [ <span class="bp">exact</span> (eqtohomot (nat_trans_ax s _ _ f) (pr1 xx)) | ] ;
+       <span class="nb">cbn</span> ;
+       etrans ;
+       [ <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (dep_psh_nat_trans_ax' τ f _ (pr2 xx))
+       | ] ;
+       <span class="nb">rewrite</span> dep_psh_mor_comp' ;
+       <span class="nb">apply</span> dep_psh_mor_path_eq ;
+       <span class="nb">apply</span> id_left).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Sections of the projection *)</span>
+<span class="kn">Definition</span> <span class="nf">make_psh_section</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           (<span class="nv">A</span> : dep_psh Γ)
+           (<span class="nv">t</span> : ∏ (x : C) (xx : (Γ x : hSet)), A x xx)
+           (<span class="nv">p</span> : ∏ (x y : C)
+                  (f : y --&gt; x)
+                  (xx : (Γ x : hSet)),
+                t y (#Γ f xx)
+                =
+                #d A f (idpath _) (t x xx))
+  : section_of_mor (C := PreShv C) (total_psh_pr A).
+<span class="kn">Proof</span>.
+  use make_section_of_mor.
+  - use make_nat_trans.
+    + <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, _ ,, _).
+      * <span class="bp">exact</span> xx.
+      * <span class="bp">exact</span> (t x xx).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         use funextsec ;
+         <span class="nb">intro</span> xx ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (p x y f xx)).
+  - <span class="kp">abstract</span>
+      (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+       <span class="nb">intro</span> x ;
+       use funextsec ;
+       <span class="nb">intro</span> xx ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">psh_section_pt</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> : dep_psh Γ}
+           (<span class="nv">t</span> : section_of_mor (C := PreShv C) (total_psh_pr A))
+           {<span class="nv">x</span> : C}
+           (<span class="nv">xx</span> : (Γ x : hSet))
+  : A x xx.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (#d A (identity _) _ (pr2 ((section_of_mor_to_mor t : _ ⟹ _) x xx))).
+  <span class="kp">abstract</span>
+    (<span class="nb">refine</span> (_ @ eqtohomot (nat_trans_eq_pointwise (section_of_mor_eq t) x) xx) ;
+     <span class="nb">cbn</span> ;
+     <span class="bp">exact</span> (eqtohomot (functor_id Γ _) _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">psh_section_natural</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ}
+            (<span class="nv">t</span> : section_of_mor (C := PreShv C) (total_psh_pr A))
+            (<span class="nv">x</span> <span class="nv">y</span> : C)
+            (<span class="nv">f</span> : y --&gt; x)
+            (<span class="nv">xx</span> : (Γ x : hSet))
+  : psh_section_pt t (#Γ f xx)
+    =
+    #d A f (idpath _) (psh_section_pt t xx).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> psh_section_pt.
+  <span class="nb">pose</span> (eqtohomot (nat_trans_ax (section_of_mor_to_mor t) _ _ f) xx) <span class="k">as</span> p.
+  <span class="nb">cbn</span> <span class="k">in</span> p.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (dep_psh_total_space_pr2_path' _ p).
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+  use dep_psh_mor_path_eq.
+  <span class="nb">rewrite</span> !id_left, id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">psh_section_weq</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           (<span class="nv">A</span> : dep_psh Γ)
+  : section_of_mor (C := PreShv C) (total_psh_pr A)
+    ≃
+    ∑ (t : ∏ (x : C) (xx : (Γ x : hSet)), A x xx),
+    ∏ (x y : C)
+      (f : y --&gt; x)
+      (xx : (Γ x : hSet)),
+    t y (#Γ f xx)
+    =
+    #d A f (idpath _) (t x xx).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intro</span> t.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, psh_section_pt t xx).
+    + <span class="bp">exact</span> (psh_section_natural t).
+  - <span class="nb">intros</span> t.
+    use make_psh_section.
+    + <span class="bp">exact</span> (pr1 t).
+    + <span class="bp">exact</span> (pr2 t).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> t ;
+       use eq_section_of_mor ;
+       use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+       <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+       use funextsec ;
+       <span class="nb">intro</span> xx ;
+       use dep_psh_total_space_path ;
+       [ <span class="bp">exact</span> (!(eqtohomot (nat_trans_eq_pointwise (section_of_mor_eq t) x) xx))
+       | ] ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">unfold</span> psh_section_pt ;
+       <span class="nb">rewrite</span> dep_psh_mor_comp' ;
+       <span class="nb">apply</span> dep_psh_mor_id' ;
+       <span class="nb">rewrite</span> id_left ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> t ;
+       use subtypePath ;
+       [ <span class="nb">intro</span> ;
+         <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ;
+         <span class="nb">apply</span> setproperty
+       | ] ;
+       use funextsec ;
+       <span class="nb">intro</span> x ;
+       use funextsec ;
+       <span class="nb">intro</span> xx ;
+       <span class="nb">unfold</span> psh_section_pt ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> dep_psh_mor_id).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/TotalPresheaf.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Sections of the projection
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Presheaf.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

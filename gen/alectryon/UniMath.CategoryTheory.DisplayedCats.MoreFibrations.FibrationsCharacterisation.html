@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FibrationsCharacterisation.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Definitions of various kinds of Lemmas about _fibrations_, leading up to a theorem characterizing their composites. *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence. <span class="c">(* only coercions *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MoreFibrations.Prefibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MoreFibrations.CartesiannessOfComposites.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> type_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Definition</span> <span class="nf">precleaving_comp_is_precart</span>
+    {<span class="nv">C</span> : category} {<span class="nv">D</span> : disp_cat C} (<span class="nv">lift</span> : precleaving D)
+  := <span class="k">forall</span> (<span class="nv">c</span> <span class="nv">c'</span> <span class="nv">c''</span> : C) (<span class="nv">f'</span> : c'' --&gt; c') (<span class="nv">f</span> : c' --&gt; c) (<span class="nv">d</span> : D c),
+    is_precartesian ((lift _ _ f' (object_of_precartesian_lift (lift _ _ f d))) ;; (lift _ _ f d)).
+
+<span class="kn">Definition</span> <span class="nf">precleaving_is_cleaving</span>
+    {<span class="nv">C</span> : category} {<span class="nv">D</span> : disp_cat C} (<span class="nv">lift</span> : precleaving D)
+:= <span class="k">forall</span> (<span class="nv">c</span> <span class="nv">c'</span> : C) (<span class="nv">f</span>: c' --&gt; c) (<span class="nv">d</span> : D c), is_cartesian (lift _ _ f d).
+
+<span class="kn">Lemma</span> <span class="nf">transportf_cancel</span>
+      {<span class="nv">X</span> : UU} (<span class="nv">P</span> : X → UU) {<span class="nv">x</span> <span class="nv">x'</span> : X} (<span class="nv">e</span> : x = x') (<span class="nv">y0</span> <span class="nv">y1</span> : P x):
+      transportf P e y0 = transportf P e y1 -&gt; y0 = y1.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idfun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">assoc_eq</span> {<span class="nv">C</span>} {<span class="nv">D</span> : disp_cat C}
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span>} {<span class="nv">f</span>} {<span class="nv">g</span>} {<span class="nv">h</span>} {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y} {<span class="nv">zz</span> : D z} {<span class="nv">ww</span> : D w}
+    (<span class="nv">ff</span> <span class="nv">ff'</span> : xx --&gt;[f] yy) (<span class="nv">gg</span> <span class="nv">gg'</span> : yy --&gt;[g] zz) (<span class="nv">hh</span> <span class="nv">hh'</span> : zz --&gt;[h] ww)
+  : ff ;; (gg ;; hh) = ff' ;; (gg' ;; hh') -&gt; (ff ;; gg) ;; hh = (ff' ;; gg') ;; hh'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">eapply</span> pathscomp0.
+  - <span class="nb">apply</span> assoc_disp_var.
+  - <span class="nb">eapply</span> pathscomp0.
+    + <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> H.
+    + <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> assoc_disp_var.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">assoc_eq_var</span> {<span class="nv">C</span>} {<span class="nv">D</span> : disp_cat C}
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span>} {<span class="nv">f</span>} {<span class="nv">g</span>} {<span class="nv">h</span>} {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y} {<span class="nv">zz</span> : D z} {<span class="nv">ww</span> : D w}
+    (<span class="nv">ff</span> <span class="nv">ff'</span> : xx --&gt;[f] yy) (<span class="nv">gg</span> <span class="nv">gg'</span> : yy --&gt;[g] zz) (<span class="nv">hh</span> <span class="nv">hh'</span> : zz --&gt;[h] ww)
+  : (ff ;; gg) ;; hh = (ff' ;; gg') ;; hh' -&gt; ff ;; (gg ;; hh) = ff' ;; (gg' ;; hh').
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">eapply</span> pathscomp0.
+  - <span class="nb">apply</span> assoc_disp.
+  - <span class="nb">eapply</span> pathscomp0.
+    + <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> H.
+    + <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> assoc_disp.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">prefibration_w_precart_closed_implies_fibration</span>
+    {<span class="nv">C</span> : category} {<span class="nv">D</span> : disp_cat C} (<span class="nv">lift</span> : precleaving D)
+  : precleaving_comp_is_precart lift -&gt; precleaving_is_cleaving lift.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> precleaving_comp_is_precart, precleaving_is_cleaving.
+  <span class="nb">intros</span> liftclosed c c' f d.
+  <span class="nb">unfold</span> is_cartesian.
+  <span class="nb">intros</span> c'' g d'' hh.
+  <span class="nb">apply</span> iscontraprop1.
+  - <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">unfold</span> isProofIrrelevant.
+    <span class="nb">intros</span> [gg0 comm0] [gg1 comm1].
+    <span class="nb">apply</span> subtypePairEquality.
+    + <span class="nb">intro</span> gg.
+      <span class="nb">apply</span> homsets_disp.
+    + <span class="nb">eapply</span> transportf_cancel.
+      <span class="nb">eapply</span> pathscomp0.
+      * <span class="nb">apply</span> pathsinv0.
+        use precartesian_factorisation_commutes.
+        <span class="mi">3</span>: { use precartesian_lift_is_precartesian. <span class="nb">apply</span> lift. }
+      * <span class="nb">eapply</span> pathscomp0.
+        <span class="mi">2</span>: { use precartesian_factorisation_commutes.
+          <span class="mi">3</span>: { use precartesian_lift_is_precartesian. <span class="nb">apply</span> lift. } }
+        -- <span class="nb">apply</span> maponpaths_2.
+           <span class="nb">eapply</span> precartesian_factorisation_unique.
+           ++ <span class="nb">apply</span> liftclosed.
+           ++ <span class="nb">apply</span> assoc_eq_var.
+              <span class="nb">eapply</span> pathscomp0.
+              ** <span class="nb">apply</span> maponpaths_2.
+                 <span class="nb">apply</span> precartesian_factorisation_commutes.
+              ** <span class="nb">eapply</span> pathscomp0.
+                 --- <span class="nb">eapply</span> pathscomp0.
+                     +++ <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+                     +++ <span class="nb">eapply</span> pathscomp0.
+                         *** <span class="nb">apply</span> maponpaths.
+                             <span class="bp">exact</span> (comm0 @ ! comm1).
+                         *** <span class="nb">apply</span> pathsinv0.
+                             <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+                 --- <span class="nb">apply</span> pathsinv0.
+                     <span class="nb">apply</span> maponpaths_2.
+                     <span class="nb">apply</span> precartesian_factorisation_commutes.
+  - use tpair.
+    + <span class="nb">apply</span> (transportf _ (id_left _)).
+      <span class="nb">eapply</span> comp_disp.
+      <span class="mi">2</span>: { <span class="nb">apply</span> lift. }
+      <span class="nb">eapply</span> precartesian_factorisation.
+      * <span class="nb">apply</span> liftclosed.
+      * <span class="bp">exact</span> hh.
+    + <span class="nb">simpl</span>.
+      <span class="nb">eapply</span> pathscomp0.
+      * <span class="nb">eapply</span> pathscomp0.
+        -- <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+        -- <span class="nb">eapply</span> pathscomp0.
+          ++ <span class="nb">apply</span> maponpaths.
+             <span class="nb">apply</span> assoc_disp_var.
+          ++ <span class="nb">eapply</span> pathscomp0.
+             ** <span class="nb">apply</span> transport_f_f.
+             ** <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">apply</span> homset_property.
+      * <span class="nb">apply</span> transportf_transpose_left.
+        <span class="nb">apply</span> precartesian_factorisation_commutes.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/MoreFibrations/FibrationsCharacterisation.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** Definitions of various kinds of Lemmas about _fibrations_, leading up to a theorem characterizing their composites. *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

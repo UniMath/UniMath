@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NaturalTransformations.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Natural transformations</span>
+
+<span class="sd">Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)</span>
+
+<span class="sd">*)</span>
+
+
+<span class="sd">(** ** Contents</span>
+<span class="sd">  - Definition of natural transformations</span>
+<span class="sd">  - Equality is pointwise equality</span>
+<span class="sd">  - Identity natural transformation</span>
+<span class="sd">  - Composition of natural transformations</span>
+<span class="sd">  - Natural isomorphisms</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.TransportMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Section</span> <span class="nf">nat_trans</span>.
+
+  <span class="sd">(** ** Definition of natural transformations *)</span>
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_data</span> {<span class="nv">C</span> <span class="nv">C'</span> : precategory_ob_mor} (<span class="nv">F</span> <span class="nv">F'</span> : functor_data C C'): UU :=
+  ∏ x : ob C, F x --&gt;  F' x.
+
+<span class="kn">Definition</span> <span class="nf">is_nat_trans</span> {<span class="nv">C</span> <span class="nv">C'</span> : precategory_data}
+  (<span class="nv">F</span> <span class="nv">F'</span> : functor_data C C') (<span class="nv">t</span> : nat_trans_data F F') :=
+  ∏ (x x' : ob C)(f : x --&gt; x'), # F f · t x' = t x · #F' f.
+
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_nat_trans</span> (<span class="nv">C</span> <span class="nv">C'</span> : precategory_data) (<span class="nv">hs</span>: has_homsets C')
+  (<span class="nv">F</span> <span class="nv">F'</span> : functor_data C C') (<span class="nv">t</span> : nat_trans_data F F'):
+  isaprop (is_nat_trans F F' t).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> hs.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans</span> {<span class="nv">C</span> <span class="nv">C'</span> : precategory_data} (<span class="nv">F</span> <span class="nv">F'</span> : functor_data C C') : UU :=
+  total2 (<span class="k">fun</span> <span class="nv">t</span> : nat_trans_data F F' =&gt; is_nat_trans F F' t).
+
+<span class="kn">Notation</span> <span class="s2">"F ⟹ G"</span> := (nat_trans F G) (<span class="kn">at level</span> <span class="mi">39</span>) : cat.
+<span class="c">(* to input: type "\==&gt;" with Agda input method *)</span>
+
+<span class="kn">Definition</span> <span class="nf">make_nat_trans</span> {<span class="nv">C</span> <span class="nv">C'</span> : precategory_data} (<span class="nv">F</span> <span class="nv">F'</span> : functor_data C C')
+           (<span class="nv">t</span> : nat_trans_data F F') (<span class="nv">H</span> : is_nat_trans F F' t) :
+           nat_trans F F'.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> <span class="nv">t</span>.
+<span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_nat_trans</span> {<span class="nv">C</span> <span class="nv">C'</span> : precategory_data} (<span class="nv">hs</span>: has_homsets C')
+  (<span class="nv">F</span> <span class="nv">F'</span> : functor_data C C') : isaset (nat_trans F F').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>).
+  + <span class="nb">apply</span> impred; <span class="nb">intro</span> t; <span class="nb">apply</span> hs.
+  + <span class="nb">intro</span> x; <span class="nb">apply</span> isasetaprop, isaprop_is_nat_trans, hs.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_data_from_nat_trans</span> {<span class="nv">C</span> <span class="nv">C'</span> : precategory_data}
+  {<span class="nv">F</span> <span class="nv">F'</span> : functor_data C C'}(<span class="nv">a</span> : nat_trans F F') :
+  nat_trans_data F F' := pr1 a.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_data_from_nat_trans_funclass</span> {<span class="nv">C</span> <span class="nv">C'</span> : precategory_data}
+  {<span class="nv">F</span> <span class="nv">F'</span> : functor_data C C'}(<span class="nv">a</span> : nat_trans F F') :
+  ∏ x : ob C, F x --&gt;  F' x := pr1 a.
+<span class="kn">Coercion</span> <span class="nf">nat_trans_data_from_nat_trans_funclass</span> : nat_trans &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_ax</span> {<span class="nv">C</span> <span class="nv">C'</span> : precategory_data}
+  {<span class="nv">F</span> <span class="nv">F'</span> : functor_data C C'} (<span class="nv">a</span> : nat_trans F F') :
+  ∏ (x x' : ob C)(f : x --&gt; x'),
+    #F f · a x' = a x · #F' f := pr2 a.
+
+<span class="sd">(** Equality between two natural transformations *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">nat_trans_eq</span> {<span class="nv">C</span> <span class="nv">C'</span> : precategory_data} (<span class="nv">hs</span>: has_homsets C')
+  (<span class="nv">F</span> <span class="nv">F'</span> : functor_data C C')(<span class="nv">a</span> <span class="nv">a'</span> : nat_trans F F'):
+  (∏ x, a x = a' x) -&gt; a = a'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">assert</span> (H' : pr1 a = pr1 a').
+  { <span class="bp">now</span> <span class="nb">apply</span> funextsec. }
+  <span class="nb">apply</span> (total2_paths_f H'), proofirrelevance, isaprop_is_nat_trans, hs.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_trans_eq_alt</span> {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">F</span> <span class="nv">F'</span> : functor C C') (<span class="nv">a</span> <span class="nv">a'</span> : nat_trans F F'):
+  (∏ x, a x = a' x) -&gt; a = a'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">nat_trans_eq</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory}.
+  <span class="kn">Variable</span> <span class="nv">hsD</span> : has_homsets D.
+  <span class="kn">Context</span> {<span class="nv">F</span> <span class="nv">G</span> : functor C D}.
+  <span class="kn">Variables</span> <span class="nv">alpha</span> <span class="nv">beta</span> : nat_trans F G.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_eq_weq</span> : (alpha = beta) ≃ (∏ c, alpha c = beta c).
+  <span class="kn">Proof</span>.
+    <span class="nb">eapply</span> weqcomp.
+    - <span class="nb">apply</span> subtypeInjectivity.
+      <span class="nb">intro</span> x. <span class="nb">apply</span> isaprop_is_nat_trans. <span class="nb">apply</span> hsD.
+    - <span class="nb">apply</span> weqtoforallpaths.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">nat_trans_eq</span>.
+
+<span class="c">(* Can be given as an instance of general equality lemmas,</span>
+<span class="c">but useful to have specifically defined. *)</span>
+<span class="kn">Definition</span> <span class="nf">nat_trans_eq_pointwise</span> {<span class="nv">C</span> <span class="nv">C'</span> : precategory_data}
+   {<span class="nv">F</span> <span class="nv">F'</span> : functor_data C C'} {<span class="nv">a</span> <span class="nv">a'</span> : nat_trans F F'}:
+      a = a' -&gt; ∏ x, a x = a' x.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>. <span class="nb">apply</span> toforallpaths, maponpaths. <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** a more intuitive variant of [functor_data_eq] *)</span>
+<span class="kn">Lemma</span> <span class="nf">functor_data_eq_from_nat_trans</span> (<span class="nv">C</span> <span class="nv">C'</span>: precategory) (<span class="nv">F</span> <span class="nv">F'</span> : functor_data C C')
+      (<span class="nv">H</span> : F ~ F') (<span class="nv">H1</span> : is_nat_trans F F' (<span class="k">fun</span> <span class="nv">c</span>:C =&gt; idtomor _ _ (H c))) :
+      F = F'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (functor_data_eq _ _ _ _ H).
+  <span class="nb">intros</span> c1 c2 f.
+  <span class="nb">rewrite</span> double_transport_idtoiso.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">apply</span> z_iso_inv_on_right.
+<span class="c">(* make the coercion visible: *)</span>
+  <span class="nb">unfold</span> z_iso_mor.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> eq_idtoiso_idtomor.
+  <span class="nb">apply</span> H1.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Identity natural transformation *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_id</span> {<span class="nv">C</span> : precategory_data}{<span class="nv">C'</span> : precategory}
+  (<span class="nv">F</span> : functor_data C C') : is_nat_trans F F
+     (<span class="k">λ</span> <span class="nv">c</span> : ob C, identity (F c)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ? .
+  <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_id</span> {<span class="nv">C</span>:precategory_data}{<span class="nv">C'</span> : precategory}
+  (<span class="nv">F</span> : functor_data C C') : nat_trans F F :=
+    tpair _ _ (is_nat_trans_id F).
+
+<span class="sd">(** ** Composition of natural transformations *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_comp</span> {<span class="nv">C</span> : precategory_data}{<span class="nv">C'</span> : precategory}
+  {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> : functor_data C C'}
+  (<span class="nv">a</span> : nat_trans F G)
+  (<span class="nv">b</span> : nat_trans G H): is_nat_trans F H
+     (<span class="k">λ</span> <span class="nv">x</span> : ob C, a x · b x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ?.
+  <span class="bp">now</span> <span class="nb">rewrite</span> assoc, nat_trans_ax, &lt;- assoc, nat_trans_ax, assoc.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_comp</span> {<span class="nv">C</span>:precategory_data}{<span class="nv">C'</span> : precategory}
+  (<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span>: functor_data C C')
+  (<span class="nv">a</span> : nat_trans F G)
+  (<span class="nv">b</span> : nat_trans G H): nat_trans F H :=
+    tpair _ _ (is_nat_trans_comp a b).
+
+<span class="sd">(** Natural transformations for reasoning about various compositions of functors *)</span>
+<span class="kn">Section</span> <span class="nf">nat_trans_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : precategory}.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_functor_id_right</span> (<span class="nv">F</span> : functor A B) :
+  nat_trans (functor_composite F (functor_identity B)) F.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_functor_id_right_inv</span> (<span class="nv">F</span> : functor A B) :
+  nat_trans F (functor_composite F (functor_identity B)) :=
+    nat_trans_functor_id_right F.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_functor_id_left</span> (<span class="nv">F</span> : functor A B) :
+  nat_trans (functor_composite (functor_identity A) F) F :=
+    nat_trans_functor_id_right F.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_functor_id_left_inv</span> (<span class="nv">F</span> : functor A B) :
+  nat_trans F (functor_composite (functor_identity A) F) :=
+    nat_trans_functor_id_right F.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_functor_assoc</span> (<span class="nv">F1</span> : functor A B) (<span class="nv">F2</span> : functor B C) (<span class="nv">F3</span> : functor C D) :
+  nat_trans (functor_composite (functor_composite F1 F2) F3)
+            (functor_composite F1 (functor_composite F2 F3)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_functor_assoc_inv</span> (<span class="nv">F1</span> : functor A B) (<span class="nv">F2</span> : functor B C) (<span class="nv">F3</span> : functor C D) :
+  nat_trans (functor_composite F1 (functor_composite F2 F3))
+            (functor_composite (functor_composite F1 F2) F3) :=
+    nat_trans_functor_assoc F1 F2 F3.
+
+<span class="kn">End</span> <span class="nf">nat_trans_functor</span>.
+
+<span class="sd">(** Reasoning about composition of natural transformations *)</span>
+<span class="kn">Section</span> <span class="nf">nat_trans_comp_laws</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span>: precategory} (<span class="nv">hs</span>: has_homsets B).
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_comp_id_right</span> (<span class="nv">F</span> <span class="nv">G</span> : functor A B) (<span class="nv">α</span>: nat_trans F G):
+  nat_trans_comp _ _ _ α (nat_trans_id G) = α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="bp">exact</span> hs.
+  <span class="nb">intro</span> a.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_comp_id_left</span> (<span class="nv">F</span> <span class="nv">G</span> : functor A B) (<span class="nv">α</span>: nat_trans F G):
+  nat_trans_comp _ _ _ (nat_trans_id F) α = α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="bp">exact</span> hs.
+  <span class="nb">intro</span> a.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_comp_assoc</span> (<span class="nv">F1</span> <span class="nv">F2</span> <span class="nv">F3</span> <span class="nv">F4</span> : functor A B)
+           (<span class="nv">α</span>: nat_trans F1 F2) (<span class="nv">β</span>: nat_trans F2 F3) (<span class="nv">γ</span>: nat_trans F3 F4):
+  nat_trans_comp _ _ _ α (nat_trans_comp _ _ _ β γ) = nat_trans_comp _ _ _ (nat_trans_comp _ _ _ α β) γ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="bp">exact</span> hs.
+  <span class="nb">intro</span> a.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** analogously to [assoc'], for convenience *)</span>
+<span class="kn">Definition</span> <span class="nf">nat_trans_comp_assoc'</span> (<span class="nv">F1</span> <span class="nv">F2</span> <span class="nv">F3</span> <span class="nv">F4</span> : functor A B)
+           (<span class="nv">α</span>: nat_trans F1 F2) (<span class="nv">β</span>: nat_trans F2 F3) (<span class="nv">γ</span>: nat_trans F3 F4):
+  nat_trans_comp _ _ _ (nat_trans_comp _ _ _ α β) γ = nat_trans_comp _ _ _ α (nat_trans_comp _ _ _ β γ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0, nat_trans_comp_assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">nat_trans_comp_laws</span>.
+
+
+<span class="sd">(** ** Natural isomorphisms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_nat_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">F</span> <span class="nv">G</span> : functor_data C D} (<span class="nv">μ</span> : F ⟹ G) : UU :=
+∏ (c : C), is_iso (μ c).
+
+<span class="kn">Definition</span> <span class="nf">isaprop_is_nat_iso</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D}
+           (<span class="nv">α</span> : F ⟹ G)
+  : isaprop (is_nat_iso α).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> isaprop_is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_nat_id</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> : C ⟶ D} (<span class="nv">μ</span> : F ⟹ F) : UU :=
+∏ (c : C), μ c = identity (F c).
+
+<span class="kn">Definition</span> <span class="nf">nat_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} (<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D) : UU
+:= ∑ (μ : F ⟹ G), is_nat_iso μ.
+
+<span class="kn">Definition</span> <span class="nf">make_nat_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} (<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D) (<span class="nv">μ</span> : F ⟹ G) (<span class="nv">is_iso</span> : is_nat_iso μ) : nat_iso F G.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">μ</span>.
+  <span class="bp">exact</span> is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_iso_pointwise_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D} (<span class="nv">μ</span> : nat_iso F G) (<span class="nv">c</span>: C): iso (F c) (G c) := (pr1 μ c,,pr2 μ c).
+
+
+<span class="kn">Definition</span> <span class="nf">iso_inv_after_iso'</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">f'</span> : iso a b) (<span class="nv">deref</span> : pr1 f' = f) : f · inv_from_iso f' = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- deref.
+  <span class="bp">exact</span> (iso_inv_after_iso f').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_after_iso_inv'</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">f'</span> : iso a b) (<span class="nv">deref</span> : pr1 f' = f) : inv_from_iso f' · f = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- deref.
+  <span class="bp">exact</span> (iso_after_iso_inv f').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_iso_inv_trans</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : precategory}
+           {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D}
+           (<span class="nv">μ</span> : nat_iso F G)
+  : G ⟹ F.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, inv_from_iso (make_iso _ (pr2 μ x))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (!_) ;
+       use iso_inv_on_right ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !assoc ;
+       use iso_inv_on_left ; <span class="nb">cbn</span> ;
+       <span class="bp">exact</span> (!(nat_trans_ax (pr1 μ) _ _ f))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_iso_inv</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D} (<span class="nv">μ</span> : nat_iso F G) : nat_iso G F.
+<span class="kn">Proof</span>.
+  use make_nat_iso.
+  - <span class="bp">exact</span> (nat_iso_inv_trans μ).
+  - <span class="nb">intro</span> x.
+    <span class="nb">apply</span> is_iso_inv_from_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_iso_to_trans</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D} (<span class="nv">ν</span> : nat_iso F G) : F ⟹ G :=
+  pr1 ν.
+
+<span class="kn">Coercion</span> <span class="nf">nat_iso_to_trans</span> : nat_iso &gt;-&gt; nat_trans.
+
+<span class="c">(* ⁻¹ *)</span>
+<span class="kn">Definition</span> <span class="nf">nat_iso_to_trans_inv</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D} (<span class="nv">ν</span> : nat_iso F G) : G ⟹ F :=
+  pr1 (nat_iso_inv ν).
+
+<span class="kn">Definition</span> <span class="nf">nat_comp_to_endo</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D} (<span class="nv">eq</span> : F = G) {<span class="nv">c</span> : C} (<span class="nv">f</span> : F c --&gt; G c) : F c --&gt; F c.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- eq <span class="k">in</span> f.
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_nat_iso_id</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D} (<span class="nv">eq</span> : F = G) (<span class="nv">ν</span> : nat_iso F G) : UU :=
+  ∏ (c : C), nat_comp_to_endo eq (nat_iso_to_trans ν c) = identity (F c).
+
+<span class="kn">Definition</span> <span class="nf">induced_precategory_incl</span> {<span class="nv">M</span> : precategory} {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob M) :
+  induced_precategory M j ⟶ M.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use make_functor_data.
+    + <span class="bp">exact</span> j.
+    + <span class="nb">intros</span> a b f. <span class="bp">exact</span> f.
+  - <span class="kp">repeat</span> <span class="nb">split</span>.
+<span class="kn">Defined</span>.
+
+
+<span class="c">(* ** analogous development for [z_iso] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_nat_z_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">F</span> <span class="nv">G</span> : functor_data C D} (<span class="nv">μ</span> : nat_trans_data F G) : UU :=
+∏ (c : C), is_z_isomorphism (μ c).
+
+<span class="kn">Definition</span> <span class="nf">isaprop_is_nat_z_iso</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D}
+           (<span class="nv">α</span> : nat_trans_data F G)
+  : isaprop (is_nat_z_iso α).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_z_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} (<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D) : UU
+:= ∑ (μ : F ⟹ G), is_nat_z_iso μ.
+
+<span class="kn">Definition</span> <span class="nf">make_nat_z_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} (<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D) (<span class="nv">μ</span> : F ⟹ G) (<span class="nv">is_z_iso</span> : is_nat_z_iso μ) : nat_z_iso F G.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">μ</span>.
+  <span class="bp">exact</span> is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_z_iso_id</span> {<span class="nv">C</span> <span class="nv">D</span>:category} (<span class="nv">F</span>: C ⟶ D): nat_z_iso F F.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (make_nat_z_iso F F (nat_trans_id F)).
+  <span class="nb">intro</span> c.
+  <span class="k">exists</span> (<span class="nv">identity</span> (F c)).
+  <span class="nb">split</span>; <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_z_iso_to_trans</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D} (<span class="nv">μ</span> : nat_z_iso F G) : F ⟹ G :=
+  pr1 μ.
+
+<span class="kn">Coercion</span> <span class="nf">nat_z_iso_to_trans</span> : nat_z_iso &gt;-&gt; nat_trans.
+
+<span class="kn">Definition</span> <span class="nf">pr2_nat_z_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D} (<span class="nv">μ</span> : nat_z_iso F G) : is_nat_z_iso μ :=
+  pr2 μ.
+
+<span class="kn">Definition</span> <span class="nf">nat_z_iso_pointwise_z_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D} (<span class="nv">μ</span> : nat_z_iso F G) (<span class="nv">c</span>: C): z_iso (F c) (G c) := (pr1 μ c,,pr2 μ c).
+
+<span class="c">(* ⁻¹ *)</span>
+<span class="kn">Definition</span> <span class="nf">nat_z_iso_to_trans_inv</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory} {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D} (<span class="nv">μ</span> : nat_z_iso F G) : G ⟹ F.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (make_nat_trans G F (<span class="k">fun</span> <span class="nv">c</span> =&gt; is_z_isomorphism_mor (pr2 μ c))).
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> c c' f.
+  <span class="nb">set</span> (h := μ c,,pr2 μ c : z_iso (F c) (G c)).
+  <span class="nb">set</span> (h' := μ c',,pr2 μ c' : z_iso (F c') (G c')).
+  <span class="nb">change</span> (# G f · inv_from_z_iso h' = inv_from_z_iso h · # F f).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> z_iso_inv_on_right.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> z_iso_inv_on_left.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (nat_trans_ax μ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_z_iso_inv</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory} {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D} (<span class="nv">μ</span> : nat_z_iso F G) : nat_z_iso G F.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">nat_z_iso_to_trans_inv</span> <span class="nv">μ</span>).
+  <span class="nb">intro</span> c.
+  <span class="nb">red</span>.
+  <span class="k">exists</span> (<span class="nv">μ</span> <span class="nv">c</span>).
+  <span class="nb">red</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr2 (is_z_isomorphism_is_inverse_in_precat (pr2 μ c))).
+  - <span class="nb">apply</span> (pr1 (is_z_isomorphism_is_inverse_in_precat (pr2 μ c))).
+<span class="kn">Defined</span>.
+
+ <span class="kn">Lemma</span> <span class="nf">nat_z_iso_inv_id</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : C ⟶ D}
+  : nat_z_iso_inv (nat_z_iso_id F) = nat_z_iso_id F.
+<span class="kn">Proof</span>.
+  use total2_paths_f.
+  - use total2_paths_f.
+      * <span class="bp">reflexivity</span>.
+      * <span class="nb">apply</span> proofirrelevance.
+        <span class="nb">apply</span> isaprop_is_nat_trans.
+        <span class="nb">apply</span> homset_property.
+  - <span class="nb">apply</span> proofirrelevance.
+    <span class="nb">apply</span> isaprop_is_nat_z_iso.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_nat_z_iso_comp</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory} {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span>: C ⟶ D} {<span class="nv">μ</span> : F ⟹ G} {<span class="nv">ν</span> : G ⟹ H}
+           (<span class="nv">isμ</span>: is_nat_z_iso μ) (<span class="nv">isν</span>: is_nat_z_iso ν) : is_nat_z_iso (nat_trans_comp F G H μ ν).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> (is_z_isomorphism_mor (isν c) · is_z_isomorphism_mor (isμ c)).
+  - <span class="bp">exact</span> (is_inverse_in_precat_comp (pr2 (isμ c)) (pr2 (isν c))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_z_iso_comp</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory} {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span>: C ⟶ D}
+           (<span class="nv">μ</span>: nat_z_iso F G) (<span class="nv">ν</span>: nat_z_iso  G H) : nat_z_iso F H.
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> (nat_trans_comp F G H μ ν).
+  - <span class="bp">exact</span> (is_nat_z_iso_comp (pr2 μ) (pr2 ν)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_nat_z_iso_id</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D} (<span class="nv">eq</span> : F = G) (<span class="nv">ν</span> : nat_z_iso F G) : UU :=
+  ∏ (c : C), nat_comp_to_endo eq (nat_z_iso_to_trans ν c) = identity (F c).
+<span class="kn">Lemma</span> <span class="nf">comp_nat_z_iso_id_left</span> {<span class="nv">C</span> <span class="nv">D</span>:category} {<span class="nv">F</span> <span class="nv">G</span>:functor C D} (<span class="nv">α</span>: nat_z_iso F G)
+  :nat_z_iso_comp (nat_z_iso_id F) α = α.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> α <span class="k">as</span> (α, α_is_nat_z_iso).
+  use total2_paths_f; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> (nat_trans_comp_id_left (pr2 D) F G α).
+  - <span class="nb">apply</span> proofirrelevance.
+    <span class="nb">apply</span> isaprop_is_nat_z_iso.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comp_nat_z_iso_id_right</span> {<span class="nv">C</span> <span class="nv">D</span>:category} {<span class="nv">F</span> <span class="nv">G</span>:functor C D} (<span class="nv">α</span>: nat_z_iso F G)
+  :nat_z_iso_comp α (nat_z_iso_id G) = α.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> α <span class="k">as</span> (α, α_is_nat_z_iso).
+  use total2_paths_f; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> (nat_trans_comp_id_right (pr2 D) F G α).
+  - <span class="nb">apply</span> proofirrelevance.
+    <span class="nb">apply</span> isaprop_is_nat_z_iso.
+<span class="kn">Qed</span>.
+
+
+ <span class="kn">Lemma</span> <span class="nf">is_nat_z_iso_nat_trans_id</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} (<span class="nv">F</span> :functor_data C D): is_nat_z_iso (nat_trans_id F).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  <span class="k">exists</span> (<span class="nv">identity</span> (F c)).
+  <span class="nb">split</span>; <span class="nb">apply</span> id_right.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">nat_trans</span>.
+
+<span class="kn">Definition</span> <span class="nf">to_constant_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">y</span> : C₂)
+           (<span class="nv">fs</span> : ∏ (x : C₁), F x --&gt; y)
+           (<span class="nv">ps</span> : ∏ (x₁ x₂ : C₁)
+                   (g : x₁ --&gt; x₂),
+                 # F g · fs x₂ = fs x₁)
+  : nat_trans F (constant_functor C₁ C₂ y).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, fs x).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x₁ x₂ g ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> id_right ;
+       <span class="nb">rewrite</span> ps ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">constant_nat_trans</span>
+           (<span class="nv">C₁</span> : category)
+           {<span class="nv">C₂</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C₂}
+           (<span class="nv">f</span> : x --&gt; y)
+  : nat_trans
+      (constant_functor C₁ C₂ x)
+      (constant_functor C₁ C₂ y).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, f).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> ? ? ? ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> id_left, id_right ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"F ⟹ G"</span> := (nat_trans F G) (<span class="kn">at level</span> <span class="mi">39</span>) : cat.
+<span class="c">(* to input: type "\==&gt;" with Agda input method *)</span>
+
+<span class="c">(* Commutativity of functors expressed as natural isomorphisms *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">nat_z_iso_functor_comp_assoc</span>
+      {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> <span class="nv">C4</span> : category}
+      (<span class="nv">F1</span> : functor C1 C2)
+      (<span class="nv">F2</span> : functor C2 C3)
+      (<span class="nv">F3</span> : functor C3 C4)
+  : nat_z_iso (F1 ∙ (F2 ∙ F3)) ((F1 ∙ F2) ∙ F3).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+    <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="bp">exact</span> (id_right _ @ ! id_left _)).
+  - <span class="nb">intro</span>.
+    <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+    <span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">apply</span> id_right).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">functor_commutes_with_id</span>
+      {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+  : nat_z_iso (F ∙ functor_identity D) (functor_identity C ∙ F).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+    <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="bp">exact</span> (id_right _ @ ! id_left _)).
+  - <span class="nb">intro</span>.
+    <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+    <span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">apply</span> id_right).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_z_iso_comp_assoc</span>
+      {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F1</span> <span class="nv">F2</span> <span class="nv">F3</span> <span class="nv">F4</span> : functor C D}
+      (<span class="nv">α1</span> : nat_z_iso F1 F2)
+      (<span class="nv">α2</span> : nat_z_iso F2 F3)
+      (<span class="nv">α3</span> : nat_z_iso F3 F4)
+  : nat_z_iso_comp α1 (nat_z_iso_comp α2 α3)
+    = nat_z_iso_comp (nat_z_iso_comp α1 α2) α3.
+<span class="kn">Proof</span>.
+  use total2_paths_f.
+  <span class="mi">2</span>: { <span class="nb">apply</span> isaprop_is_nat_z_iso. }
+
+  use nat_trans_eq.
+  { <span class="nb">apply</span> homset_property. }
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Essential surjectivity is preserved under natural isomorphism *)</span>
+<span class="kn">Definition</span> <span class="nf">essentially_surjective_nat_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+           (<span class="nv">τ</span> : nat_z_iso F G)
+           (<span class="nv">HF</span> : essentially_surjective F)
+  : essentially_surjective G.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> y.
+  <span class="nb">assert</span> (H := HF y).
+  <span class="nb">revert</span> H.
+  use factor_through_squash_hProp.
+  <span class="nb">intros</span> x.
+  <span class="nb">induction</span> x <span class="k">as</span> [ x f ].
+  <span class="nb">refine</span> (hinhpr (x ,, _)).
+  <span class="nb">refine</span> (z_iso_comp _ f).
+  <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso (nat_z_iso_inv τ) x).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Core/NaturalTransformations.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   - Natural isomorphisms
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

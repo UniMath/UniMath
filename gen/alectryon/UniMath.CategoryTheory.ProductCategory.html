@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ProductCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Anders Mörtberg</span>
+
+<span class="sd">2016</span>
+
+<span class="sd">For a specialization to binary products, see [precategory_binproduct].</span>
+
+<span class="sd">Contents:</span>
+
+<span class="sd">- Definition of the general product category ([product_precategory])</span>
+<span class="sd">- Functors</span>
+<span class="sd">  - Families of functors ([family_functor])</span>
+<span class="sd">  - Projections ([pr_functor])</span>
+<span class="sd">  - Delta functor ([delta_functor])</span>
+<span class="sd">  - Tuple functor ([tuple_functor])</span>
+<span class="sd">- Equivalence between functors into components and functors into product</span>
+
+<span class="sd">************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">dep_product_precategory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">I</span> : UU} (<span class="nv">C</span> : I -&gt; category).
+
+  <span class="kn">Definition</span> <span class="nf">product_precategory_ob_mor</span> : precategory_ob_mor.
+  <span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">apply</span> (∏ (i : I), ob (C i)).
+  - <span class="nb">intros</span> f g.
+    <span class="nb">apply</span> (∏ i, f i --&gt; g i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">product_precategory_data</span> : precategory_data.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">product_precategory_ob_mor</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> f i; <span class="nb">simpl</span> <span class="k">in</span> *.
+      <span class="nb">apply</span> (identity (f i)).
+    - <span class="nb">intros</span> a b c f g i; <span class="nb">simpl</span> <span class="k">in</span> *.
+      <span class="bp">exact</span> (f i · g i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_precategory_product_precategory_data</span> :
+    is_precategory product_precategory_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i.
+    - <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> id_right.
+    - <span class="nb">apply</span> assoc.
+    - <span class="nb">apply</span> assoc'.
+  <span class="kn">Defined</span>. <span class="sd">(** needed for the op-related goal below *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">product_precategory</span> : precategory
+    := tpair _ _ is_precategory_product_precategory_data.
+
+  <span class="kn">Definition</span> <span class="nf">has_homsets_product_precategory</span> :
+    has_homsets product_precategory.
+  <span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ?; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> impred_isaset; <span class="nb">intro</span>; <span class="nb">apply</span> C.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">product_category'</span> : category := make_category _ has_homsets_product_precategory.
+
+<span class="kn">End</span> <span class="nf">dep_product_precategory</span>.
+
+
+
+<span class="sd">(** The product of categories is again a category. *)</span>
+<span class="kn">Definition</span> <span class="nf">product_category</span> {<span class="nv">I</span> : UU} (<span class="nv">C</span> : I -&gt; category) : category.
+<span class="kn">Proof</span>.
+  use make_category.
+  - <span class="bp">exact</span> (product_precategory C).
+  - <span class="nb">apply</span> has_homsets_product_precategory.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">power_precategory</span>.
+  <span class="kn">Context</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">power_category</span> : category
+    := @product_category I (<span class="k">λ</span> <span class="nv">_</span>, C).
+
+<span class="kn">End</span> <span class="nf">power_precategory</span>.
+
+<span class="sd">(** ** Functors *)</span>
+
+<span class="c">(* TODO: Some of the functors in this section can be defined in terms of each other *)</span>
+<span class="kn">Section</span> <span class="nf">functors</span>.
+
+<span class="sd">(** *** Families of functors ([family_functor]) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">family_functor_data</span> (<span class="nv">I</span> : UU) {<span class="nv">A</span> <span class="nv">B</span> : I -&gt; category}
+  (<span class="nv">F</span> : ∏ (i : I), (A i) ⟶ (B i)) :
+  functor_data (product_category A)
+               (product_category B).
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intros</span> a i; <span class="nb">apply</span> (F i (a i)).
+- <span class="nb">intros</span> a b f i; <span class="nb">apply</span> (# (F i) (f i)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">family_functor</span> (<span class="nv">I</span> : UU) {<span class="nv">A</span> <span class="nv">B</span> : I -&gt; category}
+  (<span class="nv">F</span> : ∏ (i : I), (A i) ⟶ (B i)) :
+  (product_category A) ⟶ (product_category B).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (tpair _ (family_functor_data I F)).
+<span class="kp">abstract</span>
+  (<span class="nb">split</span>; [ <span class="nb">intro</span> x; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i; <span class="nb">simpl</span>; <span class="nb">apply</span> functor_id
+          | <span class="nb">intros</span> x y z f g; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i; <span class="nb">apply</span> functor_comp]).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Projections ([pr_functor]) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pr_functor_data</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : I -&gt; category) (<span class="nv">i</span> : I) :
+  functor_data (product_category C) (C i).
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intro</span> a; <span class="nb">apply</span> (a i).
+- <span class="nb">intros</span> x y f; <span class="nb">simpl</span>; <span class="nb">apply</span> (f i).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr_functor</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : I -&gt; category) (<span class="nv">i</span> : I) :
+  (product_category C) ⟶ (C i).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (tpair _ (pr_functor_data I C i)).
+<span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">intros</span> x *; <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Delta functor ([delta_functor]) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">delta_functor_data</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : category) :
+  functor_data C (power_category I C).
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intros</span> x i; <span class="nb">apply</span> x.
+- <span class="nb">intros</span> x y f i; <span class="nb">simpl</span>; <span class="nb">apply</span> f.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">delta_functor</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : category) :
+  C ⟶ (power_category I C).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (tpair _ (delta_functor_data I C)).
+<span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">intros</span> x *; <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Tuple functor ([tuple_functor]) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">tuple_functor_data</span> {<span class="nv">I</span> : UU} {<span class="nv">A</span> : category} {<span class="nv">B</span> : I → category}
+  (<span class="nv">F</span> : ∏ i, A ⟶ (B i)) : functor_data A (product_category B).
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intros</span> a i; <span class="bp">exact</span> (F i a).
+- <span class="nb">intros</span> a b f i; <span class="bp">exact</span> (# (F i) f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">tuple_functor_axioms</span> {<span class="nv">I</span> : UU} {<span class="nv">A</span> : category} {<span class="nv">B</span> : I → category}
+  (<span class="nv">F</span> : ∏ i, A ⟶ (B i)) : is_functor (tuple_functor_data F).
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="nb">intros</span> a. <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i. <span class="nb">apply</span> functor_id.
+- <span class="nb">intros</span> ? ? ? ? ?. <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i. <span class="nb">apply</span> functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">tuple_functor</span> {<span class="nv">I</span> : UU} {<span class="nv">A</span> : category} {<span class="nv">B</span> : I → category}
+  (<span class="nv">F</span> : ∏ i, A ⟶ (B i)) : A ⟶ (product_category B)
+    := (tuple_functor_data F,, tuple_functor_axioms F).
+
+<span class="kn">Lemma</span> <span class="nf">pr_tuple_functor</span> {<span class="nv">I</span> : UU} {<span class="nv">A</span> : category} (<span class="nv">B</span> : I → category)
+  (<span class="nv">F</span> : ∏ i, A ⟶ (B i)) (<span class="nv">i</span> : I) : tuple_functor F ∙ pr_functor I B i = F i.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_eq.
+  <span class="nb">apply</span> (B i).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">functors</span>.
+
+<span class="sd">(** ** Equivalence between functors into components and functors into product *)</span>
+
+<span class="sd">(** This is a phrasing of the universal property of the product, compare to</span>
+<span class="sd">    [weqfuntoprodtoprod]. *)</span>
+<span class="kn">Lemma</span> <span class="nf">functor_into_product_weq</span> {<span class="nv">I</span> : UU} {<span class="nv">A</span> : category} {<span class="nv">B</span> : I → category} :
+  A ⟶ (product_category B) ≃ (∏ i : I, A ⟶ (B i)).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intros</span> ? i.
+    <span class="sd">(** Compose A ⟶ product_precategory I B ⟶ B i *)</span>
+    <span class="nb">apply</span> (functor_composite (C' := product_precategory B)).
+    + <span class="bp">assumption</span>.
+    + <span class="bp">exact</span> (pr_functor _ _ i).
+  - <span class="bp">exact</span> tuple_functor.
+  - <span class="nb">intro</span> y.
+    <span class="nb">apply</span> functor_eq; [<span class="nb">apply</span> homset_property|].
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">intro</span> f; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i.
+    <span class="nb">apply</span> functor_eq; [<span class="bp">exact</span> (homset_property (B i))|].
+    <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/ProductCategory.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; ************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

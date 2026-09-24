@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DependentPresheaf.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Dependent presheaves</span>
+
+<span class="sd"> If we have a category `C`, then the presheaves over `C` form a model of extensional</span>
+<span class="sd"> Martin-Löf type theory. Contexts are presheaves and there are two equivalent ways</span>
+<span class="sd"> to describe types in this model</span>
+<span class="sd"> 1. A type in a context `Γ` is a presheaf `A` over `C` with a natural transformation</span>
+<span class="sd">    `τ : A ⟹ Γ`.</span>
+<span class="sd"> 2. Types in a context `Γ` are presheaves over the category of elements for `Γ`.</span>
+
+<span class="sd"> The first method is an instance of a general construction: if we have a category `C`</span>
+<span class="sd"> with finite limits, then the arrow category for `C` gives a comprehension category</span>
+<span class="sd"> where the comprehension functor is the identity. However, often the presheaf model</span>
+<span class="sd"> is presented in a different way, namely the second, because it is more convenient</span>
+<span class="sd"> to use. The equivalence of these two presentation is shown in `elems_slice_equiv.v`.</span>
+
+<span class="sd"> in this file, we provide an interface for using dependent presheaves by providing</span>
+<span class="sd"> convenient builders and accessors. We do the same for natural transformations</span>
+<span class="sd"> between them.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Dependent presheaves</span>
+<span class="sd"> 2. Accessors for dependent presheaves</span>
+<span class="sd"> 3. Substitution for dependent presheaves</span>
+<span class="sd"> 4. Natural transformations between dependent presheaves</span>
+<span class="sd"> 5. Accessors for natural transformations between dependent presheaves</span>
+<span class="sd"> 6. Examples of natural transformations between dependent presheaves</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfElementsPsh.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Dependent presheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">dep_psh</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">Γ</span> : C^op ⟶ HSET)
+  : UU
+  := (∫ Γ)^op ⟶ HSET.
+
+<span class="sd">(** * 2. Accessors for dependent presheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">dep_psh_ob</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           (<span class="nv">A</span> : dep_psh Γ)
+           (<span class="nv">x</span> : C)
+           (<span class="nv">xx</span> : (Γ x : hSet))
+  : hSet
+  := (A : _ ⟶ _) (x ,, xx).
+
+<span class="kn">Coercion</span> <span class="nf">dep_psh_ob</span> : dep_psh &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_psh_mor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           (<span class="nv">A</span> : dep_psh Γ)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">xx</span> : (Γ x : hSet)}
+           {<span class="nv">yy</span> : (Γ y : hSet)}
+           (<span class="nv">s</span> : y --&gt; x)
+           (<span class="nv">p</span> : #Γ s xx = yy)
+  : A x xx → A y yy.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (#(A : _ ⟶ _) (_ ,, _)).
+  - <span class="bp">exact</span> s.
+  - <span class="bp">exact</span> p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"#d"</span> := (dep_psh_mor).
+
+<span class="kn">Proposition</span> <span class="nf">dep_psh_mor_path_eq</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            (<span class="nv">A</span> : dep_psh Γ)
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">xx</span> : (Γ x : hSet)}
+            {<span class="nv">yy</span> : (Γ y : hSet)}
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> : y --&gt; x}
+            (<span class="nv">p</span> : #Γ s₁ xx = yy)
+            (<span class="nv">q</span> : #Γ s₂ xx = yy)
+            (<span class="nv">r</span> : s₁ = s₂)
+            (<span class="nv">a</span> : A x xx)
+  : #d A s₁ p a = #d A s₂ q a.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> r.
+  <span class="nb">enough</span> (p = q) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_psh_mor_path_eq_pt</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            (<span class="nv">A</span> : dep_psh Γ)
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">xx</span> : (Γ x : hSet)}
+            {<span class="nv">yy</span> : (Γ y : hSet)}
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> : y --&gt; x}
+            (<span class="nv">p</span> : #Γ s₁ xx = yy)
+            (<span class="nv">q</span> : #Γ s₂ xx = yy)
+            (<span class="nv">r</span> : s₁ = s₂)
+            {<span class="nv">a</span> <span class="nv">a'</span> : A x xx}
+            (<span class="nv">r'</span> : a = a')
+  : #d A s₁ p a = #d A s₂ q a'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> r, r'.
+  <span class="nb">enough</span> (p = q) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_psh_mor_id</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            (<span class="nv">A</span> : dep_psh Γ)
+            {<span class="nv">x</span> : C}
+            {<span class="nv">xx</span> : (Γ x : hSet)}
+            (<span class="nv">p</span> : #Γ (identity x) xx = xx)
+            (<span class="nv">a</span> : A x xx)
+  : #d A (identity x) p a = a.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ @ eqtohomot (functor_id A _) _).
+  <span class="nb">apply</span> dep_psh_mor_path_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_psh_mor_id'</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            (<span class="nv">A</span> : dep_psh Γ)
+            {<span class="nv">x</span> : C}
+            (<span class="nv">f</span> : x --&gt; x)
+            {<span class="nv">xx</span> : (Γ x : hSet)}
+            (<span class="nv">p</span> : #Γ f xx = xx)
+            (<span class="nv">q</span> : identity _ = f)
+            (<span class="nv">a</span> : A x xx)
+  : #d A f p a = a.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> q.
+  <span class="nb">apply</span> dep_psh_mor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_psh_mor_comp</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            (<span class="nv">A</span> : dep_psh Γ)
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            {<span class="nv">xx</span> : (Γ x : hSet)}
+            {<span class="nv">yy</span> : (Γ y : hSet)}
+            {<span class="nv">zz</span> : (Γ z : hSet)}
+            (<span class="nv">s₁</span> : y --&gt; x)
+            (<span class="nv">s₂</span> : z --&gt; y)
+            (<span class="nv">p</span> : #Γ s₁ xx = yy)
+            (<span class="nv">q</span> : #Γ s₂ yy = zz)
+            (<span class="nv">r</span> : #Γ (s₂ · s₁) xx = zz)
+            (<span class="nv">a</span> : A x xx)
+  : #d A (s₂ · s₁) r a = #d A s₂ q (#d A s₁ p a).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ @ eqtohomot (functor_comp A _ _) _).
+  <span class="nb">apply</span> dep_psh_mor_path_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_psh_mor_comp_path</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            {<span class="nv">xx</span> : (Γ x : hSet)}
+            {<span class="nv">yy</span> : (Γ y : hSet)}
+            {<span class="nv">zz</span> : (Γ z : hSet)}
+            {<span class="nv">s₁</span> : y --&gt; x}
+            {<span class="nv">s₂</span> : z --&gt; y}
+            (<span class="nv">p</span> : #Γ s₁ xx = yy)
+            (<span class="nv">q</span> : #Γ s₂ yy = zz)
+  : #Γ (s₂ · s₁) xx = zz.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span>(eqtohomot (functor_comp Γ _ _) _ @ maponpaths (#Γ s₂) p @ q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_psh_mor_comp'</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            (<span class="nv">A</span> : dep_psh Γ)
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            {<span class="nv">xx</span> : (Γ x : hSet)}
+            {<span class="nv">yy</span> : (Γ y : hSet)}
+            {<span class="nv">zz</span> : (Γ z : hSet)}
+            (<span class="nv">s₁</span> : y --&gt; x)
+            (<span class="nv">s₂</span> : z --&gt; y)
+            (<span class="nv">p</span> : #Γ s₁ xx = yy)
+            (<span class="nv">q</span> : #Γ s₂ yy = zz)
+            (<span class="nv">a</span> : A x xx)
+  : #d A s₂ q (#d A s₁ p a) = #d A (s₂ · s₁) (dep_psh_mor_comp_path p q) a.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> dep_psh_mor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">transport_dep_psh_mor</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            (<span class="nv">A</span> : dep_psh Γ)
+            {<span class="nv">x</span> : C}
+            {<span class="nv">xx₁</span> <span class="nv">xx₂</span> : (Γ x : hSet)}
+            (<span class="nv">p</span> : xx₁ = xx₂)
+            (<span class="nv">a</span> : A x xx₁)
+  : transportf (A x) p a
+    =
+    #d A (identity _) (eqtohomot (functor_id Γ _) _ @ p) a.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> dep_psh_mor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_dep_psh</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           (<span class="nv">Ao</span> : ∏ (x : C), (Γ x : hSet) → hSet)
+           (<span class="nv">Am</span> : ∏ (x y : C)
+                   (xx : (Γ x : hSet))
+                   (yy : (Γ y : hSet))
+                   (s : y --&gt; x)
+                   (p : #Γ s xx = yy),
+                 Ao x xx → Ao y yy)
+           (<span class="nv">Ai</span> : ∏ (x : C)
+                   (xx : (Γ x : hSet))
+                   (p : #Γ (identity x) xx = xx)
+                   (a : Ao x xx),
+                 Am _ _ _ _ (identity x) p a
+                 =
+                 a)
+           (<span class="nv">Ac</span> : ∏ (x y z : C)
+                   (xx : (Γ x : hSet))
+                   (yy : (Γ y : hSet))
+                   (zz : (Γ z : hSet))
+                   (s₁ : y --&gt; x)
+                   (s₂ : z --&gt; y)
+                   (p : #Γ s₁ xx = yy)
+                   (q : #Γ s₂ yy = zz)
+                   (r : #Γ (s₂ · s₁) xx = zz)
+                   (a : Ao x xx),
+                 Am _ _ _ _ (s₂ · s₁) r a
+                 =
+                 Am _ _ _ _ s₂ q (Am _ _ _ _ s₁ p a))
+  : dep_psh Γ.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use make_functor_data.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, Ao (pr1 x) (pr2 x)).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, Am _ _ _ _ (pr1 f) (pr2 f)).
+  - <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> x ;
+         use funextsec ;
+         <span class="nb">intro</span> a ;
+         <span class="nb">apply</span> Ai).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y z f g ;
+         use funextsec ;
+         <span class="nb">intro</span> a ;
+         <span class="nb">apply</span> Ac).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Substitution for dependent presheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">dep_psh_subst</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+           (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+           (<span class="nv">A</span> : dep_psh Γ₂)
+  : dep_psh Γ₁.
+<span class="kn">Proof</span>.
+  use make_dep_psh.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, A x (s x xx)).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">f</span> <span class="nv">p</span> <span class="nv">a</span>, #d A f _ a).
+    <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> &lt;- p ;
+       <span class="bp">exact</span> (!(eqtohomot (nat_trans_ax s _ _ f) xx))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x xx p a ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> dep_psh_mor_id).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y z xx yy zz s₁ s₂ p q r a ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> dep_psh_mor_comp).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Natural transformations between dependent presheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">dep_psh_nat_trans</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+           (<span class="nv">A</span> : dep_psh Γ₁)
+           (<span class="nv">B</span> : dep_psh Γ₂)
+           (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+  : UU
+  := (A : _ ⟶ _) ⟹ functor_opp (cat_of_elems_psh_nat_trans s) ∙ B.
+
+<span class="sd">(** * 5. Accessors for natural transformations between dependent presheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">dep_psh_nat_trans_ob</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> : dep_psh Γ₁}
+           {<span class="nv">B</span> : dep_psh Γ₂}
+           {<span class="nv">s</span> : Γ₁ ⟹ Γ₂}
+           (<span class="nv">τ</span> : dep_psh_nat_trans A B s)
+           (<span class="nv">x</span> : C)
+           (<span class="nv">xx</span> : (Γ₁ x : hSet))
+           (<span class="nv">a</span> : A x xx)
+  : B x (s x xx)
+  := pr1 τ (x ,, xx) a.
+
+<span class="kn">Coercion</span> <span class="nf">dep_psh_nat_trans_ob</span> : dep_psh_nat_trans &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_psh_nat_trans_ax</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ₁}
+            {<span class="nv">B</span> : dep_psh Γ₂}
+            {<span class="nv">s</span> : Γ₁ ⟹ Γ₂}
+            (<span class="nv">τ</span> : dep_psh_nat_trans A B s)
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">xx</span> : (Γ₁ x : hSet)}
+            {<span class="nv">yy</span> : (Γ₁ y : hSet)}
+            (<span class="nv">f</span> : y --&gt; x)
+            (<span class="nv">p</span> : #Γ₁ f xx = yy)
+            (<span class="nv">q</span> : #Γ₂ f (s x xx) = s y yy)
+            (<span class="nv">a</span> : A x xx)
+  : τ y yy (#d A f p a) = #d B f q (τ x xx a).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (eqtohomot (pr2 τ (x ,, xx) (y ,, yy) (f ,, p)) a @ _) ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> dep_psh_mor_path_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_psh_nat_trans_ax_path</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ₁}
+            {<span class="nv">B</span> : dep_psh Γ₂}
+            {<span class="nv">s</span> : Γ₁ ⟹ Γ₂}
+            (<span class="nv">τ</span> : dep_psh_nat_trans A B s)
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">xx</span> : (Γ₁ x : hSet)}
+            {<span class="nv">yy</span> : (Γ₁ y : hSet)}
+            (<span class="nv">f</span> : y --&gt; x)
+            (<span class="nv">p</span> : #Γ₁ f xx = yy)
+  : #Γ₂ f (s x xx) = s y yy.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- p.
+  <span class="bp">exact</span> (!(eqtohomot (nat_trans_ax s x y f) xx)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_psh_nat_trans_ax'</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ₁}
+            {<span class="nv">B</span> : dep_psh Γ₂}
+            {<span class="nv">s</span> : Γ₁ ⟹ Γ₂}
+            (<span class="nv">τ</span> : dep_psh_nat_trans A B s)
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">xx</span> : (Γ₁ x : hSet)}
+            {<span class="nv">yy</span> : (Γ₁ y : hSet)}
+            (<span class="nv">f</span> : y --&gt; x)
+            (<span class="nv">p</span> : #Γ₁ f xx = yy)
+            (<span class="nv">a</span> : A x xx)
+  : τ y yy (#d A f p a) = #d B f (dep_psh_nat_trans_ax_path τ f p) (τ x xx a).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> dep_psh_nat_trans_ax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_psh_nat_trans_naturality</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> : dep_psh Γ₁}
+           {<span class="nv">B</span> : dep_psh Γ₂}
+           {<span class="nv">s</span> : Γ₁ ⟹ Γ₂}
+           (<span class="nv">τo</span> : ∏ (x : C)
+                   (xx : (Γ₁ x : hSet)),
+                 A x xx → B x (s x xx))
+  : UU
+  := ∏ (x y : C)
+       (xx : (Γ₁ x : hSet))
+       (yy : (Γ₁ y : hSet))
+       (f : y --&gt; x)
+       (p : #Γ₁ f xx = yy)
+       (q : #Γ₂ f (s x xx) = s y yy)
+       (a : A x xx),
+     τo y yy (#d A f p a) = #d B f q (τo x xx a).
+
+<span class="kn">Arguments</span> dep_psh_nat_trans_naturality /.
+
+<span class="kn">Definition</span> <span class="nf">make_dep_psh_nat_trans</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+           (<span class="nv">A</span> : dep_psh Γ₁)
+           (<span class="nv">B</span> : dep_psh Γ₂)
+           (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+           (<span class="nv">τo</span> : ∏ (x : C)
+                   (xx : (Γ₁ x : hSet)),
+                 A x xx → B x (s x xx))
+           (<span class="nv">τm</span> : dep_psh_nat_trans_naturality τo)
+  : dep_psh_nat_trans A B s.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">a</span>, τo (pr1 x) (pr2 x) a).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ;
+       use funextsec ;
+       <span class="nb">intro</span> a ;
+       <span class="bp">exact</span> (τm (pr1 x) (pr1 y) (pr2 x) (pr2 y) (pr1 f) (pr2 f) _ a)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_psh_nat_trans_eq</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ₁}
+            {<span class="nv">B</span> : dep_psh Γ₂}
+            {<span class="nv">s</span> : Γ₁ ⟹ Γ₂}
+            {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : dep_psh_nat_trans A B s}
+            (<span class="nv">p</span> : ∏ (x : C) (xx : (Γ₁ x : hSet)) (a : A x xx),
+                 τ₁ x xx a = τ₂ x xx a)
+  : τ₁ = τ₂.
+<span class="kn">Proof</span>.
+  use nat_trans_eq.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">intros</span> x.
+  use funextsec.
+  <span class="nb">intro</span> a.
+  <span class="nb">apply</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_psh_nat_trans_eq_pt</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ₁}
+            {<span class="nv">B</span> : dep_psh Γ₂}
+            {<span class="nv">s</span> : Γ₁ ⟹ Γ₂}
+            {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : dep_psh_nat_trans A B s}
+            (<span class="nv">p</span> : τ₁ = τ₂)
+            {<span class="nv">x</span> : C}
+            (<span class="nv">xx</span> : (Γ₁ x : hSet))
+            (<span class="nv">a</span> : A x xx)
+  : τ₁ x xx a = τ₂ x xx a.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Examples of natural transformations between dependent presheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">dep_psh_id_nat_trans</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           (<span class="nv">A</span> : dep_psh Γ)
+  : dep_psh_nat_trans A A (nat_trans_id Γ).
+<span class="kn">Proof</span>.
+  use make_dep_psh_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">a</span>, a).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> dep_psh_mor_path_eq ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_psh_comp_nat_trans</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C^op ⟶ HSET}
+           {<span class="nv">A₁</span> : dep_psh Γ₁}
+           {<span class="nv">A₂</span> : dep_psh Γ₂}
+           {<span class="nv">A₃</span> : dep_psh Γ₃}
+           {<span class="nv">s₁</span> : Γ₁ ⟹ Γ₂}
+           {<span class="nv">s₂</span> : Γ₂ ⟹ Γ₃}
+           (<span class="nv">τ₁</span> : dep_psh_nat_trans A₁ A₂ s₁)
+           (<span class="nv">τ₂</span> : dep_psh_nat_trans A₂ A₃ s₂)
+  : dep_psh_nat_trans A₁ A₃ (nat_trans_comp _ _ _ s₁ s₂).
+<span class="kn">Proof</span>.
+  use make_dep_psh_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">a</span>, τ₂ x _ (τ₁ x xx a)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> dep_psh_nat_trans_ax' ;
+       <span class="nb">apply</span> dep_psh_nat_trans_ax).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_psh_subst_nat_trans</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+           (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+           (<span class="nv">A</span> : dep_psh Γ₂)
+  : dep_psh_nat_trans (dep_psh_subst s A) A s.
+<span class="kn">Proof</span>.
+  use make_dep_psh_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">a</span>, a).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y xx yy f p q a ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> dep_psh_mor_path_eq ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_psh_factor_nat_trans</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : C^op ⟶ HSET}
+           {<span class="nv">s₁</span> : Γ₁ ⟹ Γ₂}
+           {<span class="nv">s₂</span> : Γ₂ ⟹ Γ₃}
+           {<span class="nv">A</span> : dep_psh Γ₁}
+           {<span class="nv">B</span> : dep_psh Γ₃}
+           (<span class="nv">τ</span> : dep_psh_nat_trans A B (nat_trans_comp _ _ _ s₁ s₂))
+  : dep_psh_nat_trans A (dep_psh_subst s₂ B) s₁.
+<span class="kn">Proof</span>.
+  use make_dep_psh_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">a</span>, τ x xx a).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y xx yy f p q a ; <span class="nb">cbn</span> ;
+       <span class="bp">exact</span> (dep_psh_nat_trans_ax τ f p _ a)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/DependentPresheaf.v</tt>, line 31)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Examples of natural transformations between dependent presheaves
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Categories.CategoryOfElementsPsh.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>
