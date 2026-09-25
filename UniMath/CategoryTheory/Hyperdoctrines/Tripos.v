@@ -49,9 +49,15 @@ Require Import UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
 Local Open Scope cat.
 Local Open Scope hd.
 
+Declare Scope tripos.
+Delimit Scope tripos with tripos.
+
+Declare Scope weak_tripos.
+Delimit Scope weak_tripos with weak_tripos.
+
 (** * 1. Tripos *)
 Definition is_power_object_tripos
-           {H : first_order_preorder_hyperdoctrine}
+           {H : preorder_hyperdoctrine}
            (X : ty H)
            (PX : ty H)
            (inX : form (X ×h PX))
@@ -64,7 +70,7 @@ Definition is_power_object_tripos
      inX [ ⟨ π₁ (tm_var _) , f [ π₂ (tm_var _) ]tm ⟩ ].
 
 Definition is_preorder_tripos
-           (H : first_order_preorder_hyperdoctrine)
+           (H : preorder_hyperdoctrine)
   : UU
   := ∏ (X : ty H),
      ∑ (PX : ty H)
@@ -83,8 +89,8 @@ Proof.
 Defined.
 
 Definition is_tripos
-           (H : first_order_hyperdoctrine)
-           (H' := first_order_hyperdoctrine_to_preorder_hyperdoctrine H)
+           (H : hyperdoctrine)
+           (H' := hyperdoctrine_to_preorder_hyperdoctrine H)
   : UU
   := ∏ (X : ty H'),
      ∑ (PX : ty H')
@@ -102,13 +108,15 @@ Proof.
   exact (pr1 H).
 Defined.
 
+Local Open Scope tripos.
+
 Definition tripos_power
            {H : tripos}
            (X : ty H)
   : ty H
   := pr1 (pr2 H X).
 
-Notation "'ℙ'" := tripos_power. (* \bP *)
+Notation "'ℙ'" := tripos_power : tripos. (* \bP *)
 
 Definition tripos_in
            {H : tripos}
@@ -116,7 +124,7 @@ Definition tripos_in
   : form (X ×h ℙ X)
   := pr12 (pr2 H X).
 
-Notation "x ∈ P" := ((tripos_in _) [ ⟨ x , P ⟩ ]).
+Notation "x ∈ P" := ((tripos_in _) [ ⟨ x , P ⟩ ]) : tripos.
 
 Proposition tripos_in_subst
             {H : tripos}
@@ -141,7 +149,7 @@ Definition tripos_compr
   : tm Γ (ℙ X)
   := pr1 (pr22 (pr2 H X) Γ R).
 
-Notation "{{ R }}" := (tripos_compr R).
+Notation "{{ R }}" := (tripos_compr R) : tripos.
 
 Proposition mor_to_tripos_power_eq
             {H : tripos}
@@ -183,6 +191,23 @@ Proposition mor_to_tripos_power_b
 Proof.
   refine (hyperdoctrine_cut p _).
   exact (hyperdoctrine_formula_eq_b (mor_to_tripos_power_eq  X Γ R)).
+Qed.
+
+Proposition topos_tripos_compr_in
+            {H : tripos}
+            {Γ A : ty H}
+            (φ : form (A ×h Γ))
+            (t : tm Γ A)
+  : t ∈ {{ φ }} = φ [ ⟨ t , tm_var _ ⟩ ].
+Proof.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths_2.
+    exact (mor_to_tripos_power_eq _ _ φ).
+  }
+  hypersimplify.
+  apply idpath.
 Qed.
 
 Definition make_tripos
@@ -235,7 +260,11 @@ Arguments hyperdoctrine_sub_pr_4_of_4 {_ _ _ _ _} /.
 Arguments hyperdoctrine_sub_pr_4_3 {_ _ _ _ _} /.
 Arguments hyperdoctrine_sub_pr_4_2 {_ _ _ _ _} /.
 
+Close Scope tripos.
+
 (** * 3. The definition of weak triposes *)
+Local Open Scope weak_tripos.
+
 Definition is_weak_tripos_law
            {H : first_order_hyperdoctrine}
            {X : ty H}
@@ -273,7 +302,149 @@ Definition make_weak_tripos
   : weak_tripos
   := H ,, HH.
 
+Definition weak_tripos_power
+           {H : weak_tripos}
+           (X : ty H)
+  : ty H
+  := pr1 (pr2 H X).
+
+Notation "'ℙ'" := weak_tripos_power : weak_tripos. (* \bP *)
+
+Definition weak_tripos_in
+           {H : weak_tripos}
+           (X : ty H)
+  : form (X ×h ℙ X)
+  := pr12 (pr2 H X).
+
+Notation "x ∈ P" := ((weak_tripos_in _) [ ⟨ x , P ⟩ ]) (at level 70) : weak_tripos.
+
+Proposition weak_tripos_in_subst
+            {H : weak_tripos}
+            {Γ₁ Γ₂ X : ty H}
+            (x : tm Γ₂ X)
+            (P : tm Γ₂ (ℙ X))
+            (s : tm Γ₁ Γ₂)
+  : (x ∈ P) [ s ]
+    =
+    ((x [ s ]tm) ∈ (P [ s ]tm)).
+Proof.
+  unfold weak_tripos_in.
+  hypersimplify.
+  apply idpath.
+Qed.
+
+Definition weak_tripos_rel_equiv
+           {H : weak_tripos}
+           {X : ty H}
+           {Γ₁ Γ₂ : ty H}
+           (R : form (X ×h Γ₂))
+           (γ : tm Γ₁ Γ₂)
+           (t : tm Γ₁ (ℙ X))
+  : form Γ₁
+  := (∀h (π₂ (tm_var _) ∈ t [ π₁ (tm_var _) ]tm
+          ⇔
+          R [ ⟨ π₂ (tm_var _) , γ [ π₁ (tm_var _) ]tm ⟩ ])).
+
+Proposition weak_tripos_rel_equiv_left
+            {H : weak_tripos}
+            {X : ty H}
+            {Γ₁ Γ₂ : ty H}
+            (R : form (X ×h Γ₂))
+            (γ : tm Γ₁ Γ₂)
+            (t : tm Γ₁ (ℙ X))
+            (Δ : form Γ₁)
+            (p : Δ ⊢ weak_tripos_rel_equiv R γ t)
+            (x : tm Γ₁ X)
+            (q : Δ ⊢ x ∈ t)
+  : Δ ⊢ R [ ⟨ x , γ ⟩ ].
+Proof.
+  refine (hyperdoctrine_cut _ _).
+  {
+    exact (conj_intro p q).
+  }
+  refine (hyperdoctrine_cut _ _).
+  {
+    refine (conj_intro _ (weaken_right (hyperdoctrine_hyp _) _)).
+    use weaken_left.
+    exact (forall_elim (hyperdoctrine_hyp _) x).
+  }
+  hypersimplify.
+  refine (iff_elim_left _ _).
+  - use weaken_left.
+    apply hyperdoctrine_hyp.
+  - use weaken_right.
+    apply hyperdoctrine_hyp.
+Qed.
+
+Proposition weak_tripos_rel_equiv_right
+            {H : weak_tripos}
+            {X : ty H}
+            {Γ₁ Γ₂ : ty H}
+            (R : form (X ×h Γ₂))
+            (γ : tm Γ₁ Γ₂)
+            (t : tm Γ₁ (ℙ X))
+            (Δ : form Γ₁)
+            (p : Δ ⊢ weak_tripos_rel_equiv R γ t)
+            (x : tm Γ₁ X)
+            (q : Δ ⊢ R [ ⟨ x , γ ⟩ ])
+  : Δ ⊢ x ∈ t.
+Proof.
+  refine (hyperdoctrine_cut _ _).
+  {
+    exact (conj_intro p q).
+  }
+  refine (hyperdoctrine_cut _ _).
+  {
+    refine (conj_intro _ (weaken_right (hyperdoctrine_hyp _) _)).
+    use weaken_left.
+    exact (forall_elim (hyperdoctrine_hyp _) x).
+  }
+  hypersimplify.
+  refine (iff_elim_right _ _).
+  - use weaken_left.
+    apply hyperdoctrine_hyp.
+  - use weaken_right.
+    apply hyperdoctrine_hyp.
+Qed.
+
+Definition weak_tripos_compr
+           {H : weak_tripos}
+           {X : ty H}
+           {Γ₁ Γ₂ : ty H}
+           (R : form (X ×h Γ₂))
+           (Δ : form Γ₁)
+           (t : tm Γ₁ Γ₂)
+  : Δ ⊢ (∃h (weak_tripos_rel_equiv R (t [ π₁ (tm_var _) ]tm) (π₂ (tm_var _)))).
+Proof.
+  unfold weak_tripos_rel_equiv.
+  refine (hyperdoctrine_cut _ _).
+  {
+    refine (forall_elim _ t).
+    refine (hyperdoctrine_cut (truth_intro _) _).
+    refine (hyperdoctrine_cut
+              (hyperdoctrine_cut
+                 _
+                 (hyperdoctrine_proof_subst _ (pr22 (pr2 H X) Γ₂ R)))
+              _).
+    {
+      hypersimplify.
+      use truth_intro.
+    }
+    simplify.
+    apply hyperdoctrine_hyp.
+  }
+  hypersimplify_form.
+  unfold hyperdoctrine_sub_pr_4_2, hyperdoctrine_sub_pr_4_3.
+  unfold hyperdoctrine_sub_pr_4_of_4, hyperdoctrine_sub_pr_3_of_4.
+  unfold hyperdoctrine_sub_pr_2_of_4.
+  hypersimplify.
+  apply hyperdoctrine_hyp.
+Qed.
+
 (** * 4. Every tripos is a weak tripos *)
+Close Scope weak_tripos.
+Local Open Scope tripos.
+
 Proposition tripos_to_weak_tripos_law
             {H : tripos}
             (X : ty H)
@@ -285,7 +456,7 @@ Proof.
   - exact ({{ R }} [ π₂ (tm_var _) ]tm).
   - cbn ; hypersimplify.
     use forall_intro.
-    pose (x :=  π₂ (tm_var ((𝟙 ×h Γ) ×h X))).
+    pose (x := π₂ (tm_var ((𝟙 ×h Γ) ×h X))).
     pose (γ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h X)))).
     fold x γ.
     use iff_intro.
@@ -309,7 +480,7 @@ Proof.
       apply hyperdoctrine_hyp.
 Qed.
 
-Definition tripos_to_weak_tripos
+Definition tripos_to_is_weak_tripos
            (H : tripos)
   : is_weak_tripos H.
 Proof.
@@ -319,3 +490,8 @@ Proof.
   - exact (tripos_in X).
   - exact (tripos_to_weak_tripos_law X).
 Defined.
+
+Definition tripos_to_weak_tripos
+           (H : tripos)
+  : weak_tripos
+  := _ ,, tripos_to_is_weak_tripos H.

@@ -33,9 +33,11 @@ Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.ElementaryTopos.
+Require Import UniMath.CategoryTheory.Arithmetic.NNO.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.HValuedPredicates.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+Require Import UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Tripos.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.GenericPredicate.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.TriposToTopos.
@@ -50,6 +52,12 @@ Section HValuedSets.
   Definition topos_of_h_valued_sets
     : Topos
     := tripos_to_topos (tripos_h_valued_sets H).
+
+  Definition topos_of_h_valued_sets_NNO
+    : NNO (Topos_Terminal topos_of_h_valued_sets)
+    := tripos_to_topos_NNO
+         (tripos_h_valued_sets H)
+         (h_valued_sets_first_order_hyperdoctrine_nats H).
 
   (** * 2. Accessors and builders for H-valued sets *)
   Definition h_valued_set

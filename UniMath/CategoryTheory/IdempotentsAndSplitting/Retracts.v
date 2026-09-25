@@ -16,6 +16,7 @@
   4.1. Retractions are preserved by functors [functor_preserves_retraction]
   4.2. Idempotents are preserved by functors [functor_preserves_idempotent]
   4.3. Split idempotents are preserved by functors [functor_preserves_split_idempotent]
+  5. Every isomorphism is a retraction
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -456,3 +457,16 @@ Section Opp.
     := retraction_retraction r ,, retraction_section r ,, retraction_is_retraction r.
 
 End Opp.
+
+(** * 5. Every isomorphism is a retraction *)
+Definition z_iso_to_retraction
+           {C : category}
+           {x y : C}
+           (f : z_iso x y)
+  : retraction x y.
+Proof.
+  use make_retraction.
+  - exact f.
+  - exact (inv_from_z_iso f).
+  - exact (z_iso_inv_after_z_iso f).
+Defined.

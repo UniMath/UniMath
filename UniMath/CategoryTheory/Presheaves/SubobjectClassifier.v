@@ -42,6 +42,7 @@ Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClas
 Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
 Require Import UniMath.CategoryTheory.Presheaves.DependentPresheaf.
 Require Import UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
+Require Import UniMath.CategoryTheory.Presheaves.TotalPresheaf.
 Require Import UniMath.CategoryTheory.Presheaves.Constructions.
 
 Local Open Scope cat.
@@ -199,6 +200,25 @@ Section SubobjectClassifier.
 
   Notation "f ^* ω" := (precomp_sieve f ω) (at level 50) : cat.
 
+  Definition sieve_of_equality
+             {F : C^op ⟶ HSET}
+             {x : C}
+             (xx yy : (F x : hSet))
+    : sieve x.
+  Proof.
+    use make_sieve.
+    - exact (λ y f, #F f xx = #F f yy)%logic.
+    - abstract
+        (intros y₁ y₂ g₁ g₂ h p ;
+         induction p ; cbn ;
+         intro p  ;
+         refine (eqtohomot (functor_comp F g₁ h) xx @ _) ;
+         refine (_ @ !(eqtohomot (functor_comp F g₁ h) yy)) ;
+         cbn ;
+         apply maponpaths ;
+         exact p).
+  Defined.
+
   (** * 2. The presheaf of sieves *)
   Proposition id_precomp_sieve
               {x : C}
@@ -257,6 +277,10 @@ Section SubobjectClassifier.
       exact (comp_precomp_sieve f₁ f₂ ω).
   Defined.
 
+  Definition subobject_classifier_psh
+    : C^op ⟶ HSET
+    := total_psh (dep_psh_subobject_classifier_ob (constant_functor _ HSET unitset)).
+
   (** * 3. The canonical monomorphism into the presheaf of sieves *)
   Definition truth_sieve
              (x : C)
@@ -273,6 +297,20 @@ Section SubobjectClassifier.
     - exact (λ _ _ _, tt).
   Qed.
 
+  Proposition sieve_of_equality_refl
+              {F : C^op ⟶ HSET}
+              {x : C}
+              (xx : (F x : hSet))
+    : sieve_of_equality xx xx = truth_sieve _.
+  Proof.
+    use sieve_eq.
+    - intros.
+      exact tt.
+    - cbn.
+      intros.
+      apply idpath.
+  Qed.
+
   Definition dep_psh_truth
              (Γ : C^op ⟶ HSET)
     : dep_psh_nat_trans
@@ -285,6 +323,20 @@ Section SubobjectClassifier.
     - intros x y xx yy f p q t.
       cbn.
       exact (truth_sieve_comp f).
+  Defined.
+
+  Definition subobject_classifier_psh_truth
+    : constant_functor _ HSET unitset ⟹ subobject_classifier_psh.
+  Proof.
+    use make_nat_trans.
+    - exact (λ x _, tt ,, dep_psh_truth (constant_functor _ HSET unitset) x tt tt).
+    - abstract
+        (intros x y f ;
+         use funextsec ;
+         intros [ ] ;
+         cbn ;
+         apply maponpaths ;
+         exact (truth_sieve_comp f)).
   Defined.
 
   (** * 4. The universal property of the subobject classifier *)
@@ -548,7 +600,7 @@ Section SubobjectClassifier.
                      θ₂
                      (dep_psh_truth Γ)).
 
-      Definition unique_im_dep_psh_psh_characteristic_mor
+      Definition unique_im_dep_psh_characteristic_mor
                  {x : C}
                  {xx : (Γ x : hSet)}
                  (z : Z x xx)
@@ -595,7 +647,7 @@ Section SubobjectClassifier.
                  (xx : (Γ x : hSet))
                  (z : Z x xx)
         : A x (nat_trans_id Γ x xx)
-        := pr11 (unique_im_dep_psh_psh_characteristic_mor z).
+        := pr11 (unique_im_dep_psh_characteristic_mor z).
 
       Proposition dep_psh_characteristic_mor_pb_mor_laws
         : dep_psh_nat_trans_naturality dep_psh_characteristic_mor_pb_mor_data.
@@ -603,13 +655,13 @@ Section SubobjectClassifier.
         intros x y xx yy f q₁ q₂ z.
         use monic_dep_psh_nat_trans_monic.
         cbn.
-        refine (pr21 (unique_im_dep_psh_psh_characteristic_mor _) @ _).
+        refine (pr21 (unique_im_dep_psh_characteristic_mor _) @ _).
         refine (!_).
         simple refine (dep_psh_nat_trans_ax τ _ _ q₁ _ @ _).
         etrans.
         {
           apply maponpaths.
-          exact (pr21 (unique_im_dep_psh_psh_characteristic_mor _)).
+          exact (pr21 (unique_im_dep_psh_characteristic_mor _)).
         }
         refine (!_).
         apply dep_psh_nat_trans_ax.
@@ -633,8 +685,8 @@ Section SubobjectClassifier.
         intros x xx z.
         refine (dep_psh_fiber_comp _ _ _ _ @ _).
         cbn.
-        exact (pr21 (unique_im_dep_psh_psh_characteristic_mor z)).
-      Defined.
+        exact (pr21 (unique_im_dep_psh_characteristic_mor z)).
+      Qed.
 
       Proposition dep_psh_characteristic_mor_pb_unique
                   (ξ : (disp_cat_dep_psh C)[{Γ}] ⟦ Z, A ⟧)
@@ -651,7 +703,7 @@ Section SubobjectClassifier.
         simpl in r.
         refine (!(dep_psh_fiber_comp _ ξ τ z) @ r @ _).
         refine (!_).
-        exact (pr21 (unique_im_dep_psh_psh_characteristic_mor z)).
+        exact (pr21 (unique_im_dep_psh_characteristic_mor z)).
       Qed.
     End Pullback.
 
@@ -799,6 +851,65 @@ Section SubobjectClassifier.
            | ] ;
            exact (dep_psh_characteristic_mor_unique τ (pr1 χ) (pr12 χ) (pr22 χ))).
   Defined.
+
+  Section CharacteristicMorPsh.
+    Context {A B : C^op ⟶ HSET}
+            (τ : A ⟹ B)
+            (H : isMonic (C := PreShv C) τ).
+
+    Let AA : dep_psh (constant_functor C^op SET unitHSET)
+      := psh_to_dep_psh A.
+    Let BB : dep_psh (constant_functor C^op SET unitHSET)
+      := psh_to_dep_psh B.
+
+    Definition psh_characteristic_mor_dep_nat_trans
+      : dep_psh_nat_trans AA BB (nat_trans_id _).
+    Proof.
+      use make_dep_psh_nat_trans.
+      - exact (λ x _ a, τ x a).
+      - abstract
+          (intros x y [ ] [] f p q a ;
+           exact (eqtohomot (nat_trans_ax τ _ _ f) a)).
+    Defined.
+
+    Proposition psh_characteristic_mor_monic
+      : Monic (disp_cat_dep_psh C)[{_}] AA BB.
+    Proof.
+      use make_Monic.
+      - exact psh_characteristic_mor_dep_nat_trans.
+      - abstract
+          (intros Z θ₁ θ₂ p ;
+           use dep_psh_nat_trans_eq ;
+           intros x [ ] z ;
+           use (isMonic_presheaf_injective H) ;
+           cbn ;
+           pose (dep_psh_nat_trans_eq_pt p tt z) as q ;
+           rewrite !dep_psh_fiber_comp in q ;
+           cbn in q ;
+           exact q).
+    Defined.
+
+    Definition psh_characteristic_mor
+      : B ⟹ subobject_classifier_psh.
+    Proof.
+      use make_nat_trans.
+      - refine (λ x b, tt ,, _).
+        exact (dep_psh_characteristic_mor psh_characteristic_mor_monic x tt b).
+      - abstract
+          (intros x y f ;
+           use funextsec ;
+           intro b ;
+           cbn ;
+           apply maponpaths ;
+           exact (dep_psh_nat_trans_ax
+                    (dep_psh_characteristic_mor psh_characteristic_mor_monic)
+                    f
+                    (xx := tt)
+                    (idpath _)
+                    (idpath _)
+                    b)).
+    Defined.
+  End CharacteristicMorPsh.
 
   (** * 5. Stability of the subobject classifier *)
   Definition dep_psh_subobject_classifier_subst

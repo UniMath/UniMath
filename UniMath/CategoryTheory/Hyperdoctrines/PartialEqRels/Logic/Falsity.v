@@ -74,9 +74,7 @@ Section FalsityFormula.
         (per_subobject_false Γ)
         φ.
   Proof.
-    do 2 use forall_intro.
-    do 2 use impl_intro.
-    use weaken_right.
+    use per_subobject_mor_law_over_id.
     cbn.
     use false_elim.
     hypersimplify.
@@ -92,18 +90,12 @@ Section FalsityFormula.
         (per_subobject_subst s (per_subobject_false Γ₂))
         (per_subobject_false Γ₁).
   Proof.
-    do 2 use forall_intro.
-    use impl_intro.
-    use weaken_right.
-    use impl_intro.
+    use per_subobject_mor_law_over_id.
     cbn.
-    use hyp_sym.
-    rewrite !exists_subst.
-    use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
-    rewrite !conj_subst.
-    use hyp_ltrans.
+    hypersimplify.
+    refine (exists_elim (hyperdoctrine_hyp _) _).
     use weaken_right.
-    do 2 use weaken_right.
+    use weaken_right.
     hypersimplify.
     apply hyperdoctrine_hyp.
   Qed.

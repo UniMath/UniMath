@@ -377,6 +377,17 @@ Section MonoSubobjectEquiv.
         + use weaken_left.
           apply hyperdoctrine_hyp.
     Qed.
+
+    Definition per_subobject_to_monic
+      : Monic
+          (category_of_partial_setoids H)
+          subobject_to_partial_setoid
+          X.
+    Proof.
+      use make_Monic.
+      - exact subobject_to_partial_setoid_incl.
+      - exact isMonic_subobject_to_partial_setoid_incl.
+    Defined.
   End SubobjectToMono.
 
   (** * 2. The action on morphisms *)

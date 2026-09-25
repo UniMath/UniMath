@@ -21,6 +21,12 @@
  mapped to an actual function by lambda abstraction.  One of the required checks is that
  images exist and for that we use [lam_image_form].
 
+ In the development, we use weak triposes, which affects the construction of lambda
+ abstraction. To define lambda abstraction, one uses comprehension. Whereas in a tripos
+ comprehension is given as an operation on terms, comprehension is given as an axiom in
+ a weak tripos. The result is that one must use the elimination rule for the existential
+ quantifier to obtain a comprehension.
+
  Content
  1. The formula defining abstraction
  2. Accessors
@@ -42,9 +48,10 @@ Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialPE
 
 Local Open Scope cat.
 Local Open Scope hd.
+Local Open Scope weak_tripos.
 
 Section PERLambda.
-  Context {H : tripos}
+  Context {H : weak_tripos}
           {X Y Z : partial_setoid H}
           (φ : partial_setoid_morphism (prod_partial_setoid X Z) Y).
 
@@ -307,41 +314,17 @@ Section PERLambda.
        let z := π₂ (π₂ (tm_var ((X ×h Y) ×h 𝟙 ×h Z))) in
        φ [ ⟨ ⟨ x , z ⟩ , y ⟩ ].
 
-  Proposition lam_image_form_eq_help
-              (x := π₁ (tm_var ((X ×h Y) ×h 𝟙 ×h Z)))
-              (γ := π₂ (tm_var ((X ×h Y) ×h 𝟙 ×h Z)))
-    : lam_image_form = (x ∈ {{lam_image_form}} [ γ ]tm).
-  Proof.
-    exact (mor_to_tripos_power_eq _ _ lam_image_form).
-  Qed.
-
-  Proposition lam_image_form_eq
-              {Γ : ty H}
-              (x : tm Γ X)
-              (y : tm Γ Y)
-              (z : tm Γ Z)
-    : ⟨ x , y ⟩ ∈ {{lam_image_form}} [⟨ !!, z ⟩ ]tm
-      =
-      φ [ ⟨ ⟨ x , z ⟩ , y ⟩ ].
-  Proof.
-    refine (!_).
-    etrans.
-    {
-      refine (_ @ maponpaths (λ φ, φ [ ⟨ ⟨ x , y ⟩ , ⟨ !! , z ⟩ ⟩ ]) lam_image_form_eq_help).
-      unfold lam_image_form.
-      cbn.
-      hypersimplify.
-      apply idpath.
-    }
-    cbn.
-    hypersimplify.
-    apply idpath.
-  Qed.
-
   Proposition is_function_lam_image_form
-              (Δ : form (𝟙 ×h Z))
-              (p : Δ ⊢ π₂ (tm_var _) ~ π₂ (tm_var _))
-    : Δ ⊢ exp_partial_setoid_is_function [{{lam_image_form}}].
+              {Γ : ty H}
+              (Δ : form Γ)
+              (z : tm Γ Z)
+              (r : tm Γ (ℙ (X ×h Y)))
+              (p : Δ ⊢ z ~ z)
+              (q : Δ ⊢ weak_tripos_rel_equiv
+                         lam_image_form
+                         ⟨ !! , z ⟩
+                         r)
+    : Δ ⊢ exp_partial_setoid_is_function [ r ].
   Proof.
     unfold exp_partial_setoid_is_function.
     hypersimplify_form.
@@ -350,23 +333,36 @@ Section PERLambda.
       hypersimplify_form.
       do 2 use forall_intro.
       use impl_intro.
-      use weaken_right.
       hypersimplify_form.
       hypersimplify.
-      pose (x := π₂ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y)))).
-      pose (y := π₂ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))).
-      pose (z := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))))).
-      fold x y z.
-      rewrite (hyperdoctrine_pair_eta (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))))).
-      fold z.
-      assert (π₁ (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y)))) = !!) as ->.
+      pose (Γ' := (Γ ×h X) ×h Y).
+      pose (y := π₂ (tm_var Γ')).
+      pose (x := π₂ (π₁ (tm_var Γ'))).
+      pose (γ := π₁ (π₁ (tm_var Γ'))).
+      fold Γ' x y γ.
+      refine (hyperdoctrine_cut _ _).
       {
-        apply hyperdoctrine_unit_eta.
+        refine (weak_tripos_rel_equiv_left lam_image_form
+                  ⟨ !! , z [ γ ]tm ⟩
+                  (r [ γ ]tm)
+                  _ _
+                  ⟨ x , y ⟩
+                  _).
+        + use weaken_left.
+          refine (hyperdoctrine_cut (hyperdoctrine_proof_subst _ q) _).
+          unfold weak_tripos_rel_equiv.
+          hypersimplify.
+          apply hyperdoctrine_hyp.
+        + use weaken_right.
+          apply hyperdoctrine_hyp.
       }
-      rewrite lam_image_form_eq.
-      refine (hyperdoctrine_cut
-                (partial_setoid_mor_dom_defined φ ⟨ x , z ⟩ y (hyperdoctrine_hyp _))
-                _).
+      unfold lam_image_form.
+      hypersimplify.
+      refine (hyperdoctrine_cut _ _).
+      {
+        refine (partial_setoid_mor_dom_defined φ ⟨ x , z [ γ ]tm ⟩ y _).
+        apply hyperdoctrine_hyp.
+      }
       refine (hyperdoctrine_cut (eq_in_prod_partial_setoid_l _ _ (hyperdoctrine_hyp _)) _).
       hypersimplify.
       apply hyperdoctrine_hyp.
@@ -374,21 +370,32 @@ Section PERLambda.
       hypersimplify_form.
       do 2 use forall_intro.
       use impl_intro.
-      use weaken_right.
       hypersimplify_form.
       hypersimplify.
-      pose (x := π₂ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y)))).
-      pose (y := π₂ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))).
-      pose (z := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))))).
-      fold x y z.
-      rewrite (hyperdoctrine_pair_eta (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))))).
-      fold z.
-      assert (π₁ (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y)))) = !!) as ->.
+      pose (Γ' := (Γ ×h X) ×h Y).
+      pose (y := π₂ (tm_var Γ')).
+      pose (x := π₂ (π₁ (tm_var Γ'))).
+      pose (γ := π₁ (π₁ (tm_var Γ'))).
+      fold Γ' x y γ.
+      use (partial_setoid_mor_cod_defined φ ⟨ x , z [ γ ]tm ⟩ y _).
+      refine (hyperdoctrine_cut _ _).
       {
-        apply hyperdoctrine_unit_eta.
+        refine (weak_tripos_rel_equiv_left
+                  lam_image_form ⟨ !! , z [ γ ]tm ⟩
+                  (r [ γ ]tm)
+                  _ _
+                  ⟨ x , y ⟩
+                  _).
+        + use weaken_left.
+          refine (hyperdoctrine_cut (hyperdoctrine_proof_subst _ q) _).
+          unfold weak_tripos_rel_equiv.
+          hypersimplify.
+          apply hyperdoctrine_hyp.
+        + use weaken_right.
+          apply hyperdoctrine_hyp.
       }
-      use (partial_setoid_mor_cod_defined φ ⟨ x , z ⟩ y _).
-      rewrite lam_image_form_eq.
+      unfold lam_image_form.
+      hypersimplify.
       apply hyperdoctrine_hyp.
     - unfold exp_partial_setoid_eq_defined_law.
       hypersimplify_form.
@@ -396,25 +403,25 @@ Section PERLambda.
       do 3 use impl_intro.
       hypersimplify_form.
       hypersimplify.
-      pose (Γ := ((((𝟙 ×h Z) ×h X) ×h X) ×h Y) ×h Y).
-      pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
-      pose (x₂ := π₂ (π₁ (π₁ (tm_var Γ)))).
-      pose (y₁ := π₂ (π₁ (tm_var Γ))).
-      pose (y₂ := π₂ (tm_var Γ)).
-      pose (z := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var Γ)))))).
-      unfold Γ in * ; clear Γ.
-      fold x₁ x₂ y₁ y₂ z.
-      rewrite (hyperdoctrine_pair_eta
-                 (π₁ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h Z) ×h X) ×h X) ×h Y) ×h Y))))))).
-      fold z.
-      assert (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h Z) ×h X) ×h X) ×h Y) ×h Y)))))) = !!)
-        as ->.
+      pose (Γ' := (((Γ ×h X) ×h X) ×h Y) ×h Y).
+      pose (y₁ := π₂ (π₁ (tm_var Γ'))).
+      pose (y₂ := π₂ (tm_var Γ')).
+      pose (x₂ := π₂ (π₁ (π₁ (tm_var Γ')))).
+      pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var Γ'))))).
+      pose (γ := π₁ (π₁ (π₁ (π₁ (tm_var Γ'))))).
+      fold Γ' γ x₁ x₂ y₁ y₂.
+      use (weak_tripos_rel_equiv_right lam_image_form ⟨ !! , z [ γ ]tm ⟩ (r [ γ ]tm)).
       {
-        apply hyperdoctrine_unit_eta.
+        do 3 use weaken_left.
+        refine (hyperdoctrine_cut (hyperdoctrine_proof_subst _ q) _).
+        unfold weak_tripos_rel_equiv.
+        hypersimplify.
+        apply hyperdoctrine_hyp.
       }
-      rewrite !lam_image_form_eq.
+      unfold lam_image_form.
+      hypersimplify.
       use (partial_setoid_mor_eq_defined φ).
-      + exact ⟨ x₁ , z ⟩.
+      + exact ⟨ x₁ , z [ γ ]tm ⟩.
       + exact y₁.
       + use eq_in_prod_partial_setoid.
         * hypersimplify.
@@ -424,111 +431,144 @@ Section PERLambda.
         * hypersimplify.
           do 3 use weaken_left.
           refine (hyperdoctrine_cut
-                    (hyperdoctrine_proof_subst ⟨ !! , z ⟩ p)
+                    (hyperdoctrine_proof_subst _ p)
                     _).
           hypersimplify.
           apply hyperdoctrine_hyp.
       + use weaken_left.
         use weaken_right.
         apply hyperdoctrine_hyp.
-      + use weaken_right.
+      + refine (hyperdoctrine_cut _ _).
+        {
+          refine (weak_tripos_rel_equiv_left
+                    lam_image_form
+                    ⟨ !! , z [ γ ]tm ⟩
+                    (r [ γ ]tm)
+                    _ _
+                    ⟨ x₁ , y₁ ⟩
+                    (weaken_right (hyperdoctrine_hyp _) _)).
+          do 3 use weaken_left.
+          refine (hyperdoctrine_cut (hyperdoctrine_proof_subst _ q) _).
+          unfold weak_tripos_rel_equiv.
+          hypersimplify.
+          apply hyperdoctrine_hyp.
+        }
+        unfold lam_image_form.
+        hypersimplify.
         apply hyperdoctrine_hyp.
     - unfold exp_partial_setoid_unique_im_law.
       hypersimplify_form.
       do 3 use forall_intro.
       use impl_intro.
-      use weaken_right.
       use impl_intro.
       hypersimplify_form.
       hypersimplify.
-      pose (z := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h Z) ×h X) ×h Y) ×h Y)))))).
-      pose (x := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h Z) ×h X) ×h Y) ×h Y))))).
-      pose (y := π₂ (π₁ (tm_var ((((𝟙 ×h Z) ×h X) ×h Y) ×h Y)))).
-      pose (y' := π₂ (tm_var ((((𝟙 ×h Z) ×h X) ×h Y) ×h Y))).
-      fold x y y' z.
-      rewrite (hyperdoctrine_pair_eta (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h Z) ×h X) ×h Y) ×h Y)))))).
-      fold z.
-      assert (π₁ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h Z) ×h X) ×h Y) ×h Y))))) = !!) as ->.
-      {
-        apply hyperdoctrine_unit_eta.
-      }
-      rewrite !lam_image_form_eq.
+      pose (Γ' := ((Γ ×h X) ×h Y) ×h Y).
+      pose (y := π₂ (π₁ (tm_var Γ'))).
+      pose (y' := π₂ (tm_var Γ')).
+      pose (x := π₂ (π₁ (π₁ (tm_var Γ')))).
+      pose (γ := π₁ (π₁ (π₁ (tm_var Γ')))).
+      fold Γ' γ x y y'.
       use (partial_setoid_mor_unique_im φ).
-      + exact ⟨ x , z ⟩.
-      + use weaken_left.
+      + exact ⟨ x , z [ γ ]tm ⟩.
+      + refine (hyperdoctrine_cut _ _).
+        {
+          use (weak_tripos_rel_equiv_left
+                 lam_image_form
+                 ⟨ !! , z [ γ ]tm ⟩
+                 (r [ γ ]tm)
+                 _ _
+                 ⟨ x , y ⟩
+                 _).
+          * do 2 use weaken_left.
+            refine (hyperdoctrine_cut (hyperdoctrine_proof_subst _ q) _).
+            unfold weak_tripos_rel_equiv.
+            hypersimplify.
+            apply hyperdoctrine_hyp.
+          * use weaken_left.
+            use weaken_right.
+            apply hyperdoctrine_hyp.
+        }
+        unfold lam_image_form.
+        hypersimplify.
         apply hyperdoctrine_hyp.
-      + use weaken_right.
+      + refine (hyperdoctrine_cut _ _).
+        {
+          use (weak_tripos_rel_equiv_left lam_image_form
+                 ⟨ !! , z [ γ ]tm ⟩
+                 (r [ γ ]tm)
+                 _ _
+                 ⟨ x , y' ⟩
+                 _).
+          * do 2 use weaken_left.
+            refine (hyperdoctrine_cut (hyperdoctrine_proof_subst _ q) _).
+            unfold weak_tripos_rel_equiv.
+            hypersimplify.
+            apply hyperdoctrine_hyp.
+          * use weaken_right.
+            apply hyperdoctrine_hyp.
+        }
+        unfold lam_image_form.
+        hypersimplify.
         apply hyperdoctrine_hyp.
     - unfold exp_partial_setoid_im_exists_law.
       hypersimplify_form.
       use forall_intro.
       use impl_intro.
       hypersimplify.
-      pose (x := π₂ (tm_var ((𝟙 ×h Z) ×h X))).
-      pose (z := π₂ (π₁ (tm_var ((𝟙 ×h Z) ×h X)))).
-      fold x.
+      pose (Γ' := Γ ×h X).
+      pose (x := π₂ (tm_var Γ')).
+      pose (γ := π₁ (tm_var Γ')).
+      fold Γ' x γ.
       refine (weaken_cut _ _).
       {
         use weaken_left.
-        exact (hyperdoctrine_proof_subst (π₁ (tm_var ((𝟙 ×h Z) ×h X))) p).
+        exact (hyperdoctrine_proof_subst _ p).
       }
       use hyp_ltrans.
-      use weaken_right.
       hypersimplify.
-      fold z.
-      use (exists_elim (partial_setoid_mor_hom_exists φ (x := ⟨ x , z ⟩) _)).
-      + use eq_in_prod_partial_setoid.
+      use (exists_elim (partial_setoid_mor_hom_exists φ (x := ⟨ x , z [ γ ]tm⟩) _)).
+      + use weaken_right.
+        use eq_in_prod_partial_setoid.
         * hypersimplify.
           use weaken_left.
           apply hyperdoctrine_hyp.
         * hypersimplify.
           use weaken_right.
           apply hyperdoctrine_hyp.
-      + unfold x, z ; clear x z.
-        rewrite exists_subst.
-        pose (x := π₂ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y)))).
-        pose (y := π₂ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))).
-        pose (z := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))))).
+      + rewrite exists_subst.
+        hypersimplify.
+        unfold x, γ, Γ'.
+        clear Γ' x γ.
+        pose (Γ' := (Γ ×h X) ×h Y).
+        pose (y := π₂ (tm_var Γ')).
+        pose (x := π₂ (π₁ (tm_var Γ'))).
+        pose (γ := π₁ (π₁ (tm_var Γ'))).
         use exists_intro.
         {
           exact y.
         }
-        cbn.
-        hypersimplify_form.
         hypersimplify.
-        fold x y z.
-        rewrite (hyperdoctrine_pair_eta (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))))).
-        fold z.
-        assert (π₁ (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y)))) = !!) as ->.
-        {
-          apply hyperdoctrine_unit_eta.
-        }
-        rewrite lam_image_form_eq.
-        use weaken_right.
-        apply hyperdoctrine_hyp.
-  Qed.
-
-  Proposition lam_partial_setoid_eq_image_form
-              (Δ : form (𝟙 ×h Z))
-    :  Δ ⊢ lam_partial_setoid_eq [⟨ π₂ (tm_var (𝟙 ×h Z)) , {{lam_image_form}} ⟩].
-  Proof.
-    unfold lam_partial_setoid_eq.
-    rewrite !forall_subst.
-    do 2 use forall_intro.
-    cbn.
-    hypersimplify.
-    pose (x := π₂ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y)))).
-    pose (y := π₂ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))).
-    pose (z := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))))).
-    fold x y z.
-    rewrite (hyperdoctrine_pair_eta (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))))).
-    fold z.
-    assert (π₁ (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y)))) = !!) as ->.
-    {
-      apply hyperdoctrine_unit_eta.
-    }
-    rewrite lam_image_form_eq.
-    apply iff_refl.
+        fold Γ' x y γ.
+        refine (weak_tripos_rel_equiv_right
+                  lam_image_form
+                  ⟨ !! , z [ γ ]tm ⟩
+                  (r [ γ ]tm)
+                  _ _
+                  ⟨ x , y ⟩
+                  _).
+        * do 2 use weaken_left.
+          refine (hyperdoctrine_cut _ _).
+          {
+            exact (hyperdoctrine_proof_subst _ q).
+          }
+          unfold weak_tripos_rel_equiv.
+          hypersimplify.
+          apply hyperdoctrine_hyp.
+        * unfold lam_image_form.
+          hypersimplify.
+          use weaken_right.
+          apply hyperdoctrine_hyp.
   Qed.
 
   (** * 4. Lambda abstraction *)
@@ -704,17 +744,61 @@ Section PERLambda.
       use impl_intro.
       use weaken_right.
       hypersimplify.
+      refine (exists_elim _ _).
+      {
+        use (weak_tripos_compr lam_image_form).
+        exact (tm_var _).
+      }
+      hypersimplify.
       use exists_intro.
-      + exact {{ lam_image_form }}.
-      + pose (z := π₂ (tm_var (𝟙 ×h Z))).
-        hypersimplify.
-        fold z.
+      + exact (π₂ (tm_var _)).
+      + hypersimplify.
+        pose (r := π₂ (tm_var ((𝟙 ×h Z) ×h ℙ (X ×h Y)))).
+        pose (z := π₂ (π₁ (tm_var ((𝟙 ×h Z) ×h ℙ (X ×h Y))))).
+        fold r z.
         use to_lam_partial_setoid_eq.
-        * apply hyperdoctrine_hyp.
-        * apply is_function_lam_image_form.
-          fold z.
+        * use weaken_left.
           apply hyperdoctrine_hyp.
-        * apply lam_partial_setoid_eq_image_form.
+        * unfold r, z.
+          clear r z.
+          simplify.
+          use is_function_lam_image_form.
+          ** exact (π₂ (π₁ (tm_var _))).
+          ** use weaken_left.
+             apply hyperdoctrine_hyp.
+          ** use weaken_right.
+             pose (z := π₂ (π₁ (tm_var ((𝟙 ×h Z) ×h ℙ (X ×h Y))))).
+             pose (r := π₂ (tm_var ((𝟙 ×h Z) ×h ℙ (X ×h Y)))).
+             fold r z.
+             rewrite (hyperdoctrine_pair_eta (π₁ (tm_var _))).
+             fold z.
+             assert (π₁ (π₁ (tm_var ((𝟙 ×h Z) ×h ℙ (X ×h Y)))) = !!) as ->.
+             {
+               apply hyperdoctrine_unit_eta.
+             }
+             apply hyperdoctrine_hyp.
+        * unfold lam_partial_setoid_eq, weak_tripos_rel_equiv.
+          hypersimplify_form.
+          do 2 use forall_intro.
+          unfold r, z.
+          clear r z.
+          hypersimplify.
+          pose (y := π₂ (tm_var ((((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h X) ×h Y))).
+          pose (x := π₂ (π₁ (tm_var ((((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h X) ×h Y)))).
+          pose (r := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h X) ×h Y))))).
+          pose (z := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h X) ×h Y)))))).
+          fold x y r z.
+          use weaken_right.
+          refine (hyperdoctrine_cut _ _).
+          {
+            refine (forall_elim (hyperdoctrine_hyp _) _).
+            exact ⟨ x , y ⟩.
+          }
+          unfold lam_image_form.
+          hypersimplify.
+          fold r x y z.
+          use iff_sym.
+          apply hyperdoctrine_hyp.
   Qed.
 
   Definition lam_partial_setoid

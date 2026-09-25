@@ -81,20 +81,10 @@ Section TruthFormula.
         φ
         (per_subobject_truth Γ).
   Proof.
-    do 2 use forall_intro.
-    use impl_intro.
-    use weaken_right.
-    use impl_intro.
+    use per_subobject_mor_law_over_id.
     cbn.
+    use (per_subobject_def φ).
     hypersimplify.
-    pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
-    pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
-    fold γ₁ γ₂.
-    use partial_setoid_refl_r.
-    {
-      exact γ₁.
-    }
-    use weaken_left.
     apply hyperdoctrine_hyp.
   Qed.
 
@@ -107,41 +97,24 @@ Section TruthFormula.
         (per_subobject_truth Γ₁)
         (per_subobject_subst s (per_subobject_truth Γ₂)).
   Proof.
-    do 2 use forall_intro.
-    use impl_intro.
-    use weaken_right.
-    use impl_intro.
+    use per_subobject_mor_law_over_id.
     cbn.
     hypersimplify.
-    pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ₁) ×h Γ₁)))).
-    pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ₁) ×h Γ₁))).
-    fold γ₁ γ₂.
     simple refine (exists_elim (partial_setoid_mor_hom_exists s _) _).
-    - exact γ₂.
-    - use weaken_left.
-      use partial_setoid_refl_r.
-      {
-        exact γ₁.
-      }
-      apply hyperdoctrine_hyp.
-    - unfold γ₁, γ₂ ; clear γ₁ γ₂.
-      pose (γ₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂))))).
-      pose (γ₂ := π₂ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂)))).
-      pose (γ₃ := π₂ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂))).
-      rewrite exists_subst.
+    - apply tm_var.
+    - apply hyperdoctrine_hyp.
+    - hypersimplify.
       use exists_intro.
       {
-        exact γ₃.
+        exact (π₂ (tm_var _)).
       }
-      hypersimplify_form.
       hypersimplify.
-      fold γ₁ γ₂ γ₃.
       use conj_intro.
       + use weaken_right.
         apply hyperdoctrine_hyp.
       + use weaken_right.
         use (partial_setoid_mor_cod_defined s).
-        * exact γ₂.
+        * exact (π₁ (tm_var _)).
         * apply hyperdoctrine_hyp.
   Qed.
 

@@ -208,6 +208,11 @@ Definition Exponentials_DCPO
   : Exponentials BinProducts_DCPO
   := Exponentials_struct cartesian_closed_struct_dcpo.
 
+Definition enough_points_Terminal_DCPO
+  : enough_points Terminal_DCPO
+  := enough_points_hset_cartesian_closed_struct
+       cartesian_closed_struct_dcpo.
+
 (**
  5. Binary coproducts of DCPOs
  *)

@@ -415,6 +415,19 @@ Section TypesInCompCatUniv.
   Qed.
 
   (** * 3. Stability *)
+  Definition sigma_in_comp_cat_univ_code_is_stable
+             (sig : sigma_in_comp_cat_univ)
+    : UU
+    := ∏ (Γ Δ : C)
+         (s : Γ --> Δ)
+         (a : tm Δ (dfl_full_comp_cat_univ _))
+         (b : tm (Δ & comp_cat_univ_el el a) (dfl_full_comp_cat_univ _)),
+       sigma_in_comp_cat_univ_code sig a b [[ s ]]tm ↑ sub_dfl_comp_cat_univ s
+       =
+       sigma_in_comp_cat_univ_code sig
+         (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+         (b [[ extend_sub_univ el s a ]]tm ↑ sub_dfl_comp_cat_univ _).
+
   Definition sigma_in_comp_cat_univ_is_stable
              (sig : sigma_in_comp_cat_univ)
     : UU
@@ -534,16 +547,16 @@ Section TypesInCompCatUniv.
               (a : tm Δ (dfl_full_comp_cat_univ _))
               (b : tm (Δ & comp_cat_univ_el el a) (dfl_full_comp_cat_univ _))
     : sigma_in_comp_cat_univ_z_iso sig _ _
-     · comp_cat_comp_mor_over_sub
-         (comp_cat_univ_el_stable_inv el _ _)
-         (comp_cat_univ_el_stable_inv el _ _ · comp_subst_ty_inv _ _ _)
-     · comp_cat_extend_over _ (comp_cat_extend_over _ s)
-     =
-     comp_cat_comp_mor_over
-       _
-       (comp_cat_el_map_on_eq el (!(stable_sigma_in_comp_cat_univ_code_stable sig s a b))
-        · comp_cat_univ_el_stable_inv el s _)
-     · sigma_in_comp_cat_univ_z_iso sig a b.
+      · comp_cat_comp_mor_over_sub
+          (comp_cat_univ_el_stable_inv el _ _)
+          (comp_cat_univ_el_stable_inv el _ _ · comp_subst_ty_inv _ _ _)
+      · comp_cat_extend_over _ (comp_cat_extend_over _ s)
+      =
+      comp_cat_comp_mor_over
+        _
+        (comp_cat_el_map_on_eq el (!(stable_sigma_in_comp_cat_univ_code_stable sig s a b))
+         · comp_cat_univ_el_stable_inv el s _)
+      · sigma_in_comp_cat_univ_z_iso sig a b.
   Proof.
     exact (pr2 (pr2 sig Γ Δ s a b)).
   Defined.

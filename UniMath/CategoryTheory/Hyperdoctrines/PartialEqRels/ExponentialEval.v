@@ -28,9 +28,10 @@ Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialPE
 
 Local Open Scope cat.
 Local Open Scope hd.
+Local Open Scope weak_tripos.
 
 Section PEREvaluation.
-  Context {H : tripos}
+  Context {H : weak_tripos}
           (X Y : partial_setoid H).
 
   (** * 1. The formula of the evaluation morphism *)
