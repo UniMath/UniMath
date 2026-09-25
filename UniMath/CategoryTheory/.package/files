@@ -352,6 +352,8 @@ Categories/Woset.v
 Categories/Graph.v
 Categories/CGraph.v
 
+Categories/MAlg.v
+
 Presheaf.v
 ElementsOp.v
 Categories/CategoryOfElementsPsh.v
@@ -459,6 +461,7 @@ DisplayedCats/StreetOpFibration.v
 DisplayedCats/ReindexingForward.v
 DisplayedCats/TotalCategoryFacts.v
 DisplayedCats/TotalAdjunction.v
+DisplayedCats/MonadLifting.v
 
 Monads/KleisliCategory.v
 Monads/KTriples.v
@@ -688,6 +691,8 @@ GrothendieckConstruction/IsosInTotal.v
 GrothendieckConstruction/Projection.v
 GrothendieckConstruction/IsOpfibration.v
 GrothendieckConstruction/IsPullback.v
+
+Categories/PosFib.v
 
 # Twosided displayed categories
 TwoSidedDisplayedCats/TwoSidedDispCat.v
