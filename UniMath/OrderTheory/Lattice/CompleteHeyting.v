@@ -266,6 +266,16 @@ Proof.
   exact (isrefl_Lle H x).
 Qed.
 
+Proposition cha_eq_to_refl
+            {H : complete_heyting_algebra}
+            {x y : H}
+            (p : x = y)
+  : x ≤ y.
+Proof.
+  induction p.
+  apply cha_le_refl.
+Qed.
+
 Proposition cha_le_antisymm
             {H : complete_heyting_algebra}
             {x y : H}
@@ -399,7 +409,7 @@ Proof.
   exact (islunit_Lmin_Ltop H x).
 Qed.
 
-Proposition cha_runit_min_bot
+Proposition cha_runit_min_top
             {H : complete_heyting_algebra}
             (x : H)
   : (x ∧ ⊤) = x.
@@ -475,7 +485,7 @@ Proposition cha_le_top
   : x ≤ ⊤.
 Proof.
   use cha_to_le.
-  apply cha_runit_min_bot.
+  apply cha_runit_min_top.
 Qed.
 
 Proposition cha_from_le_exp
@@ -537,6 +547,20 @@ Proposition cha_lub_le
   : \/_{ j } f j ≤ x.
 Proof.
   exact (pr22 (pr122 H I f) x p).
+Qed.
+
+Proposition cha_lub_monotone
+            {H : complete_heyting_algebra}
+            {X : UU}
+            {f g : X → H}
+            (p : ∏ (x : X), f x ≤ g x)
+  : \/_{ x : X } f x ≤ \/_{ x : X } g x.
+Proof.
+  use cha_lub_le.
+  intro i.
+  use cha_le_lub.
+  - exact i.
+  - apply p.
 Qed.
 
 (**

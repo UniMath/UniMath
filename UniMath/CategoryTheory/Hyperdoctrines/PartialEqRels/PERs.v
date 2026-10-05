@@ -81,6 +81,16 @@ Section PartialEquivalenceRelation.
     : UU
     := per_symm_axiom e × per_trans_axiom e.
 
+  Proposition isaprop_per_axioms
+              {X : ty H}
+              (e : per_data X)
+    : isaprop (per_axioms e).
+  Proof.
+    use isapropdirprod.
+    - apply locally_propositional_preorder_hyperdoctrine.
+    - apply locally_propositional_preorder_hyperdoctrine.
+  Qed.
+
   Definition per
              (X : ty H)
     : UU

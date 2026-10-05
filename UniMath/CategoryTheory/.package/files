@@ -763,7 +763,7 @@ IndexedCategories/CoreIndexedCategory.v
 
 DisplayedCats/Examples/SetFams.v
 
-# Presheaf model of type theory
+# Presheaf and sheaf model of type theory
 Presheaves/DependentPresheaf.v
 Presheaves/TotalPresheaf.v
 Presheaves/DisplayedCatOfDependentPresheaf.v
@@ -791,6 +791,9 @@ Presheaves/SheafLogic.v
 Presheaves/SheafMonos.v
 Presheaves/ClosureSubobject.v
 Presheaves/Sheafification.v
+Presheaves/SheafToHValuedSet.v
+Presheaves/SheafToHValuedSetFF.v
+Presheaves/SheafToHValuedSetEso.v
 
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v

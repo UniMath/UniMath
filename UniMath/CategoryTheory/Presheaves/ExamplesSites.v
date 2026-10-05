@@ -83,30 +83,6 @@ Defined.
 (** * 3. Every complete Heyting algebra induces a site *)
 Local Open Scope heyting.
 
-Proposition cha_eq_to_refl
-            {H : complete_heyting_algebra}
-            {x y : H}
-            (p : x = y)
-  : x ≤ y.
-Proof.
-  induction p.
-  apply cha_le_refl.
-Qed.
-
-Proposition cha_lub_monotone
-            {H : complete_heyting_algebra}
-            {X : UU}
-            {f g : X → H}
-            (p : ∏ (x : X), f x ≤ g x)
-  : \/_{ x : X } f x ≤ \/_{ x : X} g x.
-Proof.
-  use cha_lub_le.
-  intro i.
-  use cha_le_lub.
-  - exact i.
-  - apply p.
-Qed.
-
 Section CHAToSite.
   Context (H : complete_heyting_algebra).
 
