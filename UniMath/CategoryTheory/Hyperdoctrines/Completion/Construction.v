@@ -621,7 +621,11 @@ Section Preservation.
     use z_iso_disp_from_z_iso_fiber.
     unfold first_order_hyperdoctrine_equal.
     unfold first_order_preorder_hyperdoctrine_equal.
-    rewrite to_completion_subst.
+    refine (z_iso_comp _ _).
+    {
+      use idtoiso.
+      apply to_completion_subst.
+    }
     use (functor_on_z_iso
            (fiber_functor_from_cleaving
               _
