@@ -877,3 +877,6 @@ Nonassociative/UnitalMagmoids/Isos.v
 Nonassociative/UnitalMagmoids/PolarizedSubcategories.v
 Nonassociative/UnitalMagmoids/Functors.v
 Nonassociative/UnitalMagmoids/Univalence.v
+Nonassociative/Duploids/Core.v
+Nonassociative/Duploids/PolarizedSubcategories.v
+Nonassociative/Duploids/Univalence.v
