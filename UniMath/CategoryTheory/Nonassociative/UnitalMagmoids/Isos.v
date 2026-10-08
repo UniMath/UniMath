@@ -3,7 +3,7 @@
  Isomorphisms in Unital Magmoids
 
  Contents:
- 1. Inverses in wide submagmoids
+ 1. Inverses in wide submagmoids, definitions
  2. Rewriting lemmas of isomorphisms
 
  Author: B. Szilvasy
@@ -203,6 +203,15 @@ Section wide_submagmoid_inverses.
     apply weq_has_submm_inverse_is_z_isomorphism.
   Defined.
 
+  Definition submm_iso_to_plain_z_iso (a b : M)
+    : submm_iso a b -> z_iso a b.
+  Proof.
+    intro f; use make_z_iso.
+    - exact f.
+    - exact (submm_inv_mor f).
+    - exact f.
+  Defined.
+
   Lemma weq_is_submm_iso_is_z_isomorphism
     {a b : M} (f : a -->{P} b)
     : is_submm_iso f
@@ -373,6 +382,11 @@ Section wide_submagmoid_inverses.
 
 End wide_submagmoid_inverses.
 
+Notation "a ≅{ P } b" :=
+  (submm_iso P a b)
+    (at level 60, no associativity, format "a  ≅{ P }  b")
+    : unital_magmoid.
+
 Section wide_subcat_inverses.
   Context {M : unital_magmoid} (P : wide_subcategory M).
 
@@ -449,9 +463,6 @@ End wide_subcat_inverses.
 
 Section inclusions.
   Context (M : unital_magmoid).
-  Local Notation "a ≅{ P } b" :=
-    (submm_iso P a b)
-      (at level 60, no associativity, format "a  ≅{ P }  b").
 
   Definition submm_includes_at_sym
     (P Q : wide_submagmoid M) (a b : M)
@@ -470,7 +481,7 @@ Section inclusions.
     (R : hsubtype M)
     (P Q : wide_submagmoid M)
     (H : submm_includes_in R P Q)
-    (a b : sub_ob R)
+    (a b : sub_ob M R)
     : submm_includes_at_sym P Q a b.
   Proof. split; apply H. Qed.
 
@@ -650,14 +661,20 @@ Proof.
   exact (idweq _).
 Defined.
 
+Lemma weq_trivial_submm_iso_z_iso
+  {M : unital_magmoid} (a b : M)
+  : a ≅{trivial_submm} b ≃ z_iso a b.
+Proof.
+  apply weqfibtototal; intro f.
+  apply (weqcomp (invweq (dirprod_with_contr_l _ _ iscontrunit))).
+  apply weq_has_trivial_submm_inverse_is_z_isomorphism.
+Defined.
+
 (** ** Rewriting lemmas of isomorphisms *)
 
 Section rewrites.
   Context {M : unital_magmoid}
     (P : wide_submagmoid M).
-  Local Notation "a ≅{ P } b" :=
-    (submm_iso P a b)
-      (at level 60, no associativity, format "a  ≅{ P }  b").
 
   Definition magmoid_remove_id_left {a b : M}
     (f : a --> a) (g : a --> b)
@@ -827,9 +844,28 @@ Section rewrites.
         apply (is_inverse_in_precat2 q).
   Qed.
 
+  Lemma submm_iso_eq_from_identity_and_remove_left {a b : M}
+    (p q : a ≅{P} b)
+    (Hremove : (p ∘ submm_inv_mor P q) ∘ q = p)
+    (H : p ∘ submm_inv_mor _ q = identity b)
+    : submm_mor_mor p = q.
+  Proof.
+    rewrite <- (is_inverse_in_precat2 q) in H.
+    apply (cancel_submm_iso_left_of_associates (submm_iso_inv P q)) in H.
+    - exact H.
+    - etrans; [|apply pathsinv0, magmoid_remove_id_left,
+                (is_inverse_in_precat1 q)].
+      exact Hremove.
+    - etrans.
+      + apply magmoid_remove_id_right.
+        apply (is_inverse_in_precat2 q).
+      + apply pathsinv0, magmoid_remove_id_left.
+        apply (is_inverse_in_precat1 q).
+  Qed.
+
 End rewrites.
 
-Lemma subcat_iso_eq_from_identity
+Lemma subcat_iso_eq_from_identity_right
   {M : unital_magmoid}
   (P : wide_subcategory M)
   {a b : M}
@@ -841,6 +877,23 @@ Proof.
   - rewrite <- (wide_subcategory_is_assoc P). {
       apply magmoid_remove_id_right.
       exact (is_inverse_in_precat2 q).
+    }
+    all: apply (submm_mor_property P).
+  - exact H.
+Qed.
+
+Lemma subcat_iso_eq_from_identity_left
+  {M : unital_magmoid}
+  (P : wide_subcategory M)
+  {a b : M}
+  (p q : submm_iso P a b)
+  (H : p ∘ submm_inv_mor _ q = identity b)
+  : submm_mor_mor p = q.
+Proof.
+  apply submm_iso_eq_from_identity_and_remove_left.
+  - rewrite (wide_subcategory_is_assoc P). {
+      apply magmoid_remove_id_left.
+      exact (is_inverse_in_precat1 q).
     }
     all: apply (submm_mor_property P).
   - exact H.

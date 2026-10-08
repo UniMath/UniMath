@@ -834,6 +834,7 @@ ComprehensionCats/CwfFromCompCatWithUniv.v
 Nonassociative/UnitalMagmoids/Core.v
 Nonassociative/UnitalMagmoids/Opposite.v
 Nonassociative/UnitalMagmoids/Submagmoids.v
+Nonassociative/UnitalMagmoids/Tactics.v
 Nonassociative/UnitalMagmoids/Isos.v
 Nonassociative/UnitalMagmoids/PolarizedSubcategories.v
 Nonassociative/UnitalMagmoids/Functors.v

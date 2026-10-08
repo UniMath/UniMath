@@ -103,15 +103,15 @@ Section polarized_subcategories.
   Definition positive_thunkable_category : category := associative_submagmoid_carrier M ^⊕ _lt.
   Definition negative_linear_category : category := associative_submagmoid_carrier M ^⊖ _lt.
 
-  Definition weq_positive_mor {a b : sub_ob (@ish_positive M)}
+  Definition weq_positive_mor {a b : sub_ob M ^⊕}
     : M⟦a, b⟧ ≃ M∣_l∣⟦a, b⟧.
   Proof.
     apply weq_make_submm_mor; intro f.
     apply is_linear_of_positive.
-    exact (sub_ob_property a).
+    exact (sub_ob_property _ a).
   Defined.
 
-  Definition weq_positive_thunkable_mor {a b : sub_ob (@ish_positive M)}
+  Definition weq_positive_thunkable_mor {a b : sub_ob M ^⊕}
     : M∣_t∣⟦a, b⟧ ≃ M∣_lt∣⟦a, b⟧.
   Proof.
     apply weq_submm_mor_incl; intro f.
@@ -119,18 +119,39 @@ Section polarized_subcategories.
     apply iscontraprop1.
     - apply propproperty.
     - apply is_linear_of_positive.
-      exact (sub_ob_property a).
+      exact (sub_ob_property _ a).
   Defined.
 
-  Definition weq_negative_mor {a b : sub_ob (@ish_negative M)}
+  Definition weq_positive_z_iso (a b : sub_ob M ^⊕)
+    : z_iso a b ≃ a ≅{_l} b.
+  Proof.
+    apply (weqcomp (invweq (weq_trivial_submm_iso_z_iso a b))).
+    apply weq_submm_iso_incl;
+      apply submm_includes_in_to_at_sym; clear a b.
+    - intros a b f H.
+      apply is_linear_of_positive, (sub_ob_property ^⊕).
+    - easy.
+  Defined.
+
+  Definition weq_positive_lt_iso (a b : sub_ob M ^⊕)
+    : a ≅{_t} b ≃ a ≅{_lt} b.
+  Proof.
+    apply weq_submm_iso_incl;
+      apply submm_includes_in_to_at_sym; clear a b.
+    - intros a b f H.
+      split; solve [exact H|apply is_linear_of_positive, (sub_ob_property ^⊕)].
+    - intros a b f H; apply H.
+  Defined.
+
+  Definition weq_negative_mor {a b : sub_ob M ^⊖}
     : M⟦a, b⟧ ≃ M∣_t∣⟦a, b⟧.
   Proof.
     apply weq_make_submm_mor; intro f.
     apply is_thunkable_of_negative.
-    exact (sub_ob_property b).
+    exact (sub_ob_property _ b).
   Defined.
 
-  Definition weq_negative_linear_mor {a b : sub_ob (@ish_negative M)}
+  Definition weq_negative_linear_mor {a b : sub_ob M ^⊖}
     : M∣_l∣⟦a, b⟧ ≃ M∣_lt∣⟦a, b⟧.
   Proof.
     apply weq_submm_mor_incl; intro f.
@@ -138,7 +159,28 @@ Section polarized_subcategories.
     apply iscontraprop1.
     - apply propproperty.
     - apply is_thunkable_of_negative.
-      exact (sub_ob_property b).
+      exact (sub_ob_property _ b).
+  Defined.
+
+  Definition weq_negative_z_iso (a b : sub_ob M ^⊖)
+    : z_iso a b ≃ a ≅{_t} b.
+  Proof.
+    apply (weqcomp (invweq (weq_trivial_submm_iso_z_iso a b))).
+    apply weq_submm_iso_incl;
+      apply submm_includes_in_to_at_sym; clear a b.
+    - intros a b f H.
+      apply is_thunkable_of_negative, (sub_ob_property ^⊖).
+    - easy.
+  Defined.
+
+  Definition weq_negative_lt_iso (a b : sub_ob M ^⊖)
+    : a ≅{_l} b ≃ a ≅{_lt} b.
+  Proof.
+    apply weq_submm_iso_incl;
+      apply submm_includes_in_to_at_sym; clear a b.
+    - intros a b f H.
+      split; solve [exact H|apply is_thunkable_of_negative, (sub_ob_property ^⊖)].
+    - intros a b f H; apply H.
   Defined.
 
 End polarized_subcategories.
@@ -293,7 +335,7 @@ Section inclusion_functors.
     apply fully_faithful_submm_trivial_incl.
     intros a b f.
     apply is_linear_of_positive.
-    exact (sub_ob_property a).
+    exact (sub_ob_property _ a).
   Defined.
   Lemma fully_faithful_negative_to_unital_magmoid
     : fully_faithful negative_to_unital_magmoid.
@@ -301,7 +343,22 @@ Section inclusion_functors.
     apply fully_faithful_submm_trivial_incl.
     intros a b f.
     apply is_thunkable_of_negative.
-    exact (sub_ob_property b).
+    exact (sub_ob_property _ b).
+  Defined.
+
+  Lemma fully_faithful_positive_thunkable_to_thunkable_category
+    : fully_faithful positive_thunkable_to_thunkable_category.
+  Proof.
+    apply fully_faithful_submm_into_other_wide_incl.
+    intros a b f H.
+    split; solve [assumption|apply is_linear_of_positive, (sub_ob_property ^⊕ _)].
+  Defined.
+  Lemma fully_faithful_negative_linear_to_linear_category
+    : fully_faithful negative_linear_to_linear_category.
+  Proof.
+    apply fully_faithful_submm_into_other_wide_incl.
+    intros a b f H.
+    split; solve [assumption|apply is_thunkable_of_negative, (sub_ob_property ^⊖ _)].
   Defined.
 
   (** I : M⁺ₜ ⟶ M ₗ factors through M⁺ *)
@@ -774,7 +831,7 @@ Section isos_facts.
 
   Definition weq_lti_iso_to_lt_iso_from_polarized (a b : M)
     (H : is_negative a ∨ is_positive a)
-    : lti_iso a b ≃ lt_iso a b
+    : a ≅{_lti} b ≃ a ≅{_lt} b
     := make_weq _ (isweq_lti_iso_to_lt_iso_from_polarized _ _ H).
 
 End isos_facts.

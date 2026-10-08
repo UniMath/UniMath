@@ -14,9 +14,13 @@
  1. Wide submagmoids
  1.1. Wide submagmoid definitions
  1.2. Wide submagmoid morphisms
- 1.3. Intersection submagmoids
- 1.4. Associative wide submagmoids
+ 1.3. Sub-objects
+ 1.4. Intersection submagmoids
+ 1.5. Associative wide submagmoids
  2. Submagmoids to magmoids
+ 2.1. Wide submagmoid to magmoid
+ 2.2. Full submagmoid to magmoid
+ 2.3. Arbitrary submagmoids
 
  ********************************************************************************)
 
@@ -151,15 +155,15 @@ Section submagmoids.
 
   (** *** Sub-objects *)
 
-  Definition sub_ob {M : precategory_ob_mor} (P : hsubtype M) : UU := carrier P.
+  Definition sub_ob (M : precategory_ob_mor) (P : hsubtype M) : UU := carrier P.
   Identity Coercion Id_sub_ob : sub_ob >-> carrier.
   Coercion sub_ob_ob {M : precategory_ob_mor} {P : hsubtype M}
-    (a : sub_ob P) : ob M := pr1carrier _ a.
-  Definition sub_ob_property {M : precategory_ob_mor} {P : hsubtype M}
-    (a : sub_ob P) : P a := pr2 a.
+    (a : sub_ob M P) : ob M := pr1carrier _ a.
+  Definition sub_ob_property {M : precategory_ob_mor} (P : hsubtype M)
+    (a : sub_ob M P) : P a := pr2 a.
   Definition make_sub_ob {M : precategory_ob_mor} (P : hsubtype M)
     (a : M) (H : P a)
-    : sub_ob P
+    : sub_ob M P
     := a,, H.
 
   (** *** Intersection submagmoids *)
@@ -176,7 +180,7 @@ Section submagmoids.
   Definition submm_includes_in
     (R : hsubtype M)
     (P Q : wide_submagmoid_data)
-    : UU := ∏ (a b : sub_ob R), submm_includes_at P Q a b.
+    : UU := ∏ (a b : sub_ob M R), submm_includes_at P Q a b.
 
   Definition make_submm_includes_in
     (R : hsubtype M) (P Q : wide_submagmoid_data) (a b : M)
@@ -427,6 +431,8 @@ Qed.
 
 Notation "a '-->{' P '}' b" :=
   (submm_mor P a b) (at level 55, format "a  -->{ P }  b") : unital_magmoid.
+Notation "a '<--{' P '}' b" :=
+  (submm_mor P b a) (at level 55, only parsing) : unital_magmoid.
 Notation "M '∣' P '∣⟦' a ',' b '⟧'" :=
   (submm_mor (M:=M) P a b)
     (at level 49, right associativity,
@@ -530,7 +536,7 @@ Section submagmoid_to_magmoid.
   Proof.
     use make_precategory_data.
     - use make_precategory_ob_mor.
-      + exact (sub_ob P).
+      + exact (sub_ob M P).
       + exact (@precategory_morphisms M).
     - cbn; intro a.
       exact (@identity M a).
@@ -754,6 +760,62 @@ Section submagmoid_to_magmoid_functors.
     apply idisweq.
   Defined.
 
+  Definition full_submm_into_other_incl
+    (M : unital_premagmoid_data)
+    (P Q : hsubtype M)
+    (H : subtype_containedIn P Q)
+    : functor (full_unital_sub_premagmoid_data M P)
+        (full_unital_sub_premagmoid_data M Q).
+  Proof.
+    use make_functor.
+    - use make_functor_data.
+      + cbn; intro a.
+        apply (make_sub_ob Q a).
+        exact (H a (sub_ob_property P a)).
+      + intros a b; cbn in a, b.
+        exact (idfun (M⟦a, b⟧)).
+    - easy.
+  Defined.
+
+  Lemma fully_faithful_full_submm_into_other_incl
+    (M : unital_premagmoid_data)
+    (P Q : hsubtype M)
+    (H : subtype_containedIn P Q)
+    : fully_faithful (full_submm_into_other_incl M P Q H).
+  Proof.
+    intros a b.
+    apply idisweq.
+  Defined.
+
+  Lemma isweq_full_submm_into_other_incl
+    (M : unital_premagmoid_data)
+    (P Q : hsubtype M)
+    (H : subtype_containedIn P Q)
+    (Hinv : subtype_containedIn Q P)
+    : isweq (full_submm_into_other_incl M P Q H).
+  Proof.
+    use weqhomot.
+    - apply weqfibtototal; intro a.
+      apply weqimplimpl.
+      + apply (H a).
+      + apply (Hinv a).
+      + apply propproperty.
+      + apply propproperty.
+    - easy.
+  Defined.
+
+  Corollary is_catiso_full_submm_into_other_incl
+    (M : unital_premagmoid_data)
+    (P Q : hsubtype M)
+    (H : subtype_containedIn P Q)
+    (Hinv : subtype_containedIn Q P)
+    : is_catiso (full_submm_into_other_incl M P Q H).
+  Proof.
+    split.
+    - apply fully_faithful_full_submm_into_other_incl.
+    - now apply isweq_full_submm_into_other_incl.
+  Defined.
+
   (** Arbitrary submagmoid inclusions *)
 
   Definition submm_into_wide_incl
@@ -866,7 +928,7 @@ Section submagmoid_to_magmoid_functors.
     (M : unital_premagmoid_data)
     (P : hsubtype M)
     (Q : wide_submagmoid M)
-    (H : ∏ (a b : sub_ob P) (f : a --> b), Q a b f)
+    (H : ∏ (a b : sub_ob M P) (f : a --> b), Q a b f)
     : full (submm_trivial_incl M P Q).
   Proof.
     intros a b; cbn in a, b.
@@ -878,12 +940,60 @@ Section submagmoid_to_magmoid_functors.
     (M : unital_premagmoid_data)
     (P : hsubtype M)
     (Q : wide_submagmoid M)
-    (H : ∏ (a b : sub_ob P) (f : a --> b), Q a b f)
+    (H : ∏ (a b : sub_ob M P) (f : a --> b), Q a b f)
     : fully_faithful (submm_trivial_incl M P Q).
   Proof.
     apply full_and_faithful_implies_fully_faithful; split.
     - apply full_submm_trivial_incl, H.
     - apply faithful_submm_trivial_incl.
+  Defined.
+
+  (** Even more arbitrary submagmoid inclusions *)
+  Definition submm_into_other_incl
+    (M : unital_premagmoid_data)
+    (P₁ P₂ : hsubtype M)
+    (Q₁ Q₂ : wide_submagmoid M)
+    (HP : subtype_containedIn P₁ P₂)
+    (HQ : ∏ (a b : sub_ob M P₁),
+        submm_includes_at Q₁ Q₂ a b)
+    : functor
+        (wide_submagmoid_carrier_data
+           (full_unital_sub_premagmoid_data M P₁)
+           (full_submagmoid_promote M P₁ Q₁))
+        (wide_submagmoid_carrier_data
+           (full_unital_sub_premagmoid_data M P₂)
+           (full_submagmoid_promote M P₂ Q₂)).
+  Proof.
+    use make_functor.
+    - use make_functor_data.
+      + cbn; intro a.
+        apply (make_sub_ob _ a).
+        exact (HP a (sub_ob_property _ a)).
+      + cbn; intros a b.
+        exact (submm_mor_incl _ _ (HQ a b)).
+    - split.
+      + intro a; now apply submm_mor_eq.
+      + intros a b c f g; now apply submm_mor_eq.
+  Defined.
+
+  Definition fully_faithful_submm_into_other_incl
+    (M : unital_premagmoid_data)
+    (P₁ P₂ : hsubtype M)
+    (Q₁ Q₂ : wide_submagmoid M)
+    (HP : subtype_containedIn P₁ P₂)
+    (HQ : ∏ (a b : sub_ob M P₁),
+        submm_includes_at Q₁ Q₂ a b)
+    (HQinv : ∏ (a b : sub_ob M P₁),
+        submm_includes_at Q₂ Q₁ a b)
+    : fully_faithful (submm_into_other_incl M P₁ P₂ Q₁ Q₂ HP HQ).
+  Proof.
+    red; cbn; intros a b.
+    change (isweq (totalfun _ _ (HQ a b))).
+    apply (isofhlevelf_totalfun 0); intro f.
+    apply isweqimplimpl.
+    - apply (HQinv a b).
+    - apply propproperty.
+    - apply propproperty.
   Defined.
 
 End submagmoid_to_magmoid_functors.
