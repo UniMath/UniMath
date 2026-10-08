@@ -6,7 +6,7 @@
  January 2026
 
  Contents:
- 1. Definition of preservation
+ 1. Preservation of submagmoids
 
  ********************************************************************************)
 

@@ -11,12 +11,15 @@
  important special cases when unital magmoids do associate.
 
  Contents:
- 1. Unbundled definitions of unitality and associativity
- 2. Definition of a unital (pre)magmoid
- 3. Definitions of linearity, thunkability and polarization
- 4. Lemmas for working with linearity, thunkability and polarization
+ 1. Linearity, thunkability and polarization (exposition)
+ 2. Unbundled definitions of unitality and associativity
+ 3. Definition of a unital (pre)magmoid
+ 3.1. Unital premagmoid
+ 3.2. Unital magmoid
+ 4. Definition of linearity, thunkability, and polarization
+ 5. Lemmas for working with linearity, thunkability and polarization
 
- ** Linearity, thunkability and polarization
+ ** Linearity, thunkability and polarization (exposition)
 
  Linearity, thunkability, and polarization are those properties of morphisms or
  objects that provide associatitivy of composition around them, in the following
@@ -356,25 +359,12 @@ Section polarity_lemmas.
   Definition ish_positive : hsubtype M
     := λ a, make_hProp (is_positive a) (isaprop_is_positive a).
 
-  Definition positive_ob : UU := carrier ish_positive.
-  Definition make_positive_ob (a : M) (H : is_positive a) : positive_ob := a,,H.
-  Coercion positive_ob_to_ob (a : positive_ob) : M := pr1carrier _ a.
-  Coercion positive_ob_is_positive (a : positive_ob) : is_positive a := pr2 a.
-
   (** Negative objects *)
   Definition isaprop_is_negative (a : M) : isaprop (is_negative a).
   Proof. apply isaprop_is_negative', hs. Defined.
   Definition ish_negative : hsubtype M
     := λ a, make_hProp (is_negative a) (isaprop_is_negative a).
 
-  Definition negative_ob : UU := carrier ish_negative.
-  Definition make_negative_ob (a : M) (H : is_negative a) : negative_ob := a,,H.
-  Coercion negative_ob_to_ob (a : negative_ob) : M := pr1carrier _ a.
-  Coercion negative_ob_is_negative (a : negative_ob) : is_negative a := pr2 a.
-
 End polarity_lemmas.
-Arguments positive_ob _ : clear implicits.
-Arguments negative_ob _ : clear implicits.
-
 Notation "'^⊕'" := ish_positive : unital_magmoid.
 Notation "'^⊖'" := ish_negative : unital_magmoid.

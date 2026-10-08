@@ -16,8 +16,8 @@
  1.1. Definition of univalence
  1.2. Simple consequences of univalence
  2. Weak equivalences to strong equivalences
- 2.1 Generically over [wide_subcategory]s
- 2.2 Specifically for [lt] and [lti]
+ 2.1. Generically over [wide_subcategory]s
+ 2.2. Specifically for [lt] and [lti]
  3. Univalent unital magmoids are identified if they are weakly equivalent
 
  ********************************************************************************)
@@ -65,12 +65,12 @@ Section internal_univalence.
 
   Definition weq_id_to_submm_iso
     (H : is_submm_univalent) (a b : M)
-    : a = b ≃ submm_iso P a b
+    : a = b ≃ a ≅{P} b
     := make_weq _ (H a b).
 
   Definition submm_iso_to_id
     (H : is_submm_univalent)
-    {a b : M} (p : submm_iso P a b)
+    {a b : M} (p : a ≅{P} b)
     : a = b
     := invmap (weq_id_to_submm_iso H a b) p.
 
@@ -84,7 +84,7 @@ Section internal_univalence.
 
   Lemma submm_iso_to_id_section
     (H : is_submm_univalent)
-    {a b : M} (p : submm_iso P a b)
+    {a b : M} (p : a ≅{P} b)
     : id_to_submm_iso P (submm_iso_to_id H p) = p.
   Proof.
     apply (homotweqinvweq (weq_id_to_submm_iso H a b)).
@@ -93,8 +93,8 @@ Section internal_univalence.
   Lemma submm_isos_from_paths
     (H : is_submm_univalent)
     (a b : M)
-    (p : submm_iso P a b)
-    : PathPair (B:=λ b, submm_iso P a b)
+    (p : a ≅{P} b)
+    : PathPair (B:=λ b, a ≅{P} b)
         (@edges_from_refl submm_rxgraph a)
         (b,, p).
   Proof.
@@ -106,8 +106,8 @@ Section internal_univalence.
   Lemma submm_isos_to_paths
     (H : is_submm_univalent)
     (a b : M)
-    (p : submm_iso P a b)
-    : PathPair (B:=λ a, submm_iso P a b)
+    (p : a ≅{P} b)
+    : PathPair (B:=λ a, a ≅{P} b)
         (@edges_to_refl submm_rxgraph b)
         (a,, p).
   Proof.
@@ -138,7 +138,7 @@ Section up_uniqueness.
     {M : unital_magmoid}
     (ua : is_um_univalent M)
     (b : M)
-    : isaprop (∑ (a : sub_ob ^⊖), submm_iso _l a b).
+    : isaprop (∑ (a : sub_ob M ^⊖), a ≅{_l} b).
   Proof.
     apply invproofirrelevance.
     intros [[a Ha] e] [[a' Ha'] e'].
@@ -157,21 +157,21 @@ Section up_uniqueness.
     induction Haa'; cbn in Hee'.
     induction (proofirrelevance_hProp (^⊖ a) Ha Ha').
     apply pair_path_in2, (subcat_iso_eq _l).
-    apply subcat_iso_eq_from_identity.
+    apply subcat_iso_eq_from_identity_right.
     exact (!Hee').
   Qed.
 
-  Lemma isaprop_thunkable_isos_from_positive
+  Lemma isaprop_thunkable_isos_to_positive
     {M : unital_magmoid}
     (ua : is_um_univalent M)
     (b : M)
-    : isaprop (∑ (a : sub_ob ^⊕), submm_iso _t a b).
+    : isaprop (∑ (a : sub_ob M ^⊕), b ≅{_t} a).
   Proof.
     apply invproofirrelevance.
     intros [[a Ha] e] [[a' Ha'] e'].
     transparent assert (ee' : (lti_iso a a')). {
       refine (submm_iso_incl M _t _lti _
-                (subcat_iso_compose _ e (submm_iso_inv _ e'))).
+                (subcat_iso_compose _ (submm_iso_inv _ e) e')).
       split; (intros f Hf; split; [split|];
               [ now apply is_linear_of_positive
               | exact Hf
@@ -184,7 +184,7 @@ Section up_uniqueness.
     induction Haa'; cbn in Hee'.
     induction (proofirrelevance_hProp (^⊕ a) Ha Ha').
     apply pair_path_in2, (subcat_iso_eq _t).
-    apply subcat_iso_eq_from_identity.
+    apply pathsinv0, subcat_iso_eq_from_identity_left.
     exact (!Hee').
   Qed.
 End up_uniqueness.
@@ -226,7 +226,7 @@ Section upgrade.
       apply invproofirrelevance.
       intros [a e] [a' e'].
       pose (ee' := subcat_iso_compose _ e (submm_iso_inv _ e')).
-      transparent assert (ee'inv : (submm_iso P₁ a a')). {
+      transparent assert (ee'inv : (a ≅{P₁} a')). {
         use make_submm_iso.
         - exact (fully_faithful_inv_hom HF _ _ ee').
         - apply Hreflects.
@@ -237,7 +237,7 @@ Section upgrade.
         as [Ha He]; cbn in Ha, He.
       induction Ha; cbn in He.
       apply pair_path_in2, subcat_iso_eq.
-      apply subcat_iso_eq_from_identity.
+      apply subcat_iso_eq_from_identity_right.
       rewrite <- (functor_id F a).
       apply pathsinv0, (pathsweq1' (weq_from_fully_faithful HF a a)).
       exact (submm_iso_eq_mor _ _ _ He).
