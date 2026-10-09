@@ -72,7 +72,7 @@ Local Open Scope comp_cat.
    Note: there are two definitions of `comp_cat`:
    1. one is given in `Bicategories.ComprehensionCat.BicatOfCompCat`
    2. one is given in `CategoryTheory.ComprehensionCats.CompCats`
-   Here we give a map that go from the first to the second notion
+   Here we give a map that goes from the first to the second notion
  *)
 
 (** * 1.1. The basic construction *)
