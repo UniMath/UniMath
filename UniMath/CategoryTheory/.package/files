@@ -867,3 +867,13 @@ ComprehensionCats/CompCats.v
 ComprehensionCats/CompCatTypeFormers.v
 ComprehensionCats/CompCatUniverse.v
 ComprehensionCats/CwfFromCompCatWithUniv.v
+
+# Non-associative categories
+Nonassociative/UnitalMagmoids/Core.v
+Nonassociative/UnitalMagmoids/Opposite.v
+Nonassociative/UnitalMagmoids/Submagmoids.v
+Nonassociative/UnitalMagmoids/Tactics.v
+Nonassociative/UnitalMagmoids/Isos.v
+Nonassociative/UnitalMagmoids/PolarizedSubcategories.v
+Nonassociative/UnitalMagmoids/Functors.v
+Nonassociative/UnitalMagmoids/Univalence.v
