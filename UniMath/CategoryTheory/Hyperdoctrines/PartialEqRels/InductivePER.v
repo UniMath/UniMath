@@ -8,7 +8,7 @@
  make the natural numbers object using an impredicative encoding. Specifically, `N`
  induces a partial setoid `(N, ≡)` and we restrict that partial setoid to the
  inductively generated elements. These are the elements for which the induction
- principle of natural numbers hold.
+ principle of natural numbers holds.
 
  The reason why it is necessary to take this encoding, is because the object `N`
  might be too 'large': there might be too amny terms of type `N` meaning that we do
