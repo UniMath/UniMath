@@ -35,7 +35,7 @@
 
  We also observe that, whenever the category of contexts of some DFL comprehension category
  satisfies some local property, then the DFL comprehension category satisfies that local
- poperty as well.
+ property as well.
 
  Contents
  1. The extended pseudofunctor from categories to comprehension categories
