@@ -4,7 +4,7 @@
 
  We show that in a Cartesian closed category, every NNO is a parameterized NNO. The
  object and maps stay the same, and the only work lies in deriving the parameterized
- recursion principle. The idea here is to define a recursive map from the NNO to an
+ recursion principle. The idea here is to define a map from the NNO by iteration to an
  exponential instead.
 
  Content
@@ -51,12 +51,9 @@ Section ParameterizedNNOFromNNO.
          · exp_eval (E b) y.
 
     Proposition parameterized_NNO_from_NNO_rec_Z
-      : BinProductArrow C (BP b N) (identity b) (TerminalArrow T b · zeroNNO T N)
-        · parameterized_NNO_from_NNO_rec
-        =
-        zy.
+      : is_parameterized_NNO_Z_eq (zeroNNO T N) zy parameterized_NNO_from_NNO_rec.
     Proof.
-      unfold parameterized_NNO_from_NNO_rec.
+      unfold is_parameterized_NNO_Z_eq, parameterized_NNO_from_NNO_rec.
       rewrite assoc.
       rewrite postcompWithBinProductArrow.
       unfold parameterized_NNO_from_NNO_rec_exp.
@@ -76,12 +73,9 @@ Section ParameterizedNNOFromNNO.
     Qed.
 
     Proposition parameterized_NNO_from_NNO_rec_S
-      : BinProductOfArrows C (BP b N) (BP b N) (identity b) (sucNNO T N)
-        · parameterized_NNO_from_NNO_rec
-        =
-        parameterized_NNO_from_NNO_rec · sy.
+      : is_parameterized_NNO_S_eq (sucNNO T N) sy parameterized_NNO_from_NNO_rec.
     Proof.
-      unfold parameterized_NNO_from_NNO_rec.
+      unfold is_parameterized_NNO_S_eq, parameterized_NNO_from_NNO_rec.
       rewrite assoc.
       rewrite BinProductOfArrows_comp.
       unfold parameterized_NNO_from_NNO_rec_exp.
@@ -95,19 +89,13 @@ Section ParameterizedNNOFromNNO.
 
     Proposition parameterized_NNO_from_NNO_rec_unique
                 {f : BP b N --> y}
-                (qz : BinProductArrow
-                        C (BP b N)
-                        (identity b)
-                        (TerminalArrow T b · zeroNNO T N)
-                      · f
-                      =
-                      zy)
-                (qs : BinProductOfArrows C _ _ (identity b) (sucNNO T N) · f
-                      =
-                      f · sy)
+                (qz : is_parameterized_NNO_Z_eq (zeroNNO T N) zy f)
+                (qs : is_parameterized_NNO_S_eq (sucNNO T N) sy f)
       : f = parameterized_NNO_from_NNO_rec.
     Proof.
       unfold parameterized_NNO_from_NNO_rec.
+      unfold is_parameterized_NNO_Z_eq in qz.
+      unfold is_parameterized_NNO_S_eq in qs.
       refine (!(exp_beta (E b) _) @ _ @ exp_beta (E b) _).
       apply maponpaths_2.
       apply maponpaths.

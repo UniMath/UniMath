@@ -8,7 +8,7 @@
 
  Content
  1. The natural numbers objects with zero and successor
- 2. Recursion
+ 2. Iteration
  3. The NNO
 
  *)
@@ -45,13 +45,13 @@ Section LeftAdjointNNO.
     : L N --> L N
     := #L (sucNNO _ N).
 
-  (** * 2. Recursion *)
-  Section Recursion.
+  (** * 2. Iteration *)
+  Section Iteration.
     Context {x : C₁}
             (zx : T₁ --> x)
             (sx : x --> x).
 
-    Definition left_adjoint_on_NNO_rec
+    Definition left_adjoint_on_NNO_iter
       : L N --> x.
     Proof.
       refine (#L _ · ε x).
@@ -61,10 +61,10 @@ Section LeftAdjointNNO.
       - exact (#R sx).
     Defined.
 
-    Proposition left_adjoint_on_NNO_rec_Z
-      : left_adjoint_on_NNO_Z · left_adjoint_on_NNO_rec = zx.
+    Proposition left_adjoint_on_NNO_iter_Z
+      : left_adjoint_on_NNO_Z · left_adjoint_on_NNO_iter = zx.
     Proof.
-      unfold left_adjoint_on_NNO_Z, left_adjoint_on_NNO_rec.
+      unfold left_adjoint_on_NNO_Z, left_adjoint_on_NNO_iter.
       cbn.
       rewrite !assoc'.
       etrans.
@@ -89,12 +89,12 @@ Section LeftAdjointNNO.
       apply TerminalArrowEq.
     Qed.
 
-    Proposition left_adjoint_on_NNO_rec_S
-      : left_adjoint_on_NNO_S · left_adjoint_on_NNO_rec
+    Proposition left_adjoint_on_NNO_iter_S
+      : left_adjoint_on_NNO_S · left_adjoint_on_NNO_iter
         =
-        left_adjoint_on_NNO_rec · sx.
+        left_adjoint_on_NNO_iter · sx.
     Proof.
-      unfold left_adjoint_on_NNO_S, left_adjoint_on_NNO_rec.
+      unfold left_adjoint_on_NNO_S, left_adjoint_on_NNO_iter.
       cbn.
       rewrite !assoc.
       etrans.
@@ -110,11 +110,11 @@ Section LeftAdjointNNO.
       exact (nat_trans_ax ε _ _ sx).
     Qed.
 
-    Proposition left_adjoint_on_NNO_rec_unique
+    Proposition left_adjoint_on_NNO_iter_unique
                 {φ : L N --> x}
                 (pz : left_adjoint_on_NNO_Z · φ = zx)
                 (ps : left_adjoint_on_NNO_S · φ = φ · sx)
-      : φ = left_adjoint_on_NNO_rec.
+      : φ = left_adjoint_on_NNO_iter.
     Proof.
       refine (!(id_left _) @ _ @ id_left _).
       etrans.
@@ -138,7 +138,7 @@ Section LeftAdjointNNO.
       {
         refine (assoc' _ _ _ @ _).
         apply maponpaths.
-        exact (!(nat_trans_ax ε _ _ left_adjoint_on_NNO_rec)).
+        exact (!(nat_trans_ax ε _ _ left_adjoint_on_NNO_iter)).
       }
       rewrite !assoc.
       apply maponpaths_2.
@@ -161,7 +161,7 @@ Section LeftAdjointNNO.
           apply maponpaths.
           refine (!(functor_comp R _ _) @ _).
           apply maponpaths.
-          unfold left_adjoint_on_NNO_rec.
+          unfold left_adjoint_on_NNO_iter.
           rewrite assoc.
           apply maponpaths_2.
           refine (!(functor_comp L _ _) @ _).
@@ -205,7 +205,7 @@ Section LeftAdjointNNO.
         {
           refine (!(functor_comp R _ _) @ _).
           apply maponpaths.
-          unfold left_adjoint_on_NNO_rec.
+          unfold left_adjoint_on_NNO_iter.
           rewrite assoc.
           apply maponpaths_2.
           refine (!(functor_comp L _ _) @ _).
@@ -237,7 +237,7 @@ Section LeftAdjointNNO.
         apply maponpaths.
         exact ps.
     Qed.
-  End Recursion.
+  End Iteration.
 
   (** * 3. The NNO *)
   Definition left_adjoint_on_NNO
@@ -250,14 +250,14 @@ Section LeftAdjointNNO.
     - intros x zx sx.
       use make_iscontr.
       + simple refine (_ ,, _ ,, _).
-        * exact (left_adjoint_on_NNO_rec zx sx).
-        * apply left_adjoint_on_NNO_rec_Z.
-        * apply left_adjoint_on_NNO_rec_S.
+        * exact (left_adjoint_on_NNO_iter zx sx).
+        * apply left_adjoint_on_NNO_iter_Z.
+        * apply left_adjoint_on_NNO_iter_S.
       + abstract
           (intros [ φ [ pz ps ]] ;
            use subtypePath ;
            [ intro ; apply isapropdirprod ; apply homset_property | ] ;
            cbn ;
-           exact (left_adjoint_on_NNO_rec_unique zx sx pz ps)).
+           exact (left_adjoint_on_NNO_iter_unique zx sx pz ps)).
   Defined.
 End LeftAdjointNNO.

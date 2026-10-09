@@ -23,7 +23,7 @@
  Content
  1. Preliminary notions
  2. Inductive numbers
- 3. Induction principles
+ 3. Induction principle
  4. Examples of inductive numbers
  5. The PER of natural numbers
  6. Equality of morphisms
@@ -95,7 +95,7 @@ Section InductivePER.
        let p := π₂ (tm_var (N ×h ℙ N)) in
        (∀h ((contains_zero N) [ p ] ⇒ (closed_suc N) [ p ] ⇒ n ∈ p)).
 
-  (** * 3. Induction principles *)
+  (** * 3. Induction principle *)
   Proposition is_inductive_nat_contained
               {Γ : ty H}
               {Δ : form Γ}

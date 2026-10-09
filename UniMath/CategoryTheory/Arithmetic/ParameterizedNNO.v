@@ -47,6 +47,24 @@ Section ParameterizedNNO.
           {BC : BinProducts C}.
 
   (** * 1. Parameterized NNOs *)
+  Definition is_parameterized_NNO_Z_eq
+             {N : C}
+             (z : T --> N)
+             {b y : C}
+             (zy : b --> y)
+             (f : BC b N --> y)
+    : UU
+    := BinProductArrow _ _ (identity _) (TerminalArrow _ _ · z) · f = zy.
+
+  Definition is_parameterized_NNO_S_eq
+             {N : C}
+             (s : N --> N)
+             {b y : C}
+             (sy : y --> y)
+             (f : BC b N --> y)
+    : UU
+    := BinProductOfArrows _ _ _ (identity _) s · f = f · sy.
+
   Definition is_parameterized_NNO
              (N : C)
              (z : T --> N)
@@ -56,9 +74,9 @@ Section ParameterizedNNO.
          (zy : b --> y)
          (sy : y --> y),
        ∃! (f : BC b N --> y),
-       (BinProductArrow _ _ (identity _) (TerminalArrow _ _ · z) · f = zy)
+       is_parameterized_NNO_Z_eq z zy f
        ×
-       (BinProductOfArrows _ _ _ (identity _) s · f = f · sy).
+       is_parameterized_NNO_S_eq s sy f.
 
   Proposition isaprop_is_parameterized_NNO
               (N : C)
@@ -712,6 +730,7 @@ Proof.
   use (iscontrweqb' (pr222 N b y z s)).
   use weqfibtototal.
   intro f.
+  unfold is_parameterized_NNO_Z_eq, is_parameterized_NNO_S_eq.
   simpl.
   use weqdirprodf.
   - rewrite assoc.

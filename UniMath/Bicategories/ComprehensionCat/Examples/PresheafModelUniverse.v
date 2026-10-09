@@ -17,7 +17,6 @@
  2. The elements map
  3. Stability
  4. The comprehension category with a universe
- 5. Useful calculational lemmas
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -342,98 +341,4 @@ Section PresheafUniverse.
          (psh_dfl_full_comp_cat C)
          _
          psh_comp_cat_univ_type.
-
-  (*
-  (** * 5. Useful calculational lemmas *)
-  Definition set_sub_dfl_comp_cat_univ
-             {Γ Δ : hSet}
-             (s : Γ → Δ)
-    : sub_dfl_comp_cat_univ
-        (C := set_dfl_full_comp_cat_with_univ)
-        s
-      =
-      λ γ z, z.
-  Proof.
-    use funextsec ; intro γ.
-    use funextsec ; intro z.
-    refine (fam_disp_cat_fiber_comp _ _ _ @ _).
-    cbn -[eq_subst_ty_iso comp_subst_ty_iso].
-    etrans.
-    {
-      apply maponpaths.
-      exact (set_comp_cat_comp_subst_ty s _ set_comp_cat_universe z).
-    }
-    refine (set_comp_cat_eq_subst_ty set_comp_cat_universe (TerminalArrowEq _ _) _ @ _).
-    rewrite transportf_set.
-    - apply idpath.
-    - apply setproperty.
-  Qed.
-
-  Proposition set_univ_tm_subst_eq
-              {Γ Δ : set_dfl_full_comp_cat_with_univ}
-              (s : Γ --> Δ)
-              (t : tm Δ (dfl_full_comp_cat_univ Δ))
-    : t [[ s ]]tm ↑ sub_dfl_comp_cat_univ s
-      =
-      set_comp_cat_sec_to_tm (λ γ, set_comp_cat_tm_to_sec t (s γ)).
-  Proof.
-    refine (maponpaths (λ z, z ↑ _) (set_comp_cat_tm_subst _ _) @ _).
-    refine (maponpaths (λ z, _ ↑ z) (set_sub_dfl_comp_cat_univ s) @ _).
-    refine (set_comp_cat_tm_coerce _ _ @ _).
-    rewrite set_comp_cat_sec_to_tm_to_sec.
-    apply idpath.
-  Qed.
-
-  Proposition set_comp_cat_univ_el_stable_inv_path
-              {Γ Δ : set_dfl_full_comp_cat_with_univ}
-              (s : Γ --> Δ)
-              (t : tm Δ (dfl_full_comp_cat_univ Δ))
-              (γ : (Γ : hSet))
-    : set_comp_cat_tm_to_sec (t [[ s ]]tm ↑ sub_dfl_comp_cat_univ s) γ
-      =
-      set_comp_cat_tm_to_sec t (s γ).
-  Proof.
-    etrans.
-    {
-      refine (maponpaths (λ z, set_comp_cat_tm_to_sec z γ) _).
-      exact (set_univ_tm_subst_eq s t).
-    }
-    rewrite set_comp_cat_sec_to_tm_to_sec.
-    apply idpath.
-  Qed.
-
-  Proposition set_comp_cat_univ_el_stable_inv
-              {Γ Δ : set_dfl_full_comp_cat_with_univ}
-              (s : Γ --> Δ)
-              (t : tm Δ (dfl_full_comp_cat_univ Δ))
-    : comp_cat_univ_el_stable_inv
-        (dfl_full_comp_cat_el set_dfl_full_comp_cat_with_univ)
-        s
-        t
-      =
-      λ γ, set_universe_eq (set_comp_cat_univ_el_stable_inv_path s t γ).
-  Proof.
-    use funextsec ; intro γ.
-    use funextsec ; intro x.
-    cbn.
-    apply set_universe_eq_path.
-  Qed.
-
-  Proposition set_comp_cat_univ_el_stable_mor
-              {Γ Δ : set_dfl_full_comp_cat_with_univ}
-              (s : Γ --> Δ)
-              (t : tm Δ (dfl_full_comp_cat_univ Δ))
-              (γ : (Γ : hSet))
-    : comp_cat_univ_el_stable_mor
-        (dfl_full_comp_cat_el set_dfl_full_comp_cat_with_univ)
-        s
-        t
-        γ
-      =
-      set_universe_eq (!(set_comp_cat_univ_el_stable_inv_path s t γ)).
-  Proof.
-    use funextsec ; intro x.
-    apply set_universe_eq_path.
-  Qed.
-   *)
 End PresheafUniverse.
