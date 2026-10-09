@@ -2,7 +2,7 @@
 
  Left adjoints and NNOs
 
- Every left adjoint that preserves terminal objects maps natural numbes objects to natural
+ Every left adjoint that preserves terminal objects maps natural numbers objects to natural
  numbers objects. We can use this as a method to construct natural numbers in some category.
  In this file, we give this construction.
 
