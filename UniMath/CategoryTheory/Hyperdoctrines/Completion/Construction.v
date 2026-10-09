@@ -12,7 +12,7 @@
     These statements have been proven in the file `Completion.WeakEquivs`.
 
  The following observation is important: the Rezk completion of a tripos in general only
- gives a weak tripos. The difference between triposes and triposes lies in how we specify
+ gives a weak tripos. The difference between triposes and weak triposes lies in how we specify
  the comprehension operation. For a tripos, comprehension is given as an actual term,
  but for a weak tripos, comprehension is expressed as an axiom (see Axiom CA in 'Tripos
  Theory in Retrospect'). We can thus only acquire comprehension in a weak tripos in a
