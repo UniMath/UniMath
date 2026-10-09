@@ -5,7 +5,7 @@
  We show that every first-order hyperdoctrine admits a Rezk completion that is again
  a first-order hyperdoctrine. To do so, we take two steps.
  1. Starting with a displayed category `D` whose displayed morphisms are propositions,
-    We construct a new displayed category where we quotient the objects. Two objects
+    we construct a new displayed category where we quotient the objects. Two objects
     are identified if we have an isomorphism between them. We also show that we have a
     weak equivalence to the displayed category that we constructed.
  2. We show that the resulting category has the structure of a first-order hyperdoctrine.
