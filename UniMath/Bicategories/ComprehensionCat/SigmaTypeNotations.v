@@ -5,7 +5,7 @@
  In the file `DFLCompCatNotations` we gave some basic accessors for ∑-types in DFL
  comprehension categories. In this file, we give more accessors for ∑-types. These
  accessors include the stability conditions of pairing and projection. It is worth
- that those statements do not immediately follow from the Beck-Chevalley condition.
+ noting that those statements do not immediately follow from the Beck-Chevalley condition.
 
  Content
  1. Preliminary definitions
