@@ -14,7 +14,7 @@
  sheaf of all singletons, where a singleton is defined to be a function `f` from
  `X` to `H` such that
  - If `f x` and `x ~ y`, then `f y` (i.e., `f` respects equality)
- - If `f x` and `f y`, then `x ~ y` (i.e., `f` is a ssingleton)
+ - If `f x` and `f y`, then `x ~ y` (i.e., `f` is a singleton)
  In essence, `f` represents a predicate on `X` valued in `H` and that predicate is
  a singleton. We also keep track of the extent: we have `ω : H`, and we require
  - We have `f x ≤ ω`
