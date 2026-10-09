@@ -4,7 +4,7 @@
 
  In other files, we defined universe types for comprehension categories and we defined when
  a full comprehension category supports ∏-types. In this file, we define when a universe is
- closed under ∏-types. To do so, we follow the same ideas as for other types formers.
+ closed under ∏-types. To do so, we follow the same ideas as for other type formers.
  Specifically, we first define when a universe contains codes for ∏-types. We formulate that
  by saying that whenever we have types `a` and `b` in the universe where `b` depends on `a`,
  then their dependent product also lies in the universe, meaning that we have another term
