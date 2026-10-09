@@ -52,7 +52,7 @@ Section InductivePER.
   Context {H : weak_tripos}
           (N : first_order_hyperdoctrine_nats H).
 
-  (** * 1, Preliminary notions *)
+  (** * 1. Preliminary notions *)
   Proposition closed_suc_on_suc
               {Γ : ty H}
               {Δ : form Γ}
