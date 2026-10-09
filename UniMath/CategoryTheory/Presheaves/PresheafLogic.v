@@ -6,7 +6,7 @@
  of higher-order logic. One nice aspect about this model is that we can give nice and
  concrete descriptions of the connectives, and in particular, we can check the validity
  of logical statements using Kripke-Joyal semantics. In this file, we establish the basic
- facts about logic in the presheaf model. We define predicate via terms of the subobject
+ facts about logic in the presheaf model. We define predicates via terms of the subobject
  classifier and we simplify the description of each of the connectives. Finally, we
  describe the forcing relation used in Kripke-Joyal semantics.
 
