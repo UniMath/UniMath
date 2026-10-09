@@ -22,7 +22,7 @@
  We look at both generic predicates and weak generic predicates. The difference between them
  is that weak generic predicates are formulated using an axiom. Specifically, every formula
  gives rise to a term of type `Ω` if we have a generic predicate, and this assignment gives
- us an actual operation on formulas. For weak generic predicate,s we use the existential
+ us an actual operation on formulas. For weak generic predicates, we use the existential
  quantifier instead.
 
  References
