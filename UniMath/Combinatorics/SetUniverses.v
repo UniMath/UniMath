@@ -9,7 +9,7 @@
  universes of sets.
 
  While the type `hSet` of sets is not a set itself, there are various alternative
- constructions in homotopy type theory that allows one to construct an actual universe
+ constructions in homotopy type theory that allow one to construct an actual universe
  of sets that is a set itself. These constructions are iterative sets and induction
  recursion. Note that induction-recursion requires one to assume a class of inductive
  types that are not supported by Rocq, one can construct the type of iterative sets
